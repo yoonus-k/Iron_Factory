@@ -1,0 +1,574 @@
+  /* Course Details Wrapper */
+  .course-details-wrapper {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+  }
+
+  /* Course Header */
+  .course-header-top {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+  }
+
+  .course-title-section {
+      flex: 1;
+      min-width: 250px;
+  }
+
+  .course-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--dark);
+      margin: 0.5rem 0;
+  }
+
+  .course-code {
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin: 0;
+  }
+
+  .featured-badge {
+      background: var(--primary);
+      color: #fff;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+  }
+
+  .course-description {
+      color: var(--text);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+  }
+
+  /* Info Cards Grid */
+  .course-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+  }
+
+  .info-card {
+      /* background: rgba(255, 255, 255, 0.5); */
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+  }
+
+  .info-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .info-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.6rem;
+  }
+
+  .info-icon {
+      font-size: 1.3rem;
+  }
+
+  .info-title {
+      font-weight: 700;
+      color: var(--dark);
+      font-size: 0.9rem;
+      margin: 0;
+  }
+
+  .info-value {
+      color: var(--text);
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0;
+      padding-right: 2rem;
+  }
+
+  .info-value.price {
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 1.1rem;
+  }
+
+  /* Details Section */
+  .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+  }
+
+  .details-card {
+      /* background: rgba(255, 255, 255, 0.3); */
+      padding: 1.3rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+  }
+
+  .details-title {
+      font-weight: 800;
+      color: var(--dark);
+      margin: 0 0 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.1rem;
+  }
+
+  .details-icon {
+      font-size: 1.3rem;
+  }
+
+  .details-text {
+      color: var(--text);
+      line-height: 1.7;
+      margin: 0;
+      font-size: 0.95rem;
+  }
+
+  /* Schedules Section */
+  .schedules-section {
+      margin-top: 1.5rem;
+  }
+
+  .section-title {
+      font-weight: 900;
+      color: var(--dark);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1.3rem;
+  }
+
+  .section-icon {
+      font-size: 1.5rem;
+  }
+
+  .schedules-list {
+      display: grid;
+      gap: 1.2rem;
+  }
+
+  /* Schedule Card */
+  .schedule-card {
+      /* background: rgba(255, 255, 255, 0.6); */
+      padding: 1.3rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+  }
+
+  .schedule-card:hover {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  }
+
+  .schedule-content {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1.5rem;
+      align-items: center;
+  }
+
+  .schedule-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+  }
+
+  .schedule-info-item {
+      background: rgba(0, 0, 0, 0.02);
+      padding: 0.9rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+  }
+
+  .schedule-info-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.6rem;
+      color: var(--text-light);
+      font-size: 0.85rem;
+      font-weight: 600;
+  }
+
+  .schedule-info-icon {
+      font-size: 1rem;
+  }
+
+  .schedule-info-day {
+      color: var(--dark);
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin: 0 0 0.3rem 0;
+  }
+
+  .schedule-info-date {
+      color: var(--text-light);
+      font-size: 0.85rem;
+      margin: 0;
+  }
+
+  .schedule-info-location {
+      color: var(--dark);
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin: 0;
+      line-height: 1.5;
+  }
+
+  /* Registration Section */
+  .schedule-registration {
+      text-align: center;
+      min-width: 140px;
+      align-items: start;
+  }
+
+  .available-seats {
+      background: var(--primary);
+      padding: 0.6rem 1rem;
+      border-radius: 10px;
+      margin-bottom: 0.8rem;
+      text-align: center;
+  }
+
+  .seats-count {
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      display: block;
+      margin-bottom: 0.2rem;
+  }
+
+  .seats-label {
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 0.8rem;
+      font-weight: 600;
+  }
+
+  .register-btn {
+      width: 100%;
+      padding: 0.7rem 1.2rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.3s ease;
+  }
+
+  .register-btn:hover {
+      transform: scale(1.03);
+  }
+
+  /* Schedule Footer */
+  .schedule-footer {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+  }
+
+  .schedule-end-date {
+      color: var(--text-light);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin: 0;
+  }
+
+  .schedule-end-date strong {
+      color: var(--text);
+  }
+
+  /* No Schedules */
+  .no-schedules {
+      text-align: center;
+      padding: 2rem;
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+  }
+
+  .no-schedules-icon {
+      font-size: 3rem;
+      margin-bottom: 0.8rem;
+  }
+
+  .no-schedules-title {
+      font-weight: 800;
+      color: var(--dark);
+      margin: 0 0 0.5rem 0;
+      font-size: 1.2rem;
+  }
+
+  .no-schedules-text {
+      color: var(--text-light);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 0;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 992px) {
+
+
+      .schedule-content {
+          grid-template-columns: 1fr;
+      }
+
+      .schedule-registration {
+          display: grid;
+          grid-template-columns: auto 1fr;
+          gap: 1rem;
+          align-items: center;
+          text-align: right;
+          min-width: auto;
+          align-items: start;
+      }
+
+      .register-btn {
+          width: auto;
+          padding: 0.7rem 1.5rem;
+      }
+  }
+
+  @media (max-width: 768px) {
+      .course-title-section {
+          text-align: center;
+      }
+
+      .course-title {
+          font-size: 1.3rem;
+      }
+
+      .course-info-grid {
+          grid-template-columns: repeat(2, 1fr);
+      }
+
+      .details-grid {
+          grid-template-columns: 1fr;
+      }
+
+      .schedule-info-grid {
+          grid-template-columns: 1fr;
+      }
+
+      .section-title {
+          font-size: 1.2rem;
+      }
+  }
+
+  @media (max-width: 480px) {
+      .course-title-section {
+          text-align: center;
+      }
+
+      .course-info-grid {
+          grid-template-columns: 1fr;
+      }
+
+      .schedule-registration {
+          grid-template-columns: 1fr;
+          gap: 0.8rem;
+      }
+
+      .register-btn {
+          width: 100%;
+      }
+  }
+
+  .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+
+  .modal-content {
+      background: var(--bg);
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      max-height: 90vh;
+      overflow-y: auto;
+  }
+
+  /* Custom scrollbar for modal */
+  .modal-content::-webkit-scrollbar {
+      width: 8px;
+  }
+
+  .modal-content::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+  }
+
+  .modal-content::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 4px;
+  }
+
+  .modal-content::-webkit-scrollbar-thumb:hover {
+      background: #257e7e;
+  }
+
+  .close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #aaa;
+  }
+
+  .close:hover {
+      color: #000;
+  }
+
+  .form-group {
+      margin-bottom: 15px;
+  }
+
+  .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box;
+  }
+
+  .form-row {
+      display: flex;
+      gap: 10px;
+  }
+
+  .col-md-6 {
+      flex: 1;
+  }
+
+  .amount-display {
+      font-size: 24px;
+      font-weight: bold;
+      color: #007bff;
+      margin: 10px 0;
+  }
+
+  .error-message {
+      color: #dc3545;
+      margin-top: 10px;
+  }
+
+  .success-message {
+      color: #28a745;
+      margin-top: 10px;
+  }
+
+  .h2-title {
+
+      margin-top: 0;
+      text-align: center;
+  }
+
+  label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+      color: #495057;
+  }
+
+  .article-content {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text);
+  }
+
+  .article-content h2 {
+      font-size: 1.5rem;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      color: var(--dark);
+  }
+
+  .article-content h3 {
+      font-size: 1.3rem;
+      margin-top: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--dark);
+  }
+
+  .article-content p {
+      margin-bottom: 1rem;
+  }
+
+  .article-content ul,
+  .article-content ol {
+      margin-bottom: 1rem;
+      padding-right: 2rem;
+  }
+
+  .article-content li {
+      margin-bottom: 0.5rem;
+  }
+
+  .article-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1rem 0;
+  }
+
+  .article-content blockquote {
+      border-right: 4px solid var(--primary);
+      padding: 1rem;
+      margin: 1rem 0;
+      background-color: var(--background-light);
+      border-radius: 0 8px 8px 0;
+  }
+
+  .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+  }
+
+  .tag {
+      background-color: var(--primary);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+  }
+
+  @media (max-width: 768px) {
+      .course-title {
+          font-size: 1.5rem;
+      }
+  }

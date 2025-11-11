@@ -1,0 +1,264 @@
+        /* Modern Consultation Card Styles */
+        .consultation-card {
+            position: relative;
+            overflow: visible;
+            padding: 1.25rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .consultation-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(45, 153, 153, 0.18);
+        }
+
+        /* Icon Wrapper with Gradient Background */
+        .card-icon-wrapper {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            margin: -2rem auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(45, 153, 153, 0.18);
+            transition: all 0.3s ease;
+        }
+
+        .consultation-card:hover .card-icon-wrapper {
+            transform: scale(1.08) rotate(3deg);
+            box-shadow: 0 10px 25px rgba(45, 153, 153, 0.25);
+        }
+
+        .card-icon-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 14px;
+            opacity: 0.95;
+        }
+
+        /* Color Schemes - متوافقة مع ألوان الموقع */
+        .icon-primary .card-icon-bg {
+            background: linear-gradient(135deg, #2D9999 0%, #00D9D9 100%);
+        }
+
+        .icon-dark .card-icon-bg {
+            background: linear-gradient(135deg, #0A2342 0%, #1E3A5F 100%);
+        }
+
+        .icon-accent .card-icon-bg {
+            background: linear-gradient(135deg, #00D9D9 0%, #2D9999 100%);
+        }
+
+        .icon-teal .card-icon-bg {
+            background: linear-gradient(135deg, #2D9999 0%, #16a34a 100%);
+        }
+
+        .icon-blue .card-icon-bg {
+            background: linear-gradient(135deg, #1E3A5F 0%, #2D9999 100%);
+        }
+
+        .icon-success .card-icon-bg {
+            background: linear-gradient(135deg, #16a34a 0%, #2D9999 100%);
+        }
+
+        .icon-light .card-icon-bg {
+            background: linear-gradient(135deg, #2D9999 0%, #6B7C8E 100%);
+        }
+
+        .icon-ocean .card-icon-bg {
+            background: linear-gradient(135deg, #00D9D9 0%, #0A2342 100%);
+        }
+
+        .card-icon-large {
+            font-size: 1.75rem;
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+        }
+
+        /* Category Badge */
+        .consultation-badge {
+            display: inline-block;
+            padding: 0.3rem 0.75rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: white;
+        }
+
+        .consultation-badge.icon-primary {
+            background: linear-gradient(135deg, #2D9999 0%, #00D9D9 100%);
+        }
+
+        .consultation-badge.icon-dark {
+            background: linear-gradient(135deg, #0A2342 0%, #1E3A5F 100%);
+        }
+
+        .consultation-badge.icon-accent {
+            background: linear-gradient(135deg, #00D9D9 0%, #2D9999 100%);
+        }
+
+        .consultation-badge.icon-teal {
+            background: linear-gradient(135deg, #2D9999 0%, #16a34a 100%);
+        }
+
+        .consultation-badge.icon-blue {
+            background: linear-gradient(135deg, #1E3A5F 0%, #2D9999 100%);
+        }
+
+        .consultation-badge.icon-success {
+            background: linear-gradient(135deg, #16a34a 0%, #2D9999 100%);
+        }
+
+        .consultation-badge.icon-light {
+            background: linear-gradient(135deg, #2D9999 0%, #6B7C8E 100%);
+        }
+
+        .consultation-badge.icon-ocean {
+            background: linear-gradient(135deg, #00D9D9 0%, #0A2342 100%);
+        }
+
+        /* Title and Description */
+        .consultation-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .consultation-description {
+            color: var(--text-light);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Modern Details */
+        .card-details-modern {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.9rem;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+
+        .detail-item-modern {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .detail-icon {
+            font-size: 1.2rem;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .detail-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            flex: 1;
+        }
+
+        .detail-label-modern {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .detail-value-modern {
+            font-size: 0.9rem;
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .price-highlight {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.05rem;
+        }
+
+        /* Modern Button */
+        .btn-register-modern {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 12px rgba(45, 153, 153, 0.25);
+        }
+
+        .btn-register-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(45, 153, 153, 0.4);
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+        }
+
+        .arrow-icon {
+            transition: transform 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-register-modern:hover .arrow-icon {
+            transform: translateX(-5px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .consultation-card {
+                padding: 1rem;
+            }
+
+            .card-icon-wrapper {
+                width: 50px;
+                height: 50px;
+                margin: -1.75rem auto 0.75rem;
+            }
+
+            .card-icon-large {
+                font-size: 1.5rem;
+            }
+
+            .consultation-title {
+                font-size: 1rem;
+            }
+
+            .consultation-description {
+                font-size: 0.85rem;
+            }
+
+            .card-details-modern {
+                padding: 0.75rem;
+                gap: 0.6rem;
+            }
+
+            .detail-icon {
+                font-size: 1rem;
+            }
+
+            .btn-register-modern {
+                padding: 0.7rem;
+                font-size: 0.85rem;
+            }
+        }

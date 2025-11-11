@@ -1,0 +1,432 @@
+.container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header */
+.page-header {
+    background: white;
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border-right: 4px solid #3b82f6;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex: 1;
+}
+
+.course-icon {
+    width: 60px;
+    height: 60px;
+    background: #3b82f6;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: white;
+}
+
+.header-info h1 {
+    font-size: 26px;
+    color: #0f172a;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.badges {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.badge svg {
+    width: 14px;
+    height: 14px;
+}
+
+.badge.category {
+    background: #ede9fe;
+    color: #6b21a8;
+}
+
+.badge.active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge.inactive {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.badge.featured {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-edit {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #2563eb;
+}
+
+.btn-back {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.btn-back:hover {
+    background: #e2e8f0;
+}
+
+/* Grid */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Cards */
+.card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.card-header {
+    background: #f8fafc;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-icon.primary {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.card-icon.success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.card-icon.warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.card-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Info Items */
+.info-item {
+    display: flex;
+    padding: 14px 0;
+    border-bottom: 1px solid #f1f5f9;
+    gap: 20px;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.info-label {
+    min-width: 150px;
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-label svg {
+    width: 16px;
+    height: 16px;
+}
+
+.info-value {
+    flex: 1;
+    font-size: 15px;
+    color: #0f172a;
+    font-weight: 500;
+}
+
+/* Schedule */
+.schedule-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.schedule-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 18px;
+}
+
+.schedule-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.schedule-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.schedule-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.schedule-body .info-item {
+    padding: 8px 0;
+    gap: 12px;
+}
+
+.schedule-body .info-label {
+    min-width: 110px;
+    font-size: 13px;
+}
+
+.schedule-body .info-value {
+    font-size: 14px;
+}
+
+/* Status */
+.status {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.status.active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status.inactive {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.status.featured {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* Image */
+.course-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+}
+
+/* Actions */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.action-btn {
+    padding: 18px;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.action-btn:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.action-btn.activate {
+    border-color: #86efac;
+}
+
+.action-btn.activate:hover {
+    background: #f0fdf4;
+    border-color: #4ade80;
+}
+
+.action-btn.deactivate {
+    border-color: #cbd5e1;
+}
+
+.action-btn.deactivate:hover {
+    background: #f8fafc;
+}
+
+.action-btn.delete {
+    border-color: #fca5a5;
+}
+
+.action-btn.delete:hover {
+    background: #fef2f2;
+    border-color: #f87171;
+}
+
+.action-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.action-btn.activate .action-icon {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.action-btn.deactivate .action-icon {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.action-btn.delete .action-icon {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.action-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.action-text h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #0f172a;
+}
+
+.action-text p {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #94a3b8;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .info-item {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .info-label {
+        min-width: auto;
+    }
+
+    .schedule-body {
+        grid-template-columns: 1fr;
+    }
+}

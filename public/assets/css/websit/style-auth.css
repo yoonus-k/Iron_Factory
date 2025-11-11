@@ -1,0 +1,137 @@
+        * {
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            transition: all 0.3s ease;
+        }
+
+        /* Light Theme */
+        body.light {
+            --primary: #2D9999;
+            --accent: #00D9D9;
+            --text: #1E3A5F;
+            --text-light: #6B7C8E;
+            --bg: #FFFFFF;
+            --bg-light: #F8FCFD;
+            --bg-gradient-start: #14b8a6;
+            --bg-gradient-mid: #0d9488;
+            --bg-gradient-end: #0f766e;
+            --border: rgba(45, 153, 153, 0.12);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --input-bg: #FFFFFF;
+            --input-border: #e5e7eb;
+        }
+
+        /* Dark Theme */
+        body.dark {
+            --primary: #2D9999;
+            --accent: #00D9D9;
+            --text: #d0e3ff;
+            --text-light: #9bb0c9;
+            --bg: #0b1220;
+            --bg-light: #0f172a;
+            --bg-gradient-start: #0f172a;
+            --bg-gradient-mid: #0d4a47;
+            --bg-gradient-end: #1e293b;
+            --border: rgba(148, 163, 184, 0.15);
+            --card-bg: rgba(15, 23, 42, 0.9);
+            --input-bg: rgba(30, 41, 59, 0.5);
+            --input-border: #334155;
+        }
+
+        .fingerprint-pattern {
+            background: linear-gradient(180deg, var(--bg-gradient-start), var(--bg-gradient-mid), var(--bg-gradient-end));
+        }
+
+        .glass-effect {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-focus:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 217, 217, 0.2);
+        }
+
+        .btn-hover:hover {
+            transform: translateY(-2px);
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            width: 20px;
+            height: 20px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            color: var(--accent);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            border-color: var(--accent);
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .light .right-section {
+            background: var(--bg);
+        }
+
+        .dark .right-section {
+            background: var(--bg-light);
+        }
+
+        @media (max-width: 1023px) {
+            .split-container {
+                display: flex;
+                flex-direction: column;
+            }
+        }
