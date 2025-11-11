@@ -1,0 +1,244 @@
+Issue Type,Parent,Parent Story,Summary,Assigned To,Estimated Hours,Status,Sprint
+Sub-task,IF-55,As a developer I want to setup Laravel project structure,Install Laravel 10+ via composer,Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-55,As a developer I want to setup Laravel project structure,Configure .env file with database credentials,Backend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-55,As a developer I want to setup Laravel project structure,Setup Git repository and initial commit,Backend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-55,As a developer I want to setup Laravel project structure,Test Laravel installation with artisan serve,Backend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-56,As a developer I want to configure API routing,Create routes/api.php with route groups,Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-56,As a developer I want to configure API routing,Setup API versioning (v1),Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-56,As a developer I want to configure API routing,Test routes with Postman,Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-57,As a developer I want to setup middleware,Install and configure CORS package,Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-57,As a developer I want to setup middleware,Create authentication middleware,Backend Dev,1.5h,To Do,Sprint 1
+Sub-task,IF-57,As a developer I want to setup middleware,Create request logging middleware,Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-58,As a developer I want to configure error handling,Create app/Exceptions/Handler.php customization,Backend Dev,1.5h,To Do,Sprint 1
+Sub-task,IF-58,As a developer I want to configure error handling,Implement JSON error responses,Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-59,As a developer I want to setup API response structure,Create API response trait/helper,Backend Dev,1.5h,To Do,Sprint 1
+Sub-task,IF-59,As a developer I want to setup API response structure,Standardize status codes across controllers,Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-60,As a warehouse manager I want to add raw materials via API,Create Material model with schema,Backend Dev,2h,To Do,Sprint 2
+Sub-task,IF-60,As a warehouse manager I want to add raw materials via API,Create MaterialController with store method,Backend Dev,2h,To Do,Sprint 2
+Sub-task,IF-60,As a warehouse manager I want to add raw materials via API,Implement validation rules (FormRequest),Backend Dev,2h,To Do,Sprint 2
+Sub-task,IF-60,As a warehouse manager I want to add raw materials via API,Integrate barcode generation on creation,Backend Dev,3h,To Do,Sprint 2
+Sub-task,IF-60,As a warehouse manager I want to add raw materials via API,Write API tests for material creation,QA Dev,2h,To Do,Sprint 2
+Sub-task,IF-60,As a warehouse manager I want to add raw materials via API,Document API endpoint in Swagger,Backend Dev,1h,To Do,Sprint 2
+Sub-task,IF-61,As a warehouse manager I want to view all materials,Implement index method in MaterialController,Backend Dev,2h,To Do,Sprint 2
+Sub-task,IF-61,As a warehouse manager I want to view all materials,Add pagination with Laravel paginate(),Backend Dev,1h,To Do,Sprint 2
+Sub-task,IF-61,As a warehouse manager I want to view all materials,Implement filtering by status,Backend Dev,1.5h,To Do,Sprint 2
+Sub-task,IF-61,As a warehouse manager I want to view all materials,Add sorting functionality,Backend Dev,1h,To Do,Sprint 2
+Sub-task,IF-62,As a warehouse manager I want to view single material,Implement show method in MaterialController,Backend Dev,1h,To Do,Sprint 2
+Sub-task,IF-62,As a warehouse manager I want to view single material,Load relationships with eager loading,Backend Dev,1h,To Do,Sprint 2
+Sub-task,IF-62,As a warehouse manager I want to view single material,Include history data in response,Backend Dev,1h,To Do,Sprint 2
+Sub-task,IF-63,As a warehouse manager I want to update material info,Implement update method in MaterialController,Backend Dev,1.5h,To Do,Sprint 2
+Sub-task,IF-63,As a warehouse manager I want to update material info,Add validation rules for update,Backend Dev,1h,To Do,Sprint 2
+Sub-task,IF-63,As a warehouse manager I want to update material info,Prevent weight modification logic,Backend Dev,1h,To Do,Sprint 2
+Sub-task,IF-64,As a warehouse manager I want to search materials,Create search method in MaterialController,Backend Dev,2h,To Do,Sprint 2
+Sub-task,IF-64,As a warehouse manager I want to search materials,Implement barcode search with like query,Backend Dev,1h,To Do,Sprint 2
+Sub-task,IF-64,As a warehouse manager I want to search materials,Implement type filter,Backend Dev,1h,To Do,Sprint 2
+Sub-task,IF-65,As a developer I want material weight to auto-update,Create observer for Material model,Backend Dev,2h,To Do,Sprint 2
+Sub-task,IF-65,As a developer I want material weight to auto-update,Implement weight decrease logic,Backend Dev,2h,To Do,Sprint 2
+Sub-task,IF-65,As a developer I want material weight to auto-update,Update status based on remaining weight,Backend Dev,1.5h,To Do,Sprint 2
+Sub-task,IF-66,As a stage1 worker I want to create stands via API,Create Stand model with relationships,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-66,As a stage1 worker I want to create stands via API,Create Stage1Controller with store method,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-66,As a stage1 worker I want to create stands via API,Implement parent material linking,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-66,As a stage1 worker I want to create stands via API,Generate ST1 barcode,Backend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-66,As a stage1 worker I want to create stands via API,Calculate and store waste,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-67,As a stage1 worker I want to view all stands,Implement index method in Stage1Controller,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-67,As a stage1 worker I want to view all stands,Add pagination and filters,Backend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-68,As a stage2 worker I want to process stands,Create Stage2 model and controller,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-68,As a stage2 worker I want to process stands,Link to ST1 barcode,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-68,As a stage2 worker I want to process stands,Generate ST2 barcode,Backend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-69,As a stage3 worker I want to create coils,Create Coil model with relationships,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-69,As a stage3 worker I want to create coils,Create Stage3Controller,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-69,As a stage3 worker I want to create coils,Generate CO3 barcode,Backend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-69,As a stage3 worker I want to create coils,Add color and size fields,Backend Dev,1h,To Do,Sprint 3
+Sub-task,IF-70,As a stage3 worker I want to view all coils,Implement index method with filters,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-70,As a stage3 worker I want to view all coils,Filter by color and size,Backend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-71,As a stage4 worker I want to create boxes,Create Box model with relationships,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-71,As a stage4 worker I want to create boxes,Create Stage4Controller,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-71,As a stage4 worker I want to create boxes,Link multiple coils to box,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-71,As a stage4 worker I want to create boxes,Generate BOX4 barcode,Backend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-72,As a stage4 worker I want to mark box as shipped,Implement ship method in Stage4Controller,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-72,As a stage4 worker I want to mark box as shipped,Add shipping info fields,Backend Dev,1h,To Do,Sprint 3
+Sub-task,IF-72,As a stage4 worker I want to mark box as shipped,Update status to shipped,Backend Dev,1h,To Do,Sprint 3
+Sub-task,IF-73,As a developer I want validation for stage transitions,Create validation rules for parent existence,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-73,As a developer I want validation for stage transitions,Validate weights across stages,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-73,As a developer I want validation for stage transitions,Prevent double-use with unique constraints,Backend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-74,As a manager I want to track product by barcode,Create TrackingController,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-74,As a manager I want to track product by barcode,Implement recursive chain retrieval,Backend Dev,4h,To Do,Sprint 3
+Sub-task,IF-74,As a manager I want to track product by barcode,Include all stages in response,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-74,As a manager I want to track product by barcode,Test with different barcode types,QA Dev,2h,To Do,Sprint 3
+Sub-task,IF-75,As a manager I want to view product history,Create history method in ProductController,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-75,As a manager I want to view product history,Retrieve timestamps for each stage,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-75,As a manager I want to view product history,Format transitions data,Backend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-76,As a manager I want to search products,Implement search endpoint,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-76,As a manager I want to search products,Add barcode search functionality,Backend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-76,As a manager I want to search products,Add date range filter,Backend Dev,2h,To Do,Sprint 3
+Sub-task,IF-77,As a developer I want to log all operations,Create ActivityLog model,Backend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-77,As a developer I want to log all operations,Implement logging in all controllers,Backend Dev,3h,To Do,Sprint 3
+Sub-task,IF-78,As a developer I want to setup React/Vue project,Install React/Vue via npm,Frontend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-78,As a developer I want to setup React/Vue project,Configure ESLint and Prettier,Frontend Dev,1h,To Do,Sprint 1
+Sub-task,IF-78,As a developer I want to setup React/Vue project,Create folder structure (components views utils),Frontend Dev,1h,To Do,Sprint 1
+Sub-task,IF-78,As a developer I want to setup React/Vue project,Setup package.json scripts,Frontend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-79,As a developer I want to configure routing,Install React Router/Vue Router,Frontend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-79,As a developer I want to configure routing,Define routes for all pages,Frontend Dev,1.5h,To Do,Sprint 1
+Sub-task,IF-79,As a developer I want to configure routing,Create navigation menu component,Frontend Dev,2h,To Do,Sprint 1
+Sub-task,IF-80,As a developer I want to setup state management,Install Vuex/Redux,Frontend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-80,As a developer I want to setup state management,Create store modules (auth user materials),Frontend Dev,2h,To Do,Sprint 1
+Sub-task,IF-80,As a developer I want to setup state management,Define actions and mutations,Frontend Dev,1.5h,To Do,Sprint 1
+Sub-task,IF-81,As a developer I want to configure API client,Install and configure Axios,Frontend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-81,As a developer I want to configure API client,Setup base URL and interceptors,Frontend Dev,1h,To Do,Sprint 1
+Sub-task,IF-81,As a developer I want to configure API client,Add auth token to headers,Frontend Dev,1h,To Do,Sprint 1
+Sub-task,IF-82,As a developer I want to setup UI component library,Install Vuetify/Material-UI,Frontend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-82,As a developer I want to setup UI component library,Configure theme colors,Frontend Dev,1h,To Do,Sprint 1
+Sub-task,IF-82,As a developer I want to setup UI component library,Create base components (Button Card Table),Frontend Dev,1.5h,To Do,Sprint 1
+Sub-task,IF-83,As a manager I want to see dashboard KPIs,Create Dashboard component,Frontend Dev,2h,To Do,Sprint 3
+Sub-task,IF-83,As a manager I want to see dashboard KPIs,Fetch KPI data from API,Frontend Dev,2h,To Do,Sprint 3
+Sub-task,IF-83,As a manager I want to see dashboard KPIs,Display KPI cards with icons,Frontend Dev,2h,To Do,Sprint 3
+Sub-task,IF-84,As a manager I want to see production chart,Install Chart.js,Frontend Dev,0.5h,To Do,Sprint 3
+Sub-task,IF-84,As a manager I want to see production chart,Create line chart component,Frontend Dev,2h,To Do,Sprint 3
+Sub-task,IF-84,As a manager I want to see production chart,Fetch 7 days production data,Frontend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-84,As a manager I want to see production chart,Add interactive tooltips,Frontend Dev,1h,To Do,Sprint 3
+Sub-task,IF-85,As a manager I want to see waste distribution,Create pie chart component,Frontend Dev,2h,To Do,Sprint 3
+Sub-task,IF-85,As a manager I want to see waste distribution,Fetch waste distribution data,Frontend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-85,As a manager I want to see waste distribution,Color-code chart by stage,Frontend Dev,1h,To Do,Sprint 3
+Sub-task,IF-86,As a manager I want to see recent activities,Create recent activities component,Frontend Dev,2h,To Do,Sprint 3
+Sub-task,IF-86,As a manager I want to see recent activities,Fetch last 10 operations,Frontend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-86,As a manager I want to see recent activities,Add click to view details,Frontend Dev,1h,To Do,Sprint 3
+Sub-task,IF-87,As a manager I want dashboard to auto-refresh,Implement auto-refresh with setInterval,Frontend Dev,2h,To Do,Sprint 3
+Sub-task,IF-87,As a manager I want dashboard to auto-refresh,Add visual countdown indicator,Frontend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-87,As a manager I want dashboard to auto-refresh,Add manual refresh button,Frontend Dev,0.5h,To Do,Sprint 3
+Sub-task,IF-88,As a warehouse manager I want a form to add materials,Design form component (Figma/Sketch),UI Designer,2h,To Do,Sprint 2
+Sub-task,IF-88,As a warehouse manager I want a form to add materials,Create React/Vue form component,Frontend Dev,3h,To Do,Sprint 2
+Sub-task,IF-88,As a warehouse manager I want a form to add materials,Implement form validation,Frontend Dev,2h,To Do,Sprint 2
+Sub-task,IF-88,As a warehouse manager I want a form to add materials,Connect to API endpoint,Frontend Dev,2h,To Do,Sprint 2
+Sub-task,IF-88,As a warehouse manager I want a form to add materials,Add success/error notifications,Frontend Dev,1h,To Do,Sprint 2
+Sub-task,IF-88,As a warehouse manager I want a form to add materials,Write component tests,QA Dev,2h,To Do,Sprint 2
+Sub-task,IF-89,As a warehouse manager I want to view materials table,Create materials table component,Frontend Dev,3h,To Do,Sprint 2
+Sub-task,IF-89,As a warehouse manager I want to view materials table,Implement sortable columns,Frontend Dev,2h,To Do,Sprint 2
+Sub-task,IF-89,As a warehouse manager I want to view materials table,Add pagination controls,Frontend Dev,2h,To Do,Sprint 2
+Sub-task,IF-89,As a warehouse manager I want to view materials table,Add search/filter inputs,Frontend Dev,2h,To Do,Sprint 2
+Sub-task,IF-90,As a warehouse manager I want to view barcode modal,Create barcode modal component,Frontend Dev,2h,To Do,Sprint 2
+Sub-task,IF-90,As a warehouse manager I want to view barcode modal,Display barcode/QR code image,Frontend Dev,1.5h,To Do,Sprint 2
+Sub-task,IF-90,As a warehouse manager I want to view barcode modal,Add print functionality,Frontend Dev,1.5h,To Do,Sprint 2
+Sub-task,IF-90,As a warehouse manager I want to view barcode modal,Add copy barcode button,Frontend Dev,1h,To Do,Sprint 2
+Sub-task,IF-91,As a warehouse manager I want to filter materials,Create filter component,Frontend Dev,2h,To Do,Sprint 2
+Sub-task,IF-91,As a warehouse manager I want to filter materials,Implement status filter dropdown,Frontend Dev,1h,To Do,Sprint 2
+Sub-task,IF-91,As a warehouse manager I want to filter materials,Implement date range picker,Frontend Dev,2h,To Do,Sprint 2
+Sub-task,IF-92,As a warehouse manager I want to export materials list,Install export library (XLSX FileSaver),Frontend Dev,0.5h,To Do,Sprint 2
+Sub-task,IF-92,As a warehouse manager I want to export materials list,Implement Excel export,Frontend Dev,2h,To Do,Sprint 2
+Sub-task,IF-92,As a warehouse manager I want to export materials list,Implement PDF export,Frontend Dev,2.5h,To Do,Sprint 2
+Sub-task,IF-93,As a database designer I want to create ER diagram,Research and identify all entities,Database Team,2h,To Do,Sprint 1
+Sub-task,IF-93,As a database designer I want to create ER diagram,Create ER diagram in draw.io/Lucidchart,Database Team,3h,To Do,Sprint 1
+Sub-task,IF-93,As a database designer I want to create ER diagram,Document constraints and rules,Database Team,1.5h,To Do,Sprint 1
+Sub-task,IF-94,As a database designer I want to design materials table,Define materials table columns,Database Team,1.5h,To Do,Sprint 1
+Sub-task,IF-94,As a database designer I want to design materials table,Set data types and constraints,Database Team,1h,To Do,Sprint 1
+Sub-task,IF-94,As a database designer I want to design materials table,Plan indexes for materials table,Database Team,0.5h,To Do,Sprint 1
+Sub-task,IF-95,As a database designer I want to design production tables,Design Stage1-4 tables structure,Database Team,2h,To Do,Sprint 1
+Sub-task,IF-95,As a database designer I want to design production tables,Define foreign key relationships,Database Team,1.5h,To Do,Sprint 1
+Sub-task,IF-96,As a database designer I want to design users and auth tables,Design users and roles tables,Database Team,1.5h,To Do,Sprint 1
+Sub-task,IF-97,As a developer I want to create database in MySQL,Create MySQL database,Backend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-97,As a developer I want to create database in MySQL,Set charset to UTF8MB4,Backend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-98,As a developer I want to create all tables,Execute CREATE TABLE for all tables,Backend Dev,3h,To Do,Sprint 1
+Sub-task,IF-98,As a developer I want to create all tables,Add NOT NULL and DEFAULT constraints,Backend Dev,1.5h,To Do,Sprint 1
+Sub-task,IF-98,As a developer I want to create all tables,Create indexes on key columns,Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-99,As a developer I want to setup foreign key relationships,Define foreign key constraints,Backend Dev,2h,To Do,Sprint 1
+Sub-task,IF-99,As a developer I want to setup foreign key relationships,Set ON DELETE CASCADE where appropriate,Backend Dev,1.5h,To Do,Sprint 1
+Sub-task,IF-100,As a developer I want to create Laravel migrations,Create migration files for each table,Backend Dev,2h,To Do,Sprint 1
+Sub-task,IF-100,As a developer I want to create Laravel migrations,Define up and down methods,Backend Dev,2h,To Do,Sprint 1
+Sub-task,IF-101,As a developer I want to test migrations,Run php artisan migrate,Backend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-101,As a developer I want to test migrations,Test rollback with migrate:rollback,Backend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-101,As a developer I want to test migrations,Verify schema in MySQL Workbench,Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-102,As a developer I want unique barcode format per stage,Create Barcode service class,Full Stack Dev,2h,To Do,Sprint 2
+Sub-task,IF-102,As a developer I want unique barcode format per stage,Define barcode format patterns,Full Stack Dev,1.5h,To Do,Sprint 2
+Sub-task,IF-102,As a developer I want unique barcode format per stage,Implement format validation,Full Stack Dev,1h,To Do,Sprint 2
+Sub-task,IF-103,As a developer I want auto-incrementing counters,Create barcode_counters table,Full Stack Dev,1h,To Do,Sprint 2
+Sub-task,IF-103,As a developer I want auto-incrementing counters,Implement auto-increment logic per stage,Full Stack Dev,2h,To Do,Sprint 2
+Sub-task,IF-103,As a developer I want auto-incrementing counters,Add yearly reset cron job,Full Stack Dev,1.5h,To Do,Sprint 2
+Sub-task,IF-104,As a system I want to prevent duplicate barcodes,Add unique constraint on barcode column,Full Stack Dev,0.5h,To Do,Sprint 2
+Sub-task,IF-104,As a system I want to prevent duplicate barcodes,Implement try-catch for collision handling,Full Stack Dev,2h,To Do,Sprint 2
+Sub-task,IF-104,As a system I want to prevent duplicate barcodes,Add retry logic with exponential backoff,Full Stack Dev,1.5h,To Do,Sprint 2
+Sub-task,IF-105,As a developer I want to parse barcodes,Create parseBarcode method,Full Stack Dev,2h,To Do,Sprint 2
+Sub-task,IF-105,As a developer I want to parse barcodes,Extract prefix number year using regex,Full Stack Dev,1.5h,To Do,Sprint 2
+Sub-task,IF-105,As a developer I want to parse barcodes,Add validation for parsed components,Full Stack Dev,1h,To Do,Sprint 2
+Sub-task,IF-106,As a system I want to store barcode metadata,Add metadata columns to barcode table,Full Stack Dev,1h,To Do,Sprint 2
+Sub-task,IF-106,As a system I want to store barcode metadata,Store generation timestamp and user,Full Stack Dev,1h,To Do,Sprint 2
+Sub-task,IF-107,As a worker I want to scan barcode with camera,Research barcode scanning libraries (QuaggaJS ZXing),Frontend Dev,2h,To Do,Sprint 3
+Sub-task,IF-107,As a worker I want to scan barcode with camera,Implement camera access permissions,Frontend Dev,2h,To Do,Sprint 3
+Sub-task,IF-107,As a worker I want to scan barcode with camera,Create barcode scanner component,Frontend Dev,4h,To Do,Sprint 3
+Sub-task,IF-107,As a worker I want to scan barcode with camera,Add barcode detection algorithm,Frontend Dev,3h,To Do,Sprint 3
+Sub-task,IF-107,As a worker I want to scan barcode with camera,Implement beep sound on successful scan,Frontend Dev,1h,To Do,Sprint 3
+Sub-task,IF-107,As a worker I want to scan barcode with camera,Add error handling for camera issues,Frontend Dev,2h,To Do,Sprint 3
+Sub-task,IF-107,As a worker I want to scan barcode with camera,Test on multiple devices,QA Dev,3h,To Do,Sprint 3
+Sub-task,IF-108,As a worker I want to manually enter barcode,Create manual entry form,Frontend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-108,As a worker I want to manually enter barcode,Add validation rules,Frontend Dev,1h,To Do,Sprint 3
+Sub-task,IF-108,As a worker I want to manually enter barcode,Implement auto-format as user types,Frontend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-109,As a worker I want scan history,Store scan history in localStorage,Frontend Dev,2h,To Do,Sprint 3
+Sub-task,IF-109,As a worker I want scan history,Display last 10 scans,Frontend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-109,As a worker I want scan history,Add quick re-scan button,Frontend Dev,1h,To Do,Sprint 3
+Sub-task,IF-109,As a worker I want scan history,Add clear history button,Frontend Dev,0.5h,To Do,Sprint 3
+Sub-task,IF-110,As a worker I want error handling for invalid scans,Create error message component,Frontend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-110,As a worker I want error handling for invalid scans,Suggest corrections based on format,Frontend Dev,1.5h,To Do,Sprint 3
+Sub-task,IF-110,As a worker I want error handling for invalid scans,Add retry scan button,Frontend Dev,0.5h,To Do,Sprint 3
+Sub-task,IF-112,As a developer I want to implement JWT authentication,Install tymon/jwt-auth package,Backend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-112,As a developer I want to implement JWT authentication,Configure JWT in config/jwt.php,Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-112,As a developer I want to implement JWT authentication,Create AuthController,Backend Dev,2h,To Do,Sprint 1
+Sub-task,IF-112,As a developer I want to implement JWT authentication,Generate JWT secret key,Backend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-113,As a user I want to login with credentials,Create login method in AuthController,Backend Dev,2h,To Do,Sprint 1
+Sub-task,IF-113,As a user I want to login with credentials,Validate credentials against database,Backend Dev,1.5h,To Do,Sprint 1
+Sub-task,IF-113,As a user I want to login with credentials,Return JWT token on success,Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-114,As a user I want to logout,Create logout method,Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-114,As a user I want to logout,Invalidate JWT token,Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-115,As a developer I want to protect routes with auth middleware,Create auth middleware,Backend Dev,2h,To Do,Sprint 1
+Sub-task,IF-115,As a developer I want to protect routes with auth middleware,Verify JWT token in middleware,Backend Dev,1.5h,To Do,Sprint 1
+Sub-task,IF-115,As a developer I want to protect routes with auth middleware,Return 401 for invalid tokens,Backend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-116,As a developer I want to define 4 user roles,Create roles table migration,Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-116,As a developer I want to define 4 user roles,Seed 4 roles (Admin Manager Worker Viewer),Backend Dev,1h,To Do,Sprint 1
+Sub-task,IF-117,As a developer I want to assign permissions to roles,Create permissions table,Backend Dev,1.5h,To Do,Sprint 1
+Sub-task,IF-117,As a developer I want to assign permissions to roles,Define permissions for each role,Backend Dev,2h,To Do,Sprint 1
+Sub-task,IF-118,As a system I want to check user permissions,Create permission middleware,Backend Dev,2h,To Do,Sprint 1
+Sub-task,IF-118,As a system I want to check user permissions,Check user role and permissions,Backend Dev,1.5h,To Do,Sprint 1
+Sub-task,IF-118,As a system I want to check user permissions,Return 403 for unauthorized access,Backend Dev,0.5h,To Do,Sprint 1
+Sub-task,IF-119,As a manager I want real-time production statistics,Create AnalyticsController,Full Stack Dev,1.5h,To Do,Sprint 4
+Sub-task,IF-119,As a manager I want real-time production statistics,Query total counts from database,Full Stack Dev,2h,To Do,Sprint 4
+Sub-task,IF-119,As a manager I want real-time production statistics,Return statistics in JSON format,Full Stack Dev,1h,To Do,Sprint 4
+Sub-task,IF-119,As a manager I want real-time production statistics,Create frontend component to display stats,Full Stack Dev,2h,To Do,Sprint 4
+Sub-task,IF-120,As a manager I want waste statistics,Calculate total waste across stages,Full Stack Dev,2h,To Do,Sprint 4
+Sub-task,IF-120,As a manager I want waste statistics,Calculate waste percentage,Full Stack Dev,1.5h,To Do,Sprint 4
+Sub-task,IF-120,As a manager I want waste statistics,Group waste by stage,Full Stack Dev,2h,To Do,Sprint 4
+Sub-task,IF-122,As a manager I want daily production report,Design daily report template,UI Designer,2h,To Do,Sprint 4
+Sub-task,IF-122,As a manager I want daily production report,Create ReportController with daily method,Full Stack Dev,2h,To Do,Sprint 4
+Sub-task,IF-122,As a manager I want daily production report,Query production data for specific date,Full Stack Dev,2h,To Do,Sprint 4
+Sub-task,IF-122,As a manager I want daily production report,Include waste summary in report,Full Stack Dev,1.5h,To Do,Sprint 4
+Sub-task,IF-122,As a manager I want daily production report,Create frontend report view,Full Stack Dev,3h,To Do,Sprint 4
+Sub-task,IF-123,As a manager I want weekly production report,Create weekly report method,Full Stack Dev,2h,To Do,Sprint 4
+Sub-task,IF-123,As a manager I want weekly production report,Query data for 7 days,Full Stack Dev,2h,To Do,Sprint 4
+Sub-task,IF-123,As a manager I want weekly production report,Calculate trend analysis,Full Stack Dev,2h,To Do,Sprint 4
+Sub-task,IF-123,As a manager I want weekly production report,Add charts to weekly report,Full Stack Dev,2h,To Do,Sprint 4
+Sub-task,IF-124,As a manager I want monthly production report,Create monthly report method,Full Stack Dev,2h,To Do,Sprint 4
+Sub-task,IF-124,As a manager I want monthly production report,Query data for month,Full Stack Dev,2h,To Do,Sprint 4
+Sub-task,IF-124,As a manager I want monthly production report,Create detailed breakdown by week,Full Stack Dev,2h,To Do,Sprint 4
+Sub-task,IF-126,As a developer I want unit tests for models,Setup PHPUnit in Laravel,QA Dev,1h,To Do,Sprint 4
+Sub-task,IF-126,As a developer I want unit tests for models,Write tests for Material model,QA Dev,3h,To Do,Sprint 4
+Sub-task,IF-126,As a developer I want unit tests for models,Write tests for all models,QA Dev,4h,To Do,Sprint 4
+Sub-task,IF-127,As a developer I want unit tests for controllers,Write tests for MaterialController,QA Dev,4h,To Do,Sprint 4
+Sub-task,IF-127,As a developer I want unit tests for controllers,Write tests for all controllers,QA Dev,6h,To Do,Sprint 4
+Sub-task,IF-128,As a developer I want API integration tests,Setup API testing environment,QA Dev,2h,To Do,Sprint 4
+Sub-task,IF-128,As a developer I want API integration tests,Write integration tests for all endpoints,QA Dev,8h,To Do,Sprint 4
+Sub-task,IF-129,As a developer I want component tests,Setup Jest/Vue Test Utils,QA Dev,2h,To Do,Sprint 4
+Sub-task,IF-129,As a developer I want component tests,Write component tests,QA Dev,8h,To Do,Sprint 4
+Sub-task,IF-130,As a client I want to test the system with real data,Prepare test scenarios document,QA Dev,2h,To Do,Sprint 4
+Sub-task,IF-130,As a client I want to test the system with real data,Conduct UAT sessions with client,QA Dev,4h,To Do,Sprint 4
+Sub-task,IF-130,As a client I want to test the system with real data,Document bugs and feedback,QA Dev,2h,To Do,Sprint 4
+Sub-task,IF-131,As a devops engineer I want to setup production server,Provision Ubuntu/CentOS server,DevOps Team,2h,To Do,Sprint 4
+Sub-task,IF-131,As a devops engineer I want to setup production server,Configure firewall rules,DevOps Team,1.5h,To Do,Sprint 4
+Sub-task,IF-131,As a devops engineer I want to setup production server,Install PHP MySQL Node.js,DevOps Team,2h,To Do,Sprint 4
+Sub-task,IF-132,As a devops engineer I want to install web server,Install Nginx web server,DevOps Team,1h,To Do,Sprint 4
+Sub-task,IF-132,As a devops engineer I want to install web server,Configure virtual hosts,DevOps Team,2h,To Do,Sprint 4
+Sub-task,IF-132,As a devops engineer I want to install web server,Test Nginx configuration,DevOps Team,1h,To Do,Sprint 4
+Sub-task,IF-133,As a devops engineer I want to migrate database to production,Export database from staging,DevOps Team,1h,To Do,Sprint 4
+Sub-task,IF-133,As a devops engineer I want to migrate database to production,Import database to production,DevOps Team,1.5h,To Do,Sprint 4
+Sub-task,IF-133,As a devops engineer I want to migrate database to production,Run migrations on production,DevOps Team,1h,To Do,Sprint 4
+Sub-task,IF-134,As a user I want user guide documentation,Write installation guide,Technical Writer,3h,To Do,Sprint 4
+Sub-task,IF-134,As a user I want user guide documentation,Document all features,Technical Writer,4h,To Do,Sprint 4
+Sub-task,IF-134,As a user I want user guide documentation,Create troubleshooting section,Technical Writer,2h,To Do,Sprint 4
+Sub-task,IF-135,As a user I want step-by-step tutorials,Write tutorial for adding materials,Technical Writer,2h,To Do,Sprint 4
+Sub-task,IF-135,As a user I want step-by-step tutorials,Write tutorial for tracking products,Technical Writer,2h,To Do,Sprint 4
+Sub-task,IF-135,As a user I want step-by-step tutorials,Write tutorial for generating reports,Technical Writer,2h,To Do,Sprint 4

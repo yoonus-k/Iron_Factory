@@ -1,0 +1,82 @@
+﻿Issue Type,Issue key,Summary,Point
+Story,IF-135,As a user I want step-by-step tutorials,5
+Story,IF-134,As a user I want user guide documentation,5
+Story,IF-133,As a devops engineer I want to migrate database to production,3
+Story,IF-132,As a devops engineer I want to install web server,3
+Story,IF-131,As a devops engineer I want to setup production server,5
+Story,IF-130,As a client I want to test the system with real data,5
+Story,IF-129,As a developer I want component tests,8
+Story,IF-128,As a developer I want API integration tests,8
+Story,IF-127,As a developer I want unit tests for controllers,8
+Story,IF-126,As a developer I want unit tests for models,5
+Story,IF-125,As a manager I want custom date range reports,3
+Story,IF-124,As a manager I want monthly production report,5
+Story,IF-123,As a manager I want weekly production report,5
+Story,IF-122,As a manager I want daily production report,5
+Story,IF-121,As a manager I want today's production summary,5
+Story,IF-120,As a manager I want waste statistics,5
+Story,IF-119,As a manager I want real-time production statistics,5
+Story,IF-118,As a system I want to check user permissions,3
+Story,IF-117,As a developer I want to assign permissions to roles,3
+Story,IF-116,As a developer I want to define 4 user roles,2
+Story,IF-115,As a developer I want to protect routes with auth middleware,3
+Story,IF-114,As a user I want to logout,2
+Story,IF-113,As a user I want to login with credentials,3
+Story,IF-112,As a developer I want to implement JWT authentication,5
+Story,IF-111,As a developer I want to support multiple barcode types,2
+Story,IF-110,As a worker I want error handling for invalid scans,3
+Story,IF-109,As a worker I want scan history,5
+Story,IF-108,As a worker I want to manually enter barcode,3
+Story,IF-107,As a worker I want to scan barcode with camera,8
+Story,IF-106,As a system I want to store barcode metadata,2
+Story,IF-105,As a developer I want to parse barcodes,2
+Story,IF-104,As a system I want to prevent duplicate barcodes,3
+Story,IF-103,As a developer I want auto-incrementing counters,3
+Story,IF-102,As a developer I want unique barcode format per stage,3
+Story,IF-101,As a developer I want to test migrations,2
+Story,IF-100,As a developer I want to create Laravel migrations,3
+Story,IF-99,As a developer I want to setup foreign key relationships,3
+Story,IF-98,As a developer I want to create all tables,5
+Story,IF-97,As a developer I want to create database in MySQL,2
+Story,IF-96,As a database designer I want to design users and auth tables,1
+Story,IF-95,As a database designer I want to design production tables,2
+Story,IF-94,As a database designer I want to design materials table,2
+Story,IF-93,As a database designer I want to create ER diagram,3
+Story,IF-92,As a warehouse manager I want to export materials list,5
+Story,IF-91,As a warehouse manager I want to filter materials,3
+Story,IF-90,As a warehouse manager I want to view barcode modal,3
+Story,IF-89,As a warehouse manager I want to view materials table,5
+Story,IF-88,As a warehouse manager I want a form to add materials,5
+Story,IF-87,As a manager I want dashboard to auto-refresh,5
+Story,IF-86,As a manager I want to see recent activities,3
+Story,IF-85,As a manager I want to see waste distribution,3
+Story,IF-84,As a manager I want to see production chart,5
+Story,IF-83,As a manager I want to see dashboard KPIs,5
+Story,IF-82,As a developer I want to setup UI component library,2
+Story,IF-81,As a developer I want to configure API client,2
+Story,IF-80,As a developer I want to setup state management,3
+Story,IF-79,As a developer I want to configure routing,3
+Story,IF-78,As a developer I want to setup React/Vue project,3
+Story,IF-77,As a developer I want to log all operations,3
+Story,IF-76,As a manager I want to search products,5
+Story,IF-75,As a manager I want to view product history,5
+Story,IF-74,As a manager I want to track product by barcode,8
+Story,IF-73,As a developer I want validation for stage transitions,5
+Story,IF-72,As a stage4 worker I want to mark box as shipped,3
+Story,IF-71,As a stage4 worker I want to create boxes,5
+Story,IF-70,As a stage3 worker I want to view all coils,3
+Story,IF-69,As a stage3 worker I want to create coils,5
+Story,IF-68,As a stage2 worker I want to process stands,5
+Story,IF-67,As a stage1 worker I want to view all stands,3
+Story,IF-66,As a stage1 worker I want to create stands via API,5
+Story,IF-65,As a developer I want material weight to auto-update,5
+Story,IF-64,As a warehouse manager I want to search materials,3
+Story,IF-63,As a warehouse manager I want to update material info,3
+Story,IF-62,As a warehouse manager I want to view single material,2
+Story,IF-61,As a warehouse manager I want to view all materials,3
+Story,IF-60,As a warehouse manager I want to add raw materials via API,5
+Story,IF-59,As a developer I want to setup API response structure,2
+Story,IF-58,As a developer I want to configure error handling,2
+Story,IF-57,As a developer I want to setup middleware,3
+Story,IF-56,As a developer I want to configure API routing,3
+Story,IF-55,As a developer I want to setup Laravel project structure,3

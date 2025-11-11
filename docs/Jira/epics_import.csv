@@ -1,0 +1,55 @@
+Issue Type,Epic Name,Component,Description,Story Points,Priority,Sprint,Epic Link (Dependency),Team
+Epic,API Architecture Setup,Backend API,Setup Laravel project routing middleware,13,High,Sprint 1,None,Backend Team
+Epic,Warehouse Management API,Backend API,APIs for raw materials management,21,High,Sprint 2,API Architecture Setup,Backend Team
+Epic,Production Stages API,Backend API,APIs for all 4 production stages,34,High,Sprint 3,Warehouse Management API,Backend Team
+Epic,Tracking & History API,Backend API,Product tracking and history endpoints,21,Medium,Sprint 3,Production Stages API,Backend Team
+Epic,Reporting API,Backend API,Report generation endpoints,21,Medium,Sprint 4,Production Stages API,Backend Team
+Epic,Data Validation & Business Logic,Backend API,Validation rules weight calculations,13,High,Sprint 2,Warehouse Management API,Backend Team
+Epic,UI Framework Setup,Frontend UI,Setup React/Vue routing state management,13,High,Sprint 1,None,Frontend Team
+Epic,Dashboard & Statistics,Frontend UI,Main dashboard with charts and KPIs,21,High,Sprint 3,UI Framework Setup,Frontend Team
+Epic,Warehouse Interface,Frontend UI,UI for adding/managing raw materials,21,High,Sprint 2,UI Framework Setup,Frontend Team
+Epic,Production Stages Interface,Frontend UI,UI for all 4 production stages,34,High,Sprint 2-3,Warehouse Interface,Frontend Team
+Epic,Tracking Interface,Frontend UI,Product tracking visualization,13,Medium,Sprint 3,Production Stages Interface,Frontend Team
+Epic,Reports Interface,Frontend UI,Reports viewing and generation UI,21,Medium,Sprint 4,Dashboard & Statistics,Frontend Team
+Epic,Responsive Design,Frontend UI,Mobile and tablet optimization,13,Medium,Sprint 3,Production Stages Interface,Frontend Team
+Epic,Database Schema Design,Database,ER diagram table structures,8,High,Sprint 1,None,Database Team
+Epic,Database Implementation,Database,Create tables relationships indexes,13,High,Sprint 1,Database Schema Design,Backend Team
+Epic,Database Migrations,Database,Laravel migrations for all tables,8,High,Sprint 1,Database Implementation,Backend Team
+Epic,Seeders & Test Data,Database,Create seeders for development,5,Medium,Sprint 2,Database Migrations,Backend Team
+Epic,Database Optimization,Database,Indexes query optimization,8,Medium,Sprint 3,Database Migrations,Backend Team
+Epic,Barcode Generation,Barcode System,Generate unique barcodes for all stages,13,High,Sprint 2,Warehouse Management API,Full Stack Team
+Epic,Barcode Scanning,Barcode System,Camera-based barcode scanning,21,Medium,Sprint 3,Warehouse Interface,Full Stack Team
+Epic,Barcode Printing,Barcode System,Print barcode labels with QR codes,13,Medium,Sprint 3,Barcode Generation,Full Stack Team
+Epic,Barcode Validation,Barcode System,Validate and parse barcode formats,8,Medium,Sprint 2,Barcode Generation,Full Stack Team
+Epic,Material Tracking,Inventory Management,Track materials across stages,21,High,Sprint 2,Warehouse Management API,Backend Team
+Epic,Weight Management,Inventory Management,Calculate remaining weights waste,13,High,Sprint 2,Material Tracking,Backend Team
+Epic,Stage Transitions,Inventory Management,Handle product transitions between stages,21,High,Sprint 3,Material Tracking,Backend Team
+Epic,Inventory Alerts,Inventory Management,Low stock high waste alerts,13,Medium,Sprint 3,Weight Management,Backend Team
+Epic,User Authentication,Authentication,Login logout JWT tokens,13,High,Sprint 1,API Architecture Setup,Backend Team
+Epic,Role-Based Access Control,Authentication,4 roles with different permissions,13,High,Sprint 1,User Authentication,Backend Team
+Epic,User Management,Authentication,CRUD operations for users,13,Medium,Sprint 2,Role-Based Access Control,Backend Team
+Epic,Password Management,Authentication,Reset change password,8,Medium,Sprint 2,User Authentication,Backend Team
+Epic,Dashboard Analytics,Reporting,Real-time statistics and KPIs,21,High,Sprint 4,Reporting API,Full Stack Team
+Epic,Production Reports,Reporting,Daily weekly monthly reports,21,Medium,Sprint 4,Reporting API,Full Stack Team
+Epic,Waste Analysis,Reporting,Waste reports and analytics,13,Medium,Sprint 4,Production Reports,Full Stack Team
+Epic,Export Functionality,Reporting,PDF Excel export,13,Medium,Sprint 4,Production Reports,Full Stack Team
+Epic,Charts & Visualizations,Reporting,Chart.js integration,13,Medium,Sprint 3,Dashboard Analytics,Full Stack Team
+Epic,PWA Setup,Offline Features,Service worker manifest,13,Medium,Post-Launch,UI Framework Setup,Frontend Team
+Epic,Offline Storage,Offline Features,IndexedDB for offline data,13,Medium,Post-Launch,PWA Setup,Frontend Team
+Epic,Data Synchronization,Offline Features,Sync when online,21,Medium,Post-Launch,Offline Storage,Frontend Team
+Epic,Offline UI Indicators,Offline Features,Show online/offline status,5,Low,Post-Launch,PWA Setup,Frontend Team
+Epic,Unit Testing,Testing QA,Backend unit tests,21,Medium,Sprint 4,Data Validation & Business Logic,QA Team
+Epic,Integration Testing,Testing QA,API integration tests,21,Medium,Sprint 4,Data Validation & Business Logic,QA Team
+Epic,Frontend Testing,Testing QA,Component and E2E tests,21,Medium,Sprint 4,Responsive Design,QA Team
+Epic,User Acceptance Testing,Testing QA,UAT with client,13,Medium,Sprint 4,All previous,QA Team
+Epic,Bug Fixing,Testing QA,Fix identified bugs,21,Medium,Sprint 4,User Acceptance Testing,All Teams
+Epic,Server Setup,DevOps,Configure production server,13,Medium,Sprint 4,None,DevOps Team
+Epic,CI/CD Pipeline,DevOps,Automated deployment,13,Medium,Sprint 4,Server Setup,DevOps Team
+Epic,Database Migration,DevOps,Production database setup,8,High,Sprint 4,Database Optimization,DevOps Team
+Epic,SSL & Security,DevOps,HTTPS security headers,8,High,Sprint 4,Server Setup,DevOps Team
+Epic,Backup & Monitoring,DevOps,Automated backups monitoring,13,Medium,Sprint 4,Database Migration,DevOps Team
+Epic,API Documentation,Documentation,Swagger/OpenAPI docs,8,Medium,Sprint 4,Data Validation & Business Logic,Backend Team
+Epic,User Guide,Documentation,End-user documentation,13,Medium,Sprint 4,Responsive Design,All Teams
+Epic,Technical Documentation,Documentation,Developer docs architecture,13,Medium,Sprint 4,All components,All Teams
+Epic,Video Tutorials,Documentation,Training videos,8,Low,Post-Launch,User Guide,All Teams
+Epic,On-site Training,Documentation,Train factory staff,13,Medium,Sprint 4,User Guide,All Teams
