@@ -1,6 +1,6 @@
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <img src="" class="logo">
+        <img src="{{ asset('assets/images/logo/logo-dark.jpg') }}" class="logo">
     </div>
 
     <nav class="sidebar-menu">
