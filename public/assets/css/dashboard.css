@@ -943,3 +943,190 @@ main {
         height: 35px;
     }
 }
+
+/* ========================================
+   مبدل اللغة (Language Switcher)
+   ======================================== */
+/* Language Switcher Styles */
+.language-switcher {
+    position: relative;
+}
+
+    .language-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 11px;
+        border: none;
+        background: linear-gradient(135deg, #f8f9fc, #e9ecef);
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+        color: var(--accent-color);
+        transition: all 0.3s;
+    }
+
+    .language-btn:hover {
+        background: linear-gradient(135deg, var(--hawiya-teal-light), var(--hawiya-teal));
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .language-menu {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        min-width: 150px;
+        z-index: 1000;
+        animation: slideDown 0.2s ease;
+        overflow: hidden;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .language-menu a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 15px;
+        color: #333;
+        text-decoration: none;
+        font-size: 13px;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .language-menu a:last-child {
+        border-bottom: none;
+    }
+
+    .language-menu a:hover {
+        background-color: #f5f9ff;
+        color: var(--hawiya-teal);
+    }
+
+    .language-menu a i {
+        font-size: 12px;
+        color: #ddd;
+        width: 16px;
+        text-align: center;
+    }
+
+    .language-menu a.active {
+        background-color: #f0f7ff;
+        color: var(--hawiya-teal);
+        font-weight: 600;
+    }
+
+    .language-menu a.active i {
+        color: var(--hawiya-teal);
+    }
+
+    /* RTL Adjustments */
+/* ========================================
+   تأثيرات تغيير اللغة
+   ======================================== */
+
+/* عندما تكون اللغة عربية */
+body.lang-ar {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Cairo', sans-serif;
+}
+
+body.lang-ar .sidebar {
+    right: 0 !important;
+    left: auto !important;
+}
+
+body.lang-ar .main-content {
+    margin-right: var(--sidebar-width) !important;
+    margin-left: 0 !important;
+}
+
+body.lang-ar .sidebar.collapsed .main-content {
+    margin-right: var(--sidebar-collapsed-width);
+}
+
+body.lang-ar .sidebar-menu a {
+    border-right: 3px solid transparent !important;
+    border-left: none !important;
+}
+
+body.lang-ar .breadcrumb {
+    text-align: right;
+}
+
+body.lang-ar .search-box {
+    flex-direction: row-reverse;
+}
+
+/* عندما تكون اللغة إنجليزية */
+body.lang-en {
+    direction: ltr;
+    text-align: left;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body.lang-en .sidebar {
+    left: 0 !important;
+    right: auto !important;
+}
+
+body.lang-en .main-content {
+    margin-left: var(--sidebar-width) !important;
+    margin-right: 0 !important;
+}
+
+body.lang-en .sidebar.collapsed .main-content {
+    margin-left: var(--sidebar-collapsed-width);
+}
+
+body.lang-en .sidebar-menu a {
+    border-left: 3px solid transparent !important;
+    border-right: none !important;
+}
+
+body.lang-en .breadcrumb {
+    text-align: left;
+}
+
+body.lang-en .search-box {
+    flex-direction: row;
+}
+
+/* تأثيرات الانتقال السلس */
+body {
+    transition: direction 0.3s ease, text-align 0.3s ease;
+}
+
+body.lang-ar .sidebar,
+body.lang-en .sidebar,
+body.lang-ar .main-content,
+body.lang-en .main-content {
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    body.lang-ar .main-content {
+        margin-right: 0 !important;
+    }
+
+    body.lang-en .main-content {
+        margin-left: 0 !important;
+    }
+}

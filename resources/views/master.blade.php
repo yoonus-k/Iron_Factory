@@ -25,28 +25,9 @@
 
     <!-- Custom CSS -->
     @stack('styles')
-
-    <style>
-        /* Additional RTL fixes */
-        .sidebar {
-            right: 0;
-            left: auto;
-        }
-
-        .main-content {
-            margin-right: var(--sidebar-width);
-            margin-left: 0;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                margin-right: 0;
-            }
-        }
-    </style>
 </head>
 
-<body>
+<body class="lang-ar">
     <!-- Mobile Overlay -->
     <div class="mobile-overlay" id="mobileOverlay"></div>
 
