@@ -3,7 +3,7 @@
 @section('title', 'تفاصيل المادة')
 
 @section('content')
-    <link rel="stylesheet" href="assets/css/style-cours.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
 
     <div class="container">
         <div class="page-header">
@@ -13,36 +13,28 @@
                         <i class="feather icon-package"></i>
                     </div>
                     <div class="header-info">
-                        <h1>{{ $material->material_type }}</h1>
+                        <h1>مسمار حديد 3*20 ملم</h1>
                         <div class="badges">
                             <span class="badge category">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                                 </svg>
-                                {{ $material->material_type }}
+                                مواد خام
                             </span>
-                            @if ($material->status == 'available')
-                                <span class="badge active">متوفر</span>
-                            @elseif ($material->status == 'in_use')
-                                <span class="badge active">قيد الاستخدام</span>
-                            @elseif ($material->status == 'consumed')
-                                <span class="badge featured">مستهلك</span>
-                            @else
-                                <span class="badge">{{ $material->status }}</span>
-                            @endif
+                            <span class="badge active">متوفر</span>
                         </div>
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('manufacturing.warehouse-products.edit', $material->id) }}" class="btn btn-edit">
+                    <a href="#" class="btn btn-edit">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                         </svg>
                         تعديل
                     </a>
-                    <a href="{{ route('manufacturing.warehouse-products.index') }}" class="btn btn-back">
+                    <a href="#" class="btn btn-back">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
@@ -73,7 +65,7 @@
                             </svg>
                             رمز المادة
                         </div>
-                        <div class="info-value">{{ $material->barcode }}</div>
+                        <div class="info-value">MAT-001-IRON</div>
                     </div>
 
                     <div class="info-item">
@@ -85,7 +77,7 @@
                             </svg>
                             الملاحظات
                         </div>
-                        <div class="info-value">{{ $material->notes ?: 'لا توجد ملاحظات' }}</div>
+                        <div class="info-value">مسمار حديد عالي الجودة مقاوم للتآكل</div>
                     </div>
 
                     <div class="info-item">
@@ -96,7 +88,7 @@
                             </svg>
                             الوزن الأصلي
                         </div>
-                        <div class="info-value">{{ $material->original_weight }} {{ $material->unit }}</div>
+                        <div class="info-value">100 كيلوغرام</div>
                     </div>
 
                     <div class="info-item">
@@ -107,7 +99,7 @@
                             </svg>
                             الوزن المتبقي
                         </div>
-                        <div class="info-value">{{ $material->remaining_weight }} {{ $material->unit }}</div>
+                        <div class="info-value">75 كيلوغرام</div>
                     </div>
 
                     <div class="info-item">
@@ -117,19 +109,7 @@
                             </svg>
                             حالة المادة
                         </div>
-                        <div class="info-value">
-                            @if ($material->status == 'available')
-                                متوفر
-                            @elseif ($material->status == 'in_use')
-                                قيد الاستخدام
-                            @elseif ($material->status == 'consumed')
-                                مستهلك
-                            @elseif ($material->status == 'expired')
-                                منتهي الصلاحية
-                            @else
-                                {{ $material->status }}
-                            @endif
-                        </div>
+                        <div class="info-value">متوفر</div>
                     </div>
 
                     <div class="info-item">
@@ -141,7 +121,7 @@
                             </svg>
                             رقم مذكرة التسليم
                         </div>
-                        <div class="info-value">{{ $material->delivery_note_number ?: 'غير محدد' }}</div>
+                        <div class="info-value">DN-2024-001</div>
                     </div>
                 </div>
             </div>
@@ -165,7 +145,7 @@
                             </svg>
                             معرف الفاتورة
                         </div>
-                        <div class="info-value">{{ $material->purchase_invoice_id ?: 'غير محدد' }}</div>
+                        <div class="info-value">INV-2024-001</div>
                     </div>
 
                     <div class="info-item">
@@ -175,7 +155,7 @@
                             </svg>
                             المورد
                         </div>
-                        <div class="info-value">{{ $material->supplier->name ?? 'غير محدد' }}</div>
+                        <div class="info-value">شركة الحديد والصلب</div>
                     </div>
 
                     <div class="info-item">
@@ -187,17 +167,7 @@
                             حالة التفعيل
                         </div>
                         <div class="info-value">
-                            @if ($material->status == 'available')
-                                <span class="status active">متوفر</span>
-                            @elseif ($material->status == 'in_use')
-                                <span class="status active">قيد الاستخدام</span>
-                            @elseif ($material->status == 'consumed')
-                                <span class="status inactive">مستهلك</span>
-                            @elseif ($material->status == 'expired')
-                                <span class="status inactive">منتهي الصلاحية</span>
-                            @else
-                                <span class="status inactive">{{ $material->status }}</span>
-                            @endif
+                            <span class="status active">مفعل</span>
                         </div>
                     </div>
 
@@ -210,7 +180,7 @@
                             </svg>
                             تاريخ الإنشاء
                         </div>
-                        <div class="info-value">{{ $material->created_at->format('Y-m-d H:i') }}</div>
+                        <div class="info-value">2024-11-01 10:30</div>
                     </div>
 
                     <div class="info-item">
@@ -222,7 +192,7 @@
                             </svg>
                             تاريخ التحديث
                         </div>
-                        <div class="info-value">{{ $material->updated_at->format('Y-m-d H:i') }}</div>
+                        <div class="info-value">2024-11-10 14:45</div>
                     </div>
 
                     <div class="info-item">
@@ -237,49 +207,41 @@
                 </div>
             </div>
 
-            @if ($course->image_url)
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-icon warning">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <path d="M21 15l-5-5L5 21"></path>
-                            </svg>
-                        </div>
-                        <h3 class="card-title">معلومات المورد</h3>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon warning">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <path d="M21 15l-5-5L5 21"></path>
+                        </svg>
                     </div>
-                    <div class="card-body">
-                        @if ($material->supplier)
-                        <div class="info-item">
-                            <div class="info-label">اسم المورد:</div>
-                            <div class="info-value">{{ $material->supplier->name }}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">الشخص المسؤول:</div>
-                            <div class="info-value">{{ $material->supplier->contact_person ?? 'غير محدد' }}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">الهاتف:</div>
-                            <div class="info-value">{{ $material->supplier->phone ?? 'غير محدد' }}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">البريد الإلكتروني:</div>
-                            <div class="info-value">{{ $material->supplier->email ?? 'غير محدد' }}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">العنوان:</div>
-                            <div class="info-value">{{ $material->supplier->address ?? 'غير محدد' }}</div>
-                        </div>
-                        @else
-                        <div class="info-value">لا توجد معلومات عن المورد</div>
-                        @endif
+                    <h3 class="card-title">معلومات المورد</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <div class="info-label">اسم المورد:</div>
+                        <div class="info-value">شركة الحديد والصلب</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">الشخص المسؤول:</div>
+                        <div class="info-value">أحمد محمد</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">الهاتف:</div>
+                        <div class="info-value">0123456789</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">البريد الإلكتروني:</div>
+                        <div class="info-value">supplier@example.com</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">العنوان:</div>
+                        <div class="info-value">شارع الصناعة، المنطقة الرابعة، القاهرة</div>
                     </div>
                 </div>
-            @endif
-        </div>
+            </div>
 
-        @if ($course->schedules->count() > 0)
             <div class="card" style="margin-bottom: 20px;">
                 <div class="card-header">
                     <div class="card-icon primary">
@@ -296,20 +258,20 @@
                     <div class="schedule-grid">
                         <div class="info-item">
                             <div class="info-label">عدد الاستاندات المنتجة:</div>
-                            <div class="info-value">{{ $material->stage1Stands->count() }}</div>
+                            <div class="info-value">5</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">إجمالي الوزن المستخدم:</div>
-                            <div class="info-value">{{ $material->stage1Stands->sum('weight') }} {{ $material->unit }}</div>
+                            <div class="info-value">25 كيلوغرام</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">إجمالي الهدر:</div>
-                            <div class="info-value">{{ $material->stage1Stands->sum('waste') }} {{ $material->unit }}</div>
+                            <div class="info-value">2 كيلوغرام</div>
                         </div>
                     </div>
                 </div>
             </div>
-        @endif
+        </div>
 
         <div class="card">
             <div class="card-header">
@@ -337,24 +299,20 @@
                         </div>
                     </button>
 
-                    <form method="POST" action="{{ route('manufacturing.warehouse-products.destroy', $material->id) }}" class="delete-form" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="action-btn delete">
-                            <div class="action-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path
-                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                    </path>
-                                </svg>
-                            </div>
-                            <div class="action-text">
-                                <h4>حذف المادة</h4>
-                                <p>حذف نهائي للمادة من النظام</p>
-                            </div>
-                        </button>
-                    </form>
+                    <button type="button" class="action-btn delete">
+                        <div class="action-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path
+                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="action-text">
+                            <h4>حذف المادة</h4>
+                            <p>حذف نهائي للمادة من النظام</p>
+                        </div>
+                    </button>
                 </div>
             </div>
         </div>
@@ -362,14 +320,14 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const deleteForms = document.querySelectorAll('.delete-form');
-            deleteForms.forEach(form => {
-                form.addEventListener('submit', function(e) {
+            const deleteButtons = document.querySelectorAll('.action-btn.delete');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
                     e.preventDefault();
                     if (confirm(
                             '⚠️ هل أنت متأكد من حذف هذه المادة؟\n\nهذا الإجراء لا يمكن التراجع عنه!'
                         )) {
-                        this.submit();
+                        alert('تم حذف المادة بنجاح!');
                     }
                 });
             });

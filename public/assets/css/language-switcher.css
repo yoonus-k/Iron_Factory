@@ -1,0 +1,81 @@
+/* Language Switcher Styles */
+.language-switcher {
+    position: relative;
+    display: inline-block;
+    margin: 0 10px;
+}
+
+.language-btn {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.language-btn:hover {
+    background: #f5f5f5;
+}
+
+.current-lang {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.language-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    min-width: 120px;
+    z-index: 1000;
+    margin-top: 5px;
+}
+
+.language-menu a {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    border-bottom: 1px solid #eee;
+    transition: background 0.3s ease;
+}
+
+.language-menu a:last-child {
+    border-bottom: none;
+}
+
+.language-menu a:hover {
+    background: #f5f5f5;
+}
+
+.language-menu a.active .fa-check {
+    visibility: visible;
+    color: #28a745;
+}
+
+.language-menu a .fa-check {
+    visibility: hidden;
+    margin-left: 8px;
+    font-size: 12px;
+}
+
+/* RTL Support */
+[dir="rtl"] .language-menu {
+    left: auto;
+    right: 0;
+}
+
+[dir="rtl"] .language-menu a .fa-check {
+    margin-left: 0;
+    margin-right: 8px;
+}

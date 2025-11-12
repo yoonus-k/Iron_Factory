@@ -27,22 +27,22 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.delivery-notes.index') }}">
                             <i class="fas fa-receipt"></i> أذون التسليم
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.purchase-invoices.index') }}">
                             <i class="fas fa-file-invoice-dollar"></i> فواتير المشتريات
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.suppliers.index') }}">
                             <i class="fas fa-truck"></i> الموردين
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.additives.index') }}">
                             <i class="fas fa-paint-brush"></i> الصبغات والبلاستيك
                         </a>
                     </li>

@@ -1,6 +1,5 @@
 @extends('master')
 
-
 @section('title', 'إدارة المنتجات')
 
 @section('content')
@@ -22,25 +21,13 @@
         </div>
 
         <!-- Success and Error Messages -->
-        @if (session('success'))
-            <div class="um-alert-custom um-alert-success" role="alert">
-                <i class="feather icon-check-circle"></i>
-                الرسالة هنا
-                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
-                    <i class="feather icon-x"></i>
-                </button>
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="um-alert-custom um-alert-error" role="alert">
-                <i class="feather icon-x-circle"></i>
-                رسالة خطأ هنا
-                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
-                    <i class="feather icon-x"></i>
-                </button>
-            </div>
-        @endif
+        <div class="um-alert-custom um-alert-success" role="alert">
+            <i class="feather icon-check-circle"></i>
+            تم حفظ البيانات بنجاح
+            <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                <i class="feather icon-x"></i>
+            </button>
+        </div>
 
         <!-- Main Courses Card -->
         <section class="um-main-card">
@@ -50,7 +37,7 @@
                     <i class="feather icon-list"></i>
                     قائمة المنتجات
                 </h4>
-                <a href="{{ route('manufacturing.warehouse-products.create') }}" class="um-btn um-btn-primary">
+                <a href="#" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>
                     إضافة منتج جديد
                 </a>
@@ -66,13 +53,17 @@
                         <div class="um-form-group">
                             <select name="category_id" class="um-form-control">
                                 <option value="">جميع الفئات</option>
+                                <option value="1">خامات معدنية</option>
+                                <option value="2">خامات بلاستيكية</option>
+                                <option value="3">خامات خشبية</option>
                             </select>
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
                                 <option value="">جميع الحالات</option>
-                                <option value="active">مفعل</option>
-                                <option value="inactive">معطل</option>
+                                <option value="active">متوفر</option>
+                                <option value="inactive">قيد الاستخدام</option>
+                                <option value="consumed">مستهلك</option>
                             </select>
                         </div>
                         <div class="um-filter-actions">
@@ -106,191 +97,398 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- @forelse($materials as $material)
-                            <tr>
-                                <td>{{ $material->id }}</td>
-                                <td>{{ $material->barcode }}</td>
-                                <td>
-                                    <div class="um-course-info">
-                                        <h6 class="um-course-title">{{ $material->material_type }}</h6>
-                                        <p class="um-course-desc">{{ Str::limit($material->notes, 50) }}</p>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="um-badge um-badge-info">{{ $material->material_type }}</span>
-                                </td>
-                                <td>{{ $material->original_weight }}</td>
-                                <td>{{ $material->unit }}</td>
-                                <td>
-                                    @if ($material->supplier)
-                                        {{ $material->supplier->name }}
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($material->status == 'available')
-                                        <span class="um-badge um-badge-success">متوفر</span>
-                                    @elseif ($material->status == 'in_use')
-                                        <span class="um-badge um-badge-warning">قيد الاستخدام</span>
-                                    @elseif ($material->status == 'consumed')
-                                        <span class="um-badge um-badge-danger">مستهلك</span>
-                                    @else
-                                        <span class="um-badge um-badge-secondary">{{ $material->status }}</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <div class="um-action-buttons">
-                                        <a href="{{ route('manufacturing.warehouse-products.show', $material->id) }}" class="um-btn-action um-btn-view" title="عرض">
-                                            <i class="feather icon-eye"></i>
-                                        </a>
-                                        <a href="{{ route('manufacturing.warehouse-products.edit', $material->id) }}" class="um-btn-action um-btn-edit" title="تعديل">
-                                            <i class="feather icon-edit-2"></i>
-                                        </a>
-                                        <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
-                                            <i class="feather icon-star"></i>
+                        <tr>
+                            <td>1</td>
+                            <td>MAT-2024-001</td>
+                            <td>
+                                <div class="um-course-info">
+                                    <h6 class="um-course-title">ألمنيوم خام</h6>
+                                    <p class="um-course-desc">مادة خام من الألمنيوم عالي الجودة مستورد من الصين</p>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="um-badge um-badge-info">خامات معدنية</span>
+                            </td>
+                            <td>500</td>
+                            <td>كجم</td>
+                            <td>شركة المعادن المتحدة</td>
+                            <td>
+                                <span class="um-badge um-badge-success">متوفر</span>
+                            </td>
+                            <td>
+                                <div class="um-action-buttons">
+                                    <a href="#" class="um-btn-action um-btn-view" title="عرض">
+                                        <i class="feather icon-eye"></i>
+                                    </a>
+                                    <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
+                                        <i class="feather icon-edit-2"></i>
+                                    </a>
+                                    <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
+                                        <i class="feather icon-star"></i>
+                                    </button>
+                                    <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
+                                        <i class="feather icon-pause-circle"></i>
+                                    </button>
+                                    <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                        <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
+                                            <i class="feather icon-trash-2"></i>
                                         </button>
-                                        <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
-                                            <i class="feather icon-pause-circle"></i>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>MAT-2024-002</td>
+                            <td>
+                                <div class="um-course-info">
+                                    <h6 class="um-course-title">بلاستيك PVC</h6>
+                                    <p class="um-course-desc">بلاستيك من نوع PVC مقاوم للحرارة والرطوبة</p>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="um-badge um-badge-info">خامات بلاستيكية</span>
+                            </td>
+                            <td>300</td>
+                            <td>كجم</td>
+                            <td>مصنع البلاستيك الحديث</td>
+                            <td>
+                                <span class="um-badge um-badge-warning">قيد الاستخدام</span>
+                            </td>
+                            <td>
+                                <div class="um-action-buttons">
+                                    <a href="#" class="um-btn-action um-btn-view" title="عرض">
+                                        <i class="feather icon-eye"></i>
+                                    </a>
+                                    <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
+                                        <i class="feather icon-edit-2"></i>
+                                    </a>
+                                    <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
+                                        <i class="feather icon-star"></i>
+                                    </button>
+                                    <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
+                                        <i class="feather icon-pause-circle"></i>
+                                    </button>
+                                    <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                        <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
+                                            <i class="feather icon-trash-2"></i>
                                         </button>
-                                        <form method="POST" action="{{ route('manufacturing.warehouse-products.destroy', $material->id) }}" style="display: inline;" class="delete-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="um-btn-action um-btn-delete" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذا المنتج؟')">
-                                                <i class="feather icon-trash-2"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="9">
-                                    <div class="um-empty-state">
-                                        <div class="um-empty-icon">
-                                            <i class="feather icon-package"></i>
-                                        </div>
-                                        <h5 class="um-empty-title">لا توجد منتجات</h5>
-                                        <p class="um-empty-desc">لم يتم العثور على أي منتجات مطابقة للبحث</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse --}}
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>MAT-2024-003</td>
+                            <td>
+                                <div class="um-course-info">
+                                    <h6 class="um-course-title">خشب زان</h6>
+                                    <p class="um-course-desc">خشب زان طبيعي عالي الجودة للأثاث الفاخر</p>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="um-badge um-badge-info">خامات خشبية</span>
+                            </td>
+                            <td>200</td>
+                            <td>متر مكعب</td>
+                            <td>معرض الأخشاب الدولي</td>
+                            <td>
+                                <span class="um-badge um-badge-success">متوفر</span>
+                            </td>
+                            <td>
+                                <div class="um-action-buttons">
+                                    <a href="#" class="um-btn-action um-btn-view" title="عرض">
+                                        <i class="feather icon-eye"></i>
+                                    </a>
+                                    <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
+                                        <i class="feather icon-edit-2"></i>
+                                    </a>
+                                    <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
+                                        <i class="feather icon-star"></i>
+                                    </button>
+                                    <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
+                                        <i class="feather icon-pause-circle"></i>
+                                    </button>
+                                    <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                        <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
+                                            <i class="feather icon-trash-2"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>MAT-2024-004</td>
+                            <td>
+                                <div class="um-course-info">
+                                    <h6 class="um-course-title">حديد مسلح</h6>
+                                    <p class="um-course-desc">قضبان حديد مسلح للإنشاءات والمباني</p>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="um-badge um-badge-info">خامات معدنية</span>
+                            </td>
+                            <td>1000</td>
+                            <td>كجم</td>
+                            <td>مصنع الحديد والصلب</td>
+                            <td>
+                                <span class="um-badge um-badge-danger">مستهلك</span>
+                            </td>
+                          <td>
+                                <div class="um-action-buttons" style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                    <a href="#" class="um-btn-action um-btn-view" title="عرض">
+                                        <i class="feather icon-eye"></i>
+                                    </a>
+                                    <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
+                                        <i class="feather icon-edit-2"></i>
+                                    </a>
+                                    <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
+                                        <i class="feather icon-star"></i>
+                                    </button>
+                                    <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
+                                        <i class="feather icon-pause-circle"></i>
+                                    </button>
+                                    <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                        <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
+                                            <i class="feather icon-trash-2"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>MAT-2024-005</td>
+                            <td>
+                                <div class="um-course-info">
+                                    <h6 class="um-course-title">نحاس أحمر</h6>
+                                    <p class="um-course-desc">نحاس أحمر نقي 99.9% للتوصيلات الكهربائية</p>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="um-badge um-badge-info">خامات معدنية</span>
+                            </td>
+                            <td>150</td>
+                            <td>كجم</td>
+                            <td>شركة النحاس العالمية</td>
+                            <td>
+                                <span class="um-badge um-badge-success">متوفر</span>
+                            </td>
+                            <td>
+                                <div class="um-action-buttons">
+                                    <a href="#" class="um-btn-action um-btn-view" title="عرض">
+                                        <i class="feather icon-eye"></i>
+                                    </a>
+                                    <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
+                                        <i class="feather icon-edit-2"></i>
+                                    </a>
+                                    <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
+                                        <i class="feather icon-star"></i>
+                                    </button>
+                                    <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
+                                        <i class="feather icon-pause-circle"></i>
+                                    </button>
+                                    <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                        <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
+                                            <i class="feather icon-trash-2"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
 
             <!-- Courses Cards - Mobile View -->
             <div class="um-mobile-view">
-                {{-- @forelse($materials as $material)
-                    <div class="um-category-card">
-                        <div class="um-category-card-header">
-                            <div class="um-category-info">
-                                <div class="um-category-icon" style="background: #3f51b520; color: #3f51b5;">
-                                    <i class="feather icon-package"></i>
-                                </div>
-                                <div>
-                                    <h6 class="um-category-name">{{ $material->material_type }}</h6>
-                                    <span class="um-category-id">#{{ $material->barcode }}</span>
-                                </div>
+                <div class="um-category-card">
+                    <div class="um-category-card-header">
+                        <div class="um-category-info">
+                            <div class="um-category-icon" style="background: #3f51b520; color: #3f51b5;">
+                                <i class="feather icon-package"></i>
                             </div>
-                            @if ($material->status == 'available')
-                                <span class="um-badge um-badge-success">متوفر</span>
-                            @elseif ($material->status == 'in_use')
-                                <span class="um-badge um-badge-warning">قيد الاستخدام</span>
-                            @elseif ($material->status == 'consumed')
-                                <span class="um-badge um-badge-danger">مستهلك</span>
-                            @else
-                                <span class="um-badge um-badge-secondary">{{ $material->status }}</span>
-                            @endif
-                        </div>
-
-                        <div class="um-category-card-body">
-                            <div class="um-info-row">
-                                <span class="um-info-label">الفئة:</span>
-                                <span class="um-info-value">{{ $material->material_type }}</span>
-                            </div>
-                            <div class="um-info-row">
-                                <span class="um-info-label">الوزن الأصلي:</span>
-                                <span class="um-info-value">{{ $material->original_weight }} {{ $material->unit }}</span>
-                            </div>
-                            <div class="um-info-row">
-                                <span class="um-info-label">الوزن المتبقي:</span>
-                                <span class="um-info-value">{{ $material->remaining_weight }} {{ $material->unit }}</span>
-                            </div>
-                            <div class="um-info-row">
-                                <span class="um-info-label">المورد:</span>
-                                <span class="um-info-value">
-                                    @if ($material->supplier)
-                                        {{ $material->supplier->name }}
-                                    @else
-                                        -
-                                    @endif
-                                </span>
+                            <div>
+                                <h6 class="um-category-name">ألمنيوم خام</h6>
+                                <span class="um-category-id">#MAT-2024-001</span>
                             </div>
                         </div>
+                        <span class="um-badge um-badge-success">متوفر</span>
+                    </div>
 
-                        <div class="um-category-card-footer">
-                            <a href="{{ route('manufacturing.warehouse-products.show', $material->id) }}" class="um-btn-action um-btn-view" title="عرض">
-                                <i class="feather icon-eye"></i>
-                            </a>
-                            <a href="{{ route('manufacturing.warehouse-products.edit', $material->id) }}" class="um-btn-action um-btn-edit" title="تعديل">
-                                <i class="feather icon-edit-2"></i>
-                            </a>
-                            <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
-                                <i class="feather icon-star"></i>
-                            </button>
-                            <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
-                                <i class="feather icon-pause-circle"></i>
-                            </button>
-                            <form method="POST" action="{{ route('manufacturing.warehouse-products.destroy', $material->id) }}" style="display: inline;" class="delete-form">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="um-btn-action um-btn-delete" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذا المنتج؟')">
-                                    <i class="feather icon-trash-2"></i>
-                                </button>
-                            </form>
+                    <div class="um-category-card-body">
+                        <div class="um-info-row">
+                            <span class="um-info-label">الفئة:</span>
+                            <span class="um-info-value">خامات معدنية</span>
+                        </div>
+                        <div class="um-info-row">
+                            <span class="um-info-label">الوزن الأصلي:</span>
+                            <span class="um-info-value">500 كجم</span>
+                        </div>
+                        <div class="um-info-row">
+                            <span class="um-info-label">الوزن المتبقي:</span>
+                            <span class="um-info-value">450 كجم</span>
+                        </div>
+                        <div class="um-info-row">
+                            <span class="um-info-label">المورد:</span>
+                            <span class="um-info-value">شركة المعادن المتحدة</span>
                         </div>
                     </div>
-                @empty
-                    <div class="um-empty-state">
-                        <div class="um-empty-icon">
-                            <i class="feather icon-package"></i>
-                        </div>
-                        <h5 class="um-empty-title">لا توجد منتجات</h5>
-                        <p class="um-empty-desc">لم يتم العثور على أي منتجات مطابقة للبحث</p>
+
+                    <div class="um-category-card-footer">
+                        <a href="#" class="um-btn-action um-btn-view" title="عرض">
+                            <i class="feather icon-eye"></i>
+                        </a>
+                        <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
+                            <i class="feather icon-edit-2"></i>
+                        </a>
+                        <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
+                            <i class="feather icon-star"></i>
+                        </button>
+                        <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
+                            <i class="feather icon-pause-circle"></i>
+                        </button>
+                        <form method="POST" action="#" style="display: inline;" class="delete-form">
+                            <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
+                                <i class="feather icon-trash-2"></i>
+                            </button>
+                        </form>
                     </div>
-                @endforelse --}}
+                </div>
+
+                <div class="um-category-card">
+                    <div class="um-category-card-header">
+                        <div class="um-category-info">
+                            <div class="um-category-icon" style="background: #3f51b520; color: #3f51b5;">
+                                <i class="feather icon-package"></i>
+                            </div>
+                            <div>
+                                <h6 class="um-category-name">بلاستيك PVC</h6>
+                                <span class="um-category-id">#MAT-2024-002</span>
+                            </div>
+                        </div>
+                        <span class="um-badge um-badge-warning">قيد الاستخدام</span>
+                    </div>
+
+                    <div class="um-category-card-body">
+                        <div class="um-info-row">
+                            <span class="um-info-label">الفئة:</span>
+                            <span class="um-info-value">خامات بلاستيكية</span>
+                        </div>
+                        <div class="um-info-row">
+                            <span class="um-info-label">الوزن الأصلي:</span>
+                            <span class="um-info-value">300 كجم</span>
+                        </div>
+                        <div class="um-info-row">
+                            <span class="um-info-label">الوزن المتبقي:</span>
+                            <span class="um-info-value">180 كجم</span>
+                        </div>
+                        <div class="um-info-row">
+                            <span class="um-info-label">المورد:</span>
+                            <span class="um-info-value">مصنع البلاستيك الحديث</span>
+                        </div>
+                    </div>
+
+                    <div class="um-category-card-footer">
+                        <a href="#" class="um-btn-action um-btn-view" title="عرض">
+                            <i class="feather icon-eye"></i>
+                        </a>
+                        <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
+                            <i class="feather icon-edit-2"></i>
+                        </a>
+                        <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
+                            <i class="feather icon-star"></i>
+                        </button>
+                        <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
+                            <i class="feather icon-pause-circle"></i>
+                        </button>
+                        <form method="POST" action="#" style="display: inline;" class="delete-form">
+                            <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
+                                <i class="feather icon-trash-2"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="um-category-card">
+                    <div class="um-category-card-header">
+                        <div class="um-category-info">
+                            <div class="um-category-icon" style="background: #3f51b520; color: #3f51b5;">
+                                <i class="feather icon-package"></i>
+                            </div>
+                            <div>
+                                <h6 class="um-category-name">خشب زان</h6>
+                                <span class="um-category-id">#MAT-2024-003</span>
+                            </div>
+                        </div>
+                        <span class="um-badge um-badge-success">متوفر</span>
+                    </div>
+
+                    <div class="um-category-card-body">
+                        <div class="um-info-row">
+                            <span class="um-info-label">الفئة:</span>
+                            <span class="um-info-value">خامات خشبية</span>
+                        </div>
+                        <div class="um-info-row">
+                            <span class="um-info-label">الوزن الأصلي:</span>
+                            <span class="um-info-value">200 متر مكعب</span>
+                        </div>
+                        <div class="um-info-row">
+                            <span class="um-info-label">الوزن المتبقي:</span>
+                            <span class="um-info-value">200 متر مكعب</span>
+                        </div>
+                        <div class="um-info-row">
+                            <span class="um-info-label">المورد:</span>
+                            <span class="um-info-value">معرض الأخشاب الدولي</span>
+                        </div>
+                    </div>
+
+                    <div class="um-category-card-footer">
+                        <a href="#" class="um-btn-action um-btn-view" title="عرض">
+                            <i class="feather icon-eye"></i>
+                        </a>
+                        <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
+                            <i class="feather icon-edit-2"></i>
+                        </a>
+                        <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
+                            <i class="feather icon-star"></i>
+                        </button>
+                        <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
+                            <i class="feather icon-pause-circle"></i>
+                        </button>
+                        <form method="POST" action="#" style="display: inline;" class="delete-form">
+                            <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
+                                <i class="feather icon-trash-2"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
 
             <!-- Pagination -->
-            {{-- @if ($materials->hasPages())
-                <div class="um-pagination-section">
-                    <div>
-                        <p class="um-pagination-info">
-                            عرض {{ $materials->firstItem() ?? 0 }} إلى {{ $materials->lastItem() ?? 0 }} من أصل
-                            {{ $materials->total() }}
-                            منتج
-                        </p>
-                    </div>
-                    <div>
-                        {{ $materials->links() }}
-                    </div>
+            <div class="um-pagination-section">
+                <div>
+                    <p class="um-pagination-info">
+                        عرض 1 إلى 5 من أصل 5 منتج
+                    </p>
                 </div>
-            @endif --}}
+                <div>
+                    <!-- يمكن إضافة pagination links هنا -->
+                </div>
+            </div>
         </section>
     </div>
- <script>
+
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             // تأكيد الحذف
             const deleteForms = document.querySelectorAll('.delete-form');
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    if (confirm(
-                            'هل أنت متأكد من حذف هذا المنتج؟\n\nهذا الإجراء لا يمكن التراجع عنه!'
-                        )) {
-                        this.submit();
+                    if (confirm('هل أنت متأكد من حذف هذا المنتج؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
+                        alert('تم حذف المنتج بنجاح');
                     }
                 });
             });

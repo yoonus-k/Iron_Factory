@@ -21,12 +21,13 @@
         <div class="language-switcher">
             <button class="language-btn" onclick="toggleLanguageMenu()" title="اختر اللغة">
                 <i class="fas fa-globe"></i>
+                <span class="current-lang">{{ app()->getLocale() === 'ar' ? 'AR' : 'EN' }}</span>
             </button>
             <div class="language-menu" id="languageMenu" style="display: none;">
-                <a href="#" data-lang="ar" onclick="changeLanguage('ar', event)">
+                <a href="#" data-lang="ar" onclick="changeLanguage('ar', event)" class="{{ app()->getLocale() === 'ar' ? 'active' : '' }}">
                     <i class="fas fa-check"></i> العربية
                 </a>
-                <a href="#" data-lang="en" onclick="changeLanguage('en', event)">
+                <a href="#" data-lang="en" onclick="changeLanguage('en', event)" class="{{ app()->getLocale() === 'en' ? 'active' : '' }}">
                     <i class="fas fa-check"></i> English
                 </a>
             </div>
@@ -81,7 +82,6 @@
         localStorage.setItem('language', lang);
 
         // الانتقال إلى صفحة تبديل اللغة مع التأكد من حفظ اللغة
-        const currentUrl = window.location.href;
         fetch(`/locale/${lang}`, {
             method: 'GET',
             headers: {
@@ -116,8 +116,7 @@
     // تحميل اللغة المحفوظة عند تحميل الصفحة
     document.addEventListener('DOMContentLoaded', function() {
         const currentLang = document.documentElement.getAttribute('lang') || 'ar';
-        const currentDir = document.documentElement.getAttribute('dir') || 'rtl';
-
+        
         // تحديث الـ body classes بناءً على اللغة الحالية
         document.body.classList.remove('lang-ar', 'lang-en');
         document.body.classList.add(`lang-${currentLang}`);
@@ -129,6 +128,11 @@
                 link.classList.add('active');
             }
         });
+        
+        // تحديث زر اللغة الحالية
+        const currentLangSpan = document.querySelector('.current-lang');
+        if (currentLangSpan) {
+            currentLangSpan.textContent = currentLang === 'ar' ? 'AR' : 'EN';
+        }
     });
 </script>
-

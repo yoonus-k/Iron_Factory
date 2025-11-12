@@ -3,7 +3,7 @@
 @section('title', 'إضافة مادة جديدة')
 
 @section('content')
-    <div class="form-container">
+
         <!-- Header -->
         <div class="um-header-section">
             <h1 class="um-page-title">
@@ -96,7 +96,7 @@
                                 <select name="supplier_id" id="supplier_id"
                                     class="form-input" required>
                                     <option value="">اختر المورد</option>
-                                   
+
                                 </select>
                             </div>
 
@@ -214,7 +214,7 @@
                                 </svg>
                                 <select name="created_by" id="created_by" class="form-input">
                                     <option value="">اختر الموظف</option>
-                                   
+
                                 </select>
                             </div>
                             @error('created_by')
@@ -236,7 +236,7 @@
                                 </svg>
                                 <select name="supplier_id" id="supplier_id" class="form-input">
                                     <option value="">اختر المورد</option>
-                                   
+
                                 </select>
                             </div>
                         </div>
@@ -337,5 +337,5 @@
                 </div>
             </form>
         </div>
-    </div>
+
 @endsection

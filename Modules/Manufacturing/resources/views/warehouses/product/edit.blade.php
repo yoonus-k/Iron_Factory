@@ -3,7 +3,7 @@
 @section('title', 'تعديل بيانات المادة')
 
 @section('content')
-    <div class="form-container">
+
         <!-- Header -->
         <div class="um-header-section">
             <h1 class="um-page-title">
@@ -100,12 +100,7 @@
                                 <select name="supplier_id" id="supplier_id"
                                     class="form-input @error('supplier_id') is-invalid @enderror" required>
                                     <option value="">اختر المورد</option>
-                                    @foreach ($suppliers as $supplier)
-                                        <option value="{{ $supplier->id }}"
-                                            {{ old('supplier_id', $material->supplier_id) == $supplier->id ? 'selected' : '' }}>
-                                            {{ $supplier->name }}
-                                        </option>
-                                    @endforeach
+
                                 </select>
                             </div>
                             @error('category_id')
@@ -123,7 +118,7 @@
                                 </svg>
                                 <input type="number" name="original_weight" id="original_weight"
                                     class="form-input @error('original_weight') is-invalid @enderror"
-                                    value="{{ old('original_weight', $material->original_weight) }}" placeholder="أدخل الوزن الأصلي" step="0.001"
+                                    value="" placeholder="أدخل الوزن الأصلي" step="0.001"
                                     min="0">
                             </div>
                             @error('original_weight')
@@ -141,9 +136,7 @@
                                 </svg>
                                 <select name="unit" id="unit"
                                     class="form-input @error('unit') is-invalid @enderror">
-                                    <option value="kg" {{ old('unit', $material->unit) == 'kg' ? 'selected' : '' }}>كيلوغرام</option>
-                                    <option value="ton" {{ old('unit', $material->unit) == 'ton' ? 'selected' : '' }}>طن</option>
-                                    <option value="gram" {{ old('unit', $material->unit) == 'gram' ? 'selected' : '' }}>غرام</option>
+
                                 </select>
                             </div>
                             @error('unit')
@@ -181,7 +174,7 @@
                                     <path d="M21 15l-5-5L5 21"></path>
                                 </svg>
                                 <input type="number" name="purchase_invoice_id" id="purchase_invoice_id"
-                                    class="form-input @error('purchase_invoice_id') is-invalid @enderror" 
+                                    class="form-input @error('purchase_invoice_id') is-invalid @enderror"
                                     value="{{ old('purchase_invoice_id', $material->purchase_invoice_id) }}" placeholder="أدخل معرف الفاتورة">
                             </div>
                             @error('purchase_invoice_id')
@@ -243,12 +236,7 @@
                                 <select name="created_by" id="created_by"
                                     class="form-input @error('created_by') is-invalid @enderror">
                                     <option value="">اختر الموظف</option>
-                                    @foreach ($users as $user)
-                                        <option value="{{ $user->id }}"
-                                            {{ old('created_by', $material->created_by) == $user->id ? 'selected' : '' }}>
-                                            {{ $user->name }}
-                                        </option>
-                                    @endforeach
+
                                 </select>
                             </div>
                             @error('created_by')
@@ -414,7 +402,7 @@
                 </div>
             </form>
         </div>
-    </div>
+
 
 
 
