@@ -95,7 +95,7 @@
 }
 
 .um-card-header {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+
     color: white;
     padding: 1rem 1.25rem;
     display: flex;
@@ -336,22 +336,24 @@
     z-index: 1051;
 }
 
+
 .um-dropdown-menu {
     position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 1050;
+    bottom: 100%;
+    left: auto;
+    right: 0;
+    z-index: 99999;
     display: none;
     min-width: 160px;
     padding: 8px 0;
-    margin: 5px 0 0;
+    margin: 0 0 5px;
     font-size: 13px;
     text-align: right;
     list-style: none;
     background-color: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
     background-clip: padding-box;
     opacity: 0;
     transform: translateY(-10px);
@@ -366,7 +368,7 @@
 }
 
 .um-dropdown-item {
-    display: flex;
+    display: flex !important;
     align-items: center;
     gap: 8px;
     width: 100%;
@@ -384,6 +386,8 @@
     border-radius: 0;
     justify-content: flex-start;
     text-align: right;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .um-dropdown-item span {
@@ -426,8 +430,8 @@
 
 /* Prevent dropdown from going off-screen */
 .um-dropdown-menu {
-    max-height: 300px;
-    overflow-y: auto;
+    max-height: none;
+    overflow-y: visible;
 }
 
 /* Ensure dropdown breaks out of table container */
@@ -437,22 +441,20 @@
 }
 
 .um-table .um-dropdown-menu {
-    position: absolute;
-    z-index: 1050;
+    position: fixed !important;
+    z-index: 99999 !important;
     min-width: 160px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    max-height: none;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25) !important;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    background-color: #ffffff;
+    background-color: #ffffff !important;
     margin: 0;
     padding: 8px 0;
-    top: 100%;
-    left: auto;
-    right: 0;
     opacity: 0;
-    transform: translateY(0);
+    transform: translateY(-10px);
     transition: opacity 0.2s ease, transform 0.2s ease;
-    overflow: visible;
+    overflow: visible !important;
 }
 
 .um-table .um-dropdown.active .um-dropdown-menu {

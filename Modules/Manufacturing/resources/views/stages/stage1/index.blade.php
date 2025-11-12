@@ -76,7 +76,7 @@
             </div>
 
             <!-- Table - Desktop View -->
-            <div class="um-table-responsive um-desktop-view">
+            <div class="um-table um-desktop-view">
                 <table class="um-table">
                     <thead>
                         <tr>
@@ -421,5 +421,6 @@
             });
         });
     </script>
+
 
 @endsection

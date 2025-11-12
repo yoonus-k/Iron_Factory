@@ -104,4 +104,20 @@ class ShiftsWorkersController extends Controller
         // Delete the shift (in a real application, this would delete from database)
         return redirect()->route('manufacturing.shifts-workers.index')->with('success', 'تم حذف الوردية بنجاح');
     }
+
+    /**
+     * Display current active shifts.
+     */
+    public function current()
+    {
+        return view('manufacturing::shifts-workers.current');
+    }
+
+    /**
+     * Display attendance records.
+     */
+    public function attendance()
+    {
+        return view('manufacturing::shifts-workers.attendance');
+    }
 }

@@ -182,12 +182,12 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.shifts-workers.current') }}">
                             <i class="fas fa-clock"></i> الورديات الحالية
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.shifts-workers.attendance') }}">
                             <i class="fas fa-user-check"></i> سجل الحضور
                         </a>
                     </li>

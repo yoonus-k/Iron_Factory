@@ -18,7 +18,7 @@
             <div class="card stat-card">
                 <div class="card-body">
                     <h6 class="text-muted mb-2">إجمالي الهدر اليومي</h6>
-                    <h3 class="mb-0 text-danger">245 كغ</h3>
+                    <h3 class="mb-0 text-primary">245 كغ</h3>
                     <small class="text-muted">↑ 12% من الأمس</small>
                 </div>
             </div>
@@ -27,7 +27,7 @@
             <div class="card stat-card">
                 <div class="card-body">
                     <h6 class="text-muted mb-2">نسبة الهدر</h6>
-                    <h3 class="mb-0 text-warning">3.5%</h3>
+                    <h3 class="mb-0 text-primary">3.5%</h3>
                     <small class="text-muted">من الوزن الكلي</small>
                 </div>
             </div>
@@ -36,7 +36,7 @@
             <div class="card stat-card">
                 <div class="card-body">
                     <h6 class="text-muted mb-2">عدد الاستاندات</h6>
-                    <h3 class="mb-0 text-info">156</h3>
+                    <h3 class="mb-0 text-primary">156</h3>
                     <small class="text-muted">معالجة اليوم</small>
                 </div>
             </div>
@@ -45,7 +45,7 @@
             <div class="card stat-card">
                 <div class="card-body">
                     <h6 class="text-muted mb-2">متوسط الهدر/استاند</h6>
-                    <h3 class="mb-0 text-success">1.57 كغ</h3>
+                    <h3 class="mb-0 text-primary">1.57 كغ</h3>
                     <small class="text-muted">حسب الأوزان</small>
                 </div>
             </div>
@@ -67,7 +67,7 @@
         </div>
         <div class="col-md-4">
             <div class="card">
-                <div class="card-header bg-success text-white">
+                <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
                         <i class="fas fa-list"></i> أنواع الهدر
                     </h5>
@@ -76,19 +76,19 @@
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between">
                             <span>هدر الأسلاك المقطوعة</span>
-                            <span class="badge badge-warning">45%</span>
+                            <span class="badge badge-primary">45%</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
                             <span>هدر التقسيم</span>
-                            <span class="badge badge-warning">30%</span>
+                            <span class="badge badge-primary">30%</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
                             <span>هدر العيوب</span>
-                            <span class="badge badge-warning">15%</span>
+                            <span class="badge badge-primary">15%</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
                             <span>أخرى</span>
-                            <span class="badge badge-warning">10%</span>
+                            <span class="badge badge-primary">10%</span>
                         </li>
                     </ul>
                 </div>
@@ -99,7 +99,7 @@
     <div class="row mt-4">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-secondary text-white">
+                <div class="card-header bg-primary text-white">
                     <div class="row align-items-center">
                         <div class="col">
                             <h5 class="mb-0">
@@ -131,8 +131,8 @@
                                 <tr>
                                     <td><strong>#001</strong></td>
                                     <td>100 كغ</td>
-                                    <td class="text-danger">3.5 كغ</td>
-                                    <td><span class="badge badge-warning">3.5%</span></td>
+                                    <td class="text-primary">3.5 كغ</td>
+                                    <td><span class="badge badge-primary">3.5%</span></td>
                                     <td>أسلاك مقطوعة</td>
                                     <td>عادي</td>
                                     <td>2025-11-12</td>
@@ -140,8 +140,8 @@
                                 <tr>
                                     <td><strong>#002</strong></td>
                                     <td>100 كغ</td>
-                                    <td class="text-danger">2.8 كغ</td>
-                                    <td><span class="badge badge-warning">2.8%</span></td>
+                                    <td class="text-primary">2.8 كغ</td>
+                                    <td><span class="badge badge-primary">2.8%</span></td>
                                     <td>تقسيم</td>
                                     <td>عادي</td>
                                     <td>2025-11-12</td>
@@ -149,8 +149,8 @@
                                 <tr>
                                     <td><strong>#003</strong></td>
                                     <td>100 كغ</td>
-                                    <td class="text-danger">4.2 كغ</td>
-                                    <td><span class="badge badge-danger">4.2%</span></td>
+                                    <td class="text-primary">4.2 كغ</td>
+                                    <td><span class="badge badge-primary">4.2%</span></td>
                                     <td>عيوب</td>
                                     <td>يحتاج فحص</td>
                                     <td>2025-11-12</td>
@@ -175,8 +175,8 @@
             datasets: [{
                 label: 'كمية الهدر (كغ)',
                 data: [200, 215, 230, 245, 240, 250, 245],
-                borderColor: '#dc3545',
-                backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
                 tension: 0.3,
                 fill: true
             }]

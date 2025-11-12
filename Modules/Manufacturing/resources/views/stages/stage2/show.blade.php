@@ -269,15 +269,15 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('manufacturing.stage3.create') }}" class="action-btn activate" style="background: linear-gradient(135deg, #4CAF50, #45a049);">
+                   <a href="{{ route('manufacturing.stage2.create') }}" class="action-btn activate">
                         <div class="action-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
                         </div>
                         <div class="action-text">
-                            <h4>➡️ انتقل للمرحلة 3</h4>
+                              <h4>➡️ انتقل للمرحلة 3</h4>
                             <p>نقل المعالجة لتصنيع الكويلات</p>
                         </div>
                     </a>
