@@ -2,12 +2,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap');
 
 :root {
-    --primary-color: #2c3e50;
-    --secondary-color: #34495e;
+    --primary-color: #0066B2;
+    --secondary-color: #455A64;
     --success-color: #27ae60;
     --warning-color: #f39c12;
     --danger-color: #e74c3c;
-    --info-color: #3498db;
+    --info-color: #3A8FC7;
     --light-color: #ffffff;
     --gray-100: #f8f9fa;
     --gray-200: #e9ecef;

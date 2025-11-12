@@ -7,11 +7,11 @@
    متغيرات CSS العامة
    ======================================== */
 :root {
-    /* الألوان الأساسية */
-    --primary-color: #2c3e50;
-    --primary-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #3498db 100%);
+    /* الألوان الأساسية - Logo-inspired */
+    --primary-color: #0066B2;
+    --primary-gradient: linear-gradient(135deg, #0066B2 0%, #3A8FC7 50%, #5AABDA 100%);
     --secondary-color: #f8f9fc;
-    --accent-color: #5a5c69;
+    --accent-color: #455A64;
 
     /* ألوان الحالات */
     --success-color: #27ae60;
@@ -45,19 +45,19 @@
     --sidebar-hover: #f8f9fa;
     --sidebar-active: #e8f5e8;
 
-    /* ألوان هوية */
-    --hawiya-teal: #20b2aa;
-    --hawiya-teal-light: #4dd0d0;
-    --hawiya-gray: #999999;
+    /* ألوان هوية - Logo-inspired */
+    --hawiya-teal: #0066B2;
+    --hawiya-teal-light: #3A8FC7;
+    --hawiya-gray: #6B7C8E;
 
-    --primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --primary-light: #f0f4ff;
-    --primary-color: #667eea;
-    --secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    --warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    --primary: linear-gradient(135deg, #0066B2 0%, #3A8FC7 100%);
+    --primary-light: #E6F2FA;
+    --primary-color: #0066B2;
+    --secondary: linear-gradient(135deg, #455A64 0%, #607D8B 100%);
+    --success: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+    --warning: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
     --danger: #ef4444;
-    --dark: #1e293b;
+    --dark: #455A64;
     --gray-50: #f8fafc;
     --gray-100: #f1f5f9;
     --gray-200: #e2e8f0;
@@ -509,7 +509,7 @@ main {
     background: linear-gradient(135deg, var(--hawiya-teal-light), var(--hawiya-teal));
     color: white;
     transform: scale(1.1) rotate(180deg);
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 102, 178, 0.3);
 }
 
 /* ========================================
@@ -539,7 +539,7 @@ main {
     background: linear-gradient(135deg, var(--hawiya-teal-light), var(--hawiya-teal));
     color: white;
     transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 102, 178, 0.3);
 }
 
 /* شارة الإشعارات */
@@ -584,7 +584,7 @@ main {
     outline: none;
     border-color: #5a5c69;
     background: #fff;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 102, 178, 0.1);
     transform: translateY(-1px);
 }
 
@@ -621,7 +621,7 @@ main {
     background: linear-gradient(135deg, var(--hawiya-teal-light), var(--hawiya-teal));
     color: white;
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 8px 25px rgba(0, 102, 178, 0.3);
 }
 
 /* صورة المستخدم */
@@ -970,7 +970,7 @@ main {
         background: linear-gradient(135deg, var(--hawiya-teal-light), var(--hawiya-teal));
         color: white;
         transform: scale(1.1);
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 102, 178, 0.3);
     }
 
     .language-menu {

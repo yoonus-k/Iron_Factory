@@ -8,7 +8,7 @@
 
         .consultation-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 15px 30px rgba(45, 153, 153, 0.18);
+            box-shadow: 0 15px 30px rgba(0, 102, 178, 0.18);
         }
 
         /* Icon Wrapper with Gradient Background */
@@ -21,13 +21,13 @@
             align-items: center;
             justify-content: center;
             border-radius: 14px;
-            box-shadow: 0 6px 20px rgba(45, 153, 153, 0.18);
+            box-shadow: 0 6px 20px rgba(0, 102, 178, 0.18);
             transition: all 0.3s ease;
         }
 
         .consultation-card:hover .card-icon-wrapper {
             transform: scale(1.08) rotate(3deg);
-            box-shadow: 0 10px 25px rgba(45, 153, 153, 0.25);
+            box-shadow: 0 10px 25px rgba(0, 102, 178, 0.25);
         }
 
         .card-icon-bg {
@@ -38,37 +38,37 @@
             opacity: 0.95;
         }
 
-        /* Color Schemes - متوافقة مع ألوان الموقع */
+        /* Color Schemes - Logo-inspired colors */
         .icon-primary .card-icon-bg {
-            background: linear-gradient(135deg, #2D9999 0%, #00D9D9 100%);
+            background: linear-gradient(135deg, #0066B2 0%, #3A8FC7 100%);
         }
 
         .icon-dark .card-icon-bg {
-            background: linear-gradient(135deg, #0A2342 0%, #1E3A5F 100%);
+            background: linear-gradient(135deg, #455A64 0%, #607D8B 100%);
         }
 
         .icon-accent .card-icon-bg {
-            background: linear-gradient(135deg, #00D9D9 0%, #2D9999 100%);
+            background: linear-gradient(135deg, #3A8FC7 0%, #5AABDA 100%);
         }
 
         .icon-teal .card-icon-bg {
-            background: linear-gradient(135deg, #2D9999 0%, #16a34a 100%);
+            background: linear-gradient(135deg, #0066B2 0%, #16a34a 100%);
         }
 
         .icon-blue .card-icon-bg {
-            background: linear-gradient(135deg, #1E3A5F 0%, #2D9999 100%);
+            background: linear-gradient(135deg, #004D85 0%, #0066B2 100%);
         }
 
         .icon-success .card-icon-bg {
-            background: linear-gradient(135deg, #16a34a 0%, #2D9999 100%);
+            background: linear-gradient(135deg, #16a34a 0%, #0066B2 100%);
         }
 
         .icon-light .card-icon-bg {
-            background: linear-gradient(135deg, #2D9999 0%, #6B7C8E 100%);
+            background: linear-gradient(135deg, #0066B2 0%, #6B7C8E 100%);
         }
 
         .icon-ocean .card-icon-bg {
-            background: linear-gradient(135deg, #00D9D9 0%, #0A2342 100%);
+            background: linear-gradient(135deg, #3A8FC7 0%, #455A64 100%);
         }
 
         .card-icon-large {
@@ -90,35 +90,35 @@
         }
 
         .consultation-badge.icon-primary {
-            background: linear-gradient(135deg, #2D9999 0%, #00D9D9 100%);
+            background: linear-gradient(135deg, #0066B2 0%, #3A8FC7 100%);
         }
 
         .consultation-badge.icon-dark {
-            background: linear-gradient(135deg, #0A2342 0%, #1E3A5F 100%);
+            background: linear-gradient(135deg, #455A64 0%, #607D8B 100%);
         }
 
         .consultation-badge.icon-accent {
-            background: linear-gradient(135deg, #00D9D9 0%, #2D9999 100%);
+            background: linear-gradient(135deg, #3A8FC7 0%, #5AABDA 100%);
         }
 
         .consultation-badge.icon-teal {
-            background: linear-gradient(135deg, #2D9999 0%, #16a34a 100%);
+            background: linear-gradient(135deg, #0066B2 0%, #16a34a 100%);
         }
 
         .consultation-badge.icon-blue {
-            background: linear-gradient(135deg, #1E3A5F 0%, #2D9999 100%);
+            background: linear-gradient(135deg, #004D85 0%, #0066B2 100%);
         }
 
         .consultation-badge.icon-success {
-            background: linear-gradient(135deg, #16a34a 0%, #2D9999 100%);
+            background: linear-gradient(135deg, #16a34a 0%, #0066B2 100%);
         }
 
         .consultation-badge.icon-light {
-            background: linear-gradient(135deg, #2D9999 0%, #6B7C8E 100%);
+            background: linear-gradient(135deg, #0066B2 0%, #6B7C8E 100%);
         }
 
         .consultation-badge.icon-ocean {
-            background: linear-gradient(135deg, #00D9D9 0%, #0A2342 100%);
+            background: linear-gradient(135deg, #3A8FC7 0%, #455A64 100%);
         }
 
         /* Title and Description */

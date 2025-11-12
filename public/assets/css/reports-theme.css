@@ -5,11 +5,11 @@
 
 /* === المتغيرات الأساسية === */
 :root {
-    /* الألوان الأساسية من الشعار */
-    --color-primary: #20968f;
-    --color-primary-light: #5bc0be;
-    --color-primary-dark: #1a7a74;
-    --color-secondary: #3a7ca5;
+    /* الألوان الأساسية من الشعار - Logo-inspired */
+    --color-primary: #0066B2;
+    --color-primary-light: #3A8FC7;
+    --color-primary-dark: #004D85;
+    --color-secondary: #455A64;
 
     /* ألوان إضافية */
     --color-success: #10b981;
@@ -38,10 +38,10 @@
 
     /* التدرجات */
     --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-    --gradient-teal: linear-gradient(135deg, #20968f 0%, #5bc0be 100%);
+    --gradient-teal: linear-gradient(135deg, #0066B2 0%, #3A8FC7 100%);
     --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
     --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
-    --gradient-info: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    --gradient-info: linear-gradient(135deg, #0066B2 0%, #3A8FC7 100%);
 
     /* الانتقالات */
     --transition-fast: 150ms ease;
@@ -88,7 +88,7 @@ body {
 }
 
 .bg-teal-light {
-    background-color: rgba(32, 150, 143, 0.1) !important;
+    background-color: rgba(0, 102, 178, 0.1) !important;
     color: var(--color-primary) !important;
 }
 

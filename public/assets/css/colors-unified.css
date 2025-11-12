@@ -1,0 +1,277 @@
+/* ========================================
+   Unified Color System - Logo-Inspired
+   Iron Factory Design System
+   ======================================== */
+
+:root {
+    /* ========== Primary Brand Colors (from Logo) ========== */
+    --brand-primary: #0066B2;           /* Strong Blue from Logo */
+    --brand-primary-light: #3A8FC7;     /* Lighter Blue */
+    --brand-primary-lighter: #5AABDA;   /* Even Lighter Blue */
+    --brand-primary-dark: #004D85;      /* Darker Blue */
+    
+    --brand-secondary: #455A64;         /* Charcoal Gray from Logo */
+    --brand-secondary-light: #607D8B;   /* Lighter Gray */
+    --brand-secondary-dark: #2C3E50;    /* Darker Gray */
+    
+    --brand-accent: #3A8FC7;            /* Accent Blue */
+    
+    /* ========== Neutral Colors ========== */
+    --white: #FFFFFF;
+    --black: #000000;
+    
+    --gray-50: #F8FAFC;
+    --gray-100: #F1F5F9;
+    --gray-200: #E2E8F0;
+    --gray-300: #CBD5E1;
+    --gray-400: #94A3B8;
+    --gray-500: #64748B;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1E293B;
+    --gray-900: #0F172A;
+    
+    /* ========== Text Colors ========== */
+    --text-primary: #2C3E50;
+    --text-secondary: #455A64;
+    --text-light: #6B7C8E;
+    --text-muted: #94A3B8;
+    --text-white: #FFFFFF;
+    
+    /* ========== Background Colors ========== */
+    --bg-white: #FFFFFF;
+    --bg-light: #F5F7FA;
+    --bg-lighter: #FAFBFC;
+    --bg-gray: #E6F2FA;
+    --bg-dark: #455A64;
+    
+    /* ========== Semantic Colors ========== */
+    --success: #16a34a;
+    --success-light: #22c55e;
+    --success-bg: #dcfce7;
+    
+    --warning: #f59e0b;
+    --warning-light: #fbbf24;
+    --warning-bg: #fef3c7;
+    
+    --error: #ef4444;
+    --error-light: #f87171;
+    --error-bg: #fee2e2;
+    
+    --info: #0066B2;
+    --info-light: #3A8FC7;
+    --info-bg: #E6F2FA;
+    
+    /* ========== Gradients ========== */
+    --gradient-primary: linear-gradient(135deg, #0066B2 0%, #3A8FC7 100%);
+    --gradient-primary-full: linear-gradient(135deg, #0066B2 0%, #3A8FC7 50%, #5AABDA 100%);
+    --gradient-secondary: linear-gradient(135deg, #455A64 0%, #607D8B 100%);
+    --gradient-success: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+    --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    --gradient-light: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+    --gradient-bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    
+    /* ========== Borders ========== */
+    --border-primary: rgba(0, 102, 178, 0.12);
+    --border-light: rgba(0, 102, 178, 0.08);
+    --border-lighter: #E2E8F0;
+    --border-gray: #CBD5E1;
+    
+    /* ========== Shadows ========== */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 5px 15px rgba(0, 102, 178, 0.12);
+    --shadow-md: 0 12px 30px rgba(0, 102, 178, 0.15);
+    --shadow-lg: 0 20px 50px rgba(0, 102, 178, 0.2);
+    --shadow-xl: 0 30px 60px rgba(0, 102, 178, 0.25);
+    
+    /* ========== Focus Rings ========== */
+    --ring-primary: rgba(0, 102, 178, 0.35);
+    --ring-accent: rgba(58, 143, 199, 0.35);
+    --ring-success: rgba(22, 163, 74, 0.35);
+    --ring-warning: rgba(245, 158, 11, 0.35);
+    --ring-error: rgba(239, 68, 68, 0.35);
+    
+    /* ========== Opacities ========== */
+    --opacity-bg-5: rgba(0, 102, 178, 0.05);
+    --opacity-bg-10: rgba(0, 102, 178, 0.1);
+    --opacity-bg-15: rgba(0, 102, 178, 0.15);
+    --opacity-bg-20: rgba(0, 102, 178, 0.2);
+    
+    /* ========== Border Radius ========== */
+    --radius-xs: 6px;
+    --radius-sm: 8px;
+    --radius-md: 10px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 20px;
+    --radius-full: 9999px;
+    
+    /* ========== Transitions ========== */
+    --transition-fast: all 0.15s ease;
+    --transition-base: all 0.2s ease;
+    --transition-medium: all 0.3s ease;
+    --transition-slow: all 0.5s ease;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* ========== Z-Index System ========== */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+}
+
+/* ========================================
+   Dark Theme Colors
+   ======================================== */
+:root[data-theme="dark"] {
+    --bg-white: #0F172A;
+    --bg-light: #1E293B;
+    --bg-lighter: #334155;
+    --bg-gray: #1E3A50;
+    
+    --text-primary: #E6F0FF;
+    --text-secondary: #D0E3FF;
+    --text-light: #9BB0C9;
+    --text-muted: #64748B;
+    
+    --border-primary: rgba(148, 163, 184, 0.15);
+    --border-light: rgba(148, 163, 184, 0.1);
+    --border-lighter: rgba(148, 163, 184, 0.08);
+    
+    --shadow-sm: 0 5px 15px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* ========================================
+   Utility Classes for Colors
+   ======================================== */
+
+/* Background Colors */
+.bg-primary { background-color: var(--brand-primary) !important; }
+.bg-primary-light { background-color: var(--brand-primary-light) !important; }
+.bg-secondary { background-color: var(--brand-secondary) !important; }
+.bg-white { background-color: var(--white) !important; }
+.bg-light { background-color: var(--bg-light) !important; }
+.bg-gray { background-color: var(--bg-gray) !important; }
+
+/* Background Gradients */
+.bg-gradient-primary { background: var(--gradient-primary) !important; }
+.bg-gradient-secondary { background: var(--gradient-secondary) !important; }
+.bg-gradient-success { background: var(--gradient-success) !important; }
+.bg-gradient-warning { background: var(--gradient-warning) !important; }
+
+/* Text Colors */
+.text-primary { color: var(--brand-primary) !important; }
+.text-secondary { color: var(--brand-secondary) !important; }
+.text-light { color: var(--text-light) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.text-white { color: var(--white) !important; }
+.text-success { color: var(--success) !important; }
+.text-warning { color: var(--warning) !important; }
+.text-error { color: var(--error) !important; }
+
+/* Border Colors */
+.border-primary { border-color: var(--brand-primary) !important; }
+.border-light { border-color: var(--border-lighter) !important; }
+.border-gray { border-color: var(--border-gray) !important; }
+
+/* Shadows */
+.shadow-sm { box-shadow: var(--shadow-sm) !important; }
+.shadow-md { box-shadow: var(--shadow-md) !important; }
+.shadow-lg { box-shadow: var(--shadow-lg) !important; }
+.shadow-xl { box-shadow: var(--shadow-xl) !important; }
+
+/* ========================================
+   Component-Specific Color Applications
+   ======================================== */
+
+/* Buttons */
+.btn-primary {
+    background: var(--gradient-primary);
+    color: var(--white);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: var(--gradient-primary-full);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+    background: var(--gradient-secondary);
+    color: var(--white);
+    border: none;
+}
+
+.btn-outline-primary {
+    background: transparent;
+    color: var(--brand-primary);
+    border: 2px solid var(--brand-primary);
+}
+
+.btn-outline-primary:hover {
+    background: var(--brand-primary);
+    color: var(--white);
+}
+
+/* Cards */
+.card-primary {
+    border: 1px solid var(--border-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.card-primary:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* Links */
+a.link-primary {
+    color: var(--brand-primary);
+    text-decoration: none;
+}
+
+a.link-primary:hover {
+    color: var(--brand-primary-dark);
+    text-decoration: underline;
+}
+
+/* Badges */
+.badge-primary {
+    background: var(--opacity-bg-10);
+    color: var(--brand-primary);
+    border: 1px solid var(--border-primary);
+}
+
+.badge-success {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid var(--success-light);
+}
+
+.badge-warning {
+    background: var(--warning-bg);
+    color: var(--warning);
+    border: 1px solid var(--warning-light);
+}
+
+.badge-error {
+    background: var(--error-bg);
+    color: var(--error);
+    border: 1px solid var(--error-light);
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+@media print {
+    :root {
+        --shadow-sm: none;
+        --shadow-md: none;
+        --shadow-lg: none;
+        --shadow-xl: none;
+    }
+}
