@@ -7,6 +7,7 @@ use Modules\Manufacturing\Http\Controllers\DeliveryNoteController;
 use Modules\Manufacturing\Http\Controllers\PurchaseInvoiceController;
 use Modules\Manufacturing\Http\Controllers\SupplierController;
 use Modules\Manufacturing\Http\Controllers\AdditiveController;
+use Modules\Manufacturing\Http\Controllers\ShiftsWorkersController;
 use Modules\Manufacturing\Http\Controllers\Stage1Controller;
 use Modules\Manufacturing\Http\Controllers\Stage2Controller;
 use Modules\Manufacturing\Http\Controllers\Stage3Controller;
@@ -27,7 +28,7 @@ use Modules\Manufacturing\Http\Controllers\Stage4Controller;
     Route::resource('stage2', Stage2Controller::class)->names('manufacturing.stage2');
     Route::resource('stage3', Stage3Controller::class)->names('manufacturing.stage3');
     Route::resource('stage4', Stage4Controller::class)->names('manufacturing.stage4');
-
+Route::resource('shifts-workers', ShiftsWorkersController::class)->names('manufacturing.shifts-workers');
     // Stage 1 Additional Routes
     Route::get('stage1/barcode/scan', [Stage1Controller::class, 'barcodeScan'])->name('manufacturing.stage1.barcode-scan');
     Route::post('stage1/barcode/process', [Stage1Controller::class, 'processBarcodeAction'])->name('manufacturing.stage1.process-barcode');

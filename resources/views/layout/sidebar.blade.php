@@ -172,18 +172,18 @@
                 </a>
                 <ul class="submenu">
                     <li>
-                        <a href="#">
-                            <i class="fas fa-calendar-alt"></i> جدولة الورديات
+                        <a href="{{ route('manufacturing.shifts-workers.index') }}">
+                            <i class="fas fa-list"></i> قائمة الورديات
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('manufacturing.shifts-workers.create') }}">
+                            <i class="fas fa-plus-circle"></i> إضافة وردية جديدة
                         </a>
                     </li>
                     <li>
                         <a href="#">
                             <i class="fas fa-clock"></i> الورديات الحالية
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <i class="fas fa-exchange-alt"></i> تسليم الورديات
                         </a>
                     </li>
                     <li>
