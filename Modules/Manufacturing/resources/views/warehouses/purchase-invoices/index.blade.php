@@ -114,15 +114,25 @@
                             <td>5,000 ريال</td>
                             <td><span class="um-badge um-badge-success">مدفوعة</span></td>
                             <td>
-                                <a href="{{ route('manufacturing.purchase-invoices.show', 1) }}" class="um-btn-action um-btn-view" title="عرض">
-                                    <i class="feather icon-eye"></i>
-                                </a>
-                                <a href="{{ route('manufacturing.purchase-invoices.edit', 1) }}" class="um-btn-action um-btn-edit" title="تعديل">
-                                    <i class="feather icon-edit-2"></i>
-                                </a>
-                                <button class="um-btn-action um-btn-delete" title="حذف">
-                                    <i class="feather icon-trash-2"></i>
-                                </button>
+                                <div class="um-dropdown">
+                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                        <i class="feather icon-more-vertical"></i>
+                                    </button>
+                                    <div class="um-dropdown-menu">
+                                        <a href="{{ route('manufacturing.purchase-invoices.show', 1) }}" class="um-dropdown-item um-btn-view">
+                                            <i class="feather icon-eye"></i>
+                                            <span>عرض</span>
+                                        </a>
+                                        <a href="{{ route('manufacturing.purchase-invoices.edit', 1) }}" class="um-dropdown-item um-btn-edit">
+                                            <i class="feather icon-edit-2"></i>
+                                            <span>تعديل</span>
+                                        </a>
+                                        <button class="um-dropdown-item um-btn-delete" title="حذف">
+                                            <i class="feather icon-trash-2"></i>
+                                            <span>حذف</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                         <tr>
@@ -134,15 +144,25 @@
                             <td>0 ريال</td>
                             <td><span class="um-badge um-badge-warning">قيد الانتظار</span></td>
                             <td>
-                                <a href="{{ route('manufacturing.purchase-invoices.show', 2) }}" class="um-btn-action um-btn-view" title="عرض">
-                                    <i class="feather icon-eye"></i>
-                                </a>
-                                <a href="{{ route('manufacturing.purchase-invoices.edit', 2) }}" class="um-btn-action um-btn-edit" title="تعديل">
-                                    <i class="feather icon-edit-2"></i>
-                                </a>
-                                <button class="um-btn-action um-btn-delete" title="حذف">
-                                    <i class="feather icon-trash-2"></i>
-                                </button>
+                                <div class="um-dropdown">
+                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                        <i class="feather icon-more-vertical"></i>
+                                    </button>
+                                    <div class="um-dropdown-menu">
+                                        <a href="{{ route('manufacturing.purchase-invoices.show', 2) }}" class="um-dropdown-item um-btn-view">
+                                            <i class="feather icon-eye"></i>
+                                            <span>عرض</span>
+                                        </a>
+                                        <a href="{{ route('manufacturing.purchase-invoices.edit', 2) }}" class="um-dropdown-item um-btn-edit">
+                                            <i class="feather icon-edit-2"></i>
+                                            <span>تعديل</span>
+                                        </a>
+                                        <button class="um-dropdown-item um-btn-delete" title="حذف">
+                                            <i class="feather icon-trash-2"></i>
+                                            <span>حذف</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -174,15 +194,25 @@
                         </div>
                     </div>
                     <div class="um-category-card-footer">
-                        <a href="{{ route('manufacturing.purchase-invoices.show', 1) }}" class="um-btn-action um-btn-view" title="عرض">
-                            <i class="feather icon-eye"></i>
-                        </a>
-                        <a href="{{ route('manufacturing.purchase-invoices.edit', 1) }}" class="um-btn-action um-btn-edit" title="تعديل">
-                            <i class="feather icon-edit-2"></i>
-                        </a>
-                        <button class="um-btn-action um-btn-delete" title="حذف">
-                            <i class="feather icon-trash-2"></i>
-                        </button>
+                        <div class="um-dropdown">
+                            <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                <i class="feather icon-more-vertical"></i>
+                            </button>
+                            <div class="um-dropdown-menu">
+                                <a href="{{ route('manufacturing.purchase-invoices.show', 1) }}" class="um-dropdown-item um-btn-view">
+                                    <i class="feather icon-eye"></i>
+                                    <span>عرض</span>
+                                </a>
+                                <a href="{{ route('manufacturing.purchase-invoices.edit', 1) }}" class="um-dropdown-item um-btn-edit">
+                                    <i class="feather icon-edit-2"></i>
+                                    <span>تعديل</span>
+                                </a>
+                                <button class="um-dropdown-item um-btn-delete" title="حذف">
+                                    <i class="feather icon-trash-2"></i>
+                                    <span>حذف</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -203,5 +233,6 @@
             });
         });
     </script>
+
 
 @endsection

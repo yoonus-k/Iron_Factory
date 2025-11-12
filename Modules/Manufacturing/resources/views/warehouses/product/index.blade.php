@@ -116,24 +116,34 @@
                                 <span class="um-badge um-badge-success">متوفر</span>
                             </td>
                             <td>
-                                <div class="um-action-buttons">
-                                    <a href="#" class="um-btn-action um-btn-view" title="عرض">
-                                        <i class="feather icon-eye"></i>
-                                    </a>
-                                    <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
-                                        <i class="feather icon-edit-2"></i>
-                                    </a>
-                                    <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
-                                        <i class="feather icon-star"></i>
+                                <div class="um-dropdown">
+                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                        <i class="feather icon-more-vertical"></i>
                                     </button>
-                                    <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
-                                        <i class="feather icon-pause-circle"></i>
-                                    </button>
-                                    <form method="POST" action="#" style="display: inline;" class="delete-form">
-                                        <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
-                                            <i class="feather icon-trash-2"></i>
+                                    <div class="um-dropdown-menu">
+                                        <a href="#" class="um-dropdown-item um-btn-view">
+                                            <i class="feather icon-eye"></i>
+                                            <span>عرض</span>
+                                        </a>
+                                        <a href="#" class="um-dropdown-item um-btn-edit">
+                                            <i class="feather icon-edit-2"></i>
+                                            <span>تعديل</span>
+                                        </a>
+                                        <button type="button" class="um-dropdown-item um-btn-feature">
+                                            <i class="feather icon-star"></i>
+                                            <span>تمييز</span>
                                         </button>
-                                    </form>
+                                        <button type="button" class="um-dropdown-item um-btn-toggle">
+                                            <i class="feather icon-pause-circle"></i>
+                                            <span>تبديل الحالة</span>
+                                        </button>
+                                        <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                            <button type="submit" class="um-dropdown-item um-btn-delete">
+                                                <i class="feather icon-trash-2"></i>
+                                                <span>حذف</span>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -156,24 +166,34 @@
                                 <span class="um-badge um-badge-warning">قيد الاستخدام</span>
                             </td>
                             <td>
-                                <div class="um-action-buttons">
-                                    <a href="#" class="um-btn-action um-btn-view" title="عرض">
-                                        <i class="feather icon-eye"></i>
-                                    </a>
-                                    <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
-                                        <i class="feather icon-edit-2"></i>
-                                    </a>
-                                    <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
-                                        <i class="feather icon-star"></i>
+                                <div class="um-dropdown">
+                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                        <i class="feather icon-more-vertical"></i>
                                     </button>
-                                    <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
-                                        <i class="feather icon-pause-circle"></i>
-                                    </button>
-                                    <form method="POST" action="#" style="display: inline;" class="delete-form">
-                                        <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
-                                            <i class="feather icon-trash-2"></i>
+                                    <div class="um-dropdown-menu">
+                                        <a href="#" class="um-dropdown-item um-btn-view">
+                                            <i class="feather icon-eye"></i>
+                                            <span>عرض</span>
+                                        </a>
+                                        <a href="#" class="um-dropdown-item um-btn-edit">
+                                            <i class="feather icon-edit-2"></i>
+                                            <span>تعديل</span>
+                                        </a>
+                                        <button type="button" class="um-dropdown-item um-btn-feature">
+                                            <i class="feather icon-star"></i>
+                                            <span>تمييز</span>
                                         </button>
-                                    </form>
+                                        <button type="button" class="um-dropdown-item um-btn-toggle">
+                                            <i class="feather icon-pause-circle"></i>
+                                            <span>تبديل الحالة</span>
+                                        </button>
+                                        <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                            <button type="submit" class="um-dropdown-item um-btn-delete">
+                                                <i class="feather icon-trash-2"></i>
+                                                <span>حذف</span>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -196,24 +216,34 @@
                                 <span class="um-badge um-badge-success">متوفر</span>
                             </td>
                             <td>
-                                <div class="um-action-buttons">
-                                    <a href="#" class="um-btn-action um-btn-view" title="عرض">
-                                        <i class="feather icon-eye"></i>
-                                    </a>
-                                    <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
-                                        <i class="feather icon-edit-2"></i>
-                                    </a>
-                                    <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
-                                        <i class="feather icon-star"></i>
+                                <div class="um-dropdown">
+                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                        <i class="feather icon-more-vertical"></i>
                                     </button>
-                                    <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
-                                        <i class="feather icon-pause-circle"></i>
-                                    </button>
-                                    <form method="POST" action="#" style="display: inline;" class="delete-form">
-                                        <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
-                                            <i class="feather icon-trash-2"></i>
+                                    <div class="um-dropdown-menu">
+                                        <a href="#" class="um-dropdown-item um-btn-view">
+                                            <i class="feather icon-eye"></i>
+                                            <span>عرض</span>
+                                        </a>
+                                        <a href="#" class="um-dropdown-item um-btn-edit">
+                                            <i class="feather icon-edit-2"></i>
+                                            <span>تعديل</span>
+                                        </a>
+                                        <button type="button" class="um-dropdown-item um-btn-feature">
+                                            <i class="feather icon-star"></i>
+                                            <span>تمييز</span>
                                         </button>
-                                    </form>
+                                        <button type="button" class="um-dropdown-item um-btn-toggle">
+                                            <i class="feather icon-pause-circle"></i>
+                                            <span>تبديل الحالة</span>
+                                        </button>
+                                        <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                            <button type="submit" class="um-dropdown-item um-btn-delete">
+                                                <i class="feather icon-trash-2"></i>
+                                                <span>حذف</span>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -235,25 +265,35 @@
                             <td>
                                 <span class="um-badge um-badge-danger">مستهلك</span>
                             </td>
-                          <td>
-                                <div class="um-action-buttons" style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-                                    <a href="#" class="um-btn-action um-btn-view" title="عرض">
-                                        <i class="feather icon-eye"></i>
-                                    </a>
-                                    <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
-                                        <i class="feather icon-edit-2"></i>
-                                    </a>
-                                    <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
-                                        <i class="feather icon-star"></i>
+                            <td>
+                                <div class="um-dropdown">
+                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                        <i class="feather icon-more-vertical"></i>
                                     </button>
-                                    <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
-                                        <i class="feather icon-pause-circle"></i>
-                                    </button>
-                                    <form method="POST" action="#" style="display: inline;" class="delete-form">
-                                        <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
-                                            <i class="feather icon-trash-2"></i>
+                                    <div class="um-dropdown-menu">
+                                        <a href="#" class="um-dropdown-item um-btn-view">
+                                            <i class="feather icon-eye"></i>
+                                            <span>عرض</span>
+                                        </a>
+                                        <a href="#" class="um-dropdown-item um-btn-edit">
+                                            <i class="feather icon-edit-2"></i>
+                                            <span>تعديل</span>
+                                        </a>
+                                        <button type="button" class="um-dropdown-item um-btn-feature">
+                                            <i class="feather icon-star"></i>
+                                            <span>تمييز</span>
                                         </button>
-                                    </form>
+                                        <button type="button" class="um-dropdown-item um-btn-toggle">
+                                            <i class="feather icon-pause-circle"></i>
+                                            <span>تبديل الحالة</span>
+                                        </button>
+                                        <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                            <button type="submit" class="um-dropdown-item um-btn-delete">
+                                                <i class="feather icon-trash-2"></i>
+                                                <span>حذف</span>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -276,24 +316,34 @@
                                 <span class="um-badge um-badge-success">متوفر</span>
                             </td>
                             <td>
-                                <div class="um-action-buttons">
-                                    <a href="#" class="um-btn-action um-btn-view" title="عرض">
-                                        <i class="feather icon-eye"></i>
-                                    </a>
-                                    <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
-                                        <i class="feather icon-edit-2"></i>
-                                    </a>
-                                    <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
-                                        <i class="feather icon-star"></i>
+                                <div class="um-dropdown">
+                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                        <i class="feather icon-more-vertical"></i>
                                     </button>
-                                    <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
-                                        <i class="feather icon-pause-circle"></i>
-                                    </button>
-                                    <form method="POST" action="#" style="display: inline;" class="delete-form">
-                                        <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
-                                            <i class="feather icon-trash-2"></i>
+                                    <div class="um-dropdown-menu">
+                                        <a href="#" class="um-dropdown-item um-btn-view">
+                                            <i class="feather icon-eye"></i>
+                                            <span>عرض</span>
+                                        </a>
+                                        <a href="#" class="um-dropdown-item um-btn-edit">
+                                            <i class="feather icon-edit-2"></i>
+                                            <span>تعديل</span>
+                                        </a>
+                                        <button type="button" class="um-dropdown-item um-btn-feature">
+                                            <i class="feather icon-star"></i>
+                                            <span>تمييز</span>
                                         </button>
-                                    </form>
+                                        <button type="button" class="um-dropdown-item um-btn-toggle">
+                                            <i class="feather icon-pause-circle"></i>
+                                            <span>تبديل الحالة</span>
+                                        </button>
+                                        <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                            <button type="submit" class="um-dropdown-item um-btn-delete">
+                                                <i class="feather icon-trash-2"></i>
+                                                <span>حذف</span>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -337,23 +387,35 @@
                     </div>
 
                     <div class="um-category-card-footer">
-                        <a href="#" class="um-btn-action um-btn-view" title="عرض">
-                            <i class="feather icon-eye"></i>
-                        </a>
-                        <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
-                            <i class="feather icon-edit-2"></i>
-                        </a>
-                        <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
-                            <i class="feather icon-star"></i>
-                        </button>
-                        <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
-                            <i class="feather icon-pause-circle"></i>
-                        </button>
-                        <form method="POST" action="#" style="display: inline;" class="delete-form">
-                            <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
-                                <i class="feather icon-trash-2"></i>
+                        <div class="um-dropdown">
+                            <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                <i class="feather icon-more-vertical"></i>
                             </button>
-                        </form>
+                            <div class="um-dropdown-menu">
+                                <a href="#" class="um-dropdown-item um-btn-view">
+                                    <i class="feather icon-eye"></i>
+                                    <span>عرض</span>
+                                </a>
+                                <a href="#" class="um-dropdown-item um-btn-edit">
+                                    <i class="feather icon-edit-2"></i>
+                                    <span>تعديل</span>
+                                </a>
+                                <button type="button" class="um-dropdown-item um-btn-feature">
+                                    <i class="feather icon-star"></i>
+                                    <span>تمييز</span>
+                                </button>
+                                <button type="button" class="um-dropdown-item um-btn-toggle">
+                                    <i class="feather icon-pause-circle"></i>
+                                    <span>تبديل الحالة</span>
+                                </button>
+                                <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                    <button type="submit" class="um-dropdown-item um-btn-delete">
+                                        <i class="feather icon-trash-2"></i>
+                                        <span>حذف</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -391,23 +453,35 @@
                     </div>
 
                     <div class="um-category-card-footer">
-                        <a href="#" class="um-btn-action um-btn-view" title="عرض">
-                            <i class="feather icon-eye"></i>
-                        </a>
-                        <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
-                            <i class="feather icon-edit-2"></i>
-                        </a>
-                        <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
-                            <i class="feather icon-star"></i>
-                        </button>
-                        <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
-                            <i class="feather icon-pause-circle"></i>
-                        </button>
-                        <form method="POST" action="#" style="display: inline;" class="delete-form">
-                            <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
-                                <i class="feather icon-trash-2"></i>
+                        <div class="um-dropdown">
+                            <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                <i class="feather icon-more-vertical"></i>
                             </button>
-                        </form>
+                            <div class="um-dropdown-menu">
+                                <a href="#" class="um-dropdown-item um-btn-view">
+                                    <i class="feather icon-eye"></i>
+                                    <span>عرض</span>
+                                </a>
+                                <a href="#" class="um-dropdown-item um-btn-edit">
+                                    <i class="feather icon-edit-2"></i>
+                                    <span>تعديل</span>
+                                </a>
+                                <button type="button" class="um-dropdown-item um-btn-feature">
+                                    <i class="feather icon-star"></i>
+                                    <span>تمييز</span>
+                                </button>
+                                <button type="button" class="um-dropdown-item um-btn-toggle">
+                                    <i class="feather icon-pause-circle"></i>
+                                    <span>تبديل الحالة</span>
+                                </button>
+                                <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                    <button type="submit" class="um-dropdown-item um-btn-delete">
+                                        <i class="feather icon-trash-2"></i>
+                                        <span>حذف</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -445,23 +519,35 @@
                     </div>
 
                     <div class="um-category-card-footer">
-                        <a href="#" class="um-btn-action um-btn-view" title="عرض">
-                            <i class="feather icon-eye"></i>
-                        </a>
-                        <a href="#" class="um-btn-action um-btn-edit" title="تعديل">
-                            <i class="feather icon-edit-2"></i>
-                        </a>
-                        <button type="button" class="um-btn-action um-btn-feature" title="تمييز">
-                            <i class="feather icon-star"></i>
-                        </button>
-                        <button type="button" class="um-btn-action um-btn-toggle" title="تبديل الحالة">
-                            <i class="feather icon-pause-circle"></i>
-                        </button>
-                        <form method="POST" action="#" style="display: inline;" class="delete-form">
-                            <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
-                                <i class="feather icon-trash-2"></i>
+                        <div class="um-dropdown">
+                            <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                <i class="feather icon-more-vertical"></i>
                             </button>
-                        </form>
+                            <div class="um-dropdown-menu">
+                                <a href="#" class="um-dropdown-item um-btn-view">
+                                    <i class="feather icon-eye"></i>
+                                    <span>عرض</span>
+                                </a>
+                                <a href="#" class="um-dropdown-item um-btn-edit">
+                                    <i class="feather icon-edit-2"></i>
+                                    <span>تعديل</span>
+                                </a>
+                                <button type="button" class="um-dropdown-item um-btn-feature">
+                                    <i class="feather icon-star"></i>
+                                    <span>تمييز</span>
+                                </button>
+                                <button type="button" class="um-dropdown-item um-btn-toggle">
+                                    <i class="feather icon-pause-circle"></i>
+                                    <span>تبديل الحالة</span>
+                                </button>
+                                <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                    <button type="submit" class="um-dropdown-item um-btn-delete">
+                                        <i class="feather icon-trash-2"></i>
+                                        <span>حذف</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -506,5 +592,6 @@
             });
         });
     </script>
+
 
 @endsection

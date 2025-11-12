@@ -58,22 +58,22 @@
                 </a>
                 <ul class="submenu">
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.stage1.index') }}">
                             <i class="fas fa-list"></i> قائمة الاستاندات
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.stage1.create') }}">
                             <i class="fas fa-plus-circle"></i> إنشاء استاند جديد
                         </a>
                     </li>
-                    <li>
-                        <a href="#">
+                     <li>
+                        <a href="{{ route('manufacturing.stage1.barcode-scan') }}">
                             <i class="fas fa-barcode"></i> مسح الباركود
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.stage1.waste-tracking') }}">
                             <i class="fas fa-trash-alt"></i> تتبع الهدر
                         </a>
                     </li>
@@ -89,22 +89,22 @@
                 </a>
                 <ul class="submenu">
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.stage2.index') }}">
                             <i class="fas fa-list"></i> المواد قيد المعالجة
                         </a>
                     </li>
                     <li>
-                        <a href="#">
-                            <i class="fas fa-play-circle"></i> بدء معالجة
+                        <a href="{{ route('manufacturing.stage2.create') }}">
+                            <i class="fas fa-play-circle"></i> بدء معالجة جديدة
                         </a>
                     </li>
-                    <li>
-                        <a href="#">
+                     <li>
+                        <a href="{{ route('manufacturing.stage2.complete-processing') }}">
                             <i class="fas fa-check-circle"></i> إنهاء معالجة
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.stage2.waste-statistics') }}">
                             <i class="fas fa-chart-pie"></i> إحصائيات الهدر
                         </a>
                     </li>
@@ -120,22 +120,22 @@
                 </a>
                 <ul class="submenu">
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.stage3.index') }}">
                             <i class="fas fa-list"></i> قائمة الكويلات
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.stage3.create') }}">
                             <i class="fas fa-plus-circle"></i> إنشاء كويل جديد
                         </a>
                     </li>
-                    <li>
-                        <a href="#">
+                      <li>
+                        <a href="{{ route('manufacturing.stage3.add-dye-plastic') }}">
                             <i class="fas fa-palette"></i> إضافة صبغة/بلاستيك
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.stage3.completed-coils') }}">
                             <i class="fas fa-check-circle"></i> كويلات مكتملة
                         </a>
                     </li>
@@ -151,23 +151,13 @@
                 </a>
                 <ul class="submenu">
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.stage4.index') }}">
                             <i class="fas fa-list"></i> الكراتين المعبأة
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.stage4.create') }}">
                             <i class="fas fa-plus-circle"></i> إنشاء كرتون جديد
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <i class="fas fa-truck"></i> جاهز للشحن
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <i class="fas fa-shipping-fast"></i> المشحونات
                         </a>
                     </li>
                 </ul>

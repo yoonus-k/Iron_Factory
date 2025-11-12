@@ -119,15 +119,25 @@
                             <td>شركة الأصباغ المتحدة</td>
                             <td><span class="um-badge um-badge-success">متوفر</span></td>
                             <td>
-                                <a href="{{ route('manufacturing.additives.show', 1) }}" class="um-btn-action um-btn-view" title="عرض">
-                                    <i class="feather icon-eye"></i>
-                                </a>
-                                <a href="{{ route('manufacturing.additives.edit', 1) }}" class="um-btn-action um-btn-edit" title="تعديل">
-                                    <i class="feather icon-edit-2"></i>
-                                </a>
-                                <button class="um-btn-action um-btn-delete" title="حذف">
-                                    <i class="feather icon-trash-2"></i>
-                                </button>
+                                <div class="um-dropdown">
+                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                        <i class="feather icon-more-vertical"></i>
+                                    </button>
+                                    <div class="um-dropdown-menu">
+                                        <a href="{{ route('manufacturing.additives.show', 1) }}" class="um-dropdown-item um-btn-view">
+                                            <i class="feather icon-eye"></i>
+                                            <span>عرض</span>
+                                        </a>
+                                        <a href="{{ route('manufacturing.additives.edit', 1) }}" class="um-dropdown-item um-btn-edit">
+                                            <i class="feather icon-edit-2"></i>
+                                            <span>تعديل</span>
+                                        </a>
+                                        <button class="um-dropdown-item um-btn-delete" title="حذف">
+                                            <i class="feather icon-trash-2"></i>
+                                            <span>حذف</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                         <tr>
@@ -139,15 +149,25 @@
                             <td>شركة البلاستيك الخليج</td>
                             <td><span class="um-badge um-badge-warning">مخزون منخفض</span></td>
                             <td>
-                                <a href="{{ route('manufacturing.additives.show', 2) }}" class="um-btn-action um-btn-view" title="عرض">
-                                    <i class="feather icon-eye"></i>
-                                </a>
-                                <a href="{{ route('manufacturing.additives.edit', 2) }}" class="um-btn-action um-btn-edit" title="تعديل">
-                                    <i class="feather icon-edit-2"></i>
-                                </a>
-                                <button class="um-btn-action um-btn-delete" title="حذف">
-                                    <i class="feather icon-trash-2"></i>
-                                </button>
+                                <div class="um-dropdown">
+                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                        <i class="feather icon-more-vertical"></i>
+                                    </button>
+                                    <div class="um-dropdown-menu">
+                                        <a href="{{ route('manufacturing.additives.show', 2) }}" class="um-dropdown-item um-btn-view">
+                                            <i class="feather icon-eye"></i>
+                                            <span>عرض</span>
+                                        </a>
+                                        <a href="{{ route('manufacturing.additives.edit', 2) }}" class="um-dropdown-item um-btn-edit">
+                                            <i class="feather icon-edit-2"></i>
+                                            <span>تعديل</span>
+                                        </a>
+                                        <button class="um-dropdown-item um-btn-delete" title="حذف">
+                                            <i class="feather icon-trash-2"></i>
+                                            <span>حذف</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -175,15 +195,25 @@
                         </div>
                     </div>
                     <div class="um-category-card-footer">
-                        <a href="{{ route('manufacturing.additives.show', 1) }}" class="um-btn-action um-btn-view" title="عرض">
-                            <i class="feather icon-eye"></i>
-                        </a>
-                        <a href="{{ route('manufacturing.additives.edit', 1) }}" class="um-btn-action um-btn-edit" title="تعديل">
-                            <i class="feather icon-edit-2"></i>
-                        </a>
-                        <button class="um-btn-action um-btn-delete" title="حذف">
-                            <i class="feather icon-trash-2"></i>
-                        </button>
+                        <div class="um-dropdown">
+                            <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                <i class="feather icon-more-vertical"></i>
+                            </button>
+                            <div class="um-dropdown-menu">
+                                <a href="{{ route('manufacturing.additives.show', 1) }}" class="um-dropdown-item um-btn-view">
+                                    <i class="feather icon-eye"></i>
+                                    <span>عرض</span>
+                                </a>
+                                <a href="{{ route('manufacturing.additives.edit', 1) }}" class="um-dropdown-item um-btn-edit">
+                                    <i class="feather icon-edit-2"></i>
+                                    <span>تعديل</span>
+                                </a>
+                                <button class="um-dropdown-item um-btn-delete" title="حذف">
+                                    <i class="feather icon-trash-2"></i>
+                                    <span>حذف</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -202,7 +232,46 @@
                     }, 300);
                 }, 5000);
             });
+
+            // Handle dropdown menus
+            const dropdownToggles = document.querySelectorAll('.um-btn-dropdown');
+            
+            dropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    // Close all other dropdowns
+                    const allDropdowns = document.querySelectorAll('.um-dropdown');
+                    const currentDropdown = this.closest('.um-dropdown');
+                    
+                    allDropdowns.forEach(dropdown => {
+                        if (dropdown !== currentDropdown) {
+                            dropdown.classList.remove('active');
+                        }
+                    });
+                    
+                    // Toggle current dropdown
+                    currentDropdown.classList.toggle('active');
+                });
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function() {
+                const openDropdowns = document.querySelectorAll('.um-dropdown.active');
+                openDropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('active');
+                });
+            });
+
+            // Prevent closing when clicking inside dropdown
+            const dropdownMenus = document.querySelectorAll('.um-dropdown-menu');
+            dropdownMenus.forEach(menu => {
+                menu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
         });
     </script>
+
 
 @endsection

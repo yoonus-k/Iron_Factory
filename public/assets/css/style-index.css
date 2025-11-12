@@ -197,6 +197,16 @@
 .um-table-responsive {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    overflow-y: visible;
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure table cells don't clip dropdowns */
+.um-table td {
+    overflow: visible;
+    position: relative;
+    z-index: 1;
 }
 
 .um-table {
@@ -318,6 +328,139 @@
     align-items: center;
     flex-wrap: wrap;
 }
+
+/* ===== Dropdown Styles ===== */
+.um-dropdown {
+    position: relative;
+    display: inline-block;
+    z-index: 1051;
+}
+
+.um-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1050;
+    display: none;
+    min-width: 160px;
+    padding: 8px 0;
+    margin: 5px 0 0;
+    font-size: 13px;
+    text-align: right;
+    list-style: none;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    background-clip: padding-box;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    overflow: visible;
+}
+
+.um-dropdown.active .um-dropdown-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.um-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 16px;
+    clear: both;
+    font-weight: 400;
+    color: #333;
+    text-align: inherit;
+    white-space: nowrap;
+    background: none;
+    border: 0;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 0;
+    justify-content: flex-start;
+    text-align: right;
+}
+
+.um-dropdown-item span {
+    flex: 1;
+    text-align: right;
+}
+
+.um-dropdown-item:hover {
+    background-color: #f1f5f9;
+    text-decoration: none;
+    color: #333;
+}
+
+.um-dropdown-item i {
+    width: 16px;
+    text-align: center;
+}
+
+.um-btn-dropdown {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+}
+
+.um-btn-dropdown:hover {
+    background: #e2e8f0;
+    color: #475569;
+    border-color: #cbd5e1;
+}
+
+/* Mobile view dropdown adjustments */
+.um-mobile-view .um-dropdown-menu {
+    left: auto;
+    right: 0;
+}
+
+.um-mobile-view .um-dropdown-item {
+    padding: 10px 16px;
+}
+
+/* Prevent dropdown from going off-screen */
+.um-dropdown-menu {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Ensure dropdown breaks out of table container */
+.um-table .um-dropdown {
+    position: relative;
+    overflow: visible;
+}
+
+.um-table .um-dropdown-menu {
+    position: absolute;
+    z-index: 1050;
+    min-width: 160px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 8px 0;
+    top: 100%;
+    left: auto;
+    right: 0;
+    opacity: 0;
+    transform: translateY(0);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    overflow: visible;
+}
+
+.um-table .um-dropdown.active .um-dropdown-menu {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
 
 .um-btn-action {
     width: 32px;

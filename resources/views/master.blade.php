@@ -187,6 +187,155 @@
         setInterval(function() {
             // يمكن إضافة كود لتحديث الإحصائيات تلقائياً
         }, 30000);
+        
+        // Close dropdowns when scrolling
+        document.addEventListener('scroll', function() {
+            document.querySelectorAll('.um-dropdown.active').forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+        }, true);
+        
+        // Dropdown functionality
+        document.addEventListener('click', function(e) {
+            const dropdownButton = e.target.closest('.um-btn-dropdown');
+            const dropdown = dropdownButton ? dropdownButton.closest('.um-dropdown') : null;
+                
+            // If clicking outside of any dropdown, close all dropdowns
+            if (!dropdown) {
+                document.querySelectorAll('.um-dropdown.active').forEach(d => {
+                    d.classList.remove('active');
+                });
+            }
+        });
+            
+        // Prevent closing dropdown when clicking inside
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.um-dropdown-menu').forEach(menu => {
+                menu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+                
+            // Also handle dropdown buttons specifically
+            document.querySelectorAll('.um-btn-dropdown').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const dropdown = this.closest('.um-dropdown');
+                    if (dropdown) {
+                        // Check if this dropdown is already active
+                        const isActive = dropdown.classList.contains('active');
+                        
+                        // Close all other dropdowns
+                        document.querySelectorAll('.um-dropdown.active').forEach(d => {
+                            if (d !== dropdown) {
+                                d.classList.remove('active');
+                            }
+                        });
+                        
+                        // If this dropdown was already active, close it
+                        if (isActive) {
+                            dropdown.classList.remove('active');
+                            return;
+                        }
+                        
+                        // Open this dropdown
+                        dropdown.classList.add('active');
+                        
+                        // Position dropdown menu if it's in a table
+                        if (dropdown.closest('.um-table')) {
+                            const rect = this.getBoundingClientRect();
+                            const menu = dropdown.querySelector('.um-dropdown-menu');
+                            if (menu) {
+                                // Reset any previous positioning
+                                menu.style.position = 'absolute';
+                                menu.style.top = '100%';
+                                menu.style.left = '0';
+                                menu.style.right = 'auto';
+                                menu.style.bottom = 'auto';
+                            
+                                // Get the dropdown and menu dimensions
+                                const dropdownRect = dropdown.getBoundingClientRect();
+                                const menuRect = menu.getBoundingClientRect();
+                            
+                                // Check if menu would go beyond right edge of viewport
+                                if (dropdownRect.left + menuRect.width > window.innerWidth) {
+                                    // Position menu to the left
+                                    menu.style.left = 'auto';
+                                    menu.style.right = '0';
+                                }
+                            
+                                // Check if menu would go below viewport
+                                if (dropdownRect.bottom + menuRect.height > window.innerHeight) {
+                                    // Position menu above the button
+                                    menu.style.top = 'auto';
+                                    menu.style.bottom = '100%';
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Also handle touch events for mobile devices
+                button.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const dropdown = this.closest('.um-dropdown');
+                    if (dropdown) {
+                        // Check if this dropdown is already active
+                        const isActive = dropdown.classList.contains('active');
+                        
+                        // Close all other dropdowns
+                        document.querySelectorAll('.um-dropdown.active').forEach(d => {
+                            if (d !== dropdown) {
+                                d.classList.remove('active');
+                            }
+                        });
+                        
+                        // If this dropdown was already active, close it
+                        if (isActive) {
+                            dropdown.classList.remove('active');
+                            return;
+                        }
+                        
+                        // Open this dropdown
+                        dropdown.classList.add('active');
+                        
+                        // Position dropdown menu if it's in a table
+                        if (dropdown.closest('.um-table')) {
+                            const rect = this.getBoundingClientRect();
+                            const menu = dropdown.querySelector('.um-dropdown-menu');
+                            if (menu) {
+                                // Reset any previous positioning
+                                menu.style.position = 'absolute';
+                                menu.style.top = '100%';
+                                menu.style.left = '0';
+                                menu.style.right = 'auto';
+                                menu.style.bottom = 'auto';
+                            
+                                // Get the dropdown and menu dimensions
+                                const dropdownRect = dropdown.getBoundingClientRect();
+                                const menuRect = menu.getBoundingClientRect();
+                            
+                                // Check if menu would go beyond right edge of viewport
+                                if (dropdownRect.left + menuRect.width > window.innerWidth) {
+                                    // Position menu to the left
+                                    menu.style.left = 'auto';
+                                    menu.style.right = '0';
+                                }
+                            
+                                // Check if menu would go below viewport
+                                if (dropdownRect.bottom + menuRect.height > window.innerHeight) {
+                                    // Position menu above the button
+                                    menu.style.top = 'auto';
+                                    menu.style.bottom = '100%';
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        });
     </script>
 
     @stack('scripts')
