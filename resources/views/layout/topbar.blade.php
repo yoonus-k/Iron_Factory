@@ -77,32 +77,24 @@
     function changeLanguage(lang, event) {
         event.preventDefault();
 
-        // حفظ اللغة المختارة
+        // حفظ اللغة المختارة في الـ localStorage
         localStorage.setItem('language', lang);
 
-        // تغيير اللغة والاتجاه
-        if (lang === 'ar') {
-            document.documentElement.lang = 'ar';
-            document.body.classList.remove('lang-en');
-            document.body.classList.add('lang-ar');
-            document.body.style.direction = 'rtl';
-            document.body.style.textAlign = 'right';
-        } else {
-            document.documentElement.lang = 'en';
-            document.body.classList.remove('lang-ar');
-            document.body.classList.add('lang-en');
-            document.body.style.direction = 'ltr';
-            document.body.style.textAlign = 'left';
-        }
-
-        // إغلاق القائمة
-        document.getElementById('languageMenu').style.display = 'none';
-
-        // تحديث تمييز الخيار المختار
-        document.querySelectorAll('.language-menu a').forEach(link => {
-            link.classList.remove('active');
+        // الانتقال إلى صفحة تبديل اللغة مع التأكد من حفظ اللغة
+        const currentUrl = window.location.href;
+        fetch(`/locale/${lang}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        }).then(response => {
+            // إعادة تحميل الصفحة الحالية لتحديث المحتوى
+            window.location.reload();
+        }).catch(error => {
+            console.error('Error:', error);
+            // في حالة الخطأ، يتم إعادة التوجيه مباشرة
+            window.location.href = `/locale/${lang}`;
         });
-        event.target.closest('a').classList.add('active');
     }
 
     // إغلاق القوائم عند النقر خارجها
@@ -123,25 +115,17 @@
 
     // تحميل اللغة المحفوظة عند تحميل الصفحة
     document.addEventListener('DOMContentLoaded', function() {
-        const savedLanguage = localStorage.getItem('language') || 'ar';
+        const currentLang = document.documentElement.getAttribute('lang') || 'ar';
+        const currentDir = document.documentElement.getAttribute('dir') || 'rtl';
 
-        if (savedLanguage === 'en') {
-            document.documentElement.lang = 'en';
-            document.body.classList.remove('lang-ar');
-            document.body.classList.add('lang-en');
-            document.body.style.direction = 'ltr';
-            document.body.style.textAlign = 'left';
-        } else {
-            document.documentElement.lang = 'ar';
-            document.body.classList.remove('lang-en');
-            document.body.classList.add('lang-ar');
-            document.body.style.direction = 'rtl';
-            document.body.style.textAlign = 'right';
-        }
+        // تحديث الـ body classes بناءً على اللغة الحالية
+        document.body.classList.remove('lang-ar', 'lang-en');
+        document.body.classList.add(`lang-${currentLang}`);
 
-        // تمييز اللغة المختارة
+        // تحديث تمييز الخيار المختار
         document.querySelectorAll('.language-menu a').forEach(link => {
-            if (link.getAttribute('data-lang') === savedLanguage) {
+            link.classList.remove('active');
+            if (link.getAttribute('data-lang') === currentLang) {
                 link.classList.add('active');
             }
         });

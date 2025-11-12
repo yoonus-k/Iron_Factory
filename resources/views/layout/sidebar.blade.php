@@ -22,7 +22,7 @@
                 </a>
                 <ul class="submenu">
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.warehouse-products.index') }}">
                             <i class="fas fa-box"></i> المواد الخام
                         </a>
                     </li>

@@ -1,0 +1,5 @@
+{
+    "Products": true,
+    "Invoices": true,
+    "Manufacturing": true
+}

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{{ $title ?? 'لوحة التحكم' }}</title>
+    <title>{{ $title ?? (app()->getLocale() === 'ar' ? 'لوحة التحكم' : 'Dashboard') }}</title>
     <link rel="shortcut icon" href="{{ asset('assets/images/logo/favicon.ico') }}" type="image/x-icon">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -21,13 +21,14 @@
     <link rel="stylesheet" href="{{ asset('assets/css/style-index.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style-add.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/language-switcher.css') }}">
 
 
     <!-- Custom CSS -->
     @stack('styles')
 </head>
 
-<body class="lang-ar">
+<body class="lang-{{ app()->getLocale() }}">
     <!-- Mobile Overlay -->
     <div class="mobile-overlay" id="mobileOverlay"></div>
 
@@ -50,6 +51,9 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Language Switcher JS -->
+    <script src="{{ asset('assets/js/language-switcher.js') }}"></script>
+
     <!-- Dashboard JS -->
     <script>
         // تحديد حالة الشاشة
@@ -57,19 +61,19 @@
             return window.innerWidth <= 768;
         }
 
+        // الحصول على اتجاه النص الحالي
+        function getCurrentDirection() {
+            return document.documentElement.getAttribute('dir') || 'rtl';
+        }
+
         // دالة تبديل قائمة المستخدم
         function toggleUserMenu() {
             const userMenu = document.getElementById('userMenu');
-            const isVisible = userMenu.style.display === 'block';
+            const userProfile = document.querySelector('.user-profile');
 
-            if (isVisible) {
-                userMenu.style.display = 'none';
-                userMenu.classList.remove('show');
-            } else {
-                userMenu.style.display = 'block';
-                setTimeout(() => {
-                    userMenu.classList.add('show');
-                }, 10);
+            if (userMenu && userProfile) {
+                const isVisible = userMenu.style.display === 'block';
+                userMenu.style.display = isVisible ? 'none' : 'block';
             }
         }
 
@@ -78,44 +82,55 @@
             const userProfile = document.querySelector('.user-profile');
             const userMenu = document.getElementById('userMenu');
 
-            if (!userProfile.contains(event.target)) {
-                userMenu.style.display = 'none';
-                userMenu.classList.remove('show');
-            }
-        });
-
-        // Sidebar Toggle
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            const mobileOverlay = document.getElementById('mobileOverlay');
-
-            if (isMobile()) {
-                // للشاشات الصغيرة
-                sidebar.classList.toggle('show');
-                mobileOverlay.classList.toggle('show');
-
-                // منع التمرير في الخلفية عند فتح القائمة
-                if (sidebar.classList.contains('show')) {
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    document.body.style.overflow = '';
+            if (userProfile && !userProfile.contains(event.target)) {
+                if (userMenu) {
+                    userMenu.style.display = 'none';
+                    userMenu.classList.remove('show');
                 }
-            } else {
-                // للشاشات الكبيرة
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
             }
         });
 
-        // إغلاق الشريط الجانبي عند النقر على الـ overlay
-        document.getElementById('mobileOverlay').addEventListener('click', function() {
-            const sidebar = document.getElementById('sidebar');
-            const mobileOverlay = document.getElementById('mobileOverlay');
+        // Sidebar Toggle with RTL/LTR Support
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
 
-            sidebar.classList.remove('show');
-            mobileOverlay.classList.remove('show');
-            document.body.style.overflow = '';
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    const sidebar = document.getElementById('sidebar');
+                    const mainContent = document.getElementById('mainContent');
+                    const mobileOverlay = document.getElementById('mobileOverlay');
+
+                    if (isMobile()) {
+                        // للشاشات الصغيرة - إظهار/إخفاء القائمة
+                        sidebar.classList.toggle('show');
+                        if (mobileOverlay) {
+                            mobileOverlay.classList.toggle('show');
+                        }
+
+                        // منع التمرير في الخلفية عند فتح القائمة
+                        if (sidebar.classList.contains('show')) {
+                            document.body.style.overflow = 'hidden';
+                        } else {
+                            document.body.style.overflow = '';
+                        }
+                    } else {
+                        // للشاشات الكبيرة - ضغط/توسيع القائمة
+                        sidebar.classList.toggle('collapsed');
+                        mainContent.classList.toggle('expanded');
+                    }
+                });
+            }
+
+            // إغلاق الشريط الجانبي عند النقر على الـ overlay
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            if (mobileOverlay) {
+                mobileOverlay.addEventListener('click', function() {
+                    const sidebar = document.getElementById('sidebar');
+                    sidebar.classList.remove('show');
+                    this.classList.remove('show');
+                    document.body.style.overflow = '';
+                });
+            }
         });
 
         // إغلاق الشريط الجانبي عند الضغط على Escape
@@ -125,17 +140,21 @@
                     const sidebar = document.getElementById('sidebar');
                     const mobileOverlay = document.getElementById('mobileOverlay');
 
-                    if (sidebar.classList.contains('show')) {
+                    if (sidebar && sidebar.classList.contains('show')) {
                         sidebar.classList.remove('show');
-                        mobileOverlay.classList.remove('show');
+                        if (mobileOverlay) {
+                            mobileOverlay.classList.remove('show');
+                        }
                         document.body.style.overflow = '';
                     }
                 }
 
                 // إغلاق قائمة المستخدم أيضاً
                 const userMenu = document.getElementById('userMenu');
-                userMenu.style.display = 'none';
-                userMenu.classList.remove('show');
+                if (userMenu) {
+                    userMenu.style.display = 'none';
+                    userMenu.classList.remove('show');
+                }
             }
         });
 
@@ -148,18 +167,20 @@
 
             if (!isMobile()) {
                 // إزالة classes الخاصة بالموبايل
-                sidebar.classList.remove('show');
-                mobileOverlay.classList.remove('show');
+                if (sidebar) sidebar.classList.remove('show');
+                if (mobileOverlay) mobileOverlay.classList.remove('show');
                 document.body.style.overflow = '';
             } else {
                 // إزالة classes الخاصة بالديسكتوب
-                sidebar.classList.remove('collapsed');
-                mainContent.classList.remove('expanded');
+                if (sidebar) sidebar.classList.remove('collapsed');
+                if (mainContent) mainContent.classList.remove('expanded');
             }
 
             // إغلاق قائمة المستخدم
-            userMenu.style.display = 'none';
-            userMenu.classList.remove('show');
+            if (userMenu) {
+                userMenu.style.display = 'none';
+                userMenu.classList.remove('show');
+            }
         });
 
         // Auto-refresh statistics every 30 seconds
