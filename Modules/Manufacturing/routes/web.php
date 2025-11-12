@@ -12,7 +12,7 @@ use Modules\Manufacturing\Http\Controllers\Stage1Controller;
 use Modules\Manufacturing\Http\Controllers\Stage2Controller;
 use Modules\Manufacturing\Http\Controllers\Stage3Controller;
 use Modules\Manufacturing\Http\Controllers\Stage4Controller;
-
+use Modules\Manufacturing\Http\Controllers\QualityController;
 
     Route::resource('manufacturings', ManufacturingController::class)->names('manufacturing');
 
@@ -49,4 +49,19 @@ use Modules\Manufacturing\Http\Controllers\Stage4Controller;
     Route::post('stage3/add-dye', [Stage3Controller::class, 'addDyeAction'])->name('manufacturing.stage3.add-dye');
     Route::get('stage3/completed-coils', [Stage3Controller::class, 'completedCoils'])->name('manufacturing.stage3.completed-coils');
 
-
+    // Quality Management Routes
+    Route::get('quality', [QualityController::class, 'index'])->name('manufacturing.quality.index');
+    Route::get('quality/waste-report', [QualityController::class, 'wasteReport'])->name('manufacturing.quality.waste-report');
+    Route::get('quality/quality-monitoring', [QualityController::class, 'qualityMonitoring'])->name('manufacturing.quality.quality-monitoring');
+    Route::get('quality/downtime-tracking', [QualityController::class, 'downtimeTracking'])->name('manufacturing.quality.downtime-tracking');
+    Route::get('quality/waste-limits', [QualityController::class, 'wasteLimits'])->name('manufacturing.quality.waste-limits');
+    
+    // Quality Check Routes
+    Route::get('quality/quality-create', [QualityController::class, 'qualityCreate'])->name('manufacturing.quality.quality-create');
+    Route::get('quality/quality-show/{id}', [QualityController::class, 'qualityShow'])->name('manufacturing.quality.quality-show');
+    Route::get('quality/quality-edit/{id}', [QualityController::class, 'qualityEdit'])->name('manufacturing.quality.quality-edit');
+    
+    // Downtime Tracking Routes
+    Route::get('quality/downtime-create', [QualityController::class, 'downtimeCreate'])->name('manufacturing.quality.downtime-create');
+    Route::get('quality/downtime-show/{id}', [QualityController::class, 'downtimeShow'])->name('manufacturing.quality.downtime-show');
+    Route::get('quality/downtime-edit/{id}', [QualityController::class, 'downtimeEdit'])->name('manufacturing.quality.downtime-edit');

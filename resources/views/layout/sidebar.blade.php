@@ -197,28 +197,28 @@
             <!-- الهدر والجودة -->
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="الجودة والهدر">
-                    <i class="fas fa-quality-assurance"></i>
+                    <i class="fas fa-shield-alt"></i>
                     <span>الجودة والهدر</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     <li>
-                        <a href="#">
+                        <a href="/manufacturing/quality/waste-report">
                             <i class="fas fa-trash"></i> تقرير الهدر
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="/manufacturing/quality/quality-monitoring">
                             <i class="fas fa-check-square"></i> مراقبة الجودة
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="/manufacturing/quality/downtime-tracking">
                             <i class="fas fa-exclamation-circle"></i> الأعطال والتوقفات
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="/manufacturing/quality/waste-limits">
                             <i class="fas fa-cog"></i> حدود الهدر المسموحة
                         </a>
                     </li>
