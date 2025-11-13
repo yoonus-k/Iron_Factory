@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('stage4_boxes', function (Blueprint $table) {
             $table->id();
             $table->string('barcode', 50)->unique()->comment('BOX4-XXX-2025');
-            $table->string('packaging_type', 100)->default('cardboard_box');
+            $table->string('packaging_type', 100)->default('cardboard_box')->comment('نوع التغليف');
+            $table->string('packaging_type_en', 100)->nullable()->comment('نوع التغليف بالإنجليزية');
             $table->integer('coils_count');
             $table->decimal('total_weight', 10, 3);
             $table->decimal('waste', 10, 3)->default(0);

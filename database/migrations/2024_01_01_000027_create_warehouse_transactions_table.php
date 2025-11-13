@@ -29,7 +29,8 @@ return new class extends Migration
             $table->foreignId('from_warehouse_id')->nullable()->constrained('warehouses')->comment('من مستودع (للنقل)');
             $table->foreignId('to_warehouse_id')->nullable()->constrained('warehouses')->comment('إلى مستودع (للنقل)');
             $table->string('reference_number', 100)->nullable()->comment('رقم المرجع');
-            $table->text('notes')->nullable()->comment('ملاحظات');
+            $table->text('notes')->nullable()->comment('ملاحظات بالعربية');
+            $table->text('notes_en')->nullable()->comment('ملاحظات بالإنجليزية');
             $table->foreignId('created_by')->constrained('users');
             $table->foreignId('approved_by')->nullable()->constrained('users');
             $table->timestamp('approved_at')->nullable();

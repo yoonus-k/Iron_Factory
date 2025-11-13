@@ -17,7 +17,8 @@ return new class extends Migration
             $table->foreignId('material_id')->constrained()->onDelete('cascade');
             $table->decimal('delivered_weight', 10, 3);
             $table->date('delivery_date');
-            $table->string('driver_name')->nullable();
+            $table->string('driver_name')->nullable()->comment('اسم السائق');
+            $table->string('driver_name_en')->nullable()->comment('اسم السائق بالإنجليزية');
             $table->string('vehicle_number', 50)->nullable();
             $table->foreignId('received_by')->constrained('users');
             $table->timestamps();

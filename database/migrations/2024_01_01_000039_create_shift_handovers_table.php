@@ -17,7 +17,8 @@ return new class extends Migration
             $table->foreignId('to_user_id')->constrained('users');
             $table->tinyInteger('stage_number');
             $table->json('handover_items')->nullable()->comment('JSON format');
-            $table->text('notes')->nullable();
+            $table->text('notes')->nullable()->comment('ملاحظات بالعربية');
+            $table->text('notes_en')->nullable()->comment('ملاحظات بالإنجليزية');
             $table->timestamp('handover_time')->useCurrent();
             $table->boolean('supervisor_approved')->default(false);
             $table->foreignId('approved_by')->nullable()->constrained('users');

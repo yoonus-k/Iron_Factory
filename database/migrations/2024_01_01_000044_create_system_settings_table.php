@@ -16,9 +16,11 @@ return new class extends Migration
             $table->id();
             $table->string('setting_key', 100)->unique();
             $table->text('setting_value');
+            $table->text('setting_value_en')->nullable();
             $table->enum('setting_type', ['string', 'number', 'boolean', 'json'])->default('string');
             $table->string('category', 50)->default('general');
-            $table->text('description')->nullable();
+            $table->text('description')->nullable()->comment('وصف الإعداد بالعربية');
+            $table->text('description_en')->nullable()->comment('وصف الإعداد بالإنجليزية');
             $table->boolean('is_public')->default(false)->comment('هل يمكن عرضها للمستخدمين العاديين');
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();
