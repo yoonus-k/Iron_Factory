@@ -26,7 +26,7 @@
 
         <!-- Form Card -->
         <div class="form-card">
-            <form method="POST" action="{{ route('manufacturing.warehouses.update', 1) }}" id="warehouseForm">
+            <form method="POST" action="{{ route('manufacturing.warehouses.update', $warehouse->id) }}" id="warehouseForm">
                 @csrf
                 @method('PUT')
 
@@ -59,7 +59,7 @@
                                 </svg>
                                 <input type="text" name="name" id="name"
                                     class="form-input @error('name') is-invalid @enderror"
-                                    value="{{ old('name', 'المستودع الرئيسي') }}" placeholder="أدخل اسم المستودع" required>
+                                    value="{{ old('name', $warehouse->warehouse_name) }}" placeholder="أدخل اسم المستودع" required>
                             </div>
                             @error('name')
                                 <span class="error-message">{{ $message }}</span>
@@ -80,7 +80,7 @@
                                 </svg>
                                 <input type="text" name="code" id="code"
                                     class="form-input @error('code') is-invalid @enderror"
-                                    value="{{ old('code', 'WH-001') }}" placeholder="أدخل رمز المستودع" required>
+                                    value="{{ old('code', $warehouse->warehouse_code) }}" placeholder="أدخل رمز المستودع" required>
                             </div>
                             @error('code')
                                 <span class="error-message">{{ $message }}</span>

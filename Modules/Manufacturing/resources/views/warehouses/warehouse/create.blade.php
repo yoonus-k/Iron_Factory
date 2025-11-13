@@ -114,9 +114,11 @@
                                 <select name="manager_id" id="manager_id"
                                     class="form-input">
                                     <option value="">اختر المسؤول</option>
-                                    <option value="1">أحمد محمد</option>
-                                    <option value="2">محمد علي</option>
-                                    <option value="3">سارة أحمد</option>
+                                    @foreach($managers as $manager)
+                                        <option value="{{ $manager->id }}" {{ old('manager_id') == $manager->id ? 'selected' : '' }}>
+                                            {{ $manager->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             @error('manager_id')
