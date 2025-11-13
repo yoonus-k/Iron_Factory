@@ -66,30 +66,6 @@
             return document.documentElement.getAttribute('dir') || 'rtl';
         }
 
-        // دالة تبديل قائمة المستخدم
-        function toggleUserMenu() {
-            const userMenu = document.getElementById('userMenu');
-            const userProfile = document.querySelector('.user-profile');
-
-            if (userMenu && userProfile) {
-                const isVisible = userMenu.style.display === 'block';
-                userMenu.style.display = isVisible ? 'none' : 'block';
-            }
-        }
-
-        // إغلاق قائمة المستخدم عند النقر خارجها
-        document.addEventListener('click', function(event) {
-            const userProfile = document.querySelector('.user-profile');
-            const userMenu = document.getElementById('userMenu');
-
-            if (userProfile && !userProfile.contains(event.target)) {
-                if (userMenu) {
-                    userMenu.style.display = 'none';
-                    userMenu.classList.remove('show');
-                }
-            }
-        });
-
         // Sidebar Toggle with RTL/LTR Support
         document.addEventListener('DOMContentLoaded', function() {
             const sidebarToggle = document.getElementById('sidebarToggle');
@@ -148,13 +124,6 @@
                         document.body.style.overflow = '';
                     }
                 }
-
-                // إغلاق قائمة المستخدم أيضاً
-                const userMenu = document.getElementById('userMenu');
-                if (userMenu) {
-                    userMenu.style.display = 'none';
-                    userMenu.classList.remove('show');
-                }
             }
         });
 
@@ -163,7 +132,6 @@
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
             const mobileOverlay = document.getElementById('mobileOverlay');
-            const userMenu = document.getElementById('userMenu');
 
             if (!isMobile()) {
                 // إزالة classes الخاصة بالموبايل
@@ -174,12 +142,6 @@
                 // إزالة classes الخاصة بالديسكتوب
                 if (sidebar) sidebar.classList.remove('collapsed');
                 if (mainContent) mainContent.classList.remove('expanded');
-            }
-
-            // إغلاق قائمة المستخدم
-            if (userMenu) {
-                userMenu.style.display = 'none';
-                userMenu.classList.remove('show');
             }
         });
 

@@ -69,6 +69,7 @@
 <script>
     function toggleUserMenu() {
         const menu = document.getElementById('userMenu');
+        // Toggle the 'show' class to display/hide the menu
         menu.classList.toggle('show');
     }
 
