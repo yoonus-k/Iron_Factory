@@ -4,7 +4,7 @@
             <i class="fas fa-bars"></i>
         </button>
         <div class="breadcrumb">
-            <span>لوحة التحكم</span>
+            <span>{{ __('app.menu.dashboard') }}</span>
         </div>
     </div>
 

@@ -7,54 +7,54 @@
         <ul>
             <!-- الرئيسية / لوحة التحكم -->
             <li>
-                <a href="/dashboard" class="active" data-tooltip="لوحة التحكم">
+                <a href="/dashboard" class="active" data-tooltip="{{ __('app.menu.dashboard') }}">
                     <i class="fas fa-tachometer-alt"></i>
-                    <span>لوحة التحكم</span>
+                    <span>{{ __('app.menu.dashboard') }}</span>
                 </a>
             </li>
 
             
             <!-- المستودع -->
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="المستودع">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.warehouse') }}">
                     <i class="fas fa-warehouse"></i>
-                    <span>ادارة المخزون </span>
+                    <span>{{ __('app.menu.warehouse') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     <li>
                         <a href="{{ route('manufacturing.warehouse-products.index') }}">
-                            <i class="fas fa-box"></i> المواد الخام
+                            <i class="fas fa-box"></i> {{ __('app.warehouse.raw_materials') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.warehouses.index') }}">
-                            <i class="fas fa-box"></i> المستودع
+                            <i class="fas fa-box"></i> {{ __('app.warehouse.stores') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.delivery-notes.index') }}">
-                            <i class="fas fa-receipt"></i> أذون التسليم
+                            <i class="fas fa-receipt"></i> {{ __('app.warehouse.delivery_notes') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.purchase-invoices.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i> فواتير المشتريات
+                            <i class="fas fa-file-invoice-dollar"></i> {{ __('app.warehouse.purchase_invoices') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.suppliers.index') }}">
-                            <i class="fas fa-truck"></i> الموردين
+                            <i class="fas fa-truck"></i> {{ __('app.warehouse.suppliers') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.additives.index') }}">
-                            <i class="fas fa-paint-brush"></i> الصبغات والبلاستيك
+                            <i class="fas fa-paint-brush"></i> {{ __('app.warehouse.additives') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.warehouse-settings.index') }}">
-                            <i class="fas fa-cog"></i> الاعدادات
+                            <i class="fas fa-cog"></i> {{ __('app.menu.settings') }}
                         </a>
                     </li>
                 </ul>
@@ -62,30 +62,30 @@
 
             <!-- المرحلة الأولى: التقسيم والاستاندات -->
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="التقسيم والاستاندات">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage1.title') }}">
                     <i class="fas fa-cut"></i>
-                    <span>المرحلة 1: التقسيم</span>
+                    <span>{{ __('app.production.stage1.title') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     <li>
                         <a href="{{ route('manufacturing.stage1.index') }}">
-                            <i class="fas fa-list"></i> قائمة الاستاندات
+                            <i class="fas fa-list"></i> {{ __('app.production.stage1.list') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.stage1.create') }}">
-                            <i class="fas fa-plus-circle"></i> إنشاء استاند جديد
+                            <i class="fas fa-plus-circle"></i> {{ __('app.production.stage1.create_new') }}
                         </a>
                     </li>
                      <li>
                         <a href="{{ route('manufacturing.stage1.barcode-scan') }}">
-                            <i class="fas fa-barcode"></i> مسح الباركود
+                            <i class="fas fa-barcode"></i> {{ __('app.production.barcode_scan') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.stage1.waste-tracking') }}">
-                            <i class="fas fa-trash-alt"></i> تتبع الهدر
+                            <i class="fas fa-trash-alt"></i> {{ __('app.production.waste_tracking') }}
                         </a>
                     </li>
                 </ul>
@@ -93,30 +93,30 @@
 
             <!-- المرحلة الثانية: المعالجة -->
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="المعالجة">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage2.title') }}">
                     <i class="fas fa-cogs"></i>
-                    <span>المرحلة 2: المعالجة</span>
+                    <span>{{ __('app.production.stage2.title') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     <li>
                         <a href="{{ route('manufacturing.stage2.index') }}">
-                            <i class="fas fa-list"></i> المواد قيد المعالجة
+                            <i class="fas fa-list"></i> {{ __('app.production.stage2.list') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.stage2.create') }}">
-                            <i class="fas fa-play-circle"></i> بدء معالجة جديدة
+                            <i class="fas fa-play-circle"></i> {{ __('app.production.stage2.start_new') }}
                         </a>
                     </li>
                      <li>
                         <a href="{{ route('manufacturing.stage2.complete-processing') }}">
-                            <i class="fas fa-check-circle"></i> إنهاء معالجة
+                            <i class="fas fa-check-circle"></i> {{ __('app.production.stage2.complete') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.stage2.waste-statistics') }}">
-                            <i class="fas fa-chart-pie"></i> إحصائيات الهدر
+                            <i class="fas fa-chart-pie"></i> {{ __('app.production.waste_statistics') }}
                         </a>
                     </li>
                 </ul>
@@ -124,30 +124,30 @@
 
             <!-- المرحلة الثالثة: تصنيع الكويلات -->
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="تصنيع الكويلات">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage3.title') }}">
                     <i class="fas fa-codiepie"></i>
-                    <span>المرحلة 3: الكويلات</span>
+                    <span>{{ __('app.production.stage3.title') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     <li>
                         <a href="{{ route('manufacturing.stage3.index') }}">
-                            <i class="fas fa-list"></i> قائمة الكويلات
+                            <i class="fas fa-list"></i> {{ __('app.production.stage3.list') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.stage3.create') }}">
-                            <i class="fas fa-plus-circle"></i> إنشاء كويل جديد
+                            <i class="fas fa-plus-circle"></i> {{ __('app.production.stage3.create_new') }}
                         </a>
                     </li>
                       <li>
                         <a href="{{ route('manufacturing.stage3.add-dye-plastic') }}">
-                            <i class="fas fa-palette"></i> إضافة صبغة/بلاستيك
+                            <i class="fas fa-palette"></i> {{ __('app.production.stage3.add_additives') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.stage3.completed-coils') }}">
-                            <i class="fas fa-check-circle"></i> كويلات مكتملة
+                            <i class="fas fa-check-circle"></i> {{ __('app.production.stage3.completed') }}
                         </a>
                     </li>
                 </ul>
@@ -155,39 +155,39 @@
 
             <!-- المرحلة الرابعة: التعبئة والتغليف -->
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="التعبئة والتغليف">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage4.title') }}">
                     <i class="fas fa-box-open"></i>
-                    <span>المرحلة 4: التغليف</span>
+                    <span>{{ __('app.production.stage4.title') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     <li>
                         <a href="{{ route('manufacturing.stage4.index') }}">
-                            <i class="fas fa-list"></i> الكراتين المعبأة
+                            <i class="fas fa-list"></i> {{ __('app.production.stage4.list') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.stage4.create') }}">
-                            <i class="fas fa-plus-circle"></i> إنشاء كرتون جديد
+                            <i class="fas fa-plus-circle"></i> {{ __('app.production.stage4.create_new') }}
                         </a>
                     </li>
                 </ul>
             </li>
                <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip=" تتبع الانتاج">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.production_tracking') }}">
                     <i class="fas fa-box-open"></i>
-                    <span> تتبع الانتاج </span>
+                    <span>{{ __('app.menu.production_tracking') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     <li>
                         <a href="{{ route('manufacturing.production-tracking.scan') }}">
-                            <i class="fas fa-barcode"></i> مسح الباركود
+                            <i class="fas fa-barcode"></i> {{ __('app.production.barcode_scan') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.iron-journey') }}">
-                            <i class="fas fa-route"></i> رحلة الحديد
+                            <i class="fas fa-route"></i> {{ __('app.production.iron_journey') }}
                         </a>
                     </li>
                 </ul>
@@ -196,30 +196,30 @@
 
             <!-- الورديات والعمال -->
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="الورديات">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.shifts') }}">
                     <i class="fas fa-users"></i>
-                    <span>الورديات والعمال</span>
+                    <span>{{ __('app.menu.shifts') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     <li>
                         <a href="{{ route('manufacturing.shifts-workers.index') }}">
-                            <i class="fas fa-list"></i> قائمة الورديات
+                            <i class="fas fa-list"></i> {{ __('app.users.shifts_list') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.shifts-workers.create') }}">
-                            <i class="fas fa-plus-circle"></i> إضافة وردية جديدة
+                            <i class="fas fa-plus-circle"></i> {{ __('app.users.add_shift') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.shifts-workers.current') }}">
-                            <i class="fas fa-clock"></i> الورديات الحالية
+                            <i class="fas fa-clock"></i> {{ __('app.users.current_shifts') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.shifts-workers.attendance') }}">
-                            <i class="fas fa-user-check"></i> سجل الحضور
+                            <i class="fas fa-user-check"></i> {{ __('app.users.attendance') }}
                         </a>
                     </li>
                 </ul>
@@ -227,30 +227,30 @@
 
             <!-- الهدر والجودة -->
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="الجودة والهدر">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.quality') }}">
                     <i class="fas fa-shield-alt"></i>
-                    <span>الجودة والهدر</span>
+                    <span>{{ __('app.menu.quality') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     <li>
                         <a href="/manufacturing/quality/waste-report">
-                            <i class="fas fa-trash"></i> تقرير الهدر
+                            <i class="fas fa-trash"></i> {{ __('app.reports.waste_report') }}
                         </a>
                     </li>
                     <li>
                         <a href="/manufacturing/quality/quality-monitoring">
-                            <i class="fas fa-check-square"></i> مراقبة الجودة
+                            <i class="fas fa-check-square"></i> {{ __('app.production.quality_monitoring') }}
                         </a>
                     </li>
                     <li>
                         <a href="/manufacturing/quality/downtime-tracking">
-                            <i class="fas fa-exclamation-circle"></i> الأعطال والتوقفات
+                            <i class="fas fa-exclamation-circle"></i> {{ __('app.production.downtime_tracking') }}
                         </a>
                     </li>
                     <li>
                         <a href="/manufacturing/quality/waste-limits">
-                            <i class="fas fa-cog"></i> حدود الهدر المسموحة
+                            <i class="fas fa-cog"></i> {{ __('app.production.waste_limits') }}
                         </a>
                     </li>
                 </ul>
@@ -258,35 +258,35 @@
 
             <!-- التقارير والإحصائيات -->
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="التقارير">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.reports') }}">
                     <i class="fas fa-chart-bar"></i>
-                    <span>التقارير والإحصائيات</span>
+                    <span>{{ __('app.menu.reports') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     <li>
                         <a href="#">
-                            <i class="fas fa-calendar-day"></i> التقرير اليومي
+                            <i class="fas fa-calendar-day"></i> {{ __('app.reports.daily') }}
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                            <i class="fas fa-calendar-week"></i> التقرير الأسبوعي
+                            <i class="fas fa-calendar-week"></i> {{ __('app.reports.weekly') }}
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                            <i class="fas fa-calendar"></i> التقرير الشهري
+                            <i class="fas fa-calendar"></i> {{ __('app.reports.monthly') }}
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                            <i class="fas fa-chart-line"></i> إحصائيات الإنتاج
+                            <i class="fas fa-chart-line"></i> {{ __('app.reports.production_stats') }}
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                            <i class="fas fa-chart-pie"></i> توزيع الهدر
+                            <i class="fas fa-chart-pie"></i> {{ __('app.reports.waste_distribution') }}
                         </a>
                     </li>
                 </ul>
@@ -294,25 +294,25 @@
 
             <!-- الإدارة والموارد البشرية -->
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="الإدارة">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.management') }}">
                     <i class="fas fa-users-cog"></i>
-                    <span>الإدارة</span>
+                    <span>{{ __('app.menu.management') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     <li>
                         <a href="#">
-                            <i class="fas fa-users"></i> إدارة المستخدمين
+                            <i class="fas fa-users"></i> {{ __('app.users.manage_users') }}
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                            <i class="fas fa-user-shield"></i> الأدوار والصلاحيات
+                            <i class="fas fa-user-shield"></i> {{ __('app.users.roles') }}
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                            <i class="fas fa-history"></i> سجل الأنشطة
+                            <i class="fas fa-history"></i> {{ __('app.users.activity_log') }}
                         </a>
                     </li>
                 </ul>
@@ -320,30 +320,30 @@
 
             <!-- الإعدادات -->
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="الإعدادات">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.settings') }}">
                     <i class="fas fa-cog"></i>
-                    <span>الإعدادات</span>
+                    <span>{{ __('app.menu.settings') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     <li>
                         <a href="#">
-                            <i class="fas fa-sliders-h"></i> إعدادات عامة
+                            <i class="fas fa-sliders-h"></i> {{ __('app.settings.general') }}
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                            <i class="fas fa-calculator"></i> المعادلات والحسابات
+                            <i class="fas fa-calculator"></i> {{ __('app.settings.calculations') }}
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                            <i class="fas fa-barcode"></i> إعدادات الباركود
+                            <i class="fas fa-barcode"></i> {{ __('app.settings.barcode_settings') }}
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                            <i class="fas fa-bell"></i> الإشعارات والتنبيهات
+                            <i class="fas fa-bell"></i> {{ __('app.settings.notifications') }}
                         </a>
                     </li>
                 </ul>
