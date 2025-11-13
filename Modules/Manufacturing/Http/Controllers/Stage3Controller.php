@@ -20,6 +20,7 @@ class Stage3Controller extends Controller
      */
     public function create()
     {
+        
         return view('manufacturing::stages.stage3.create');
     }
 

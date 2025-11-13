@@ -1,292 +1,808 @@
 @extends('master')
 
-@section('title', 'إنشاء كرتون جديد - المرحلة الرابعة')
+@section('title', 'تعبئة الكراتين - المرحلة الرابعة')
 
 @section('content')
+<style>
+    /* Stage Container */
+    .stage-container {
+        max-width: 1100px;
+        margin: 20px auto;
+        padding: 0 15px;
+    }
 
+    /* Stage Header */
+    .stage-header {
+        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        color: white;
+        padding: 25px 30px;
+        border-radius: var(--border-radius);
+        margin-bottom: 25px;
+        box-shadow: var(--shadow-medium);
+    }
+
+    .stage-header h1 {
+        margin: 0 0 8px 0;
+        font-size: 26px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stage-header p {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 14px;
+    }
+
+    /* Form Section */
+    .form-section {
+        background: white;
+        padding: 25px;
+        border-radius: var(--border-radius);
+        margin-bottom: 20px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-light);
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin: 0 0 20px 0;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #9b59b6;
+    }
+
+    /* Form Layout */
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #34495e;
+        margin-bottom: 8px;
+    }
+
+    .required {
+        color: var(--danger-color);
+        margin-right: 4px;
+    }
+
+    .form-control, .form-select {
+        padding: 12px 15px;
+        border: 1px solid #dce4ec;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s;
+        background: #f8fafb;
+    }
+
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: #9b59b6;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
+    }
+
+    .form-control:disabled, .form-control:read-only {
+        background: #ecf0f1;
+        cursor: not-allowed;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    /* Barcode Section */
+    .barcode-section {
+        background: linear-gradient(135deg, #f3e5f5 0%, #e8d5ed 100%);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border: 2px dashed #9b59b6;
+    }
+
+    .barcode-input-wrapper {
+        position: relative;
+    }
+
+    .barcode-input {
+        width: 100%;
+        padding: 15px 50px 15px 15px;
+        font-size: 16px;
+        border: 2px solid #9b59b6;
+        border-radius: 8px;
+        font-weight: 500;
+        background: white;
+    }
+
+    .barcode-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 24px;
+        color: #9b59b6;
+    }
+
+    /* Coil Display */
+    .coil-display {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border-right: 4px solid #2196f3;
+        display: none;
+    }
+
+    .coil-display.active {
+        display: block;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .coil-display h4 {
+        color: #2196f3;
+        margin: 0 0 10px 0;
+        font-size: 16px;
+    }
+
+    .coil-info-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-top: 10px;
+    }
+
+    .info-item {
+        background: rgba(255, 255, 255, 0.7);
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+    .info-label {
+        font-size: 12px;
+        color: #7f8c8d;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--dark-color);
+    }
+
+    /* Box List */
+    .box-list {
+        margin-top: 20px;
+    }
+
+    .box-item {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-right: 4px solid #9b59b6;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .box-info strong {
+        color: var(--dark-color);
+        font-size: 15px;
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    .box-info small {
+        color: #7f8c8d;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .btn-delete {
+        background: var(--danger-color);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.3s;
+    }
+
+    .btn-delete:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(155, 89, 182, 0.3);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, var(--success-color) 0%, #229954 100%);
+        color: white;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-success:disabled {
+        background: #95a5a6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-secondary {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-secondary:hover {
+        background: #7f8c8d;
+    }
+
+    /* Actions */
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 2px solid #ecf0f1;
+        justify-content: center;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 15px;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #95a5a6;
+    }
+
+    .empty-state svg {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+
+    /* Info Box */
+    .info-box {
+        background: linear-gradient(135deg, #fff9e6 0%, #ffeaa7 100%);
+        border-right: 4px solid #f39c12;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .info-box strong {
+        color: #e67e22;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .info-box ul {
+        margin: 8px 0 0 20px;
+        color: #7f8c8d;
+        font-size: 13px;
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .coil-info-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="stage-container">
     <!-- Header -->
-    <div class="um-header-section">
-        <h1 class="um-page-title">
-            <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M6 9l12-3"></path>
-                <path d="M6 9v6a2 2 0 002 2h8a2 2 0 002-2V9"></path>
-                <path d="M6 9l-2 12a2 2 0 002 2h12a2 2 0 002-2l-2-12"></path>
-            </svg>
-            إنشاء كرتون جديد
+    <div class="stage-header">
+        <h1>
+            <span>📦</span>
+            المرحلة الرابعة - تعبئة الكراتين
         </h1>
-        <nav class="um-breadcrumb-nav">
-            <span>
-                <i class="feather icon-home"></i> لوحة التحكم
-            </span>
-            <i class="feather icon-chevron-left"></i>
-            <span>المرحلة الرابعة</span>
-            <i class="feather icon-chevron-left"></i>
-            <span>إنشاء كرتون جديد</span>
-        </nav>
+        <p>قم بمسح باركود الكويل وإضافة معلومات التعبئة والشحن</p>
     </div>
 
-    <!-- Form Card -->
-    <div class="form-card">
-        <form method="POST" action="{{ route('manufacturing.stage4.store') }}" id="stage4Form" enctype="multipart/form-data">
-            @csrf
-
-            <!-- Box Information Section -->
-            <div class="form-section">
-                <div class="section-header">
-                    <div class="section-icon personal">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M6 9l12-3"></path>
-                            <path d="M6 9v6a2 2 0 002 2h8a2 2 0 002-2V9"></path>
-                            <path d="M6 9l-2 12a2 2 0 002 2h12a2 2 0 002-2l-2-12"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="section-title">معلومات الكرتون</h3>
-                        <p class="section-subtitle">أدخل البيانات الأساسية للكرتون</p>
-                    </div>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label for="stage3_id" class="form-label">
-                            الكويل
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                            <select name="stage3_id" id="stage3_id" class="form-input" required>
-                                <option value="">اختر كويل من المرحلة الثالثة</option>
-                                <option value="1">COIL-001 (250 كجم)</option>
-                                <option value="2">COIL-002 (245 كجم)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="box_number" class="form-label">
-                            رقم الكرتون
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 9l12-3"></path>
-                                <path d="M6 9v6a2 2 0 002 2h8a2 2 0 002-2V9"></path>
-                                <path d="M6 9l-2 12a2 2 0 002 2h12a2 2 0 002-2l-2-12"></path>
-                            </svg>
-                            <input type="text" name="box_number" id="box_number" class="form-input" value="" placeholder="أدخل رقم الكرتون" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="coils_count" class="form-label">عدد الكويلات <span class="required">*</span></label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="9" cy="21" r="1"></circle>
-                                <circle cx="20" cy="21" r="1"></circle>
-                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                            </svg>
-                            <input type="number" name="coils_count" id="coils_count" class="form-input" value="" placeholder="أدخل عدد الكويلات" min="1" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="packaging_type" class="form-label">
-                            نوع التغليف
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 9l12-3"></path>
-                                <path d="M6 9v6a2 2 0 002 2h8a2 2 0 002-2V9"></path>
-                                <path d="M6 9l-2 12a2 2 0 002 2h12a2 2 0 002-2l-2-12"></path>
-                            </svg>
-                            <select name="packaging_type" id="packaging_type" class="form-input" required>
-                                <option value="">اختر نوع التغليف</option>
-                                <option value="carton">كرتون</option>
-                                <option value="plastic">بلاستيك</option>
-                                <option value="wood">خشب</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="total_weight" class="form-label">الوزن الإجمالي (كجم) <span class="required">*</span></label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="1" x2="12" y2="23"></line>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                            </svg>
-                            <input type="number" name="total_weight" id="total_weight" class="form-input" value="" placeholder="أدخل الوزن الإجمالي" step="0.01" min="0" required>
-                        </div>
-                    </div>
-
-                    <!-- Customer Information Section -->
-                    <div class="form-group full-width">
-                        &nbsp;
-                    </div>
-
-                    <div class="form-group">
-                        <label for="customer_name" class="form-label">
-                            اسم العميل
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            <input type="text" name="customer_name" id="customer_name" class="form-input" value="" placeholder="أدخل اسم العميل" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="customer_email" class="form-label">
-                            البريد الإلكتروني للعميل
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                                <path d="M22 4l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 4"></path>
-                            </svg>
-                            <input type="email" name="customer_email" id="customer_email" class="form-input" value="" placeholder="أدخل البريد الإلكتروني" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="customer_phone" class="form-label">
-                            رقم الهاتف للعميل
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                            </svg>
-                            <input type="tel" name="customer_phone" id="customer_phone" class="form-input" value="" placeholder="أدخل رقم الهاتف" required>
-                        </div>
-                    </div>
-
-                    <!-- Shipping Information Section -->
-                    <div class="form-group full-width">
-                        &nbsp;
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="shipping_address" class="form-label">
-                            عنوان الشحن
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
-                            <textarea name="shipping_address" id="shipping_address" rows="3" class="form-input" placeholder="أدخل عنوان الشحن الكامل" required></textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="tracking_number" class="form-label">
-                            رقم التتبع
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 9l12-3"></path>
-                                <path d="M6 9v6a2 2 0 002 2h8a2 2 0 002-2V9"></path>
-                                <path d="M6 9l-2 12a2 2 0 002 2h12a2 2 0 002-2l-2-12"></path>
-                            </svg>
-                            <input type="text" name="tracking_number" id="tracking_number" class="form-input" value="" placeholder="أدخل رقم التتبع (اختياري)">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="expected_delivery_date" class="form-label">
-                            تاريخ التسليم المتوقع
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
-                            <input type="date" name="expected_delivery_date" id="expected_delivery_date" class="form-input" required>
-                        </div>
-                    </div>
-                        <label for="notes" class="form-label">الملاحظات</label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="8" y1="6" x2="21" y2="6"></line>
-                                <line x1="8" y1="12" x2="21" y2="12"></line>
-                                <line x1="8" y1="18" x2="21" y2="18"></line>
-                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                            </svg>
-                            <textarea name="notes" id="notes" rows="4" class="form-input" placeholder="أدخل ملاحظات للكرتون"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-group full-width">
-                        &nbsp;
-                    </div>
-                </div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="form-actions">
-                <button type="submit" class="btn-submit">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    حفظ الكرتون
-                </button>
-                <a href="{{ route('manufacturing.stage4.index') }}" class="btn-cancel">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                    إلغاء
-                </a>
-            </div>
-        </form>
+    <!-- Barcode Scanner -->
+    <div class="form-section barcode-section">
+        <h3 style="margin: 0 0 15px 0; color: #9b59b6;">📷 مسح باركود الكويل</h3>
+        <div class="barcode-input-wrapper">
+            <input type="text" id="coilBarcode" class="barcode-input" placeholder="امسح أو اكتب باركود الكويل (CO3-XXX-2025)" autofocus>
+            <span class="barcode-icon">🎯</span>
+        </div>
+        <small style="color: #7f8c8d; display: block; margin-top: 10px;">💡 امسح الباركود أو اضغط Enter للبحث</small>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('stage4Form');
-            const inputs = form.querySelectorAll('.form-input');
+    <!-- Coil Display -->
+    <div id="coilDisplay" class="coil-display">
+        <h4>✅ بيانات الكويل</h4>
+        <div class="coil-info-grid">
+            <div class="info-item">
+                <div class="info-label">الباركود</div>
+                <div class="info-value" id="displayBarcode">-</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">لون الصبغة</div>
+                <div class="info-value" id="displayDyeColor">-</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">نوع البلاستيك</div>
+                <div class="info-value" id="displayPlasticType">-</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">الوزن الإجمالي</div>
+                <div class="info-value" id="displayWeight">-</div>
+            </div>
+        </div>
+    </div>
 
-            inputs.forEach(input => {
-                input.addEventListener('blur', function() {
-                    if (this.required && !this.value) {
-                        this.classList.add('is-invalid');
-                    } else {
-                        this.classList.remove('is-invalid');
-                    }
-                });
+    <!-- Box Form -->
+    <div class="form-section">
+        <h3 class="section-title">📝 بيانات الكرتون</h3>
 
-                input.addEventListener('input', function() {
-                    if (this.classList.contains('is-invalid') && this.value) {
-                        this.classList.remove('is-invalid');
-                    }
-                });
-            });
+        <div class="info-box">
+            <strong>📌 ملاحظة هامة:</strong>
+            <ul>
+                <li>يمكن وضع عدة كويلات في كرتون واحد</li>
+                <li>الوزن الإجمالي للكرتون يُحسب من مجموع أوزان الكويلات</li>
+                <li>يجب تحديد معلومات العميل والشحن لكل كرتون</li>
+            </ul>
+        </div>
 
-            // Smooth scroll to first error
-            form.addEventListener('submit', function(e) {
-                const firstInvalid = form.querySelector('.is-invalid, :invalid');
-                if (firstInvalid) {
-                    firstInvalid.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                }
-            });
-        });
-    </script>
+        <div class="form-row">
+            <div class="form-group">
+                <label>رقم الكرتون <span class="required">*</span></label>
+                <input type="text" id="boxNumber" class="form-control" placeholder="BOX4-001-2025">
+            </div>
+
+            <div class="form-group">
+                <label>عدد الكويلات في الكرتون <span class="required">*</span></label>
+                <input type="number" id="coilsCount" class="form-control" placeholder="1" min="1" value="1">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>نوع التغليف <span class="required">*</span></label>
+                <select id="packagingType" class="form-select">
+                    <option value="">اختر نوع التغليف</option>
+                    <option value="carton">كرتون عادي</option>
+                    <option value="reinforced_carton">كرتون مقوى</option>
+                    <option value="wooden">صندوق خشبي</option>
+                    <option value="plastic">غلاف بلاستيكي</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>الوزن الإجمالي (كجم) <span class="required">*</span></label>
+                <input type="number" id="totalWeight" class="form-control" placeholder="100.00" step="0.01" readonly>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>اسم العميل <span class="required">*</span></label>
+                <input type="text" id="customerName" class="form-control" placeholder="أحمد محمد">
+            </div>
+
+            <div class="form-group">
+                <label>رقم هاتف العميل <span class="required">*</span></label>
+                <input type="tel" id="customerPhone" class="form-control" placeholder="0501234567">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label>عنوان الشحن <span class="required">*</span></label>
+                <textarea id="shippingAddress" class="form-control" placeholder="الرياض، حي النخيل، شارع الملك فهد..."></textarea>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>رقم التتبع</label>
+                <input type="text" id="trackingNumber" class="form-control" placeholder="TRK-2025-001">
+            </div>
+
+            <div class="form-group">
+                <label>التكلفة (ريال) <span class="required">*</span></label>
+                <input type="number" id="cost" class="form-control" placeholder="100.00" step="0.01">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label>ملاحظات</label>
+                <textarea id="notes" class="form-control" placeholder="أضف أي ملاحظات إضافية..."></textarea>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button type="button" class="btn-primary" onclick="addBox()">
+                ➕ إضافة الكرتون
+            </button>
+            <button type="button" class="btn-secondary" onclick="clearForm()">
+                🔄 مسح النموذج
+            </button>
+        </div>
+    </div>
+
+    <!-- Boxes List -->
+    <div class="form-section">
+        <h3 class="section-title">📋 قائمة الكراتين المضافة (<span id="boxCount">0</span>)</h3>
+        <div id="boxList" class="box-list">
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <p>لا توجد كراتين مضافة بعد</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+        <button type="button" class="btn-success" onclick="submitAll()" id="submitBtn" disabled>
+            ✅ حفظ جميع الكراتين
+        </button>
+        <button type="button" class="btn-secondary" onclick="window.location.href='{{ route('manufacturing.stage4.index') }}'">
+            ❌ إلغاء
+        </button>
+    </div>
+</div>
+
+<script>
+let currentCoil = null;
+let boxes = [];
+
+// Load from localStorage on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const saved = localStorage.getItem('stage4_boxes');
+    if (saved) {
+        boxes = JSON.parse(saved);
+        renderBoxes();
+    }
+    
+    // Auto-save every 30 seconds
+    setInterval(saveOffline, 30000);
+});
+
+// Barcode scanner
+document.getElementById('coilBarcode').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        loadCoil(this.value.trim());
+    }
+});
+
+// Auto-update total weight based on coil weight and count
+document.getElementById('coilsCount').addEventListener('input', updateTotalWeight);
+
+function loadCoil(barcode) {
+    if (!barcode) {
+        alert('⚠️ يرجى إدخال باركود الكويل!');
+        return;
+    }
+
+    // Simulate API call - replace with actual AJAX
+    // fetch(`/api/stage3/get-by-barcode/${barcode}`)
+    //     .then(response => response.json())
+    //     .then(data => { ... })
+
+    // Mock data for demonstration
+    currentCoil = {
+        barcode: barcode,
+        dye_color: 'red',
+        plastic_type: 'pe',
+        total_weight: 98.5
+    };
+
+    // Display coil data
+    const colorNames = {
+        red: 'أحمر', blue: 'أزرق', green: 'أخضر', yellow: 'أصفر',
+        black: 'أسود', white: 'أبيض', brown: 'بني'
+    };
+    const plasticNames = {
+        pe: 'PE', pp: 'PP', pvc: 'PVC', pet: 'PET'
+    };
+
+    document.getElementById('displayBarcode').textContent = currentCoil.barcode;
+    document.getElementById('displayDyeColor').textContent = colorNames[currentCoil.dye_color] || currentCoil.dye_color;
+    document.getElementById('displayPlasticType').textContent = plasticNames[currentCoil.plastic_type] || currentCoil.plastic_type;
+    document.getElementById('displayWeight').textContent = currentCoil.total_weight + ' كجم';
+    document.getElementById('coilDisplay').classList.add('active');
+
+    // Fill total weight
+    updateTotalWeight();
+
+    // Focus on box number
+    document.getElementById('boxNumber').focus();
+
+    // Show success message
+    showToast('✅ تم تحميل بيانات الكويل بنجاح!', 'success');
+}
+
+function updateTotalWeight() {
+    if (currentCoil) {
+        const count = parseInt(document.getElementById('coilsCount').value) || 1;
+        const totalWeight = (currentCoil.total_weight * count).toFixed(2);
+        document.getElementById('totalWeight').value = totalWeight;
+    }
+}
+
+function addBox() {
+    if (!currentCoil) {
+        alert('⚠️ يرجى مسح باركود الكويل أولاً!');
+        return;
+    }
+
+    const boxNumber = document.getElementById('boxNumber').value.trim();
+    const coilsCount = document.getElementById('coilsCount').value;
+    const packagingType = document.getElementById('packagingType').value;
+    const totalWeight = document.getElementById('totalWeight').value;
+    const customerName = document.getElementById('customerName').value.trim();
+    const customerPhone = document.getElementById('customerPhone').value.trim();
+    const shippingAddress = document.getElementById('shippingAddress').value.trim();
+    const trackingNumber = document.getElementById('trackingNumber').value.trim();
+    const cost = document.getElementById('cost').value;
+    const notes = document.getElementById('notes').value.trim();
+
+    if (!boxNumber || !coilsCount || !packagingType || !customerName || !customerPhone || !shippingAddress || !cost) {
+        alert('⚠️ يرجى ملء جميع الحقول المطلوبة!');
+        return;
+    }
+
+    const box = {
+        id: Date.now(),
+        coil_barcode: currentCoil.barcode,
+        box_number: boxNumber,
+        coils_count: parseInt(coilsCount),
+        packaging_type: packagingType,
+        total_weight: parseFloat(totalWeight),
+        customer_name: customerName,
+        customer_phone: customerPhone,
+        shipping_address: shippingAddress,
+        tracking_number: trackingNumber,
+        cost: parseFloat(cost),
+        notes: notes
+    };
+
+    boxes.push(box);
+    renderBoxes();
+    clearForm();
+    saveOffline();
+
+    showToast('✅ تم إضافة الكرتون بنجاح!', 'success');
+}
+
+function renderBoxes() {
+    const list = document.getElementById('boxList');
+    document.getElementById('boxCount').textContent = boxes.length;
+    document.getElementById('submitBtn').disabled = boxes.length === 0;
+
+    if (boxes.length === 0) {
+        list.innerHTML = `
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <p>لا توجد كراتين مضافة بعد</p>
+            </div>
+        `;
+        return;
+    }
+
+    const packagingNames = {
+        carton: 'كرتون عادي',
+        reinforced_carton: 'كرتون مقوى',
+        wooden: 'صندوق خشبي',
+        plastic: 'غلاف بلاستيكي'
+    };
+
+    list.innerHTML = boxes.map(box => `
+        <div class="box-item">
+            <div class="box-info">
+                <strong>📦 ${box.box_number}</strong>
+                <small>
+                    كويلات: ${box.coils_count} | 
+                    تغليف: ${packagingNames[box.packaging_type]} | 
+                    وزن: ${box.total_weight} كجم | 
+                    عميل: ${box.customer_name} (${box.customer_phone}) | 
+                    تكلفة: ${box.cost} ريال
+                    ${box.tracking_number ? '<br>🔢 تتبع: ' + box.tracking_number : ''}
+                    ${box.notes ? '<br>📝 ' + box.notes : ''}
+                </small>
+            </div>
+            <button class="btn-delete" onclick="removeBox(${box.id})">🗑️ حذف</button>
+        </div>
+    `).join('');
+}
+
+function removeBox(id) {
+    if (confirm('هل أنت متأكد من حذف هذا الكرتون؟')) {
+        boxes = boxes.filter(b => b.id !== id);
+        renderBoxes();
+        saveOffline();
+        showToast('🗑️ تم حذف الكرتون', 'info');
+    }
+}
+
+function clearForm() {
+    // Keep current coil data
+    document.getElementById('boxNumber').value = '';
+    document.getElementById('coilsCount').value = '1';
+    document.getElementById('packagingType').value = '';
+    document.getElementById('customerName').value = '';
+    document.getElementById('customerPhone').value = '';
+    document.getElementById('shippingAddress').value = '';
+    document.getElementById('trackingNumber').value = '';
+    document.getElementById('cost').value = '';
+    document.getElementById('notes').value = '';
+    
+    // Reset total weight
+    updateTotalWeight();
+    
+    document.getElementById('boxNumber').focus();
+}
+
+function submitAll() {
+    if (boxes.length === 0) {
+        alert('⚠️ يرجى إضافة كرتون واحد على الأقل!');
+        return;
+    }
+
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ جاري الحفظ...';
+
+    // Prepare data
+    const formData = {
+        boxes: boxes,
+        _token: '{{ csrf_token() }}'
+    };
+
+    // Submit via AJAX
+    fetch('{{ route("manufacturing.stage4.store") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('✅ تم حفظ جميع الكراتين بنجاح!', 'success');
+            localStorage.removeItem('stage4_boxes');
+            setTimeout(() => {
+                window.location.href = '{{ route("manufacturing.stage4.index") }}';
+            }, 1500);
+        } else {
+            throw new Error(data.message || 'حدث خطأ أثناء الحفظ');
+        }
+    })
+    .catch(error => {
+        alert('❌ خطأ: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '✅ حفظ جميع الكراتين';
+    });
+}
+
+function saveOffline() {
+    localStorage.setItem('stage4_boxes', JSON.stringify(boxes));
+}
+
+function showToast(message, type = 'info') {
+    // Simple toast notification
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#9b59b6'};
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.animation = 'fadeOut 0.3s ease-out';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+</script>
 
 @endsection
