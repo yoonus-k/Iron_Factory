@@ -24,13 +24,13 @@ return new class extends Migration
             $table->decimal('total_weight', 10, 3);
             $table->string('color', 50)->nullable();
             $table->decimal('waste', 10, 3)->default(0);
-            $table->foreignId('dye_additive_id')->nullable()->constrained('additives_inventory')->onDelete('set null');
-            $table->foreignId('plastic_additive_id')->nullable()->constrained('additives_inventory')->onDelete('set null');
+            $table->string('dye_type', 100)->nullable()->comment('نوع الصبغة المستخدمة');
+            $table->string('plastic_type', 100)->nullable()->comment('نوع البلاستيك المستخدم');
             $table->enum('status', ['created', 'in_process', 'completed', 'packed'])->default('created');
             $table->foreignId('created_by')->constrained('users');
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
-            
+
             $table->index('barcode');
             $table->index('parent_barcode');
             $table->index('status');

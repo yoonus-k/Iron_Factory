@@ -27,6 +27,11 @@
                         </a>
                     </li>
                     <li>
+                        <a href="">
+                            <i class="fas fa-box"></i> المستودع
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ route('manufacturing.delivery-notes.index') }}">
                             <i class="fas fa-receipt"></i> أذون التسليم
                         </a>
@@ -44,6 +49,11 @@
                     <li>
                         <a href="{{ route('manufacturing.additives.index') }}">
                             <i class="fas fa-paint-brush"></i> الصبغات والبلاستيك
+                        </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            <i class="fas fa-paint-brush"></i> الاعدادات
                         </a>
                     </li>
                 </ul>

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->foreignId('created_by')->constrained('users');
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
-            
+
             $table->index('barcode');
             $table->index('parent_barcode');
             $table->index('status');

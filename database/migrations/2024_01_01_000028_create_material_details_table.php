@@ -13,17 +13,21 @@ return new class extends Migration
     {
         Schema::create('material_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('material_id')->constrained('materials')->onDelete('cascade');
-            $table->string('detail_key', 100)->comment('مفتاح التفصيل');
-            $table->text('detail_value')->comment('قيمة التفصيل');
-            $table->enum('data_type', ['string', 'number', 'date', 'boolean', 'json'])->default('string')->comment('نوع البيانات');
-            $table->boolean('is_visible')->default(true)->comment('ظاهر للمستخدم');
-            $table->integer('display_order')->default(0)->comment('ترتيب العرض');
+            $table->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade')->comment('المستودع');
+            $table->foreignId('material_id')->constrained('materials')->onDelete('cascade')->comment('المادة');
+            $table->decimal('quantity', 12, 3)->default(0)->comment('الكمية المتوفرة');
+            $table->decimal('min_quantity', 12, 3)->nullable()->comment('الحد الأدنى للكمية');
+            $table->decimal('max_quantity', 12, 3)->nullable()->comment('الحد الأقصى للكمية');
+            $table->string('location_in_warehouse')->nullable()->comment('الموقع داخل المستودع');
+            $table->date('last_stock_check')->nullable()->comment('آخر جرد');
+            $table->text('notes')->nullable()->comment('ملاحظات');
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->timestamps();
 
+            $table->unique(['warehouse_id', 'material_id'], 'warehouse_material_unique');
+            $table->index('warehouse_id');
             $table->index('material_id');
-            $table->index('detail_key');
+            $table->index('quantity');
         });
     }
 

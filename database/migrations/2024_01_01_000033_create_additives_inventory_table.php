@@ -24,7 +24,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
-            
+
             $table->index('type');
             $table->index('is_active');
         });
