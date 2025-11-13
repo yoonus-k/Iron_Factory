@@ -120,24 +120,53 @@
     </div>
 
     <style>
+        .um-content-wrapper {
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin: 20px;
+            box-shadow: var(--shadow-light);
+        }
+
+        .um-header-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .um-page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0 0 15px 0;
+        }
+
+        .um-breadcrumb-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--gray-500);
+        }
+
         .um-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
-            margin-top: 20px;
         }
 
         .um-card-link {
-            border: 1px solid #e1e5eb;
-            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
             transition: all 0.3s ease;
             background: #fff;
+            box-shadow: var(--shadow-sm);
         }
 
         .um-card-link:hover {
             transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border-color: #3f51b5;
+            box-shadow: var(--shadow);
+            border-color: var(--primary-color);
         }
 
         .um-card-link-wrapper {
@@ -160,23 +189,23 @@
         }
 
         .um-card-icon.primary {
-            background: rgba(63, 81, 181, 0.1);
-            color: #3f51b5;
+            background: rgba(0, 102, 178, 0.1);
+            color: var(--primary-color);
         }
 
         .um-card-icon.success {
-            background: rgba(76, 175, 80, 0.1);
-            color: #4caf50;
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
         }
 
         .um-card-icon.warning {
-            background: rgba(255, 152, 0, 0.1);
-            color: #ff9800;
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning-color);
         }
 
         .um-card-icon.info {
-            background: rgba(33, 150, 243, 0.1);
-            color: #2196f3;
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--info-color);
         }
 
         .um-card-icon.purple {
@@ -197,16 +226,33 @@
             font-size: 18px;
             font-weight: 600;
             margin: 0 0 5px 0;
+            color: var(--dark-color);
         }
 
         .um-card-description {
             font-size: 14px;
-            color: #666;
+            color: var(--gray-500);
             margin: 0;
         }
 
         .um-card-arrow {
-            color: #9e9e9e;
+            color: var(--gray-400);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .um-content-wrapper {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            .um-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .um-page-title {
+                font-size: 20px;
+            }
         }
     </style>
 @endsection

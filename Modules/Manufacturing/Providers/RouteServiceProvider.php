@@ -26,6 +26,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->mapApiRoutes();
         $this->mapWebRoutes();
+        $this->mapBarcodeRoutes();
     }
 
     /**
@@ -46,5 +47,15 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapApiRoutes(): void
     {
         Route::middleware('api')->prefix('api')->name('api.')->group(module_path($this->name, '/routes/api.php'));
+    }
+
+    /**
+     * Define the "barcode" routes for the application.
+     *
+     * These routes handle all barcode-related functionality.
+     */
+    protected function mapBarcodeRoutes(): void
+    {
+        Route::middleware('web')->group(module_path($this->name, '/routes/barcode.php'));
     }
 }

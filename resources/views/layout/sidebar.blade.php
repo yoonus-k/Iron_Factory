@@ -337,7 +337,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('manufacturing.barcode.index') }}">
                             <i class="fas fa-barcode"></i> {{ __('app.settings.barcode_settings') }}
                         </a>
                     </li>
