@@ -3,7 +3,7 @@
 @section('title', 'مسح الباركود - المرحلة الأولى')
 
 @section('content')
-<div class="container-fluid">
+
     <div class="row mb-4">
         <div class="col-12">
             <h1 class="page-title">
@@ -13,8 +13,7 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
+
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
@@ -76,9 +75,7 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+
 
 <script>
     document.getElementById('barcodeForm').addEventListener('submit', function(e) {

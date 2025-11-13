@@ -37,7 +37,7 @@
                     <i class="feather icon-list"></i>
                     قائمة المنتجات
                 </h4>
-                <a href="#" class="um-btn um-btn-primary">
+                <a href="{{ route('manufacturing.warehouse-products.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>
                     إضافة منتج جديد
                 </a>

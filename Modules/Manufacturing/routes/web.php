@@ -13,15 +13,40 @@ use Modules\Manufacturing\Http\Controllers\Stage2Controller;
 use Modules\Manufacturing\Http\Controllers\Stage3Controller;
 use Modules\Manufacturing\Http\Controllers\Stage4Controller;
 use Modules\Manufacturing\Http\Controllers\QualityController;
+use Modules\Manufacturing\Http\Controllers\WarehouseSettingsController;
 
     Route::resource('manufacturings', ManufacturingController::class)->names('manufacturing');
 
     // Warehouse Routes
+    Route::get('warehouses', function () {
+        return view('manufacturing::warehouses.index');
+    })->name('manufacturing.warehouses.index');
     Route::resource('warehouse-products', WarehouseProductController::class)->names('manufacturing.warehouse-products');
     Route::resource('delivery-notes', DeliveryNoteController::class)->names('manufacturing.delivery-notes');
     Route::resource('purchase-invoices', PurchaseInvoiceController::class)->names('manufacturing.purchase-invoices');
     Route::resource('suppliers', SupplierController::class)->names('manufacturing.suppliers');
     Route::resource('additives', AdditiveController::class)->names('manufacturing.additives');
+
+    // Warehouse Settings Routes
+    Route::get('warehouse-settings', [WarehouseSettingsController::class, 'index'])->name('manufacturing.warehouse-settings.index');
+
+    // Categories Manual Routes
+    Route::get('warehouse-settings/categories', [WarehouseSettingsController::class, 'categoriesIndex'])->name('manufacturing.warehouse-settings.categories.index');
+    Route::get('warehouse-settings/categories/create', [WarehouseSettingsController::class, 'categoriesCreate'])->name('manufacturing.warehouse-settings.categories.create');
+    Route::post('warehouse-settings/categories', [WarehouseSettingsController::class, 'categoriesStore'])->name('manufacturing.warehouse-settings.categories.store');
+    Route::get('warehouse-settings/categories/{id}', [WarehouseSettingsController::class, 'categoriesShow'])->name('manufacturing.warehouse-settings.categories.show');
+    Route::get('warehouse-settings/categories/{id}/edit', [WarehouseSettingsController::class, 'categoriesEdit'])->name('manufacturing.warehouse-settings.categories.edit');
+    Route::put('warehouse-settings/categories/{id}', [WarehouseSettingsController::class, 'categoriesUpdate'])->name('manufacturing.warehouse-settings.categories.update');
+    Route::delete('warehouse-settings/categories/{id}', [WarehouseSettingsController::class, 'categoriesDestroy'])->name('manufacturing.warehouse-settings.categories.destroy');
+
+    // Units Manual Routes
+    Route::get('warehouse-settings/units', [WarehouseSettingsController::class, 'unitsIndex'])->name('manufacturing.warehouse-settings.units.index');
+    Route::get('warehouse-settings/units/create', [WarehouseSettingsController::class, 'unitsCreate'])->name('manufacturing.warehouse-settings.units.create');
+    Route::post('warehouse-settings/units', [WarehouseSettingsController::class, 'unitsStore'])->name('manufacturing.warehouse-settings.units.store');
+    Route::get('warehouse-settings/units/{id}', [WarehouseSettingsController::class, 'unitsShow'])->name('manufacturing.warehouse-settings.units.show');
+    Route::get('warehouse-settings/units/{id}/edit', [WarehouseSettingsController::class, 'unitsEdit'])->name('manufacturing.warehouse-settings.units.edit');
+    Route::put('warehouse-settings/units/{id}', [WarehouseSettingsController::class, 'unitsUpdate'])->name('manufacturing.warehouse-settings.units.update');
+    Route::delete('warehouse-settings/units/{id}', [WarehouseSettingsController::class, 'unitsDestroy'])->name('manufacturing.warehouse-settings.units.destroy');
 
     // Production Stages Routes
     Route::resource('stage1', Stage1Controller::class)->names('manufacturing.stage1');
@@ -55,13 +80,18 @@ use Modules\Manufacturing\Http\Controllers\QualityController;
     Route::get('quality/quality-monitoring', [QualityController::class, 'qualityMonitoring'])->name('manufacturing.quality.quality-monitoring');
     Route::get('quality/downtime-tracking', [QualityController::class, 'downtimeTracking'])->name('manufacturing.quality.downtime-tracking');
     Route::get('quality/waste-limits', [QualityController::class, 'wasteLimits'])->name('manufacturing.quality.waste-limits');
-    
+
     // Quality Check Routes
     Route::get('quality/quality-create', [QualityController::class, 'qualityCreate'])->name('manufacturing.quality.quality-create');
     Route::get('quality/quality-show/{id}', [QualityController::class, 'qualityShow'])->name('manufacturing.quality.quality-show');
     Route::get('quality/quality-edit/{id}', [QualityController::class, 'qualityEdit'])->name('manufacturing.quality.quality-edit');
-    
+
     // Downtime Tracking Routes
     Route::get('quality/downtime-create', [QualityController::class, 'downtimeCreate'])->name('manufacturing.quality.downtime-create');
     Route::get('quality/downtime-show/{id}', [QualityController::class, 'downtimeShow'])->name('manufacturing.quality.downtime-show');
     Route::get('quality/downtime-edit/{id}', [QualityController::class, 'downtimeEdit'])->name('manufacturing.quality.downtime-edit');
+
+    // Production Tracking Routes
+    Route::get('production-tracking/scan', [QualityController::class, 'productionTrackingScan'])->name('manufacturing.production-tracking.scan');
+    Route::post('production-tracking/process', [QualityController::class, 'processProductionTracking'])->name('manufacturing.production-tracking.process');
+    Route::get('production-tracking/report', [QualityController::class, 'productionTrackingReport'])->name('manufacturing.production-tracking.report');

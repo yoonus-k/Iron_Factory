@@ -17,7 +17,7 @@
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="المستودع">
                     <i class="fas fa-warehouse"></i>
-                    <span>المستودع</span>
+                    <span>ادارة المخزون </span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
@@ -27,7 +27,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="">
+                        <a href="{{ route('manufacturing.warehouses.index') }}">
                             <i class="fas fa-box"></i> المستودع
                         </a>
                     </li>
@@ -52,8 +52,8 @@
                         </a>
                     </li>
                     <li>
-                        <a href="">
-                            <i class="fas fa-paint-brush"></i> الاعدادات
+                        <a href="{{ route('manufacturing.warehouse-settings.index') }}">
+                            <i class="fas fa-cog"></i> الاعدادات
                         </a>
                     </li>
                 </ul>
@@ -172,6 +172,21 @@
                     </li>
                 </ul>
             </li>
+               <li class="has-submenu">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip=" تتبع الانتاج">
+                    <i class="fas fa-box-open"></i>
+                    <span> تتبع الانتاج </span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="{{ route('manufacturing.production-tracking.scan') }}">
+                            <i class="fas fa-barcode"></i> مسح الباركود
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
 
             <!-- الورديات والعمال -->
             <li class="has-submenu">

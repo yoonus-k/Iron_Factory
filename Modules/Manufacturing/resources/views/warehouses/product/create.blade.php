@@ -82,7 +82,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="category_id" class="form-label">
+                            <label for="supplier_id" class="form-label">
                                 المورد
                                 <span class="required">*</span>
                             </label>
@@ -96,7 +96,7 @@
                                 <select name="supplier_id" id="supplier_id"
                                     class="form-input" required>
                                     <option value="">اختر المورد</option>
-
+                                    <!-- Add supplier options here -->
                                 </select>
                             </div>
 
@@ -214,7 +214,7 @@
                                 </svg>
                                 <select name="created_by" id="created_by" class="form-input">
                                     <option value="">اختر الموظف</option>
-
+                                    <!-- Add employee options here -->
                                 </select>
                             </div>
                             @error('created_by')
@@ -222,24 +222,7 @@
                             @enderror
                         </div>
 
-                        <div class="form-group full-width">
-                            <label for="supplier_id" class="form-label">المورد</label>
-                            <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <line x1="8" y1="6" x2="21" y2="6"></line>
-                                    <line x1="8" y1="12" x2="21" y2="12"></line>
-                                    <line x1="8" y1="18" x2="21" y2="18"></line>
-                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                                </svg>
-                                <select name="supplier_id" id="supplier_id" class="form-input">
-                                    <option value="">اختر المورد</option>
-
-                                </select>
-                            </div>
-                        </div>
+                        <!-- This section was removed as it was a duplicate of the supplier field above -->
 
                         <div class="form-group full-width">
                             &nbsp;

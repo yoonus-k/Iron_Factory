@@ -124,4 +124,46 @@ class QualityController extends Controller
         // In a real application, you would retrieve the downtime record from the database
         return view('manufacturing::quality.downtime-edit', compact('id'));
     }
+
+    /**
+     * Show the production tracking scan page.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function productionTrackingScan()
+    {
+        return view('manufacturing::quality.production-tracking-scan');
+    }
+
+    /**
+     * Process the production tracking barcode scan.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function processProductionTracking(Request $request)
+    {
+        $validated = $request->validate([
+            'barcode' => 'required|string',
+        ]);
+
+        // In a real application, you would process the barcode and retrieve the production data
+        // For now, we'll just redirect to the report page with the barcode
+        return redirect()->route('manufacturing.production-tracking.report', ['barcode' => $validated['barcode']]);
+    }
+
+    /**
+     * Display the production tracking report.
+     *
+     * @param  string  $barcode
+     * @return \Illuminate\Http\Response
+     */
+    public function productionTrackingReport()
+    {
+        // In a real application, you would retrieve all production data related to this barcode
+        // This is sample data for demonstration purposes
+
+
+        return view('manufacturing::quality.production-tracking-report');
+    }
 }

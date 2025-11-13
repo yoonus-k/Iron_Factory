@@ -118,7 +118,7 @@
                                 </svg>
                                 <input type="number" name="original_weight" id="original_weight"
                                     class="form-input @error('original_weight') is-invalid @enderror"
-                                    value="" placeholder="أدخل الوزن الأصلي" step="0.001"
+                                    value="{{ old('original_weight', $material->original_weight) }}" placeholder="أدخل الوزن الأصلي" step="0.001"
                                     min="0">
                             </div>
                             @error('original_weight')
@@ -136,7 +136,9 @@
                                 </svg>
                                 <select name="unit" id="unit"
                                     class="form-input @error('unit') is-invalid @enderror">
-
+                                    <option value="kg" {{ old('unit', $material->unit) == 'kg' ? 'selected' : '' }}>كيلوغرام</option>
+                                    <option value="ton" {{ old('unit', $material->unit) == 'ton' ? 'selected' : '' }}>طن</option>
+                                    <option value="gram" {{ old('unit', $material->unit) == 'gram' ? 'selected' : '' }}>غرام</option>
                                 </select>
                             </div>
                             @error('unit')
@@ -236,7 +238,7 @@
                                 <select name="created_by" id="created_by"
                                     class="form-input @error('created_by') is-invalid @enderror">
                                     <option value="">اختر الموظف</option>
-
+                                    <!-- Add employee options here -->
                                 </select>
                             </div>
                             @error('created_by')
@@ -244,33 +246,7 @@
                             @enderror
                         </div>
 
-                        <div class="form-group full-width">
-                            <label for="supplier_id" class="form-label">المورد</label>
-                            <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <line x1="8" y1="6" x2="21" y2="6"></line>
-                                    <line x1="8" y1="12" x2="21" y2="12"></line>
-                                    <line x1="8" y1="18" x2="21" y2="18"></line>
-                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                                </svg>
-                                <select name="supplier_id" id="supplier_id"
-                                    class="form-input @error('supplier_id') is-invalid @enderror">
-                                    <option value="">اختر المورد</option>
-                                    @foreach ($suppliers as $supplier)
-                                        <option value="{{ $supplier->id }}"
-                                            {{ old('supplier_id', $material->supplier_id) == $supplier->id ? 'selected' : '' }}>
-                                            {{ $supplier->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            @error('supplier_id')
-                                <span class="error-message">{{ $message }}</span>
-                            @enderror
-                        </div>
+                        <!-- This section was removed as it was a duplicate of the supplier field above -->
 
                         <div class="form-group full-width">
                             &nbsp;
