@@ -498,18 +498,18 @@
             // Form validation
             document.querySelector('.um-waste-limits-form').addEventListener('submit', function(e) {
                 e.preventDefault();
-                
+
                 // Validate warning < max for each stage
                 for (let i = 1; i <= 4; i++) {
                     const warning = parseFloat(document.querySelector(`input[name="stage${i}_warning"]`).value);
                     const max = parseFloat(document.querySelector(`input[name="stage${i}_max"]`).value);
-                    
+
                     if (warning >= max) {
                         alert(`خطأ في المرحلة ${i}: نسبة التحذير يجب أن تكون أقل من الحد الأقصى`);
                         return false;
                     }
                 }
-                
+
                 alert('تم حفظ الإعدادات بنجاح!');
                 // هنا سيتم إضافة كود الحفظ الفعلي لاحقاً
             });
