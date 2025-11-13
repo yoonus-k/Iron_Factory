@@ -9,17 +9,18 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #f5f7fa;
         padding: 20px;
     }
 
     .auth-card {
         background: white;
         border-radius: 15px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
         padding: 40px;
         max-width: 450px;
         width: 100%;
+        border: 1px solid #e8edf2;
     }
 
     .auth-logo {
@@ -58,8 +59,8 @@
     }
 
     .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
     }
 
     .input-group {
@@ -81,7 +82,7 @@
     .btn-login {
         height: 50px;
         border-radius: 8px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
         border: none;
         color: white;
         font-weight: 600;
@@ -92,7 +93,8 @@
 
     .btn-login:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+        background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
     }
 
     .remember-forgot {
@@ -108,7 +110,7 @@
     }
 
     .forgot-link {
-        color: #667eea;
+        color: #3498db;
         text-decoration: none;
         font-size: 14px;
     }
@@ -125,7 +127,7 @@
     }
 
     .register-link a {
-        color: #667eea;
+        color: #3498db;
         text-decoration: none;
         font-weight: 600;
     }

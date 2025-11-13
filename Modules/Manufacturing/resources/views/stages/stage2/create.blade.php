@@ -550,8 +550,7 @@ document.getElementById('standBarcode').addEventListener('keypress', function(e)
     }
 });
 
-// Auto-calculate waste when weights change
-document.getElementById('inputWeight').addEventListener('input', calculateWaste);
+// Auto-calculate waste when output weight changes
 document.getElementById('outputWeight').addEventListener('input', calculateWaste);
 
 function loadStand(barcode) {
@@ -586,8 +585,9 @@ function loadStand(barcode) {
     const expectedWaste = currentStand.weight * 0.03;
     const expectedOutput = currentStand.weight - expectedWaste;
     document.getElementById('outputWeight').value = expectedOutput.toFixed(2);
-    document.getElementById('wasteAmount').value = expectedWaste.toFixed(2);
-    document.getElementById('wastePercentDisplay').textContent = '3.00%';
+    
+    // Calculate initial waste (will update when user changes output weight)
+    calculateWaste();
 
     // Focus on process type
     document.getElementById('processType').focus();

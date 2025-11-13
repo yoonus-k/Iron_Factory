@@ -421,18 +421,40 @@
         </div>
     </div>
 
+    <!-- Scanned Coils List -->
+    <div class="form-section">
+        <h3 class="section-title">🎯 الكويلات الممسوحة للكرتون الحالي</h3>
+        
+        <div class="info-box">
+            <strong>💡 كيف تعمل العملية:</strong>
+            <ul>
+                <li>امسح باركود كل كويل على حدة</li>
+                <li>سيتم إضافة الكويل تلقائياً مع وزنه الفعلي</li>
+                <li>الوزن الإجمالي يُحسب من مجموع جميع الكويلات</li>
+            </ul>
+        </div>
+
+        <div id="scannedCoilsList" class="coil-list" style="min-height: 150px; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <div class="empty-state" style="padding: 30px;">
+                <p style="margin: 0; color: #7f8c8d;">لم يتم مسح أي كويلات بعد</p>
+            </div>
+        </div>
+
+        <div class="form-row" style="background: linear-gradient(135deg, #e8f4f8 0%, #d4ebf5 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <div class="info-item" style="text-align: center;">
+                <div class="info-label" style="font-size: 13px; color: #7f8c8d;">عدد الكويلات</div>
+                <div class="info-value" style="font-size: 24px; font-weight: 700; color: #2196f3;" id="scannedCoilsCount">0</div>
+            </div>
+            <div class="info-item" style="text-align: center;">
+                <div class="info-label" style="font-size: 13px; color: #7f8c8d;">الوزن المتوقع</div>
+                <div class="info-value" style="font-size: 24px; font-weight: 700; color: #27ae60;" id="expectedWeightDisplay">0 كجم</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Box Form -->
     <div class="form-section">
         <h3 class="section-title">📝 بيانات الكرتون</h3>
-
-        <div class="info-box">
-            <strong>📌 ملاحظة هامة:</strong>
-            <ul>
-                <li>يمكن وضع عدة كويلات في كرتون واحد</li>
-                <li>الوزن الإجمالي للكرتون يُحسب من مجموع أوزان الكويلات</li>
-                <li>يجب تحديد معلومات العميل والشحن لكل كرتون</li>
-            </ul>
-        </div>
 
         <div class="form-row">
             <div class="form-group">
@@ -441,8 +463,22 @@
             </div>
 
             <div class="form-group">
-                <label>عدد الكويلات في الكرتون <span class="required">*</span></label>
-                <input type="number" id="coilsCount" class="form-control" placeholder="1" min="1" value="1">
+                <label>الوزن المتوقع (كجم)</label>
+                <input type="number" id="expectedWeight" class="form-control" placeholder="0.00" step="0.01" readonly style="background: #e8f4f8; font-weight: 600;">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>الوزن الفعلي بعد التعبئة (كجم) <span class="required">*</span></label>
+                <input type="number" id="actualWeight" class="form-control" placeholder="0.00" step="0.01">
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;">💡 الوزن الفعلي بعد التعبئة والتغليف</small>
+            </div>
+
+            <div class="form-group">
+                <label>كمية الهدر (كجم)</label>
+                <input type="number" id="wasteAmount" class="form-control" readonly style="background: #fff3cd;">
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;">نسبة الهدر: <span id="wastePercentDisplay">0%</span></small>
             </div>
         </div>
 
@@ -459,39 +495,15 @@
             </div>
 
             <div class="form-group">
-                <label>الوزن الإجمالي (كجم) <span class="required">*</span></label>
-                <input type="number" id="totalWeight" class="form-control" placeholder="100.00" step="0.01" readonly>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label>اسم العميل <span class="required">*</span></label>
-                <input type="text" id="customerName" class="form-control" placeholder="أحمد محمد">
-            </div>
-
-            <div class="form-group">
-                <label>رقم هاتف العميل <span class="required">*</span></label>
-                <input type="tel" id="customerPhone" class="form-control" placeholder="0501234567">
+                <label>التكلفة (ريال) <span class="required">*</span></label>
+                <input type="number" id="cost" class="form-control" placeholder="0.00" step="0.01">
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
-                <label>عنوان الشحن <span class="required">*</span></label>
-                <textarea id="shippingAddress" class="form-control" placeholder="الرياض، حي النخيل، شارع الملك فهد..."></textarea>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label>رقم التتبع</label>
-                <input type="text" id="trackingNumber" class="form-control" placeholder="TRK-2025-001">
-            </div>
-
-            <div class="form-group">
-                <label>التكلفة (ريال) <span class="required">*</span></label>
-                <input type="number" id="cost" class="form-control" placeholder="100.00" step="0.01">
+                <label>عنوان الشحن</label>
+                <textarea id="shippingAddress" class="form-control" placeholder="المدينة، الحي، الشارع... (اختياري)"></textarea>
             </div>
         </div>
 
@@ -539,7 +551,7 @@
 </div>
 
 <script>
-let currentCoil = null;
+let scannedCoils = []; // الكويلات الممسوحة للكرتون الحالي
 let boxes = [];
 
 // Load from localStorage on page load
@@ -557,33 +569,47 @@ document.addEventListener('DOMContentLoaded', function() {
 // Barcode scanner
 document.getElementById('coilBarcode').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
-        loadCoil(this.value.trim());
+        const barcode = this.value.trim();
+        if (barcode) {
+            loadCoil(barcode);
+            this.value = ''; // Clear for next scan
+        }
     }
 });
 
-// Auto-update total weight based on coil weight and count
-document.getElementById('coilsCount').addEventListener('input', updateTotalWeight);
+// Auto-calculate waste when actual weight changes
+document.getElementById('actualWeight').addEventListener('input', calculateWaste);
 
 function loadCoil(barcode) {
-    if (!barcode) {
-        alert('⚠️ يرجى إدخال باركود الكويل!');
+    // Check if already scanned
+    if (scannedCoils.some(c => c.barcode === barcode)) {
+        showToast('⚠️ هذا الكويل تم مسحه مسبقاً!', 'error');
         return;
     }
 
     // Simulate API call - replace with actual AJAX
     // fetch(`/api/stage3/get-by-barcode/${barcode}`)
     //     .then(response => response.json())
-    //     .then(data => { ... })
+    //     .then(data => { addCoilToBox(data); })
 
     // Mock data for demonstration
-    currentCoil = {
+    const coilData = {
+        id: Date.now(),
         barcode: barcode,
-        dye_color: 'red',
-        plastic_type: 'pe',
-        total_weight: 98.5
+        dye_color: ['red', 'blue', 'green', 'yellow'][Math.floor(Math.random() * 4)],
+        plastic_type: ['pe', 'pp', 'pvc'][Math.floor(Math.random() * 3)],
+        total_weight: (90 + Math.random() * 20).toFixed(2) // وزن عشوائي بين 90-110
     };
 
-    // Display coil data
+    addCoilToBox(coilData);
+}
+
+function addCoilToBox(coilData) {
+    scannedCoils.push(coilData);
+    renderScannedCoils();
+    updateTotalWeight();
+    
+    // Display last scanned coil
     const colorNames = {
         red: 'أحمر', blue: 'أزرق', green: 'أخضر', yellow: 'أصفر',
         black: 'أسود', white: 'أبيض', brown: 'بني'
@@ -592,63 +618,129 @@ function loadCoil(barcode) {
         pe: 'PE', pp: 'PP', pvc: 'PVC', pet: 'PET'
     };
 
-    document.getElementById('displayBarcode').textContent = currentCoil.barcode;
-    document.getElementById('displayDyeColor').textContent = colorNames[currentCoil.dye_color] || currentCoil.dye_color;
-    document.getElementById('displayPlasticType').textContent = plasticNames[currentCoil.plastic_type] || currentCoil.plastic_type;
-    document.getElementById('displayWeight').textContent = currentCoil.total_weight + ' كجم';
+    document.getElementById('displayBarcode').textContent = coilData.barcode;
+    document.getElementById('displayDyeColor').textContent = colorNames[coilData.dye_color] || coilData.dye_color;
+    document.getElementById('displayPlasticType').textContent = plasticNames[coilData.plastic_type] || coilData.plastic_type;
+    document.getElementById('displayWeight').textContent = coilData.total_weight + ' كجم';
     document.getElementById('coilDisplay').classList.add('active');
 
-    // Fill total weight
+    showToast('✅ تم إضافة الكويل: ' + coilData.barcode, 'success');
+}
+
+function renderScannedCoils() {
+    const list = document.getElementById('scannedCoilsList');
+    document.getElementById('scannedCoilsCount').textContent = scannedCoils.length;
+
+    if (scannedCoils.length === 0) {
+        list.innerHTML = `
+            <div class="empty-state" style="padding: 30px;">
+                <p style="margin: 0; color: #7f8c8d;">لم يتم مسح أي كويلات بعد</p>
+            </div>
+        `;
+        return;
+    }
+
+    const colorNames = {
+        red: 'أحمر', blue: 'أزرق', green: 'أخضر', yellow: 'أصفر',
+        black: 'أسود', white: 'أبيض', brown: 'بني'
+    };
+
+    list.innerHTML = scannedCoils.map((coil, index) => `
+        <div style="background: white; padding: 12px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-right: 3px solid #9b59b6;">
+            <div>
+                <strong style="color: #2c3e50; font-size: 14px;">${index + 1}. ${coil.barcode}</strong>
+                <small style="display: block; color: #7f8c8d; font-size: 12px; margin-top: 4px;">
+                    لون: ${colorNames[coil.dye_color]} | وزن: ${coil.total_weight} كجم
+                </small>
+            </div>
+            <button onclick="removeScannedCoil(${coil.id})" style="background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                🗑️ حذف
+            </button>
+        </div>
+    `).join('');
+}
+
+function removeScannedCoil(id) {
+    scannedCoils = scannedCoils.filter(c => c.id !== id);
+    renderScannedCoils();
     updateTotalWeight();
-
-    // Focus on box number
-    document.getElementById('boxNumber').focus();
-
-    // Show success message
-    showToast('✅ تم تحميل بيانات الكويل بنجاح!', 'success');
+    showToast('تم حذف الكويل', 'info');
 }
 
 function updateTotalWeight() {
-    if (currentCoil) {
-        const count = parseInt(document.getElementById('coilsCount').value) || 1;
-        const totalWeight = (currentCoil.total_weight * count).toFixed(2);
-        document.getElementById('totalWeight').value = totalWeight;
+    const totalWeight = scannedCoils.reduce((sum, coil) => sum + parseFloat(coil.total_weight), 0).toFixed(2);
+    document.getElementById('expectedWeight').value = totalWeight;
+    document.getElementById('expectedWeightDisplay').textContent = totalWeight + ' كجم';
+    
+    // Recalculate waste if actual weight is entered
+    calculateWaste();
+}
+
+function calculateWaste() {
+    const expectedWeight = parseFloat(document.getElementById('expectedWeight').value) || 0;
+    const actualWeight = parseFloat(document.getElementById('actualWeight').value) || 0;
+    
+    if (expectedWeight > 0 && actualWeight > 0) {
+        if (actualWeight > expectedWeight) {
+            showToast('⚠️ تحذير: الوزن الفعلي أكبر من المتوقع!', 'error');
+        }
+        
+        const wasteAmount = (expectedWeight - actualWeight).toFixed(2);
+        const wastePercent = ((expectedWeight - actualWeight) / expectedWeight * 100).toFixed(2);
+        document.getElementById('wasteAmount').value = wasteAmount;
+        document.getElementById('wastePercentDisplay').textContent = wastePercent + '%';
+        
+        // Change color based on waste percentage
+        const wasteInput = document.getElementById('wasteAmount');
+        if (parseFloat(wastePercent) > 5) {
+            wasteInput.style.background = '#ffeaa7'; // Yellow warning
+            wasteInput.style.color = '#d63031';
+            wasteInput.style.fontWeight = 'bold';
+        } else {
+            wasteInput.style.background = '#fff3cd';
+            wasteInput.style.color = '#856404';
+            wasteInput.style.fontWeight = 'normal';
+        }
+    } else {
+        document.getElementById('wasteAmount').value = '0';
+        document.getElementById('wastePercentDisplay').textContent = '0%';
     }
 }
 
 function addBox() {
-    if (!currentCoil) {
-        alert('⚠️ يرجى مسح باركود الكويل أولاً!');
+    if (scannedCoils.length === 0) {
+        alert('⚠️ يرجى مسح كويل واحد على الأقل أولاً!');
         return;
     }
 
     const boxNumber = document.getElementById('boxNumber').value.trim();
-    const coilsCount = document.getElementById('coilsCount').value;
     const packagingType = document.getElementById('packagingType').value;
-    const totalWeight = document.getElementById('totalWeight').value;
-    const customerName = document.getElementById('customerName').value.trim();
-    const customerPhone = document.getElementById('customerPhone').value.trim();
+    const expectedWeight = document.getElementById('expectedWeight').value;
+    const actualWeight = document.getElementById('actualWeight').value;
+    const wasteAmount = document.getElementById('wasteAmount').value || 0;
     const shippingAddress = document.getElementById('shippingAddress').value.trim();
-    const trackingNumber = document.getElementById('trackingNumber').value.trim();
     const cost = document.getElementById('cost').value;
     const notes = document.getElementById('notes').value.trim();
 
-    if (!boxNumber || !coilsCount || !packagingType || !customerName || !customerPhone || !shippingAddress || !cost) {
+    if (!boxNumber || !packagingType || !actualWeight || !cost) {
         alert('⚠️ يرجى ملء جميع الحقول المطلوبة!');
         return;
     }
 
+    const wastePercentage = parseFloat(expectedWeight) > 0 ? 
+        ((parseFloat(expectedWeight) - parseFloat(actualWeight)) / parseFloat(expectedWeight) * 100).toFixed(2) : 0;
+
     const box = {
         id: Date.now(),
-        coil_barcode: currentCoil.barcode,
         box_number: boxNumber,
-        coils_count: parseInt(coilsCount),
+        coils: [...scannedCoils], // نسخة من الكويلات الممسوحة
+        coils_count: scannedCoils.length,
         packaging_type: packagingType,
-        total_weight: parseFloat(totalWeight),
-        customer_name: customerName,
-        customer_phone: customerPhone,
+        expected_weight: parseFloat(expectedWeight),
+        actual_weight: parseFloat(actualWeight),
+        waste_amount: parseFloat(wasteAmount),
+        waste_percentage: parseFloat(wastePercentage),
         shipping_address: shippingAddress,
-        tracking_number: trackingNumber,
         cost: parseFloat(cost),
         notes: notes
     };
@@ -658,7 +750,7 @@ function addBox() {
     clearForm();
     saveOffline();
 
-    showToast('✅ تم إضافة الكرتون بنجاح!', 'success');
+    showToast('✅ تم إضافة الكرتون بنجاح! (' + scannedCoils.length + ' كويلات)', 'success');
 }
 
 function renderBoxes() {
@@ -687,23 +779,28 @@ function renderBoxes() {
         plastic: 'غلاف بلاستيكي'
     };
 
-    list.innerHTML = boxes.map(box => `
+    list.innerHTML = boxes.map(box => {
+        const coilsList = box.coils.map(c => c.barcode).join(', ');
+        const wasteColor = parseFloat(box.waste_percentage) > 5 ? '#e74c3c' : '#f39c12';
+        return `
         <div class="box-item">
             <div class="box-info">
                 <strong>📦 ${box.box_number}</strong>
                 <small>
                     كويلات: ${box.coils_count} | 
-                    تغليف: ${packagingNames[box.packaging_type]} | 
-                    وزن: ${box.total_weight} كجم | 
-                    عميل: ${box.customer_name} (${box.customer_phone}) | 
+                    متوقع: ${box.expected_weight} كجم | 
+                    فعلي: ${box.actual_weight} كجم | 
+                    <span style="color: ${wasteColor}; font-weight: bold;">هدر: ${box.waste_amount} كجم (${box.waste_percentage}%)</span>
+                    <br>تغليف: ${packagingNames[box.packaging_type]} | 
                     تكلفة: ${box.cost} ريال
-                    ${box.tracking_number ? '<br>🔢 تتبع: ' + box.tracking_number : ''}
+                    <br>🎯 الكويلات: ${coilsList}
+                    ${box.shipping_address ? '<br>📍 عنوان: ' + box.shipping_address : ''}
                     ${box.notes ? '<br>📝 ' + box.notes : ''}
                 </small>
             </div>
             <button class="btn-delete" onclick="removeBox(${box.id})">🗑️ حذف</button>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function removeBox(id) {
@@ -716,21 +813,26 @@ function removeBox(id) {
 }
 
 function clearForm() {
-    // Keep current coil data
+    // Clear scanned coils
+    scannedCoils = [];
+    renderScannedCoils();
+    updateTotalWeight();
+    
+    // Clear form fields
     document.getElementById('boxNumber').value = '';
-    document.getElementById('coilsCount').value = '1';
+    document.getElementById('actualWeight').value = '';
+    document.getElementById('wasteAmount').value = '';
+    document.getElementById('wastePercentDisplay').textContent = '0%';
     document.getElementById('packagingType').value = '';
-    document.getElementById('customerName').value = '';
-    document.getElementById('customerPhone').value = '';
     document.getElementById('shippingAddress').value = '';
-    document.getElementById('trackingNumber').value = '';
     document.getElementById('cost').value = '';
     document.getElementById('notes').value = '';
     
-    // Reset total weight
-    updateTotalWeight();
+    // Clear coil display
+    document.getElementById('coilDisplay').classList.remove('active');
     
-    document.getElementById('boxNumber').focus();
+    // Focus on barcode scanner
+    document.getElementById('coilBarcode').focus();
 }
 
 function submitAll() {
