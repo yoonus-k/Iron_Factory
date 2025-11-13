@@ -124,6 +124,7 @@ return [
         'search' => 'Search',
         'filter' => 'Filter',
         'reset' => 'Reset',
+        'login' => 'Login',
     ],
 
     // Messages
@@ -179,6 +180,16 @@ return [
         'add_shift' => 'Add New Shift',
         'current_shifts' => 'Current Shifts',
         'attendance' => 'Attendance Log',
+        'login' => 'Login',
+        'logout' => 'Logout',
+        'register' => 'Register',
+        'username_or_email' => 'Username or Email',
+        'enter_username_or_email' => 'Enter username or email',
+        'enter_password' => 'Enter password',
+        'remember_me' => 'Remember Me',
+        'forgot_password' => 'Forgot Password?',
+        'no_account' => "Don't have an account?",
+        'register_now' => 'Register Now',
         'role_types' => [
             'admin' => 'Admin',
             'manager' => 'Manager',

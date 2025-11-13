@@ -6,18 +6,21 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Dashboard Route
-Route::get('/dashboard', function () {
-    return view('dashboard');
-});
+// Protected Routes - Require Authentication
+Route::middleware(['auth'])->group(function () {
+    // Dashboard Route
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    });
 
-Route::get('/manager', function () {
-    return view('dashboard');
-});
+    Route::get('/manager', function () {
+        return view('dashboard');
+    });
 
-// Alias for dashboard
-Route::get('/home', function () {
-    return redirect('/dashboard');
+    // Alias for dashboard
+    Route::get('/home', function () {
+        return redirect('/dashboard');
+    });
 });
 
 // Language switching route

@@ -124,6 +124,7 @@ return [
         'search' => 'بحث',
         'filter' => 'تصفية',
         'reset' => 'إعادة تعيين',
+        'login' => 'تسجيل الدخول',
     ],
 
     // الرسائل
@@ -179,6 +180,16 @@ return [
         'add_shift' => 'إضافة وردية جديدة',
         'current_shifts' => 'الورديات الحالية',
         'attendance' => 'سجل الحضور',
+        'login' => 'تسجيل الدخول',
+        'logout' => 'تسجيل الخروج',
+        'register' => 'تسجيل جديد',
+        'username_or_email' => 'اسم المستخدم أو البريد الإلكتروني',
+        'enter_username_or_email' => 'أدخل اسم المستخدم أو البريد',
+        'enter_password' => 'أدخل كلمة المرور',
+        'remember_me' => 'تذكرني',
+        'forgot_password' => 'نسيت كلمة المرور؟',
+        'no_account' => 'ليس لديك حساب؟',
+        'register_now' => 'سجل الآن',
         'role_types' => [
             'admin' => 'مدير',
             'manager' => 'مشرف',

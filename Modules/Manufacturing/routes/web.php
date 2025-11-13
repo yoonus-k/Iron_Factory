@@ -16,6 +16,14 @@ use Modules\Manufacturing\Http\Controllers\Stage4Controller;
 use Modules\Manufacturing\Http\Controllers\QualityController;
 use Modules\Manufacturing\Http\Controllers\WarehouseSettingsController;
 
+/*
+|--------------------------------------------------------------------------
+| Manufacturing Routes - Protected by Authentication
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth'])->group(function () {
+
     Route::resource('manufacturings', ManufacturingController::class)->names('manufacturing');
 
     // Warehouse Routes
@@ -98,3 +106,5 @@ use Modules\Manufacturing\Http\Controllers\WarehouseSettingsController;
     // Iron Journey Tracking Routes
     Route::get('iron-journey', [QualityController::class, 'ironJourney'])->name('manufacturing.iron-journey');
     Route::get('iron-journey/show', [QualityController::class, 'showIronJourney'])->name('manufacturing.iron-journey.show');
+
+}); // End of Authentication Middleware

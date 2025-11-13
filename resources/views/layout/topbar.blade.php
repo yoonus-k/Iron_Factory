@@ -40,25 +40,27 @@
         </div>
 
         <!-- ملف المستخدم -->
-        <div class="user-profile" onclick="toggleUserMenu()">
-            <img src="{{ asset('assets/images/avatars/manager.png') }}" alt="الصورة الشخصية" class="user-avatar">
-            <div class="user-info">
-                <span class="user-name">اسم المستخدم</span>
-                <small class="user-role">المدير</small>
+        <div class="user-profile-wrapper" style="position: relative;">
+            <div class="user-profile" onclick="toggleUserMenu()">
+                <img src="{{ asset('assets/images/avatars/manager.png') }}" alt="الصورة الشخصية" class="user-avatar">
+                <div class="user-info">
+                    <span class="user-name">{{ auth()->user()->name }}</span>
+                    <small class="user-role">{{ '@' . auth()->user()->username }}</small>
+                </div>
+                <i class="fas fa-chevron-down"></i>
             </div>
-            <i class="fas fa-chevron-down"></i>
+
+            <!-- قائمة المستخدم -->
+            <div class="user-menu" id="userMenu">
+                <a href="#"><i class="fas fa-user"></i> الملف الشخصي</a>
+                <hr>
+                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="fas fa-sign-out-alt"></i> {{ __('app.users.logout') }}
+                </a>
+            </div>
         </div>
 
-        <!-- قائمة المستخدم -->
-        <div class="user-menu" id="userMenu" style="display: none;">
-            <a href="#"><i class="fas fa-user"></i> الملف الشخصي</a>
-            <hr>
-            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
-            </a>
-        </div>
-
-        <form id="logout-form" action="#" method="POST" style="display: none;">
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
             @csrf
         </form>
     </div>
@@ -67,7 +69,7 @@
 <script>
     function toggleUserMenu() {
         const menu = document.getElementById('userMenu');
-        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        menu.classList.toggle('show');
     }
 
     function toggleLanguageMenu() {
@@ -99,13 +101,13 @@
 
     // إغلاق القوائم عند النقر خارجها
     document.addEventListener('click', function(event) {
-        const userProfile = document.querySelector('.user-profile');
+        const userProfileWrapper = document.querySelector('.user-profile-wrapper');
         const userMenu = document.getElementById('userMenu');
         const languageBtn = document.querySelector('.language-btn');
         const languageMenu = document.getElementById('languageMenu');
 
-        if (userProfile && !userProfile.contains(event.target) && !userMenu.contains(event.target)) {
-            userMenu.style.display = 'none';
+        if (userProfileWrapper && !userProfileWrapper.contains(event.target)) {
+            userMenu.classList.remove('show');
         }
 
         if (languageBtn && !languageBtn.contains(event.target) && languageMenu && !languageMenu.contains(event.target)) {
