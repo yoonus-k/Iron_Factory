@@ -22,7 +22,7 @@ return new class extends Migration
             $table->bigInteger('file_size')->nullable();
             $table->foreignId('generated_by')->constrained('users');
             $table->timestamp('generated_at')->useCurrent();
-            
+
             $table->index('report_type');
             $table->index('generated_by');
             $table->index('generated_at');
