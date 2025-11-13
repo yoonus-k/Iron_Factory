@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('user_permissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('permission_name', 100);
-            $table->boolean('can_create')->default(false);
-            $table->boolean('can_read')->default(true);
-            $table->boolean('can_update')->default(false);
-            $table->boolean('can_delete')->default(false);
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->comment('المستخدم');
+            $table->string('permission_name', 100)->comment('اسم الصلاحية بالعربية');
+            $table->string('permission_name_en', 100)->nullable()->comment('اسم الصلاحية بالإنجليزية');
+            $table->boolean('can_create')->default(false)->comment('يمكنه الإنشاء');
+            $table->boolean('can_read')->default(true)->comment('يمكنه القراءة');
+            $table->boolean('can_update')->default(false)->comment('يمكنه التعديل');
+            $table->boolean('can_delete')->default(false)->comment('يمكنه الحذف');
             $table->timestamps();
         });
     }

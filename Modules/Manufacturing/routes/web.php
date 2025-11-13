@@ -28,6 +28,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Warehouse Routes
     Route::resource('warehouses', WarehouseController::class)->names('manufacturing.warehouses');
+    Route::get('warehouses/statistics', [WarehouseController::class, 'statistics'])->name('manufacturing.warehouses.statistics');
+    Route::get('warehouses/active', [WarehouseController::class, 'getActive'])->name('manufacturing.warehouses.active');
     Route::resource('warehouse-products', WarehouseProductController::class)->names('manufacturing.warehouse-products');
     Route::resource('delivery-notes', DeliveryNoteController::class)->names('manufacturing.delivery-notes');
     Route::resource('purchase-invoices', PurchaseInvoiceController::class)->names('manufacturing.purchase-invoices');

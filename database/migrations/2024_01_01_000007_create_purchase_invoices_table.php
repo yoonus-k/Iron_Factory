@@ -13,18 +13,21 @@ return new class extends Migration
     {
         Schema::create('purchase_invoices', function (Blueprint $table) {
             $table->id();
-            $table->string('invoice_number', 100)->unique();
-            $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
-            $table->decimal('total_amount', 12, 2);
-            $table->string('currency', 10)->default('SAR');
-            $table->date('invoice_date');
-            $table->date('due_date')->nullable();
-            $table->enum('status', ['pending', 'paid', 'overdue', 'cancelled'])->default('pending');
-            $table->foreignId('created_by')->constrained('users');
+            $table->string('invoice_number', 100)->unique()->comment('رقم الفاتورة');
+            $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade')->comment('المورد');
+            $table->decimal('total_amount', 12, 2)->comment('المبلغ الإجمالي');
+            $table->string('currency', 10)->default('SAR')->comment('العملة');
+            $table->date('invoice_date')->comment('تاريخ الفاتورة');
+            $table->date('due_date')->nullable()->comment('تاريخ الاستحقاق');
+            $table->enum('status', ['pending', 'paid', 'overdue', 'cancelled'])->default('pending')->comment('الحالة');
+            $table->text('notes')->nullable()->comment('ملاحظات بالعربية');
+            $table->text('notes_en')->nullable()->comment('ملاحظات بالإنجليزية');
+            $table->foreignId('created_by')->constrained('users')->comment('من أنشأ السجل');
             $table->timestamps();
-            
+
             $table->index('invoice_date');
             $table->index('status');
+            $table->index('supplier_id');
         });
     }
 

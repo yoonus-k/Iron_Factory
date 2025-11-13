@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('vehicle_number', 50)->nullable();
             $table->foreignId('received_by')->constrained('users');
             $table->timestamps();
-            
+
             $table->index('note_number');
             $table->index('delivery_date');
         });

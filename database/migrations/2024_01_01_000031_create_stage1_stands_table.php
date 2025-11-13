@@ -16,8 +16,10 @@ return new class extends Migration
             $table->string('barcode', 50)->unique()->comment('ST1-XXX-2025');
             $table->string('parent_barcode', 50)->comment('WH-XXX-2025');
             $table->foreignId('material_id')->constrained()->onDelete('cascade');
-            $table->string('stand_number', 50)->nullable();
-            $table->string('wire_size', 20)->nullable();
+            $table->string('stand_number', 50)->nullable()->comment('رقم الحامل');
+            $table->string('stand_number_en', 50)->nullable()->comment('Stand number');
+            $table->string('wire_size', 20)->nullable()->comment('حجم السلك');
+            $table->string('wire_size_en', 20)->nullable()->comment('Wire size');
             $table->decimal('weight', 10, 3);
             $table->decimal('waste', 10, 3)->default(0);
             $table->decimal('remaining_weight', 10, 3);
