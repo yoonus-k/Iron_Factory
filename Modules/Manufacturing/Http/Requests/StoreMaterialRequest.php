@@ -24,7 +24,7 @@ class StoreMaterialRequest extends FormRequest
             'batch_number' => 'nullable|string',
             'material_type' => 'required|string|min:2|max:255',
             'material_type_en' => 'nullable|string|min:2|max:255',
-            'material_category' => 'required|in:raw,manufactured,finished',
+
             'original_weight' => 'required|numeric|min:0',
             'remaining_weight' => 'nullable|numeric|min:0',
             'unit_id' => 'required|exists:units,id',
@@ -38,7 +38,9 @@ class StoreMaterialRequest extends FormRequest
             'status' => 'required|in:available,in_use,consumed,expired',
             'notes' => 'nullable|string',
             'notes_en' => 'nullable|string',
-            'warehouse_id' => 'nullable|exists:warehouses,id',
+            'warehouse_id' => 'required|exists:warehouses,id',
+            'min_quantity' => 'nullable|numeric|min:0',
+            'max_quantity' => 'nullable|numeric|min:0',
         ];
     }
 
@@ -51,7 +53,7 @@ class StoreMaterialRequest extends FormRequest
             'barcode.required' => 'رمز المادة مطلوب',
             'barcode.unique' => 'رمز المادة موجود بالفعل',
             'material_type.required' => 'اسم المادة مطلوب',
-            'material_category.required' => 'فئة المادة مطلوبة',
+
             'original_weight.required' => 'الوزن الأصلي مطلوب',
             'unit_id.required' => 'الوحدة مطلوبة',
 

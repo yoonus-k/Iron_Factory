@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إضافة أذن تسليم جديد')
+@section('title', 'إضافة أذن مخزني جديد')
 
 @section('content')
 
@@ -13,7 +13,7 @@
                 <line x1="12" y1="11" x2="12" y2="17"></line>
                 <line x1="9" y1="14" x2="15" y2="14"></line>
             </svg>
-            إضافة أذن تسليم جديد
+            إضافة أذن مخزني
         </h1>
         <nav class="um-breadcrumb-nav">
             <span>
@@ -22,7 +22,7 @@
             <i class="feather icon-chevron-left"></i>
             <span>المستودع</span>
             <i class="feather icon-chevron-left"></i>
-            <span>أذون التسليم</span>
+            <span>أذون  مخزني </span>
             <i class="feather icon-chevron-left"></i>
             <span>إضافة أذن جديد</span>
         </nav>
@@ -42,8 +42,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">معلومات أذن التسليم</h3>
-                        <p class="section-subtitle">أدخل بيانات أذن التسليم الجديدة</p>
+                        <h3 class="section-title">معلومات أذن  مخزني </h3>
+                        <p class="section-subtitle">أدخل بيانات أذن مخزني  الجديدة</p>
                     </div>
                 </div>
 
@@ -67,7 +67,7 @@
 
                     <div class="form-group">
                         <label for="delivery_date" class="form-label">
-                            تاريخ التسليم
+                            تاريخ الأذن
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">

@@ -33,11 +33,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('warehouses/statistics', [WarehouseController::class, 'statistics'])->name('manufacturing.warehouses.statistics');
     Route::get('warehouses/active', [WarehouseController::class, 'getActive'])->name('manufacturing.warehouses.active');
     Route::resource('warehouse-products', WarehouseProductController::class)->names('manufacturing.warehouse-products');
+    Route::get('warehouse-products/{id}/transactions', [WarehouseProductController::class, 'transactions'])->name('manufacturing.warehouse-products.transactions');
+    Route::post('warehouse-products/{id}/add-quantity', [WarehouseProductController::class, 'addQuantity'])->name('manufacturing.warehouse-products.add-quantity');
     Route::get('materials/export', [WarehouseProductController::class, 'export'])->name('manufacturing.materials.export');
     Route::post('materials/import', [WarehouseProductController::class, 'import'])->name('manufacturing.materials.import');
     Route::resource('delivery-notes', DeliveryNoteController::class)->names('manufacturing.delivery-notes');
     Route::resource('purchase-invoices', PurchaseInvoiceController::class)->names('manufacturing.purchase-invoices');
     Route::resource('suppliers', SupplierController::class)->names('manufacturing.suppliers');
+    Route::put('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('manufacturing.suppliers.toggle-status');
     Route::resource('additives', AdditiveController::class)->names('manufacturing.additives');
 
     // Warehouse Settings Routes

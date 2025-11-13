@@ -69,6 +69,9 @@
                                 <option value="volume" {{ request('unit_type') == 'volume' ? 'selected' : '' }}>الحجم</option>
                                 <option value="area" {{ request('unit_type') == 'area' ? 'selected' : '' }}>المساحة</option>
                                 <option value="quantity" {{ request('unit_type') == 'quantity' ? 'selected' : '' }}>الكمية</option>
+                                <option value="time" {{ request('unit_type') == 'time' ? 'selected' : '' }}>الوقت</option>
+                                <option value="temperature" {{ request('unit_type') == 'temperature' ? 'selected' : '' }}>درجة الحرارة</option>
+                                <option value="other" {{ request('unit_type') == 'other' ? 'selected' : '' }}>أخرى</option>
                             </select>
                         </div>
                         <div class="um-form-group">
@@ -115,7 +118,9 @@
                                 </td>
                                 <td>
                                     <strong>{{ $unit->unit_name }}</strong><br>
-                                    <small class="text-muted">{{ $unit->unit_name_en }}</small>
+                                    @if($unit->unit_name_en)
+                                        <small class="text-muted">{{ $unit->unit_name_en }}</small>
+                                    @endif
                                 </td>
                                 <td>
                                     <span class="badge badge-info">{{ $unit->unit_symbol }}</span>
@@ -133,7 +138,7 @@
                                             'other' => 'أخرى',
                                         ];
                                     @endphp
-                                    {{ $types[$unit->unit_type] ?? $unit->unit_type }}
+                                    <span class="badge badge-info">{{ $types[$unit->unit_type] ?? $unit->unit_type }}</span>
                                 </td>
                                 <td>
                                     @if ($unit->is_active)
@@ -142,28 +147,41 @@
                                         <span class="badge badge-secondary">غير نشط</span>
                                     @endif
                                 </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <a href="{{ route('manufacturing.warehouse-settings.units.show', $unit->id) }}"
-                                           class="btn btn-sm btn-info" title="عرض">
-                                            <i class="feather icon-eye"></i>
-                                        </a>
-                                        <a href="{{ route('manufacturing.warehouse-settings.units.edit', $unit->id) }}"
-                                           class="btn btn-sm btn-warning" title="تعديل">
-                                            <i class="feather icon-edit"></i>
-                                        </a>
-                                        <form method="POST"
-                                              action="{{ route('manufacturing.warehouse-settings.units.destroy', $unit->id) }}"
-                                              style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" title="حذف"
-                                                    onclick="return confirm('هل أنت متأكد من حذف هذه الوحدة؟')">
-                                                <i class="feather icon-trash-2"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
+                               <td>
+    <div class="um-dropdown">
+        <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+            <i class="feather icon-more-vertical"></i>
+        </button>
+
+        <div class="um-dropdown-menu">
+
+            <a href="{{ route('manufacturing.warehouse-settings.units.show', $unit->id) }}"
+               class="um-dropdown-item um-btn-view">
+                <i class="feather icon-eye"></i>
+                <span>عرض</span>
+            </a>
+
+            <a href="{{ route('manufacturing.warehouse-settings.units.edit', $unit->id) }}"
+               class="um-dropdown-item um-btn-edit">
+                <i class="feather icon-edit-2"></i>
+                <span>تعديل</span>
+            </a>
+
+            <form method="POST"
+                  action="{{ route('manufacturing.warehouse-settings.units.destroy', $unit->id) }}"
+                  style="display:inline;" class="delete-form">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="um-dropdown-item um-btn-delete">
+                    <i class="feather icon-trash-2"></i>
+                    <span>حذف</span>
+                </button>
+            </form>
+
+        </div>
+    </div>
+</td>
+
                             </tr>
                         @empty
                             <tr>
@@ -194,6 +212,28 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Delete confirmation with SweetAlert2
+            const deleteForms = document.querySelectorAll('.delete-form');
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    Swal.fire({
+                        title: 'تأكيد الحذف',
+                        text: 'هل أنت متأكد من حذف هذه الوحدة؟ هذا الإجراء لا يمكن التراجع عنه!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'نعم، احذف',
+                        cancelButtonText: 'إلغاء',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+
             // إخفاء التنبيهات تلقائياً بعد 5 ثواني
             const alerts = document.querySelectorAll('.um-alert-custom');
             alerts.forEach(alert => {
