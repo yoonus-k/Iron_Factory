@@ -36,8 +36,10 @@ class WarehouseRepository
         if (!empty($filters['search'])) {
             $search = $filters['search'];
             $query->where('warehouse_name', 'like', "%{$search}%")
+                ->orWhere('warehouse_name_en', 'like', "%{$search}%")
                 ->orWhere('warehouse_code', 'like', "%{$search}%")
-                ->orWhere('location', 'like', "%{$search}%");
+                ->orWhere('location', 'like', "%{$search}%")
+                ->orWhere('location_en', 'like', "%{$search}%");
         }
 
         // Filter by status
@@ -73,8 +75,11 @@ class WarehouseRepository
         $warehouse = new Warehouse();
         $warehouse->warehouse_code = $data['code'];
         $warehouse->warehouse_name = $data['name'];
+        $warehouse->warehouse_name_en = $data['name_en'] ?? null;
         $warehouse->location = $data['location'] ?? null;
+        $warehouse->location_en = $data['location_en'] ?? null;
         $warehouse->description = $data['description'] ?? null;
+        $warehouse->description_en = $data['description_en'] ?? null;
         $warehouse->capacity = $data['capacity'] ?? null;
         $warehouse->capacity_unit = $data['capacity_unit'] ?? 'متر مكعب';
         $warehouse->manager_name = $data['manager_id'] ?? null;
@@ -104,11 +109,20 @@ class WarehouseRepository
         if (isset($data['name'])) {
             $warehouse->warehouse_name = $data['name'];
         }
+        if (isset($data['name_en'])) {
+            $warehouse->warehouse_name_en = $data['name_en'];
+        }
         if (isset($data['location'])) {
             $warehouse->location = $data['location'];
         }
+        if (isset($data['location_en'])) {
+            $warehouse->location_en = $data['location_en'];
+        }
         if (isset($data['description'])) {
             $warehouse->description = $data['description'];
+        }
+        if (isset($data['description_en'])) {
+            $warehouse->description_en = $data['description_en'];
         }
         if (isset($data['capacity'])) {
             $warehouse->capacity = $data['capacity'];

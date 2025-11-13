@@ -21,7 +21,7 @@
 
         <!-- Success and Error Messages -->
         @if (session('success'))
-            <div class="um-alert-custom um-alert-success" role="alert">
+            <div class="um-alert-custom um-alert-success" role="alert" id="successMessage">
                 <i class="feather icon-check-circle"></i>
                 {{ session('success') }}
                 <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
@@ -31,7 +31,7 @@
         @endif
 
         @if (session('error'))
-            <div class="um-alert-custom um-alert-danger" role="alert">
+            <div class="um-alert-custom um-alert-danger" role="alert" id="errorMessage">
                 <i class="feather icon-alert-circle"></i>
                 {{ session('error') }}
                 <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
@@ -103,6 +103,9 @@
                             <td>
                                 <div class="um-course-info">
                                     <h6 class="um-course-title">{{ $warehouse->warehouse_name }}</h6>
+                                    @if($warehouse->warehouse_name_en)
+                                        <p class="um-course-desc text-muted">{{ $warehouse->warehouse_name_en }}</p>
+                                    @endif
                                     <p class="um-course-desc">{{ $warehouse->description ?? 'بدون وصف' }}</p>
                                 </div>
                             </td>
@@ -162,6 +165,9 @@
                             </div>
                             <div>
                                 <h6 class="um-category-name">{{ $warehouse->warehouse_name }}</h6>
+                                @if($warehouse->warehouse_name_en)
+                                    <p class="um-category-desc text-muted">{{ $warehouse->warehouse_name_en }}</p>
+                                @endif
                                 <span class="um-category-id">#{{ $warehouse->warehouse_code }}</span>
                             </div>
                         </div>
@@ -238,14 +244,25 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // تأكيد الحذف
+            // تأكيد الحذف باستخدام SweetAlert2
             const deleteForms = document.querySelectorAll('.delete-form');
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    if (confirm('هل أنت متأكد من حذف هذا المستودع؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
-                        form.submit();
-                    }
+                    
+                    Swal.fire({
+                        title: 'تأكيد الحذف',
+                        text: 'هل أنت متأكد من حذف هذا المستودع؟ هذا الإجراء لا يمكن التراجع عنه!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'نعم، احذف',
+                        cancelButtonText: 'إلغاء',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
                 });
             });
 

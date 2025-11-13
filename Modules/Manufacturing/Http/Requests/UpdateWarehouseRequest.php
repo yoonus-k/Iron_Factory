@@ -25,10 +25,13 @@ class UpdateWarehouseRequest extends FormRequest
 
         return [
             'name' => 'required|string|max:255|unique:warehouses,warehouse_name,' . $warehouseId,
+            'name_en' => 'nullable|string|max:255|unique:warehouses,warehouse_name_en,' . $warehouseId,
             'code' => 'required|string|max:50|unique:warehouses,warehouse_code,' . $warehouseId,
             'location' => 'nullable|string|max:255',
+            'location_en' => 'nullable|string|max:255',
             'manager_id' => 'nullable|integer|exists:users,id',
             'description' => 'nullable|string',
+            'description_en' => 'nullable|string',
             'capacity' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive',
             'phone' => 'nullable|string|max:20',
@@ -44,6 +47,7 @@ class UpdateWarehouseRequest extends FormRequest
         return [
             'name.required' => 'اسم المستودع مطلوب',
             'name.unique' => 'اسم المستودع موجود بالفعل',
+            'name_en.unique' => 'اسم المستودع بالإنجليزية موجود بالفعل',
             'code.required' => 'رمز المستودع مطلوب',
             'code.unique' => 'رمز المستودع موجود بالفعل',
             'manager_id.exists' => 'المسؤول المختار غير موجود',

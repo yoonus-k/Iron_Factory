@@ -26,7 +26,7 @@ return new class extends Migration {
             $table->decimal('remaining_weight', 10, 3)->comment('الوزن المتبقي');
 
             $table->foreignId('unit_id')->nullable()->constrained('units')->onDelete('set null')->comment('الوحدة');
-            $table->foreignId('supplier_id')->nullable()->constrained('suppliers')->onDelete('set null')->comment('المورد');
+
             $table->string('delivery_note_number', 100)->nullable()->comment('رقم إشعار التسليم');
             $table->date('manufacture_date')->nullable()->comment('تاريخ التصنيع');
             $table->date('expiry_date')->nullable()->comment('تاريخ الانتهاء');
@@ -51,7 +51,7 @@ return new class extends Migration {
             $table->index('material_type');
 
             $table->index('expiry_date');
-            $table->index('supplier_id');
+
         });
     }
 
