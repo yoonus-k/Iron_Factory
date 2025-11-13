@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إدارة المستودعات')
+@section('title', 'لوحة التحكم في المستودعات')
 
 @section('content')
     <div class="um-content-wrapper">
@@ -8,28 +8,28 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-home"></i>
-                إدارة المستودعات
+                لوحة التحكم في المستودعات
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
                     <i class="feather icon-home"></i> لوحة التحكم
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المستودعات</span>
+                <span>لوحة التحكم في المستودعات</span>
             </nav>
         </div>
 
         <!-- Warehouse Dashboard Cards -->
         <div class="um-grid">
-            <!-- Products Card -->
+            <!-- Warehouse Management Card -->
             <div class="um-card um-card-link">
-                <a href="{{ route('manufacturing.warehouse-products.index') }}" class="um-card-link-wrapper">
+                <a href="{{ route('manufacturing.warehouses.index') }}" class="um-card-link-wrapper">
                     <div class="um-card-icon primary">
-                        <i class="feather icon-package"></i>
+                        <i class="feather icon-home"></i>
                     </div>
                     <div class="um-card-content">
-                        <h3 class="um-card-title">المنتجات</h3>
-                        <p class="um-card-description">إدارة المواد الخام والمنتجات في المستودع</p>
+                        <h3 class="um-card-title">إدارة المستودعات</h3>
+                        <p class="um-card-description">إدارة المستودعات والمخازن</p>
                     </div>
                     <div class="um-card-arrow">
                         <i class="feather icon-chevron-left"></i>

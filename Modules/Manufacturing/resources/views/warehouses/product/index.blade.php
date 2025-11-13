@@ -121,11 +121,11 @@
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
-                                        <a href="#" class="um-dropdown-item um-btn-view">
+                                        <a href="{{ route('manufacturing.warehouse-products.show', 1) }}" class="um-dropdown-item um-btn-view">
                                             <i class="feather icon-eye"></i>
                                             <span>عرض</span>
                                         </a>
-                                        <a href="#" class="um-dropdown-item um-btn-edit">
+                                        <a href="{{ route('manufacturing.warehouse-products.edit', 1) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
                                             <span>تعديل</span>
                                         </a>
@@ -171,11 +171,11 @@
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
-                                        <a href="#" class="um-dropdown-item um-btn-view">
+                                        <a href="{{ route('manufacturing.warehouse-products.show', 1) }}" class="um-dropdown-item um-btn-view">
                                             <i class="feather icon-eye"></i>
                                             <span>عرض</span>
                                         </a>
-                                        <a href="#" class="um-dropdown-item um-btn-edit">
+                                        <a href="{{ route('manufacturing.warehouse-products.edit', 1) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
                                             <span>تعديل</span>
                                         </a>
@@ -221,11 +221,11 @@
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
-                                        <a href="#" class="um-dropdown-item um-btn-view">
+                                        <a href="{{ route('manufacturing.warehouse-products.show', 1) }}" class="um-dropdown-item um-btn-view">
                                             <i class="feather icon-eye"></i>
                                             <span>عرض</span>
                                         </a>
-                                        <a href="#" class="um-dropdown-item um-btn-edit">
+                                        <a href="{{ route('manufacturing.warehouse-products.edit', 1) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
                                             <span>تعديل</span>
                                         </a>
@@ -271,11 +271,11 @@
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
-                                        <a href="#" class="um-dropdown-item um-btn-view">
+                                        <a href="{{ route('manufacturing.warehouse-products.show', 1) }}" class="um-dropdown-item um-btn-view">
                                             <i class="feather icon-eye"></i>
                                             <span>عرض</span>
                                         </a>
-                                        <a href="#" class="um-dropdown-item um-btn-edit">
+                                        <a href="{{ route('manufacturing.warehouse-products.edit', 1) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
                                             <span>تعديل</span>
                                         </a>
@@ -321,11 +321,11 @@
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
-                                        <a href="#" class="um-dropdown-item um-btn-view">
+                                        <a href="{{ route('manufacturing.warehouse-products.show', 1) }}" class="um-dropdown-item um-btn-view">
                                             <i class="feather icon-eye"></i>
                                             <span>عرض</span>
                                         </a>
-                                        <a href="#" class="um-dropdown-item um-btn-edit">
+                                        <a href="{{ route('manufacturing.warehouse-products.edit', 1) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
                                             <span>تعديل</span>
                                         </a>
@@ -392,11 +392,11 @@
                                 <i class="feather icon-more-vertical"></i>
                             </button>
                             <div class="um-dropdown-menu">
-                                <a href="#" class="um-dropdown-item um-btn-view">
+                                <a href="{{ route('manufacturing.warehouse-products.show', 1) }}" class="um-dropdown-item um-btn-view">
                                     <i class="feather icon-eye"></i>
                                     <span>عرض</span>
                                 </a>
-                                <a href="#" class="um-dropdown-item um-btn-edit">
+                                <a href="{{ route('manufacturing.warehouse-products.edit', 1) }}" class="um-dropdown-item um-btn-edit">
                                     <i class="feather icon-edit-2"></i>
                                     <span>تعديل</span>
                                 </a>
@@ -408,7 +408,9 @@
                                     <i class="feather icon-pause-circle"></i>
                                     <span>تبديل الحالة</span>
                                 </button>
-                                <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                <form method="POST" action="{{ route('manufacturing.warehouse-products.destroy', 1) }}" style="display: inline;" class="delete-form">
+                                    @csrf
+                                    @method('DELETE')
                                     <button type="submit" class="um-dropdown-item um-btn-delete">
                                         <i class="feather icon-trash-2"></i>
                                         <span>حذف</span>
@@ -458,11 +460,11 @@
                                 <i class="feather icon-more-vertical"></i>
                             </button>
                             <div class="um-dropdown-menu">
-                                <a href="#" class="um-dropdown-item um-btn-view">
+                                <a href="{{ route('manufacturing.warehouse-products.show', 1) }}" class="um-dropdown-item um-btn-view">
                                     <i class="feather icon-eye"></i>
                                     <span>عرض</span>
                                 </a>
-                                <a href="#" class="um-dropdown-item um-btn-edit">
+                                <a href="{{ route('manufacturing.warehouse-products.edit', 1) }}" class="um-dropdown-item um-btn-edit">
                                     <i class="feather icon-edit-2"></i>
                                     <span>تعديل</span>
                                 </a>
@@ -474,7 +476,9 @@
                                     <i class="feather icon-pause-circle"></i>
                                     <span>تبديل الحالة</span>
                                 </button>
-                                <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                <form method="POST" action="{{ route('manufacturing.warehouse-products.destroy', 1) }}" style="display: inline;" class="delete-form">
+                                    @csrf
+                                    @method('DELETE')
                                     <button type="submit" class="um-dropdown-item um-btn-delete">
                                         <i class="feather icon-trash-2"></i>
                                         <span>حذف</span>
@@ -524,11 +528,11 @@
                                 <i class="feather icon-more-vertical"></i>
                             </button>
                             <div class="um-dropdown-menu">
-                                <a href="#" class="um-dropdown-item um-btn-view">
+                                <a href="{{ route('manufacturing.warehouse-products.show', 1) }}" class="um-dropdown-item um-btn-view">
                                     <i class="feather icon-eye"></i>
                                     <span>عرض</span>
                                 </a>
-                                <a href="#" class="um-dropdown-item um-btn-edit">
+                                <a href="{{ route('manufacturing.warehouse-products.edit', 1) }}" class="um-dropdown-item um-btn-edit">
                                     <i class="feather icon-edit-2"></i>
                                     <span>تعديل</span>
                                 </a>
@@ -540,7 +544,9 @@
                                     <i class="feather icon-pause-circle"></i>
                                     <span>تبديل الحالة</span>
                                 </button>
-                                <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                <form method="POST" action="{{ route('manufacturing.warehouse-products.destroy', 1) }}" style="display: inline;" class="delete-form">
+                                    @csrf
+                                    @method('DELETE')
                                     <button type="submit" class="um-dropdown-item um-btn-delete">
                                         <i class="feather icon-trash-2"></i>
                                         <span>حذف</span>

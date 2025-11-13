@@ -7,6 +7,7 @@ use Modules\Manufacturing\Http\Controllers\DeliveryNoteController;
 use Modules\Manufacturing\Http\Controllers\PurchaseInvoiceController;
 use Modules\Manufacturing\Http\Controllers\SupplierController;
 use Modules\Manufacturing\Http\Controllers\AdditiveController;
+use Modules\Manufacturing\Http\Controllers\WarehouseController;
 use Modules\Manufacturing\Http\Controllers\ShiftsWorkersController;
 use Modules\Manufacturing\Http\Controllers\Stage1Controller;
 use Modules\Manufacturing\Http\Controllers\Stage2Controller;
@@ -18,9 +19,7 @@ use Modules\Manufacturing\Http\Controllers\WarehouseSettingsController;
     Route::resource('manufacturings', ManufacturingController::class)->names('manufacturing');
 
     // Warehouse Routes
-    Route::get('warehouses', function () {
-        return view('manufacturing::warehouses.index');
-    })->name('manufacturing.warehouses.index');
+    Route::resource('warehouses', WarehouseController::class)->names('manufacturing.warehouses');
     Route::resource('warehouse-products', WarehouseProductController::class)->names('manufacturing.warehouse-products');
     Route::resource('delivery-notes', DeliveryNoteController::class)->names('manufacturing.delivery-notes');
     Route::resource('purchase-invoices', PurchaseInvoiceController::class)->names('manufacturing.purchase-invoices');
