@@ -94,3 +94,7 @@ use Modules\Manufacturing\Http\Controllers\WarehouseSettingsController;
     Route::get('production-tracking/scan', [QualityController::class, 'productionTrackingScan'])->name('manufacturing.production-tracking.scan');
     Route::post('production-tracking/process', [QualityController::class, 'processProductionTracking'])->name('manufacturing.production-tracking.process');
     Route::get('production-tracking/report', [QualityController::class, 'productionTrackingReport'])->name('manufacturing.production-tracking.report');
+
+    // Iron Journey Tracking Routes
+    Route::get('iron-journey', [QualityController::class, 'ironJourney'])->name('manufacturing.iron-journey');
+    Route::get('iron-journey/show', [QualityController::class, 'showIronJourney'])->name('manufacturing.iron-journey.show');
