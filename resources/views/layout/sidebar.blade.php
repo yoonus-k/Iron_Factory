@@ -184,6 +184,11 @@
                             <i class="fas fa-barcode"></i> مسح الباركود
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('manufacturing.iron-journey') }}">
+                            <i class="fas fa-route"></i> رحلة الحديد
+                        </a>
+                    </li>
                 </ul>
             </li>
 
