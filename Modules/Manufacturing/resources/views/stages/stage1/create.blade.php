@@ -426,7 +426,7 @@
             <ul>
                 <li>المأخوذ من المخزن = وزن الاستاند النهائي + كمية الهدر</li>
                 <li>مثال: 100 كجم من المخزن - 2 كجم هدر = 98 كجم وزن الاستاند</li>
-                <li>الهدر الافتراضي: 2% من المأخوذ من المخزن</li>
+                <li>أدخل وزن الاستاند النهائي أو كمية الهدر وسيتم احتساب الباقي تلقائياً</li>
             </ul>
         </div>
 
@@ -442,7 +442,7 @@
                     <option value="14mm">استاند 14 مم (وزن: 180 كجم)</option>
                     <option value="16mm">استاند 16 مم (وزن: 200 كجم)</option>
                 </select>
-                <small style="color: #27ae60; display: block; margin-top: 5px;">💡 اختر قالب لملء البيانات تلقائياً (الهدر سيُحسب تلقائياً 2%)</small>
+                <small style="color: #27ae60; display: block; margin-top: 5px;">💡 اختر قالب لملء البيانات تلقائياً (أدخل الهدر يدوياً)</small>
             </div>
         </div>
 
@@ -475,8 +475,8 @@
         <div class="form-row">
             <div class="form-group">
                 <label>وزن الاستاند النهائي (كجم) <span class="required">*</span></label>
-                <input type="number" id="weight" class="form-control" placeholder="98.00" step="0.01" readonly style="background: #e8f4f8; font-weight: 600;">
-                <small style="color: #27ae60; display: block; margin-top: 5px;">📊 يُحسب تلقائياً: المأخوذ - الهدر</small>
+                <input type="number" id="weight" class="form-control" placeholder="98.00" step="0.01" style="background: #e8f4f8; font-weight: 600;">
+                <small style="color: #27ae60; display: block; margin-top: 5px;">📊 يمكن إدخاله يدوياً أو يُحسب تلقائياً من المأخوذ والهدر</small>
             </div>
 
             <div class="form-group">
@@ -569,9 +569,13 @@ document.getElementById('materialBarcode').addEventListener('keypress', function
     }
 });
 
-// Auto-calculate waste percentage
-document.getElementById('weight').addEventListener('input', calculateWastePercent);
-document.getElementById('wasteAmount').addEventListener('input', calculateWastePercent);
+const rawWeightInput = document.getElementById('rawWeight');
+const wasteInput = document.getElementById('wasteAmount');
+const finalWeightInput = document.getElementById('weight');
+const wastePercentDisplay = document.getElementById('wastePercentDisplay');
+
+let isSyncingFields = false;
+let lastManualInput = 'waste';
 
 function loadMaterial(barcode) {
     if (!barcode) {
@@ -604,24 +608,90 @@ function loadMaterial(barcode) {
     showToast('✅ تم تحميل بيانات المادة الخام بنجاح!', 'success');
 }
 
-// حساب وزن الاستاند النهائي ونسبة الهدر تلقائياً
-document.getElementById('rawWeight').addEventListener('input', calculateFinalWeight);
-document.getElementById('wasteAmount').addEventListener('input', calculateFinalWeight);
+rawWeightInput.addEventListener('input', handleRawWeightChange);
+wasteInput.addEventListener('input', handleWasteInputChange);
+finalWeightInput.addEventListener('input', handleFinalWeightInputChange);
 
-function calculateFinalWeight() {
-    const rawWeight = parseFloat(document.getElementById('rawWeight').value) || 0;
-    const wasteAmount = parseFloat(document.getElementById('wasteAmount').value) || 0;
-    
-    // وزن الاستاند النهائي = المأخوذ من المخزن - الهدر
-    const finalWeight = rawWeight - wasteAmount;
-    document.getElementById('weight').value = finalWeight > 0 ? finalWeight.toFixed(2) : '0.00';
-    
-    // حساب نسبة الهدر
-    if (rawWeight > 0) {
-        const percent = (wasteAmount / rawWeight * 100).toFixed(2);
-        document.getElementById('wastePercentDisplay').textContent = percent + '%';
+function handleRawWeightChange() {
+    if (isSyncingFields) return;
+    isSyncingFields = true;
+    const raw = parseFloat(rawWeightInput.value) || 0;
+
+    if (raw <= 0) {
+        finalWeightInput.value = '';
+        wasteInput.value = '';
+        updateWasteDisplay(0, 0);
+        isSyncingFields = false;
+        return;
+    }
+
+    if (lastManualInput === 'final') {
+        let finalWeight = parseFloat(finalWeightInput.value);
+        if (isNaN(finalWeight) || finalWeight < 0) finalWeight = 0;
+        if (finalWeight > raw) finalWeight = raw;
+        finalWeightInput.value = finalWeight > 0 ? finalWeight.toFixed(2) : '0.00';
+        const waste = Math.max(raw - finalWeight, 0);
+        wasteInput.value = waste > 0 ? waste.toFixed(2) : '0.00';
+        updateWasteDisplay(raw, waste);
     } else {
-        document.getElementById('wastePercentDisplay').textContent = '0%';
+        let waste = parseFloat(wasteInput.value);
+        if (isNaN(waste) || waste < 0) waste = 0;
+        if (waste > raw) waste = raw;
+        wasteInput.value = waste > 0 ? waste.toFixed(2) : '0.00';
+        const finalWeight = Math.max(raw - waste, 0);
+        finalWeightInput.value = finalWeight > 0 ? finalWeight.toFixed(2) : '0.00';
+        updateWasteDisplay(raw, waste);
+    }
+
+    isSyncingFields = false;
+}
+
+function handleWasteInputChange() {
+    if (isSyncingFields) return;
+    lastManualInput = 'waste';
+    isSyncingFields = true;
+    const raw = parseFloat(rawWeightInput.value) || 0;
+    let waste = parseFloat(wasteInput.value);
+    if (isNaN(waste) || waste < 0) waste = 0;
+    if (raw > 0 && waste > raw) waste = raw;
+    wasteInput.value = waste > 0 ? waste.toFixed(2) : (raw > 0 ? '0.00' : '');
+    const finalWeight = raw > 0 ? Math.max(raw - waste, 0) : 0;
+    finalWeightInput.value = finalWeight > 0 ? finalWeight.toFixed(2) : (raw > 0 ? '0.00' : '');
+    updateWasteDisplay(raw, waste);
+    isSyncingFields = false;
+}
+
+function handleFinalWeightInputChange() {
+    if (isSyncingFields) return;
+    lastManualInput = 'final';
+    isSyncingFields = true;
+    const raw = parseFloat(rawWeightInput.value) || 0;
+    let finalWeight = parseFloat(finalWeightInput.value);
+    if (isNaN(finalWeight) || finalWeight < 0) finalWeight = 0;
+    if (raw > 0 && finalWeight > raw) finalWeight = raw;
+    finalWeightInput.value = finalWeight > 0 ? finalWeight.toFixed(2) : (raw > 0 ? '0.00' : '');
+    const waste = raw > 0 ? Math.max(raw - finalWeight, 0) : 0;
+    wasteInput.value = waste > 0 ? waste.toFixed(2) : (raw > 0 ? '0.00' : '');
+    updateWasteDisplay(raw, waste);
+    isSyncingFields = false;
+}
+
+function updateWasteDisplay(raw, waste) {
+    if (raw <= 0 || waste <= 0) {
+        wastePercentDisplay.textContent = '0%';
+        wastePercentDisplay.style.color = '#7f8c8d';
+        wastePercentDisplay.style.fontWeight = 'normal';
+        return;
+    }
+
+    const percent = (waste / raw * 100).toFixed(2);
+    wastePercentDisplay.textContent = percent + '%';
+    if (parseFloat(percent) > 5) {
+        wastePercentDisplay.style.color = '#e74c3c';
+        wastePercentDisplay.style.fontWeight = 'bold';
+    } else {
+        wastePercentDisplay.style.color = '#7f8c8d';
+        wastePercentDisplay.style.fontWeight = 'normal';
     }
 }
 
@@ -724,6 +794,8 @@ function clearForm() {
     document.getElementById('wastePercentDisplay').textContent = '0%';
     document.getElementById('cost').value = '';
     document.getElementById('notes').value = '';
+    updateWasteDisplay(0, 0);
+    lastManualInput = 'waste';
     
     document.getElementById('standNumber').focus();
 }
@@ -766,17 +838,18 @@ function loadTemplate() {
     if (data) {
         document.getElementById('wireSize').value = data.wireSize;
         document.getElementById('rawWeight').value = data.weight;
+        document.getElementById('weight').value = data.weight;
         document.getElementById('cost').value = data.cost;
         
-        // Calculate waste amount automatically (2% default)
-        const wasteAmount = (data.weight * 0.02).toFixed(2);
-        document.getElementById('wasteAmount').value = wasteAmount;
-        calculateFinalWeight();
+        // Start with zero waste - user will input actual waste
+        document.getElementById('wasteAmount').value = '0';
+        lastManualInput = 'waste';
+        handleRawWeightChange();
         
         // Focus on stand number
         document.getElementById('standNumber').focus();
         
-        showToast('✅ تم تطبيق القالب بنجاح! الوزن النهائي محسوب تلقائياً ويمكنك تعديل الهدر', 'success');
+        showToast('✅ تم تطبيق القالب بنجاح! أدخل كمية الهدر الفعلية', 'success');
     }
 }
 

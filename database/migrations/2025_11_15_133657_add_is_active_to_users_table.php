@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('suppliers', function (Blueprint $table) {
-            $table->string('city')->nullable()->after('address');
-            $table->text('notes')->nullable()->after('city');
+        Schema::table('users', function (Blueprint $table) {
+            $table->boolean('is_active')->default(1);
         });
     }
 
@@ -22,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('suppliers', function (Blueprint $table) {
-            $table->dropColumn(['city', 'notes']);
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('is_active');
         });
     }
 };
