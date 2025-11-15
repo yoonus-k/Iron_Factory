@@ -15,7 +15,7 @@
                         <i class="feather icon-package"></i>
                     </div>
                     <div class="header-info">
-                        <h1>{{ $material->material_type }} ({{ $material->material_type_en }})</h1>
+                        <h1>{{ $material->name_ar }} ({{ $material->name_en }})</h1>
                         <div class="badges">
                             <span class="badge badge-{{ $material->status == 'available' ? 'success' : 'warning' }}">
                                 {{ $material->status == 'available' ? 'متوفر' : 'قيد الاستخدام' }}
@@ -68,13 +68,13 @@
 
                     <div class="info-item">
                         <div class="info-label">اسم المادة:</div>
-                        <div class="info-value">{{ $material->material_type }}</div>
+                        <div class="info-value">{{ $material->name_ar }}</div>
                     </div>
 
-                    @if($material->material_type_en)
+                    @if($material->name_en)
                     <div class="info-item">
                         <div class="info-label">Material Name:</div>
-                        <div class="info-value">{{ $material->material_type_en }}</div>
+                        <div class="info-value">{{ $material->name_en }}</div>
                     </div>
                     @endif
 

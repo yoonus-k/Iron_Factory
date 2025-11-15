@@ -129,9 +129,9 @@
                                     <span class="badge badge-primary">{{ $material->barcode }}</span>
                                 </td>
                                 <td>
-                                    <strong>{{ $material->material_type }}</strong><br>
-                                    @if($material->material_type_en)
-                                        <small class="text-muted">{{ $material->material_type_en }}</small>
+                                    <strong>{{ $material->name_ar }}</strong><br>
+                                    @if($material->name_en)
+                                        <small class="text-muted">{{ $material->name_en }}</small>
                                     @endif
                                 </td>
                                 <td>

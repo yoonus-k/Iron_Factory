@@ -90,7 +90,7 @@
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
-                                <input type="text" name="material_type" id="material_type" class="form-input"
+                                <input type="text" name="name_ar" id="material_type" class="form-input"
                                        placeholder="اسم المادة" value="{{ old('material_type', $material->material_type) }}" required>
                             </div>
                             <div class="error-message" id="material_type-error" style="display: none;"></div>
@@ -99,7 +99,7 @@
                         <div class="form-group">
                             <label for="material_type_en" class="form-label">نوع المادة (إنجليزي)</label>
                             <div class="input-wrapper">
-                                <input type="text" name="material_type_en" id="material_type_en" class="form-input"
+                                <input type="text" name="name_en" id="material_type_en" class="form-input"
                                        placeholder="Material Name in English" value="{{ old('material_type_en', $material->material_type_en) }}">
                             </div>
                             <div class="error-message" id="material_type_en-error" style="display: none;"></div>

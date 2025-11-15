@@ -13,14 +13,9 @@ class Material extends Model
         'material_type_id',
         'barcode',
         'batch_number',
-        'material_type',
-        'material_type_en',
+        'name_ar',
+        'name_en',
         'material_category',
-        // ❌ تم نقل هذه الحقول إلى material_details:
-        // 'original_weight',
-        // 'remaining_weight',
-        // 'unit_id',
-        // 'unit',
 
         'delivery_note_number',
         'manufacture_date',
