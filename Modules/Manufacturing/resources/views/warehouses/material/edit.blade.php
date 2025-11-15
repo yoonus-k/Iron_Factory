@@ -24,6 +24,25 @@
             </nav>
         </div>
 
+                @if (session('success'))
+            <div class="um-alert-custom um-alert-success" role="alert" id="successMessage">
+                <i class="feather icon-check-circle"></i>
+                {{ session('success') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="um-alert-custom um-alert-error" role="alert" id="errorMessage">
+                <i class="feather icon-alert-circle"></i>
+                {{ session('error') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+        @endif
         <!-- Form Card -->
         <div class="form-card">
             <form method="POST" action="{{ route('manufacturing.warehouse-products.update', $material->id) }}" id="materialForm" enctype="multipart/form-data">
@@ -63,14 +82,7 @@
                             <div class="error-message" id="barcode-error" style="display: none;"></div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="batch_number" class="form-label">رقم الدفعة</label>
-                            <div class="input-wrapper">
-                                <input type="text" name="batch_number" id="batch_number" class="form-input"
-                                       placeholder="أدخل رقم الدفعة" value="{{ old('batch_number', $material->batch_number) }}">
-                            </div>
-                            <div class="error-message" id="batch_number-error" style="display: none;"></div>
-                        </div>
+
 
                         <div class="form-group">
                             <label for="material_type" class="form-label">
@@ -93,39 +105,7 @@
                             <div class="error-message" id="material_type_en-error" style="display: none;"></div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="material_category" class="form-label">
-                                الفئة
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrapper">
-                                <select name="material_category" id="material_category" class="form-input" required>
-                                    <option value="">-- اختر الفئة --</option>
-                                    <option value="raw" {{ old('material_category', $material->material_category) == 'raw' ? 'selected' : '' }}>خام</option>
-                                    <option value="manufactured" {{ old('material_category', $material->material_category) == 'manufactured' ? 'selected' : '' }}>مصنع</option>
-                                    <option value="finished" {{ old('material_category', $material->material_category) == 'finished' ? 'selected' : '' }}>جاهز</option>
-                                </select>
-                            </div>
-                            <div class="error-message" id="material_category-error" style="display: none;"></div>
-                        </div>
 
-                        <div class="form-group">
-                            <label for="supplier_id" class="form-label">
-                                المورد
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrapper">
-                                <select name="supplier_id" id="supplier_id" class="form-input" required>
-                                    <option value="">-- اختر المورد --</option>
-                                    @foreach ($suppliers as $supplier)
-                                        <option value="{{ $supplier->id }}" {{ old('supplier_id', $material->supplier_id) == $supplier->id ? 'selected' : '' }}>
-                                            {{ $supplier->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="error-message" id="supplier_id-error" style="display: none;"></div>
-                        </div>
 
                         <div class="form-group">
                             <label for="original_weight" class="form-label">
@@ -158,7 +138,7 @@
                                     <option value="">-- اختر الوحدة --</option>
                                     @foreach ($units as $unit)
                                         <option value="{{ $unit->id }}" {{ old('unit_id', $material->unit_id) == $unit->id ? 'selected' : '' }}>
-                                            {{ $unit->name }}
+                                            {{ $unit->unit_name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -166,14 +146,7 @@
                             <div class="error-message" id="unit_id-error" style="display: none;"></div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="delivery_note_number" class="form-label">رقم مذكرة التسليم</label>
-                            <div class="input-wrapper">
-                                <input type="text" name="delivery_note_number" id="delivery_note_number" class="form-input"
-                                       placeholder="رقم المذكرة" value="{{ old('delivery_note_number', $material->delivery_note_number) }}">
-                            </div>
-                            <div class="error-message" id="delivery_note_number-error" style="display: none;"></div>
-                        </div>
+
 
                         <div class="form-group">
                             <label for="manufacture_date" class="form-label">تاريخ الصنع</label>
@@ -211,22 +184,6 @@
                             <div class="error-message" id="shelf_location_en-error" style="display: none;"></div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="status" class="form-label">
-                                الحالة
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrapper">
-                                <select name="status" id="status" class="form-input" required>
-                                    <option value="">-- اختر الحالة --</option>
-                                    <option value="available" {{ old('status', $material->status) == 'available' ? 'selected' : '' }}>متوفر</option>
-                                    <option value="in_use" {{ old('status', $material->status) == 'in_use' ? 'selected' : '' }}>قيد الاستخدام</option>
-                                    <option value="consumed" {{ old('status', $material->status) == 'consumed' ? 'selected' : '' }}>مستهلك</option>
-                                    <option value="expired" {{ old('status', $material->status) == 'expired' ? 'selected' : '' }}>منتهي الصلاحية</option>
-                                </select>
-                            </div>
-                            <div class="error-message" id="status-error" style="display: none;"></div>
-                        </div>
 
                         <div class="form-group full-width">
                             <label for="notes" class="form-label">الملاحظات (عربي)</label>
@@ -289,43 +246,53 @@
             // Form submission handler
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                
+
                 // Reset all errors
                 clearAllErrors();
-                
+
                 // Validate required fields
                 let isValid = true;
                 const requiredFields = form.querySelectorAll('[required]');
-                
+
                 requiredFields.forEach(field => {
                     if (!field.value.trim()) {
                         showError(field.id, 'هذا الحقل مطلوب');
                         isValid = false;
                     }
                 });
-                
+
                 // If form is valid, submit it
                 if (isValid) {
-                    // Show SweetAlert2 confirmation
-                    Swal.fire({
-                        title: 'تأكيد الحفظ',
-                        text: 'هل أنت متأكد من حفظ التغييرات؟',
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonText: 'نعم، احفظ',
-                        cancelButtonText: 'إلغاء',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Submit the form
-                            form.submit();
-                        }
-                    });
+                    // Check if SweetAlert2 is available
+                    if (typeof Swal !== 'undefined') {
+                        // Show SweetAlert2 confirmation
+                        Swal.fire({
+                            title: 'تأكيد الحفظ',
+                            text: 'هل أنت متأكد من حفظ التغييرات؟',
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'نعم، احفظ',
+                            cancelButtonText: 'إلغاء',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Remove event listener to allow form submission
+                                form.removeEventListener('submit', arguments.callee);
+                                // Submit the form
+                                form.submit();
+                            }
+                        });
+                    } else {
+                        // If SweetAlert2 is not available, submit directly
+                        console.warn('SweetAlert2 not loaded, submitting form directly');
+                        form.removeEventListener('submit', arguments.callee);
+                        form.submit();
+                    }
                 } else {
                     // Scroll to first error
-                    const firstError = form.querySelector('.error-message:not([style*="display: none"])');
+                    const firstError = form.querySelector('.error-message');
                     if (firstError) {
-                        firstError.previousElementSibling.scrollIntoView({
+                        firstError.scrollIntoView({
                             behavior: 'smooth',
                             block: 'center'
                         });
@@ -356,4 +323,103 @@
             });
         }
     </script>
+
+    <style>
+        /* Alert Styles */
+        .alert-container {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #ff5252 0%, #ff1744 100%);
+            border: 1px solid #ff5252;
+            color: #fff;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            border: 1px solid #4caf50;
+            color: #fff;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
+            border: 1px solid #ff9800;
+            color: #fff;
+        }
+
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .alert-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .alert-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .alert-body {
+            padding: 12px 16px;
+        }
+
+        .alert-description {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .error-list {
+            margin: 0;
+            padding: 0;
+        }
+
+        .error-list li {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .error-list li span {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .alert-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .alert-title {
+                font-size: 15px;
+            }
+        }
+    </style>
 @endsection

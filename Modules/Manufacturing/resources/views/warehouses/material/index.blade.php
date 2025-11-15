@@ -116,7 +116,7 @@
                             <th>الوزن الأصلي</th>
                             <th>الوزن المتبقي</th>
                             <th>الوحدة</th>
-                            <th>المورد</th>
+
                             <th>الحالة</th>
                             <th>الإجراءات</th>
                         </tr>
@@ -137,12 +137,12 @@
                                 <td>
                                     <span class="badge badge-info">{{ $material->getCategoryLabel() }}</span>
                                 </td>
-                                <td>{{ $material->original_weight }} {{ $material->unit->name ?? 'N/A' }}</td>
+                                <td>{{ $material->original_weight }} {{ $material->unit->unit_name ?? 'N/A' }}</td>
                                 <td>
-                                    <strong>{{ $material->remaining_weight }} {{ $material->unit->name ?? 'N/A' }}</strong>
+                                    <strong>{{ $material->remaining_weight }} {{ $material->unit->unit_name ?? 'N/A' }}</strong>
                                 </td>
-                                <td>{{ $material->unit->name ?? 'N/A' }}</td>
-                                <td>{{ $material->supplier->name ?? 'N/A' }}</td>
+                                <td>{{ $material->unit->unit_name ?? 'N/A' }}</td>
+
                                 <td>
                                     @if ($material->status === 'available')
                                         <span class="badge badge-success">متوفر</span>
@@ -155,26 +155,37 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div class="action-buttons">
-                                        <a href="{{ route('manufacturing.warehouse-products.show', $material->id) }}"
-                                           class="btn btn-sm btn-info" title="عرض">
-                                            <i class="feather icon-eye"></i>
-                                        </a>
-                                        <a href="{{ route('manufacturing.warehouse-products.edit', $material->id) }}"
-                                           class="btn btn-sm btn-warning" title="تعديل">
-                                            <i class="feather icon-edit"></i>
-                                        </a>
-                                        <form method="POST"
-                                              action="{{ route('manufacturing.warehouse-products.destroy', $material->id) }}"
-                                              style="display:inline;" class="delete-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" title="حذف">
-                                                <i class="feather icon-trash-2"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
+    <div class="um-dropdown">
+        <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+            <i class="feather icon-more-vertical"></i>
+        </button>
+        <div class="um-dropdown-menu">
+            <a href="{{ route('manufacturing.warehouse-products.show', $material->id) }}"
+               class="um-dropdown-item um-btn-view">
+                <i class="feather icon-eye"></i>
+                <span>عرض</span>
+            </a>
+
+            <a href="{{ route('manufacturing.warehouse-products.edit', $material->id) }}"
+               class="um-dropdown-item um-btn-edit">
+                <i class="feather icon-edit-2"></i>
+                <span>تعديل</span>
+            </a>
+
+            <form method="POST"
+                  action="{{ route('manufacturing.warehouse-products.destroy', $material->id) }}"
+                  style="display: inline;" class="delete-form">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="um-dropdown-item um-btn-delete">
+                    <i class="feather icon-trash-2"></i>
+                    <span>حذف</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</td>
+
                             </tr>
                         @empty
                             <tr>
@@ -210,7 +221,7 @@
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    
+
                     Swal.fire({
                         title: 'تأكيد الحذف',
                         text: 'هل أنت متأكد من حذف هذه المادة؟ هذا الإجراء لا يمكن التراجع عنه!',

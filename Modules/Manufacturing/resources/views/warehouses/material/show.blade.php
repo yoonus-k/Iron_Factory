@@ -23,6 +23,13 @@
                     </div>
                 </div>
                 <div class="header-actions">
+                    <a href="{{ route('manufacturing.warehouse-products.transactions', $material->id) }}" class="btn btn-info" title="عرض حركات المستودع">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                            <polyline points="17 6 23 6 23 12"></polyline>
+                        </svg>
+                        الحركات
+                    </a>
                     <a href="{{ route('manufacturing.warehouse-products.edit', $material->id) }}" class="btn btn-edit">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -65,7 +72,7 @@
                         </div>
                         <div class="info-value">{{ $material->material_type }}</div>
                     </div>
-                    
+
                     @if($material->material_type_en)
                     <div class="info-item">
                         <div class="info-label">
@@ -86,7 +93,7 @@
                         <div class="info-label">
                             الوزن المتبقي:
                         </div>
-                        <div class="info-value">{{ $material->remaining_weight }} {{ $material->unit->name ?? 'N/A' }}</div>
+                        <div class="info-value">{{ $material->remaining_weight }} {{ $material->unit->unit_name ?? 'N/A' }}</div>
                     </div>
 
                     <div class="info-item">
@@ -172,7 +179,7 @@
                             @endif
                         </div>
                     </div>
-                    
+
                     @if($material->shelf_location && $material->shelf_location_en)
                     <div class="info-item">
                         <div class="info-label">
@@ -232,6 +239,31 @@
                             <div class="info-label">العنوان:</div>
                             <div class="info-value">{{ $material->supplier->address ?? 'N/A' }}</div>
                         </div>
+
+                        <!-- معلومات المستودع والكمية -->
+                        <div class="info-item">
+                            <div class="info-label">المستودع الحالي:</div>
+                            <div class="info-value">{{ $material->warehouse->name ?? 'غير محدد' }}</div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-label">الكمية الموجودة:</div>
+                            <div class="info-value">
+                                <strong>{{ $material->remaining_weight }} {{ $material->unit->name ?? 'وحدة' }}</strong>
+                            </div>
+                        </div>
+
+                        <!-- زر إضافة كمية جديدة -->
+                        <div class="info-item" style="padding-top: 20px; border-top: 1px solid #eee; margin-top: 20px;">
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuantityModal" title="إضافة كمية جديدة">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; margin-right: 5px;">
+                                    <circle cx="12" cy="12" r="1"></circle>
+                                    <circle cx="19" cy="12" r="1"></circle>
+                                    <circle cx="5" cy="12" r="1"></circle>
+                                </svg>
+                                إضافة كمية جديدة
+                            </button>
+                        </div>
                     @else
                         <p class="text-muted">لا توجد معلومات عن المورد</p>
                     @endif
@@ -273,6 +305,19 @@
             </div>
             <div class="card-body">
                 <div class="actions-grid">
+                    <a href="{{ route('manufacturing.warehouse-products.transactions', $material->id) }}" class="action-btn info">
+                        <div class="action-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                <polyline points="17 6 23 6 23 12"></polyline>
+                            </svg>
+                        </div>
+                        <div class="action-text">
+                            <h5>سجل الحركات</h5>
+                            <p>عرض جميع حركات المستودع</p>
+                        </div>
+                    </a>
+
                     <a href="{{ route('manufacturing.warehouse-products.edit', $material->id) }}" class="action-btn activate">
                         <div class="action-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -309,30 +354,265 @@
         </div>
     </div>
 
+    <!-- Modal: إضافة كمية جديدة -->
+    <div class="modal fade" id="addQuantityModal" tabindex="-1" role="dialog" aria-labelledby="addQuantityModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addQuantityModalLabel">
+                        <i class="feather icon-plus-circle"></i>
+                        إضافة كمية جديدة
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <!-- Alert Messages -->
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin: 15px;">
+                        <strong>خطأ!</strong>
+                        <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('manufacturing.warehouse-products.add-quantity', $material->id) }}" id="addQuantityForm">
+                    @csrf
+                    <div class="modal-body">
+                        <!-- اختيار المستودع -->
+                        <div class="form-group">
+                            <label for="warehouse_id" class="form-label">
+                                المستودع
+                                <span style="color: red;">*</span>
+                            </label>
+                            <select name="warehouse_id" id="warehouse_id" class="form-control" required>
+                                <option value="">-- اختر المستودع --</option>
+                                @php
+                                    $warehouses = \App\Models\Warehouse::all();
+                                @endphp
+                                @foreach ($warehouses as $warehouse)
+                                    <option value="{{ $warehouse->id }}" {{ $material->warehouse_id == $warehouse->id ? 'selected' : '' }}>
+                                        {{ $warehouse->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- إدخال الكمية -->
+                        <div class="form-group">
+                            <label for="quantity" class="form-label">
+                                الكمية
+                                <span style="color: red;">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="number" name="quantity" id="quantity" class="form-control"
+                                       placeholder="أدخل الكمية" step="0.01" min="0.01" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">{{ $material->unit->name ?? 'وحدة' }}</span>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">
+                                الكمية الحالية: <strong>{{ $material->remaining_weight }}</strong>
+                                {{ $material->unit->name ?? 'وحدة' }}
+                            </small>
+                        </div>
+
+                        <!-- الملاحظات -->
+                        <div class="form-group">
+                            <label for="notes" class="form-label">الملاحظات (اختياري)</label>
+                            <textarea name="notes" id="notes" class="form-control" rows="3"
+                                    placeholder="أدخل أي ملاحظات إضافية..."></textarea>
+                        </div>
+
+                        <!-- معلومات تلقائية -->
+                        <div class="alert alert-info" role="alert">
+                            <h6 class="alert-heading">
+                                <i class="feather icon-info"></i>
+                                معلومات إضافية
+                            </h6>
+                            <ul style="margin: 10px 0 0 0; padding-left: 20px; font-size: 13px;">
+                                <li>سيتم تحديث الكمية الأصلية والكمية المتبقية</li>
+                                <li>سيتم تسجيل حركة استقبال تلقائياً</li>
+                                <li>سيتم تسجيل اسم المستخدم الحالي</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="feather icon-x"></i>
+                            إلغاء
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="feather icon-check"></i>
+                            إضافة الكمية
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Validation للـ Add Quantity Form
+            const addQuantityForm = document.getElementById('addQuantityForm');
+            if (addQuantityForm) {
+                addQuantityForm.addEventListener('submit', function(e) {
+                    const warehouseId = document.getElementById('warehouse_id').value;
+                    const quantity = document.getElementById('quantity').value;
+
+                    if (!warehouseId) {
+                        e.preventDefault();
+                        alert('يرجى اختيار المستودع');
+                        return false;
+                    }
+
+                    if (!quantity || parseFloat(quantity) <= 0) {
+                        e.preventDefault();
+                        alert('يرجى إدخال كمية صحيحة');
+                        return false;
+                    }
+
+                    // Show confirmation
+                    if (!confirm('هل تريد إضافة ' + quantity + ' وحدة من هذه المادة؟')) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+            }
+
             // Delete confirmation with SweetAlert2
             const deleteButtons = document.querySelectorAll('.action-btn.delete');
             deleteButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
                     const form = this.closest('form');
-                    
-                    Swal.fire({
-                        title: 'تأكيد الحذف',
-                        text: 'هل أنت متأكد من حذف هذه المادة؟ هذا الإجراء لا يمكن التراجع عنه!',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'نعم، احذف',
-                        cancelButtonText: 'إلغاء',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
+
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: 'تأكيد الحذف',
+                            text: 'هل أنت متأكد من حذف هذه المادة؟ هذا الإجراء لا يمكن التراجع عنه!',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'نعم، احذف',
+                            cancelButtonText: 'إلغاء',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.submit();
+                            }
+                        });
+                    } else {
+                        if (confirm('هل أنت متأكد من حذف هذه المادة؟ هذا الإجراء لا يمكن التراجع عنه!')) {
                             form.submit();
                         }
-                    });
+                    }
                 });
             });
+
+            // Auto-dismiss alerts after 5 seconds
+            const alerts = document.querySelectorAll('.alert:not(.alert-dismissible)');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transition = 'opacity 0.3s';
+                    setTimeout(() => {
+                        alert.style.display = 'none';
+                    }, 300);
+                }, 5000);
+            });
         });
+
+        // CSS for styling improvements
+        const style = document.createElement('style');
+        style.textContent = `
+            .modal-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+            }
+
+            .modal-header .close {
+                color: white;
+                opacity: 0.8;
+            }
+
+            .modal-header .close:hover {
+                opacity: 1;
+            }
+
+            .form-group label {
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 8px;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                border-radius: 4px;
+                border: 1px solid #ddd;
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .form-group input:focus,
+            .form-group select:focus,
+            .form-group textarea:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+
+            .input-group-text {
+                background-color: #f8f9fa;
+                border: 1px solid #ddd;
+                font-weight: 600;
+            }
+
+            .alert-info {
+                background-color: #e7f3ff;
+                border: 1px solid #b3d9ff;
+                color: #004085;
+            }
+
+            .alert-info .alert-heading {
+                margin-bottom: 0;
+                color: #004085;
+                font-weight: 600;
+            }
+
+            .btn {
+                border-radius: 4px;
+                padding: 10px 20px;
+                font-weight: 500;
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border: none;
+            }
+
+            .btn-primary:hover {
+                background: linear-gradient(135deg, #5568d3 0%, #69408d 100%);
+            }
+
+            .btn-secondary {
+                background-color: #6c757d;
+                border: none;
+            }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 @endsection
