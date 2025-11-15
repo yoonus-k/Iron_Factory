@@ -4,6 +4,9 @@ namespace Modules\Manufacturing\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use App\Models\DeliveryNote;
+use App\Models\Supplier;
+use App\Models\Material;
 
 class DeliveryNoteController extends Controller
 {
@@ -12,7 +15,8 @@ class DeliveryNoteController extends Controller
      */
     public function index()
     {
-        return view('manufacturing::warehouses.delivery-notes.index');
+        $deliveryNotes = DeliveryNote::with(['material', 'supplier', 'receiver'])->get();
+        return view('manufacturing::warehouses.delivery-notes.index', compact('deliveryNotes'));
     }
 
     /**
@@ -20,7 +24,9 @@ class DeliveryNoteController extends Controller
      */
     public function create()
     {
-        return view('manufacturing::warehouses.delivery-notes.create');
+        $suppliers = Supplier::where('is_active', true)->get();
+        $materials = Material::all();
+        return view('manufacturing::warehouses.delivery-notes.create', compact('suppliers', 'materials'));
     }
 
     /**
@@ -30,17 +36,22 @@ class DeliveryNoteController extends Controller
     {
         // التحقق من البيانات
         $validated = $request->validate([
-            'delivery_number' => 'required|string|unique:delivery_notes',
+            'delivery_number' => 'required|string|unique:delivery_notes,note_number',
             'delivery_date' => 'required|date',
             'supplier_id' => 'required|exists:suppliers,id',
-            'received_by' => 'nullable|string',
-            'total_weight' => 'nullable|numeric',
-            'quantity' => 'nullable|integer',
-            'status' => 'nullable|in:pending,received,rejected',
+            'material_id' => 'required|exists:materials,id',
+            'delivered_weight' => 'required|numeric|min:0',
+            'driver_name' => 'nullable|string|max:255',
+            'vehicle_number' => 'nullable|string|max:50',
+            'received_by' => 'nullable|exists:users,id',
+            'notes' => 'nullable|string',
         ]);
 
+        // Add received_by from authenticated user if not provided
+        $validated['received_by'] = $validated['received_by'] ?? auth()->id();
+
         // حفظ البيانات في قاعدة البيانات
-        // DeliveryNote::create($validated);
+        $deliveryNote = DeliveryNote::create($validated);
 
         return redirect()->route('manufacturing.delivery-notes.index')
             ->with('success', 'تم إضافة أذن التسليم بنجاح');
@@ -51,7 +62,8 @@ class DeliveryNoteController extends Controller
      */
     public function show($id)
     {
-        return view('manufacturing::warehouses.delivery-notes.show');
+        $deliveryNote = DeliveryNote::with(['material', 'supplier', 'receiver'])->findOrFail($id);
+        return view('manufacturing::warehouses.delivery-notes.show', compact('deliveryNote'));
     }
 
     /**
@@ -59,7 +71,10 @@ class DeliveryNoteController extends Controller
      */
     public function edit($id)
     {
-        return view('manufacturing::warehouses.delivery-notes.edit');
+        $deliveryNote = DeliveryNote::findOrFail($id);
+        $suppliers = Supplier::where('is_active', true)->get();
+        $materials = Material::all();
+        return view('manufacturing::warehouses.delivery-notes.edit', compact('deliveryNote', 'suppliers', 'materials'));
     }
 
     /**
@@ -67,20 +82,23 @@ class DeliveryNoteController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $deliveryNote = DeliveryNote::findOrFail($id);
+
         // التحقق من البيانات
         $validated = $request->validate([
-            'delivery_number' => 'required|string',
+            'delivery_number' => 'required|string|unique:delivery_notes,note_number,' . $deliveryNote->id,
             'delivery_date' => 'required|date',
             'supplier_id' => 'required|exists:suppliers,id',
-            'received_by' => 'nullable|string',
-            'total_weight' => 'nullable|numeric',
-            'quantity' => 'nullable|integer',
-            'status' => 'nullable|in:pending,received,rejected',
+            'material_id' => 'required|exists:materials,id',
+            'delivered_weight' => 'required|numeric|min:0',
+            'driver_name' => 'nullable|string|max:255',
+            'vehicle_number' => 'nullable|string|max:50',
+            'received_by' => 'nullable|exists:users,id',
+            'notes' => 'nullable|string',
         ]);
 
         // تحديث البيانات
-        // $deliveryNote = DeliveryNote::find($id);
-        // $deliveryNote->update($validated);
+        $deliveryNote->update($validated);
 
         return redirect()->route('manufacturing.delivery-notes.index')
             ->with('success', 'تم تحديث أذن التسليم بنجاح');
@@ -92,7 +110,8 @@ class DeliveryNoteController extends Controller
     public function destroy($id)
     {
         // حذف البيانات
-        // DeliveryNote::find($id)->delete();
+        $deliveryNote = DeliveryNote::findOrFail($id);
+        $deliveryNote->delete();
 
         return redirect()->route('manufacturing.delivery-notes.index')
             ->with('success', 'تم حذف أذن التسليم بنجاح');

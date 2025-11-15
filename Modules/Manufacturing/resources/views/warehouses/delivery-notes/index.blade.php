@@ -59,20 +59,20 @@
 
             <!-- Filters Section -->
             <div class="um-filters-section">
-                <form method="GET">
+                <form method="GET" action="{{ route('manufacturing.delivery-notes.index') }}">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث في أذون التسليم...">
+                            <input type="text" name="search" class="um-form-control" placeholder="البحث في أذون التسليم..." value="{{ request('search') }}">
                         </div>
                         <div class="um-form-group">
-                            <input type="text" name="delivery_number" class="um-form-control" placeholder="رقم الأذن...">
+                            <input type="text" name="delivery_number" class="um-form-control" placeholder="رقم الأذن..." value="{{ request('delivery_number') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
                                 <option value="">جميع الحالات</option>
-                                <option value="received">مستقبل</option>
-                                <option value="pending">قيد الانتظار</option>
-                                <option value="rejected">مرفوض</option>
+                                <option value="received" {{ request('status') == 'received' ? 'selected' : '' }}>مستقبل</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>قيد الانتظار</option>
+                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>مرفوض</option>
                             </select>
                         </div>
                         <div class="um-filter-actions">
@@ -80,10 +80,10 @@
                                 <i class="feather icon-search"></i>
                                 بحث
                             </button>
-                            <button type="reset" class="um-btn um-btn-outline">
+                            <a href="{{ route('manufacturing.delivery-notes.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-x"></i>
                                 إعادة تعيين
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </form>
@@ -98,20 +98,19 @@
                             <th>رقم الأذن</th>
                             <th>تاريخ التسليم</th>
                             <th>المورد</th>
-                            <th>عدد المواد</th>
-                            <th>الوزن الإجمالي</th>
+                            <th>الوزن</th>
                             <th>الحالة</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @forelse($deliveryNotes as $deliveryNote)
                         <tr>
-                            <td>1</td>
-                            <td>DN-2024-001</td>
-                            <td>2024-11-01</td>
-                            <td>شركة الحديد والصلب</td>
-                            <td>5</td>
-                            <td>500 كجم</td>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $deliveryNote->note_number }}</td>
+                            <td>{{ $deliveryNote->delivery_date->format('Y-m-d') }}</td>
+                            <td>{{ $deliveryNote->supplier->getName() }}</td>
+                            <td>{{ $deliveryNote->delivered_weight }} كجم</td>
                             <td><span class="um-badge um-badge-success">مستقبل</span></td>
                             <td>
                                 <div class="um-dropdown">
@@ -119,78 +118,54 @@
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
-                                        <a href="{{ route('manufacturing.delivery-notes.show', 1) }}" class="um-dropdown-item um-btn-view">
+                                        <a href="{{ route('manufacturing.delivery-notes.show', $deliveryNote->id) }}" class="um-dropdown-item um-btn-view">
                                             <i class="feather icon-eye"></i>
                                             <span>عرض</span>
                                         </a>
-                                        <a href="{{ route('manufacturing.delivery-notes.edit', 1) }}" class="um-dropdown-item um-btn-edit">
+                                        <a href="{{ route('manufacturing.delivery-notes.edit', $deliveryNote->id) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
                                             <span>تعديل</span>
                                         </a>
-                                        <button class="um-dropdown-item um-btn-delete" title="حذف">
-                                            <i class="feather icon-trash-2"></i>
-                                            <span>حذف</span>
-                                        </button>
+                                        <form action="{{ route('manufacturing.delivery-notes.destroy', $deliveryNote->id) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="um-dropdown-item um-btn-delete" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+                                                <i class="feather icon-trash-2"></i>
+                                                <span>حذف</span>
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </td>
                         </tr>
+                        @empty
                         <tr>
-                            <td>2</td>
-                            <td>DN-2024-002</td>
-                            <td>2024-11-05</td>
-                            <td>شركة المعادن المتحدة</td>
-                            <td>3</td>
-                            <td>300 كجم</td>
-                            <td><span class="um-badge um-badge-warning">قيد الانتظار</span></td>
-                            <td>
-                                <div class="um-dropdown">
-                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
-                                        <i class="feather icon-more-vertical"></i>
-                                    </button>
-                                    <div class="um-dropdown-menu">
-                                        <a href="{{ route('manufacturing.delivery-notes.show', 2) }}" class="um-dropdown-item um-btn-view">
-                                            <i class="feather icon-eye"></i>
-                                            <span>عرض</span>
-                                        </a>
-                                        <a href="{{ route('manufacturing.delivery-notes.edit', 2) }}" class="um-dropdown-item um-btn-edit">
-                                            <i class="feather icon-edit-2"></i>
-                                            <span>تعديل</span>
-                                        </a>
-                                        <button class="um-dropdown-item um-btn-delete" title="حذف">
-                                            <i class="feather icon-trash-2"></i>
-                                            <span>حذف</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </td>
+                            <td colspan="7" class="text-center">لا توجد أذون تسليم</td>
                         </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
 
             <!-- Cards - Mobile View -->
             <div class="um-mobile-view">
+                @forelse($deliveryNotes as $deliveryNote)
                 <div class="um-category-card">
                     <div class="um-category-card-header">
                         <div class="um-category-info">
-                            <h5>DN-2024-001</h5>
-                            <p>شركة الحديد والصلب</p>
+                            <h5>{{ $deliveryNote->note_number }}</h5>
+                            <p>{{ $deliveryNote->supplier->getName() }}</p>
                         </div>
                         <span class="um-badge um-badge-success">مستقبل</span>
                     </div>
                     <div class="um-category-card-body">
                         <div class="um-info-row">
                             <span>التاريخ:</span>
-                            <span>2024-11-01</span>
+                            <span>{{ $deliveryNote->delivery_date->format('Y-m-d') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span>عدد المواد:</span>
-                            <span>5</span>
-                        </div>
-                        <div class="um-info-row">
-                            <span>الوزن الإجمالي:</span>
-                            <span>500 كجم</span>
+                            <span>الوزن:</span>
+                            <span>{{ $deliveryNote->delivered_weight }} كجم</span>
                         </div>
                     </div>
                     <div class="um-category-card-footer">
@@ -199,22 +174,29 @@
                                 <i class="feather icon-more-vertical"></i>
                             </button>
                             <div class="um-dropdown-menu">
-                                <a href="{{ route('manufacturing.delivery-notes.show', 1) }}" class="um-dropdown-item um-btn-view">
+                                <a href="{{ route('manufacturing.delivery-notes.show', $deliveryNote->id) }}" class="um-dropdown-item um-btn-view">
                                     <i class="feather icon-eye"></i>
                                     <span>عرض</span>
                                 </a>
-                                <a href="{{ route('manufacturing.delivery-notes.edit', 1) }}" class="um-dropdown-item um-btn-edit">
+                                <a href="{{ route('manufacturing.delivery-notes.edit', $deliveryNote->id) }}" class="um-dropdown-item um-btn-edit">
                                     <i class="feather icon-edit-2"></i>
                                     <span>تعديل</span>
                                 </a>
-                                <button class="um-dropdown-item um-btn-delete" title="حذف">
-                                    <i class="feather icon-trash-2"></i>
-                                    <span>حذف</span>
-                                </button>
+                                <form action="{{ route('manufacturing.delivery-notes.destroy', $deliveryNote->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="um-dropdown-item um-btn-delete" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+                                        <i class="feather icon-trash-2"></i>
+                                        <span>حذف</span>
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
+                @empty
+                <div class="text-center">لا توجد أذون تسليم</div>
+                @endforelse
             </div>
         </section>
     </div>
@@ -233,6 +215,5 @@
             });
         });
     </script>
-
 
 @endsection

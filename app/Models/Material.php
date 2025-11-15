@@ -16,10 +16,11 @@ class Material extends Model
         'material_type',
         'material_type_en',
         'material_category',
-        'original_weight',
-        'remaining_weight',
-        'unit',
-        'unit_id',
+        // ❌ تم نقل هذه الحقول إلى material_details:
+        // 'original_weight',
+        // 'remaining_weight',
+        // 'unit_id',
+        // 'unit',
 
         'delivery_note_number',
         'manufacture_date',
@@ -34,8 +35,10 @@ class Material extends Model
     ];
 
     protected $casts = [
-        'original_weight' => 'float',
-        'remaining_weight' => 'float',
+        // ❌ تم نقل هذه الحقول إلى material_details:
+        // 'original_weight' => 'float',
+        // 'remaining_weight' => 'float',
+
         'manufacture_date' => 'date',
         'expiry_date' => 'date',
         'created_at' => 'datetime',

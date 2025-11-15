@@ -90,6 +90,9 @@ class WarehouseProductController extends Controller
                     'material_id' => $material->id,
                     'warehouse_id' => $validated['warehouse_id'],
                     'quantity' => $validated['original_weight'],
+                    'original_weight' => $validated['original_weight'],    // ✅ جديد
+                    'remaining_weight' => $validated['original_weight'],   // ✅ جديد
+                    'unit_id' => $validated['unit_id'] ?? null,           // ✅ جديد
                     'min_quantity' => $validated['min_quantity'] ?? 0,
                     'max_quantity' => $validated['max_quantity'] ?? 999999,
                     'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
@@ -218,6 +221,10 @@ class WarehouseProductController extends Controller
                 'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
             ]);
 
+            // الحصول على أول MaterialDetail لنأخذ unit_id منه
+            $firstDetail = \App\Models\MaterialDetail::where('material_id', $material->id)->first();
+            $unitId = $firstDetail?->unit_id;
+
             // البحث أو إنشاء سجل في MaterialDetail
             $materialDetail = \App\Models\MaterialDetail::where('material_id', $material->id)
                                                        ->where('warehouse_id', $validated['warehouse_id'])
@@ -226,6 +233,8 @@ class WarehouseProductController extends Controller
             if ($materialDetail) {
                 // تحديث الكمية في سجل موجود
                 $materialDetail->quantity += $validated['quantity'];
+                $materialDetail->original_weight += $validated['quantity'];        // ✅ تحديث في MaterialDetail
+                $materialDetail->remaining_weight += $validated['quantity'];      // ✅ تحديث في MaterialDetail
                 $materialDetail->save();
             } else {
                 // إنشاء سجل جديد
@@ -233,17 +242,14 @@ class WarehouseProductController extends Controller
                     'material_id' => $material->id,
                     'warehouse_id' => $validated['warehouse_id'],
                     'quantity' => $validated['quantity'],
+                    'original_weight' => $validated['quantity'],                 // ✅ جديد
+                    'remaining_weight' => $validated['quantity'],                // ✅ جديد
+                    'unit_id' => $unitId,                                        // ✅ جديد
                     'min_quantity' => 0,
                     'max_quantity' => 999999,
                     'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
                 ]);
             }
-
-            // تحديث الكميات في المادة الأم
-            $material->original_weight += $validated['quantity'];
-            $material->remaining_weight += $validated['quantity'];
-            $material->warehouse_id = $validated['warehouse_id'];
-            $material->save();
 
             // إنشاء أذن مخزنية (Delivery Note) تلقائياً
             $deliveryNote = \App\Models\DeliveryNote::create([

@@ -13,17 +13,17 @@
                         <i class="feather icon-file-text"></i>
                     </div>
                     <div class="header-info">
-                        <h1>DN-2024-001</h1>
+                        <h1>{{ $deliveryNote->note_number }}</h1>
                         <div class="badges">
                             <span class="badge category">
-                                شركة الحديد والصلب
+                                {{ $deliveryNote->supplier->getName() }}
                             </span>
-                            <span class="badge active">مستقبل</span>
+                            <span class="badge active">مستلم</span>
                         </div>
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('manufacturing.delivery-notes.edit', 1) }}" class="btn btn-edit">
+                    <a href="{{ route('manufacturing.delivery-notes.edit', $deliveryNote->id) }}" class="btn btn-edit">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -54,27 +54,27 @@
                 <div class="card-body">
                     <div class="info-item">
                         <div class="info-label">رقم الأذن:</div>
-                        <div class="info-value">DN-2024-001</div>
+                        <div class="info-value">{{ $deliveryNote->note_number }}</div>
                     </div>
 
                     <div class="info-item">
                         <div class="info-label">تاريخ التسليم:</div>
-                        <div class="info-value">2024-11-01</div>
+                        <div class="info-value">{{ $deliveryNote->delivery_date->format('Y-m-d') }}</div>
                     </div>
 
                     <div class="info-item">
                         <div class="info-label">الوزن الإجمالي:</div>
-                        <div class="info-value">500 كيلوغرام</div>
+                        <div class="info-value">{{ $deliveryNote->delivered_weight }} كيلوغرام</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">عدد المواد:</div>
-                        <div class="info-value">5</div>
+                        <div class="info-label">اسم السائق:</div>
+                        <div class="info-value">{{ $deliveryNote->driver_name ?? 'غير محدد' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">الحالة:</div>
-                        <div class="info-value"><span class="badge badge-success">مستقبل</span></div>
+                        <div class="info-label">رقم المركبة:</div>
+                        <div class="info-value">{{ $deliveryNote->vehicle_number ?? 'غير محدد' }}</div>
                     </div>
                 </div>
             </div>
@@ -94,17 +94,17 @@
                 <div class="card-body">
                     <div class="info-item">
                         <div class="info-label">استقبل بواسطة:</div>
-                        <div class="info-value">أحمد محمد</div>
+                        <div class="info-value">{{ $deliveryNote->receiver->name ?? 'غير محدد' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">تاريخ الاستقبال:</div>
-                        <div class="info-value">2024-11-01 10:30</div>
+                        <div class="info-label">تاريخ الإنشاء:</div>
+                        <div class="info-value">{{ $deliveryNote->created_at->format('Y-m-d H:i') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">ملاحظات:</div>
-                        <div class="info-value">تم استقبال المواد بنجاح في الموعد المحدد</div>
+                        <div class="info-label">آخر تحديث:</div>
+                        <div class="info-value">{{ $deliveryNote->updated_at->format('Y-m-d H:i') }}</div>
                     </div>
                 </div>
             </div>
@@ -115,9 +115,9 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="1"></circle>
                             <path d="M12 1v6m0 6v6"></path>
-                            <path d="M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24"></path>
                             <path d="M1 12h6m6 0h6"></path>
-                            <path d="M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"></path>
+                            <circle cx="19" cy="12" r="1"></circle>
+                            <circle cx="5" cy="12" r="1"></circle>
                         </svg>
                     </div>
                     <h3 class="card-title">معلومات المورد</h3>
@@ -125,23 +125,23 @@
                 <div class="card-body">
                     <div class="info-item">
                         <div class="info-label">اسم المورد:</div>
-                        <div class="info-value">شركة الحديد والصلب</div>
+                        <div class="info-value">{{ $deliveryNote->supplier->getName() }}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">الشخص المسؤول:</div>
-                        <div class="info-value">محمود علي</div>
+                        <div class="info-value">{{ $deliveryNote->supplier->contact_person ?? 'غير محدد' }}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">الهاتف:</div>
-                        <div class="info-value">0123456789</div>
+                        <div class="info-value">{{ $deliveryNote->supplier->phone ?? 'غير محدد' }}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">البريد الإلكتروني:</div>
-                        <div class="info-value">supplier@example.com</div>
+                        <div class="info-value">{{ $deliveryNote->supplier->email ?? 'غير محدد' }}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">العنوان:</div>
-                        <div class="info-value">شارع الصناعة، المنطقة الرابعة، القاهرة</div>
+                        <div class="info-value">{{ $deliveryNote->supplier->address ?? 'غير محدد' }}</div>
                     </div>
                 </div>
             </div>
@@ -156,40 +156,20 @@
                             <path d="M14 12v4"></path>
                         </svg>
                     </div>
-                    <h3 class="card-title">المواد المستقبلة</h3>
+                    <h3 class="card-title">معلومات المادة</h3>
                 </div>
                 <div class="card-body">
-                    <div class="um-table-responsive">
-                        <table class="um-table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>اسم المادة</th>
-                                    <th>الوزن</th>
-                                    <th>الكمية</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>مسمار حديد 3*20</td>
-                                    <td>100 كجم</td>
-                                    <td>1</td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>سلك معادن</td>
-                                    <td>150 كجم</td>
-                                    <td>1</td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>ألمنيوم خام</td>
-                                    <td>250 كجم</td>
-                                    <td>1</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="info-item">
+                        <div class="info-label">اسم المادة:</div>
+                        <div class="info-value">{{ $deliveryNote->material->name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">نوع المادة:</div>
+                        <div class="info-value">{{ $deliveryNote->material->materialType->name ?? 'غير محدد' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">الوحدة:</div>
+                        <div class="info-value">{{ $deliveryNote->material->unit->name ?? 'غير محدد' }}</div>
                     </div>
                 </div>
             </div>
@@ -208,7 +188,7 @@
             </div>
             <div class="card-body">
                 <div class="actions-grid">
-                    <button type="button" class="action-btn print">
+                    <button type="button" class="action-btn print" onclick="window.print()">
                         <div class="action-icon">
                             <i class="feather icon-printer"></i>
                         </div>
@@ -226,14 +206,18 @@
                         </div>
                     </button>
 
-                    <button type="button" class="action-btn delete">
-                        <div class="action-icon">
-                            <i class="feather icon-trash-2"></i>
-                        </div>
-                        <div class="action-text">
-                            <span>حذف</span>
-                        </div>
-                    </button>
+                    <form action="{{ route('manufacturing.delivery-notes.destroy', $deliveryNote->id) }}" method="POST" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="action-btn delete" onclick="return confirm('⚠️ هل أنت متأكد من حذف هذا الأذن؟\n\nهذا الإجراء لا يمكن التراجع عنه!')">
+                            <div class="action-icon">
+                                <i class="feather icon-trash-2"></i>
+                            </div>
+                            <div class="action-text">
+                                <span>حذف</span>
+                            </div>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -241,23 +225,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const deleteButton = document.querySelector('.action-btn.delete');
-            if (deleteButton) {
-                deleteButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (confirm('⚠️ هل أنت متأكد من حذف هذا الأذن؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
-                        alert('تم حذف الأذن بنجاح!');
-                    }
-                });
-            }
-
-            const printButton = document.querySelector('.action-btn.print');
-            if (printButton) {
-                printButton.addEventListener('click', function() {
-                    window.print();
-                });
-            }
-
             const downloadButton = document.querySelector('.action-btn.download');
             if (downloadButton) {
                 downloadButton.addEventListener('click', function() {

@@ -30,7 +30,7 @@
 
     <!-- Form Card -->
     <div class="form-card">
-        <form method="POST" action="{{ route('manufacturing.delivery-notes.store') }}" id="deliveryNoteForm" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('manufacturing.delivery-notes.store') }}" id="deliveryNoteForm">
             @csrf
 
             <!-- Delivery Note Information Section -->
@@ -61,7 +61,7 @@
                                 <path d="M14 12v4"></path>
                             </svg>
                             <input type="text" name="delivery_number" id="delivery_number"
-                                class="form-input" placeholder="مثال: DN-2024-001" required>
+                                class="form-input" placeholder="مثال: DN-2024-001" value="{{ old('delivery_number') }}" required>
                         </div>
                     </div>
 
@@ -78,7 +78,7 @@
                                 <line x1="3" y1="10" x2="21" y2="10"></line>
                             </svg>
                             <input type="date" name="delivery_date" id="delivery_date"
-                                class="form-input" required>
+                                class="form-input" value="{{ old('delivery_date') }}" required>
                         </div>
                     </div>
 
@@ -96,27 +96,40 @@
                             </svg>
                             <select name="supplier_id" id="supplier_id" class="form-input" required>
                                 <option value="">-- اختر المورد --</option>
-                                <option value="1">شركة الحديد والصلب</option>
-                                <option value="2">شركة المعادن المتحدة</option>
-                                <option value="3">شركة الصناعات الثقيلة</option>
+                                @foreach($suppliers as $supplier)
+                                    <option value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>
+                                        {{ $supplier->getName() }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="received_by" class="form-label">استقبل بواسطة</label>
+                        <label for="material_id" class="form-label">
+                            المادة
+                            <span class="required">*</span>
+                        </label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                             </svg>
-                            <input type="text" name="received_by" id="received_by"
-                                class="form-input" placeholder="اسم الموظف المستقبل">
+                            <select name="material_id" id="material_id" class="form-input" required>
+                                <option value="">-- اختر المادة --</option>
+                                @foreach($materials as $material)
+                                    <option value="{{ $material->id }}" {{ old('material_id') == $material->id ? 'selected' : '' }}>
+                                        {{ $material->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="total_weight" class="form-label">الوزن الإجمالي (كجم)</label>
+                        <label for="delivered_weight" class="form-label">
+                            الوزن (كجم)
+                            <span class="required">*</span>
+                        </label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="5" r="3"></circle>
@@ -124,21 +137,33 @@
                                 <line x1="15" y1="9" x2="15" y2="16"></line>
                                 <path d="M9 16h6"></path>
                             </svg>
-                            <input type="number" name="total_weight" id="total_weight"
-                                class="form-input" placeholder="0.00" step="0.01">
+                            <input type="number" name="delivered_weight" id="delivered_weight"
+                                class="form-input" placeholder="0.00" step="0.01" value="{{ old('delivered_weight') }}" required>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="quantity" class="form-label">عدد المواد</label>
+                        <label for="driver_name" class="form-label">اسم السائق</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <input type="text" name="driver_name" id="driver_name"
+                                class="form-input" placeholder="اسم السائق" value="{{ old('driver_name') }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vehicle_number" class="form-label">رقم المركبة</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="9" cy="21" r="1"></circle>
                                 <circle cx="20" cy="21" r="1"></circle>
                                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                             </svg>
-                            <input type="number" name="quantity" id="quantity"
-                                class="form-input" placeholder="0">
+                            <input type="text" name="vehicle_number" id="vehicle_number"
+                                class="form-input" placeholder="مثال: أ ب ت 1234" value="{{ old('vehicle_number') }}">
                         </div>
                     </div>
 
@@ -146,41 +171,8 @@
                         <label for="notes" class="form-label">ملاحظات</label>
                         <div class="input-wrapper">
                             <textarea name="notes" id="notes"
-                                class="form-input" rows="4" placeholder="أدخل أي ملاحظات إضافية..."></textarea>
+                                class="form-input" rows="4" placeholder="أدخل أي ملاحظات إضافية...">{{ old('notes') }}</textarea>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="status" class="form-label">الحالة</label>
-                        <div class="input-wrapper">
-                            <select name="status" id="status" class="form-input">
-                                <option value="pending">قيد الانتظار</option>
-                                <option value="received">مستقبل</option>
-                                <option value="rejected">مرفوض</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Additional Information Section -->
-            <div class="form-section">
-                <div class="section-header">
-                    <div class="section-icon account">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 20h9"></path>
-                            <path d="M16.5 4h-5.423A1.993 1.993 0 0 0 10 5.992v5.016A1.993 1.993 0 0 0 11.077 13h5.423A1.993 1.993 0 0 0 18 11.008V5.992A1.993 1.993 0 0 0 16.5 4z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="section-title">معلومات إضافية</h3>
-                        <p class="section-subtitle">أدخل المعلومات الإضافية</p>
-                    </div>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        &nbsp;
                     </div>
                 </div>
             </div>
@@ -193,13 +185,13 @@
                     </svg>
                     حفظ الأذن
                 </button>
-                <button type="button" class="btn-cancel">
+                <a href="{{ route('manufacturing.delivery-notes.index') }}" class="btn-cancel">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                     إلغاء
-                </button>
+                </a>
             </div>
         </form>
     </div>

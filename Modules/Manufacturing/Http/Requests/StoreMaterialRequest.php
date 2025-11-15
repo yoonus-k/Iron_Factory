@@ -25,9 +25,8 @@ class StoreMaterialRequest extends FormRequest
             'material_type' => 'required|string|min:2|max:255',
             'material_type_en' => 'nullable|string|min:2|max:255',
 
-            'original_weight' => 'required|numeric|min:0',
-            'remaining_weight' => 'nullable|numeric|min:0',
-            'unit_id' => 'required|exists:units,id',
+
+
 
             'delivery_note_number' => 'nullable|string|max:255',
             'manufacture_date' => 'nullable|date',
@@ -52,10 +51,6 @@ class StoreMaterialRequest extends FormRequest
         return [
             'barcode.required' => 'رمز المادة مطلوب',
             'barcode.unique' => 'رمز المادة موجود بالفعل',
-            'material_type.required' => 'اسم المادة مطلوب',
-
-            'original_weight.required' => 'الوزن الأصلي مطلوب',
-            'unit_id.required' => 'الوحدة مطلوبة',
 
             'status.required' => 'حالة المادة مطلوبة',
             'expiry_date.after' => 'تاريخ الصلاحية يجب أن يكون بعد تاريخ الصنع',

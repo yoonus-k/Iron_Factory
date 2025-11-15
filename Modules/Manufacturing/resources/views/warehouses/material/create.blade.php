@@ -111,35 +111,8 @@
 
 
 
-                        <div class="form-group">
-                            <label for="original_weight" class="form-label">
-                                الوزن الأصلي
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrapper">
-                                <input type="number" name="original_weight" id="original_weight" class="form-input"
-                                       placeholder="الوزن الأصلي" value="{{ old('original_weight') }}" step="0.01" required>
-                            </div>
-                            <div class="error-message" id="original_weight-error" style="display: none;"></div>
-                        </div>
 
-                        <div class="form-group">
-                            <label for="unit_id" class="form-label">
-                                الوحدة
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrapper">
-                                <select name="unit_id" id="unit_id" class="form-input" required>
-                                    <option value="">-- اختر الوحدة --</option>
-                                    @foreach ($units as $unit)
-                                        <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
-                                            {{ $unit->unit_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="error-message" id="unit_id-error" style="display: none;"></div>
-                        </div>
+
 
 
 
@@ -161,66 +134,9 @@
                             <div class="error-message" id="expiry_date-error" style="display: none;"></div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="shelf_location" class="form-label">موقع التخزين (عربي)</label>
-                            <div class="input-wrapper">
-                                <input type="text" name="shelf_location" id="shelf_location" class="form-input"
-                                       placeholder="الموقع" value="{{ old('shelf_location') }}">
-                            </div>
-                            <div class="error-message" id="shelf_location-error" style="display: none;"></div>
-                        </div>
 
-                        <div class="form-group">
-                            <label for="shelf_location_en" class="form-label">موقع التخزين (إنجليزي)</label>
-                            <div class="input-wrapper">
-                                <input type="text" name="shelf_location_en" id="shelf_location_en" class="form-input"
-                                       placeholder="Location" value="{{ old('shelf_location_en') }}">
-                            </div>
-                            <div class="error-message" id="shelf_location_en-error" style="display: none;"></div>
-                        </div>
 
-                        <!-- المستودع والحد الأدنى والأقصى للكمية -->
-                        <div class="form-group">
-                            <label for="warehouse_id" class="form-label">
-                                المستودع
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                                </svg>
-                                <select name="warehouse_id" id="warehouse_id" class="form-input" required>
-                                    <option value="">-- اختر المستودع --</option>
-                                    @php
-                                        $warehouses = \App\Models\Warehouse::all();
-                                    @endphp
-                                    @foreach ($warehouses as $warehouse)
-                                        <option value="{{ $warehouse->id }}" {{ old('warehouse_id') == $warehouse->id ? 'selected' : '' }}>
-                                            {{ $warehouse->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="error-message" id="warehouse_id-error" style="display: none;"></div>
-                        </div>
 
-                        <div class="form-group">
-                            <label for="min_quantity" class="form-label">الحد الأدنى للكمية</label>
-                            <div class="input-wrapper">
-                                <input type="number" name="min_quantity" id="min_quantity" class="form-input"
-                                       placeholder="الحد الأدنى" value="{{ old('min_quantity', 0) }}" step="0.01" min="0">
-                            </div>
-                            <div class="error-message" id="min_quantity-error" style="display: none;"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="max_quantity" class="form-label">الحد الأقصى للكمية</label>
-                            <div class="input-wrapper">
-                                <input type="number" name="max_quantity" id="max_quantity" class="form-input"
-                                       placeholder="الحد الأقصى" value="{{ old('max_quantity', 999999) }}" step="0.01" min="0">
-                            </div>
-                            <div class="error-message" id="max_quantity-error" style="display: none;"></div>
-                        </div>
 
                         <div class="form-group full-width">
                             <label for="notes" class="form-label">الملاحظات (عربي)</label>

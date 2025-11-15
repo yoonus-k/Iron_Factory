@@ -117,20 +117,42 @@
                                     <span class="um-badge um-badge-danger">غير نشط</span>
                                 @endif
                             </td>
-                            <td>
-                                <a href="{{ route('manufacturing.suppliers.show', $supplier->id) }}" class="um-btn-action um-btn-view" title="عرض">
-                                    <i class="feather icon-eye"></i>
-                                </a>
-                                <a href="{{ route('manufacturing.suppliers.edit', $supplier->id) }}" class="um-btn-action um-btn-edit" title="تعديل">
-                                    <i class="feather icon-edit-2"></i>
-                                </a>
-                                <button class="um-btn-action um-btn-delete" title="حذف" onclick="deleteSupplier({{ $supplier->id }})">
-                                    <i class="feather icon-trash-2"></i>
-                                </button>
-                                <button class="um-btn-action um-btn-status" title="{{ $supplier->is_active ? 'تعطيل' : 'تفعيل' }}" onclick="toggleStatus({{ $supplier->id }})">
-                                    <i class="feather {{ $supplier->is_active ? 'icon-toggle-right' : 'icon-toggle-left' }}"></i>
-                                </button>
-                            </td>
+                           <td>
+    <div class="um-dropdown">
+        <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+            <i class="feather icon-more-vertical"></i>
+        </button>
+
+        <div class="um-dropdown-menu">
+
+            <a href="{{ route('manufacturing.suppliers.show', $supplier->id) }}"
+               class="um-dropdown-item um-btn-view">
+                <i class="feather icon-eye"></i>
+                <span>عرض</span>
+            </a>
+
+            <a href="{{ route('manufacturing.suppliers.edit', $supplier->id) }}"
+               class="um-dropdown-item um-btn-edit">
+                <i class="feather icon-edit-2"></i>
+                <span>تعديل</span>
+            </a>
+
+            <button class="um-dropdown-item um-btn-delete"
+                    onclick="deleteSupplier({{ $supplier->id }})">
+                <i class="feather icon-trash-2"></i>
+                <span>حذف</span>
+            </button>
+
+            <button class="um-dropdown-item um-btn-status"
+                    onclick="toggleStatus({{ $supplier->id }})">
+                <i class="feather {{ $supplier->is_active ? 'icon-toggle-right' : 'icon-toggle-left' }}"></i>
+                <span>{{ $supplier->is_active ? 'تعطيل' : 'تفعيل' }}</span>
+            </button>
+
+        </div>
+    </div>
+</td>
+
                         </tr>
                         @empty
                         <tr>
@@ -170,21 +192,21 @@
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '{{ url('manufacturing/suppliers') }}/' + id;
-                
+
                 // Add CSRF token
                 const csrfToken = document.createElement('input');
                 csrfToken.type = 'hidden';
                 csrfToken.name = '_token';
                 csrfToken.value = '{{ csrf_token() }}';
                 form.appendChild(csrfToken);
-                
+
                 // Add method spoofing for DELETE
                 const methodField = document.createElement('input');
                 methodField.type = 'hidden';
                 methodField.name = '_method';
                 methodField.value = 'DELETE';
                 form.appendChild(methodField);
-                
+
                 // Submit the form
                 document.body.appendChild(form);
                 form.submit();
@@ -197,21 +219,21 @@
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '{{ url('manufacturing/suppliers') }}/' + id + '/toggle-status';
-                
+
                 // Add CSRF token
                 const csrfToken = document.createElement('input');
                 csrfToken.type = 'hidden';
                 csrfToken.name = '_token';
                 csrfToken.value = '{{ csrf_token() }}';
                 form.appendChild(csrfToken);
-                
+
                 // Add method spoofing for PUT
                 const methodField = document.createElement('input');
                 methodField.type = 'hidden';
                 methodField.name = '_method';
                 methodField.value = 'PUT';
                 form.appendChild(methodField);
-                
+
                 // Submit the form
                 document.body.appendChild(form);
                 form.submit();

@@ -82,18 +82,25 @@
                     </div>
                     @endif
 
+                    {{-- الأوزان الآن يتم تتبعها في MaterialDetail --}}
                     <div class="info-item">
                         <div class="info-label">
-                            الوزن الأصلي:
+                            إجمالي الوزن الأصلي:
                         </div>
-                        <div class="info-value">{{ $material->original_weight }} {{ $material->unit->name ?? 'N/A' }}</div>
+                        <div class="info-value">
+                            {{ $material->materialDetails->sum('original_weight') }}
+                            {{ $material->materialDetails->first()?->unit?->name ?? 'N/A' }}
+                        </div>
                     </div>
 
                     <div class="info-item">
                         <div class="info-label">
-                            الوزن المتبقي:
+                            إجمالي الوزن المتبقي:
                         </div>
-                        <div class="info-value">{{ $material->remaining_weight }} {{ $material->unit->unit_name ?? 'N/A' }}</div>
+                        <div class="info-value">
+                            {{ $material->materialDetails->sum('remaining_weight') }}
+                            {{ $material->materialDetails->first()?->unit?->name ?? 'N/A' }}
+                        </div>
                     </div>
 
                     <div class="info-item">
@@ -219,9 +226,6 @@
                 </div>
                 <div class="card-body">
 
-
-
-                       >
 
 
 
@@ -355,20 +359,50 @@
                 <form method="POST" action="{{ route('manufacturing.warehouse-products.add-quantity', $material->id) }}" id="addQuantityForm">
                     @csrf
                     <div class="modal-body">
+                        <!-- معلومات المستودع والكمية -->
+                        <div class="warehouse-info-container" id="warehouseInfoContainer" style="display: none;">
+                            <div class="warehouse-card">
+                                <div class="warehouse-card-header">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                    </svg>
+                                    <h5>معلومات المستودع</h5>
+                                </div>
+                                <div class="warehouse-card-body">
+                                    <div class="warehouse-detail">
+                                        <span class="warehouse-label">اسم المستودع:</span>
+                                        <span class="warehouse-value" id="warehouseName">-</span>
+                                    </div>
+                                    <div class="warehouse-detail">
+                                        <span class="warehouse-label">الكمية الموجودة:</span>
+                                        <span class="warehouse-value quantity" id="warehouseQuantity">0</span>
+                                        <span class="warehouse-unit" id="warehouseUnit">وحدة</span>
+                                    </div>
+                                    <div class="warehouse-detail status">
+                                        <span class="warehouse-label">الحالة:</span>
+                                        <span class="warehouse-status-badge" id="warehouseStatus">
+                                            <span class="status-dot"></span>
+                                            <span class="status-text">-</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- اختيار المستودع -->
                         <div class="form-group">
                             <label for="warehouse_id" class="form-label">
                                 المستودع
                                 <span style="color: red;">*</span>
                             </label>
-                            <select name="warehouse_id" id="warehouse_id" class="form-control" required>
+                            <select name="warehouse_id" id="warehouse_id" class="form-control" required onchange="updateWarehouseInfo()">
                                 <option value="">-- اختر المستودع --</option>
                                 @php
                                     $warehouses = \App\Models\Warehouse::all();
                                 @endphp
                                 @foreach ($warehouses as $warehouse)
-                                    <option value="{{ $warehouse->id }}" {{ $material->warehouse_id == $warehouse->id ? 'selected' : '' }}>
-                                        {{ $warehouse->name }}
+                                    <option value="{{ $warehouse->id }}" data-warehouse-name="{{ $warehouse->warehouse_name }}">
+                                        {{ $warehouse->warehouse_name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -384,12 +418,12 @@
                                 <input type="number" name="quantity" id="quantity" class="form-control"
                                        placeholder="أدخل الكمية" step="0.01" min="0.01" required>
                                 <div class="input-group-append">
-                                    <span class="input-group-text">{{ $material->unit->name ?? 'وحدة' }}</span>
+                                   <span class="input-group-text">{{ $material->materialDetails->first()?->unit?->name ?? 'وحدة' }}</span>
                                 </div>
                             </div>
                             <small class="form-text text-muted">
-                                الكمية الحالية: <strong>{{ $material->remaining_weight }}</strong>
-                                {{ $material->unit->name ?? 'وحدة' }}
+                                إجمالي الكمية المتبقية: <strong>{{ $material->materialDetails->sum('remaining_weight') }}</strong>
+                                {{ $material->materialDetails->first()?->unit?->name ?? 'وحدة' }}
                             </small>
                         </div>
 
@@ -430,6 +464,63 @@
     </div>
 
     <script>
+        // بيانات المستودعات والكميات
+        const warehouseData = @json($material->materialDetails->groupBy('warehouse_id')->map(function($details) {
+            return [
+                'name' => $details->first()->warehouse->warehouse_name,
+                'quantity' => $details->sum('remaining_weight'),
+                'unit' => $details->first()->unit?->name ?? 'وحدة'
+            ];
+        }));
+
+        function updateWarehouseInfo() {
+            const warehouseSelect = document.getElementById('warehouse_id');
+            const warehouseId = warehouseSelect.value;
+            const infoContainer = document.getElementById('warehouseInfoContainer');
+
+            if (warehouseId === '') {
+                infoContainer.style.display = 'none';
+                return;
+            }
+
+            // البحث عن بيانات المستودع
+            const selectedOption = warehouseSelect.options[warehouseSelect.selectedIndex];
+            const warehouseName = selectedOption.getAttribute('data-warehouse-name');
+
+            // الحصول على الكمية من بيانات المستودع
+            let quantity = 0;
+            let unit = 'وحدة';
+
+            for (const [id, data] of Object.entries(warehouseData)) {
+                if (id == warehouseId) {
+                    quantity = data.quantity;
+                    unit = data.unit;
+                    break;
+                }
+            }
+
+            // تحديث المعلومات
+            document.getElementById('warehouseName').textContent = warehouseName;
+            document.getElementById('warehouseQuantity').textContent = quantity.toFixed(2);
+            document.getElementById('warehouseUnit').textContent = unit;
+
+            // تحديث حالة المستودع
+            const statusElement = document.getElementById('warehouseStatus');
+            if (quantity > 0) {
+                statusElement.className = 'warehouse-status-badge available';
+                statusElement.innerHTML = '<span class="status-dot"></span><span class="status-text">متوفر</span>';
+            } else if (quantity === 0) {
+                statusElement.className = 'warehouse-status-badge empty';
+                statusElement.innerHTML = '<span class="status-dot"></span><span class="status-text">فارغ</span>';
+            } else {
+                statusElement.className = 'warehouse-status-badge low';
+                statusElement.innerHTML = '<span class="status-dot"></span><span class="status-text">منخفض</span>';
+            }
+
+            infoContainer.style.display = 'block';
+            infoContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Validation للـ Add Quantity Form
             const addQuantityForm = document.getElementById('addQuantityForm');
@@ -500,88 +591,6 @@
             });
         });
 
-        // CSS for styling improvements
-        const style = document.createElement('style');
-        style.textContent = `
-            .modal-header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                border: none;
-            }
 
-            .modal-header .close {
-                color: white;
-                opacity: 0.8;
-            }
-
-            .modal-header .close:hover {
-                opacity: 1;
-            }
-
-            .form-group label {
-                font-weight: 600;
-                color: #333;
-                margin-bottom: 8px;
-            }
-
-            .form-group input,
-            .form-group select,
-            .form-group textarea {
-                border-radius: 4px;
-                border: 1px solid #ddd;
-                padding: 10px;
-                font-size: 14px;
-            }
-
-            .form-group input:focus,
-            .form-group select:focus,
-            .form-group textarea:focus {
-                border-color: #667eea;
-                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            }
-
-            .input-group-text {
-                background-color: #f8f9fa;
-                border: 1px solid #ddd;
-                font-weight: 600;
-            }
-
-            .alert-info {
-                background-color: #e7f3ff;
-                border: 1px solid #b3d9ff;
-                color: #004085;
-            }
-
-            .alert-info .alert-heading {
-                margin-bottom: 0;
-                color: #004085;
-                font-weight: 600;
-            }
-
-            .btn {
-                border-radius: 4px;
-                padding: 10px 20px;
-                font-weight: 500;
-            }
-
-            .btn-primary {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                border: none;
-            }
-
-            .btn-primary:hover {
-                background: linear-gradient(135deg, #5568d3 0%, #69408d 100%);
-            }
-
-            .btn-secondary {
-                background-color: #6c757d;
-                border: none;
-            }
-
-            .btn-secondary:hover {
-                background-color: #5a6268;
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 @endsection

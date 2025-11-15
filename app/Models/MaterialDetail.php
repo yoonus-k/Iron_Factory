@@ -13,6 +13,9 @@ class MaterialDetail extends Model
         'warehouse_id',
         'material_id',
         'quantity',
+        'original_weight',        // ✅ جديد - تم نقله من Material
+        'remaining_weight',       // ✅ جديد - تم نقله من Material
+        'unit_id',               // ✅ جديد - تم نقله من Material
         'min_quantity',
         'max_quantity',
         'location_in_warehouse',
@@ -25,6 +28,8 @@ class MaterialDetail extends Model
 
     protected $casts = [
         'quantity' => 'float',
+        'original_weight' => 'float',      // ✅ جديد
+        'remaining_weight' => 'float',     // ✅ جديد
         'min_quantity' => 'float',
         'max_quantity' => 'float',
         'last_stock_check' => 'date',
@@ -40,6 +45,11 @@ class MaterialDetail extends Model
     public function material(): BelongsTo
     {
         return $this->belongsTo(Material::class);
+    }
+
+    public function unit(): BelongsTo
+    {
+        return $this->belongsTo(Unit::class);  // ✅ جديد - العلاقة مع وحدة القياس
     }
 
     public function creator(): BelongsTo
