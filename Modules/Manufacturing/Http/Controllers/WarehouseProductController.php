@@ -80,7 +80,21 @@ class WarehouseProductController extends Controller
     {
         try {
             $validated = $request->validated();
-            $this->materialService->createMaterial($validated);
+            
+            // إنشاء المادة عبر الـ Service
+            $material = $this->materialService->createMaterial($validated);
+
+            // إضافة الكمية الأولية إلى MaterialDetail
+            if (isset($validated['warehouse_id']) && isset($validated['original_weight'])) {
+                \App\Models\MaterialDetail::create([
+                    'material_id' => $material->id,
+                    'warehouse_id' => $validated['warehouse_id'],
+                    'quantity' => $validated['original_weight'],
+                    'min_quantity' => $validated['min_quantity'] ?? 0,
+                    'max_quantity' => $validated['max_quantity'] ?? 999999,
+                    'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
+                ]);
+            }
 
             return redirect()->route('manufacturing.warehouse-products.index')
                            ->with('success', 'تم إضافة المادة بنجاح وتسجيل حركة المستودع');
@@ -173,8 +187,8 @@ class WarehouseProductController extends Controller
     }
 
     /**
-     * إضافة كمية جديدة للمادة
-     * Add quantity to material
+     * إضافة كمية جديدة للمادة - تسجيل في MaterialDetail و Delivery Note
+     * Add quantity to material - record in MaterialDetail and create Delivery Note
      */
     public function addQuantity(\Illuminate\Http\Request $request, $id)
     {
@@ -194,11 +208,44 @@ class WarehouseProductController extends Controller
                 'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
             ]);
 
-            // إضافة الكمية الجديدة
+            // البحث أو إنشاء سجل في MaterialDetail
+            $materialDetail = \App\Models\MaterialDetail::where('material_id', $material->id)
+                                                       ->where('warehouse_id', $validated['warehouse_id'])
+                                                       ->first();
+
+            if ($materialDetail) {
+                // تحديث الكمية في سجل موجود
+                $materialDetail->quantity += $validated['quantity'];
+                $materialDetail->save();
+            } else {
+                // إنشاء سجل جديد
+                $materialDetail = \App\Models\MaterialDetail::create([
+                    'material_id' => $material->id,
+                    'warehouse_id' => $validated['warehouse_id'],
+                    'quantity' => $validated['quantity'],
+                    'min_quantity' => 0,
+                    'max_quantity' => 999999,
+                    'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
+                ]);
+            }
+
+            // تحديث الكميات في المادة الأم
             $material->original_weight += $validated['quantity'];
             $material->remaining_weight += $validated['quantity'];
             $material->warehouse_id = $validated['warehouse_id'];
             $material->save();
+
+            // إنشاء أذن مخزنية (Delivery Note) تلقائياً
+            $deliveryNote = \App\Models\DeliveryNote::create([
+                'note_number' => $this->generateDeliveryNoteNumber(),
+                'material_id' => $material->id,
+                'delivered_weight' => $validated['quantity'],
+                'delivery_date' => now()->toDateString(),
+                'driver_name' => 'إضافة مستودع', // قيمة افتراضية
+                'driver_name_en' => 'Warehouse Addition',
+                'vehicle_number' => 'N/A',
+                'received_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
+            ]);
 
             // تسجيل الحركة في المستودع
             \App\Models\WarehouseTransaction::create([
@@ -207,12 +254,12 @@ class WarehouseProductController extends Controller
                 'warehouse_id' => $validated['warehouse_id'],
                 'transaction_type' => 'receive', // استقبال
                 'quantity' => $validated['quantity'],
-                'notes' => $validated['notes'] ?? null,
+                'notes' => $validated['notes'] ?? 'أذن مخزنية رقم: ' . $deliveryNote->note_number,
                 'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
             ]);
 
             return redirect()->back()
-                           ->with('success', 'تم إضافة الكمية بنجاح وتسجيل حركة المستودع');
+                           ->with('success', 'تم إضافة الكمية بنجاح وإنشاء أذن مخزنية رقم: ' . $deliveryNote->note_number);
         } catch (\Exception $e) {
             Log::error('Error adding quantity: ' . $e->getMessage(), [
                 'exception' => $e,
@@ -224,5 +271,18 @@ class WarehouseProductController extends Controller
                            ->withInput()
                            ->withErrors(['error' => 'فشل في إضافة الكمية: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * توليد رقم أذن مخزنية فريد
+     * Generate unique delivery note number
+     */
+    private function generateDeliveryNoteNumber(): string
+    {
+        $prefix = 'DN-' . date('Y-m-d') . '-';
+        $sequence = \App\Models\DeliveryNote::where('note_number', 'like', $prefix . '%')
+            ->count() + 1;
+
+        return $prefix . str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 }

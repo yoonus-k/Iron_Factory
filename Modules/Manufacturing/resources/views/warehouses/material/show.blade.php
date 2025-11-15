@@ -215,58 +215,27 @@
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات المورد</h3>
+                    <h3 class="card-title">معلومات المستودع</h3>
                 </div>
                 <div class="card-body">
-                    @if ($material->supplier)
-                        <div class="info-item">
-                            <div class="info-label">اسم المورد:</div>
-                            <div class="info-value">{{ $material->supplier->name }}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">الشخص المسؤول:</div>
-                            <div class="info-value">{{ $material->supplier->contact_person ?? 'N/A' }}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">الهاتف:</div>
-                            <div class="info-value">{{ $material->supplier->phone ?? 'N/A' }}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">البريد الإلكتروني:</div>
-                            <div class="info-value">{{ $material->supplier->email ?? 'N/A' }}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">العنوان:</div>
-                            <div class="info-value">{{ $material->supplier->address ?? 'N/A' }}</div>
-                        </div>
 
-                        <!-- معلومات المستودع والكمية -->
-                        <div class="info-item">
-                            <div class="info-label">المستودع الحالي:</div>
-                            <div class="info-value">{{ $material->warehouse->name ?? 'غير محدد' }}</div>
-                        </div>
 
-                        <div class="info-item">
-                            <div class="info-label">الكمية الموجودة:</div>
-                            <div class="info-value">
-                                <strong>{{ $material->remaining_weight }} {{ $material->unit->name ?? 'وحدة' }}</strong>
-                            </div>
-                        </div>
+
+                       >
+
+
 
                         <!-- زر إضافة كمية جديدة -->
                         <div class="info-item" style="padding-top: 20px; border-top: 1px solid #eee; margin-top: 20px;">
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuantityModal" title="إضافة كمية جديدة">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addQuantityModal" title="إضافة كمية جديدة">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; margin-right: 5px;">
-                                    <circle cx="12" cy="12" r="1"></circle>
-                                    <circle cx="19" cy="12" r="1"></circle>
-                                    <circle cx="5" cy="12" r="1"></circle>
+                                    <polyline points="12 5 12 19"></polyline>
+                                    <polyline points="5 12 19 12"></polyline>
                                 </svg>
                                 إضافة كمية جديدة
                             </button>
                         </div>
-                    @else
-                        <p class="text-muted">لا توجد معلومات عن المورد</p>
-                    @endif
+
                 </div>
             </div>
 

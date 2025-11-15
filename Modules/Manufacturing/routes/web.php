@@ -40,6 +40,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('delivery-notes', DeliveryNoteController::class)->names('manufacturing.delivery-notes');
     Route::resource('purchase-invoices', PurchaseInvoiceController::class)->names('manufacturing.purchase-invoices');
     Route::resource('suppliers', SupplierController::class)->names('manufacturing.suppliers');
+    Route::put('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('manufacturing.suppliers.toggle-status');
     Route::resource('additives', AdditiveController::class)->names('manufacturing.additives');
 
     // Warehouse Settings Routes

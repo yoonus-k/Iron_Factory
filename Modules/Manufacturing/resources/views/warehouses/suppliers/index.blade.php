@@ -62,16 +62,16 @@
                 <form method="GET">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث في الموردين...">
+                            <input type="text" name="search" class="um-form-control" placeholder="البحث في الموردين..." value="{{ request('search') }}">
                         </div>
                         <div class="um-form-group">
-                            <input type="text" name="phone" class="um-form-control" placeholder="البحث برقم الهاتف...">
+                            <input type="text" name="phone" class="um-form-control" placeholder="البحث برقم الهاتف..." value="{{ request('phone') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
                                 <option value="">جميع الحالات</option>
-                                <option value="active">نشط</option>
-                                <option value="inactive">غير نشط</option>
+                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>نشط</option>
+                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>غير نشط</option>
                             </select>
                         </div>
                         <div class="um-filter-actions">
@@ -79,7 +79,7 @@
                                 <i class="feather icon-search"></i>
                                 بحث
                             </button>
-                            <button type="reset" class="um-btn um-btn-outline">
+                            <button type="reset" class="um-btn um-btn-outline" onclick="window.location='{{ route('manufacturing.suppliers.index') }}'">
                                 <i class="feather icon-x"></i>
                                 إعادة تعيين
                             </button>
@@ -103,81 +103,50 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @forelse($suppliers as $supplier)
                         <tr>
-                            <td>1</td>
-                            <td>شركة الحديد والصلب</td>
-                            <td>محمود علي</td>
-                            <td>0123456789</td>
-                            <td>supplier1@example.com</td>
-                            <td><span class="um-badge um-badge-success">نشط</span></td>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $supplier->getName() }}</td>
+                            <td>{{ $supplier->contact_person }}</td>
+                            <td>{{ $supplier->phone }}</td>
+                            <td>{{ $supplier->email }}</td>
                             <td>
-                                <a href="{{ route('manufacturing.suppliers.show', 1) }}" class="um-btn-action um-btn-view" title="عرض">
+                                @if($supplier->is_active)
+                                    <span class="um-badge um-badge-success">نشط</span>
+                                @else
+                                    <span class="um-badge um-badge-danger">غير نشط</span>
+                                @endif
+                            </td>
+                            <td>
+                                <a href="{{ route('manufacturing.suppliers.show', $supplier->id) }}" class="um-btn-action um-btn-view" title="عرض">
                                     <i class="feather icon-eye"></i>
                                 </a>
-                                <a href="{{ route('manufacturing.suppliers.edit', 1) }}" class="um-btn-action um-btn-edit" title="تعديل">
+                                <a href="{{ route('manufacturing.suppliers.edit', $supplier->id) }}" class="um-btn-action um-btn-edit" title="تعديل">
                                     <i class="feather icon-edit-2"></i>
                                 </a>
-                                <button class="um-btn-action um-btn-delete" title="حذف">
+                                <button class="um-btn-action um-btn-delete" title="حذف" onclick="deleteSupplier({{ $supplier->id }})">
                                     <i class="feather icon-trash-2"></i>
+                                </button>
+                                <button class="um-btn-action um-btn-status" title="{{ $supplier->is_active ? 'تعطيل' : 'تفعيل' }}" onclick="toggleStatus({{ $supplier->id }})">
+                                    <i class="feather {{ $supplier->is_active ? 'icon-toggle-right' : 'icon-toggle-left' }}"></i>
                                 </button>
                             </td>
                         </tr>
+                        @empty
                         <tr>
-                            <td>2</td>
-                            <td>شركة المعادن المتحدة</td>
-                            <td>أحمد محمد</td>
-                            <td>0198765432</td>
-                            <td>supplier2@example.com</td>
-                            <td><span class="um-badge um-badge-success">نشط</span></td>
-                            <td>
-                                <a href="{{ route('manufacturing.suppliers.show', 2) }}" class="um-btn-action um-btn-view" title="عرض">
-                                    <i class="feather icon-eye"></i>
-                                </a>
-                                <a href="{{ route('manufacturing.suppliers.edit', 2) }}" class="um-btn-action um-btn-edit" title="تعديل">
-                                    <i class="feather icon-edit-2"></i>
-                                </a>
-                                <button class="um-btn-action um-btn-delete" title="حذف">
-                                    <i class="feather icon-trash-2"></i>
-                                </button>
-                            </td>
+                            <td colspan="7" class="text-center">لا توجد موردين</td>
                         </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
 
-            <!-- Cards - Mobile View -->
-            <div class="um-mobile-view">
-                <div class="um-category-card">
-                    <div class="um-category-card-header">
-                        <div class="um-category-info">
-                            <h5>شركة الحديد والصلب</h5>
-                            <p>محمود علي</p>
-                        </div>
-                        <span class="um-badge um-badge-success">نشط</span>
-                    </div>
-                    <div class="um-category-card-body">
-                        <div class="um-info-row">
-                            <span>الهاتف:</span>
-                            <span>0123456789</span>
-                        </div>
-                        <div class="um-info-row">
-                            <span>البريد:</span>
-                            <span>supplier1@example.com</span>
-                        </div>
-                    </div>
-                    <div class="um-category-card-footer">
-                        <a href="{{ route('manufacturing.suppliers.show', 1) }}" class="um-btn-action um-btn-view" title="عرض">
-                            <i class="feather icon-eye"></i>
-                        </a>
-                        <a href="{{ route('manufacturing.suppliers.edit', 1) }}" class="um-btn-action um-btn-edit" title="تعديل">
-                            <i class="feather icon-edit-2"></i>
-                        </a>
-                        <button class="um-btn-action um-btn-delete" title="حذف">
-                            <i class="feather icon-trash-2"></i>
-                        </button>
-                    </div>
-                </div>
+            <!-- Pagination -->
+            @if($suppliers->hasPages())
+            <div class="um-pagination">
+                {{ $suppliers->links() }}
             </div>
+            @endif
         </section>
     </div>
 
@@ -194,6 +163,60 @@
                 }, 5000);
             });
         });
+
+        function deleteSupplier(id) {
+            if (confirm('⚠️ هل أنت متأكد من حذف هذا المورد؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
+                // Create a form dynamically
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ url('manufacturing/suppliers') }}/' + id;
+                
+                // Add CSRF token
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                form.appendChild(csrfToken);
+                
+                // Add method spoofing for DELETE
+                const methodField = document.createElement('input');
+                methodField.type = 'hidden';
+                methodField.name = '_method';
+                methodField.value = 'DELETE';
+                form.appendChild(methodField);
+                
+                // Submit the form
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function toggleStatus(id) {
+            if (confirm('هل أنت متأكد من تغيير حالة هذا المورد؟')) {
+                // Create a form dynamically
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ url('manufacturing/suppliers') }}/' + id + '/toggle-status';
+                
+                // Add CSRF token
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                form.appendChild(csrfToken);
+                
+                // Add method spoofing for PUT
+                const methodField = document.createElement('input');
+                methodField.type = 'hidden';
+                methodField.name = '_method';
+                methodField.value = 'PUT';
+                form.appendChild(methodField);
+                
+                // Submit the form
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
     </script>
 
 @endsection

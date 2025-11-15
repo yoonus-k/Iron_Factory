@@ -60,7 +60,7 @@
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                             <input type="text" name="supplier_name" id="supplier_name"
-                                class="form-input" placeholder="أدخل اسم المورد" required>
+                                class="form-input" value="{{ old('supplier_name') }}" placeholder="أدخل اسم المورد" required>
                         </div>
                     </div>
 
@@ -75,7 +75,7 @@
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                             <input type="text" name="contact_person" id="contact_person"
-                                class="form-input" placeholder="اسم الشخص المسؤول" required>
+                                class="form-input" value="{{ old('contact_person') }}" placeholder="اسم الشخص المسؤول" required>
                         </div>
                     </div>
 
@@ -89,7 +89,7 @@
                                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                             </svg>
                             <input type="tel" name="phone" id="phone"
-                                class="form-input" placeholder="0123456789" required>
+                                class="form-input" value="{{ old('phone') }}" placeholder="0123456789" required>
                         </div>
                     </div>
 
@@ -104,7 +104,7 @@
                                 <polyline points="22,6 12,13 2,6"></polyline>
                             </svg>
                             <input type="email" name="email" id="email"
-                                class="form-input" placeholder="example@email.com" required>
+                                class="form-input" value="{{ old('email') }}" placeholder="example@email.com" required>
                         </div>
                     </div>
 
@@ -116,7 +116,7 @@
                                 <circle cx="12" cy="10" r="3"></circle>
                             </svg>
                             <input type="text" name="address" id="address"
-                                class="form-input" placeholder="عنوان المورد">
+                                class="form-input" value="{{ old('address') }}" placeholder="عنوان المورد">
                         </div>
                     </div>
 
@@ -127,7 +127,7 @@
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                             </svg>
                             <input type="text" name="city" id="city"
-                                class="form-input" placeholder="أدخل المدينة">
+                                class="form-input" value="{{ old('city') }}" placeholder="أدخل المدينة">
                         </div>
                     </div>
 
@@ -135,7 +135,7 @@
                         <label for="notes" class="form-label">ملاحظات</label>
                         <div class="input-wrapper">
                             <textarea name="notes" id="notes"
-                                class="form-input" rows="4" placeholder="أدخل أي ملاحظات..."></textarea>
+                                class="form-input" rows="4" placeholder="أدخل أي ملاحظات...">{{ old('notes') }}</textarea>
                         </div>
                     </div>
 
@@ -143,8 +143,8 @@
                         <label for="status" class="form-label">الحالة</label>
                         <div class="input-wrapper">
                             <select name="status" id="status" class="form-input">
-                                <option value="active">نشط</option>
-                                <option value="inactive">غير نشط</option>
+                                <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>نشط</option>
+                                <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>غير نشط</option>
                             </select>
                         </div>
                     </div>
@@ -159,13 +159,13 @@
                     </svg>
                     حفظ المورد
                 </button>
-                <button type="button" class="btn-cancel">
+                <a href="{{ route('manufacturing.suppliers.index') }}" class="btn-cancel">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                     إلغاء
-                </button>
+                </a>
             </div>
         </form>
     </div>

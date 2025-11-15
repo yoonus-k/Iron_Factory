@@ -13,17 +13,21 @@
                         <i class="feather icon-truck"></i>
                     </div>
                     <div class="header-info">
-                        <h1>شركة الحديد والصلب</h1>
+                        <h1>{{ $supplier->getName() }}</h1>
                         <div class="badges">
                             <span class="badge category">
-                                محمود علي
+                                {{ $supplier->contact_person }}
                             </span>
-                            <span class="badge active">نشط</span>
+                            @if($supplier->is_active)
+                                <span class="badge active">نشط</span>
+                            @else
+                                <span class="badge inactive">غير نشط</span>
+                            @endif
                         </div>
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('manufacturing.suppliers.edit', 1) }}" class="btn btn-edit">
+                    <a href="{{ route('manufacturing.suppliers.edit', $supplier->id) }}" class="btn btn-edit">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -55,37 +59,43 @@
                 <div class="card-body">
                     <div class="info-item">
                         <div class="info-label">اسم المورد:</div>
-                        <div class="info-value">شركة الحديد والصلب</div>
+                        <div class="info-value">{{ $supplier->getName() }}</div>
                     </div>
 
                     <div class="info-item">
                         <div class="info-label">الشخص المسؤول:</div>
-                        <div class="info-value">محمود علي</div>
+                        <div class="info-value">{{ $supplier->contact_person }}</div>
                     </div>
 
                     <div class="info-item">
                         <div class="info-label">رقم الهاتف:</div>
-                        <div class="info-value">0123456789</div>
+                        <div class="info-value">{{ $supplier->phone }}</div>
                     </div>
 
                     <div class="info-item">
                         <div class="info-label">البريد الإلكتروني:</div>
-                        <div class="info-value">supplier1@example.com</div>
+                        <div class="info-value">{{ $supplier->email }}</div>
                     </div>
 
                     <div class="info-item">
                         <div class="info-label">العنوان:</div>
-                        <div class="info-value">شارع الصناعة، المنطقة الرابعة</div>
+                        <div class="info-value">{{ $supplier->address ?? 'غير محدد' }}</div>
                     </div>
 
                     <div class="info-item">
                         <div class="info-label">المدينة:</div>
-                        <div class="info-value">القاهرة</div>
+                        <div class="info-value">{{ $supplier->city ?? 'غير محدد' }}</div>
                     </div>
 
                     <div class="info-item">
                         <div class="info-label">الحالة:</div>
-                        <div class="info-value"><span class="badge badge-success">نشط</span></div>
+                        <div class="info-value">
+                            @if($supplier->is_active)
+                                <span class="badge badge-success">نشط</span>
+                            @else
+                                <span class="badge badge-danger">غير نشط</span>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -101,7 +111,7 @@
                     <h3 class="card-title">الملاحظات</h3>
                 </div>
                 <div class="card-body">
-                    <p class="info-text">مورد موثوق ويقدم خدمات ممتازة</p>
+                    <p class="info-text">{{ $supplier->notes ?? 'لا توجد ملاحظات' }}</p>
                 </div>
             </div>
 
@@ -128,18 +138,7 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>1</td>
-                                    <td>INV-2024-001</td>
-                                    <td>2024-11-01</td>
-                                    <td>5,000 ريال</td>
-                                    <td><span class="badge badge-success">مدفوعة</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>INV-2024-003</td>
-                                    <td>2024-10-20</td>
-                                    <td>3,500 ريال</td>
-                                    <td><span class="badge badge-success">مدفوعة</span></td>
+                                    <td colspan="5" class="text-center">لا توجد فواتير</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -161,7 +160,7 @@
             </div>
             <div class="card-body">
                 <div class="actions-grid">
-                    <button type="button" class="action-btn contact">
+                    <button type="button" class="action-btn contact" onclick="window.location='tel:{{ $supplier->phone }}'">
                         <div class="action-icon">
                             <i class="feather icon-phone"></i>
                         </div>
@@ -170,7 +169,7 @@
                         </div>
                     </button>
 
-                    <button type="button" class="action-btn email">
+                    <button type="button" class="action-btn email" onclick="window.location='mailto:{{ $supplier->email }}'">
                         <div class="action-icon">
                             <i class="feather icon-mail"></i>
                         </div>
@@ -179,7 +178,7 @@
                         </div>
                     </button>
 
-                    <button type="button" class="action-btn delete">
+                    <button type="button" class="action-btn delete" onclick="deleteSupplier({{ $supplier->id }})">
                         <div class="action-icon">
                             <i class="feather icon-trash-2"></i>
                         </div>
@@ -199,24 +198,58 @@
                 deleteButton.addEventListener('click', function(e) {
                     e.preventDefault();
                     if (confirm('⚠️ هل أنت متأكد من حذف هذا المورد؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
-                        alert('تم حذف المورد بنجاح!');
+                        // Create a form dynamically
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '{{ url('manufacturing/suppliers') }}/' + {{ $supplier->id }};
+                        
+                        // Add CSRF token
+                        const csrfToken = document.createElement('input');
+                        csrfToken.type = 'hidden';
+                        csrfToken.name = '_token';
+                        csrfToken.value = '{{ csrf_token() }}';
+                        form.appendChild(csrfToken);
+                        
+                        // Add method spoofing for DELETE
+                        const methodField = document.createElement('input');
+                        methodField.type = 'hidden';
+                        methodField.name = '_method';
+                        methodField.value = 'DELETE';
+                        form.appendChild(methodField);
+                        
+                        // Submit the form
+                        document.body.appendChild(form);
+                        form.submit();
                     }
                 });
             }
-
-            const contactButton = document.querySelector('.action-btn.contact');
-            if (contactButton) {
-                contactButton.addEventListener('click', function() {
-                    alert('الاتصال برقم: 0123456789');
-                });
-            }
-
-            const emailButton = document.querySelector('.action-btn.email');
-            if (emailButton) {
-                emailButton.addEventListener('click', function() {
-                    alert('إرسال بريد إلى: supplier1@example.com');
-                });
-            }
         });
+
+        function deleteSupplier(id) {
+            if (confirm('⚠️ هل أنت متأكد من حذف هذا المورد؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
+                // Create a form dynamically
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ url('manufacturing/suppliers') }}/' + id;
+                
+                // Add CSRF token
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                form.appendChild(csrfToken);
+                
+                // Add method spoofing for DELETE
+                const methodField = document.createElement('input');
+                methodField.type = 'hidden';
+                methodField.name = '_method';
+                methodField.value = 'DELETE';
+                form.appendChild(methodField);
+                
+                // Submit the form
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
     </script>
 @endsection

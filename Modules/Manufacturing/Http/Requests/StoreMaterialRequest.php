@@ -38,7 +38,9 @@ class StoreMaterialRequest extends FormRequest
             'status' => 'required|in:available,in_use,consumed,expired',
             'notes' => 'nullable|string',
             'notes_en' => 'nullable|string',
-            'warehouse_id' => 'nullable|exists:warehouses,id',
+            'warehouse_id' => 'required|exists:warehouses,id',
+            'min_quantity' => 'nullable|numeric|min:0',
+            'max_quantity' => 'nullable|numeric|min:0',
         ];
     }
 
