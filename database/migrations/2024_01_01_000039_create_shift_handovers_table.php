@@ -23,7 +23,7 @@ return new class extends Migration
             $table->boolean('supervisor_approved')->default(false);
             $table->foreignId('approved_by')->nullable()->constrained('users');
             $table->timestamps();
-            
+
             $table->index('from_user_id');
             $table->index('to_user_id');
             $table->index('stage_number');

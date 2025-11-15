@@ -20,14 +20,16 @@ return new class extends Migration
             $table->decimal('total_weight', 10, 3);
             $table->decimal('waste', 10, 3)->default(0);
             $table->enum('status', ['packing', 'packed', 'shipped', 'delivered'])->default('packing');
-            $table->text('customer_info')->nullable();
-            $table->text('shipping_address')->nullable();
+            $table->text('customer_info')->nullable()->comment('بيانات العميل بالعربية');
+            $table->text('customer_info_en')->nullable()->comment('بيانات العميل بالإنجليزية');
+            $table->text('shipping_address')->nullable()->comment('عنوان الشحن بالعربية');
+            $table->text('shipping_address_en')->nullable()->comment('عنوان الشحن بالإنجليزية');
             $table->string('tracking_number', 100)->nullable();
             $table->foreignId('created_by')->constrained('users');
             $table->timestamp('packed_at')->nullable();
             $table->timestamp('shipped_at')->nullable();
             $table->timestamps();
-            
+
             $table->index('barcode');
             $table->index('status');
             $table->index('tracking_number');

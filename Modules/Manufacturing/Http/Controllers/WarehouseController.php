@@ -3,17 +3,36 @@
 namespace Modules\Manufacturing\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use Modules\Manufacturing\Http\Requests\StoreWarehouseRequest;
+use Modules\Manufacturing\Http\Requests\UpdateWarehouseRequest;
+use Modules\Manufacturing\Repositories\WarehouseRepository;
 use Illuminate\Http\Request;
 
 class WarehouseController extends Controller
 {
+    private WarehouseRepository $warehouseRepository;
+
+    public function __construct(WarehouseRepository $warehouseRepository)
+    {
+        $this->warehouseRepository = $warehouseRepository;
+    }
+
     /**
      * Display a listing of the warehouses.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // For now, we're just returning the view without data
-        return view('manufacturing::warehouses.warehouse.index');
+        // Check if search/filter parameters exist
+        if ($request->has('search') || $request->has('status')) {
+            $warehouses = $this->warehouseRepository->search($request->all());
+        } else {
+            $warehouses = $this->warehouseRepository->getAllPaginated(10);
+        }
+
+        return view('manufacturing::warehouses.warehouse.index', [
+            'warehouses' => $warehouses,
+        ]);
     }
 
     /**
@@ -21,17 +40,33 @@ class WarehouseController extends Controller
      */
     public function create()
     {
-        // For now, we're just returning the view without data
-        return view('manufacturing::warehouses.warehouse.create');
+        // Get all users to populate the manager dropdown
+        $managers = User::where('is_active', 1)->get();
+
+        return view('manufacturing::warehouses.warehouse.create', [
+            'managers' => $managers,
+        ]);
     }
 
     /**
      * Store a newly created warehouse in storage.
      */
-    public function store(Request $request)
+    public function store(StoreWarehouseRequest $request)
     {
-        // For now, we're just redirecting back without processing
-        return redirect()->route('manufacturing.warehouses.index');
+        try {
+            $data = $request->validated();
+
+            $warehouse = $this->warehouseRepository->create($data);
+
+            return redirect()
+                ->route('manufacturing.warehouses.index')
+                ->with('success', 'تم إضافة المستودع بنجاح');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'حدث خطأ أثناء إضافة المستودع: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -39,8 +74,17 @@ class WarehouseController extends Controller
      */
     public function show($id)
     {
-        // For now, we're just returning the view without data
-        return view('manufacturing::warehouses.warehouse.show');
+        $warehouse = $this->warehouseRepository->getById($id);
+
+        if (!$warehouse) {
+            return redirect()
+                ->route('manufacturing.warehouses.index')
+                ->with('error', 'المستودع غير موجود');
+        }
+
+        return view('manufacturing::warehouses.warehouse.show', [
+            'warehouse' => $warehouse,
+        ]);
     }
 
     /**
@@ -48,17 +92,50 @@ class WarehouseController extends Controller
      */
     public function edit($id)
     {
-        // For now, we're just returning the view without data
-        return view('manufacturing::warehouses.warehouse.edit');
+        $warehouse = $this->warehouseRepository->getById($id);
+
+        if (!$warehouse) {
+            return redirect()
+                ->route('manufacturing.warehouses.index')
+                ->with('error', 'المستودع غير موجود');
+        }
+
+        // Get all users to populate the manager dropdown
+        $managers = User::where('is_active', 1)->get();
+
+        return view('manufacturing::warehouses.warehouse.edit', [
+            'warehouse' => $warehouse,
+            'managers' => $managers,
+        ]);
     }
 
     /**
      * Update the specified warehouse in storage.
      */
-    public function update(Request $request, $id)
+    public function update(UpdateWarehouseRequest $request, $id)
     {
-        // For now, we're just redirecting back without processing
-        return redirect()->route('manufacturing.warehouses.index');
+        try {
+            $warehouse = $this->warehouseRepository->getById($id);
+
+            if (!$warehouse) {
+                return redirect()
+                    ->route('manufacturing.warehouses.index')
+                    ->with('error', 'المستودع غير موجود');
+            }
+
+            $data = $request->validated();
+
+            $this->warehouseRepository->update($id, $data);
+
+            return redirect()
+                ->route('manufacturing.warehouses.index')
+                ->with('success', 'تم تحديث بيانات المستودع بنجاح');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'حدث خطأ أثناء تحديث المستودع: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -66,7 +143,50 @@ class WarehouseController extends Controller
      */
     public function destroy($id)
     {
-        // For now, we're just redirecting back without processing
-        return redirect()->route('manufacturing.warehouses.index');
+        try {
+            $warehouse = $this->warehouseRepository->getById($id);
+
+            if (!$warehouse) {
+                return redirect()
+                    ->route('manufacturing.warehouses.index')
+                    ->with('error', 'المستودع غير موجود');
+            }
+
+            $this->warehouseRepository->delete($id);
+
+            return redirect()
+                ->route('manufacturing.warehouses.index')
+                ->with('success', 'تم حذف المستودع بنجاح');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'حدث خطأ أثناء حذف المستودع: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get warehouse statistics
+     */
+    public function statistics()
+    {
+        $totalWarehouses = $this->warehouseRepository->count();
+        $activeWarehouses = $this->warehouseRepository->countByStatus(true);
+        $inactiveWarehouses = $this->warehouseRepository->countByStatus(false);
+
+        return response()->json([
+            'total' => $totalWarehouses,
+            'active' => $activeWarehouses,
+            'inactive' => $inactiveWarehouses,
+        ]);
+    }
+
+    /**
+     * Get active warehouses only (for dropdowns, etc.)
+     */
+    public function getActive()
+    {
+        $warehouses = $this->warehouseRepository->getActive();
+
+        return response()->json($warehouses);
     }
 }

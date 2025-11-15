@@ -31,7 +31,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('type_code');
-            $table->index('category');
+
             $table->index('is_active');
         });
 

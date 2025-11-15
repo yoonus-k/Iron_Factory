@@ -24,7 +24,7 @@ return new class extends Migration
             $table->foreignId('approved_by')->nullable()->constrained('users');
             $table->timestamp('approved_at')->nullable();
             $table->timestamps();
-            
+
             $table->index('stage_number');
             $table->index('item_barcode');
             $table->index('supervisor_approved');

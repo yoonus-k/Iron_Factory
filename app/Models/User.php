@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -21,6 +23,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role_id',
+        'role',
+        'shift',
+        'is_active',
     ];
 
     /**
@@ -43,6 +49,55 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * العلاقات
+     */
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function userPermissions(): HasMany
+    {
+        return $this->hasMany(UserPermission::class);
+    }
+
+    public function shiftAssignments(): HasMany
+    {
+        return $this->hasMany(ShiftAssignment::class);
+    }
+
+    public function suppliers(): HasMany
+    {
+        return $this->hasMany(Supplier::class, 'created_by');
+    }
+
+    public function materials(): HasMany
+    {
+        return $this->hasMany(Material::class, 'created_by');
+    }
+
+    public function operationLogs(): HasMany
+    {
+        return $this->hasMany(OperationLog::class);
+    }
+
+    /**
+     * التحقق من الصلاحيات
+     */
+    public function hasPermission($permissionCode): bool
+    {
+        return $this->role && $this->role->permissions()
+            ->where('permission_code', $permissionCode)
+            ->exists();
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role && $this->role->role_code === 'ADMIN';
     }
 }
