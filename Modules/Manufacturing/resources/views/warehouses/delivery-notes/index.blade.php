@@ -97,7 +97,7 @@
                             <th>#</th>
                             <th>رقم الأذن</th>
                             <th>تاريخ التسليم</th>
-                            <th>المورد</th>
+
                             <th>الوزن</th>
                             <th>الحالة</th>
                             <th>الإجراءات</th>
@@ -109,7 +109,7 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $deliveryNote->note_number }}</td>
                             <td>{{ $deliveryNote->delivery_date->format('Y-m-d') }}</td>
-                            <td>{{ $deliveryNote->supplier->getName() }}</td>
+
                             <td>{{ $deliveryNote->delivered_weight }} كجم</td>
                             <td><span class="um-badge um-badge-success">مستقبل</span></td>
                             <td>
@@ -154,7 +154,7 @@
                     <div class="um-category-card-header">
                         <div class="um-category-info">
                             <h5>{{ $deliveryNote->note_number }}</h5>
-                            <p>{{ $deliveryNote->supplier->getName() }}</p>
+
                         </div>
                         <span class="um-badge um-badge-success">مستقبل</span>
                     </div>

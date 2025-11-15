@@ -5,7 +5,7 @@ namespace Modules\Manufacturing\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use App\Models\DeliveryNote;
-use App\Models\Supplier;
+
 use App\Models\Material;
 
 class DeliveryNoteController extends Controller
@@ -15,7 +15,7 @@ class DeliveryNoteController extends Controller
      */
     public function index()
     {
-        $deliveryNotes = DeliveryNote::with(['material', 'supplier', 'receiver'])->get();
+        $deliveryNotes = DeliveryNote::with(['material', 'receiver'])->get();
         return view('manufacturing::warehouses.delivery-notes.index', compact('deliveryNotes'));
     }
 
@@ -24,9 +24,9 @@ class DeliveryNoteController extends Controller
      */
     public function create()
     {
-        $suppliers = Supplier::where('is_active', true)->get();
+
         $materials = Material::all();
-        return view('manufacturing::warehouses.delivery-notes.create', compact('suppliers', 'materials'));
+        return view('manufacturing::warehouses.delivery-notes.create', compact( 'materials'));
     }
 
     /**
@@ -38,7 +38,7 @@ class DeliveryNoteController extends Controller
         $validated = $request->validate([
             'delivery_number' => 'required|string|unique:delivery_notes,note_number',
             'delivery_date' => 'required|date',
-            'supplier_id' => 'required|exists:suppliers,id',
+
             'material_id' => 'required|exists:materials,id',
             'delivered_weight' => 'required|numeric|min:0',
             'driver_name' => 'nullable|string|max:255',
@@ -62,7 +62,7 @@ class DeliveryNoteController extends Controller
      */
     public function show($id)
     {
-        $deliveryNote = DeliveryNote::with(['material', 'supplier', 'receiver'])->findOrFail($id);
+        $deliveryNote = DeliveryNote::with(['material',  'receiver'])->findOrFail($id);
         return view('manufacturing::warehouses.delivery-notes.show', compact('deliveryNote'));
     }
 
@@ -72,9 +72,9 @@ class DeliveryNoteController extends Controller
     public function edit($id)
     {
         $deliveryNote = DeliveryNote::findOrFail($id);
-        $suppliers = Supplier::where('is_active', true)->get();
+
         $materials = Material::all();
-        return view('manufacturing::warehouses.delivery-notes.edit', compact('deliveryNote', 'suppliers', 'materials'));
+        return view('manufacturing::warehouses.delivery-notes.edit', compact('deliveryNote',  'materials'));
     }
 
     /**
@@ -88,7 +88,7 @@ class DeliveryNoteController extends Controller
         $validated = $request->validate([
             'delivery_number' => 'required|string|unique:delivery_notes,note_number,' . $deliveryNote->id,
             'delivery_date' => 'required|date',
-            'supplier_id' => 'required|exists:suppliers,id',
+
             'material_id' => 'required|exists:materials,id',
             'delivered_weight' => 'required|numeric|min:0',
             'driver_name' => 'nullable|string|max:255',

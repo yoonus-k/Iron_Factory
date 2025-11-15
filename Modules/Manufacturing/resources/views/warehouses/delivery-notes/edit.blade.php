@@ -81,28 +81,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="supplier_id" class="form-label">
-                            المورد
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                            <select name="supplier_id" id="supplier_id" class="form-input" required>
-                                <option value="">-- اختر المورد --</option>
-                                @foreach($suppliers as $supplier)
-                                    <option value="{{ $supplier->id }}" {{ old('supplier_id', $deliveryNote->supplier_id) == $supplier->id ? 'selected' : '' }}>
-                                        {{ $supplier->getName() }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
+
 
                     <div class="form-group">
                         <label for="material_id" class="form-label">

@@ -12,15 +12,7 @@
                     <div class="course-icon">
                         <i class="feather icon-file-text"></i>
                     </div>
-                    <div class="header-info">
-                        <h1>{{ $deliveryNote->note_number }}</h1>
-                        <div class="badges">
-                            <span class="badge category">
-                                {{ $deliveryNote->supplier->getName() }}
-                            </span>
-                            <span class="badge active">مستلم</span>
-                        </div>
-                    </div>
+
                 </div>
                 <div class="header-actions">
                     <a href="{{ route('manufacturing.delivery-notes.edit', $deliveryNote->id) }}" class="btn btn-edit">
@@ -123,26 +115,8 @@
                     <h3 class="card-title">معلومات المورد</h3>
                 </div>
                 <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-label">اسم المورد:</div>
-                        <div class="info-value">{{ $deliveryNote->supplier->getName() }}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">الشخص المسؤول:</div>
-                        <div class="info-value">{{ $deliveryNote->supplier->contact_person ?? 'غير محدد' }}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">الهاتف:</div>
-                        <div class="info-value">{{ $deliveryNote->supplier->phone ?? 'غير محدد' }}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">البريد الإلكتروني:</div>
-                        <div class="info-value">{{ $deliveryNote->supplier->email ?? 'غير محدد' }}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">العنوان:</div>
-                        <div class="info-value">{{ $deliveryNote->supplier->address ?? 'غير محدد' }}</div>
-                    </div>
+
+
                 </div>
             </div>
 
@@ -161,7 +135,7 @@
                 <div class="card-body">
                     <div class="info-item">
                         <div class="info-label">اسم المادة:</div>
-                        <div class="info-value">{{ $deliveryNote->material->name }}</div>
+                        <div class="info-value">{{ $deliveryNote->material-> }}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">نوع المادة:</div>

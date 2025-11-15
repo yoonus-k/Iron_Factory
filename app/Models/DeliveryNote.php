@@ -18,7 +18,7 @@ class DeliveryNote extends Model
         'driver_name_en',
         'vehicle_number',
         'received_by',
-        'supplier_id', // Add this field
+        
     ];
 
     protected $casts = [
@@ -39,8 +39,5 @@ class DeliveryNote extends Model
     }
 
     // Add supplier relationship
-    public function supplier(): BelongsTo
-    {
-        return $this->belongsTo(Supplier::class);
-    }
+    
 }
