@@ -16,8 +16,8 @@ return new class extends Migration {
             $table->foreignId('material_type_id')->nullable()->constrained('material_types')->onDelete('set null')->comment('نوع المادة');
             $table->string('barcode', 50)->unique()->comment('WH-XXX-2025');
             $table->string('batch_number', 100)->nullable()->comment('رقم الدفعة');
-            $table->string('material_type', 100)->comment('نوع المادة (نصي للتوافقية)');
-            $table->string('material_type_en', 100)->nullable()->comment('نوع المادة بالإنجليزية');
+            $table->string('name_ar', 100)->comment('نوع المادة (نصي للتوافقية)');
+            $table->string('name_en', 100)->nullable()->comment('نوع المادة بالإنجليزية');
             $table
                 ->enum('type', ['raw', 'manufactured'])
                 ->default('raw')
@@ -48,7 +48,7 @@ return new class extends Migration {
             $table->index('unit_id');
             $table->index('batch_number');
             $table->index('status');
-            $table->index('material_type');
+            $table->index('name_ar');
 
             $table->index('expiry_date');
 
