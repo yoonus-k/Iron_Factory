@@ -25,7 +25,9 @@ return new class extends Migration
             $table->string('color', 50)->nullable();
             $table->decimal('waste', 10, 3)->default(0);
             $table->string('dye_type', 100)->nullable()->comment('نوع الصبغة المستخدمة');
+            $table->string('dye_type_en', 100)->nullable()->comment('نوع الصبغة المستخدمة بالإنجليزية');
             $table->string('plastic_type', 100)->nullable()->comment('نوع البلاستيك المستخدم');
+            $table->string('plastic_type_en', 100)->nullable()->comment('نوع البلاستيك المستخدم بالإنجليزية');
             $table->enum('status', ['created', 'in_process', 'completed', 'packed'])->default('created');
             $table->foreignId('created_by')->constrained('users');
             $table->timestamp('completed_at')->nullable();

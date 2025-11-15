@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('barcode', 50)->unique()->comment('WH-XXX-2025');
             $table->string('batch_number', 100)->nullable()->comment('رقم الدفعة');
             $table->string('material_type', 100)->comment('نوع المادة (نصي للتوافقية)');
+            $table->string('material_type_en', 100)->nullable()->comment('نوع المادة بالإنجليزية');
             $table->decimal('original_weight', 10, 3);
             $table->decimal('remaining_weight', 10, 3);
             $table->enum('unit', ['kg', 'ton', 'gram'])->default('kg')->comment('الوحدة (نصية للتوافقية)');

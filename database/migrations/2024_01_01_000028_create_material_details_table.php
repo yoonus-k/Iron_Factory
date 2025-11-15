@@ -19,8 +19,10 @@ return new class extends Migration
             $table->decimal('min_quantity', 12, 3)->nullable()->comment('الحد الأدنى للكمية');
             $table->decimal('max_quantity', 12, 3)->nullable()->comment('الحد الأقصى للكمية');
             $table->string('location_in_warehouse')->nullable()->comment('الموقع داخل المستودع');
+            $table->string('location_in_warehouse_en')->nullable()->comment('الموقع داخل المستودع بالإنجليزية');
             $table->date('last_stock_check')->nullable()->comment('آخر جرد');
-            $table->text('notes')->nullable()->comment('ملاحظات');
+            $table->text('notes')->nullable()->comment('ملاحظات بالعربية');
+            $table->text('notes_en')->nullable()->comment('ملاحظات بالإنجليزية');
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->timestamps();
 

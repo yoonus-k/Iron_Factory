@@ -15,13 +15,16 @@ return new class extends Migration
         Schema::create('material_types', function (Blueprint $table) {
             $table->id();
             $table->string('type_code', 50)->unique()->comment('رمز نوع المادة');
-            $table->string('type_name')->comment('اسم نوع المادة');
-            $table->string('category')->comment('تصنيف المادة');
-            $table->text('description')->nullable()->comment('وصف المادة');
+            $table->string('type_name')->comment('اسم نوع المادة بالعربية');
+            $table->string('type_name_en')->nullable()->comment('اسم نوع المادة بالإنجليزية');
+
+            $table->text('description')->nullable()->comment('وصف المادة بالعربية');
+            $table->text('description_en')->nullable()->comment('وصف المادة بالإنجليزية');
             $table->json('specifications')->nullable()->comment('المواصفات التقنية');
             $table->string('default_unit', 20)->default('kg')->comment('الوحدة الافتراضية');
             $table->decimal('standard_cost', 10, 2)->nullable()->comment('التكلفة القياسية');
             $table->string('storage_conditions')->nullable()->comment('شروط التخزين');
+            $table->string('storage_conditions_en')->nullable()->comment('شروط التخزين بالإنجليزية');
             $table->integer('shelf_life_days')->nullable()->comment('مدة الصلاحية بالأيام');
             $table->boolean('is_active')->default(true)->comment('حالة المادة');
             $table->foreignId('created_by')->nullable()->constrained('users');

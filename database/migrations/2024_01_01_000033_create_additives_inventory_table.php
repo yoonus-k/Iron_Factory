@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('additives_inventory', function (Blueprint $table) {
             $table->id();
             $table->enum('type', ['dye', 'plastic']);
-            $table->string('name');
+            $table->string('name')->comment('اسم الإضافة بالعربية');
+            $table->string('name_en')->nullable()->comment('اسم الإضافة بالإنجليزية');
             $table->string('color', 50)->nullable()->comment('للصبغة فقط');
+            $table->string('color_en', 50)->nullable()->comment('اللون بالإنجليزية');
             $table->decimal('quantity', 10, 3);
             $table->string('unit', 20)->default('kg');
             $table->decimal('cost_per_unit', 8, 2)->nullable();

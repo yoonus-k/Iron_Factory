@@ -15,11 +15,13 @@ return new class extends Migration
         Schema::create('system_formulas', function (Blueprint $table) {
             $table->id();
             $table->string('formula_name', 100)->unique();
+            $table->string('formula_name_en', 100)->nullable()->unique();
             $table->tinyInteger('stage_number')->nullable();
             $table->text('formula_expression')->comment('الصيغة الرياضية');
             $table->json('variables')->nullable()->comment('متغيرات الصيغة');
             $table->json('default_values')->nullable()->comment('القيم الافتراضية');
-            $table->text('description')->nullable();
+            $table->text('description')->nullable()->comment('وصف الصيغة بالعربية');
+            $table->text('description_en')->nullable()->comment('وصف الصيغة بالإنجليزية');
             $table->boolean('is_active')->default(true);
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->timestamps();

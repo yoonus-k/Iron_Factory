@@ -15,7 +15,8 @@ return new class extends Migration
         Schema::create('waste_limits', function (Blueprint $table) {
             $table->id();
             $table->tinyInteger('stage_number')->unique();
-            $table->string('stage_name', 100);
+            $table->string('stage_name', 100)->comment('اسم المرحلة بالعربية');
+            $table->string('stage_name_en', 100)->nullable()->comment('اسم المرحلة بالإنجليزية');
             $table->decimal('max_waste_percentage', 5, 2)->default(3.00);
             $table->decimal('warning_percentage', 5, 2)->default(2.50);
             $table->boolean('alert_supervisors')->default(true);

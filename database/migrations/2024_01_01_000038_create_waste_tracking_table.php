@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('item_barcode', 50);
             $table->decimal('waste_amount', 10, 3);
             $table->decimal('waste_percentage', 5, 2)->nullable();
-            $table->text('waste_reason')->nullable();
+            $table->text('waste_reason')->nullable()->comment('سبب الفاقد بالعربية');
+            $table->text('waste_reason_en')->nullable()->comment('سبب الفاقد بالإنجليزية');
             $table->foreignId('reported_by')->constrained('users');
             $table->boolean('supervisor_approved')->default(false);
             $table->foreignId('approved_by')->nullable()->constrained('users');

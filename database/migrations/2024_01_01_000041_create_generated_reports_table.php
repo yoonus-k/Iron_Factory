@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('generated_reports', function (Blueprint $table) {
             $table->id();
             $table->enum('report_type', ['daily', 'weekly', 'monthly', 'custom']);
-            $table->string('report_title');
+            $table->string('report_title')->comment('عنوان التقرير بالعربية');
+            $table->string('report_title_en')->nullable()->comment('عنوان التقرير بالإنجليزية');
             $table->date('date_from');
             $table->date('date_to');
             $table->json('parameters')->nullable()->comment('فلاتر التقرير');
