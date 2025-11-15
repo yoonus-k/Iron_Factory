@@ -80,7 +80,7 @@ class WarehouseProductController extends Controller
     {
         try {
             $validated = $request->validated();
-            
+
             // إنشاء المادة عبر الـ Service
             $material = $this->materialService->createMaterial($validated);
 
@@ -93,6 +93,18 @@ class WarehouseProductController extends Controller
                     'min_quantity' => $validated['min_quantity'] ?? 0,
                     'max_quantity' => $validated['max_quantity'] ?? 999999,
                     'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
+                ]);
+
+                // إنشاء أذن مخزنية (Delivery Note) عند الإنشاء
+                $deliveryNote = \App\Models\DeliveryNote::create([
+                    'note_number' => $this->generateDeliveryNoteNumber(),
+                    'material_id' => $material->id,
+                    'delivered_weight' => $validated['original_weight'],
+                    'delivery_date' => now()->toDateString(),
+                    'driver_name' => 'مادة جديدة',
+                    'driver_name_en' => 'New Material',
+                    'vehicle_number' => 'N/A',
+                    'received_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
                 ]);
             }
 
@@ -110,9 +122,7 @@ class WarehouseProductController extends Controller
                            ->withInput()
                            ->withErrors(['error' => 'فشل في حفظ المادة: ' . $e->getMessage()]);
         }
-    }
-
-    /**
+    }    /**
      * Display the specified warehouse product.
      */
     public function show($id)
