@@ -58,6 +58,15 @@ class MaterialDetail extends Model
     }
 
     /**
+     * الحصول على اسم الوحدة
+     * @return string
+     */
+    public function getUnitName(): string
+    {
+        return $this->unit?->unit_name ?? 'وحدة';
+    }
+
+    /**
      * التحقق من الكمية
      */
     public function isLowStock(): bool

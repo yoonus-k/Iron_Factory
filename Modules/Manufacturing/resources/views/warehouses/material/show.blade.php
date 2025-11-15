@@ -82,7 +82,7 @@
                         <div class="info-label">إجمالي الوزن الأصلي:</div>
                         <div class="info-value">
                             {{ $material->materialDetails->sum('original_weight') }}
-                            {{ $material->materialDetails->first()?->unit?->name ?? 'N/A' }}
+                            {{ $material->materialDetails->first()?->getUnitName() }}
                         </div>
                     </div>
 
@@ -90,7 +90,7 @@
                         <div class="info-label">إجمالي الوزن المتبقي:</div>
                         <div class="info-value">
                             {{ $material->materialDetails->sum('remaining_weight') }}
-                            {{ $material->materialDetails->first()?->unit?->name ?? 'N/A' }}
+                            {{ $material->materialDetails->first()?->getUnitName() }}
                         </div>
                     </div>
 
@@ -431,7 +431,7 @@
                                 <input type="number" name="quantity" id="quantity" class="form-control"
                                        placeholder="أدخل الكمية" step="0.01" min="0.01" required>
                                 <div class="input-group-append">
-                                   <span class="input-group-text">{{ $material->materialDetails->first()?->unit?->name ?? 'وحدة' }}</span>
+                                   <span class="input-group-text">{{ $material->materialDetails->first()?->getUnitName() }}</span>
                                 </div>
                             </div>
                             <small class="form-text text-muted">
@@ -441,7 +441,7 @@
                                     <line x1="12" y1="8" x2="12.01" y2="8"></line>
                                 </svg>
                                 إجمالي الكمية المتبقية في جميع المستودعات: <strong style="color: #667eea;">{{ number_format($material->materialDetails->sum('remaining_weight'), 2) }}</strong>
-                                {{ $material->materialDetails->first()?->unit?->name ?? 'وحدة' }}
+                                {{ $material->materialDetails->first()?->getUnitName() }}
                             </small>
                         </div>
 

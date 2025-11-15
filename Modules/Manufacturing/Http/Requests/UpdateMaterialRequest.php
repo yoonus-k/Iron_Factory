@@ -24,12 +24,10 @@ class UpdateMaterialRequest extends FormRequest
         return [
             'barcode' => 'required|string|unique:materials,barcode,' . $materialId,
             'batch_number' => 'nullable|string',
-            'material_type' => 'required|string|min:2|max:255',
-            'material_type_en' => 'nullable|string|min:2|max:255',
-            'material_category' => 'required|in:raw,manufactured,finished',
-            'original_weight' => 'required|numeric|min:0',
-            'remaining_weight' => 'nullable|numeric|min:0',
-            'unit_id' => 'required|exists:units,id',
+            'name_ar' => 'required|string|min:2|max:255',
+            'name_en' => 'nullable|string|min:2|max:255',
+
+
 
             'delivery_note_number' => 'nullable|string|max:255',
             'manufacture_date' => 'nullable|date',
@@ -40,7 +38,7 @@ class UpdateMaterialRequest extends FormRequest
             'status' => 'required|in:available,in_use,consumed,expired',
             'notes' => 'nullable|string',
             'notes_en' => 'nullable|string',
-            'warehouse_id' => 'nullable|exists:warehouses,id',
+
         ];
     }
 
@@ -52,13 +50,10 @@ class UpdateMaterialRequest extends FormRequest
         return [
             'barcode.required' => 'رمز المادة مطلوب',
             'barcode.unique' => 'رمز المادة موجود بالفعل',
-            'material_type.required' => 'اسم المادة مطلوب',
-            'material_category.required' => 'فئة المادة مطلوبة',
-            'original_weight.required' => 'الوزن الأصلي مطلوب',
-            'unit_id.required' => 'الوحدة مطلوبة',
+            'name_ar.required' => 'اسم المادة مطلوب',
 
-            'status.required' => 'حالة المادة مطلوبة',
-            'expiry_date.after' => 'تاريخ الصلاحية يجب أن يكون بعد تاريخ الصنع',
+
+
         ];
     }
 }
