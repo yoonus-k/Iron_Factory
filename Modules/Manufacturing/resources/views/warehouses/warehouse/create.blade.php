@@ -60,9 +60,24 @@
                                     class="form-input"
                                     value="{{ old('name') }}" placeholder="أدخل اسم المستودع" required>
                             </div>
-                            @error('name')
-                                <span class="error-message">{{ $message }}</span>
-                            @enderror
+                            <div class="error-message" id="name-error" style="display: none;"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name_en" class="form-label">
+                                اسم المستودع بالإنجليزية
+                            </label>
+                            <div class="input-wrapper">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                </svg>
+                                <input type="text" name="name_en" id="name_en"
+                                    class="form-input"
+                                    value="{{ old('name_en') }}" placeholder="Enter warehouse name in English">
+                            </div>
+                            <div class="error-message" id="name_en-error" style="display: none;"></div>
                         </div>
 
                         <div class="form-group">
@@ -79,11 +94,9 @@
                                 </svg>
                                 <input type="text" name="code" id="code"
                                     class="form-input"
-                                    value="{{ old('code') }}" placeholder="أدخل رمز المستودع" required>
+                                    value="{{ old('code') }}" placeholder="أدخل رمز المستودع" required readonly>
                             </div>
-                            @error('code')
-                                <span class="error-message">{{ $message }}</span>
-                            @enderror
+                            <div class="error-message" id="code-error" style="display: none;"></div>
                         </div>
 
                         <div class="form-group">
@@ -98,9 +111,22 @@
                                     class="form-input" value="{{ old('location') }}"
                                     placeholder="أدخل موقع المستودع">
                             </div>
-                            @error('location')
-                                <span class="error-message">{{ $message }}</span>
-                            @enderror
+                            <div class="error-message" id="location-error" style="display: none;"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="location_en" class="form-label">الموقع بالإنجليزية</label>
+                            <div class="input-wrapper">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                                <input type="text" name="location_en" id="location_en"
+                                    class="form-input" value="{{ old('location_en') }}"
+                                    placeholder="Enter location in English">
+                            </div>
+                            <div class="error-message" id="location_en-error" style="display: none;"></div>
                         </div>
 
                         <div class="form-group">
@@ -121,9 +147,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            @error('manager_id')
-                                <span class="error-message">{{ $message }}</span>
-                            @enderror
+                            <div class="error-message" id="manager_id-error" style="display: none;"></div>
                         </div>
 
                         <div class="form-group full-width">
@@ -141,10 +165,28 @@
                                 <textarea name="description" id="description" rows="4"
                                     class="form-input" placeholder="أدخل وصفاً للمستودع">{{ old('description') }}</textarea>
                             </div>
-                            @error('description')
-                                <span class="error-message">{{ $message }}</span>
-                            @enderror
+                            <div class="error-message" id="description-error" style="display: none;"></div>
                         </div>
+
+                                                <div class="form-group full-width">
+                            <label for="description" class="form-label">الوصف بالإنجليزية</label>
+                            <div class="input-wrapper">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                </svg>
+                                                               <textarea name="description_en" id="description_en" rows="4"
+                                    class="form-input" placeholder="Enter description in English">{{ old('description_en') }}</textarea>
+                            </div>
+                            <div class="error-message" id="description-error" style="display: none;"></div>
+                        </div>
+
+
 
                         <div class="form-group">
                             <label for="capacity" class="form-label">السعة التخزينية (متر مكعب)</label>
@@ -158,9 +200,7 @@
                                     class="form-input" value="{{ old('capacity') }}"
                                     placeholder="أدخل السعة التخزينية" step="0.01" min="0">
                             </div>
-                            @error('capacity')
-                                <span class="error-message">{{ $message }}</span>
-                            @enderror
+                            <div class="error-message" id="capacity-error" style="display: none;"></div>
                         </div>
 
                         <div class="form-group">
@@ -177,9 +217,7 @@
                                     <option value="inactive">غير نشط</option>
                                 </select>
                             </div>
-                            @error('status')
-                                <span class="error-message">{{ $message }}</span>
-                            @enderror
+                            <div class="error-message" id="status-error" style="display: none;"></div>
                         </div>
 
                         <div class="form-group full-width">
@@ -229,9 +267,7 @@
                                     class="form-input" value="{{ old('phone') }}"
                                     placeholder="أدخل رقم الهاتف">
                             </div>
-                            @error('phone')
-                                <span class="error-message">{{ $message }}</span>
-                            @enderror
+                            <div class="error-message" id="phone-error" style="display: none;"></div>
                         </div>
 
                         <div class="form-group">
@@ -246,9 +282,7 @@
                                     class="form-input" value="{{ old('email') }}"
                                     placeholder="أدخل البريد الإلكتروني">
                             </div>
-                            @error('email')
-                                <span class="error-message">{{ $message }}</span>
-                            @enderror
+                            <div class="error-message" id="email-error" style="display: none;"></div>
                         </div>
 
                         <div class="form-group full-width">
@@ -281,36 +315,109 @@
         </div>
 
   <script>
+        // Generate warehouse code
+        function generateWarehouseCode() {
+            const prefix = 'WH-';
+            const date = new Date();
+            const year = date.getFullYear().toString().substr(-2);
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            return prefix + year + month + day + '-' + random;
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Generate warehouse code on page load
+            const codeInput = document.getElementById('code');
+            if (codeInput && !codeInput.value) {
+                codeInput.value = generateWarehouseCode();
+            }
+
             const form = document.getElementById('warehouseForm');
             const inputs = form.querySelectorAll('.form-input');
 
             inputs.forEach(input => {
                 input.addEventListener('blur', function() {
-                    if (this.required && !this.value) {
-                        this.classList.add('is-invalid');
+                    if (this.hasAttribute('required') && !this.value.trim()) {
+                        showError(this.id, 'هذا الحقل مطلوب');
                     } else {
-                        this.classList.remove('is-invalid');
+                        hideError(this.id);
                     }
                 });
 
                 input.addEventListener('input', function() {
-                    if (this.classList.contains('is-invalid') && this.value) {
-                        this.classList.remove('is-invalid');
-                    }
+                    hideError(this.id);
                 });
             });
 
-            // Smooth scroll to first error
+            // Form submission handler
             form.addEventListener('submit', function(e) {
-                const firstInvalid = form.querySelector('.is-invalid, :invalid');
-                if (firstInvalid) {
-                    firstInvalid.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
+                e.preventDefault();
+
+                // Reset all errors
+                clearAllErrors();
+
+                // Validate required fields
+                let isValid = true;
+                const requiredFields = form.querySelectorAll('[required]');
+
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        showError(field.id, 'هذا الحقل مطلوب');
+                        isValid = false;
+                    }
+                });
+
+                // If form is valid, submit it
+                if (isValid) {
+                    // Show SweetAlert2 confirmation
+                    Swal.fire({
+                        title: 'تأكيد الحفظ',
+                        text: 'هل أنت متأكد من حفظ بيانات المستودع؟',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'نعم، احفظ',
+                        cancelButtonText: 'إلغاء',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Submit the form
+                            form.submit();
+                        }
                     });
+                } else {
+                    // Scroll to first error
+                    const firstError = form.querySelector('.error-message:not([style*="display: none"])');
+                    if (firstError) {
+                        firstError.previousElementSibling.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }
                 }
             });
         });
+
+        function showError(fieldId, message) {
+            const errorElement = document.getElementById(fieldId + '-error');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        function hideError(fieldId) {
+            const errorElement = document.getElementById(fieldId + '-error');
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        }
+
+        function clearAllErrors() {
+            const errorElements = document.querySelectorAll('.error-message');
+            errorElements.forEach(element => {
+                element.style.display = 'none';
+            });
+        }
     </script>
 @endsection

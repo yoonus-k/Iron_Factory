@@ -13,7 +13,7 @@
                 </a>
             </li>
 
-            
+
             <!-- المستودع -->
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.warehouse') }}">

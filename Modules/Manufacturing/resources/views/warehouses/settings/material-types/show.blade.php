@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تفاصيل الوحدة')
+@section('title', 'تفاصيل نوع المادة')
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
@@ -13,18 +13,18 @@
                         <i class="feather icon-eye"></i>
                     </div>
                     <div class="header-info">
-                        <h1>تفاصيل الوحدة</h1>
+                        <h1>تفاصيل نوع المادة</h1>
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('manufacturing.warehouse-settings.units.edit', $unit['id']) }}" class="btn btn-primary">
+                    <a href="{{ route('manufacturing.warehouse-settings.material-types.edit', $materialType->id) }}" class="btn btn-primary">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                         </svg>
                         تعديل
                     </a>
-                    <a href="{{ route('manufacturing.warehouse-settings.units.index') }}" class="btn btn-back">
+                    <a href="{{ route('manufacturing.warehouse-settings.material-types.index') }}" class="btn btn-back">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
@@ -45,7 +45,7 @@
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                     </div>
-                    <h3 class="card-title">{{ $unit->unit_name }}</h3>
+                    <h3 class="card-title">{{ $materialType->type_name }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
@@ -53,10 +53,10 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                             </svg>
-                            رمز الوحدة
+                            رمز النوع
                         </div>
                         <div class="info-value">
-                            <span class="badge badge-primary">{{ $unit->unit_code }}</span>
+                            <span class="badge badge-primary">{{ $materialType->type_code }}</span>
                         </div>
                     </div>
 
@@ -67,7 +67,7 @@
                             </svg>
                             الاسم (عربي)
                         </div>
-                        <div class="info-value">{{ $unit->unit_name }}</div>
+                        <div class="info-value">{{ $materialType->type_name }}</div>
                     </div>
 
                     <div class="info-item">
@@ -77,7 +77,7 @@
                             </svg>
                             الاسم (إنجليزي)
                         </div>
-                        <div class="info-value">{{ $unit->unit_name_en ?? '-' }}</div>
+                        <div class="info-value">{{ $materialType->type_name_en ?? '-' }}</div>
                     </div>
 
                     <div class="info-item">
@@ -87,52 +87,62 @@
                                 <path d="M7 4l8 8"></path>
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                             </svg>
-                            الاختصار
-                        </div>
-                        <div class="info-value">
-                            <span class="badge badge-info">{{ $unit->unit_symbol }}</span>
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                            نوع الوحدة
+                            الفئة
                         </div>
                         <div class="info-value">
                             @php
-                                $types = [
-                                    'weight' => 'الوزن',
-                                    'length' => 'الطول',
-                                    'volume' => 'الحجم',
-                                    'area' => 'المساحة',
-                                    'quantity' => 'الكمية',
-                                    'time' => 'الوقت',
-                                    'temperature' => 'درجة الحرارة',
-                                    'other' => 'أخرى'
+                                $categories = [
+                                    'raw_material' => 'مادة خام',
+                                    'finished_product' => 'منتج نهائي',
+                                    'semi_finished' => 'منتج شبه مكتمل',
+                                    'additive' => 'مادة مضافة',
+                                    'packing_material' => 'مادة تغليف',
+                                    'component' => 'مكون'
                                 ];
                             @endphp
-                            {{ $types[$unit->unit_type] ?? $unit->unit_type }}
+                            <span class="badge badge-info">{{ $categories[$materialType->category] ?? $materialType->category }}</span>
                         </div>
                     </div>
 
-                    @if ($unit->conversion_factor)
+                    @if ($materialType->default_unit)
                         <div class="info-item">
                             <div class="info-label">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 8v8m-4-4h8"></path>
                                     <circle cx="12" cy="12" r="10"></circle>
                                 </svg>
-                                معامل التحويل
+                                الوحدة الافتراضية
                             </div>
-                            <div class="info-value">{{ $unit->conversion_factor }}</div>
+                            <div class="info-value">{{ $materialType->unit?->unit_name }} ({{ $materialType->unit?->unit_code }})</div>
                         </div>
                     @endif
 
-                    @if ($unit->description)
+                    @if ($materialType->standard_cost)
+                        <div class="info-item">
+                            <div class="info-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                </svg>
+                                التكلفة القياسية
+                            </div>
+                            <div class="info-value">{{ $materialType->standard_cost }}</div>
+                        </div>
+                    @endif
+
+                    @if ($materialType->shelf_life_days)
+                        <div class="info-item">
+                            <div class="info-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                مدة الصلاحية
+                            </div>
+                            <div class="info-value">{{ $materialType->shelf_life_days }} يوم</div>
+                        </div>
+                    @endif
+
+                    @if ($materialType->description)
                         <div class="info-item">
                             <div class="info-label">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -140,7 +150,19 @@
                                 </svg>
                                 الوصف
                             </div>
-                            <div class="info-value">{{ $unit->description }}</div>
+                            <div class="info-value">{{ $materialType->description }}</div>
+                        </div>
+                    @endif
+
+                    @if ($materialType->storage_conditions)
+                        <div class="info-item">
+                            <div class="info-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                </svg>
+                                شروط التخزين
+                            </div>
+                            <div class="info-value">{{ $materialType->storage_conditions }}</div>
                         </div>
                     @endif
 
@@ -153,7 +175,7 @@
                             الحالة
                         </div>
                         <div class="info-value">
-                            @if ($unit->is_active)
+                            @if ($materialType->is_active)
                                 <span class="badge badge-success">نشط ✓</span>
                             @else
                                 <span class="badge badge-secondary">غير نشط</span>
@@ -168,7 +190,7 @@
                             </svg>
                             أنشئت بواسطة
                         </div>
-                        <div class="info-value">{{ $unit->creator->name ?? '-' }}</div>
+                        <div class="info-value">{{ $materialType->creator->name ?? '-' }}</div>
                     </div>
 
                     <div class="info-item">
@@ -179,7 +201,7 @@
                             </svg>
                             تاريخ الإنشاء
                         </div>
-                        <div class="info-value">{{ $unit->created_at->format('d-m-Y H:i') }}</div>
+                        <div class="info-value">{{ $materialType->created_at->format('d-m-Y H:i') }}</div>
                     </div>
                 </div>
             </div>
@@ -198,10 +220,10 @@
                 </div>
                 <div class="card-body">
                     <p style="color: #718096; margin-bottom: 20px;">
-                        اضغط على زر الحذف أدناه لحذف هذه الوحدة. هذا الإجراء لا يمكن التراجع عنه.
+                        اضغط على زر الحذف أدناه لحذف هذا النوع. هذا الإجراء لا يمكن التراجع عنه.
                     </p>
 
-                    <form method="POST" action="{{ route('manufacturing.warehouse-settings.units.destroy', $unit->id) }}" class="delete-form">
+                    <form method="POST" action="{{ route('manufacturing.warehouse-settings.material-types.destroy', $materialType->id) }}" class="delete-form">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger" style="width: 100%;">
@@ -211,7 +233,7 @@
                                 <line x1="10" y1="11" x2="10" y2="17"></line>
                                 <line x1="14" y1="11" x2="14" y2="17"></line>
                             </svg>
-                            حذف هذه الوحدة
+                            حذف هذا النوع
                         </button>
                     </form>
                 </div>
@@ -225,7 +247,7 @@
             if (deleteForm) {
                 deleteForm.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    if (confirm('⚠️ هل أنت متأكد من حذف هذه الوحدة؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
+                    if (confirm('⚠️ هل أنت متأكد من حذف هذا النوع؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
                         this.submit();
                     }
                 });

@@ -3,17 +3,53 @@
 namespace Modules\Manufacturing\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Material;
+use App\Models\Supplier;
+use App\Models\Unit;
+use App\Models\User;
+use Modules\Manufacturing\Http\Requests\StoreMaterialRequest;
+use Modules\Manufacturing\Http\Requests\UpdateMaterialRequest;
 use Illuminate\Http\Request;
 
 class WarehouseProductController extends Controller
 {
     /**
-     * Display a listing of the warehouse products.
+     * Display a listing of the warehouse products with filtering.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // For now, we're just returning the view without data
-        return view('manufacturing::warehouses.product.index');
+        $query = Material::with(['supplier', 'unit', 'creator']);
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('material_type', 'like', "%{$search}%")
+                  ->orWhere('material_type_en', 'like', "%{$search}%")
+                  ->orWhere('barcode', 'like', "%{$search}%")
+                  ->orWhere('batch_number', 'like', "%{$search}%");
+            });
+        }
+
+        // Category filter
+        if ($request->filled('category')) {
+            $query->where('material_category', $request->get('category'));
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->get('status'));
+        }
+
+        // Supplier filter
+        if ($request->filled('supplier_id')) {
+            $query->where('supplier_id', $request->get('supplier_id'));
+        }
+
+        $materials = $query->paginate(10);
+        $suppliers = Supplier::all();
+
+        return view('manufacturing::warehouses.material.index', compact('materials', 'suppliers'));
     }
 
     /**
@@ -21,17 +57,26 @@ class WarehouseProductController extends Controller
      */
     public function create()
     {
-        // For now, we're just returning the view without data
-        return view('manufacturing::warehouses.product.create');
+        $suppliers = Supplier::all();
+        $units = Unit::all();
+        $users = User::all();
+
+        return view('manufacturing::warehouses.material.create', compact('suppliers', 'units', 'users'));
     }
 
     /**
      * Store a newly created warehouse product in storage.
      */
-    public function store(Request $request)
+    public function store(StoreMaterialRequest $request)
     {
-        // For now, we're just redirecting back without processing
-        return redirect()->route('manufacturing.warehouse-products.index');
+        $validated = $request->validated();
+        $validated['created_by'] = auth()->id();
+        $validated['remaining_weight'] = $validated['remaining_weight'] ?? $validated['original_weight'];
+
+        Material::create($validated);
+
+        return redirect()->route('manufacturing.warehouse-products.index')
+                       ->with('success', 'تم إضافة المادة بنجاح');
     }
 
     /**
@@ -39,8 +84,9 @@ class WarehouseProductController extends Controller
      */
     public function show($id)
     {
-        // For now, we're just returning the view without data
-        return view('manufacturing::warehouses.product.show');
+        $material = Material::with(['supplier', 'unit', 'creator', 'purchaseInvoice'])->findOrFail($id);
+
+        return view('manufacturing::warehouses.material.show', compact('material'));
     }
 
     /**
@@ -48,17 +94,26 @@ class WarehouseProductController extends Controller
      */
     public function edit($id)
     {
-        // For now, we're just returning the view without data
-        return view('manufacturing::warehouses.product.edit');
+        $material = Material::findOrFail($id);
+        $suppliers = Supplier::all();
+        $units = Unit::all();
+        $users = User::all();
+
+        return view('manufacturing::warehouses.material.edit', compact('material', 'suppliers', 'units', 'users'));
     }
 
     /**
      * Update the specified warehouse product in storage.
      */
-    public function update(Request $request, $id)
+    public function update(UpdateMaterialRequest $request, $id)
     {
-        // For now, we're just redirecting back without processing
-        return redirect()->route('manufacturing.warehouse-products.index');
+        $material = Material::findOrFail($id);
+        $validated = $request->validated();
+
+        $material->update($validated);
+
+        return redirect()->route('manufacturing.warehouse-products.index')
+                       ->with('success', 'تم تحديث المادة بنجاح');
     }
 
     /**
@@ -66,7 +121,10 @@ class WarehouseProductController extends Controller
      */
     public function destroy($id)
     {
-        // For now, we're just redirecting back without processing
-        return redirect()->route('manufacturing.warehouse-products.index');
+        $material = Material::findOrFail($id);
+        $material->delete();
+
+        return redirect()->route('manufacturing.warehouse-products.index')
+                       ->with('success', 'تم حذف المادة بنجاح');
     }
 }

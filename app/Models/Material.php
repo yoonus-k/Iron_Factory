@@ -20,7 +20,7 @@ class Material extends Model
         'remaining_weight',
         'unit',
         'unit_id',
-        'supplier_id',
+
         'delivery_note_number',
         'manufacture_date',
         'expiry_date',
@@ -136,5 +136,23 @@ class Material extends Model
         return $this->expiry_date &&
                now()->addDays($days)->isAfter($this->expiry_date) &&
                now()->isBefore($this->expiry_date);
+    }
+
+    /**
+     * Get shelf location based on locale
+     */
+    public function getShelfLocation($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        return $locale === 'ar' ? $this->shelf_location : $this->shelf_location_en ?? $this->shelf_location;
+    }
+
+    /**
+     * Get notes based on locale
+     */
+    public function getNotes($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        return $locale === 'ar' ? $this->notes : $this->notes_en ?? $this->notes;
     }
 }

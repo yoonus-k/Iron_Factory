@@ -1,0 +1,244 @@
+@extends('master')
+
+@section('title', 'إدارة المواد')
+
+@section('content')
+
+    <div class="um-content-wrapper">
+        <!-- Header Section -->
+        <div class="um-header-section">
+            <h1 class="um-page-title">
+                <i class="feather icon-package"></i>
+                إدارة المواد
+            </h1>
+            <nav class="um-breadcrumb-nav">
+                <span>
+                    <i class="feather icon-home"></i> لوحة التحكم
+                </span>
+                <i class="feather icon-chevron-left"></i>
+                <span>المواد</span>
+            </nav>
+        </div>
+
+        <!-- Success and Error Messages -->
+        @if (session('success'))
+            <div class="um-alert-custom um-alert-success" role="alert" id="successMessage">
+                <i class="feather icon-check-circle"></i>
+                {{ session('success') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="um-alert-custom um-alert-error" role="alert" id="errorMessage">
+                <i class="feather icon-alert-circle"></i>
+                {{ session('error') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+        @endif
+
+        <!-- Main Courses Card -->
+        <section class="um-main-card">
+            <!-- Card Header -->
+            <div class="um-card-header">
+                <h4 class="um-card-title">
+                    <i class="feather icon-list"></i>
+                    قائمة المواد
+                </h4>
+                <a href="{{ route('manufacturing.warehouse-products.create') }}" class="um-btn um-btn-primary">
+                    <i class="feather icon-plus"></i>
+                    إضافة مادة جديدة
+                </a>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="um-filters-section">
+                <form method="GET">
+                    <div class="um-filter-row">
+                        <div class="um-form-group">
+                            <input type="text" name="search" class="um-form-control" placeholder="البحث في المواد..."
+                                   value="{{ request('search') }}">
+                        </div>
+                        <div class="um-form-group">
+                            <select name="category" class="um-form-control">
+                                <option value="">-- اختر الفئة --</option>
+                                <option value="raw" {{ request('category') == 'raw' ? 'selected' : '' }}>خام</option>
+                                <option value="manufactured" {{ request('category') == 'manufactured' ? 'selected' : '' }}>مصنع</option>
+                                <option value="finished" {{ request('category') == 'finished' ? 'selected' : '' }}>جاهز</option>
+                            </select>
+                        </div>
+                        <div class="um-form-group">
+                            <select name="status" class="um-form-control">
+                                <option value="">-- اختر الحالة --</option>
+                                <option value="available" {{ request('status') == 'available' ? 'selected' : '' }}>متوفر</option>
+                                <option value="in_use" {{ request('status') == 'in_use' ? 'selected' : '' }}>قيد الاستخدام</option>
+                                <option value="consumed" {{ request('status') == 'consumed' ? 'selected' : '' }}>مستهلك</option>
+                                <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>منتهي الصلاحية</option>
+                            </select>
+                        </div>
+                        <div class="um-form-group">
+                            <select name="supplier_id" class="um-form-control">
+                                <option value="">-- اختر المورد --</option>
+                                @foreach ($suppliers as $supplier)
+                                    <option value="{{ $supplier->id }}" {{ request('supplier_id') == $supplier->id ? 'selected' : '' }}>
+                                        {{ $supplier->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="um-filter-actions">
+                            <button type="submit" class="um-btn um-btn-primary">
+                                <i class="feather icon-search"></i>
+                                بحث
+                            </button>
+                            <a href="{{ route('manufacturing.warehouse-products.index') }}" class="um-btn um-btn-outline">
+                                <i class="feather icon-refresh-cw"></i>
+                                إعادة تعيين
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Courses Table - Desktop View -->
+            <div class="um-table-responsive um-desktop-view">
+                <table class="um-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>رمز المادة</th>
+                            <th>اسم المادة</th>
+                            <th>الفئة</th>
+                            <th>الوزن الأصلي</th>
+                            <th>الوزن المتبقي</th>
+                            <th>الوحدة</th>
+                            <th>المورد</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($materials as $material)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>
+                                    <span class="badge badge-primary">{{ $material->barcode }}</span>
+                                </td>
+                                <td>
+                                    <strong>{{ $material->material_type }}</strong><br>
+                                    @if($material->material_type_en)
+                                        <small class="text-muted">{{ $material->material_type_en }}</small>
+                                    @endif
+                                </td>
+                                <td>
+                                    <span class="badge badge-info">{{ $material->getCategoryLabel() }}</span>
+                                </td>
+                                <td>{{ $material->original_weight }} {{ $material->unit->name ?? 'N/A' }}</td>
+                                <td>
+                                    <strong>{{ $material->remaining_weight }} {{ $material->unit->name ?? 'N/A' }}</strong>
+                                </td>
+                                <td>{{ $material->unit->name ?? 'N/A' }}</td>
+                                <td>{{ $material->supplier->name ?? 'N/A' }}</td>
+                                <td>
+                                    @if ($material->status === 'available')
+                                        <span class="badge badge-success">متوفر</span>
+                                    @elseif ($material->status === 'in_use')
+                                        <span class="badge badge-warning">قيد الاستخدام</span>
+                                    @elseif ($material->status === 'consumed')
+                                        <span class="badge badge-danger">مستهلك</span>
+                                    @else
+                                        <span class="badge badge-secondary">منتهي الصلاحية</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{{ route('manufacturing.warehouse-products.show', $material->id) }}"
+                                           class="btn btn-sm btn-info" title="عرض">
+                                            <i class="feather icon-eye"></i>
+                                        </a>
+                                        <a href="{{ route('manufacturing.warehouse-products.edit', $material->id) }}"
+                                           class="btn btn-sm btn-warning" title="تعديل">
+                                            <i class="feather icon-edit"></i>
+                                        </a>
+                                        <form method="POST"
+                                              action="{{ route('manufacturing.warehouse-products.destroy', $material->id) }}"
+                                              style="display:inline;" class="delete-form">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="حذف">
+                                                <i class="feather icon-trash-2"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="10" class="text-center text-muted">
+                                    <i class="feather icon-inbox"></i> لا توجد مواد لعرضها
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            @if ($materials->count())
+                <div class="um-pagination-section">
+                    <div>
+                        <p class="um-pagination-info">
+                            عرض {{ $materials->firstItem() }} إلى {{ $materials->lastItem() }} من أصل {{ $materials->total() }} مادة
+                        </p>
+                    </div>
+                    <div>
+                        {{ $materials->links() }}
+                    </div>
+                </div>
+            @endif
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Delete confirmation with SweetAlert2
+            const deleteForms = document.querySelectorAll('.delete-form');
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    Swal.fire({
+                        title: 'تأكيد الحذف',
+                        text: 'هل أنت متأكد من حذف هذه المادة؟ هذا الإجراء لا يمكن التراجع عنه!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'نعم، احذف',
+                        cancelButtonText: 'إلغاء',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+
+            // إخفاء التنبيهات تلقائياً بعد 5 ثواني
+            const alerts = document.querySelectorAll('.um-alert-custom');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transition = 'opacity 0.3s';
+                    setTimeout(() => {
+                        alert.style.display = 'none';
+                    }, 300);
+                }, 5000);
+            });
+        });
+    </script>
+
+@endsection

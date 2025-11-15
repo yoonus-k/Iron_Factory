@@ -15,6 +15,8 @@ use Modules\Manufacturing\Http\Controllers\Stage3Controller;
 use Modules\Manufacturing\Http\Controllers\Stage4Controller;
 use Modules\Manufacturing\Http\Controllers\QualityController;
 use Modules\Manufacturing\Http\Controllers\WarehouseSettingsController;
+use Modules\Manufacturing\Http\Controllers\UnitController;
+use Modules\Manufacturing\Http\Controllers\MaterialTypeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +33,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('warehouses/statistics', [WarehouseController::class, 'statistics'])->name('manufacturing.warehouses.statistics');
     Route::get('warehouses/active', [WarehouseController::class, 'getActive'])->name('manufacturing.warehouses.active');
     Route::resource('warehouse-products', WarehouseProductController::class)->names('manufacturing.warehouse-products');
+    Route::get('materials/export', [WarehouseProductController::class, 'export'])->name('manufacturing.materials.export');
+    Route::post('materials/import', [WarehouseProductController::class, 'import'])->name('manufacturing.materials.import');
     Route::resource('delivery-notes', DeliveryNoteController::class)->names('manufacturing.delivery-notes');
     Route::resource('purchase-invoices', PurchaseInvoiceController::class)->names('manufacturing.purchase-invoices');
     Route::resource('suppliers', SupplierController::class)->names('manufacturing.suppliers');
@@ -48,14 +52,11 @@ Route::middleware(['auth'])->group(function () {
     Route::put('warehouse-settings/categories/{id}', [WarehouseSettingsController::class, 'categoriesUpdate'])->name('manufacturing.warehouse-settings.categories.update');
     Route::delete('warehouse-settings/categories/{id}', [WarehouseSettingsController::class, 'categoriesDestroy'])->name('manufacturing.warehouse-settings.categories.destroy');
 
-    // Units Manual Routes
-    Route::get('warehouse-settings/units', [WarehouseSettingsController::class, 'unitsIndex'])->name('manufacturing.warehouse-settings.units.index');
-    Route::get('warehouse-settings/units/create', [WarehouseSettingsController::class, 'unitsCreate'])->name('manufacturing.warehouse-settings.units.create');
-    Route::post('warehouse-settings/units', [WarehouseSettingsController::class, 'unitsStore'])->name('manufacturing.warehouse-settings.units.store');
-    Route::get('warehouse-settings/units/{id}', [WarehouseSettingsController::class, 'unitsShow'])->name('manufacturing.warehouse-settings.units.show');
-    Route::get('warehouse-settings/units/{id}/edit', [WarehouseSettingsController::class, 'unitsEdit'])->name('manufacturing.warehouse-settings.units.edit');
-    Route::put('warehouse-settings/units/{id}', [WarehouseSettingsController::class, 'unitsUpdate'])->name('manufacturing.warehouse-settings.units.update');
-    Route::delete('warehouse-settings/units/{id}', [WarehouseSettingsController::class, 'unitsDestroy'])->name('manufacturing.warehouse-settings.units.destroy');
+    // Units Resource Routes
+    Route::resource('warehouse-settings/units', UnitController::class)->names('manufacturing.warehouse-settings.units');
+
+    // Material Types Resource Routes
+    Route::resource('warehouse-settings/material-types', MaterialTypeController::class)->names('manufacturing.warehouse-settings.material-types');
 
     // Production Stages Routes
     Route::resource('stage1', Stage1Controller::class)->names('manufacturing.stage1');

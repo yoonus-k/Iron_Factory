@@ -21,31 +21,6 @@
 
         <!-- Settings Cards -->
         <div class="um-grid">
-            <div class="um-category-card">
-                <div class="um-category-card-header">
-                    <div class="um-category-info">
-                        <div class="um-category-icon" style="background: #3f51b520; color: #3f51b5;">
-                            <i class="feather icon-layers"></i>
-                        </div>
-                        <div>
-                            <h6 class="um-category-name">التصنيفات</h6>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="um-category-card-body">
-                    <div class="um-info-row">
-                        <span class="um-info-value">إدارة تصنيفات المواد الخام والمنتجات</span>
-                    </div>
-                </div>
-
-                <div class="um-category-card-footer">
-                    <a href="{{ route('manufacturing.warehouse-settings.categories.index') }}" class="um-btn um-btn-primary">
-                        <i class="feather icon-arrow-right"></i>
-                        الذهاب
-                    </a>
-                </div>
-            </div>
 
             <div class="um-category-card">
                 <div class="um-category-card-header">
@@ -67,6 +42,32 @@
 
                 <div class="um-category-card-footer">
                     <a href="{{ route('manufacturing.warehouse-settings.units.index') }}" class="um-btn um-btn-primary">
+                        <i class="feather icon-arrow-right"></i>
+                        الذهاب
+                    </a>
+                </div>
+            </div>
+
+            <div class="um-category-card">
+                <div class="um-category-card-header">
+                    <div class="um-category-info">
+                        <div class="um-category-icon" style="background: #ff980020; color: #ff9800;">
+                            <i class="feather icon-layers"></i>
+                        </div>
+                        <div>
+                            <h6 class="um-category-name">أنواع المواد</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="um-category-card-body">
+                    <div class="um-info-row">
+                        <span class="um-info-value">إدارة أنواع المواد والتصنيفات</span>
+                    </div>
+                </div>
+
+                <div class="um-category-card-footer">
+                    <a href="{{ route('manufacturing.warehouse-settings.material-types.index') }}" class="um-btn um-btn-primary">
                         <i class="feather icon-arrow-right"></i>
                         الذهاب
                     </a>

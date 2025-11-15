@@ -47,50 +47,105 @@
                 </div>
 
                 <div class="form-grid">
-                    <!-- اسم الوحدة -->
-                    <div class="form-group full-width">
-                        <label class="form-label">اسم الوحدة <span class="required">*</span></label>
+                    <!-- رمز الوحدة -->
+                    <div class="form-group">
+                        <label class="form-label">رمز الوحدة <span class="required">*</span></label>
                         <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                <polyline points="22 6 12 13 2 6"></polyline>
-                            </svg>
-                            <input
-                                type="text"
-                                name="name"
-                                class="form-input @error('name') error @enderror"
-                                placeholder="مثال: كيلوغرام"
-                                value="{{ old('name') }}"
-                                required
-                            >
+                            <input type="text" name="unit_code" class="form-input @error('unit_code') error @enderror"
+                                   placeholder="مثال: KG" value="{{ old('unit_code') }}" required>
                         </div>
-                        @error('name')
+                        @error('unit_code')
                             <span class="error-message">{{ $message }}</span>
                         @enderror
                     </div>
 
-                    <!-- الاختصار -->
-                    <div class="form-group full-width">
-                        <label class="form-label">الاختصار <span class="required">*</span></label>
+                    <!-- اسم الوحدة -->
+                    <div class="form-group">
+                        <label class="form-label">اسم الوحدة (عربي) <span class="required">*</span></label>
                         <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M14 4l-8 8"></path>
-                                <path d="M7 4l8 8"></path>
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                            </svg>
-                            <input
-                                type="text"
-                                name="abbreviation"
-                                class="form-input @error('abbreviation') error @enderror"
-                                placeholder="مثال: كغ"
-                                value="{{ old('abbreviation') }}"
-                                required
-                                maxlength="10"
-                            >
+                            <input type="text" name="unit_name" class="form-input @error('unit_name') error @enderror"
+                                   placeholder="مثال: كيلوغرام" value="{{ old('unit_name') }}" required>
                         </div>
-                        @error('abbreviation')
+                        @error('unit_name')
                             <span class="error-message">{{ $message }}</span>
                         @enderror
+                    </div>
+
+                    <!-- اسم الوحدة الإنجليزي -->
+                    <div class="form-group">
+                        <label class="form-label">اسم الوحدة (إنجليزي)</label>
+                        <div class="input-wrapper">
+                            <input type="text" name="unit_name_en" class="form-input @error('unit_name_en') error @enderror"
+                                   placeholder="مثال: Kilogram" value="{{ old('unit_name_en') }}">
+                        </div>
+                        @error('unit_name_en')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- اختصار الوحدة -->
+                    <div class="form-group">
+                        <label class="form-label">الاختصار <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <input type="text" name="unit_symbol" class="form-input @error('unit_symbol') error @enderror"
+                                   placeholder="مثال: كغ" value="{{ old('unit_symbol') }}" required maxlength="10">
+                        </div>
+                        @error('unit_symbol')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- نوع الوحدة -->
+                    <div class="form-group">
+                        <label class="form-label">نوع الوحدة <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <select name="unit_type" class="form-input @error('unit_type') error @enderror" required>
+                                <option value="">-- اختر النوع --</option>
+                                <option value="weight" {{ old('unit_type') == 'weight' ? 'selected' : '' }}>الوزن</option>
+                                <option value="length" {{ old('unit_type') == 'length' ? 'selected' : '' }}>الطول</option>
+                                <option value="volume" {{ old('unit_type') == 'volume' ? 'selected' : '' }}>الحجم</option>
+                                <option value="area" {{ old('unit_type') == 'area' ? 'selected' : '' }}>المساحة</option>
+                                <option value="quantity" {{ old('unit_type') == 'quantity' ? 'selected' : '' }}>الكمية</option>
+                                <option value="time" {{ old('unit_type') == 'time' ? 'selected' : '' }}>الوقت</option>
+                                <option value="temperature" {{ old('unit_type') == 'temperature' ? 'selected' : '' }}>درجة الحرارة</option>
+                                <option value="other" {{ old('unit_type') == 'other' ? 'selected' : '' }}>أخرى</option>
+                            </select>
+                        </div>
+                        @error('unit_type')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- معامل التحويل -->
+                    <div class="form-group">
+                        <label class="form-label">معامل التحويل</label>
+                        <div class="input-wrapper">
+                            <input type="number" name="conversion_factor" class="form-input @error('conversion_factor') error @enderror"
+                                   placeholder="مثال: 1000" value="{{ old('conversion_factor') }}" step="0.01">
+                        </div>
+                        @error('conversion_factor')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- الوصف -->
+                    <div class="form-group full-width">
+                        <label class="form-label">الوصف</label>
+                        <div class="input-wrapper">
+                            <textarea name="description" class="form-input @error('description') error @enderror"
+                                      placeholder="أدخل وصف الوحدة" rows="3">{{ old('description') }}</textarea>
+                        </div>
+                        @error('description')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- الحالة -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" name="is_active" value="1" {{ old('is_active') ? 'checked' : '' }}>
+                            نشط
+                        </label>
                     </div>
                 </div>
             </div>
