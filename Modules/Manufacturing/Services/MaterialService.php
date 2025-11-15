@@ -18,15 +18,12 @@ class MaterialService
         try {
             // تعيين القيم الافتراضية
             $data['created_by'] = $data['created_by'] ?? auth()->id();
-            $data['remaining_weight'] = $data['remaining_weight'] ?? $data['original_weight'];
 
             // إنشاء المادة
             $material = Material::create($data);
 
             // تسجيل حركة الاستقبال في المستودع
-            if ($material->warehouse_id && $material->original_weight > 0) {
-                $this->createReceiveTransaction($material, $data);
-            }
+
 
             // إنشاء تفاصيل المادة في المستودع
             if ($material->warehouse_id) {
@@ -54,10 +51,10 @@ class MaterialService
             // تحديث المادة
             $material->update($data);
 
-            // تسجيل حركة إذا تم تغيير الكمية الأصلية (إضافة كمية جديدة)
-            if (isset($data['original_weight']) && $data['original_weight'] != $oldWeight) {
-                $this->handleWeightChange($material, $oldWeight, $data['original_weight']);
-            }
+            // // تسجيل حركة إذا تم تغيير الكمية الأصلية (إضافة كمية جديدة)
+            // if (isset($data['original_weight']) && $data['original_weight'] != $oldWeight) {
+            //     $this->handleWeightChange($material, $oldWeight, $data['original_weight']);
+            // }
 
             // تسجيل حركة إذا تم تغيير الكمية المتبقية (صرف أو استهلاك)
             if (isset($data['remaining_weight']) && $data['remaining_weight'] != $oldRemainingWeight) {
@@ -86,7 +83,7 @@ class MaterialService
             'warehouse_id' => $material->warehouse_id,
             'material_id' => $material->id,
             'transaction_type' => WarehouseTransaction::TYPE_RECEIVE,
-            'quantity' => $material->original_weight,
+
             'unit_id' => $material->unit_id,
             'reference_number' => $material->delivery_note_number ?? null,
             'notes' => 'استقبال مادة جديدة - ' . $material->name_ar,

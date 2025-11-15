@@ -33,8 +33,8 @@ class WarehouseProductController extends Controller
         if ($request->filled('search')) {
             $search = $request->get('search');
             $query->where(function ($q) use ($search) {
-                $q->where('material_type', 'like', "%{$search}%")
-                  ->orWhere('material_type_en', 'like', "%{$search}%")
+                $q->where('name_ar', 'like', "%{$search}%")
+                  ->orWhere('name_en', 'like', "%{$search}%")
                   ->orWhere('barcode', 'like', "%{$search}%")
                   ->orWhere('batch_number', 'like', "%{$search}%");
             });
