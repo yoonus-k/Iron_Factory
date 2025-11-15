@@ -11,21 +11,23 @@
                         <i class="feather icon-home"></i>
                     </div>
                     <div class="header-info">
-                        <h1>المستودع الرئيسي</h1>
+                        <h1>{{ $warehouse->warehouse_name }}</h1>
                         <div class="badges">
                             <span class="badge category">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                                 </svg>
-                                مستودع
+                                {{ $warehouse->warehouse_code }}
                             </span>
-                            <span class="badge active">نشط</span>
+                            <span class="badge {{ $warehouse->is_active ? 'active' : 'inactive' }}">
+                                {{ $warehouse->is_active ? 'نشط' : 'غير نشط' }}
+                            </span>
                         </div>
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('manufacturing.warehouses.edit', 1) }}" class="btn btn-edit">
+                    <a href="{{ route('manufacturing.warehouses.edit', $warehouse->id) }}" class="btn btn-edit">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -63,7 +65,7 @@
                             </svg>
                             رمز المستودع
                         </div>
-                        <div class="info-value">WH-001</div>
+                        <div class="info-value">{{ $warehouse->warehouse_code }}</div>
                     </div>
 
                     <div class="info-item">
@@ -75,7 +77,7 @@
                             </svg>
                             الوصف
                         </div>
-                        <div class="info-value">المستودع الرئيسي للشركة</div>
+                        <div class="info-value">{{ $warehouse->description ?? 'بدون وصف' }}</div>
                     </div>
 
                     <div class="info-item">
@@ -86,7 +88,7 @@
                             </svg>
                             الموقع
                         </div>
-                        <div class="info-value">القاهرة، المنطقة الصناعية</div>
+                        <div class="info-value">{{ $warehouse->location ?? 'غير محدد' }}</div>
                     </div>
 
                     <div class="info-item">
@@ -97,7 +99,7 @@
                             </svg>
                             السعة التخزينية
                         </div>
-                        <div class="info-value">1000 متر مكعب</div>
+                        <div class="info-value">{{ $warehouse->capacity ?? 'غير محدد' }} متر مكعب</div>
                     </div>
 
                     <div class="info-item">
@@ -107,7 +109,7 @@
                             </svg>
                             حالة المستودع
                         </div>
-                        <div class="info-value">نشط</div>
+                        <div class="info-value">{{ $warehouse->is_active ? 'نشط' : 'غير نشط' }}</div>
                     </div>
                 </div>
             </div>
@@ -130,7 +132,7 @@
                             </svg>
                             رقم الهاتف
                         </div>
-                        <div class="info-value">0123456789</div>
+                        <div class="info-value">{{ $warehouse->contact_number ?? 'غير محدد' }}</div>
                     </div>
 
                     <div class="info-item">
@@ -141,7 +143,7 @@
                             </svg>
                             البريد الإلكتروني
                         </div>
-                        <div class="info-value">warehouse@example.com</div>
+                        <div class="info-value">{{ $warehouse->email ?? 'غير محدد' }}</div>
                     </div>
 
                     <div class="info-item">
@@ -152,7 +154,7 @@
                             </svg>
                             المسؤول
                         </div>
-                        <div class="info-value">أحمد محمد</div>
+                        <div class="info-value">{{ $warehouse->manager_name ?? 'غير محدد' }}</div>
                     </div>
 
                     <div class="info-item">
@@ -164,7 +166,7 @@
                             </svg>
                             تاريخ الإنشاء
                         </div>
-                        <div class="info-value">2024-01-01</div>
+                        <div class="info-value">{{ $warehouse->created_at ? $warehouse->created_at->format('Y-m-d') : 'غير محدد' }}</div>
                     </div>
 
                     <div class="info-item">
@@ -176,7 +178,7 @@
                             </svg>
                             تاريخ التحديث
                         </div>
-                        <div class="info-value">2024-11-13</div>
+                        <div class="info-value">{{ $warehouse->updated_at ? $warehouse->updated_at->format('Y-m-d') : 'غير محدد' }}</div>
                     </div>
                 </div>
             </div>
@@ -237,7 +239,7 @@
                         </div>
                     </button>
 
-                    <button type="button" class="action-btn delete">
+                    <button type="button" class="action-btn delete" onclick="deleteWarehouse({{ $warehouse->id }})">
                         <div class="action-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="3 6 5 6 21 6"></polyline>
@@ -257,17 +259,22 @@
     </div>
 
     <script>
+        function deleteWarehouse(id) {
+            if (confirm('⚠️ هل أنت متأكد من حذف هذا المستودع؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/warehouses/' + id;
+                form.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const deleteButtons = document.querySelectorAll('.action-btn.delete');
             deleteButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
-                    if (confirm(
-                            '⚠️ هل أنت متأكد من حذف هذا المستودع؟\n\nهذا الإجراء لا يمكن التراجع عنه!'
-                        )) {
-                        // Here you would typically make an AJAX call to delete the warehouse
-                        alert('تم حذف المستودع بنجاح!');
-                    }
                 });
             });
         });
