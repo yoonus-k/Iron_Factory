@@ -13,7 +13,7 @@
                         <i class="feather icon-users"></i>
                     </div>
                     <div class="header-info">
-                        <h1>وردية صباحية - SHIFT-2025-001</h1>
+                        <h1>{{ $shift->shift_type_name }} - {{ $shift->shift_code }}</h1>
                         <div class="badges">
                             <span class="badge category">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -22,18 +22,22 @@
                                 </svg>
                                 ورديات
                             </span>
-                            <span class="badge active">نشطة</span>
+                            <span class="badge {{ $shift->status == 'active' ? 'active' : ($shift->status == 'completed' ? 'completed' : 'scheduled') }}">
+                                {{ $shift->status_name }}
+                            </span>
                         </div>
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('manufacturing.shifts-workers.edit', 1) }}" class="btn btn-edit">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                        تعديل
-                    </a>
+                    @if($shift->status == 'scheduled' || $shift->status == 'active')
+                        <a href="{{ route('manufacturing.shifts-workers.edit', $shift->id) }}" class="btn btn-edit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            تعديل
+                        </a>
+                    @endif
                     <a href="{{ route('manufacturing.shifts-workers.index') }}" class="btn btn-back">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -67,7 +71,7 @@
                             </svg>
                             رقم الوردية
                         </div>
-                        <div class="info-value">SHIFT-2025-001</div>
+                        <div class="info-value">{{ $shift->shift_code }}</div>
                     </div>
 
                     <div class="info-item">
@@ -80,7 +84,7 @@
                             </svg>
                             تاريخ الوردية
                         </div>
-                        <div class="info-value">2025-01-15</div>
+                        <div class="info-value">{{ $shift->shift_date->format('Y-m-d') }}</div>
                     </div>
 
                     <div class="info-item">
@@ -89,10 +93,10 @@
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
                             </svg>
-                            نوع الوردية
+                            فترة العمل
                         </div>
                         <div class="info-value">
-                            <span class="badge badge-info">صباحية</span>
+                            <span class="badge badge-info">{{ $shift->shift_type_name }}</span>
                         </div>
                     </div>
 
@@ -104,9 +108,9 @@
                                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                             </svg>
-                            المسؤول
+                            المشرف المسؤول
                         </div>
-                        <div class="info-value">أحمد محمد</div>
+                        <div class="info-value">{{ $shift->supervisor->name ?? 'غير محدد' }}</div>
                     </div>
 
                     <div class="info-item">
@@ -117,7 +121,7 @@
                             </svg>
                             وقت البدء
                         </div>
-                        <div class="info-value">08:00 صباحاً</div>
+                        <div class="info-value">{{ $shift->start_time }}</div>
                     </div>
 
                     <div class="info-item">
@@ -128,7 +132,7 @@
                             </svg>
                             وقت الانتهاء
                         </div>
-                        <div class="info-value">04:00 مساءً</div>
+                        <div class="info-value">{{ $shift->end_time }}</div>
                     </div>
                 </div>
             </div>
@@ -151,7 +155,7 @@
                             </svg>
                             عدد العمال
                         </div>
-                        <div class="info-value">8 عمال</div>
+                        <div class="info-value">{{ $shift->total_workers }} عامل</div>
                     </div>
 
                     <div class="info-item">
@@ -162,7 +166,7 @@
                             حالة الوردية
                         </div>
                         <div class="info-value">
-                            <span class="status active">نشطة</span>
+                            <span class="status {{ $shift->status }}">{{ $shift->status_name }}</span>
                         </div>
                     </div>
 
@@ -173,7 +177,7 @@
                             </svg>
                             تاريخ الإنشاء
                         </div>
-                        <div class="info-value">2025-01-15 07:00</div>
+                        <div class="info-value">{{ $shift->created_at->format('Y-m-d H:i') }}</div>
                     </div>
 
                     <div class="info-item">
@@ -185,7 +189,7 @@
                             </svg>
                             تاريخ التحديث
                         </div>
-                        <div class="info-value">2025-01-15 08:30</div>
+                        <div class="info-value">{{ $shift->updated_at->format('Y-m-d H:i') }}</div>
                     </div>
                 </div>
             </div>
@@ -198,90 +202,53 @@
                             <circle cx="9" cy="7" r="4"></circle>
                         </svg>
                     </div>
-                    <h3 class="card-title">العمال المعينون</h3>
+                    <h3 class="card-title">العمال المعينون ({{ $workers->count() }})</h3>
                 </div>
                 <div class="card-body">
-                    <div class="workers-list">
-                        <div class="worker-item">
-                            <div class="worker-info">
-                                <div class="worker-avatar">
-                                    <i class="feather icon-user"></i>
+                    @if($workers->count() > 0)
+                        <div class="workers-list">
+                            @foreach($workers as $worker)
+                                <div class="worker-item">
+                                    <div class="worker-info">
+                                        <div class="worker-avatar">
+                                            <i class="feather icon-user"></i>
+                                        </div>
+                                        <div class="worker-details">
+                                            <h4>{{ $worker->name }}</h4>
+                                            <p>{{ $worker->email ?? 'لا يوجد بريد' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="worker-status">
+                                        <span class="status active">معيّن</span>
+                                    </div>
                                 </div>
-                                <div class="worker-details">
-                                    <h4>أحمد محمد</h4>
-                                    <p>عامل تقطيع</p>
-                                </div>
-                            </div>
-                            <div class="worker-status">
-                                <span class="status active">حاضر</span>
-                            </div>
+                            @endforeach
                         </div>
-
-                        <div class="worker-item">
-                            <div class="worker-info">
-                                <div class="worker-avatar">
-                                    <i class="feather icon-user"></i>
-                                </div>
-                                <div class="worker-details">
-                                    <h4>محمد علي</h4>
-                                    <p>عامل تقطيع</p>
-                                </div>
-                            </div>
-                            <div class="worker-status">
-                                <span class="status active">حاضر</span>
-                            </div>
-                        </div>
-
-                        <div class="worker-item">
-                            <div class="worker-info">
-                                <div class="worker-avatar">
-                                    <i class="feather icon-user"></i>
-                                </div>
-                                <div class="worker-details">
-                                    <h4>عمر خالد</h4>
-                                    <p>عامل تقطيع</p>
-                                </div>
-                            </div>
-                            <div class="worker-status">
-                                <span class="status active">حاضر</span>
-                            </div>
-                        </div>
-
-                        <div class="worker-item">
-                            <div class="worker-info">
-                                <div class="worker-avatar">
-                                    <i class="feather icon-user"></i>
-                                </div>
-                                <div class="worker-details">
-                                    <h4>خالد أحمد</h4>
-                                    <p>عامل تقطيع</p>
-                                </div>
-                            </div>
-                            <div class="worker-status">
-                                <span class="status active">حاضر</span>
-                            </div>
-                        </div>
-                    </div>
+                    @else
+                        <p style="text-align: center; color: #999;">لم يتم تعيين عمال لهذه الوردية بعد</p>
+                    @endif
                 </div>
             </div>
 
-            <div class="card" style="margin-bottom: 20px;">
-                <div class="card-header">
-                    <div class="card-icon primary">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="8" y1="6" x2="21" y2="6"></line>
-                            <line x1="8" y1="12" x2="21" y2="12"></line>
-                            <line x1="8" y1="18" x2="21" y2="18"></line>
-                        </svg>
+            @if($shift->notes)
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="card-header">
+                        <div class="card-icon primary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                            </svg>
+                        </div>
+                        <h3 class="card-title">الملاحظات</h3>
                     </div>
-                    <h3 class="card-title">الملاحظات</h3>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-value">وردية صباحية نشطة مع 8 عمال</div>
+                    <div class="card-body">
+                        <div class="info-item">
+                            <div class="info-value">{{ $shift->notes }}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @endif
         </div>
 
         <div class="card">
@@ -297,47 +264,99 @@
             </div>
             <div class="card-body">
                 <div class="actions-grid">
-                    <a href="{{ route('manufacturing.shifts-workers.edit', 1) }}" class="action-btn activate">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                            <h4>تعديل الوردية</h4>
-                            <p>تعديل تفاصيل الوردية</p>
-                        </div>
-                    </a>
+                    @if($shift->status == 'scheduled')
+                        <a href="{{ route('manufacturing.shifts-workers.edit', $shift->id) }}" class="action-btn activate">
+                            <div class="action-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </div>
+                            <div class="action-text">
+                                <h4>تعديل الوردية</h4>
+                                <p>تعديل تفاصيل الوردية قبل التفعيل</p>
+                            </div>
+                        </a>
 
-                    <button type="button" class="action-btn delete">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
+                        <form action="{{ route('manufacturing.shifts-workers.activate', $shift->id) }}" method="POST" style="display: inline-block; width: 100%;">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="action-btn activate" style="width: 100%; text-align: right;">
+                                <div class="action-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="action-text">
+                                    <h4>تفعيل الوردية</h4>
+                                    <p>بدء الوردية والسماح بتسجيل الإنتاج</p>
+                                </div>
+                            </button>
+                        </form>
+
+                        <form action="{{ route('manufacturing.shifts-workers.destroy', $shift->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذه الوردية؟');" style="display: inline-block; width: 100%;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="action-btn delete" style="width: 100%; text-align: right;">
+                                <div class="action-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </div>
+                                <div class="action-text">
+                                    <h4>حذف الوردية</h4>
+                                    <p>حذف نهائي للوردية من النظام</p>
+                                </div>
+                            </button>
+                        </form>
+                    @elseif($shift->status == 'active')
+                        <a href="{{ route('manufacturing.shifts-workers.edit', $shift->id) }}" class="action-btn activate">
+                            <div class="action-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
+                            <div class="action-text">
+                                <h4>تعديل العمال</h4>
+                                <p>إضافة أو حذف عمال من الوردية النشطة</p>
+                            </div>
+                        </a>
+
+                        <form action="{{ route('manufacturing.shifts-workers.complete', $shift->id) }}" method="POST" style="display: inline-block; width: 100%;">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="action-btn complete" style="width: 100%; text-align: right;" onclick="return confirm('هل أنت متأكد من إكمال هذه الوردية؟');">
+                                <div class="action-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="action-text">
+                                    <h4>إكمال الوردية</h4>
+                                    <p>إنهاء الوردية وتسليمها للفترة القادمة</p>
+                                </div>
+                            </button>
+                        </form>
+                    @else
+                        <div class="action-btn" style="opacity: 0.6; cursor: not-allowed;">
+                            <div class="action-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                </svg>
+                            </div>
+                            <div class="action-text">
+                                <h4>الوردية مكتملة</h4>
+                                <p>لا يمكن تعديل وردية مكتملة</p>
+                            </div>
                         </div>
-                        <div class="action-text">
-                            <h4>حذف الوردية</h4>
-                            <p>حذف نهائي للوردية من النظام</p>
-                        </div>
-                    </button>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteButtons = document.querySelectorAll('.action-btn.delete');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (confirm('⚠️ هل أنت متأكد من حذف هذه الوردية؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
-                        alert('تم حذف الوردية بنجاح!');
-                    }
-                });
-            });
-        });
-    </script>
 @endsection

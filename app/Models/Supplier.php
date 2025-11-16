@@ -54,4 +54,9 @@ class Supplier extends Model
         $locale = $locale ?? app()->getLocale();
         return $locale === 'ar' ? $this->name : $this->name_en ?? $this->name;
     }
+
+    public function operationLogs(): HasMany
+    {
+        return $this->hasMany(OperationLog::class, 'record_id')->where('table_name', 'suppliers');
+    }
 }

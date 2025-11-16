@@ -5,10 +5,14 @@ namespace Modules\Manufacturing\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Unit;
 use App\Models\User;
+use Modules\Manufacturing\Traits\LogsOperations;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class UnitController extends Controller
 {
+    use LogsOperations;
     /**
      * Display a listing of the units with filtering and search.
      */
@@ -66,25 +70,50 @@ class UnitController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'unit_code' => 'required|string|unique:units,unit_code',
-            'unit_name' => 'required|string|min:2|max:255',
-            'unit_name_en' => 'nullable|string|min:2|max:255',
-            'unit_symbol' => 'required|string|max:10',
-            'unit_type' => 'required|in:weight,length,volume,area,quantity,time,temperature,other',
-            'conversion_factor' => 'nullable|numeric|min:0',
-            'base_unit' => 'nullable|exists:units,id',
-            'description' => 'nullable|string|max:500',
-            'is_active' => 'nullable|boolean',
-        ]);
+        try {
+            $validated = $request->validate([
+                'unit_code' => 'required|string|unique:units,unit_code',
+                'unit_name' => 'required|string|min:2|max:255',
+                'unit_name_en' => 'nullable|string|min:2|max:255',
+                'unit_symbol' => 'required|string|max:10',
+                'unit_type' => 'required|in:weight,length,volume,area,quantity,time,temperature,other',
+                'conversion_factor' => 'nullable|numeric|min:0',
+                'base_unit' => 'nullable|exists:units,id',
+                'description' => 'nullable|string|max:500',
+                'is_active' => 'nullable|boolean',
+            ]);
 
-        $validated['created_by'] = auth()->id();
-        $validated['is_active'] = $request->boolean('is_active', true);
+            $validated['created_by'] = Auth::id() ?? 1;
+            $validated['is_active'] = $request->boolean('is_active', true);
 
-        Unit::create($validated);
+            $unit = Unit::create($validated);
 
-        return redirect()->route('manufacturing.warehouse-settings.units.index')
-                       ->with('success', 'تم إضافة الوحدة بنجاح');
+            // تسجيل العملية
+            try {
+                $this->logOperation(
+                    'create',
+                    'Create Unit',
+                    'تم إنشاء وحدة جديدة: ' . $unit->unit_name,
+                    'units',
+                    $unit->id,
+                    null,
+                    $unit->toArray()
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log unit creation: ' . $logError->getMessage());
+            }
+
+            return redirect()->route('manufacturing.warehouse-settings.units.index')
+                           ->with('success', 'تم إضافة الوحدة بنجاح');
+        } catch (\Exception $e) {
+            Log::error('Error creating unit: ' . $e->getMessage(), [
+                'exception' => $e,
+                'input' => $request->all()
+            ]);
+            return redirect()->back()
+                           ->withInput()
+                           ->withErrors(['error' => 'فشل في حفظ الوحدة: ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -92,7 +121,7 @@ class UnitController extends Controller
      */
     public function show($id)
     {
-        $unit = Unit::with(['creator', 'materials'])->findOrFail($id);
+        $unit = Unit::with(['creator'])->findOrFail($id);
 
         return view('manufacturing::warehouses.settings.units.show', compact('unit'));
     }
@@ -125,26 +154,54 @@ class UnitController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $unit = Unit::findOrFail($id);
+        try {
+            $unit = Unit::findOrFail($id);
+            $oldValues = $unit->toArray();
 
-        $validated = $request->validate([
-            'unit_code' => 'required|string|unique:units,unit_code,' . $id,
-            'unit_name' => 'required|string|min:2|max:255',
-            'unit_name_en' => 'nullable|string|min:2|max:255',
-            'unit_symbol' => 'required|string|max:10',
-            'unit_type' => 'required|in:weight,length,volume,area,quantity,time,temperature,other',
-            'conversion_factor' => 'nullable|numeric|min:0',
-            'base_unit' => 'nullable|exists:units,id',
-            'description' => 'nullable|string|max:500',
-            'is_active' => 'nullable|boolean',
-        ]);
+            $validated = $request->validate([
+                'unit_code' => 'required|string|unique:units,unit_code,' . $id,
+                'unit_name' => 'required|string|min:2|max:255',
+                'unit_name_en' => 'nullable|string|min:2|max:255',
+                'unit_symbol' => 'required|string|max:10',
+                'unit_type' => 'required|in:weight,length,volume,area,quantity,time,temperature,other',
+                'conversion_factor' => 'nullable|numeric|min:0',
+                'base_unit' => 'nullable|exists:units,id',
+                'description' => 'nullable|string|max:500',
+                'is_active' => 'nullable|boolean',
+            ]);
 
-        $validated['is_active'] = $request->boolean('is_active', true);
+            $validated['is_active'] = $request->boolean('is_active', true);
 
-        $unit->update($validated);
+            $unit->update($validated);
+            $newValues = $unit->fresh()->toArray();
 
-        return redirect()->route('manufacturing.warehouse-settings.units.index')
-                       ->with('success', 'تم تحديث الوحدة بنجاح');
+            // تسجيل العملية
+            try {
+                $this->logOperation(
+                    'update',
+                    'Update Unit',
+                    'تم تحديث وحدة: ' . $unit->unit_name,
+                    'units',
+                    $unit->id,
+                    $oldValues,
+                    $newValues
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log unit update: ' . $logError->getMessage());
+            }
+
+            return redirect()->route('manufacturing.warehouse-settings.units.index')
+                           ->with('success', 'تم تحديث الوحدة بنجاح');
+        } catch (\Exception $e) {
+            Log::error('Error updating unit: ' . $e->getMessage(), [
+                'exception' => $e,
+                'unit_id' => $id,
+                'input' => $request->all()
+            ]);
+            return redirect()->back()
+                           ->withInput()
+                           ->withErrors(['error' => 'فشل في تحديث الوحدة: ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -152,18 +209,40 @@ class UnitController extends Controller
      */
     public function destroy($id)
     {
-        $unit = Unit::findOrFail($id);
+        try {
+            $unit = Unit::findOrFail($id);
+            $oldValues = $unit->toArray();
 
-        // Check if unit is used in materials
-        if ($unit->materials()->count() > 0) {
+            // Check if unit is used in materials
+            if ($unit->materials()->count() > 0) {
+                return redirect()->route('manufacturing.warehouse-settings.units.index')
+                               ->with('error', 'لا يمكن حذف هذه الوحدة لأنها مستخدمة في مواد');
+            }
+
+            // تسجيل العملية قبل الحذف
+            try {
+                $this->logOperation(
+                    'delete',
+                    'Delete Unit',
+                    'تم حذف وحدة: ' . $unit->unit_name,
+                    'units',
+                    $unit->id,
+                    $oldValues,
+                    null
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log unit deletion: ' . $logError->getMessage());
+            }
+
+            $unit->delete();
+
             return redirect()->route('manufacturing.warehouse-settings.units.index')
-                           ->with('error', 'لا يمكن حذف هذه الوحدة لأنها مستخدمة في مواد');
+                           ->with('success', 'تم حذف الوحدة بنجاح');
+        } catch (\Exception $e) {
+            Log::error('Error deleting unit: ' . $e->getMessage());
+            return redirect()->back()
+                           ->withErrors(['error' => 'فشل في حذف الوحدة: ' . $e->getMessage()]);
         }
-
-        $unit->delete();
-
-        return redirect()->route('manufacturing.warehouse-settings.units.index')
-                       ->with('success', 'تم حذف الوحدة بنجاح');
     }
 
     /**
@@ -181,5 +260,42 @@ class UnitController extends Controller
 
         return redirect()->route('manufacturing.warehouse-settings.units.index')
                        ->with('success', 'تم حذف الوحدات المختارة بنجاح');
+    }
+
+    /**
+     * Toggle unit status (active/inactive).
+     */
+    public function toggleStatus(Request $request, $id)
+    {
+        try {
+            $unit = Unit::findOrFail($id);
+
+            $oldStatus = $unit->is_active;
+            $newStatus = !$oldStatus;
+
+            $unit->update(['is_active' => $newStatus]);
+
+            // Log the status change
+            try {
+                $this->logOperation(
+                    'update',
+                    'Toggle Status',
+                    'تم تغيير حالة الوحدة من ' . ($oldStatus ? 'مفعلة' : 'معطلة') . ' إلى ' . ($newStatus ? 'مفعلة' : 'معطلة'),
+                    'units',
+                    $unit->id,
+                    ['is_active' => $oldStatus],
+                    ['is_active' => $newStatus]
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log unit status change: ' . $logError->getMessage());
+            }
+
+            return redirect()->back()
+                           ->with('success', 'تم تغيير حالة الوحدة بنجاح');
+        } catch (\Exception $e) {
+            Log::error('Error toggling unit status: ' . $e->getMessage());
+            return redirect()->back()
+                           ->withErrors(['error' => 'فشل في تغيير حالة الوحدة: ' . $e->getMessage()]);
+        }
     }
 }

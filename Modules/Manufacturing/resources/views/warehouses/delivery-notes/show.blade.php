@@ -149,6 +149,104 @@
             </div>
         </div>
 
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="card-header">
+                <div class="card-icon primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <h3 class="card-title">سجل العمليات</h3>
+            </div>
+            <div class="card-body">
+                @php
+                    $operationLogs = $deliveryNote->operationLogs()->orderBy('created_at', 'desc')->get();
+                @endphp
+
+                @if($operationLogs->isNotEmpty())
+                    <div class="operations-timeline">
+                        @foreach($operationLogs as $index => $log)
+                            <div class="operation-item" style="padding-bottom: 20px; border-bottom: 1px solid #e9ecef; margin-bottom: 20px;">
+                                @if($index === count($operationLogs) - 1)
+                                    <style>
+                                        .operation-item:last-child { border-bottom: none; }
+                                    </style>
+                                @endif
+
+                                <div class="operation-header" style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px;">
+                                    <div style="flex: 1;">
+                                        <div class="operation-description" style="margin-bottom: 8px;">
+                                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                                                @switch($log->action)
+                                                    @case('create')
+                                                        <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">إنشاء</span>
+                                                        @break
+                                                    @case('update')
+                                                        <span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">تعديل</span>
+                                                        @break
+                                                    @case('delete')
+                                                        <span class="badge" style="background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">حذف</span>
+                                                        @break
+                                                    @default
+                                                        <span class="badge" style="background-color: #95a5a6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">{{ $log->action_en ?? $log->action }}</span>
+                                                @endswitch
+
+                                                <strong style="color: #2c3e50; font-size: 14px;">{{ $log->description }}</strong>
+                                            </div>
+                                        </div>
+
+                                        <div style="display: flex; gap: 15px; font-size: 12px; color: #7f8c8d; flex-wrap: wrap;">
+                                            <div style="display: flex; align-items: center; gap: 5px;">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="12" cy="7" r="4"></circle>
+                                                </svg>
+                                                <span><strong>{{ $log->user->name ?? 'مستخدم محذوف' }}</strong></span>
+                                            </div>
+
+                                            <div style="display: flex; align-items: center; gap: 5px;">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                                </svg>
+                                                <span>{{ $log->created_at->format('Y-m-d H:i:s') }}</span>
+                                            </div>
+
+                                            <div style="display: flex; align-items: center; gap: 5px;">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <polyline points="12 16 16 12 12 8"></polyline>
+                                                    <polyline points="8 12 12 16 12 8"></polyline>
+                                                </svg>
+                                                <span>{{ $log->created_at->diffForHumans() }}</span>
+                                            </div>
+
+                                            <div style="display: flex; align-items: center; gap: 5px;">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                    <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path>
+                                                    <path d="M12 5v7l5 3"></path>
+                                                </svg>
+                                                <code style="background: #f0f2f5; padding: 2px 6px; border-radius: 3px;">{{ $log->ip_address }}</code>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div style="text-align: center; padding: 40px 20px; color: #95a5a6;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 15px; opacity: 0.5;">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <p style="margin: 0; font-size: 14px;">لا توجد عمليات مسجلة</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-header">
                 <div class="card-icon warning">
@@ -162,39 +260,58 @@
             </div>
             <div class="card-body">
                 <div class="actions-grid">
-                    <button type="button" class="action-btn print" onclick="window.print()">
+                    <a href="{{ route('manufacturing.delivery-notes.edit', $deliveryNote->id) }}" class="action-btn activate">
                         <div class="action-icon">
-                            <i class="feather icon-printer"></i>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
                         </div>
                         <div class="action-text">
-                            <span>طباعة</span>
+                            <h5>تعديل الأذن</h5>
+                            <p>تحديث معلومات أذن التسليم</p>
                         </div>
-                    </button>
+                    </a>
 
-                    <button type="button" class="action-btn download">
-                        <div class="action-icon">
-                            <i class="feather icon-download"></i>
-                        </div>
-                        <div class="action-text">
-                            <span>تحميل PDF</span>
-                        </div>
-                    </button>
-
-                    <form action="{{ route('manufacturing.delivery-notes.destroy', $deliveryNote->id) }}" method="POST" style="display: inline;">
+                    <form method="POST" action="{{ route('manufacturing.delivery-notes.toggle-status', $deliveryNote->id) }}" style="flex: 1;">
                         @csrf
-                        @method('DELETE')
-                        <button type="submit" class="action-btn delete" onclick="return confirm('⚠️ هل أنت متأكد من حذف هذا الأذن؟\n\nهذا الإجراء لا يمكن التراجع عنه!')">
+                        @method('PUT')
+                        <button type="submit" class="action-btn" style="width: 100%; background-color: {{ $deliveryNote->is_active ?? true ? '#e74c3c' : '#27ae60' }};">
                             <div class="action-icon">
-                                <i class="feather icon-trash-2"></i>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
                             </div>
                             <div class="action-text">
-                                <span>حذف</span>
+                                <h5>{{ ($deliveryNote->is_active ?? true) ? 'تعطيل الأذن' : 'تفعيل الأذن' }}</h5>
+                                <p>{{ ($deliveryNote->is_active ?? true) ? 'تعطيل هذه الأذن' : 'تفعيل هذه الأذن' }}</p>
+                            </div>
+                        </button>
+                    </form>
+
+                    <form method="POST" action="{{ route('manufacturing.delivery-notes.destroy', $deliveryNote->id) }}" style="flex: 1;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="action-btn delete" style="width: 100%;">
+                            <div class="action-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </div>
+                            <div class="action-text">
+                                <h5>حذف الأذن</h5>
+                                <p>إزالة أذن التسليم من النظام</p>
                             </div>
                         </button>
                     </form>
                 </div>
             </div>
         </div>
+
     </div>
 
     <script>

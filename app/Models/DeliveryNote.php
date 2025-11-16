@@ -18,12 +18,13 @@ class DeliveryNote extends Model
         'driver_name_en',
         'vehicle_number',
         'received_by',
-        
+        'is_active',
     ];
 
     protected $casts = [
         'delivered_weight' => 'float',
         'delivery_date' => 'date',
+        'is_active' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

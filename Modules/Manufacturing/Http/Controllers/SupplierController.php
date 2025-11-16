@@ -4,10 +4,14 @@ namespace Modules\Manufacturing\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use App\Models\Supplier; // Import the Supplier model
+use App\Models\Supplier;
+use Modules\Manufacturing\Traits\LogsOperations;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class SupplierController extends Controller
 {
+    use LogsOperations;
     /**
      * Display a listing of the resource.
      */
@@ -50,46 +54,65 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate the request data
-        $validated = $request->validate([
-            'supplier_name' => 'required|string|max:255',
-            'contact_person' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'required|email|unique:suppliers,email',
-            'address' => 'nullable|string',
-            'city' => 'nullable|string|max:100',
-            'status' => 'nullable|in:active,inactive',
-            'notes' => 'nullable|string',
-        ], [
-            'supplier_name.required' => 'اسم المورد مطلوب',
-            'supplier_name.max' => 'اسم المورد يجب ألا يتجاوز 255 حرفًا',
-            'contact_person.required' => 'اسم الشخص المسؤول مطلوب',
-            'contact_person.max' => 'اسم الشخص المسؤول يجب ألا يتجاوز 255 حرفًا',
-            'phone.required' => 'رقم الهاتف مطلوب',
-            'phone.max' => 'رقم الهاتف يجب ألا يتجاوز 20 رقمًا',
-            'email.required' => 'البريد الإلكتروني مطلوب',
-            'email.email' => 'البريد الإلكتروني غير صحيح',
-            'email.unique' => 'هذا البريد الإلكتروني مستخدم بالفعل',
-        ]);
-
         try {
+            // Validate the request data
+            $validated = $request->validate([
+                'supplier_name' => 'required|string|max:255',
+                'contact_person' => 'required|string|max:255',
+                'phone' => 'required|string|max:20',
+                'email' => 'required|email|unique:suppliers,email',
+                'address' => 'nullable|string',
+                'city' => 'nullable|string|max:100',
+                'status' => 'nullable|in:active,inactive',
+                'notes' => 'nullable|string',
+            ], [
+                'supplier_name.required' => 'اسم المورد مطلوب',
+                'supplier_name.max' => 'اسم المورد يجب ألا يتجاوز 255 حرفًا',
+                'contact_person.required' => 'اسم الشخص المسؤول مطلوب',
+                'contact_person.max' => 'اسم الشخص المسؤول يجب ألا يتجاوز 255 حرفًا',
+                'phone.required' => 'رقم الهاتف مطلوب',
+                'phone.max' => 'رقم الهاتف يجب ألا يتجاوز 20 رقمًا',
+                'email.required' => 'البريد الإلكتروني مطلوب',
+                'email.email' => 'البريد الإلكتروني غير صحيح',
+                'email.unique' => 'هذا البريد الإلكتروني مستخدم بالفعل',
+            ]);
+
             // Create the supplier
             $supplier = new Supplier();
             $supplier->name = $validated['supplier_name'];
-            $supplier->name_en = $validated['supplier_name']; // For now, we'll use the same name
+            $supplier->name_en = $validated['supplier_name'];
             $supplier->contact_person = $validated['contact_person'];
-            $supplier->contact_person_en = $validated['contact_person']; // For now, we'll use the same name
+            $supplier->contact_person_en = $validated['contact_person'];
             $supplier->phone = $validated['phone'];
             $supplier->email = $validated['email'];
             $supplier->address = $validated['address'] ?? null;
-            $supplier->address_en = $validated['address'] ?? null; // For now, we'll use the same address
+            $supplier->address_en = $validated['address'] ?? null;
             $supplier->is_active = ($validated['status'] ?? 'active') === 'active' ? 1 : 0;
-            $supplier->created_by = auth()->id(); // Set the creator
+            $supplier->created_by = Auth::id() ?? 1;
             $supplier->save();
+
+            // تسجيل العملية
+            try {
+                $this->logOperation(
+                    'create',
+                    'Create Supplier',
+                    'تم إنشاء مورد جديد: ' . $supplier->name,
+                    'suppliers',
+                    $supplier->id,
+                    null,
+                    $supplier->toArray()
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log supplier creation: ' . $logError->getMessage());
+            }
 
             return redirect()->route('manufacturing.suppliers.index')
                 ->with('success', 'تم إضافة المورد بنجاح');
         } catch (\Exception $e) {
+            Log::error('Error creating supplier: ' . $e->getMessage(), [
+                'exception' => $e,
+                'input' => $request->all()
+            ]);
             return redirect()->back()
                 ->with('error', 'حدث خطأ أثناء إضافة المورد: ' . $e->getMessage())
                 ->withInput();
@@ -119,46 +142,65 @@ class SupplierController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $supplier = Supplier::findOrFail($id);
-
-        // Validate the request data
-        $validated = $request->validate([
-            'supplier_name' => 'required|string|max:255',
-            'contact_person' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'required|email|unique:suppliers,email,' . $id,
-            'address' => 'nullable|string',
-            'city' => 'nullable|string|max:100',
-            'status' => 'nullable|in:active,inactive',
-            'notes' => 'nullable|string',
-        ], [
-            'supplier_name.required' => 'اسم المورد مطلوب',
-            'supplier_name.max' => 'اسم المورد يجب ألا يتجاوز 255 حرفًا',
-            'contact_person.required' => 'اسم الشخص المسؤول مطلوب',
-            'contact_person.max' => 'اسم الشخص المسؤول يجب ألا يتجاوز 255 حرفًا',
-            'phone.required' => 'رقم الهاتف مطلوب',
-            'phone.max' => 'رقم الهاتف يجب ألا يتجاوز 20 رقمًا',
-            'email.required' => 'البريد الإلكتروني مطلوب',
-            'email.email' => 'البريد الإلكتروني غير صحيح',
-            'email.unique' => 'هذا البريد الإلكتروني مستخدم بالفعل',
-        ]);
-
         try {
+            $supplier = Supplier::findOrFail($id);
+            $oldValues = $supplier->toArray();
+
+            // Validate the request data
+            $validated = $request->validate([
+                'supplier_name' => 'required|string|max:255',
+                'contact_person' => 'required|string|max:255',
+                'phone' => 'required|string|max:20',
+                'email' => 'required|email|unique:suppliers,email,' . $id,
+                'address' => 'nullable|string',
+                'city' => 'nullable|string|max:100',
+                'status' => 'nullable|in:active,inactive',
+                'notes' => 'nullable|string',
+            ], [
+                'supplier_name.required' => 'اسم المورد مطلوب',
+                'supplier_name.max' => 'اسم المورد يجب ألا يتجاوز 255 حرفًا',
+                'contact_person.required' => 'اسم الشخص المسؤول مطلوب',
+                'contact_person.max' => 'اسم الشخص المسؤول يجب ألا يتجاوز 255 حرفًا',
+                'phone.required' => 'رقم الهاتف مطلوب',
+                'phone.max' => 'رقم الهاتف يجب ألا يتجاوز 20 رقمًا',
+                'email.required' => 'البريد الإلكتروني مطلوب',
+                'email.email' => 'البريد الإلكتروني غير صحيح',
+                'email.unique' => 'هذا البريد الإلكتروني مستخدم بالفعل',
+            ]);
+
             // Update the supplier
             $supplier->name = $validated['supplier_name'];
-            $supplier->name_en = $validated['supplier_name']; // For now, we'll use the same name
+            $supplier->name_en = $validated['supplier_name'];
             $supplier->contact_person = $validated['contact_person'];
-            $supplier->contact_person_en = $validated['contact_person']; // For now, we'll use the same name
+            $supplier->contact_person_en = $validated['contact_person'];
             $supplier->phone = $validated['phone'];
             $supplier->email = $validated['email'];
             $supplier->address = $validated['address'] ?? null;
-            $supplier->address_en = $validated['address'] ?? null; // For now, we'll use the same address
+            $supplier->address_en = $validated['address'] ?? null;
             $supplier->is_active = ($validated['status'] ?? 'active') === 'active' ? 1 : 0;
             $supplier->save();
+
+            $newValues = $supplier->fresh()->toArray();
+
+            // تسجيل العملية
+            try {
+                $this->logOperation(
+                    'update',
+                    'Update Supplier',
+                    'تم تحديث مورد: ' . $supplier->name,
+                    'suppliers',
+                    $supplier->id,
+                    $oldValues,
+                    $newValues
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log supplier update: ' . $logError->getMessage());
+            }
 
             return redirect()->route('manufacturing.suppliers.index')
                 ->with('success', 'تم تحديث بيانات المورد بنجاح');
         } catch (\Exception $e) {
+            Log::error('Error updating supplier: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'حدث خطأ أثناء تحديث بيانات المورد: ' . $e->getMessage())
                 ->withInput();
@@ -172,11 +214,29 @@ class SupplierController extends Controller
     {
         try {
             $supplier = Supplier::findOrFail($id);
+            $oldValues = $supplier->toArray();
+
+            // تسجيل العملية قبل الحذف
+            try {
+                $this->logOperation(
+                    'delete',
+                    'Delete Supplier',
+                    'تم حذف مورد: ' . $supplier->name,
+                    'suppliers',
+                    $supplier->id,
+                    $oldValues,
+                    null
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log supplier deletion: ' . $logError->getMessage());
+            }
+
             $supplier->delete();
 
             return redirect()->route('manufacturing.suppliers.index')
                 ->with('success', 'تم حذف المورد بنجاح');
         } catch (\Exception $e) {
+            Log::error('Error deleting supplier: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'حدث خطأ أثناء حذف المورد: ' . $e->getMessage());
         }
@@ -189,20 +249,36 @@ class SupplierController extends Controller
     {
         try {
             $supplier = Supplier::findOrFail($id);
-            $supplier->is_active = !$supplier->is_active;
+
+            $oldStatus = $supplier->is_active;
+            $newStatus = !$oldStatus;
+
+            $supplier->is_active = $newStatus;
             $supplier->save();
 
-            $statusText = $supplier->is_active ? 'نشط' : 'غير نشط';
+            $statusText = $newStatus ? 'نشط' : 'غير نشط';
 
-            return response()->json([
-                'success' => true,
-                'message' => 'تم تغيير حالة المورد إلى ' . $statusText
-            ]);
+            // Log the status change
+            try {
+                $this->logOperation(
+                    'update',
+                    'Toggle Status',
+                    'تم تغيير حالة المورد من ' . ($oldStatus ? 'نشط' : 'غير نشط') . ' إلى ' . ($newStatus ? 'نشط' : 'غير نشط'),
+                    'suppliers',
+                    $supplier->id,
+                    ['is_active' => $oldStatus],
+                    ['is_active' => $newStatus]
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log supplier status change: ' . $logError->getMessage());
+            }
+
+            return redirect()->back()
+                           ->with('success', 'تم تغيير حالة المورد إلى ' . $statusText);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء تغيير الحالة: ' . $e->getMessage()
-            ], 500);
+            Log::error('Error toggling supplier status: ' . $e->getMessage());
+            return redirect()->back()
+                           ->withErrors(['error' => 'فشل في تغيير حالة المورد: ' . $e->getMessage()]);
         }
     }
 }

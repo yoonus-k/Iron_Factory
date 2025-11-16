@@ -63,7 +63,7 @@ return new class extends Migration
     {
         // استرجاع الأعمدة في materials
         Schema::table('materials', function (Blueprint $table) {
-            $table->float('original_weight')->default(0)->after('material_category');
+            $table->float('original_weight')->default(0);
             $table->float('remaining_weight')->default(0)->after('original_weight');
             $table->string('unit')->nullable()->after('remaining_weight');
             $table->unsignedBigInteger('unit_id')->nullable()->after('unit');

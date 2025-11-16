@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_active')->default(1);
+        Schema::table('delivery_notes', function (Blueprint $table) {
+            $table->boolean('is_active')->default(true)->after('received_by')->comment('حالة أذن التسليم');
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('delivery_notes', function (Blueprint $table) {
             $table->dropColumn('is_active');
         });
     }

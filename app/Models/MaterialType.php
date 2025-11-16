@@ -50,4 +50,9 @@ class MaterialType extends Model
         $locale = $locale ?? app()->getLocale();
         return $locale === 'ar' ? $this->type_name : $this->type_name_en ?? $this->type_name;
     }
+
+    public function operationLogs(): HasMany
+    {
+        return $this->hasMany(OperationLog::class, 'record_id')->where('table_name', 'material_types');
+    }
 }

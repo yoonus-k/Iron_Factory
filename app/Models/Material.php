@@ -90,9 +90,14 @@ class Material extends Model
         return $this->hasMany(WarehouseTransaction::class);
     }
 
-    public function materialDetails(): HasMany
+    public function materialDetails()
     {
         return $this->hasMany(MaterialDetail::class);
+    }
+
+    public function operationLogs(): HasMany
+    {
+        return $this->hasMany(OperationLog::class, 'record_id')->where('table_name', 'materials');
     }
 
     public function stage1Stands(): HasMany

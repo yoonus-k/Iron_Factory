@@ -47,11 +47,10 @@ class MaterialDetail extends Model
         return $this->belongsTo(Material::class);
     }
 
-    public function unit(): BelongsTo
-    {
-        return $this->belongsTo(Unit::class);  // ✅ جديد - العلاقة مع وحدة القياس
-    }
-
+    public function unit()
+{
+    return $this->belongsTo(Unit::class, 'unit_id');
+}
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

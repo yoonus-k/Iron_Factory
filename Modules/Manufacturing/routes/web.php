@@ -8,7 +8,6 @@ use Modules\Manufacturing\Http\Controllers\PurchaseInvoiceController;
 use Modules\Manufacturing\Http\Controllers\SupplierController;
 use Modules\Manufacturing\Http\Controllers\AdditiveController;
 use Modules\Manufacturing\Http\Controllers\WarehouseController;
-use Modules\Manufacturing\Http\Controllers\ShiftsWorkersController;
 use Modules\Manufacturing\Http\Controllers\Stage1Controller;
 use Modules\Manufacturing\Http\Controllers\Stage2Controller;
 use Modules\Manufacturing\Http\Controllers\Stage3Controller;
@@ -32,12 +31,15 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('warehouses', WarehouseController::class)->names('manufacturing.warehouses');
     Route::get('warehouses/statistics', [WarehouseController::class, 'statistics'])->name('manufacturing.warehouses.statistics');
     Route::get('warehouses/active', [WarehouseController::class, 'getActive'])->name('manufacturing.warehouses.active');
+    Route::put('warehouses/{id}/toggle-status', [WarehouseController::class, 'toggleStatus'])->name('manufacturing.warehouses.toggle-status');
     Route::resource('warehouse-products', WarehouseProductController::class)->names('manufacturing.warehouse-products');
     Route::get('warehouse-products/{id}/transactions', [WarehouseProductController::class, 'transactions'])->name('manufacturing.warehouse-products.transactions');
     Route::post('warehouse-products/{id}/add-quantity', [WarehouseProductController::class, 'addQuantity'])->name('manufacturing.warehouse-products.add-quantity');
+    Route::post('warehouse-products/{id}/change-status', [WarehouseProductController::class, 'changeStatus'])->name('manufacturing.warehouse-products.change-status');
     Route::get('materials/export', [WarehouseProductController::class, 'export'])->name('manufacturing.materials.export');
     Route::post('materials/import', [WarehouseProductController::class, 'import'])->name('manufacturing.materials.import');
     Route::resource('delivery-notes', DeliveryNoteController::class)->names('manufacturing.delivery-notes');
+    Route::put('delivery-notes/{id}/toggle-status', [DeliveryNoteController::class, 'toggleStatus'])->name('manufacturing.delivery-notes.toggle-status');
     Route::resource('purchase-invoices', PurchaseInvoiceController::class)->names('manufacturing.purchase-invoices');
     Route::resource('suppliers', SupplierController::class)->names('manufacturing.suppliers');
     Route::put('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('manufacturing.suppliers.toggle-status');
@@ -57,20 +59,17 @@ Route::middleware(['auth'])->group(function () {
 
     // Units Resource Routes
     Route::resource('warehouse-settings/units', UnitController::class)->names('manufacturing.warehouse-settings.units');
+    Route::put('warehouse-settings/units/{id}/toggle-status', [UnitController::class, 'toggleStatus'])->name('manufacturing.warehouse-settings.units.toggle-status');
 
     // Material Types Resource Routes
     Route::resource('warehouse-settings/material-types', MaterialTypeController::class)->names('manufacturing.warehouse-settings.material-types');
+    Route::put('warehouse-settings/material-types/{id}/toggle-status', [MaterialTypeController::class, 'toggleStatus'])->name('manufacturing.warehouse-settings.material-types.toggle-status');
 
     // Production Stages Routes
     Route::resource('stage1', Stage1Controller::class)->names('manufacturing.stage1');
     Route::resource('stage2', Stage2Controller::class)->names('manufacturing.stage2');
     Route::resource('stage3', Stage3Controller::class)->names('manufacturing.stage3');
     Route::resource('stage4', Stage4Controller::class)->names('manufacturing.stage4');
-    Route::resource('shifts-workers', ShiftsWorkersController::class)->names('manufacturing.shifts-workers');
-
-    // Shifts and Workers Additional Routes
-    Route::get('shifts-workers/current/view', [ShiftsWorkersController::class, 'current'])->name('manufacturing.shifts-workers.current');
-    Route::get('shifts-workers/attendance/log', [ShiftsWorkersController::class, 'attendance'])->name('manufacturing.shifts-workers.attendance');
 
     // Stage 1 Additional Routes
     Route::get('stage1/barcode/scan', [Stage1Controller::class, 'barcodeScan'])->name('manufacturing.stage1.barcode-scan');

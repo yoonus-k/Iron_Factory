@@ -47,11 +47,7 @@
                             <i class="fas fa-truck"></i> {{ __('app.warehouse.suppliers') }}
                         </a>
                     </li>
-                    <li>
-                        <a href="{{ route('manufacturing.additives.index') }}">
-                            <i class="fas fa-paint-brush"></i> {{ __('app.warehouse.additives') }}
-                        </a>
-                    </li>
+
                     <li>
                         <a href="{{ route('manufacturing.warehouse-settings.index') }}">
                             <i class="fas fa-cog"></i> {{ __('app.menu.settings') }}
@@ -220,6 +216,16 @@
                     <li>
                         <a href="{{ route('manufacturing.shifts-workers.attendance') }}">
                             <i class="fas fa-user-check"></i> {{ __('app.users.attendance') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('manufacturing.workers.index') }}">
+                            <i class="fas fa-user-tie"></i> إدارة العمال
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('manufacturing.worker-teams.index') }}">
+                            <i class="fas fa-users-cog"></i> مجموعات العمال
                         </a>
                     </li>
                 </ul>

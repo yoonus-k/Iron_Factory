@@ -21,13 +21,25 @@
         </div>
 
         <!-- Success and Error Messages -->
+        @if(session('success'))
         <div class="um-alert-custom um-alert-success" role="alert">
             <i class="feather icon-check-circle"></i>
-            تم حفظ البيانات بنجاح
+            {{ session('success') }}
             <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
                 <i class="feather icon-x"></i>
             </button>
         </div>
+        @endif
+
+        @if(session('error'))
+        <div class="um-alert-custom um-alert-danger" role="alert">
+            <i class="feather icon-alert-circle"></i>
+            {{ session('error') }}
+            <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                <i class="feather icon-x"></i>
+            </button>
+        </div>
+        @endif
 
         <!-- Main Courses Card -->
         <section class="um-main-card">
@@ -45,25 +57,35 @@
 
             <!-- Filters Section -->
             <div class="um-filters-section">
-                <form method="GET">
+                <form method="GET" action="{{ route('manufacturing.shifts-workers.index') }}">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث في الورديات...">
+                            <input type="date" name="date" class="um-form-control" placeholder="التاريخ..." value="{{ request('date') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="shift_type" class="um-form-control">
                                 <option value="">جميع أنواع الورديات</option>
-                                <option value="morning">صباحية</option>
-                                <option value="evening">مسائية</option>
-                                <option value="night">ليلية</option>
+                                <option value="morning" {{ request('shift_type') == 'morning' ? 'selected' : '' }}>الفترة الصباحية</option>
+                                <option value="evening" {{ request('shift_type') == 'evening' ? 'selected' : '' }}>الفترة المسائية</option>
+                                <option value="night" {{ request('shift_type') == 'night' ? 'selected' : '' }}>الفترة الليلية</option>
                             </select>
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
                                 <option value="">جميع الحالات</option>
-                                <option value="active">نشطة</option>
-                                <option value="completed">مكتملة</option>
-                                <option value="cancelled">ملغاة</option>
+                                <option value="scheduled" {{ request('status') == 'scheduled' ? 'selected' : '' }}>مجدولة</option>
+                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>نشطة</option>
+                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>مكتملة</option>
+                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>ملغاة</option>
+                            </select>
+                        </div>
+                        <div class="um-form-group">
+                            <select name="stage_number" class="um-form-control">
+                                <option value="">جميع المراحل</option>
+                                <option value="1" {{ request('stage_number') == '1' ? 'selected' : '' }}>المرحلة الأولى</option>
+                                <option value="2" {{ request('stage_number') == '2' ? 'selected' : '' }}>المرحلة الثانية</option>
+                                <option value="3" {{ request('stage_number') == '3' ? 'selected' : '' }}>المرحلة الثالثة</option>
+                                <option value="4" {{ request('stage_number') == '4' ? 'selected' : '' }}>المرحلة الرابعة</option>
                             </select>
                         </div>
                         <div class="um-filter-actions">
@@ -71,10 +93,10 @@
                                 <i class="feather icon-search"></i>
                                 بحث
                             </button>
-                            <button type="reset" class="um-btn um-btn-outline">
+                            <a href="{{ route('manufacturing.shifts-workers.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-x"></i>
                                 إعادة تعيين
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </form>
@@ -96,17 +118,22 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @forelse($shifts as $index => $shift)
                         <tr>
-                            <td>1</td>
-                            <td>SHIFT-2025-001</td>
-                            <td>2025-01-15</td>
+                            <td>{{ $shifts->firstItem() + $index }}</td>
+                            <td><strong>{{ $shift->shift_code }}</strong></td>
+                            <td>{{ $shift->shift_date->format('Y-m-d') }}</td>
                             <td>
-                                <span class="um-badge um-badge-info">صباحية</span>
+                                <span class="um-badge um-badge-{{ $shift->shift_type == 'morning' ? 'info' : ($shift->shift_type == 'evening' ? 'warning' : 'danger') }}">
+                                    {{ $shift->shift_type_name }}
+                                </span>
                             </td>
-                            <td>8</td>
-                            <td>أحمد محمد</td>
+                            <td>{{ $shift->total_workers }}</td>
+                            <td>{{ $shift->supervisor->name ?? 'غير محدد' }}</td>
                             <td>
-                                <span class="um-badge um-badge-success">نشطة</span>
+                                <span class="um-badge um-badge-{{ $shift->status == 'active' ? 'success' : ($shift->status == 'scheduled' ? 'info' : 'secondary') }}">
+                                    {{ $shift->status_name }}
+                                </span>
                             </td>
                             <td>
                                 <div class="um-dropdown">
@@ -114,120 +141,56 @@
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
-                                        <a href="{{ route('manufacturing.shifts-workers.show', 1) }}" class="um-dropdown-item um-btn-view">
+                                        <a href="{{ route('manufacturing.shifts-workers.show', $shift->id) }}" class="um-dropdown-item um-btn-view">
                                             <i class="feather icon-eye"></i>
                                             <span>عرض</span>
                                         </a>
-                                        <a href="{{ route('manufacturing.shifts-workers.edit', 1) }}" class="um-dropdown-item um-btn-edit">
+                                        <a href="{{ route('manufacturing.shifts-workers.edit', $shift->id) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
                                             <span>تعديل</span>
                                         </a>
-                                        <button type="button" class="um-dropdown-item um-btn-feature">
-                                            <i class="feather icon-star"></i>
-                                            <span>تمييز</span>
-                                        </button>
-                                        <button type="button" class="um-dropdown-item um-btn-toggle">
-                                            <i class="feather icon-pause-circle"></i>
-                                            <span>تبديل الحالة</span>
-                                        </button>
-                                        <form method="POST" action="#" style="display: inline;" class="delete-form">
+                                        @if($shift->status == 'scheduled')
+                                        <form method="POST" action="{{ route('manufacturing.shifts-workers.activate', $shift->id) }}" style="display: inline;">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="um-dropdown-item um-btn-feature">
+                                                <i class="feather icon-play"></i>
+                                                <span>تفعيل</span>
+                                            </button>
+                                        </form>
+                                        @endif
+                                        @if($shift->status == 'active')
+                                        <form method="POST" action="{{ route('manufacturing.shifts-workers.complete', $shift->id) }}" style="display: inline;">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="um-dropdown-item um-btn-toggle">
+                                                <i class="feather icon-check"></i>
+                                                <span>إكمال</span>
+                                            </button>
+                                        </form>
+                                        @endif
+                                        @if(in_array($shift->status, ['scheduled', 'cancelled']))
+                                        <form method="POST" action="{{ route('manufacturing.shifts-workers.destroy', $shift->id) }}" class="delete-form">
+                                            @csrf
+                                            @method('DELETE')
                                             <button type="submit" class="um-dropdown-item um-btn-delete">
                                                 <i class="feather icon-trash-2"></i>
                                                 <span>حذف</span>
                                             </button>
                                         </form>
+                                        @endif
                                     </div>
                                 </div>
                             </td>
                         </tr>
+                        @empty
                         <tr>
-                            <td>2</td>
-                            <td>SHIFT-2025-002</td>
-                            <td>2025-01-15</td>
-                            <td>
-                                <span class="um-badge um-badge-warning">مسائية</span>
-                            </td>
-                            <td>6</td>
-                            <td>محمد علي</td>
-                            <td>
-                                <span class="um-badge um-badge-success">نشطة</span>
-                            </td>
-                            <td>
-                                <div class="um-dropdown">
-                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
-                                        <i class="feather icon-more-vertical"></i>
-                                    </button>
-                                    <div class="um-dropdown-menu">
-                                        <a href="{{ route('manufacturing.shifts-workers.show', 2) }}" class="um-dropdown-item um-btn-view">
-                                            <i class="feather icon-eye"></i>
-                                            <span>عرض</span>
-                                        </a>
-                                        <a href="{{ route('manufacturing.shifts-workers.edit', 2) }}" class="um-dropdown-item um-btn-edit">
-                                            <i class="feather icon-edit-2"></i>
-                                            <span>تعديل</span>
-                                        </a>
-                                        <button type="button" class="um-dropdown-item um-btn-feature">
-                                            <i class="feather icon-star"></i>
-                                            <span>تمييز</span>
-                                        </button>
-                                        <button type="button" class="um-dropdown-item um-btn-toggle">
-                                            <i class="feather icon-pause-circle"></i>
-                                            <span>تبديل الحالة</span>
-                                        </button>
-                                        <form method="POST" action="#" style="display: inline;" class="delete-form">
-                                            <button type="submit" class="um-dropdown-item um-btn-delete">
-                                                <i class="feather icon-trash-2"></i>
-                                                <span>حذف</span>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
+                            <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
+                                <i class="feather icon-inbox" style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
+                                لا توجد ورديات
                             </td>
                         </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>SHIFT-2025-003</td>
-                            <td>2025-01-14</td>
-                            <td>
-                                <span class="um-badge um-badge-danger">ليلية</span>
-                            </td>
-                            <td>5</td>
-                            <td>عمر خالد</td>
-                            <td>
-                                <span class="um-badge um-badge-secondary">مكتملة</span>
-                            </td>
-                            <td>
-                                <div class="um-dropdown">
-                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
-                                        <i class="feather icon-more-vertical"></i>
-                                    </button>
-                                    <div class="um-dropdown-menu">
-                                        <a href="{{ route('manufacturing.shifts-workers.show', 3) }}" class="um-dropdown-item um-btn-view">
-                                            <i class="feather icon-eye"></i>
-                                            <span>عرض</span>
-                                        </a>
-                                        <a href="{{ route('manufacturing.shifts-workers.edit', 3) }}" class="um-dropdown-item um-btn-edit">
-                                            <i class="feather icon-edit-2"></i>
-                                            <span>تعديل</span>
-                                        </a>
-                                        <button type="button" class="um-dropdown-item um-btn-feature">
-                                            <i class="feather icon-star"></i>
-                                            <span>تمييز</span>
-                                        </button>
-                                        <button type="button" class="um-dropdown-item um-btn-toggle">
-                                            <i class="feather icon-pause-circle"></i>
-                                            <span>تبديل الحالة</span>
-                                        </button>
-                                        <form method="POST" action="#" style="display: inline;" class="delete-form">
-                                            <button type="submit" class="um-dropdown-item um-btn-delete">
-                                                <i class="feather icon-trash-2"></i>
-                                                <span>حذف</span>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -237,8 +200,8 @@
                 <div class="um-category-card">
                     <div class="um-category-card-header">
                         <div class="um-category-info">
-                            <div class="um-category-icon" style="background: #3f51b520; color: #3f51b5;">
-                                <i class="feather icon-users"></i>
+                            <div class="um-category-icon" style="background: #3f51b520; color: #3f51b5; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                                <i class="feather icon-users" style="font-size: 18px;"></i>
                             </div>
                             <div>
                                 <h6 class="um-category-name">وردية صباحية</h6>
@@ -264,43 +227,22 @@
                     </div>
 
                     <div class="um-category-card-footer">
-                        <div class="um-dropdown">
-                            <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
-                                <i class="feather icon-more-vertical"></i>
-                            </button>
-                            <div class="um-dropdown-menu">
-                                <a href="{{ route('manufacturing.shifts-workers.show', 1) }}" class="um-dropdown-item um-btn-view">
-                                    <i class="feather icon-eye"></i>
-                                    <span>عرض</span>
-                                </a>
-                                <a href="{{ route('manufacturing.shifts-workers.edit', 1) }}" class="um-dropdown-item um-btn-edit">
-                                    <i class="feather icon-edit-2"></i>
-                                    <span>تعديل</span>
-                                </a>
-                                <button type="button" class="um-dropdown-item um-btn-feature">
-                                    <i class="feather icon-star"></i>
-                                    <span>تمييز</span>
-                                </button>
-                                <button type="button" class="um-dropdown-item um-btn-toggle">
-                                    <i class="feather icon-pause-circle"></i>
-                                    <span>تبديل الحالة</span>
-                                </button>
-                                <form method="POST" action="#" style="display: inline;" class="delete-form">
-                                    <button type="submit" class="um-dropdown-item um-btn-delete">
-                                        <i class="feather icon-trash-2"></i>
-                                        <span>حذف</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                        <a href="{{ route('manufacturing.shifts-workers.show', 1) }}" class="um-btn um-btn-sm um-btn-primary">
+                            <i class="feather icon-eye" style="font-size: 14px;"></i>
+                            عرض
+                        </a>
+                        <a href="{{ route('manufacturing.shifts-workers.edit', 1) }}" class="um-btn um-btn-sm um-btn-secondary">
+                            <i class="feather icon-edit-2" style="font-size: 14px;"></i>
+                            تعديل
+                        </a>
                     </div>
                 </div>
 
                 <div class="um-category-card">
                     <div class="um-category-card-header">
                         <div class="um-category-info">
-                            <div class="um-category-icon" style="background: #3f51b520; color: #3f51b5;">
-                                <i class="feather icon-users"></i>
+                            <div class="um-category-icon" style="background: #3f51b520; color: #3f51b5; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                                <i class="feather icon-users" style="font-size: 18px;"></i>
                             </div>
                             <div>
                                 <h6 class="um-category-name">وردية مسائية</h6>
@@ -326,35 +268,14 @@
                     </div>
 
                     <div class="um-category-card-footer">
-                        <div class="um-dropdown">
-                            <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
-                                <i class="feather icon-more-vertical"></i>
-                            </button>
-                            <div class="um-dropdown-menu">
-                                <a href="{{ route('manufacturing.shifts-workers.show', 2) }}" class="um-dropdown-item um-btn-view">
-                                    <i class="feather icon-eye"></i>
-                                    <span>عرض</span>
-                                </a>
-                                <a href="{{ route('manufacturing.shifts-workers.edit', 2) }}" class="um-dropdown-item um-btn-edit">
-                                    <i class="feather icon-edit-2"></i>
-                                    <span>تعديل</span>
-                                </a>
-                                <button type="button" class="um-dropdown-item um-btn-feature">
-                                    <i class="feather icon-star"></i>
-                                    <span>تمييز</span>
-                                </button>
-                                <button type="button" class="um-dropdown-item um-btn-toggle">
-                                    <i class="feather icon-pause-circle"></i>
-                                    <span>تبديل الحالة</span>
-                                </button>
-                                <form method="POST" action="#" style="display: inline;" class="delete-form">
-                                    <button type="submit" class="um-dropdown-item um-btn-delete">
-                                        <i class="feather icon-trash-2"></i>
-                                        <span>حذف</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                        <a href="{{ route('manufacturing.shifts-workers.show', 2) }}" class="um-btn um-btn-sm um-btn-primary">
+                            <i class="feather icon-eye" style="font-size: 14px;"></i>
+                            عرض
+                        </a>
+                        <a href="{{ route('manufacturing.shifts-workers.edit', 2) }}" class="um-btn um-btn-sm um-btn-secondary">
+                            <i class="feather icon-edit-2" style="font-size: 14px;"></i>
+                            تعديل
+                        </a>
                     </div>
                 </div>
             </div>
@@ -363,11 +284,11 @@
             <div class="um-pagination-section">
                 <div>
                     <p class="um-pagination-info">
-                        عرض 1 إلى 3 من أصل 3 وردية
+                        عرض {{ $shifts->firstItem() ?? 0 }} إلى {{ $shifts->lastItem() ?? 0 }} من أصل {{ $shifts->total() }} وردية
                     </p>
                 </div>
                 <div>
-                    <!-- يمكن إضافة pagination links هنا -->
+                    {{ $shifts->links() }}
                 </div>
             </div>
         </section>
