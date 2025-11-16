@@ -7,10 +7,15 @@ use App\Models\User;
 use Modules\Manufacturing\Http\Requests\StoreWarehouseRequest;
 use Modules\Manufacturing\Http\Requests\UpdateWarehouseRequest;
 use Modules\Manufacturing\Repositories\WarehouseRepository;
+use Modules\Manufacturing\Traits\LogsOperations;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class WarehouseController extends Controller
 {
+    use LogsOperations;
+    
     private WarehouseRepository $warehouseRepository;
 
     public function __construct(WarehouseRepository $warehouseRepository)
@@ -55,13 +60,34 @@ class WarehouseController extends Controller
     {
         try {
             $data = $request->validated();
+            $data['created_by'] = Auth::id() ?? 1;
 
             $warehouse = $this->warehouseRepository->create($data);
+
+            // تسجيل العملية
+            try {
+                $this->logOperation(
+                    'create',
+                    'Create Warehouse',
+                    'تم إنشاء مستودع جديد: ' . $warehouse->warehouse_name,
+                    'warehouses',
+                    $warehouse->id,
+                    null,
+                    $warehouse->toArray()
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log warehouse creation: ' . $logError->getMessage());
+                throw new \Exception('فشل تسجيل إنشاء المستودع: ' . $logError->getMessage());
+            }
 
             return redirect()
                 ->route('manufacturing.warehouses.index')
                 ->with('success', 'تم إضافة المستودع بنجاح');
         } catch (\Exception $e) {
+            Log::error('Error creating warehouse: ' . $e->getMessage(), [
+                'exception' => $e,
+                'input' => $request->all()
+            ]);
             return redirect()
                 ->back()
                 ->withInput()
@@ -123,14 +149,39 @@ class WarehouseController extends Controller
                     ->with('error', 'المستودع غير موجود');
             }
 
+            $oldValues = $warehouse->toArray();
             $data = $request->validated();
 
             $this->warehouseRepository->update($id, $data);
+            
+            $warehouse = $this->warehouseRepository->getById($id);
+            $newValues = $warehouse->toArray();
+
+            // تسجيل العملية
+            try {
+                $this->logOperation(
+                    'update',
+                    'Update Warehouse',
+                    'تم تحديث مستودع: ' . $warehouse->warehouse_name,
+                    'warehouses',
+                    $warehouse->id,
+                    $oldValues,
+                    $newValues
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log warehouse update: ' . $logError->getMessage());
+                throw new \Exception('فشل تسجيل تحديث المستودع: ' . $logError->getMessage());
+            }
 
             return redirect()
                 ->route('manufacturing.warehouses.index')
                 ->with('success', 'تم تحديث بيانات المستودع بنجاح');
         } catch (\Exception $e) {
+            Log::error('Error updating warehouse: ' . $e->getMessage(), [
+                'exception' => $e,
+                'warehouse_id' => $id,
+                'input' => $request->all()
+            ]);
             return redirect()
                 ->back()
                 ->withInput()
@@ -152,12 +203,31 @@ class WarehouseController extends Controller
                     ->with('error', 'المستودع غير موجود');
             }
 
+            $oldValues = $warehouse->toArray();
+
+            // تسجيل العملية قبل الحذف
+            try {
+                $this->logOperation(
+                    'delete',
+                    'Delete Warehouse',
+                    'تم حذف مستودع: ' . $warehouse->warehouse_name,
+                    'warehouses',
+                    $warehouse->id,
+                    $oldValues,
+                    null
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log warehouse deletion: ' . $logError->getMessage());
+                throw new \Exception('فشل تسجيل حذف المستودع: ' . $logError->getMessage());
+            }
+
             $this->warehouseRepository->delete($id);
 
             return redirect()
                 ->route('manufacturing.warehouses.index')
                 ->with('success', 'تم حذف المستودع بنجاح');
         } catch (\Exception $e) {
+            Log::error('Error deleting warehouse: ' . $e->getMessage());
             return redirect()
                 ->back()
                 ->with('error', 'حدث خطأ أثناء حذف المستودع: ' . $e->getMessage());
@@ -188,5 +258,47 @@ class WarehouseController extends Controller
         $warehouses = $this->warehouseRepository->getActive();
 
         return response()->json($warehouses);
+    }
+
+    /**
+     * Toggle warehouse status (active/inactive).
+     */
+    public function toggleStatus(Request $request, $id)
+    {
+        try {
+            $warehouse = $this->warehouseRepository->getById($id);
+            
+            if (!$warehouse) {
+                return redirect()->back()->with('error', 'المستودع غير موجود');
+            }
+            
+            $oldStatus = $warehouse->is_active;
+            $newStatus = !$oldStatus;
+            
+            $this->warehouseRepository->update($id, ['is_active' => $newStatus]);
+            
+            // Log the status change
+            try {
+                $this->logOperation(
+                    'update',
+                    'Toggle Status',
+                    'تم تغيير حالة المستودع من ' . ($oldStatus ? 'مفعل' : 'معطل') . ' إلى ' . ($newStatus ? 'مفعل' : 'معطل'),
+                    'warehouses',
+                    $warehouse->id,
+                    ['is_active' => $oldStatus],
+                    ['is_active' => $newStatus]
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log warehouse status change: ' . $logError->getMessage());
+                throw new \Exception('فشل تسجيل تغيير حالة المستودع: ' . $logError->getMessage());
+            }
+            
+            return redirect()->back()
+                           ->with('success', 'تم تغيير حالة المستودع بنجاح');
+        } catch (\Exception $e) {
+            Log::error('Error toggling warehouse status: ' . $e->getMessage());
+            return redirect()->back()
+                           ->withErrors(['error' => 'فشل في تغيير حالة المستودع: ' . $e->getMessage()]);
+        }
     }
 }

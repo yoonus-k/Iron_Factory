@@ -5,10 +5,14 @@ namespace Modules\Manufacturing\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\MaterialType;
 use App\Models\Unit;
+use Modules\Manufacturing\Traits\LogsOperations;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class MaterialTypeController extends Controller
 {
+    use LogsOperations;
     /**
      * Display a listing of the material types with filtering and search.
      */
@@ -66,29 +70,55 @@ class MaterialTypeController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'type_code' => 'required|string|unique:material_types,type_code',
-            'type_name' => 'required|string|min:2|max:255',
-            'type_name_en' => 'nullable|string|min:2|max:255',
+        try {
+            $validated = $request->validate([
+                'type_code' => 'required|string|unique:material_types,type_code',
+                'type_name' => 'required|string|min:2|max:255',
+                'type_name_en' => 'nullable|string|min:2|max:255',
 
-            'description' => 'nullable|string|max:1000',
-            'description_en' => 'nullable|string|max:1000',
-            'specifications' => 'nullable|json',
-            'default_unit' => 'nullable|exists:units,id',
-            'standard_cost' => 'nullable|numeric|min:0',
-            'storage_conditions' => 'nullable|string|max:500',
-            'storage_conditions_en' => 'nullable|string|max:500',
-            'shelf_life_days' => 'nullable|integer|min:0',
-            'is_active' => 'nullable|boolean',
-        ]);
+                'description' => 'nullable|string|max:1000',
+                'description_en' => 'nullable|string|max:1000',
+                'specifications' => 'nullable|json',
+                'default_unit' => 'nullable|exists:units,id',
+                'standard_cost' => 'nullable|numeric|min:0',
+                'storage_conditions' => 'nullable|string|max:500',
+                'storage_conditions_en' => 'nullable|string|max:500',
+                'shelf_life_days' => 'nullable|integer|min:0',
+                'is_active' => 'nullable|boolean',
+            ]);
 
-        $validated['created_by'] = auth()->id();
-        $validated['is_active'] = $request->boolean('is_active', true);
+            $validated['created_by'] = Auth::id() ?? 1;
+            $validated['is_active'] = $request->boolean('is_active', true);
 
-        MaterialType::create($validated);
+            $materialType = MaterialType::create($validated);
 
-        return redirect()->route('manufacturing.warehouse-settings.material-types.index')
-                       ->with('success', 'تم إضافة نوع المادة بنجاح');
+            // تسجيل العملية
+            try {
+                $this->logOperation(
+                    'create',
+                    'Create Material Type',
+                    'تم إنشاء نوع مادة جديد: ' . $materialType->type_name,
+                    'material_types',
+                    $materialType->id,
+                    null,
+                    $materialType->toArray()
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log material type creation: ' . $logError->getMessage());
+                throw new \Exception('فشل تسجيل إنشاء نوع المادة: ' . $logError->getMessage());
+            }
+
+            return redirect()->route('manufacturing.warehouse-settings.material-types.index')
+                           ->with('success', 'تم إضافة نوع المادة بنجاح');
+        } catch (\Exception $e) {
+            Log::error('Error creating material type: ' . $e->getMessage(), [
+                'exception' => $e,
+                'input' => $request->all()
+            ]);
+            return redirect()->back()
+                           ->withInput()
+                           ->withErrors(['error' => 'فشل في حفظ نوع المادة: ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -127,30 +157,59 @@ class MaterialTypeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $materialType = MaterialType::findOrFail($id);
+        try {
+            $materialType = MaterialType::findOrFail($id);
+            $oldValues = $materialType->toArray();
 
-        $validated = $request->validate([
-            'type_code' => 'required|string|unique:material_types,type_code,' . $id,
-            'type_name' => 'required|string|min:2|max:255',
-            'type_name_en' => 'nullable|string|min:2|max:255',
+            $validated = $request->validate([
+                'type_code' => 'required|string|unique:material_types,type_code,' . $id,
+                'type_name' => 'required|string|min:2|max:255',
+                'type_name_en' => 'nullable|string|min:2|max:255',
 
-            'description' => 'nullable|string|max:1000',
-            'description_en' => 'nullable|string|max:1000',
-            'specifications' => 'nullable|json',
-            'default_unit' => 'nullable|exists:units,id',
-            'standard_cost' => 'nullable|numeric|min:0',
-            'storage_conditions' => 'nullable|string|max:500',
-            'storage_conditions_en' => 'nullable|string|max:500',
-            'shelf_life_days' => 'nullable|integer|min:0',
-            'is_active' => 'nullable|boolean',
-        ]);
+                'description' => 'nullable|string|max:1000',
+                'description_en' => 'nullable|string|max:1000',
+                'specifications' => 'nullable|json',
+                'default_unit' => 'nullable|exists:units,id',
+                'standard_cost' => 'nullable|numeric|min:0',
+                'storage_conditions' => 'nullable|string|max:500',
+                'storage_conditions_en' => 'nullable|string|max:500',
+                'shelf_life_days' => 'nullable|integer|min:0',
+                'is_active' => 'nullable|boolean',
+            ]);
 
-        $validated['is_active'] = $request->boolean('is_active', true);
+            $validated['is_active'] = $request->boolean('is_active', true);
 
-        $materialType->update($validated);
+            $materialType->update($validated);
+            $newValues = $materialType->fresh()->toArray();
 
-        return redirect()->route('manufacturing.warehouse-settings.material-types.index')
-                       ->with('success', 'تم تحديث نوع المادة بنجاح');
+            // تسجيل العملية
+            try {
+                $this->logOperation(
+                    'update',
+                    'Update Material Type',
+                    'تم تحديث نوع مادة: ' . $materialType->type_name,
+                    'material_types',
+                    $materialType->id,
+                    $oldValues,
+                    $newValues
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log material type update: ' . $logError->getMessage());
+                throw new \Exception('فشل تسجيل تحديث نوع المادة: ' . $logError->getMessage());
+            }
+
+            return redirect()->route('manufacturing.warehouse-settings.material-types.index')
+                           ->with('success', 'تم تحديث نوع المادة بنجاح');
+        } catch (\Exception $e) {
+            Log::error('Error updating material type: ' . $e->getMessage(), [
+                'exception' => $e,
+                'material_type_id' => $id,
+                'input' => $request->all()
+            ]);
+            return redirect()->back()
+                           ->withInput()
+                           ->withErrors(['error' => 'فشل في تحديث نوع المادة: ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -158,18 +217,41 @@ class MaterialTypeController extends Controller
      */
     public function destroy($id)
     {
-        $materialType = MaterialType::findOrFail($id);
+        try {
+            $materialType = MaterialType::findOrFail($id);
+            $oldValues = $materialType->toArray();
 
-        // Check if material type is used in materials
-        if ($materialType->materials()->count() > 0) {
+            // Check if material type is used in materials
+            if ($materialType->materials()->count() > 0) {
+                return redirect()->route('manufacturing.warehouse-settings.material-types.index')
+                               ->with('error', 'لا يمكن حذف هذا النوع لأنه مستخدم في مواد');
+            }
+
+            // تسجيل العملية قبل الحذف
+            try {
+                $this->logOperation(
+                    'delete',
+                    'Delete Material Type',
+                    'تم حذف نوع مادة: ' . $materialType->type_name,
+                    'material_types',
+                    $materialType->id,
+                    $oldValues,
+                    null
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log material type deletion: ' . $logError->getMessage());
+                throw new \Exception('فشل تسجيل حذف نوع المادة: ' . $logError->getMessage());
+            }
+
+            $materialType->delete();
+
             return redirect()->route('manufacturing.warehouse-settings.material-types.index')
-                           ->with('error', 'لا يمكن حذف هذا النوع لأنه مستخدم في مواد');
+                           ->with('success', 'تم حذف نوع المادة بنجاح');
+        } catch (\Exception $e) {
+            Log::error('Error deleting material type: ' . $e->getMessage());
+            return redirect()->back()
+                           ->withErrors(['error' => 'فشل في حذف نوع المادة: ' . $e->getMessage()]);
         }
-
-        $materialType->delete();
-
-        return redirect()->route('manufacturing.warehouse-settings.material-types.index')
-                       ->with('success', 'تم حذف نوع المادة بنجاح');
     }
 
     /**
@@ -188,25 +270,42 @@ class MaterialTypeController extends Controller
         return redirect()->route('manufacturing.warehouse-settings.material-types.index')
                        ->with('success', 'تم حذف أنواع المواد المختارة بنجاح');
     }
-    
+
     /**
-     * Generate a unique type code automatically
+     * Toggle material type status (active/inactive).
      */
-    public function generateTypeCode()
+    public function toggleStatus(Request $request, $id)
     {
-        $prefix = 'MT';
-        $date = date('ymd'); // YYMMDD format
-        $random = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
-        $typeCode = $prefix . '-' . $date . '-' . $random;
-        
-        // Ensure uniqueness
-        $counter = 1;
-        while (MaterialType::where('type_code', $typeCode)->exists()) {
-            $random = str_pad(rand(0, 9999) + $counter, 4, '0', STR_PAD_LEFT);
-            $typeCode = $prefix . '-' . $date . '-' . $random;
-            $counter++;
+        try {
+            $materialType = MaterialType::findOrFail($id);
+            
+            $oldStatus = $materialType->is_active;
+            $newStatus = !$oldStatus;
+            
+            $materialType->update(['is_active' => $newStatus]);
+            
+            // Log the status change
+            try {
+                $this->logOperation(
+                    'update',
+                    'Toggle Status',
+                    'تم تغيير حالة نوع المادة من ' . ($oldStatus ? 'مفعل' : 'معطل') . ' إلى ' . ($newStatus ? 'مفعل' : 'معطل'),
+                    'material_types',
+                    $materialType->id,
+                    ['is_active' => $oldStatus],
+                    ['is_active' => $newStatus]
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log material type status change: ' . $logError->getMessage());
+                throw new \Exception('فشل تسجيل تغيير حالة نوع المادة: ' . $logError->getMessage());
+            }
+            
+            return redirect()->back()
+                           ->with('success', 'تم تغيير حالة نوع المادة بنجاح');
+        } catch (\Exception $e) {
+            Log::error('Error toggling material type status: ' . $e->getMessage());
+            return redirect()->back()
+                           ->withErrors(['error' => 'فشل في تغيير حالة نوع المادة: ' . $e->getMessage()]);
         }
-        
-        return response()->json(['type_code' => $typeCode]);
     }
 }

@@ -56,13 +56,7 @@
                                 <path d="M3 18h18"></path>
                             </svg>
                             <input type="text" name="type_code" id="type_code" class="form-input @error('type_code') error @enderror"
-                                   placeholder="مثال: MT-231215-4567" value="{{ old('type_code') }}" required readonly>
-                            <button type="button" class="btn-refresh" id="generateCodeBtn" title="توليد رمز تلقائي">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="23 4 23 10 17 10"></polyline>
-                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                                </svg>
-                            </button>
+                                   placeholder="مثال: RM001" value="{{ old('type_code') }}" required>
                         </div>
                         @error('type_code')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -267,12 +261,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Generate code automatically on page load
-            generateTypeCode();
-            
-            // Generate code on button click
-            document.getElementById('generateCodeBtn').addEventListener('click', generateTypeCode);
-            
             const form = document.getElementById('materialTypeForm');
             const inputs = form.querySelectorAll('.form-input');
 
@@ -336,25 +324,6 @@
                 }
             });
         });
-
-        function generateTypeCode() {
-            fetch('{{ route("manufacturing.warehouse-settings.material-types.generate-code") }}')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('type_code').value = data.type_code;
-                })
-                .catch(error => {
-                    console.error('Error generating code:', error);
-                    // Generate a fallback code
-                    const prefix = 'MT';
-                    const date = new Date();
-                    const year = date.getFullYear().toString().substr(-2);
-                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                    const day = date.getDate().toString().padStart(2, '0');
-                    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-                    document.getElementById('type_code').value = prefix + '-' + year + month + day + '-' + random;
-                });
-        }
 
         function showError(fieldId, message) {
             const errorElement = document.getElementById(fieldId + '-error');

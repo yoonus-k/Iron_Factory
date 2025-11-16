@@ -32,6 +32,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('warehouses', WarehouseController::class)->names('manufacturing.warehouses');
     Route::get('warehouses/statistics', [WarehouseController::class, 'statistics'])->name('manufacturing.warehouses.statistics');
     Route::get('warehouses/active', [WarehouseController::class, 'getActive'])->name('manufacturing.warehouses.active');
+    Route::put('warehouses/{id}/toggle-status', [WarehouseController::class, 'toggleStatus'])->name('manufacturing.warehouses.toggle-status');
     Route::resource('warehouse-products', WarehouseProductController::class)->names('manufacturing.warehouse-products');
     Route::get('warehouse-products/{id}/transactions', [WarehouseProductController::class, 'transactions'])->name('manufacturing.warehouse-products.transactions');
     Route::post('warehouse-products/{id}/add-quantity', [WarehouseProductController::class, 'addQuantity'])->name('manufacturing.warehouse-products.add-quantity');
@@ -39,6 +40,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('materials/export', [WarehouseProductController::class, 'export'])->name('manufacturing.materials.export');
     Route::post('materials/import', [WarehouseProductController::class, 'import'])->name('manufacturing.materials.import');
     Route::resource('delivery-notes', DeliveryNoteController::class)->names('manufacturing.delivery-notes');
+    Route::put('delivery-notes/{id}/toggle-status', [DeliveryNoteController::class, 'toggleStatus'])->name('manufacturing.delivery-notes.toggle-status');
     Route::resource('purchase-invoices', PurchaseInvoiceController::class)->names('manufacturing.purchase-invoices');
     Route::resource('suppliers', SupplierController::class)->names('manufacturing.suppliers');
     Route::put('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('manufacturing.suppliers.toggle-status');
@@ -58,9 +60,11 @@ Route::middleware(['auth'])->group(function () {
 
     // Units Resource Routes
     Route::resource('warehouse-settings/units', UnitController::class)->names('manufacturing.warehouse-settings.units');
+    Route::put('warehouse-settings/units/{id}/toggle-status', [UnitController::class, 'toggleStatus'])->name('manufacturing.warehouse-settings.units.toggle-status');
 
     // Material Types Resource Routes
     Route::resource('warehouse-settings/material-types', MaterialTypeController::class)->names('manufacturing.warehouse-settings.material-types');
+    Route::put('warehouse-settings/material-types/{id}/toggle-status', [MaterialTypeController::class, 'toggleStatus'])->name('manufacturing.warehouse-settings.material-types.toggle-status');
 
     // Production Stages Routes
     Route::resource('stage1', Stage1Controller::class)->names('manufacturing.stage1');

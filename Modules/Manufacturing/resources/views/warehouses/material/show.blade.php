@@ -14,7 +14,7 @@
             border: none;
         }
         .action-btn.status:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+
             color: white;
         }
         .dropdown-menu .dropdown-item {
@@ -64,6 +64,60 @@
                         </svg>
                         تعديل
                     </a>
+
+                    <!-- تغيير الحالة في الـ Header -->
+                    <div class="um-dropdown">
+                        <button class="btn " type="button" data-bs-toggle="dropdown" title="تغيير حالة المادة">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" >
+                                <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path>
+                                <path d="M12 5v7l5 3"></path>
+                            </svg>
+                            الحالة
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <form method="POST" action="{{ route('manufacturing.warehouse-products.change-status', $material->id) }}" style="display: inline;">
+                                    @csrf
+                                    <input type="hidden" name="status" value="available">
+                                    <button type="submit" class="dropdown-item {{ $material->status == 'available' ? 'active' : '' }}">
+                                        <span class="badge badge-success me-2">●</span>
+                                        متوفر
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="POST" action="{{ route('manufacturing.warehouse-products.change-status', $material->id) }}" style="display: inline;">
+                                    @csrf
+                                    <input type="hidden" name="status" value="in_use">
+                                    <button type="submit" class="dropdown-item {{ $material->status == 'in_use' ? 'active' : '' }}">
+                                        <span class="badge badge-warning me-2">●</span>
+                                        قيد الاستخدام
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="POST" action="{{ route('manufacturing.warehouse-products.change-status', $material->id) }}" style="display: inline;">
+                                    @csrf
+                                    <input type="hidden" name="status" value="consumed">
+                                    <button type="submit" class="dropdown-item {{ $material->status == 'consumed' ? 'active' : '' }}">
+                                        <span class="badge badge-danger me-2">●</span>
+                                        مستهلك
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="POST" action="{{ route('manufacturing.warehouse-products.change-status', $material->id) }}" style="display: inline;">
+                                    @csrf
+                                    <input type="hidden" name="status" value="expired">
+                                    <button type="submit" class="dropdown-item {{ $material->status == 'expired' ? 'active' : '' }}">
+                                        <span class="badge badge-secondary me-2">●</span>
+                                        منتهي الصلاحية
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+
                     <a href="{{ route('manufacturing.warehouse-products.index') }}" class="btn btn-back">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -282,229 +336,128 @@
                     </div>
                     <h3 class="card-title">سجل العمليات</h3>
                 </div>
-               <div class="card-body">
-    @php
-        $operationLogs = $material->operationLogs()->orderBy('created_at', 'desc')->get();
-    @endphp
+                <div class="card-body">
+                    @php
+                        $operationLogs = $material->operationLogs()->orderBy('created_at', 'desc')->get();
+                    @endphp
 
-    @if($operationLogs->isNotEmpty())
-        <div class="table-responsive">
-            <table class="table table-sm table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>وصف العملية</th>
-                        <th>المستخدم</th>
-                        <th>التاريخ والوقت</th>
-                        <th>عنوان IP</th>
-                        <th>البيانات القديمة</th>
-                        <th>البيانات الجديدة</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($operationLogs as $log)
-                        <tr>
-                            <td>
-                                <strong style="color: #333;">{{ $log->description }}</strong>
-                            </td>
+                    @if($operationLogs->isNotEmpty())
+                        <div class="operations-timeline">
+                            @foreach($operationLogs as $index => $log)
+                                <div class="operation-item" style="padding-bottom: 20px; border-bottom: 1px solid #e9ecef; margin-bottom: 20px;">
+                                    @if($index === count($operationLogs) - 1)
+                                        <style>
+                                            .operation-item:last-child { border-bottom: none; }
+                                        </style>
+                                    @endif
 
-                            <td>
-                                <span class="bg-light text-dark px-2 py-1 rounded" style="font-size: 12px;">
-                                    {{ $log->user->name ?? 'مستخدم محذوف' }}
-                                </span>
-                            </td>
+                                    <!-- رأس العملية -->
+                                    <div class="operation-header" style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px;">
+                                        <div style="flex: 1;">
+                                            <!-- النوع والوصف -->
+                                            <div class="operation-description" style="margin-bottom: 8px;">
+                                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                                                    <!-- Badge للنوع -->
+                                                    @switch($log->action)
+                                                        @case('create')
+                                                            <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
+                                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                                                                </svg>
+                                                                إنشاء
+                                                            </span>
+                                                            @break
+                                                        @case('update')
+                                                            <span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
+                                                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/>
+                                                                </svg>
+                                                                تعديل
+                                                            </span>
+                                                            @break
+                                                        @case('delete')
+                                                            <span class="badge" style="background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
+                                                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-9l-1 1H5v2h14V4z"/>
+                                                                </svg>
+                                                                حذف
+                                                            </span>
+                                                            @break
+                                                        @case('add_quantity')
+                                                            <span class="badge" style="background-color: #f39c12; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
+                                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                                                                </svg>
+                                                                إضافة كمية
+                                                            </span>
+                                                            @break
+                                                        @default
+                                                            <span class="badge" style="background-color: #95a5a6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                                {{ $log->action_en ?? $log->action }}
+                                                            </span>
+                                                    @endswitch
 
-                            <td>
-                                <small>{{ $log->created_at->format('Y-m-d H:i:s') }}</small><br>
-                                <small class="text-muted">{{ $log->created_at->diffForHumans() }}</small>
-                            </td>
-
-                            <td>
-                                <small class="text-muted">{{ $log->ip_address }}</small>
-                            </td>
-
-                            <td>
-                                @if($log->old_values)
-                                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#oldValuesModal{{ $log->id }}">
-                                        <i class="feather icon-eye"></i> عرض
-                                    </button>
-
-                                    <div class="modal fade" id="oldValuesModal{{ $log->id }}" tabindex="-1">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">البيانات القديمة</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    <!-- الوصف -->
+                                                    <strong style="color: #2c3e50; font-size: 14px;">{{ $log->description }}</strong>
                                                 </div>
-                                                <div class="modal-body">
-                                                    <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px;">
-{{ json_encode($log->old_values, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}
-                                                    </pre>
+                                            </div>
+
+                                            <!-- المستخدم والتاريخ -->
+                                            <div style="display: flex; gap: 15px; font-size: 12px; color: #7f8c8d; flex-wrap: wrap;">
+                                                <div style="display: flex; align-items: center; gap: 5px;">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                        <circle cx="12" cy="7" r="4"></circle>
+                                                    </svg>
+                                                    <span><strong>{{ $log->user->name ?? 'مستخدم محذوف' }}</strong></span>
+                                                </div>
+
+                                                <div style="display: flex; align-items: center; gap: 5px;">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                        <circle cx="12" cy="12" r="10"></circle>
+                                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                                    </svg>
+                                                    <span>{{ $log->created_at->format('Y-m-d H:i:s') }}</span>
+                                                </div>
+
+                                                <div style="display: flex; align-items: center; gap: 5px;">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                        <circle cx="12" cy="12" r="10"></circle>
+                                                        <polyline points="12 16 16 12 12 8"></polyline>
+                                                        <polyline points="8 12 12 16 12 8"></polyline>
+                                                    </svg>
+                                                    <span>{{ $log->created_at->diffForHumans() }}</span>
+                                                </div>
+
+                                                <div style="display: flex; align-items: center; gap: 5px;">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                        <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path>
+                                                        <path d="M12 5v7l5 3"></path>
+                                                    </svg>
+                                                    <code style="background: #f0f2f5; padding: 2px 6px; border-radius: 3px;">{{ $log->ip_address }}</code>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
 
-                            <td>
-                                @if($log->new_values)
-                                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newValuesModal{{ $log->id }}">
-                                        <i class="feather icon-eye"></i> عرض
-                                    </button>
 
-                                    <div class="modal fade" id="newValuesModal{{ $log->id }}" tabindex="-1">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">البيانات الجديدة</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px;">
-{{ json_encode($log->new_values, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}
-                                                    </pre>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
-
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @else
-        <p style="text-align: center; color: #999; padding: 20px 0;">لا توجد عمليات مسجلة</p>
-    @endif
-</div>
-
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon warning">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="1"></circle>
-                        <circle cx="19" cy="12" r="1"></circle>
-                        <circle cx="5" cy="12" r="1"></circle>
-                    </svg>
-                </div>
-                <h3 class="card-title">الإجراءات المتاحة</h3>
-            </div>
-            <div class="card-body">
-                <div class="actions-grid">
-                    <a href="{{ route('manufacturing.warehouse-products.transactions', $material->id) }}" class="action-btn info">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                                <polyline points="17 6 23 6 23 12"></polyline>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div style="text-align: center; padding: 40px 20px; color: #95a5a6;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 15px; opacity: 0.5;">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
                             </svg>
+                            <p style="margin: 0; font-size: 14px;">لا توجد عمليات مسجلة</p>
                         </div>
-                        <div class="action-text">
-                            <h5>سجل الحركات</h5>
-                            <p>عرض جميع حركات المستودع</p>
-                        </div>
-                    </a>
-
-                    <a href="{{ route('manufacturing.warehouse-products.edit', $material->id) }}" class="action-btn activate">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                            <h5>تعديل المادة</h5>
-                            <p>تحديث معلومات المادة</p>
-                        </div>
-                    </a>
-
-                    <!-- تغيير الحالة -->
-                    <div class="dropdown" style="flex: 1;">
-                        <button class="action-btn status w-100" type="button" data-bs-toggle="dropdown">
-                            <div class="action-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path>
-                                    <path d="M12 5v7l5 3"></path>
-                                </svg>
-                            </div>
-                            <div class="action-text">
-                                <h5>تغيير الحالة</h5>
-                                <p>{{ match($material->status) { 'available' => 'متوفر', 'in_use' => 'قيد الاستخدام', 'consumed' => 'مستهلك', 'expired' => 'منتهي الصلاحية', default => $material->status } }}</p>
-                            </div>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <form method="POST" action="{{ route('manufacturing.warehouse-products.change-status', $material->id) }}" style="display: inline;">
-                                    @csrf
-                                    <input type="hidden" name="status" value="available">
-                                    <button type="submit" class="dropdown-item {{ $material->status == 'available' ? 'active' : '' }}">
-                                        <span class="badge badge-success me-2">●</span>
-                                        متوفر
-                                    </button>
-                                </form>
-                            </li>
-                            <li>
-                                <form method="POST" action="{{ route('manufacturing.warehouse-products.change-status', $material->id) }}" style="display: inline;">
-                                    @csrf
-                                    <input type="hidden" name="status" value="in_use">
-                                    <button type="submit" class="dropdown-item {{ $material->status == 'in_use' ? 'active' : '' }}">
-                                        <span class="badge badge-warning me-2">●</span>
-                                        قيد الاستخدام
-                                    </button>
-                                </form>
-                            </li>
-                            <li>
-                                <form method="POST" action="{{ route('manufacturing.warehouse-products.change-status', $material->id) }}" style="display: inline;">
-                                    @csrf
-                                    <input type="hidden" name="status" value="consumed">
-                                    <button type="submit" class="dropdown-item {{ $material->status == 'consumed' ? 'active' : '' }}">
-                                        <span class="badge badge-danger me-2">●</span>
-                                        مستهلك
-                                    </button>
-                                </form>
-                            </li>
-                            <li>
-                                <form method="POST" action="{{ route('manufacturing.warehouse-products.change-status', $material->id) }}" style="display: inline;">
-                                    @csrf
-                                    <input type="hidden" name="status" value="expired">
-                                    <button type="submit" class="dropdown-item {{ $material->status == 'expired' ? 'active' : '' }}">
-                                        <span class="badge badge-secondary me-2">●</span>
-                                        منتهي الصلاحية
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <form method="POST" action="{{ route('manufacturing.warehouse-products.destroy', $material->id) }}" style="flex: 1;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="action-btn delete w-100" onclick="return confirm('هل أنت متأكد من حذف هذه المادة؟\n\nهذا الإجراء لا يمكن التراجع عنه!')">
-                            <div class="action-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                                    <line x1="14" y1="11" x2="14" y2="17"></line>
-                                </svg>
-                            </div>
-                            <div class="action-text">
-                                <h5>حذف المادة</h5>
-                                <p>إزالة المادة من النظام</p>
-                            </div>
-                        </button>
-                    </form>
+                    @endif
                 </div>
             </div>
         </div>
+
+
     </div>
 
     <!-- Modal: إضافة كمية جديدة -->

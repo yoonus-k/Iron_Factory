@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->comment('المستخدم');
 
-            $table->string('description_ar', 250);
-            $table->string('description_en', 250);
+            $table->string('description', 250);
+            $table->string('description_en', 250)->nullable();
             $table->string('action', 100)->comment('العملية');
+            $table->string('action_en', 100)->comment('العملية');
+
                        $table->string('table_name', 100)->comment('اسم الجدول');
             $table->bigInteger('record_id')->nullable()->comment('معرف السجل');
             $table->json('old_values')->nullable()->comment('القيم السابقة');

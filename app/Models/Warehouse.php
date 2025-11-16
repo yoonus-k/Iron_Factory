@@ -57,16 +57,21 @@ class Warehouse extends Model
         $locale = $locale ?? app()->getLocale();
         return $locale === 'ar' ? $this->warehouse_name : $this->warehouse_name_en ?? $this->warehouse_name;
     }
-    
+
     public function getLocation($locale = null)
     {
         $locale = $locale ?? app()->getLocale();
         return $locale === 'ar' ? $this->location : $this->location_en ?? $this->location;
     }
-    
+
     public function getDescription($locale = null)
     {
         $locale = $locale ?? app()->getLocale();
         return $locale === 'ar' ? $this->description : $this->description_en ?? $this->description;
+    }  public function operationLogs(): HasMany
+    {
+        return $this->hasMany(OperationLog::class, 'record_id')->where('table_name', 'materials');
     }
+
+
 }

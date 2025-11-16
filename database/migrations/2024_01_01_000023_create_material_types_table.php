@@ -21,7 +21,7 @@ return new class extends Migration
             $table->text('description')->nullable()->comment('وصف المادة بالعربية');
             $table->text('description_en')->nullable()->comment('وصف المادة بالإنجليزية');
             $table->json('specifications')->nullable()->comment('المواصفات التقنية');
-            $table->string('default_unit', 20)->default('kg')->comment('الوحدة الافتراضية');
+            $table->string('default_unit', 20)->default('kg')->nullable()->comment('الوحدة الافتراضية');
             $table->decimal('standard_cost', 10, 2)->nullable()->comment('التكلفة القياسية');
             $table->string('storage_conditions')->nullable()->comment('شروط التخزين');
             $table->string('storage_conditions_en')->nullable()->comment('شروط التخزين بالإنجليزية');

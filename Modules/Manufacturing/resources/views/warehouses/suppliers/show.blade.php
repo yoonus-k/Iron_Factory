@@ -147,6 +147,104 @@
             </div>
         </div>
 
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="card-header">
+                <div class="card-icon primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <h3 class="card-title">سجل العمليات</h3>
+            </div>
+            <div class="card-body">
+                @php
+                    $operationLogs = $supplier->operationLogs()->orderBy('created_at', 'desc')->get();
+                @endphp
+
+                @if($operationLogs->isNotEmpty())
+                    <div class="operations-timeline">
+                        @foreach($operationLogs as $index => $log)
+                            <div class="operation-item" style="padding-bottom: 20px; border-bottom: 1px solid #e9ecef; margin-bottom: 20px;">
+                                @if($index === count($operationLogs) - 1)
+                                    <style>
+                                        .operation-item:last-child { border-bottom: none; }
+                                    </style>
+                                @endif
+
+                                <div class="operation-header" style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px;">
+                                    <div style="flex: 1;">
+                                        <div class="operation-description" style="margin-bottom: 8px;">
+                                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                                                @switch($log->action)
+                                                    @case('create')
+                                                        <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">إنشاء</span>
+                                                        @break
+                                                    @case('update')
+                                                        <span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">تعديل</span>
+                                                        @break
+                                                    @case('delete')
+                                                        <span class="badge" style="background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">حذف</span>
+                                                        @break
+                                                    @default
+                                                        <span class="badge" style="background-color: #95a5a6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">{{ $log->action_en ?? $log->action }}</span>
+                                                @endswitch
+
+                                                <strong style="color: #2c3e50; font-size: 14px;">{{ $log->description }}</strong>
+                                            </div>
+                                        </div>
+
+                                        <div style="display: flex; gap: 15px; font-size: 12px; color: #7f8c8d; flex-wrap: wrap;">
+                                            <div style="display: flex; align-items: center; gap: 5px;">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="12" cy="7" r="4"></circle>
+                                                </svg>
+                                                <span><strong>{{ $log->user->name ?? 'مستخدم محذوف' }}</strong></span>
+                                            </div>
+
+                                            <div style="display: flex; align-items: center; gap: 5px;">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                                </svg>
+                                                <span>{{ $log->created_at->format('Y-m-d H:i:s') }}</span>
+                                            </div>
+
+                                            <div style="display: flex; align-items: center; gap: 5px;">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <polyline points="12 16 16 12 12 8"></polyline>
+                                                    <polyline points="8 12 12 16 12 8"></polyline>
+                                                </svg>
+                                                <span>{{ $log->created_at->diffForHumans() }}</span>
+                                            </div>
+
+                                            <div style="display: flex; align-items: center; gap: 5px;">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                    <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path>
+                                                    <path d="M12 5v7l5 3"></path>
+                                                </svg>
+                                                <code style="background: #f0f2f5; padding: 2px 6px; border-radius: 3px;">{{ $log->ip_address }}</code>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div style="text-align: center; padding: 40px 20px; color: #95a5a6;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 15px; opacity: 0.5;">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <p style="margin: 0; font-size: 14px;">لا توجد عمليات مسجلة</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-header">
                 <div class="card-icon warning">
@@ -177,6 +275,22 @@
                             <span>إرسال بريد</span>
                         </div>
                     </button>
+
+                    <form method="POST" action="{{ route('manufacturing.suppliers.toggle-status', $supplier->id) }}" style="flex: 1;">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" class="action-btn" style="width: 100%; background-color: {{ $supplier->is_active ? '#e74c3c' : '#27ae60' }};">
+                            <div class="action-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                            </div>
+                            <div class="action-text">
+                                <span>{{ $supplier->is_active ? 'تعطيل' : 'تفعيل' }}</span>
+                            </div>
+                        </button>
+                    </form>
 
                     <button type="button" class="action-btn delete" onclick="deleteSupplier({{ $supplier->id }})">
                         <div class="action-icon">

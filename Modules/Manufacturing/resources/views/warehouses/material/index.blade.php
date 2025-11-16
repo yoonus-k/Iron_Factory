@@ -149,13 +149,13 @@
 
                                 <td>
                                     @foreach ($material->materialDetails as $detail)
-                                        <strong>{{ $detail->original_weight }}</strong> {{ $detail->unit->unit_name }}
+                                        <strong>{{ $detail->original_weight }}</strong> {{ $detail->unit->unit_name?? 'N/A' }}
                                         <br>
                                     @endforeach
                                 </td>
                                 <td>
                                     @foreach ($material->materialDetails as $detail)
-                                        <strong>{{ $detail->remaining_weight }}</strong> {{ $detail->unit->unit_name }}
+                                        <strong>{{ $detail->remaining_weight }}</strong> {{ $detail->unit->unit_name?? 'N/A' }}
                                         <br>
                                     @endforeach
                                 </td>
