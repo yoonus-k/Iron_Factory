@@ -218,6 +218,16 @@
                             <i class="fas fa-user-check"></i> {{ __('app.users.attendance') }}
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('manufacturing.workers.index') }}">
+                            <i class="fas fa-user-tie"></i> إدارة العمال
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('manufacturing.worker-teams.index') }}">
+                            <i class="fas fa-users-cog"></i> مجموعات العمال
+                        </a>
+                    </li>
                 </ul>
             </li>
 
