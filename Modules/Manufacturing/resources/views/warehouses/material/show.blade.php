@@ -30,6 +30,26 @@
             margin-right: 8px;
         }
     </style>>
+            @if (session('success'))
+            <div class="um-alert-custom um-alert-success" role="alert" id="successMessage">
+                <i class="feather icon-check-circle"></i>
+                {{ session('success') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="um-alert-custom um-alert-error" role="alert" id="errorMessage">
+                <i class="feather icon-alert-circle"></i>
+                {{ session('error') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+        @endif
+
 
 
     <div class="container">

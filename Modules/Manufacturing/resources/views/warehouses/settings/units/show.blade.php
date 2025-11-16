@@ -47,6 +47,17 @@
                         </svg>
                         تعديل
                     </a>
+                    <form method="POST" action="{{ route('manufacturing.warehouse-settings.units.toggle-status', $unit->id) }}" style="display: inline;">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" class="btn" style="background-color: {{ $unit->is_active ? '#e74c3c' : '#27ae60' }}; color: white; border: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            {{ $unit->is_active ? 'تعطيل' : 'تفعيل' }}
+                        </button>
+                    </form>
                     <a href="{{ route('manufacturing.warehouse-settings.units.index') }}" class="btn btn-back">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -288,70 +299,7 @@
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon danger">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="1"></circle>
-                        <circle cx="19" cy="12" r="1"></circle>
-                        <circle cx="5" cy="12" r="1"></circle>
-                    </svg>
-                </div>
-                <h3 class="card-title">الإجراءات المتاحة</h3>
-            </div>
-            <div class="card-body">
-                <div class="actions-grid">
-                    <a href="{{ route('manufacturing.warehouse-settings.units.edit', $unit->id) }}" class="action-btn activate">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                            <h5>تعديل الوحدة</h5>
-                            <p>تحديث معلومات الوحدة</p>
-                        </div>
-                    </a>
 
-                    <form method="POST" action="{{ route('manufacturing.warehouse-settings.units.toggle-status', $unit->id) }}" style="flex: 1;">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="action-btn" style="width: 100%; background-color: {{ $unit->is_active ? '#e74c3c' : '#27ae60' }};">
-                            <div class="action-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg>
-                            </div>
-                            <div class="action-text">
-                                <h5>{{ $unit->is_active ? 'تعطيل الوحدة' : 'تفعيل الوحدة' }}</h5>
-                                <p>{{ $unit->is_active ? 'تعطيل هذه الوحدة' : 'تفعيل هذه الوحدة' }}</p>
-                            </div>
-                        </button>
-                    </form>
-
-                    <form method="POST" action="{{ route('manufacturing.warehouse-settings.units.destroy', $unit->id) }}" style="flex: 1;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="action-btn delete" style="width: 100%;">
-                            <div class="action-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                                    <line x1="14" y1="11" x2="14" y2="17"></line>
-                                </svg>
-                            </div>
-                            <div class="action-text">
-                                <h5>حذف الوحدة</h5>
-                                <p>إزالة الوحدة من النظام</p>
-                            </div>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>

@@ -105,7 +105,6 @@ class MaterialTypeController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log material type creation: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل إنشاء نوع المادة: ' . $logError->getMessage());
             }
 
             return redirect()->route('manufacturing.warehouse-settings.material-types.index')
@@ -195,7 +194,6 @@ class MaterialTypeController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log material type update: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل تحديث نوع المادة: ' . $logError->getMessage());
             }
 
             return redirect()->route('manufacturing.warehouse-settings.material-types.index')
@@ -240,7 +238,6 @@ class MaterialTypeController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log material type deletion: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل حذف نوع المادة: ' . $logError->getMessage());
             }
 
             $materialType->delete();
@@ -278,12 +275,12 @@ class MaterialTypeController extends Controller
     {
         try {
             $materialType = MaterialType::findOrFail($id);
-            
+
             $oldStatus = $materialType->is_active;
             $newStatus = !$oldStatus;
-            
+
             $materialType->update(['is_active' => $newStatus]);
-            
+
             // Log the status change
             try {
                 $this->logOperation(
@@ -297,9 +294,8 @@ class MaterialTypeController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log material type status change: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل تغيير حالة نوع المادة: ' . $logError->getMessage());
             }
-            
+
             return redirect()->back()
                            ->with('success', 'تم تغيير حالة نوع المادة بنجاح');
         } catch (\Exception $e) {

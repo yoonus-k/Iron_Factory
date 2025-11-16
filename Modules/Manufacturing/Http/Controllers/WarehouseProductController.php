@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class WarehouseProductController extends Controller
+
 {
     private MaterialService $materialService;
 
@@ -331,6 +332,7 @@ $materialDetail->unit_id = $validated['unit_id']; // ✅ تحديث في Materia
                 'warehouse_id' => $validated['warehouse_id'],
                 'transaction_type' => 'receive', // استقبال
                 'quantity' => $validated['quantity'],
+                'unit_id' => $validated['unit_id'] ?? $unitId,
                 'notes' => $validated['notes'] ?? 'أذن مخزنية رقم: ' . $deliveryNote->note_number,
                 'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
             ]);
@@ -409,10 +411,7 @@ $materialDetail->unit_id = $validated['unit_id']; // ✅ تحديث في Materia
         }
     }
 
-    /**
-     * تغيير حالة المادة
-     * Change material status
-     */
+
     public function changeStatus(Request $request, $id)
     {
         try {

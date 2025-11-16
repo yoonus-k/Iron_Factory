@@ -34,6 +34,17 @@
                         </svg>
                         تعديل
                     </a>
+                    <form method="POST" action="{{ route('manufacturing.suppliers.toggle-status', $supplier->id) }}" style="display: inline;">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" class="btn" style="background-color: {{ $supplier->is_active ? '#e74c3c' : '#27ae60' }}; color: white; border: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            {{ $supplier->is_active ? 'تعطيل' : 'تفعيل' }}
+                        </button>
+                    </form>
                     <a href="{{ route('manufacturing.suppliers.index') }}" class="btn btn-back">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -276,22 +287,6 @@
                         </div>
                     </button>
 
-                    <form method="POST" action="{{ route('manufacturing.suppliers.toggle-status', $supplier->id) }}" style="flex: 1;">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="action-btn" style="width: 100%; background-color: {{ $supplier->is_active ? '#e74c3c' : '#27ae60' }};">
-                            <div class="action-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg>
-                            </div>
-                            <div class="action-text">
-                                <span>{{ $supplier->is_active ? 'تعطيل' : 'تفعيل' }}</span>
-                            </div>
-                        </button>
-                    </form>
-
                     <button type="button" class="action-btn delete" onclick="deleteSupplier({{ $supplier->id }})">
                         <div class="action-icon">
                             <i class="feather icon-trash-2"></i>
@@ -316,21 +311,21 @@
                         const form = document.createElement('form');
                         form.method = 'POST';
                         form.action = '{{ url('manufacturing/suppliers') }}/' + {{ $supplier->id }};
-                        
+
                         // Add CSRF token
                         const csrfToken = document.createElement('input');
                         csrfToken.type = 'hidden';
                         csrfToken.name = '_token';
                         csrfToken.value = '{{ csrf_token() }}';
                         form.appendChild(csrfToken);
-                        
+
                         // Add method spoofing for DELETE
                         const methodField = document.createElement('input');
                         methodField.type = 'hidden';
                         methodField.name = '_method';
                         methodField.value = 'DELETE';
                         form.appendChild(methodField);
-                        
+
                         // Submit the form
                         document.body.appendChild(form);
                         form.submit();
@@ -345,21 +340,21 @@
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '{{ url('manufacturing/suppliers') }}/' + id;
-                
+
                 // Add CSRF token
                 const csrfToken = document.createElement('input');
                 csrfToken.type = 'hidden';
                 csrfToken.name = '_token';
                 csrfToken.value = '{{ csrf_token() }}';
                 form.appendChild(csrfToken);
-                
+
                 // Add method spoofing for DELETE
                 const methodField = document.createElement('input');
                 methodField.type = 'hidden';
                 methodField.name = '_method';
                 methodField.value = 'DELETE';
                 form.appendChild(methodField);
-                
+
                 // Submit the form
                 document.body.appendChild(form);
                 form.submit();

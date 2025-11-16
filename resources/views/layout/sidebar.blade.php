@@ -47,11 +47,7 @@
                             <i class="fas fa-truck"></i> {{ __('app.warehouse.suppliers') }}
                         </a>
                     </li>
-                    <li>
-                        <a href="{{ route('manufacturing.additives.index') }}">
-                            <i class="fas fa-paint-brush"></i> {{ __('app.warehouse.additives') }}
-                        </a>
-                    </li>
+
                     <li>
                         <a href="{{ route('manufacturing.warehouse-settings.index') }}">
                             <i class="fas fa-cog"></i> {{ __('app.menu.settings') }}

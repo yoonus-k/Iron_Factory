@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 class WarehouseController extends Controller
 {
     use LogsOperations;
-    
+
     private WarehouseRepository $warehouseRepository;
 
     public function __construct(WarehouseRepository $warehouseRepository)
@@ -77,7 +77,6 @@ class WarehouseController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log warehouse creation: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل إنشاء المستودع: ' . $logError->getMessage());
             }
 
             return redirect()
@@ -153,7 +152,7 @@ class WarehouseController extends Controller
             $data = $request->validated();
 
             $this->warehouseRepository->update($id, $data);
-            
+
             $warehouse = $this->warehouseRepository->getById($id);
             $newValues = $warehouse->toArray();
 
@@ -170,7 +169,6 @@ class WarehouseController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log warehouse update: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل تحديث المستودع: ' . $logError->getMessage());
             }
 
             return redirect()
@@ -218,7 +216,6 @@ class WarehouseController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log warehouse deletion: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل حذف المستودع: ' . $logError->getMessage());
             }
 
             $this->warehouseRepository->delete($id);
@@ -267,16 +264,16 @@ class WarehouseController extends Controller
     {
         try {
             $warehouse = $this->warehouseRepository->getById($id);
-            
+
             if (!$warehouse) {
                 return redirect()->back()->with('error', 'المستودع غير موجود');
             }
-            
+
             $oldStatus = $warehouse->is_active;
             $newStatus = !$oldStatus;
-            
+
             $this->warehouseRepository->update($id, ['is_active' => $newStatus]);
-            
+
             // Log the status change
             try {
                 $this->logOperation(
@@ -290,9 +287,8 @@ class WarehouseController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log warehouse status change: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل تغيير حالة المستودع: ' . $logError->getMessage());
             }
-            
+
             return redirect()->back()
                            ->with('success', 'تم تغيير حالة المستودع بنجاح');
         } catch (\Exception $e) {

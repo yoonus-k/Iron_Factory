@@ -101,7 +101,6 @@ class UnitController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log unit creation: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل إنشاء الوحدة: ' . $logError->getMessage());
             }
 
             return redirect()->route('manufacturing.warehouse-settings.units.index')
@@ -122,7 +121,7 @@ class UnitController extends Controller
      */
     public function show($id)
     {
-        $unit = Unit::with(['creator', 'materials'])->findOrFail($id);
+        $unit = Unit::with(['creator'])->findOrFail($id);
 
         return view('manufacturing::warehouses.settings.units.show', compact('unit'));
     }
@@ -189,7 +188,6 @@ class UnitController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log unit update: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل تحديث الوحدة: ' . $logError->getMessage());
             }
 
             return redirect()->route('manufacturing.warehouse-settings.units.index')
@@ -234,7 +232,6 @@ class UnitController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log unit deletion: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل حذف الوحدة: ' . $logError->getMessage());
             }
 
             $unit->delete();
@@ -291,7 +288,6 @@ class UnitController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log unit status change: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل تغيير حالة الوحدة: ' . $logError->getMessage());
             }
 
             return redirect()->back()

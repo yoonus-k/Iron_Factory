@@ -104,7 +104,6 @@ class SupplierController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log supplier creation: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل إنشاء المورد: ' . $logError->getMessage());
             }
 
             return redirect()->route('manufacturing.suppliers.index')
@@ -196,7 +195,6 @@ class SupplierController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log supplier update: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل تحديث المورد: ' . $logError->getMessage());
             }
 
             return redirect()->route('manufacturing.suppliers.index')
@@ -231,7 +229,6 @@ class SupplierController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log supplier deletion: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل حذف المورد: ' . $logError->getMessage());
             }
 
             $supplier->delete();
@@ -252,10 +249,10 @@ class SupplierController extends Controller
     {
         try {
             $supplier = Supplier::findOrFail($id);
-            
+
             $oldStatus = $supplier->is_active;
             $newStatus = !$oldStatus;
-            
+
             $supplier->is_active = $newStatus;
             $supplier->save();
 
@@ -274,7 +271,6 @@ class SupplierController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log supplier status change: ' . $logError->getMessage());
-                throw new \Exception('فشل تسجيل تغيير حالة المورد: ' . $logError->getMessage());
             }
 
             return redirect()->back()

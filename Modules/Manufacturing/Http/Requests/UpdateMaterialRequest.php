@@ -35,7 +35,7 @@ class UpdateMaterialRequest extends FormRequest
             'shelf_location' => 'nullable|string|max:255',
             'shelf_location_en' => 'nullable|string|max:255',
             'purchase_invoice_id' => 'nullable|exists:purchase_invoices,id',
-            'status' => 'required|in:available,in_use,consumed,expired',
+
             'notes' => 'nullable|string',
             'notes_en' => 'nullable|string',
 
