@@ -4,14 +4,18 @@ namespace Modules\Manufacturing\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Material;
+use App\Models\MaterialDetail;
+use App\Models\MaterialType;
 use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\User;
+use App\Models\OperationLog;
 use Modules\Manufacturing\Http\Requests\StoreMaterialRequest;
 use Modules\Manufacturing\Http\Requests\UpdateMaterialRequest;
 use Modules\Manufacturing\Services\MaterialService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class WarehouseProductController extends Controller
 {
@@ -69,8 +73,9 @@ class WarehouseProductController extends Controller
         $suppliers = Supplier::all();
         $units = Unit::all();
         $users = User::all();
+        $materialTypes =MaterialType::all();
 
-        return view('manufacturing::warehouses.material.create', compact('suppliers', 'units', 'users'));
+        return view('manufacturing::warehouses.material.create', compact('suppliers', 'units', 'users', 'materialTypes'));
     }
 
     /**
@@ -111,6 +116,27 @@ class WarehouseProductController extends Controller
                 ]);
             }
 
+            // تسجيل العملية - إجباري ولا يجب أن يفشل
+            try {
+                $this->logOperation(
+                    'create',
+                    'Create Material',
+                    'تم إنشاء مادة جديدة: ' . $material->name_ar,
+                    'materials',
+                    $material->id,
+                    null,
+                    $material->toArray()
+                );
+            } catch (\Exception $logError) {
+                // إذا فشل التسجيل، سجل الخطأ لكن استمر
+                Log::error('Failed to log material creation: ' . $logError->getMessage(), [
+                    'material_id' => $material->id,
+                    'original_error' => $logError
+                ]);
+                // أعد رمي الاستثناء ليتم التعامل معه في catch الخارجية
+                throw new \Exception('فشل تسجيل العملية: ' . $logError->getMessage());
+            }
+
             return redirect()->route('manufacturing.warehouse-products.index')
                            ->with('success', 'تم إضافة المادة بنجاح وتسجيل حركة المستودع');
         } catch (\Exception $e) {
@@ -144,8 +170,9 @@ class WarehouseProductController extends Controller
         $suppliers = Supplier::all();
         $units = Unit::all();
         $users = User::all();
+        $materialTypes = \App\Models\MaterialType::all();
 
-        return view('manufacturing::warehouses.material.edit', compact('material', 'suppliers', 'units', 'users'));
+        return view('manufacturing::warehouses.material.edit', compact('material', 'suppliers', 'units', 'users', 'materialTypes'));
     }
 
     /**
@@ -155,9 +182,27 @@ class WarehouseProductController extends Controller
     {
         try {
             $material = Material::findOrFail($id);
+            $oldValues = $material->toArray();
             $validated = $request->validated();
 
             $this->materialService->updateMaterial($material, $validated);
+            $newValues = $material->fresh()->toArray();
+
+            // تسجيل العملية - إجباري
+            try {
+                $this->logOperation(
+                    'update',
+                    'Update Material',
+                    'تم تحديث مادة: ' . $material->name_ar,
+                    'materials',
+                    $material->id,
+                    $oldValues,
+                    $newValues
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log material update: ' . $logError->getMessage());
+                throw new \Exception('فشل تسجيل تحديث المادة: ' . $logError->getMessage());
+            }
 
             return redirect()->route('manufacturing.warehouse-products.index')
                            ->with('success', 'تم تحديث المادة بنجاح وتسجيل حركة المستودع');
@@ -182,6 +227,19 @@ class WarehouseProductController extends Controller
     public function destroy($id)
     {
         $material = Material::findOrFail($id);
+        $oldValues = $material->toArray();
+
+        // تسجيل العملية قبل الحذف
+        $this->logOperation(
+            'delete',
+            'Delete Material',
+            'تم حذف مادة: ' . $material->name_ar,
+            'materials',
+            $material->id,
+            $oldValues,
+            null
+        );
+
         $material->delete();
 
         return redirect()->route('manufacturing.warehouse-products.index')
@@ -212,27 +270,30 @@ class WarehouseProductController extends Controller
             $validated = $request->validate([
                 'warehouse_id' => 'required|exists:warehouses,id',
                 'quantity' => 'required|numeric|min:0.01',
+'unit_id' => 'required|exists:units,id',
                 'notes' => 'nullable|string|max:500',
             ], [
                 'warehouse_id.required' => 'المستودع مطلوب',
                 'warehouse_id.exists' => 'المستودع غير موجود',
                 'quantity.required' => 'الكمية مطلوبة',
+'unit_id.required' => 'الوحدة مطلوبة',
                 'quantity.numeric' => 'الكمية يجب أن تكون رقم',
                 'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
             ]);
 
             // الحصول على أول MaterialDetail لنأخذ unit_id منه
-            $firstDetail = \App\Models\MaterialDetail::where('material_id', $material->id)->first();
+            $firstDetail = MaterialDetail::where('material_id', $material->id)->first();
             $unitId = $firstDetail?->unit_id;
 
             // البحث أو إنشاء سجل في MaterialDetail
-            $materialDetail = \App\Models\MaterialDetail::where('material_id', $material->id)
+            $materialDetail = MaterialDetail::where('material_id', $material->id)
                                                        ->where('warehouse_id', $validated['warehouse_id'])
                                                        ->first();
 
             if ($materialDetail) {
                 // تحديث الكمية في سجل موجود
                 $materialDetail->quantity += $validated['quantity'];
+$materialDetail->unit_id = $validated['unit_id']; // ✅ تحديث في MaterialDetail
                 $materialDetail->original_weight += $validated['quantity'];        // ✅ تحديث في MaterialDetail
                 $materialDetail->remaining_weight += $validated['quantity'];      // ✅ تحديث في MaterialDetail
                 $materialDetail->save();
@@ -246,7 +307,7 @@ class WarehouseProductController extends Controller
                     'remaining_weight' => $validated['quantity'],                // ✅ جديد
                     'unit_id' => $unitId,                                        // ✅ جديد
                     'min_quantity' => 0,
-                    'max_quantity' => 999999,
+
                     'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
                 ]);
             }
@@ -274,6 +335,27 @@ class WarehouseProductController extends Controller
                 'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
             ]);
 
+            // تسجيل العملية - إجباري
+             try {
+                $this->logOperation(
+                    'create',
+                    'Add Quantity',
+                    'تم اضافة كمية: ' . $material->name_ar . ' بكمية ' . $validated['quantity'],
+                    'materials',
+                    $material->id,
+                    null,
+                    $material->toArray()
+                );
+            } catch (\Exception $logError) {
+                // إذا فشل التسجيل، سجل الخطأ لكن استمر
+                Log::error('Failed to log material creation: ' . $logError->getMessage(), [
+                    'material_id' => $material->id,
+                    'original_error' => $logError
+                ]);
+                // أعد رمي الاستثناء ليتم التعامل معه في catch الخارجية
+                throw new \Exception('فشل تسجيل العملية: ' . $logError->getMessage());
+            }
+
             return redirect()->back()
                            ->with('success', 'تم إضافة الكمية بنجاح وإنشاء أذن مخزنية رقم: ' . $deliveryNote->note_number);
         } catch (\Exception $e) {
@@ -300,5 +382,90 @@ class WarehouseProductController extends Controller
             ->count() + 1;
 
         return $prefix . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * تسجيل عملية في سجل العمليات
+     * Log an operation to OperationLog
+     */
+    private function logOperation(string $action, string $actionEn, string $description, string $tableName, $recordId, ?array $oldValues = null, ?array $newValues = null): void
+    {
+        try {
+            OperationLog::create([
+                'user_id' => Auth::id() ?? 1,
+                'action' => $action,
+                'action_en' => $actionEn,
+                'description' => $description,
+                'table_name' => $tableName,
+                'record_id' => $recordId,
+                'old_values' => $oldValues,
+                'new_values' => $newValues,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error logging operation: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * تغيير حالة المادة
+     * Change material status
+     */
+    public function changeStatus(Request $request, $id)
+    {
+        try {
+            $material = Material::findOrFail($id);
+
+            $validated = $request->validate([
+                'status' => 'required|in:available,in_use,consumed,expired',
+            ], [
+                'status.required' => 'الحالة مطلوبة',
+                'status.in' => 'الحالة غير صحيحة',
+            ]);
+
+            $oldStatus = $material->status;
+            $material->update(['status' => $validated['status']]);
+
+            // تسجيل العملية - إجباري
+            try {
+                $this->logOperation(
+                    'update',
+                    'Update Status',
+                    'تم تغيير حالة المادة من ' . $this->getStatusLabel($oldStatus) . ' إلى ' . $this->getStatusLabel($validated['status']),
+                    'materials',
+                    $material->id,
+                    ['status' => $oldStatus],
+                    ['status' => $validated['status']]
+                );
+            } catch (\Exception $logError) {
+                Log::error('Failed to log status change: ' . $logError->getMessage());
+                throw new \Exception('فشل تسجيل تغيير الحالة: ' . $logError->getMessage());
+            }
+
+            return redirect()->back()
+                           ->with('success', 'تم تغيير الحالة من ' . $this->getStatusLabel($oldStatus) . ' إلى ' . $this->getStatusLabel($validated['status']));
+        } catch (\Exception $e) {
+            Log::error('Error changing status: ' . $e->getMessage());
+            return redirect()->back()
+                           ->withErrors(['error' => 'فشل في تغيير الحالة: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * الحصول على تسمية الحالة
+     * Get status label
+     */
+    private function getStatusLabel($status): string
+    {
+        $statusLabels = [
+            'available' => 'متوفر',
+            'in_use' => 'قيد الاستخدام',
+            'consumed' => 'مستهلك',
+            'expired' => 'منتهي الصلاحية',
+        ];
+
+        return $statusLabels[$status] ?? $status;
     }
 }

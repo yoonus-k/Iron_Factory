@@ -24,7 +24,7 @@
             </nav>
         </div>
 
-                @if (session('success'))
+        @if (session('success'))
             <div class="um-alert-custom um-alert-success" role="alert" id="successMessage">
                 <i class="feather icon-check-circle"></i>
                 {{ session('success') }}
@@ -43,6 +43,43 @@
                 </button>
             </div>
         @endif
+
+        {{-- عرض جميع أخطاء التحقق --}}
+        @if ($errors->any())
+            <div class="alert alert-danger alert-container">
+                <div class="alert-header">
+                    <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <h4 class="alert-title">يوجد أخطاء في البيانات المدخلة</h4>
+                    <button type="button" class="alert-close" onclick="this.parentElement.parentElement.style.display='none'">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="alert-body">
+                    <ul class="error-list">
+                        @foreach ($errors->all() as $error)
+                            <li>
+                                <span>
+                                    <svg style="width: 16px; height: 16px; margin-left: 8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                                    </svg>
+                                    {{ $error }}
+                                </span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+
         <!-- Form Card -->
         <div class="form-card">
             <form method="POST" action="{{ route('manufacturing.warehouse-products.update', $material->id) }}" id="materialForm" enctype="multipart/form-data">
@@ -70,137 +107,140 @@
                                 رمز المادة
                                 <span class="required">*</span>
                             </label>
-                            <div class="input-wrapper">
+                            <div class="input-wrapper {{ $errors->has('barcode') ? 'has-error' : '' }}">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M3 6h18"></path>
                                     <path d="M3 12h18"></path>
                                     <path d="M3 18h18"></path>
                                 </svg>
-                                <input type="text" name="barcode" id="barcode" class="form-input"
-                                       placeholder="أدخل رمز المادة" value="{{ old('barcode', $material->barcode) }}" required readonly>
+                                <input type="text" name="barcode" id="barcode"
+                                       class="form-input @error('barcode') input-error @enderror"
+                                       placeholder="أدخل رمز المادة"
+                                       value="{{ old('barcode', $material->barcode) }}"
+                                       required readonly>
                             </div>
-                            <div class="error-message" id="barcode-error" style="display: none;"></div>
+                            @error('barcode')
+                                <div class="error-message" style="display: block;">{{ $message }}</div>
+                            @else
+                                <div class="error-message" id="barcode-error" style="display: none;"></div>
+                            @enderror
                         </div>
-
-
 
                         <div class="form-group">
                             <label for="material_type" class="form-label">
-                                نوع المادة (عربي)
+                                اسم المادة (عربي)
                                 <span class="required">*</span>
                             </label>
-                            <div class="input-wrapper">
-                                <input type="text" name="name_ar" id="material_type" class="form-input"
-                                       placeholder="اسم المادة" value="{{ old('name_ar', $material->material_type) }}" required>
+                            <div class="input-wrapper {{ $errors->has('name_ar') ? 'has-error' : '' }}">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16v16H4z"></path>
+                                    <line x1="4" y1="8" x2="20" y2="8"></line>
+                                </svg>
+                                <input type="text" name="name_ar" id="material_type"
+                                       class="form-input @error('name_ar') input-error @enderror"
+                                       placeholder="اسم المادة"
+                                       value="{{ old('name_ar', $material->name_ar) }}"
+                                       required>
                             </div>
-                            <div class="error-message" id="material_type-error" style="display: none;"></div>
+                            @error('name_ar')
+                                <div class="error-message" style="display: block;">{{ $message }}</div>
+                            @else
+                                <div class="error-message" id="material_type-error" style="display: none;"></div>
+                            @enderror
                         </div>
 
                         <div class="form-group">
-                            <label for="material_type_en" class="form-label">نوع المادة (إنجليزي)</label>
-                            <div class="input-wrapper">
-                                <input type="text" name="name_en" id="material_type_en" class="form-input"
-                                       placeholder="Material Name in English" value="{{ old('name_en', $material->material_type_en) }}">
+                            <label for="material_type_en" class="form-label">اسم المادة (إنجليزي)</label>
+                            <div class="input-wrapper {{ $errors->has('name_en') ? 'has-error' : '' }}">
+                                <input type="text" name="name_en" id="material_type_en"
+                                       class="form-input @error('name_en') input-error @enderror"
+                                       placeholder="Material Name in English"
+                                       value="{{ old('name_en', $material->name_en) }}">
                             </div>
-                            <div class="error-message" id="material_type_en-error" style="display: none;"></div>
-                        </div>
-
-
-
-                        <div class="form-group">
-                            <label for="original_weight" class="form-label">
-                                الوزن الأصلي
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrapper">
-                                <input type="number" name="original_weight" id="original_weight" class="form-input"
-                                       placeholder="الوزن الأصلي" value="{{ old('original_weight', $material->original_weight) }}" step="0.01" required>
-                            </div>
-                            <div class="error-message" id="original_weight-error" style="display: none;"></div>
+                            @error('name_en')
+                                <div class="error-message" style="display: block;">{{ $message }}</div>
+                            @else
+                                <div class="error-message" id="material_type_en-error" style="display: none;"></div>
+                            @enderror
                         </div>
 
                         <div class="form-group">
-                            <label for="remaining_weight" class="form-label">الوزن المتبقي</label>
-                            <div class="input-wrapper">
-                                <input type="number" name="remaining_weight" id="remaining_weight" class="form-input"
-                                       placeholder="الوزن المتبقي" value="{{ old('remaining_weight', $material->remaining_weight) }}" step="0.01">
-                            </div>
-                            <div class="error-message" id="remaining_weight-error" style="display: none;"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="unit_id" class="form-label">
-                                الوحدة
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrapper">
-                                <select name="unit_id" id="unit_id" class="form-input" required>
-                                    <option value="">-- اختر الوحدة --</option>
-                                    @foreach ($units as $unit)
-                                        <option value="{{ $unit->id }}" {{ old('unit_id', $material->unit_id) == $unit->id ? 'selected' : '' }}>
-                                            {{ $unit->unit_name }}
+                            <label for="material_type_id" class="form-label">نوع المادة</label>
+                            <div class="input-wrapper {{ $errors->has('material_type_id') ? 'has-error' : '' }}">
+                               <select name="material_type_id" id="material_type_id"
+                                       class="form-input @error('material_type_id') input-error @enderror"
+                                       required>
+                                    <option value="">-- اختر نوع المادة --</option>
+                                    @foreach ($materialTypes as $type)
+                                        <option value="{{ $type->id }}" {{ old('material_type_id', $material->material_type_id) == $type->id ? 'selected' : '' }}>
+                                            {{ $type->type_name }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="error-message" id="unit_id-error" style="display: none;"></div>
+                            @error('material_type_id')
+                                <div class="error-message" style="display: block;">{{ $message }}</div>
+                            @else
+                                <div class="error-message" id="material_type_id-error" style="display: none;"></div>
+                            @enderror
                         </div>
-
-
 
                         <div class="form-group">
                             <label for="manufacture_date" class="form-label">تاريخ الصنع</label>
-                            <div class="input-wrapper">
-                                <input type="date" name="manufacture_date" id="manufacture_date" class="form-input"
+                            <div class="input-wrapper {{ $errors->has('manufacture_date') ? 'has-error' : '' }}">
+                                <input type="date" name="manufacture_date" id="manufacture_date"
+                                       class="form-input @error('manufacture_date') input-error @enderror"
                                        value="{{ old('manufacture_date', $material->manufacture_date?->format('Y-m-d')) }}">
                             </div>
-                            <div class="error-message" id="manufacture_date-error" style="display: none;"></div>
+                            @error('manufacture_date')
+                                <div class="error-message" style="display: block;">{{ $message }}</div>
+                            @else
+                                <div class="error-message" id="manufacture_date-error" style="display: none;"></div>
+                            @enderror
                         </div>
 
                         <div class="form-group">
                             <label for="expiry_date" class="form-label">تاريخ الصلاحية</label>
-                            <div class="input-wrapper">
-                                <input type="date" name="expiry_date" id="expiry_date" class="form-input"
+                            <div class="input-wrapper {{ $errors->has('expiry_date') ? 'has-error' : '' }}">
+                                <input type="date" name="expiry_date" id="expiry_date"
+                                       class="form-input @error('expiry_date') input-error @enderror"
                                        value="{{ old('expiry_date', $material->expiry_date?->format('Y-m-d')) }}">
                             </div>
-                            <div class="error-message" id="expiry_date-error" style="display: none;"></div>
+                            @error('expiry_date')
+                                <div class="error-message" style="display: block;">{{ $message }}</div>
+                            @else
+                                <div class="error-message" id="expiry_date-error" style="display: none;"></div>
+                            @enderror
                         </div>
-
-                        <div class="form-group">
-                            <label for="shelf_location" class="form-label">موقع التخزين (عربي)</label>
-                            <div class="input-wrapper">
-                                <input type="text" name="shelf_location" id="shelf_location" class="form-input"
-                                       placeholder="الموقع" value="{{ old('shelf_location', $material->shelf_location) }}">
-                            </div>
-                            <div class="error-message" id="shelf_location-error" style="display: none;"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="shelf_location_en" class="form-label">موقع التخزين (إنجليزي)</label>
-                            <div class="input-wrapper">
-                                <input type="text" name="shelf_location_en" id="shelf_location_en" class="form-input"
-                                       placeholder="Location" value="{{ old('shelf_location_en', $material->shelf_location_en) }}">
-                            </div>
-                            <div class="error-message" id="shelf_location_en-error" style="display: none;"></div>
-                        </div>
-
 
                         <div class="form-group full-width">
                             <label for="notes" class="form-label">الملاحظات (عربي)</label>
-                            <div class="input-wrapper">
-                                <textarea name="notes" id="notes" class="form-input" rows="3"
+                            <div class="input-wrapper {{ $errors->has('notes') ? 'has-error' : '' }}">
+                                <textarea name="notes" id="notes"
+                                          class="form-input @error('notes') input-error @enderror"
+                                          rows="3"
                                           placeholder="ملاحظات حول المادة">{{ old('notes', $material->notes) }}</textarea>
                             </div>
-                            <div class="error-message" id="notes-error" style="display: none;"></div>
+                            @error('notes')
+                                <div class="error-message" style="display: block;">{{ $message }}</div>
+                            @else
+                                <div class="error-message" id="notes-error" style="display: none;"></div>
+                            @enderror
                         </div>
 
                         <div class="form-group full-width">
                             <label for="notes_en" class="form-label">الملاحظات (إنجليزي)</label>
-                            <div class="input-wrapper">
-                                <textarea name="notes_en" id="notes_en" class="form-input" rows="3"
+                            <div class="input-wrapper {{ $errors->has('notes_en') ? 'has-error' : '' }}">
+                                <textarea name="notes_en" id="notes_en"
+                                          class="form-input @error('notes_en') input-error @enderror"
+                                          rows="3"
                                           placeholder="Notes in English">{{ old('notes_en', $material->notes_en) }}</textarea>
                             </div>
-                            <div class="error-message" id="notes_en-error" style="display: none;"></div>
+                            @error('notes_en')
+                                <div class="error-message" style="display: block;">{{ $message }}</div>
+                            @else
+                                <div class="error-message" id="notes_en-error" style="display: none;"></div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -229,76 +269,91 @@
             const form = document.getElementById('materialForm');
             const inputs = form.querySelectorAll('.form-input');
 
+            // إزالة الخطأ عند التعديل
             inputs.forEach(input => {
                 input.addEventListener('blur', function() {
                     if (this.hasAttribute('required') && !this.value.trim()) {
                         showError(this.id, 'هذا الحقل مطلوب');
+                        this.classList.add('input-error');
+                        this.closest('.input-wrapper').classList.add('has-error');
                     } else {
                         hideError(this.id);
+                        this.classList.remove('input-error');
+                        this.closest('.input-wrapper').classList.remove('has-error');
                     }
                 });
 
                 input.addEventListener('input', function() {
                     hideError(this.id);
+                    this.classList.remove('input-error');
+                    this.closest('.input-wrapper').classList.remove('has-error');
                 });
             });
 
             // Form submission handler
             form.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                // Reset all errors
-                clearAllErrors();
-
-                // Validate required fields
+                // لا نمنع الإرسال، فقط نتحقق من الحقول المطلوبة
                 let isValid = true;
                 const requiredFields = form.querySelectorAll('[required]');
 
                 requiredFields.forEach(field => {
                     if (!field.value.trim()) {
                         showError(field.id, 'هذا الحقل مطلوب');
+                        field.classList.add('input-error');
+                        field.closest('.input-wrapper').classList.add('has-error');
                         isValid = false;
                     }
                 });
 
-                // If form is valid, submit it
-                if (isValid) {
-                    // Check if SweetAlert2 is available
-                    if (typeof Swal !== 'undefined') {
-                        // Show SweetAlert2 confirmation
-                        Swal.fire({
-                            title: 'تأكيد الحفظ',
-                            text: 'هل أنت متأكد من حفظ التغييرات؟',
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonText: 'نعم، احفظ',
-                            cancelButtonText: 'إلغاء',
-                            reverseButtons: true
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                // Remove event listener to allow form submission
-                                form.removeEventListener('submit', arguments.callee);
-                                // Submit the form
-                                form.submit();
-                            }
-                        });
-                    } else {
-                        // If SweetAlert2 is not available, submit directly
-                        console.warn('SweetAlert2 not loaded, submitting form directly');
-                        form.removeEventListener('submit', arguments.callee);
-                        form.submit();
-                    }
-                } else {
+                if (!isValid) {
+                    e.preventDefault();
                     // Scroll to first error
-                    const firstError = form.querySelector('.error-message');
+                    const firstError = form.querySelector('.input-error');
                     if (firstError) {
                         firstError.scrollIntoView({
                             behavior: 'smooth',
                             block: 'center'
                         });
                     }
+
+                    // عرض رسالة خطأ عامة
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: 'خطأ في البيانات',
+                            text: 'الرجاء ملء جميع الحقول المطلوبة',
+                            icon: 'error',
+                            confirmButtonText: 'حسناً'
+                        });
+                    }
                 }
             });
+
+            // Auto-hide success/error messages after 5 seconds
+            setTimeout(function() {
+                const successMsg = document.getElementById('successMessage');
+                const errorMsg = document.getElementById('errorMessage');
+                if (successMsg) {
+                    successMsg.style.transition = 'opacity 0.5s';
+                    successMsg.style.opacity = '0';
+                    setTimeout(() => successMsg.style.display = 'none', 500);
+                }
+                if (errorMsg) {
+                    errorMsg.style.transition = 'opacity 0.5s';
+                    errorMsg.style.opacity = '0';
+                    setTimeout(() => errorMsg.style.display = 'none', 500);
+                }
+            }, 5000);
+
+            // Scroll to errors on page load if they exist
+            const firstServerError = document.querySelector('.input-error');
+            if (firstServerError) {
+                setTimeout(() => {
+                    firstServerError.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }, 100);
+            }
         });
 
         function showError(fieldId, message) {
@@ -327,6 +382,7 @@
     <style>
         /* Alert Styles */
         .alert-container {
+            margin-bottom: 20px;
             animation: slideDown 0.3s ease-out;
         }
 
@@ -345,6 +401,8 @@
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            padding: 0;
         }
 
         .alert-danger {
@@ -371,6 +429,7 @@
             gap: 12px;
             padding: 16px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
         }
 
         .alert-icon {
@@ -383,6 +442,7 @@
             margin: 0;
             font-size: 16px;
             font-weight: 600;
+            flex: 1;
         }
 
         .alert-body {
@@ -398,16 +458,130 @@
         .error-list {
             margin: 0;
             padding: 0;
+            list-style: none;
         }
 
         .error-list li {
-            font-size: 13px;
-            line-height: 1.6;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 6px;
+        }
+
+        .error-list li:last-child {
+            margin-bottom: 0;
         }
 
         .error-list li span {
             display: flex;
+            align-items: flex-start;
+        }
+
+        /* Close button for alerts */
+        .alert-close {
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+            width: 24px;
+            height: 24px;
+            display: flex;
             align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
+        }
+
+        .alert-close svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Error message styles */
+        .error-message {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .error-message::before {
+            content: "⚠";
+            font-size: 14px;
+        }
+
+        /* Input error styles */
+        .input-error {
+            border-color: #dc3545 !important;
+            background-color: #fff5f5 !important;
+        }
+
+        .input-wrapper.has-error {
+            border-color: #dc3545;
+        }
+
+        .input-wrapper.has-error .input-icon {
+            color: #dc3545;
+        }
+
+        /* Custom alert styles for um-alert-custom */
+        .um-alert-custom {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            animation: slideDown 0.3s ease-out;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .um-alert-success {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: #fff;
+            border: 1px solid #4caf50;
+        }
+
+        .um-alert-error {
+            background: linear-gradient(135deg, #ff5252 0%, #ff1744 100%);
+            color: #fff;
+            border: 1px solid #ff5252;
+        }
+
+        .um-alert-custom i {
+            font-size: 20px;
+        }
+
+        .um-alert-close {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .um-alert-close:hover {
+            opacity: 1;
+        }
+
+        .um-alert-close i {
+            font-size: 18px;
         }
 
         /* Responsive */
@@ -415,10 +589,15 @@
             .alert-header {
                 flex-direction: column;
                 align-items: flex-start;
+                padding-left: 40px;
             }
 
             .alert-title {
                 font-size: 15px;
+            }
+
+            .error-list li {
+                font-size: 13px;
             }
         }
     </style>

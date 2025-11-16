@@ -4,7 +4,32 @@
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/style-material.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style-material.css') }}">
+    <style>
+        .action-btn.status {
+            display: flex;
+            align-items: center;
+
+            color: rgb(0, 0, 0);
+            border: none;
+        }
+        .action-btn.status:hover {
+
+            color: white;
+        }
+        .dropdown-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+        }
+        .dropdown-menu .dropdown-item.active {
+            background-color: #667eea;
+            color: white;
+        }
+        .dropdown-menu .dropdown-item .badge {
+            margin-right: 8px;
+        }
+    </style>>
 
 
     <div class="container">
@@ -39,6 +64,60 @@
                         </svg>
                         تعديل
                     </a>
+
+                    <!-- تغيير الحالة في الـ Header -->
+                    <div class="um-dropdown">
+                        <button class="btn " type="button" data-bs-toggle="dropdown" title="تغيير حالة المادة">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" >
+                                <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path>
+                                <path d="M12 5v7l5 3"></path>
+                            </svg>
+                            الحالة
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <form method="POST" action="{{ route('manufacturing.warehouse-products.change-status', $material->id) }}" style="display: inline;">
+                                    @csrf
+                                    <input type="hidden" name="status" value="available">
+                                    <button type="submit" class="dropdown-item {{ $material->status == 'available' ? 'active' : '' }}">
+                                        <span class="badge badge-success me-2">●</span>
+                                        متوفر
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="POST" action="{{ route('manufacturing.warehouse-products.change-status', $material->id) }}" style="display: inline;">
+                                    @csrf
+                                    <input type="hidden" name="status" value="in_use">
+                                    <button type="submit" class="dropdown-item {{ $material->status == 'in_use' ? 'active' : '' }}">
+                                        <span class="badge badge-warning me-2">●</span>
+                                        قيد الاستخدام
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="POST" action="{{ route('manufacturing.warehouse-products.change-status', $material->id) }}" style="display: inline;">
+                                    @csrf
+                                    <input type="hidden" name="status" value="consumed">
+                                    <button type="submit" class="dropdown-item {{ $material->status == 'consumed' ? 'active' : '' }}">
+                                        <span class="badge badge-danger me-2">●</span>
+                                        مستهلك
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="POST" action="{{ route('manufacturing.warehouse-products.change-status', $material->id) }}" style="display: inline;">
+                                    @csrf
+                                    <input type="hidden" name="status" value="expired">
+                                    <button type="submit" class="dropdown-item {{ $material->status == 'expired' ? 'active' : '' }}">
+                                        <span class="badge badge-secondary me-2">●</span>
+                                        منتهي الصلاحية
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+
                     <a href="{{ route('manufacturing.warehouse-products.index') }}" class="btn btn-back">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -82,7 +161,7 @@
                         <div class="info-label">إجمالي الوزن الأصلي:</div>
                         <div class="info-value">
                             {{ $material->materialDetails->sum('original_weight') }}
-                            {{ $material->materialDetails->first()?->getUnitName() }}
+                            {{ $material->materialDetails->first()?->getUnitName() ?? 'وحدة' }}
                         </div>
                     </div>
 
@@ -90,7 +169,7 @@
                         <div class="info-label">إجمالي الوزن المتبقي:</div>
                         <div class="info-value">
                             {{ $material->materialDetails->sum('remaining_weight') }}
-                            {{ $material->materialDetails->first()?->getUnitName() }}
+                            {{ $material->materialDetails->first()?->getUnitName() ?? 'وحدة' }}
                         </div>
                     </div>
 
@@ -189,9 +268,7 @@
                 <div class="card-header">
                     <div class="card-icon warning">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M17 21v-2a4 4 0 0 0-3-3.87"></path>
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
                     </div>
@@ -208,7 +285,7 @@
                                 @php
                                     $warehouse = $details->first()->warehouse;
                                     $totalQuantity = $details->sum('remaining_weight');
-                                    $unit = $details->first()->unit?->name ?? 'وحدة';
+                                    $unit = $details->first()->unit?->unit_name ?? 'وحدة';
                                     $isEmpty = $totalQuantity <= 0;
                                 @endphp
                                 <div class="warehouse-item {{ $isEmpty ? 'empty' : '' }}">
@@ -257,94 +334,142 @@
                             <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
                     </div>
-                    <h3 class="card-title">الملاحظات</h3>
+                    <h3 class="card-title">سجل العمليات</h3>
                 </div>
                 <div class="card-body">
-                    @if($material->notes)
-                        <p>{{ $material->notes }}</p>
-                    @elseif($material->notes_en)
-                        <p>{{ $material->notes_en }}</p>
+                    @php
+                        $operationLogs = $material->operationLogs()->orderBy('created_at', 'desc')->get();
+                    @endphp
+
+                    @if($operationLogs->isNotEmpty())
+                        <div class="operations-timeline">
+                            @foreach($operationLogs as $index => $log)
+                                <div class="operation-item" style="padding-bottom: 20px; border-bottom: 1px solid #e9ecef; margin-bottom: 20px;">
+                                    @if($index === count($operationLogs) - 1)
+                                        <style>
+                                            .operation-item:last-child { border-bottom: none; }
+                                        </style>
+                                    @endif
+
+                                    <!-- رأس العملية -->
+                                    <div class="operation-header" style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px;">
+                                        <div style="flex: 1;">
+                                            <!-- النوع والوصف -->
+                                            <div class="operation-description" style="margin-bottom: 8px;">
+                                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                                                    <!-- Badge للنوع -->
+                                                    @switch($log->action)
+                                                        @case('create')
+                                                            <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
+                                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                                                                </svg>
+                                                                إنشاء
+                                                            </span>
+                                                            @break
+                                                        @case('update')
+                                                            <span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
+                                                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/>
+                                                                </svg>
+                                                                تعديل
+                                                            </span>
+                                                            @break
+                                                        @case('delete')
+                                                            <span class="badge" style="background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
+                                                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-9l-1 1H5v2h14V4z"/>
+                                                                </svg>
+                                                                حذف
+                                                            </span>
+                                                            @break
+                                                        @case('add_quantity')
+                                                            <span class="badge" style="background-color: #f39c12; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
+                                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                                                                </svg>
+                                                                إضافة كمية
+                                                            </span>
+                                                            @break
+                                                        @default
+                                                            <span class="badge" style="background-color: #95a5a6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                                {{ $log->action_en ?? $log->action }}
+                                                            </span>
+                                                    @endswitch
+
+                                                    <!-- الوصف -->
+                                                    <strong style="color: #2c3e50; font-size: 14px;">{{ $log->description }}</strong>
+                                                </div>
+                                            </div>
+
+                                            <!-- المستخدم والتاريخ -->
+                                            <div style="display: flex; gap: 15px; font-size: 12px; color: #7f8c8d; flex-wrap: wrap;">
+                                                <div style="display: flex; align-items: center; gap: 5px;">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                        <circle cx="12" cy="7" r="4"></circle>
+                                                    </svg>
+                                                    <span><strong>{{ $log->user->name ?? 'مستخدم محذوف' }}</strong></span>
+                                                </div>
+
+                                                <div style="display: flex; align-items: center; gap: 5px;">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                        <circle cx="12" cy="12" r="10"></circle>
+                                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                                    </svg>
+                                                    <span>{{ $log->created_at->format('Y-m-d H:i:s') }}</span>
+                                                </div>
+
+                                                <div style="display: flex; align-items: center; gap: 5px;">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                        <circle cx="12" cy="12" r="10"></circle>
+                                                        <polyline points="12 16 16 12 12 8"></polyline>
+                                                        <polyline points="8 12 12 16 12 8"></polyline>
+                                                    </svg>
+                                                    <span>{{ $log->created_at->diffForHumans() }}</span>
+                                                </div>
+
+                                                <div style="display: flex; align-items: center; gap: 5px;">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                        <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path>
+                                                        <path d="M12 5v7l5 3"></path>
+                                                    </svg>
+                                                    <code style="background: #f0f2f5; padding: 2px 6px; border-radius: 3px;">{{ $log->ip_address }}</code>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            @endforeach
+                        </div>
                     @else
-                        <p>لا توجد ملاحظات</p>
+                        <div style="text-align: center; padding: 40px 20px; color: #95a5a6;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 15px; opacity: 0.5;">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            <p style="margin: 0; font-size: 14px;">لا توجد عمليات مسجلة</p>
+                        </div>
                     @endif
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon warning">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="1"></circle>
-                        <circle cx="19" cy="12" r="1"></circle>
-                        <circle cx="5" cy="12" r="1"></circle>
-                    </svg>
-                </div>
-                <h3 class="card-title">الإجراءات المتاحة</h3>
-            </div>
-            <div class="card-body">
-                <div class="actions-grid">
-                    <a href="{{ route('manufacturing.warehouse-products.transactions', $material->id) }}" class="action-btn info">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                                <polyline points="17 6 23 6 23 12"></polyline>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                            <h5>سجل الحركات</h5>
-                            <p>عرض جميع حركات المستودع</p>
-                        </div>
-                    </a>
 
-                    <a href="{{ route('manufacturing.warehouse-products.edit', $material->id) }}" class="action-btn activate">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                            <h5>تعديل المادة</h5>
-                            <p>تحديث معلومات المادة</p>
-                        </div>
-                    </a>
-
-                    <form method="POST" action="{{ route('manufacturing.warehouse-products.destroy', $material->id) }}" style="flex: 1;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="action-btn delete" onclick="return confirm('هل أنت متأكد من حذف هذه المادة؟\n\nهذا الإجراء لا يمكن التراجع عنه!')">
-                            <div class="action-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                                    <line x1="14" y1="11" x2="14" y2="17"></line>
-                                </svg>
-                            </div>
-                            <div class="action-text">
-                                <h5>حذف المادة</h5>
-                                <p>إزالة المادة من النظام</p>
-                            </div>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Modal: إضافة كمية جديدة -->
     <div class="modal fade" id="addQuantityModal" tabindex="-1" role="dialog" aria-labelledby="addQuantityModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addQuantityModalLabel">
+                    <h5 class="modal-title" id="addQuantityModalLabel" style="flex: 1; text-align: right;">
                         <i class="feather icon-plus-circle"></i>
                         إضافة كمية جديدة
                     </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <!-- Alert Messages -->
@@ -356,9 +481,7 @@
                                 <li>{{ $error }}</li>
                             @endforeach
                         </ul>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
 
@@ -382,7 +505,7 @@
                                     <div class="warehouse-detail">
                                         <span class="warehouse-label">الكمية الحالية:</span>
                                         <span class="warehouse-value quantity" id="warehouseQuantity">0</span>
-                                        <span class="warehouse-unit" id="warehouseUnit">وحدة</span>
+                                        <span class="warehouse-unit" id="warehouseUnit">{{ $material->unit->unit_name??'-' }}</span>
                                     </div>
                                     <div class="warehouse-detail status">
                                         <span class="warehouse-label">الحالة:</span>
@@ -396,53 +519,94 @@
                         </div>
 
                         <!-- اختيار المستودع -->
-                        <div class="form-group">
-                            <label for="warehouse_id" class="form-label">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; margin-left: 5px;">
-                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                                </svg>
-                                المستودع
-                                <span style="color: #e74c3c; font-weight: 700;">*</span>
-                            </label>
-                            <select name="warehouse_id" id="warehouse_id" class="form-control" required onchange="updateWarehouseInfo()">
-                                <option value="">-- اختر المستودع --</option>
-                                @php
-                                    $warehouses = \App\Models\Warehouse::all();
-                                @endphp
-                                @foreach ($warehouses as $warehouse)
-                                    <option value="{{ $warehouse->id }}" data-warehouse-name="{{ $warehouse->warehouse_name }}">
-                                        {{ $warehouse->warehouse_name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="warehouse_id" class="form-label">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; margin-left: 5px;">
+                                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                        </svg>
+                                        المستودع
+                                        <span style="color: #e74c3c; font-weight: 700;">*</span>
+                                    </label>
+                                    <select name="warehouse_id" id="warehouse_id" class="form-control" required onchange="updateWarehouseInfo()">
+                                        <option value="">-- اختر المستودع --</option>
+                                        @php
+                                            $warehouses = \App\Models\Warehouse::all();
+                                        @endphp
+                                        @foreach ($warehouses as $warehouse)
+                                            <option value="{{ $warehouse->id }}" data-warehouse-name="{{ $warehouse->warehouse_name }}">
+                                                {{ $warehouse->warehouse_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <!-- اختيار الوحدة -->
+                                <div class="form-group">
+                                    <label for="unit_id" class="form-label">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; margin-left: 5px;">
+                                            <circle cx="12" cy="12" r="1"></circle>
+                                            <path d="M12 2v5"></path>
+                                            <path d="M12 17v5"></path>
+                                            <path d="M5.64 5.64l3.54 3.54"></path>
+                                            <path d="M14.82 14.82l3.54 3.54"></path>
+                                            <path d="M2 12h5"></path>
+                                            <path d="M17 12h5"></path>
+                                            <path d="M5.64 18.36l3.54-3.54"></path>
+                                            <path d="M14.82 9.18l3.54-3.54"></path>
+                                        </svg>
+                                        الوحدة
+                                        <span style="color: #e74c3c; font-weight: 700;">*</span>
+                                    </label>
+                                    <select name="unit_id" id="unit_id" class="form-control" required onchange="updateUnitDisplay()">
+                                        <option value="">-- اختر الوحدة --</option>
+                                        @php
+                                            $units = \App\Models\Unit::all();
+                                            $defaultUnit = $material->materialDetails->first()?->unit_id;
+                                        @endphp
+                                        @foreach ($units as $unit)
+                                            <option value="{{ $unit->id }}" {{ $defaultUnit == $unit->id ? 'selected' : '' }} data-unit-name="{{ $unit->unit_name }}">
+                                                {{ $unit->unit_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- إدخال الكمية -->
-                        <div class="form-group">
-                            <label for="quantity" class="form-label">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; margin-left: 5px;">
-                                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                                الكمية المراد إضافتها
-                                <span style="color: #e74c3c; font-weight: 700;">*</span>
-                            </label>
-                            <div class="input-group">
-                                <input type="number" name="quantity" id="quantity" class="form-control"
-                                       placeholder="أدخل الكمية" step="0.01" min="0.01" required>
-                                <div class="input-group-append">
-                                   <span class="input-group-text">{{ $material->materialDetails->first()?->getUnitName() }}</span>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="quantity" class="form-label">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; margin-left: 5px;">
+                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg>
+                                        الكمية المراد إضافتها
+                                        <span style="color: #e74c3c; font-weight: 700;">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" name="quantity" id="quantity" class="form-control"
+                                               placeholder="أدخل الكمية" step="0.01" min="0.01" required>
+                                        <div class="input-group-append">
+                                           <span class="input-group-text" id="unitDisplay">{{ $material->materialDetails->first()?->getUnitName() ?? 'وحدة' }}</span>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; display: inline-block; margin-left: 3px;">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                        </svg>
+                                        إجمالي الكمية المتبقية في جميع المستودعات: <strong style="color: #667eea;">{{ number_format($material->materialDetails->sum('remaining_weight'), 2) }}</strong>
+                                        {{ $material->materialDetails->first()?->getUnitName() ?? 'وحدة' }}
+                                    </small>
                                 </div>
                             </div>
-                            <small class="form-text text-muted">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; display: inline-block; margin-left: 3px;">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                </svg>
-                                إجمالي الكمية المتبقية في جميع المستودعات: <strong style="color: #667eea;">{{ number_format($material->materialDetails->sum('remaining_weight'), 2) }}</strong>
-                                {{ $material->materialDetails->first()?->getUnitName() }}
-                            </small>
                         </div>
 
                         <!-- الملاحظات -->
@@ -477,7 +641,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                             <i class="feather icon-x"></i>
                             إلغاء
                         </button>
@@ -497,9 +661,23 @@
             return [
                 'name' => $details->first()->warehouse->warehouse_name,
                 'quantity' => $details->sum('remaining_weight'),
-                'unit' => $details->first()->unit?->name ?? 'وحدة'
+                'unit' => $details->first()->unit?->unit_name ?? 'وحدة'
             ];
         }));
+
+        function updateUnitDisplay() {
+            const unitSelect = document.getElementById('unit_id');
+            const unitDisplay = document.getElementById('unitDisplay');
+
+            if (unitSelect.value === '') {
+                unitDisplay.textContent = 'وحدة';
+                return;
+            }
+
+            const selectedOption = unitSelect.options[unitSelect.selectedIndex];
+            const unitName = selectedOption.getAttribute('data-unit-name');
+            unitDisplay.textContent = unitName;
+        }
 
         function updateWarehouseInfo() {
             const warehouseSelect = document.getElementById('warehouse_id');

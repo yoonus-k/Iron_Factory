@@ -111,8 +111,8 @@
         }
 
         .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+
+            color: black;
             border-radius: 15px 15px 0 0;
             padding: 20px 25px;
             border: none;
@@ -197,10 +197,10 @@
         }
 
         .warehouse-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
             border-radius: 12px;
             overflow: hidden;
-            color: white;
+            color: black;
         }
 
         .warehouse-card-header {
@@ -322,7 +322,7 @@
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+            /* background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%); */
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
@@ -338,7 +338,7 @@
             padding: 12px;
             font-size: 15px;
             font-weight: 600;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
             border: none;
             border-radius: 10px;
             display: flex;
