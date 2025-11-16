@@ -27,6 +27,7 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapApiRoutes();
         $this->mapWebRoutes();
         $this->mapBarcodeRoutes();
+        $this->mapShiftsWorkersRoutes();
     }
 
     /**
@@ -57,5 +58,17 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapBarcodeRoutes(): void
     {
         Route::middleware('web')->group(module_path($this->name, '/routes/barcode.php'));
+    }
+
+    /**
+     * Define the "shifts-workers" routes for the application.
+     *
+     * These routes handle shifts and workers management.
+     */
+    protected function mapShiftsWorkersRoutes(): void
+    {
+        Route::middleware('web')
+            ->prefix('manufacturing')
+            ->group(module_path($this->name, '/routes/shifts-workers.php'));
     }
 }
