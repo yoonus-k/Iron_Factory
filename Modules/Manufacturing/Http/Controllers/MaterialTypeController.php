@@ -188,4 +188,25 @@ class MaterialTypeController extends Controller
         return redirect()->route('manufacturing.warehouse-settings.material-types.index')
                        ->with('success', 'تم حذف أنواع المواد المختارة بنجاح');
     }
+    
+    /**
+     * Generate a unique type code automatically
+     */
+    public function generateTypeCode()
+    {
+        $prefix = 'MT';
+        $date = date('ymd'); // YYMMDD format
+        $random = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+        $typeCode = $prefix . '-' . $date . '-' . $random;
+        
+        // Ensure uniqueness
+        $counter = 1;
+        while (MaterialType::where('type_code', $typeCode)->exists()) {
+            $random = str_pad(rand(0, 9999) + $counter, 4, '0', STR_PAD_LEFT);
+            $typeCode = $prefix . '-' . $date . '-' . $random;
+            $counter++;
+        }
+        
+        return response()->json(['type_code' => $typeCode]);
+    }
 }

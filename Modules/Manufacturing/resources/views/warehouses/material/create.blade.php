@@ -127,7 +127,7 @@
 
                         <div class="form-group">
                             <label for="material_type" class="form-label">
-                                نوع المادة (عربي)
+                                اسم المادة (عربي)
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper {{ $errors->has('name_ar') ? 'has-error' : '' }}">
@@ -149,7 +149,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="material_type_en" class="form-label">نوع المادة (إنجليزي)</label>
+                            <label for="material_type_en" class="form-label">اسم  المادة (إنجليزي)</label>
                             <div class="input-wrapper {{ $errors->has('name_en') ? 'has-error' : '' }}">
                                 <input type="text" name="name_en" id="material_type_en"
                                        class="form-input @error('name_en') input-error @enderror"
@@ -162,6 +162,28 @@
                                 <div class="error-message" id="material_type_en-error" style="display: none;"></div>
                             @enderror
                         </div>
+
+                        <div class="form-group">
+                            <label for="material_type_en" class="form-label">نوع المادة </label>
+                            <div class="input-wrapper {{ $errors->has('name_en') ? 'has-error' : '' }}">
+                               <select name="material_type_id" id="material_type"
+                                       class="form-input @error('material_type_id') input-error @enderror"
+                                       required>
+                                    <option value="">-- اختر نوع المادة --</option>
+                                    @foreach ($materialTypes as $type)
+                                        <option value="{{ $type->id }}" {{ old('material_type_id') == $type->id ? 'selected' : '' }}>
+                                            {{ $type->type_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @error('name_en')
+                                <div class="error-message" style="display: block;">{{ $message }}</div>
+                            @else
+                                <div class="error-message" id="material_type_en-error" style="display: none;"></div>
+                            @enderror
+                        </div>
+
 
                         <div class="form-group">
                             <label for="manufacture_date" class="form-label">تاريخ الصنع</label>

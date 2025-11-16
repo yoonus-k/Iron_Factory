@@ -111,8 +111,8 @@
         }
 
         .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+
+            color: black;
             border-radius: 15px 15px 0 0;
             padding: 20px 25px;
             border: none;
@@ -197,10 +197,10 @@
         }
 
         .warehouse-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
             border-radius: 12px;
             overflow: hidden;
-            color: white;
+            color: black;
         }
 
         .warehouse-card-header {

@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('operation_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->comment('المستخدم');
-            $table->string('action', 100)->comment('العملية: إنشاء، تعديل، حذف، مسح، إلخ');
-            $table->string('action_en', 100)->nullable()->comment('Action: create, update, delete, scan, etc');
-            $table->string('table_name', 100)->comment('اسم الجدول');
+
+            $table->string('description_ar', 250);
+            $table->string('description_en', 250);
+            $table->string('action', 100)->comment('العملية');
+                       $table->string('table_name', 100)->comment('اسم الجدول');
             $table->bigInteger('record_id')->nullable()->comment('معرف السجل');
             $table->json('old_values')->nullable()->comment('القيم السابقة');
             $table->json('new_values')->nullable()->comment('القيم الجديدة');

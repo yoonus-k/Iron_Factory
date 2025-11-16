@@ -15,6 +15,7 @@ class OperationLog extends Model
         'user_id',
         'action',
         'action_en',
+        'description',
         'table_name',
         'record_id',
         'old_values',

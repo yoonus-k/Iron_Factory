@@ -90,8 +90,18 @@
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
-                                <input type="text" name="name_ar" id="material_type" class="form-input"
-                                       placeholder="اسم المادة" value="{{ old('name_ar', $material->material_type) }}" required>
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16v16H4z"></path>
+                                    <line x1="4" y1="8" x2="20" y2="8"></line>
+                                </svg>
+                                <select name="material_type_id" id="material_type" class="form-input" required>
+                                    <option value="">-- اختر نوع المادة --</option>
+                                    @foreach ($materialTypes as $type)
+                                        <option value="{{ $type->id }}" {{ old('material_type_id', $material->material_type_id) == $type->id ? 'selected' : '' }}>
+                                            {{ $type->type_name_ar }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="error-message" id="material_type-error" style="display: none;"></div>
                         </div>
