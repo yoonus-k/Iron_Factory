@@ -1,223 +1,186 @@
 @extends('master')
 
-@section('title', 'إدارة فواتير المشتريات')
+@section('title', 'فواتير الشراء')
 
 @section('content')
+    <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style-material.css') }}">
 
-    <div class="um-content-wrapper">
-        <!-- Header Section -->
-        <div class="um-header-section">
-            <h1 class="um-page-title">
-                <i class="feather icon-file-invoice-dollar"></i>
-                إدارة فواتير المشتريات
-            </h1>
-            <nav class="um-breadcrumb-nav">
-                <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
-                </span>
-                <i class="feather icon-chevron-left"></i>
-                <span>المستودع</span>
-                <i class="feather icon-chevron-left"></i>
-                <span>فواتير المشتريات</span>
-            </nav>
+    @if (session('success'))
+        <div class="um-alert-custom um-alert-success" role="alert">
+            <i class="feather icon-check-circle"></i>
+            {{ session('success') }}
+            <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                <i class="feather icon-x"></i>
+            </button>
+        </div>
+    @endif
+
+    <div class="container">
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="course-icon">
+                        <i class="feather icon-file-text"></i>
+                    </div>
+                    <div class="header-info">
+                        <h1>فواتير الشراء</h1>
+                        <p>إدارة فواتير الشراء من الموردين</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <a href="{{ route('manufacturing.purchase-invoices.create') }}" class="btn btn-primary">
+                        <i class="feather icon-plus"></i>
+                        فاتورة جديدة
+                    </a>
+                </div>
+            </div>
         </div>
 
-        <!-- Success and Error Messages -->
-        @if (session('success'))
-            <div class="um-alert-custom um-alert-success" role="alert">
-                <i class="feather icon-check-circle"></i>
-                {{ session('success') }}
-                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
-                    <i class="feather icon-x"></i>
-                </button>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">🔍 البحث والتصفية</h3>
             </div>
-        @endif
-
-        @if (session('error'))
-            <div class="um-alert-custom um-alert-error" role="alert">
-                <i class="feather icon-x-circle"></i>
-                {{ session('error') }}
-                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
-                    <i class="feather icon-x"></i>
-                </button>
-            </div>
-        @endif
-
-        <!-- Main Card -->
-        <section class="um-main-card">
-            <!-- Card Header -->
-            <div class="um-card-header">
-                <h4 class="um-card-title">
-                    <i class="feather icon-list"></i>
-                    قائمة فواتير المشتريات
-                </h4>
-                <a href="{{ route('manufacturing.purchase-invoices.create') }}" class="um-btn um-btn-primary">
-                    <i class="feather icon-plus"></i>
-                    إضافة فاتورة جديدة
-                </a>
-            </div>
-
-            <!-- Filters Section -->
-            <div class="um-filters-section">
-                <form method="GET">
-                    <div class="um-filter-row">
-                        <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث في الفواتير...">
-                        </div>
-                        <div class="um-form-group">
-                            <input type="text" name="invoice_number" class="um-form-control" placeholder="رقم الفاتورة...">
-                        </div>
-                        <div class="um-form-group">
-                            <select name="status" class="um-form-control">
-                                <option value="">جميع الحالات</option>
-                                <option value="paid">مدفوعة</option>
-                                <option value="pending">قيد الانتظار</option>
-                                <option value="overdue">متأخرة</option>
-                            </select>
-                        </div>
-                        <div class="um-filter-actions">
-                            <button type="submit" class="um-btn um-btn-primary">
-                                <i class="feather icon-search"></i>
-                                بحث
-                            </button>
-                            <button type="reset" class="um-btn um-btn-outline">
-                                <i class="feather icon-x"></i>
-                                إعادة تعيين
-                            </button>
-                        </div>
+            <div class="card-body">
+                <form method="GET" class="row g-3">
+                    <div class="col-md-4">
+                        <input type="text" name="search" class="form-control" placeholder="البحث برقم الفاتورة أو المورد" value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <select name="supplier_id" class="form-control">
+                            <option value="">-- جميع الموردين --</option>
+                            @foreach($suppliers as $supplier)
+                                <option value="{{ $supplier->id }}" {{ request('supplier_id') == $supplier->id ? 'selected' : '' }}>
+                                    {{ $supplier->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="status" class="form-control">
+                            <option value="">-- جميع الحالات --</option>
+                            <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>مسودة</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>قيد الانتظار</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>موافق عليه</option>
+                            <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>مدفوع</option>
+                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>مرفوض</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="feather icon-search"></i>
+                            بحث
+                        </button>
                     </div>
                 </form>
             </div>
+        </div>
 
-            <!-- Table - Desktop View -->
-            <div class="um-table-responsive um-desktop-view">
-                <table class="um-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>رقم الفاتورة</th>
-                            <th>المورد</th>
-                            <th>تاريخ الفاتورة</th>
-                            <th>المبلغ الإجمالي</th>
-                            <th>المبلغ المدفوع</th>
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>INV-2024-001</td>
-                            <td>شركة الحديد والصلب</td>
-                            <td>2024-11-01</td>
-                            <td>5,000 ريال</td>
-                            <td>5,000 ريال</td>
-                            <td><span class="um-badge um-badge-success">مدفوعة</span></td>
-                            <td>
-                                <div class="um-dropdown">
-                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
-                                        <i class="feather icon-more-vertical"></i>
-                                    </button>
-                                    <div class="um-dropdown-menu">
-                                        <a href="{{ route('manufacturing.purchase-invoices.show', 1) }}" class="um-dropdown-item um-btn-view">
-                                            <i class="feather icon-eye"></i>
-                                            <span>عرض</span>
-                                        </a>
-                                        <a href="{{ route('manufacturing.purchase-invoices.edit', 1) }}" class="um-dropdown-item um-btn-edit">
-                                            <i class="feather icon-edit-2"></i>
-                                            <span>تعديل</span>
-                                        </a>
-                                        <button class="um-dropdown-item um-btn-delete" title="حذف">
-                                            <i class="feather icon-trash-2"></i>
-                                            <span>حذف</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>INV-2024-002</td>
-                            <td>شركة المعادن المتحدة</td>
-                            <td>2024-11-05</td>
-                            <td>3,500 ريال</td>
-                            <td>0 ريال</td>
-                            <td><span class="um-badge um-badge-warning">قيد الانتظار</span></td>
-                            <td>
-                                <div class="um-dropdown">
-                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
-                                        <i class="feather icon-more-vertical"></i>
-                                    </button>
-                                    <div class="um-dropdown-menu">
-                                        <a href="{{ route('manufacturing.purchase-invoices.show', 2) }}" class="um-dropdown-item um-btn-view">
-                                            <i class="feather icon-eye"></i>
-                                            <span>عرض</span>
-                                        </a>
-                                        <a href="{{ route('manufacturing.purchase-invoices.edit', 2) }}" class="um-dropdown-item um-btn-edit">
-                                            <i class="feather icon-edit-2"></i>
-                                            <span>تعديل</span>
-                                        </a>
-                                        <button class="um-dropdown-item um-btn-delete" title="حذف">
-                                            <i class="feather icon-trash-2"></i>
-                                            <span>حذف</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">📋 قائمة الفواتير</h3>
+                <p class="text-muted">إجمالي الفواتير: {{ $invoices->total() }}</p>
             </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>رقم الفاتورة</th>
+                                <th>المورد</th>
+                                <th>تاريخ الفاتورة</th>
+                                <th>المبلغ</th>
+                                <th>الحالة</th>
+                                <th>تاريخ الاستحقاق</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($invoices as $invoice)
+                                <tr>
+                                    <td>
+                                        <strong>{{ $invoice->invoice_number }}</strong>
+                                        @if($invoice->invoice_reference_number)
+                                            <br><small class="text-muted">{{ $invoice->invoice_reference_number }}</small>
+                                        @endif
+                                    </td>
+                                    <td>{{ $invoice->supplier->name ?? 'N/A' }}</td>
+                                    <td>{{ $invoice->invoice_date->format('Y-m-d') }}</td>
+                                    <td>
+                                        <strong>{{ number_format($invoice->total_amount, 2) }}</strong>
+                                        <span class="badge badge-secondary">{{ $invoice->currency }}</span>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $statusColor = $invoice->status->color();
+                                            $bgColor = $statusColor === 'yellow' ? '#fff3cd' : (
+                                                $statusColor === 'green' ? '#d4edda' : (
+                                                $statusColor === 'red' ? '#f8d7da' : (
+                                                $statusColor === 'blue' ? '#d1ecf1' : '#e2e3e5'
+                                            )));
+                                            $textColor = $statusColor === 'yellow' ? '#856404' : (
+                                                $statusColor === 'green' ? '#155724' : (
+                                                $statusColor === 'red' ? '#721c24' : (
+                                                $statusColor === 'blue' ? '#0c5460' : '#383d41'
+                                            )));
+                                        @endphp
+                                        <span style="background-color: {{ $bgColor }}; color: {{ $textColor }}; padding: 4px 8px; border-radius: 4px; display: inline-block;">
+                                            {{ $invoice->status->label() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if($invoice->due_date)
+                                            <span class="badge {{ $invoice->isOverdue() ? 'badge-danger' : 'badge-info' }}">
+                                                {{ $invoice->due_date->format('Y-m-d') }}
+                                                @if($invoice->isOverdue())
+                                                    (متأخر)
+                                                @endif
+                                            </span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ route('manufacturing.purchase-invoices.show', $invoice->id) }}" class="btn btn-info" title="عرض">
+                                                <i class="feather icon-eye"></i>
+                                            </a>
+                                            <a href="{{ route('manufacturing.purchase-invoices.edit', $invoice->id) }}" class="btn btn-warning" title="تعديل">
+                                                <i class="feather icon-edit"></i>
+                                            </a>
+                                            <form method="POST" action="{{ route('manufacturing.purchase-invoices.destroy', $invoice->id) }}" style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+                                                    <i class="feather icon-trash-2"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="feather icon-inbox" style="font-size: 2rem; opacity: 0.3;"></i>
+                                        <p>لا توجد فواتير</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
-            <!-- Cards - Mobile View -->
-            <div class="um-mobile-view">
-                <div class="um-category-card">
-                    <div class="um-category-card-header">
-                        <div class="um-category-info">
-                            <h5>INV-2024-001</h5>
-                            <p>شركة الحديد والصلب</p>
-                        </div>
-                        <span class="um-badge um-badge-success">مدفوعة</span>
-                    </div>
-                    <div class="um-category-card-body">
-                        <div class="um-info-row">
-                            <span>التاريخ:</span>
-                            <span>2024-11-01</span>
-                        </div>
-                        <div class="um-info-row">
-                            <span>المبلغ الإجمالي:</span>
-                            <span>5,000 ريال</span>
-                        </div>
-                        <div class="um-info-row">
-                            <span>المبلغ المدفوع:</span>
-                            <span>5,000 ريال</span>
-                        </div>
-                    </div>
-                    <div class="um-category-card-footer">
-                        <div class="um-dropdown">
-                            <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
-                                <i class="feather icon-more-vertical"></i>
-                            </button>
-                            <div class="um-dropdown-menu">
-                                <a href="{{ route('manufacturing.purchase-invoices.show', 1) }}" class="um-dropdown-item um-btn-view">
-                                    <i class="feather icon-eye"></i>
-                                    <span>عرض</span>
-                                </a>
-                                <a href="{{ route('manufacturing.purchase-invoices.edit', 1) }}" class="um-dropdown-item um-btn-edit">
-                                    <i class="feather icon-edit-2"></i>
-                                    <span>تعديل</span>
-                                </a>
-                                <button class="um-dropdown-item um-btn-delete" title="حذف">
-                                    <i class="feather icon-trash-2"></i>
-                                    <span>حذف</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Pagination -->
+                <div class="mt-4">
+                    {{ $invoices->links() }}
                 </div>
             </div>
-        </section>
+        </div>
     </div>
+@endsection
+        <!-- Header Section -->
+
+@section('scripts')
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

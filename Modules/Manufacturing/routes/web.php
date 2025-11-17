@@ -40,7 +40,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('materials/import', [WarehouseProductController::class, 'import'])->name('manufacturing.materials.import');
     Route::resource('delivery-notes', DeliveryNoteController::class)->names('manufacturing.delivery-notes');
     Route::put('delivery-notes/{id}/toggle-status', [DeliveryNoteController::class, 'toggleStatus'])->name('manufacturing.delivery-notes.toggle-status');
+    Route::put('delivery-notes/{id}/change-status', [DeliveryNoteController::class, 'changeStatus'])->name('manufacturing.delivery-notes.change-status');
+    Route::put('delivery-notes/{id}/update-status', [DeliveryNoteController::class, 'updateStatus'])->name('manufacturing.delivery-notes.update-status');
     Route::resource('purchase-invoices', PurchaseInvoiceController::class)->names('manufacturing.purchase-invoices');
+    Route::put('purchase-invoices/{id}/update-status', [PurchaseInvoiceController::class, 'updateStatus'])->name('manufacturing.purchase-invoices.update-status');
     Route::resource('suppliers', SupplierController::class)->names('manufacturing.suppliers');
     Route::put('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('manufacturing.suppliers.toggle-status');
     Route::resource('additives', AdditiveController::class)->names('manufacturing.additives');
