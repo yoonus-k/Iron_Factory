@@ -4,21 +4,19 @@
 
 @section('content')
 <style>
-    /* Stage Container */
     .stage-container {
         max-width: 1100px;
         margin: 20px auto;
         padding: 0 15px;
     }
 
-    /* Stage Header */
     .stage-header {
-        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
         color: white;
         padding: 25px 30px;
-        border-radius: var(--border-radius);
+        border-radius: 12px;
         margin-bottom: 25px;
-        box-shadow: var(--shadow-medium);
+        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
     }
 
     .stage-header h1 {
@@ -36,83 +34,30 @@
         font-size: 14px;
     }
 
-    /* Form Section */
     .form-section {
         background: white;
         padding: 25px;
-        border-radius: var(--border-radius);
+        border-radius: 12px;
         margin-bottom: 20px;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-light);
+        border: 1px solid #e8e8e8;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
     .section-title {
         font-size: 18px;
         font-weight: 600;
-        color: var(--dark-color);
+        color: #2c3e50;
         margin: 0 0 20px 0;
         padding-bottom: 12px;
-        border-bottom: 2px solid #9b59b6;
+        border-bottom: 2px solid #e74c3c;
     }
 
-    /* Form Layout */
-    .form-row {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-        margin-bottom: 20px;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .form-group label {
-        font-size: 14px;
-        font-weight: 500;
-        color: #34495e;
-        margin-bottom: 8px;
-    }
-
-    .required {
-        color: var(--danger-color);
-        margin-right: 4px;
-    }
-
-    .form-control, .form-select {
-        padding: 12px 15px;
-        border: 1px solid #dce4ec;
-        border-radius: 8px;
-        font-size: 14px;
-        transition: all 0.3s;
-        background: #f8fafb;
-    }
-
-    .form-control:focus, .form-select:focus {
-        outline: none;
-        border-color: #9b59b6;
-        background: white;
-        box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
-    }
-
-    .form-control:disabled, .form-control:read-only {
-        background: #ecf0f1;
-        cursor: not-allowed;
-    }
-
-    textarea.form-control {
-        resize: vertical;
-        min-height: 80px;
-    }
-
-    /* Barcode Section */
     .barcode-section {
-        background: linear-gradient(135deg, #f3e5f5 0%, #e8d5ed 100%);
+        background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
         padding: 20px;
         border-radius: 10px;
         margin-bottom: 20px;
-        border: 2px dashed #9b59b6;
+        border: 2px dashed #e74c3c;
     }
 
     .barcode-input-wrapper {
@@ -123,7 +68,7 @@
         width: 100%;
         padding: 15px 50px 15px 15px;
         font-size: 16px;
-        border: 2px solid #9b59b6;
+        border: 2px solid #e74c3c;
         border-radius: 8px;
         font-weight: 500;
         background: white;
@@ -135,31 +80,30 @@
         top: 50%;
         transform: translateY(-50%);
         font-size: 24px;
-        color: #9b59b6;
+        color: #e74c3c;
     }
 
-    /* Coil Display */
-    .coil-display {
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    .lafaf-display {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
         padding: 20px;
         border-radius: 10px;
         margin-bottom: 20px;
-        border-right: 4px solid #2196f3;
+        border-right: 4px solid #27ae60;
         display: none;
     }
 
-    .coil-display.active {
+    .lafaf-display.active {
         display: block;
         animation: slideIn 0.3s ease-out;
     }
 
-    .coil-display h4 {
-        color: #2196f3;
+    .lafaf-display h4 {
+        color: #27ae60;
         margin: 0 0 10px 0;
         font-size: 16px;
     }
 
-    .coil-info-grid {
+    .lafaf-info {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 15px;
@@ -181,12 +125,7 @@
     .info-value {
         font-size: 15px;
         font-weight: 600;
-        color: var(--dark-color);
-    }
-
-    /* Box List */
-    .box-list {
-        margin-top: 20px;
+        color: #2c3e50;
     }
 
     .box-item {
@@ -194,46 +133,98 @@
         padding: 15px;
         border-radius: 8px;
         margin-bottom: 12px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-right: 4px solid #9b59b6;
+        border-right: 4px solid #e74c3c;
         animation: slideIn 0.3s ease-out;
     }
 
-    .box-info strong {
-        color: var(--dark-color);
-        font-size: 15px;
-        display: block;
+    .box-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .box-number {
+        font-size: 16px;
+        font-weight: 600;
+        color: #e74c3c;
+    }
+
+    .box-form {
+        display: grid;
+        grid-template-columns: 2fr 3fr 80px;
+        gap: 10px;
+        align-items: end;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #34495e;
         margin-bottom: 6px;
     }
 
-    .box-info small {
-        color: #7f8c8d;
-        font-size: 13px;
-        line-height: 1.6;
+    .form-control {
+        padding: 10px 12px;
+        border: 1px solid #dce4ec;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+        background: white;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #e74c3c;
+        box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
     }
 
     .btn-delete {
-        background: var(--danger-color);
+        background: #95a5a6;
         color: white;
         border: none;
-        padding: 8px 16px;
+        padding: 10px;
         border-radius: 6px;
         cursor: pointer;
-        font-size: 13px;
+        font-size: 18px;
         transition: all 0.3s;
     }
 
     .btn-delete:hover {
-        background: #c0392b;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+        background: #7f8c8d;
     }
 
-    /* Buttons */
+    .summary-box {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+        padding: 15px;
+        border-radius: 8px;
+        border-right: 4px solid #f39c12;
+        margin: 20px 0;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .summary-row:last-child {
+        margin-bottom: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #e67e22;
+        padding-top: 8px;
+        border-top: 2px dashed rgba(0,0,0,0.1);
+    }
+
     .btn-primary {
-        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
         color: white;
         border: none;
         padding: 12px 24px;
@@ -249,11 +240,11 @@
 
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(155, 89, 182, 0.3);
+        box-shadow: 0 6px 16px rgba(231, 76, 60, 0.3);
     }
 
     .btn-success {
-        background: linear-gradient(135deg, var(--success-color) 0%, #229954 100%);
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
         color: white;
         border: none;
         padding: 14px 32px;
@@ -262,9 +253,6 @@
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
     }
 
     .btn-success:hover {
@@ -294,7 +282,6 @@
         background: #7f8c8d;
     }
 
-    /* Actions */
     .form-actions {
         display: flex;
         gap: 15px;
@@ -310,42 +297,26 @@
         margin-top: 15px;
     }
 
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 40px 20px;
-        color: #95a5a6;
-    }
-
-    .empty-state svg {
-        width: 64px;
-        height: 64px;
-        margin-bottom: 15px;
-        opacity: 0.5;
-    }
-
-    /* Info Box */
     .info-box {
-        background: linear-gradient(135deg, #fff9e6 0%, #ffeaa7 100%);
-        border-right: 4px solid #f39c12;
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        border-right: 4px solid #27ae60;
         padding: 15px;
         border-radius: 8px;
         margin-bottom: 20px;
     }
 
     .info-box strong {
-        color: #e67e22;
+        color: #27ae60;
         display: block;
         margin-bottom: 8px;
     }
 
     .info-box ul {
         margin: 8px 0 0 20px;
-        color: #7f8c8d;
+        color: #555;
         font-size: 13px;
     }
 
-    /* Animations */
     @keyframes slideIn {
         from {
             opacity: 0;
@@ -357,21 +328,13 @@
         }
     }
 
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    /* Responsive */
     @media (max-width: 768px) {
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-        
-        .coil-info-grid {
+        .lafaf-info {
             grid-template-columns: repeat(2, 1fr);
         }
-        
+        .box-form {
+            grid-template-columns: 1fr;
+        }
         .form-actions {
             flex-direction: column;
         }
@@ -379,169 +342,87 @@
 </style>
 
 <div class="stage-container">
-    <!-- Header -->
     <div class="stage-header">
         <h1>
             <span>📦</span>
             المرحلة الرابعة - تعبئة الكراتين
         </h1>
-        <p>قم بمسح باركود الكويل وإضافة معلومات التعبئة والشحن</p>
+        <p>قم بمسح باركود اللفاف وتقسيمه على الكراتين (كل كرتون سيحصل على باركود خاص)</p>
     </div>
 
-    <!-- Barcode Scanner -->
     <div class="form-section barcode-section">
-        <h3 style="margin: 0 0 15px 0; color: #9b59b6;">📷 مسح باركود الكويل</h3>
+        <h3 style="margin: 0 0 15px 0; color: #e74c3c;">📷 مسح باركود اللفاف</h3>
         <div class="barcode-input-wrapper">
-            <input type="text" id="coilBarcode" class="barcode-input" placeholder="امسح أو اكتب باركود الكويل (CO3-XXX-2025)" autofocus>
-            <span class="barcode-icon">🎯</span>
+            <input type="text" id="lafafBarcode" class="barcode-input" placeholder="امسح أو اكتب باركود اللفاف (CO3-XXXX)" autofocus>
+            <span class="barcode-icon">📦</span>
         </div>
         <small style="color: #7f8c8d; display: block; margin-top: 10px;">💡 امسح الباركود أو اضغط Enter للبحث</small>
     </div>
 
-    <!-- Coil Display -->
-    <div id="coilDisplay" class="coil-display">
-        <h4>✅ بيانات الكويل</h4>
-        <div class="coil-info-grid">
+    <div id="lafafDisplay" class="lafaf-display">
+        <h4>✅ بيانات اللفاف</h4>
+        <div class="lafaf-info">
             <div class="info-item">
                 <div class="info-label">الباركود</div>
                 <div class="info-value" id="displayBarcode">-</div>
             </div>
             <div class="info-item">
-                <div class="info-label">لون الصبغة</div>
-                <div class="info-value" id="displayDyeColor">-</div>
+                <div class="info-label">اللون</div>
+                <div class="info-value" id="displayColor">-</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">الوزن الكامل</div>
+                <div class="info-value" id="displayWeight">-</div>
             </div>
             <div class="info-item">
                 <div class="info-label">نوع البلاستيك</div>
-                <div class="info-value" id="displayPlasticType">-</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">الوزن الإجمالي</div>
-                <div class="info-value" id="displayWeight">-</div>
+                <div class="info-value" id="displayPlastic">-</div>
             </div>
         </div>
     </div>
 
-    <!-- Scanned Coils List -->
     <div class="form-section">
-        <h3 class="section-title">🎯 الكويلات الممسوحة للكرتون الحالي</h3>
-        
+        <h3 class="section-title">📦 تقسيم الكراتين</h3>
+
         <div class="info-box">
-            <strong>💡 كيف تعمل العملية:</strong>
+            <strong>📌 ملاحظة هامة:</strong>
             <ul>
-                <li>امسح باركود كل كويل على حدة</li>
-                <li>سيتم إضافة الكويل تلقائياً مع وزنه الفعلي</li>
-                <li>الوزن الإجمالي يُحسب من مجموع جميع الكويلات</li>
+                <li>مجموع أوزان الكراتين يجب أن يساوي وزن اللفاف تقريباً (تسامح 2%)</li>
+                <li>كل كرتون سيحصل على باركود خاص (BOX4-XXXX)</li>
+                <li>يمكنك تتبع كل كرتون بشكل منفصل من خلال صفحة التتبع</li>
             </ul>
         </div>
 
-        <div id="scannedCoilsList" class="coil-list" style="min-height: 150px; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-            <div class="empty-state" style="padding: 30px;">
-                <p style="margin: 0; color: #7f8c8d;">لم يتم مسح أي كويلات بعد</p>
-            </div>
-        </div>
-
-        <div class="form-row" style="background: linear-gradient(135deg, #e8f4f8 0%, #d4ebf5 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-            <div class="info-item" style="text-align: center;">
-                <div class="info-label" style="font-size: 13px; color: #7f8c8d;">عدد الكويلات</div>
-                <div class="info-value" style="font-size: 24px; font-weight: 700; color: #2196f3;" id="scannedCoilsCount">0</div>
-            </div>
-            <div class="info-item" style="text-align: center;">
-                <div class="info-label" style="font-size: 13px; color: #7f8c8d;">الوزن المتوقع</div>
-                <div class="info-value" style="font-size: 24px; font-weight: 700; color: #27ae60;" id="expectedWeightDisplay">0 كجم</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Box Form -->
-    <div class="form-section">
-        <h3 class="section-title">📝 بيانات الكرتون</h3>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label>رقم الكرتون <span class="required">*</span></label>
-                <input type="text" id="boxNumber" class="form-control" placeholder="BOX4-001-2025">
-            </div>
-
-            <div class="form-group">
-                <label>الوزن المتوقع (كجم)</label>
-                <input type="number" id="expectedWeight" class="form-control" placeholder="0.00" step="0.01" readonly style="background: #e8f4f8; font-weight: 600;">
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label>الوزن الفعلي بعد التعبئة (كجم) <span class="required">*</span></label>
-                <input type="number" id="actualWeight" class="form-control" placeholder="0.00" step="0.01">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">💡 الوزن الفعلي بعد التعبئة والتغليف</small>
-            </div>
-
-            <div class="form-group">
-                <label>كمية الهدر (كجم)</label>
-                <input type="number" id="wasteAmount" class="form-control" readonly style="background: #fff3cd;">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">نسبة الهدر: <span id="wastePercentDisplay">0%</span></small>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label>نوع التغليف <span class="required">*</span></label>
-                <select id="packagingType" class="form-select">
-                    <option value="">اختر نوع التغليف</option>
-                    <option value="carton">كرتون عادي</option>
-                    <option value="reinforced_carton">كرتون مقوى</option>
-                    <option value="wooden">صندوق خشبي</option>
-                    <option value="plastic">غلاف بلاستيكي</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>التكلفة (ريال) <span class="required">*</span></label>
-                <input type="number" id="cost" class="form-control" placeholder="0.00" step="0.01">
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group" style="grid-column: 1 / -1;">
-                <label>عنوان الشحن</label>
-                <textarea id="shippingAddress" class="form-control" placeholder="المدينة، الحي، الشارع... (اختياري)"></textarea>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group" style="grid-column: 1 / -1;">
-                <label>ملاحظات</label>
-                <textarea id="notes" class="form-control" placeholder="أضف أي ملاحظات إضافية..."></textarea>
-            </div>
-        </div>
+        <div id="boxesList"></div>
 
         <div class="button-group">
             <button type="button" class="btn-primary" onclick="addBox()">
-                ➕ إضافة الكرتون
-            </button>
-            <button type="button" class="btn-secondary" onclick="clearForm()">
-                🔄 مسح النموذج
+                ➕ إضافة كرتون
             </button>
         </div>
-    </div>
 
-    <!-- Boxes List -->
-    <div class="form-section">
-        <h3 class="section-title">📋 قائمة الكراتين المضافة (<span id="boxCount">0</span>)</h3>
-        <div id="boxList" class="box-list">
-            <div class="empty-state">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                <p>لا توجد كراتين مضافة بعد</p>
+        <div id="summaryBox" class="summary-box" style="display: none;">
+            <div class="summary-row">
+                <span>عدد الكراتين:</span>
+                <span id="summaryBoxCount">0</span>
+            </div>
+            <div class="summary-row">
+                <span>وزن اللفاف:</span>
+                <span id="summaryLafafWeight">0 كجم</span>
+            </div>
+            <div class="summary-row">
+                <span>مجموع أوزان الكراتين:</span>
+                <span id="summaryTotalWeight">0 كجم</span>
+            </div>
+            <div class="summary-row">
+                <span>الفرق:</span>
+                <span id="summaryDifference">0 كجم</span>
             </div>
         </div>
     </div>
 
-    <!-- Actions -->
     <div class="form-actions">
-        <button type="button" class="btn-success" onclick="submitAll()" id="submitBtn" disabled>
+        <button type="button" class="btn-success" onclick="submitBoxes()" id="submitBtn" disabled>
             ✅ حفظ جميع الكراتين
         </button>
         <button type="button" class="btn-secondary" onclick="window.location.href='{{ route('manufacturing.stage4.index') }}'">
@@ -551,293 +432,173 @@
 </div>
 
 <script>
-let scannedCoils = []; // الكويلات الممسوحة للكرتون الحالي
+let currentLafaf = null;
 let boxes = [];
+let boxCounter = 0;
 
-// Load from localStorage on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const saved = localStorage.getItem('stage4_boxes');
-    if (saved) {
-        boxes = JSON.parse(saved);
-        renderBoxes();
-    }
-    
-    // Auto-save every 30 seconds
-    setInterval(saveOffline, 30000);
-});
-
-// Barcode scanner
-document.getElementById('coilBarcode').addEventListener('keypress', function(e) {
+document.getElementById('lafafBarcode').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
-        const barcode = this.value.trim();
-        if (barcode) {
-            loadCoil(barcode);
-            this.value = ''; // Clear for next scan
-        }
+        loadLafaf(this.value.trim());
     }
 });
 
-// Auto-calculate waste when actual weight changes
-document.getElementById('actualWeight').addEventListener('input', calculateWaste);
-
-function loadCoil(barcode) {
-    // Check if already scanned
-    if (scannedCoils.some(c => c.barcode === barcode)) {
-        showToast('⚠️ هذا الكويل تم مسحه مسبقاً!', 'error');
+function loadLafaf(barcode) {
+    if (!barcode) {
+        showToast('⚠️ يرجى إدخال باركود اللفاف!', 'error');
         return;
     }
 
-    // Simulate API call - replace with actual AJAX
-    // fetch(`/api/stage3/get-by-barcode/${barcode}`)
-    //     .then(response => response.json())
-    //     .then(data => { addCoilToBox(data); })
+    const barcodeInput = document.getElementById('lafafBarcode');
+    barcodeInput.disabled = true;
 
-    // Mock data for demonstration
-    const coilData = {
-        id: Date.now(),
-        barcode: barcode,
-        dye_color: ['red', 'blue', 'green', 'yellow'][Math.floor(Math.random() * 4)],
-        plastic_type: ['pe', 'pp', 'pvc'][Math.floor(Math.random() * 3)],
-        total_weight: (90 + Math.random() * 20).toFixed(2) // وزن عشوائي بين 90-110
-    };
-
-    addCoilToBox(coilData);
-}
-
-function addCoilToBox(coilData) {
-    scannedCoils.push(coilData);
-    renderScannedCoils();
-    updateTotalWeight();
-    
-    // Display last scanned coil
-    const colorNames = {
-        red: 'أحمر', blue: 'أزرق', green: 'أخضر', yellow: 'أصفر',
-        black: 'أسود', white: 'أبيض', brown: 'بني'
-    };
-    const plasticNames = {
-        pe: 'PE', pp: 'PP', pvc: 'PVC', pet: 'PET'
-    };
-
-    document.getElementById('displayBarcode').textContent = coilData.barcode;
-    document.getElementById('displayDyeColor').textContent = colorNames[coilData.dye_color] || coilData.dye_color;
-    document.getElementById('displayPlasticType').textContent = plasticNames[coilData.plastic_type] || coilData.plastic_type;
-    document.getElementById('displayWeight').textContent = coilData.total_weight + ' كجم';
-    document.getElementById('coilDisplay').classList.add('active');
-
-    showToast('✅ تم إضافة الكويل: ' + coilData.barcode, 'success');
-}
-
-function renderScannedCoils() {
-    const list = document.getElementById('scannedCoilsList');
-    document.getElementById('scannedCoilsCount').textContent = scannedCoils.length;
-
-    if (scannedCoils.length === 0) {
-        list.innerHTML = `
-            <div class="empty-state" style="padding: 30px;">
-                <p style="margin: 0; color: #7f8c8d;">لم يتم مسح أي كويلات بعد</p>
-            </div>
-        `;
-        return;
-    }
-
-    const colorNames = {
-        red: 'أحمر', blue: 'أزرق', green: 'أخضر', yellow: 'أصفر',
-        black: 'أسود', white: 'أبيض', brown: 'بني'
-    };
-
-    list.innerHTML = scannedCoils.map((coil, index) => `
-        <div style="background: white; padding: 12px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-right: 3px solid #9b59b6;">
-            <div>
-                <strong style="color: #2c3e50; font-size: 14px;">${index + 1}. ${coil.barcode}</strong>
-                <small style="display: block; color: #7f8c8d; font-size: 12px; margin-top: 4px;">
-                    لون: ${colorNames[coil.dye_color]} | وزن: ${coil.total_weight} كجم
-                </small>
-            </div>
-            <button onclick="removeScannedCoil(${coil.id})" style="background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                🗑️ حذف
-            </button>
-        </div>
-    `).join('');
-}
-
-function removeScannedCoil(id) {
-    scannedCoils = scannedCoils.filter(c => c.id !== id);
-    renderScannedCoils();
-    updateTotalWeight();
-    showToast('تم حذف الكويل', 'info');
-}
-
-function updateTotalWeight() {
-    const totalWeight = scannedCoils.reduce((sum, coil) => sum + parseFloat(coil.total_weight), 0).toFixed(2);
-    document.getElementById('expectedWeight').value = totalWeight;
-    document.getElementById('expectedWeightDisplay').textContent = totalWeight + ' كجم';
-    
-    // Recalculate waste if actual weight is entered
-    calculateWaste();
-}
-
-function calculateWaste() {
-    const expectedWeight = parseFloat(document.getElementById('expectedWeight').value) || 0;
-    const actualWeight = parseFloat(document.getElementById('actualWeight').value) || 0;
-    
-    if (expectedWeight > 0 && actualWeight > 0) {
-        if (actualWeight > expectedWeight) {
-            showToast('⚠️ تحذير: الوزن الفعلي أكبر من المتوقع!', 'error');
-        }
-        
-        const wasteAmount = (expectedWeight - actualWeight).toFixed(2);
-        const wastePercent = ((expectedWeight - actualWeight) / expectedWeight * 100).toFixed(2);
-        document.getElementById('wasteAmount').value = wasteAmount;
-        document.getElementById('wastePercentDisplay').textContent = wastePercent + '%';
-        
-        // Change color based on waste percentage
-        const wasteInput = document.getElementById('wasteAmount');
-        if (parseFloat(wastePercent) > 5) {
-            wasteInput.style.background = '#ffeaa7'; // Yellow warning
-            wasteInput.style.color = '#d63031';
-            wasteInput.style.fontWeight = 'bold';
+    fetch(`/stage4/get-lafaf-by-barcode/${barcode}`, {
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            currentLafaf = data.data;
+            displayLafafData();
+            showToast('✅ تم تحميل بيانات اللفاف بنجاح!', 'success');
         } else {
-            wasteInput.style.background = '#fff3cd';
-            wasteInput.style.color = '#856404';
-            wasteInput.style.fontWeight = 'normal';
+            throw new Error(data.message || 'لم يتم العثور على الباركود');
         }
-    } else {
-        document.getElementById('wasteAmount').value = '0';
-        document.getElementById('wastePercentDisplay').textContent = '0%';
+    })
+    .catch(error => {
+        showToast('❌ ' + error.message, 'error');
+        currentLafaf = null;
+        document.getElementById('lafafDisplay').classList.remove('active');
+    })
+    .finally(() => {
+        barcodeInput.disabled = false;
+    });
+}
+
+function displayLafafData() {
+    document.getElementById('displayBarcode').textContent = currentLafaf.barcode;
+    document.getElementById('displayColor').textContent = currentLafaf.color || '-';
+    document.getElementById('displayWeight').textContent = currentLafaf.total_weight + ' كجم';
+    document.getElementById('displayPlastic').textContent = currentLafaf.plastic_type || '-';
+    document.getElementById('lafafDisplay').classList.add('active');
+    document.getElementById('submitBtn').disabled = false;
+    
+    if (boxes.length === 0) {
+        addBox();
     }
 }
 
 function addBox() {
-    if (scannedCoils.length === 0) {
-        alert('⚠️ يرجى مسح كويل واحد على الأقل أولاً!');
+    if (!currentLafaf) {
+        showToast('⚠️ يرجى مسح باركود اللفاف أولاً!', 'error');
         return;
     }
 
-    const boxNumber = document.getElementById('boxNumber').value.trim();
-    const packagingType = document.getElementById('packagingType').value;
-    const expectedWeight = document.getElementById('expectedWeight').value;
-    const actualWeight = document.getElementById('actualWeight').value;
-    const wasteAmount = document.getElementById('wasteAmount').value || 0;
-    const shippingAddress = document.getElementById('shippingAddress').value.trim();
-    const cost = document.getElementById('cost').value;
-    const notes = document.getElementById('notes').value.trim();
-
-    if (!boxNumber || !packagingType || !actualWeight || !cost) {
-        alert('⚠️ يرجى ملء جميع الحقول المطلوبة!');
-        return;
-    }
-
-    const wastePercentage = parseFloat(expectedWeight) > 0 ? 
-        ((parseFloat(expectedWeight) - parseFloat(actualWeight)) / parseFloat(expectedWeight) * 100).toFixed(2) : 0;
-
-    const box = {
+    boxCounter++;
+    boxes.push({
         id: Date.now(),
-        box_number: boxNumber,
-        coils: [...scannedCoils], // نسخة من الكويلات الممسوحة
-        coils_count: scannedCoils.length,
-        packaging_type: packagingType,
-        expected_weight: parseFloat(expectedWeight),
-        actual_weight: parseFloat(actualWeight),
-        waste_amount: parseFloat(wasteAmount),
-        waste_percentage: parseFloat(wastePercentage),
-        shipping_address: shippingAddress,
-        cost: parseFloat(cost),
-        notes: notes
-    };
+        number: boxCounter,
+        weight: '',
+        notes: ''
+    });
 
-    boxes.push(box);
     renderBoxes();
-    clearForm();
-    saveOffline();
-
-    showToast('✅ تم إضافة الكرتون بنجاح! (' + scannedCoils.length + ' كويلات)', 'success');
+    updateSummary();
 }
 
 function renderBoxes() {
-    const list = document.getElementById('boxList');
-    document.getElementById('boxCount').textContent = boxes.length;
-    document.getElementById('submitBtn').disabled = boxes.length === 0;
-
+    const list = document.getElementById('boxesList');
+    
     if (boxes.length === 0) {
-        list.innerHTML = `
-            <div class="empty-state">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                <p>لا توجد كراتين مضافة بعد</p>
-            </div>
-        `;
+        list.innerHTML = '<p style="text-align: center; color: #95a5a6; padding: 20px;">لم يتم إضافة كراتين بعد</p>';
         return;
     }
 
-    const packagingNames = {
-        carton: 'كرتون عادي',
-        reinforced_carton: 'كرتون مقوى',
-        wooden: 'صندوق خشبي',
-        plastic: 'غلاف بلاستيكي'
-    };
-
-    list.innerHTML = boxes.map(box => {
-        const coilsList = box.coils.map(c => c.barcode).join(', ');
-        const wasteColor = parseFloat(box.waste_percentage) > 5 ? '#e74c3c' : '#f39c12';
-        return `
-        <div class="box-item">
-            <div class="box-info">
-                <strong>📦 ${box.box_number}</strong>
-                <small>
-                    كويلات: ${box.coils_count} | 
-                    متوقع: ${box.expected_weight} كجم | 
-                    فعلي: ${box.actual_weight} كجم | 
-                    <span style="color: ${wasteColor}; font-weight: bold;">هدر: ${box.waste_amount} كجم (${box.waste_percentage}%)</span>
-                    <br>تغليف: ${packagingNames[box.packaging_type]} | 
-                    تكلفة: ${box.cost} ريال
-                    <br>🎯 الكويلات: ${coilsList}
-                    ${box.shipping_address ? '<br>📍 عنوان: ' + box.shipping_address : ''}
-                    ${box.notes ? '<br>📝 ' + box.notes : ''}
-                </small>
+    list.innerHTML = boxes.map(box => `
+        <div class="box-item" data-id="${box.id}">
+            <div class="box-header">
+                <span class="box-number">📦 كرتون رقم ${box.number}</span>
             </div>
-            <button class="btn-delete" onclick="removeBox(${box.id})">🗑️ حذف</button>
+            <div class="box-form">
+                <div class="form-group">
+                    <label>الوزن (كجم) <span style="color: #e74c3c;">*</span></label>
+                    <input type="number" class="form-control box-weight" data-id="${box.id}" 
+                           value="${box.weight}" step="0.001" placeholder="0.000" 
+                           oninput="updateBoxWeight(${box.id}, this.value)">
+                </div>
+                <div class="form-group">
+                    <label>ملاحظات</label>
+                    <input type="text" class="form-control" data-id="${box.id}" 
+                           value="${box.notes}" placeholder="ملاحظات إضافية..."
+                           oninput="updateBoxNotes(${box.id}, this.value)">
+                </div>
+                <button class="btn-delete" onclick="removeBox(${box.id})" type="button">🗑️</button>
+            </div>
         </div>
-    `}).join('');
+    `).join('');
 }
 
-function removeBox(id) {
-    if (confirm('هل أنت متأكد من حذف هذا الكرتون؟')) {
-        boxes = boxes.filter(b => b.id !== id);
-        renderBoxes();
-        saveOffline();
-        showToast('🗑️ تم حذف الكرتون', 'info');
+function updateBoxWeight(id, weight) {
+    const box = boxes.find(b => b.id === id);
+    if (box) {
+        box.weight = weight;
+        updateSummary();
     }
 }
 
-function clearForm() {
-    // Clear scanned coils
-    scannedCoils = [];
-    renderScannedCoils();
-    updateTotalWeight();
-    
-    // Clear form fields
-    document.getElementById('boxNumber').value = '';
-    document.getElementById('actualWeight').value = '';
-    document.getElementById('wasteAmount').value = '';
-    document.getElementById('wastePercentDisplay').textContent = '0%';
-    document.getElementById('packagingType').value = '';
-    document.getElementById('shippingAddress').value = '';
-    document.getElementById('cost').value = '';
-    document.getElementById('notes').value = '';
-    
-    // Clear coil display
-    document.getElementById('coilDisplay').classList.remove('active');
-    
-    // Focus on barcode scanner
-    document.getElementById('coilBarcode').focus();
+function updateBoxNotes(id, notes) {
+    const box = boxes.find(b => b.id === id);
+    if (box) {
+        box.notes = notes;
+    }
 }
 
-function submitAll() {
+function removeBox(id) {
+    if (boxes.length === 1) {
+        showToast('⚠️ يجب أن يكون هناك كرتون واحد على الأقل!', 'error');
+        return;
+    }
+
+    boxes = boxes.filter(b => b.id !== id);
+    renderBoxes();
+    updateSummary();
+    showToast('🗑️ تم حذف الكرتون', 'info');
+}
+
+function updateSummary() {
+    if (!currentLafaf || boxes.length === 0) {
+        document.getElementById('summaryBox').style.display = 'none';
+        return;
+    }
+
+    const lafafWeight = parseFloat(currentLafaf.total_weight);
+    const totalWeight = boxes.reduce((sum, box) => sum + (parseFloat(box.weight) || 0), 0);
+    const difference = Math.abs(lafafWeight - totalWeight);
+
+    document.getElementById('summaryBoxCount').textContent = boxes.length;
+    document.getElementById('summaryLafafWeight').textContent = lafafWeight.toFixed(3) + ' كجم';
+    document.getElementById('summaryTotalWeight').textContent = totalWeight.toFixed(3) + ' كجم';
+    document.getElementById('summaryDifference').textContent = difference.toFixed(3) + ' كجم';
+    document.getElementById('summaryBox').style.display = 'block';
+
+    const tolerance = lafafWeight * 0.02;
+    const differenceSpan = document.getElementById('summaryDifference');
+    differenceSpan.style.color = difference > tolerance ? '#e74c3c' : '#27ae60';
+}
+
+function submitBoxes() {
+    if (!currentLafaf) {
+        showToast('⚠️ يرجى مسح باركود اللفاف أولاً!', 'error');
+        return;
+    }
+
     if (boxes.length === 0) {
-        alert('⚠️ يرجى إضافة كرتون واحد على الأقل!');
+        showToast('⚠️ يرجى إضافة كرتون واحد على الأقل!', 'error');
+        return;
+    }
+
+    const invalidBoxes = boxes.filter(b => !b.weight || parseFloat(b.weight) <= 0);
+    if (invalidBoxes.length > 0) {
+        showToast('⚠️ يرجى إدخال وزن لجميع الكراتين!', 'error');
         return;
     }
 
@@ -845,17 +606,21 @@ function submitAll() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '⏳ جاري الحفظ...';
 
-    // Prepare data
     const formData = {
-        boxes: boxes,
+        lafaf_barcode: currentLafaf.barcode,
+        boxes: boxes.map(b => ({
+            weight: parseFloat(b.weight),
+            notes: b.notes
+        })),
+        packaging_type: 'standard',
         _token: '{{ csrf_token() }}'
     };
 
-    // Submit via AJAX
     fetch('{{ route("manufacturing.stage4.store") }}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify(formData)
@@ -863,47 +628,43 @@ function submitAll() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showToast('✅ تم حفظ جميع الكراتين بنجاح!', 'success');
-            localStorage.removeItem('stage4_boxes');
+            showToast('✅ تم حفظ الكراتين بنجاح! عدد الكراتين: ' + data.data.box_count, 'success');
             setTimeout(() => {
                 window.location.href = '{{ route("manufacturing.stage4.index") }}';
-            }, 1500);
+            }, 2000);
         } else {
             throw new Error(data.message || 'حدث خطأ أثناء الحفظ');
         }
     })
     .catch(error => {
-        alert('❌ خطأ: ' + error.message);
+        showToast('❌ خطأ: ' + error.message, 'error');
         submitBtn.disabled = false;
         submitBtn.innerHTML = '✅ حفظ جميع الكراتين';
     });
 }
 
-function saveOffline() {
-    localStorage.setItem('stage4_boxes', JSON.stringify(boxes));
-}
-
 function showToast(message, type = 'info') {
-    // Simple toast notification
     const toast = document.createElement('div');
     toast.textContent = message;
     toast.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
-        background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#9b59b6'};
+        background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
         color: white;
         padding: 15px 25px;
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         z-index: 10000;
         animation: slideIn 0.3s ease-out;
+        max-width: 400px;
     `;
     document.body.appendChild(toast);
     setTimeout(() => {
-        toast.style.animation = 'fadeOut 0.3s ease-out';
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
         setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    }, 4000);
 }
 </script>
 

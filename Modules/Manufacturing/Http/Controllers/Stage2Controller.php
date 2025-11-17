@@ -4,6 +4,8 @@ namespace Modules\Manufacturing\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Stage2Controller extends Controller
 {
@@ -24,23 +26,169 @@ class Stage2Controller extends Controller
     }
 
     /**
+     * Get Stage1 data by barcode
+     */
+    public function getByBarcode($barcode)
+    {
+        try {
+            $stage1Data = DB::table('stage1_stands')
+                ->where('barcode', $barcode)
+                ->first();
+
+            if (!$stage1Data) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لم يتم العثور على بيانات بهذا الباركود'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $stage1Data
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'stage1_id' => 'required|exists:stage1_stands,id',
-            'process_details' => 'required|string',
-            'input_weight' => 'required|numeric',
-            'output_weight' => 'required|numeric',
-            'waste' => 'nullable|numeric',
-            'status' => 'nullable|in:started,in_progress,completed,consumed',
+            'stage1_id' => 'required|integer',
+            'stage1_barcode' => 'required|string',
+            'total_weight' => 'required|numeric|min:0',
+            'waste_weight' => 'nullable|numeric|min:0',
+            'net_weight' => 'required|numeric|min:0',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
-        // Stage2Processed::create($validated);
+        try {
+            DB::beginTransaction();
 
-        return redirect()->route('manufacturing.stage2.index')
-            ->with('success', 'تم بدء المعالجة بنجاح');
+            $userId = Auth::id();
+            
+            // جلب بيانات المرحلة الأولى
+            $stage1Data = DB::table('stage1_stands')
+                ->where('id', $validated['stage1_id'])
+                ->first();
+
+            if (!$stage1Data) {
+                throw new \Exception('لم يتم العثور على بيانات المرحلة الأولى');
+            }
+
+            // توليد باركود المرحلة الثانية
+            $stage2Barcode = $this->generateStageBarcode('stage2');
+
+            // حفظ في جدول stage2_processed
+            $stage2Id = DB::table('stage2_processed')->insertGetId([
+                'barcode' => $stage2Barcode,
+                'parent_barcode' => $validated['stage1_barcode'],
+                'stage1_id' => $validated['stage1_id'],
+                'material_id' => $stage1Data->material_id ?? null,
+                'wire_size' => $stage1Data->wire_size ?? null,
+                'input_weight' => $stage1Data->remaining_weight,
+                'output_weight' => $validated['total_weight'],
+                'waste' => $validated['waste_weight'] ?? 0,
+                'remaining_weight' => $validated['net_weight'],
+                'process_details' => $validated['process_details'] ?? null,
+                'status' => 'in_progress',
+                'notes' => $validated['notes'],
+                'created_by' => $userId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // تحديث حالة المرحلة الأولى
+            DB::table('stage1_stands')
+                ->where('id', $validated['stage1_id'])
+                ->update([
+                    'status' => 'in_process',
+                    'updated_at' => now(),
+                ]);
+
+            // تسجيل التتبع في product_tracking
+            DB::table('product_tracking')->insert([
+                'barcode' => $stage2Barcode,
+                'stage' => 'stage2',
+                'action' => 'processed',
+                'input_barcode' => $validated['stage1_barcode'],
+                'output_barcode' => $stage2Barcode,
+                'input_weight' => $stage1Data->remaining_weight,
+                'output_weight' => $validated['net_weight'],
+                'waste_amount' => $validated['waste_weight'] ?? 0,
+                'waste_percentage' => $stage1Data->remaining_weight > 0 ? 
+                    (($validated['waste_weight'] ?? 0) / $stage1Data->remaining_weight * 100) : 0,
+                'worker_id' => $userId,
+                'shift_id' => null,
+                'notes' => $validated['notes'],
+                'metadata' => json_encode([
+                    'stage1_id' => $validated['stage1_id'],
+                    'stage1_barcode' => $validated['stage1_barcode'],
+                    'material_id' => $stage1Data->material_id,
+                    'wire_size' => $stage1Data->wire_size,
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حفظ البيانات بنجاح!',
+                'data' => [
+                    'stage2_id' => $stage2Id,
+                    'stage2_barcode' => $stage2Barcode,
+                    'net_weight' => $validated['net_weight'],
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Generate barcode for stage based on barcode_settings
+     */
+    private function generateStageBarcode($stageType)
+    {
+        $settings = DB::table('barcode_settings')
+            ->where('type', $stageType)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$settings) {
+            $prefix = strtoupper($stageType);
+            $number = DB::table('stage2_processed')->count() + 1;
+            return "{$prefix}-" . date('Y') . "-" . str_pad($number, 3, '0', STR_PAD_LEFT);
+        }
+
+        DB::table('barcode_settings')
+            ->where('id', $settings->id)
+            ->increment('current_number');
+
+        $newNumber = $settings->current_number + 1;
+        $paddedNumber = str_pad($newNumber, $settings->padding, '0', STR_PAD_LEFT);
+
+        $barcode = str_replace(
+            ['{prefix}', '{year}', '{number}'],
+            [$settings->prefix, $settings->year, $paddedNumber],
+            $settings->format
+        );
+
+        return $barcode;
     }
 
     /**

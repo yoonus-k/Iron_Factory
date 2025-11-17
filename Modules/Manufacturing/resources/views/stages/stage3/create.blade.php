@@ -1,6 +1,662 @@
 @extends('master')
 
-@section('title', 'إنشاء كويلات - المرحلة الثالثة')
+@section('title', 'إنشاء لفائف - المرحلة الثالثة')
+
+@section('content')
+<style>
+    /* Stage Container */
+    .stage-container {
+        max-width: 1100px;
+        margin: 20px auto;
+        padding: 0 15px;
+    }
+
+    /* Stage Header */
+    .stage-header {
+        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        color: white;
+        padding: 25px 30px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        box-shadow: 0 6px 20px rgba(155, 89, 182, 0.3);
+    }
+
+    .stage-header h1 {
+        margin: 0 0 8px 0;
+        font-size: 26px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stage-header p {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 14px;
+    }
+
+    /* Form Section */
+    .form-section {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #e8e8e8;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0 0 20px 0;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #9b59b6;
+    }
+
+    /* Form Layout */
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #34495e;
+        margin-bottom: 8px;
+    }
+
+    .required {
+        color: #e74c3c;
+        margin-right: 4px;
+    }
+
+    .form-control, .form-select {
+        padding: 12px 15px;
+        border: 1px solid #dce4ec;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s;
+        background: #f8fafb;
+    }
+
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: #9b59b6;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
+    }
+
+    .form-control:disabled, .form-control:read-only {
+        background: #ecf0f1;
+        cursor: not-allowed;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    /* Barcode Section */
+    .barcode-section {
+        background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border: 2px dashed #9b59b6;
+    }
+
+    .barcode-input-wrapper {
+        position: relative;
+    }
+
+    .barcode-input {
+        width: 100%;
+        padding: 15px 50px 15px 15px;
+        font-size: 16px;
+        border: 2px solid #9b59b6;
+        border-radius: 8px;
+        font-weight: 500;
+        background: white;
+    }
+
+    .barcode-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 24px;
+        color: #9b59b6;
+    }
+
+    /* Stage2 Display */
+    .stage2-display {
+        background: linear-gradient(135deg, #e8f8f5 0%, #d1f2eb 100%);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border-right: 4px solid #27ae60;
+        display: none;
+    }
+
+    .stage2-display.active {
+        display: block;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .stage2-display h4 {
+        color: #27ae60;
+        margin: 0 0 10px 0;
+        font-size: 16px;
+    }
+
+    .stage2-info {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-top: 10px;
+    }
+
+    .info-item {
+        background: rgba(255, 255, 255, 0.7);
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+    .info-label {
+        font-size: 12px;
+        color: #7f8c8d;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    /* Weight Calculation Display */
+    .weight-calc-display {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-right: 4px solid #f39c12;
+        display: none;
+    }
+
+    .weight-calc-display.active {
+        display: block;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .weight-calc-display h5 {
+        color: #e67e22;
+        margin: 0 0 10px 0;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .calc-formula {
+        font-family: 'Courier New', monospace;
+        background: rgba(255, 255, 255, 0.6);
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #2c3e50;
+        line-height: 1.8;
+    }
+
+    .calc-result {
+        margin-top: 10px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 6px;
+        font-weight: 600;
+        color: #27ae60;
+        font-size: 16px;
+        text-align: center;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(155, 89, 182, 0.3);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        color: white;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-success:disabled {
+        background: #95a5a6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-secondary {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-secondary:hover {
+        background: #7f8c8d;
+    }
+
+    /* Actions */
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 2px solid #ecf0f1;
+        justify-content: center;
+    }
+
+    /* Info Box */
+    .info-box {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        border-right: 4px solid #27ae60;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .info-box strong {
+        color: #27ae60;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .info-box ul {
+        margin: 8px 0 0 20px;
+        color: #555;
+        font-size: 13px;
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .stage2-info {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="stage-container">
+    <!-- Header -->
+    <div class="stage-header">
+        <h1>
+            <span>🎨</span>
+            المرحلة الثالثة - إنشاء اللفائف
+        </h1>
+        <p>قم بمسح باركود المرحلة الثانية وإضافة الصبغة والبلاستيك لإنشاء لفاف جديد (الوزن يزيد في هذه المرحلة)</p>
+    </div>
+
+    <!-- Barcode Scanner -->
+    <div class="form-section barcode-section">
+        <h3 style="margin: 0 0 15px 0; color: #9b59b6;">📷 مسح باركود المرحلة الثانية</h3>
+        <div class="barcode-input-wrapper">
+            <input type="text" id="stage2Barcode" class="barcode-input" placeholder="امسح أو اكتب باركود المرحلة الثانية (ST2-XXXX)" autofocus>
+            <span class="barcode-icon">📦</span>
+        </div>
+        <small style="color: #7f8c8d; display: block; margin-top: 10px;">💡 امسح الباركود أو اضغط Enter للبحث</small>
+    </div>
+
+    <!-- Stage2 Display -->
+    <div id="stage2Display" class="stage2-display">
+        <h4>✅ بيانات المرحلة الثانية</h4>
+        <div class="stage2-info">
+            <div class="info-item">
+                <div class="info-label">الباركود</div>
+                <div class="info-value" id="displayBarcode">-</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">نوع المعالجة</div>
+                <div class="info-value" id="displayProcessType">-</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">الوزن المتبقي</div>
+                <div class="info-value" id="displayWeight">-</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lafaf Form -->
+    <div class="form-section">
+        <h3 class="section-title">📝 بيانات اللفاف</h3>
+
+        <div class="info-box">
+            <strong>📌 ملاحظة هامة:</strong>
+            <ul>
+                <li><strong>الوزن يزيد</strong> في هذه المرحلة (إضافة الصبغة والبلاستيك)</li>
+                <li>أدخل الوزن الكامل الشامل (وزن المرحلة السابقة + الصبغة + البلاستيك)</li>
+                <li>سيتم حساب الوزن المضاف تلقائياً = الوزن الكامل - الوزن السابق</li>
+                <li>لا يوجد هدر في هذه المرحلة</li>
+            </ul>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>وزن الدخول من المرحلة السابقة (كجم)</label>
+                <input type="number" id="inputWeight" class="form-control" readonly style="background: #ecf0f1; font-weight: 600;">
+            </div>
+
+            <div class="form-group">
+                <label>الوزن الكامل الشامل (كجم) <span class="required">*</span></label>
+                <input type="number" id="totalWeight" class="form-control" placeholder="مثال: 105.50" step="0.01">
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;">شامل وزن الدخول + الصبغة + البلاستيك</small>
+            </div>
+        </div>
+
+            <div class="form-group">
+                <label>الوزن المضاف (كجم)</label>
+                <input type="number" id="addedWeight" class="form-control" readonly style="background: #e8f5e9; font-weight: 600; color: #27ae60;">
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;">يتم الحساب تلقائياً</small>
+            </div>
+        </div>
+
+        <!-- Weight Calculation Display -->
+        <div id="weightCalcDisplay" class="weight-calc-display">
+            <h5>🔢 حساب الوزن المضاف</h5>
+            <div class="calc-formula">
+                الوزن المضاف = الوزن الكامل الشامل - وزن الدخول<br>
+                الوزن المضاف = <span id="calcTotal">0</span> - <span id="calcInput">0</span><br>
+            </div>
+            <div class="calc-result">
+                ✅ الوزن المضاف (صبغة + بلاستيك) = <span id="calcAdded">0</span> كجم
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>اللون <span class="required">*</span></label>
+                <input type="text" id="color" class="form-control" placeholder="مثال: أحمر، أزرق، أخضر...">
+            </div>
+
+            <div class="form-group">
+                <label>نوع البلاستيك</label>
+                <input type="text" id="plasticType" class="form-control" placeholder="مثال: PE، PP، PVC...">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label>ملاحظات</label>
+                <textarea id="notes" class="form-control" placeholder="أضف أي ملاحظات إضافية..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+        <button type="button" class="btn-success" onclick="submitLafaf()" id="submitBtn" disabled>
+            ✅ حفظ اللفاف
+        </button>
+        <button type="button" class="btn-secondary" onclick="window.location.href='{{ route('manufacturing.stage3.index') }}'">
+            ❌ إلغاء
+        </button>
+    </div>
+</div>
+
+<script>
+let currentStage2 = null;
+
+// Barcode scanner
+document.getElementById('stage2Barcode').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        loadStage2(this.value.trim());
+    }
+});
+
+// Auto-calculate added weight
+document.getElementById('totalWeight').addEventListener('input', calculateAddedWeight);
+
+function loadStage2(barcode) {
+    if (!barcode) {
+        showToast('⚠️ يرجى إدخال باركود المرحلة الثانية!', 'error');
+        return;
+    }
+
+    // Show loading
+    const barcodeInput = document.getElementById('stage2Barcode');
+    barcodeInput.disabled = true;
+
+    // Call API
+    fetch(`/stage3/get-stage2-by-barcode/${barcode}`, {
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            currentStage2 = data.data;
+            displayStage2Data();
+            showToast('✅ تم تحميل بيانات المرحلة الثانية بنجاح!', 'success');
+        } else {
+            throw new Error(data.message || 'لم يتم العثور على الباركود');
+        }
+    })
+    .catch(error => {
+        showToast('❌ ' + error.message, 'error');
+        currentStage2 = null;
+        document.getElementById('stage2Display').classList.remove('active');
+    })
+    .finally(() => {
+        barcodeInput.disabled = false;
+    });
+}
+
+function displayStage2Data() {
+    // Display stage2 info
+    document.getElementById('displayBarcode').textContent = currentStage2.barcode;
+    document.getElementById('displayProcessType').textContent = currentStage2.process_details || 'معالجة';
+    
+    const weight = currentStage2.remaining_weight || currentStage2.output_weight || 0;
+    document.getElementById('displayWeight').textContent = weight + ' كجم';
+    document.getElementById('stage2Display').classList.add('active');
+
+    // Fill input weight
+    document.getElementById('inputWeight').value = weight;
+
+    // Enable submit button
+    document.getElementById('submitBtn').disabled = false;
+
+    // Focus on total weight
+    document.getElementById('totalWeight').focus();
+}
+
+function calculateAddedWeight() {
+    const inputWeight = parseFloat(document.getElementById('inputWeight').value) || 0;
+    const totalWeight = parseFloat(document.getElementById('totalWeight').value) || 0;
+
+    if (totalWeight > 0 && inputWeight > 0) {
+        const addedWeight = totalWeight - inputWeight;
+        
+        if (addedWeight < 0) {
+            showToast('⚠️ الوزن الكامل يجب أن يكون أكبر من وزن الدخول!', 'error');
+            document.getElementById('addedWeight').value = '';
+            document.getElementById('weightCalcDisplay').classList.remove('active');
+            return;
+        }
+
+        document.getElementById('addedWeight').value = addedWeight.toFixed(3);
+        
+        // Show calculation
+        document.getElementById('calcTotal').textContent = totalWeight.toFixed(3);
+        document.getElementById('calcInput').textContent = inputWeight.toFixed(3);
+        document.getElementById('calcAdded').textContent = addedWeight.toFixed(3);
+        document.getElementById('weightCalcDisplay').classList.add('active');
+    } else {
+        document.getElementById('addedWeight').value = '';
+        document.getElementById('weightCalcDisplay').classList.remove('active');
+    }
+}
+
+function submitLafaf() {
+    if (!currentStage2) {
+        showToast('⚠️ يرجى مسح باركود المرحلة الثانية أولاً!', 'error');
+        return;
+    }
+
+    const totalWeight = document.getElementById('totalWeight').value;
+    const color = document.getElementById('color').value.trim();
+    const plasticType = document.getElementById('plasticType').value.trim();
+    const notes = document.getElementById('notes').value.trim();
+
+    if (!totalWeight || !color) {
+        showToast('⚠️ يرجى ملء جميع الحقول المطلوبة!', 'error');
+        return;
+    }
+
+    const inputWeight = parseFloat(document.getElementById('inputWeight').value) || 0;
+    const totalWeightNum = parseFloat(totalWeight);
+
+    if (totalWeightNum <= inputWeight) {
+        showToast('⚠️ الوزن الكامل يجب أن يكون أكبر من وزن الدخول!', 'error');
+        return;
+    }
+
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ جاري الحفظ...';
+
+    // Prepare data
+    const formData = {
+        stage2_barcode: currentStage2.barcode,
+        total_weight: totalWeightNum,
+        color: color,
+        plastic_type: plasticType,
+        notes: notes,
+        _token: '{{ csrf_token() }}'
+    };
+
+    // Submit via AJAX
+    fetch('{{ route("manufacturing.stage3.store") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('✅ تم حفظ اللفاف بنجاح! الباركود: ' + data.data.barcode, 'success');
+            setTimeout(() => {
+                window.location.href = '{{ route("manufacturing.stage3.index") }}';
+            }, 2000);
+        } else {
+            throw new Error(data.message || 'حدث خطأ أثناء الحفظ');
+        }
+    })
+    .catch(error => {
+        showToast('❌ خطأ: ' + error.message, 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '✅ حفظ اللفاف';
+    });
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        max-width: 400px;
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+</script>
+
+@endsection
 
 @section('content')
 <style>

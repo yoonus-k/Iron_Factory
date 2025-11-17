@@ -55,7 +55,7 @@ class BarcodeSettingsSeeder extends Seeder
             ],
             [
                 'type' => 'stage3',
-                'prefix' => 'CO3',
+                'prefix' => 'LF3',
                 'current_number' => 0,
                 'year' => date('Y'),
                 'format' => '{prefix}-{year}-{number}',

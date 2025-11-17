@@ -26,6 +26,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->mapApiRoutes();
         $this->mapWebRoutes();
+        $this->mapProductionRoutes();
         $this->mapBarcodeRoutes();
         $this->mapShiftsWorkersRoutes();
     }
@@ -38,6 +39,16 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapWebRoutes(): void
     {
         Route::middleware('web')->group(module_path($this->name, '/routes/web.php'));
+    }
+
+    /**
+     * Define the "production" routes for the application.
+     *
+     * These routes handle production stages, stands, and tracking.
+     */
+    protected function mapProductionRoutes(): void
+    {
+        Route::middleware('web')->group(module_path($this->name, '/routes/production.php'));
     }
 
     /**

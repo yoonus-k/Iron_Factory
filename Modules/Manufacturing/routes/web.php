@@ -8,10 +8,6 @@ use Modules\Manufacturing\Http\Controllers\PurchaseInvoiceController;
 use Modules\Manufacturing\Http\Controllers\SupplierController;
 use Modules\Manufacturing\Http\Controllers\AdditiveController;
 use Modules\Manufacturing\Http\Controllers\WarehouseController;
-use Modules\Manufacturing\Http\Controllers\Stage1Controller;
-use Modules\Manufacturing\Http\Controllers\Stage2Controller;
-use Modules\Manufacturing\Http\Controllers\Stage3Controller;
-use Modules\Manufacturing\Http\Controllers\Stage4Controller;
 use Modules\Manufacturing\Http\Controllers\QualityController;
 use Modules\Manufacturing\Http\Controllers\WarehouseSettingsController;
 use Modules\Manufacturing\Http\Controllers\UnitController;
@@ -65,27 +61,6 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('warehouse-settings/material-types', MaterialTypeController::class)->names('manufacturing.warehouse-settings.material-types');
     Route::put('warehouse-settings/material-types/{id}/toggle-status', [MaterialTypeController::class, 'toggleStatus'])->name('manufacturing.warehouse-settings.material-types.toggle-status');
 
-    // Production Stages Routes
-    Route::resource('stage1', Stage1Controller::class)->names('manufacturing.stage1');
-    Route::resource('stage2', Stage2Controller::class)->names('manufacturing.stage2');
-    Route::resource('stage3', Stage3Controller::class)->names('manufacturing.stage3');
-    Route::resource('stage4', Stage4Controller::class)->names('manufacturing.stage4');
-
-    // Stage 1 Additional Routes
-    Route::get('stage1/barcode/scan', [Stage1Controller::class, 'barcodeScan'])->name('manufacturing.stage1.barcode-scan');
-    Route::post('stage1/barcode/process', [Stage1Controller::class, 'processBarcodeAction'])->name('manufacturing.stage1.process-barcode');
-    Route::get('stage1/waste/tracking', [Stage1Controller::class, 'wasteTracking'])->name('manufacturing.stage1.waste-tracking');
-
-    // Stage 2 Additional Routes
-    Route::get('stage2/complete/processing', [Stage2Controller::class, 'completeProcessing'])->name('manufacturing.stage2.complete-processing');
-    Route::put('stage2/complete', [Stage2Controller::class, 'completeAction'])->name('manufacturing.stage2.complete');
-    Route::get('stage2/waste/statistics', [Stage2Controller::class, 'wasteStatistics'])->name('manufacturing.stage2.waste-statistics');
-
-    // Stage 3 Additional Routes
-    Route::get('stage3/add-dye-plastic', [Stage3Controller::class, 'addDyePlastic'])->name('manufacturing.stage3.add-dye-plastic');
-    Route::post('stage3/add-dye', [Stage3Controller::class, 'addDyeAction'])->name('manufacturing.stage3.add-dye');
-    Route::get('stage3/completed-coils', [Stage3Controller::class, 'completedCoils'])->name('manufacturing.stage3.completed-coils');
-
     // Quality Management Routes
     Route::get('quality', [QualityController::class, 'index'])->name('manufacturing.quality.index');
     Route::get('quality/waste-report', [QualityController::class, 'wasteReport'])->name('manufacturing.quality.waste-report');
@@ -102,11 +77,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('quality/downtime-create', [QualityController::class, 'downtimeCreate'])->name('manufacturing.quality.downtime-create');
     Route::get('quality/downtime-show/{id}', [QualityController::class, 'downtimeShow'])->name('manufacturing.quality.downtime-show');
     Route::get('quality/downtime-edit/{id}', [QualityController::class, 'downtimeEdit'])->name('manufacturing.quality.downtime-edit');
-
-    // Production Tracking Routes
-    Route::get('production-tracking/scan', [QualityController::class, 'productionTrackingScan'])->name('manufacturing.production-tracking.scan');
-    Route::post('production-tracking/process', [QualityController::class, 'processProductionTracking'])->name('manufacturing.production-tracking.process');
-    Route::get('production-tracking/report', [QualityController::class, 'productionTrackingReport'])->name('manufacturing.production-tracking.report');
 
     // Iron Journey Tracking Routes
     Route::get('iron-journey', [QualityController::class, 'ironJourney'])->name('manufacturing.iron-journey');

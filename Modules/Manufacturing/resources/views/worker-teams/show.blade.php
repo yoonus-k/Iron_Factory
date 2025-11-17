@@ -3,240 +3,263 @@
 @section('title', 'تفاصيل المجموعة')
 
 @section('content')
-    <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
+    <div class="um-content-wrapper">
+        <!-- Header Section -->
+        <div class="um-header-section">
+            <h1 class="um-page-title">
+                <i class="feather icon-users"></i>
+                {{ $team->name }} - {{ $team->team_code }}
+            </h1>
+            <nav class="um-breadcrumb-nav">
+                <span>
+                    <i class="feather icon-home"></i> لوحة التحكم
+                </span>
+                <i class="feather icon-chevron-left"></i>
+                <span>مجموعات العمال</span>
+                <i class="feather icon-chevron-left"></i>
+                <span>تفاصيل المجموعة</span>
+            </nav>
+        </div>
 
-    <div class="container">
-        <div class="page-header">
-            <div class="header-content">
-                <div class="header-left">
-                    <div class="course-icon">
-                        <i class="feather icon-users"></i>
-                    </div>
-                    <div class="header-info">
-                        <h1>{{ $team->name }} - {{ $team->team_code }}</h1>
-                        <div class="badges">
-                            <span class="badge category">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg>
-                                مجموعة عمال
-                            </span>
-                            <span class="badge {{ $team->is_active ? 'active' : 'inactive' }}">
-                                {{ $team->status_name }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="header-actions">
+        <!-- Success and Error Messages -->
+        @if(session('success'))
+        <div class="um-alert-custom um-alert-success" role="alert">
+            <i class="feather icon-check-circle"></i>
+            {{ session('success') }}
+            <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                <i class="feather icon-x"></i>
+            </button>
+        </div>
+        @endif
+
+        @if(session('error'))
+        <div class="um-alert-custom um-alert-danger" role="alert">
+            <i class="feather icon-alert-circle"></i>
+            {{ session('error') }}
+            <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                <i class="feather icon-x"></i>
+            </button>
+        </div>
+        @endif
+
+        <!-- Main Card -->
+        <section class="um-main-card">
+            <!-- Card Header -->
+            <div class="um-card-header">
+                <h4 class="um-card-title">
+                    <i class="feather icon-info"></i>
+                    معلومات المجموعة
+                </h4>
+                <div style="display: flex; gap: 10px;">
                     @if($team->is_active)
-                        <a href="{{ route('manufacturing.worker-teams.edit', $team->id) }}" class="btn btn-edit">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                            تعديل
-                        </a>
+                    <a href="{{ route('manufacturing.worker-teams.edit', $team->id) }}" class="um-btn um-btn-secondary">
+                        <i class="feather icon-edit-2"></i>
+                        تعديل
+                    </a>
                     @endif
-                    <a href="{{ route('manufacturing.worker-teams.index') }}" class="btn btn-back">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                            <polyline points="12 19 5 12 12 5"></polyline>
-                        </svg>
+                    <a href="{{ route('manufacturing.worker-teams.index') }}" class="um-btn um-btn-outline">
+                        <i class="feather icon-arrow-right"></i>
                         العودة
                     </a>
                 </div>
             </div>
-        </div>
 
-        <div class="grid">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon primary">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">معلومات المجموعة</h3>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            </svg>
-                            رقم المجموعة
+            <!-- Team Information -->
+            <div style="padding: 20px;">
+                <div class="um-category-card" style="margin-bottom: 20px;">
+                    <div class="um-category-card-header">
+                        <div class="um-category-info">
+                            <div class="um-category-icon" style="background: #667eea20; color: #667eea; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                                <i class="feather icon-users" style="font-size: 18px;"></i>
+                            </div>
+                            <div>
+                                <h6 class="um-category-name">{{ $team->name }}</h6>
+                                <span class="um-category-id">{{ $team->team_code }}</span>
+                            </div>
                         </div>
-                        <div class="info-value">{{ $team->team_code }}</div>
+                        <span class="um-badge um-badge-{{ $team->is_active ? 'success' : 'secondary' }}">
+                            {{ $team->status_name }}
+                        </span>
                     </div>
 
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                            </svg>
-                            اسم المجموعة
+                    <div class="um-category-card-body">
+                        <div class="um-info-row">
+                            <span class="um-info-label">
+                                <i class="feather icon-hash"></i>
+                                رقم المجموعة
+                            </span>
+                            <span class="um-info-value">{{ $team->team_code }}</span>
                         </div>
-                        <div class="info-value">{{ $team->name }}</div>
-                    </div>
 
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                            </svg>
-                            عدد العمال
+                        <div class="um-info-row">
+                            <span class="um-info-label">
+                                <i class="feather icon-user"></i>
+                                عدد العمال
+                            </span>
+                            <span class="um-info-value">
+                                <span class="count-badge">{{ $team->workers_count }}</span> عامل
+                            </span>
                         </div>
-                        <div class="info-value">{{ $team->workers_count }} عامل</div>
-                    </div>
 
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                            </svg>
-                            حالة المجموعة
+                        <div class="um-info-row">
+                            <span class="um-info-label">
+                                <i class="feather icon-calendar"></i>
+                                تاريخ الإنشاء
+                            </span>
+                            <span class="um-info-value">{{ $team->created_at->format('Y-m-d H:i') }}</span>
                         </div>
-                        <div class="info-value">
-                            <span class="status {{ $team->is_active ? 'active' : 'inactive' }}">{{ $team->status_name }}</span>
-                        </div>
-                    </div>
 
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                            </svg>
-                            تاريخ الإنشاء
+                        @if($team->description)
+                        <div class="um-info-row">
+                            <span class="um-info-label">
+                                <i class="feather icon-file-text"></i>
+                                الوصف
+                            </span>
+                            <span class="um-info-value">{{ $team->description }}</span>
                         </div>
-                        <div class="info-value">{{ $team->created_at->format('Y-m-d H:i') }}</div>
+                        @endif
                     </div>
                 </div>
-            </div>
 
-            @if($team->description)
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-icon primary">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="8" y1="6" x2="21" y2="6"></line>
-                                <line x1="8" y1="12" x2="21" y2="12"></line>
-                                <line x1="8" y1="18" x2="21" y2="18"></line>
-                            </svg>
-                        </div>
-                        <h3 class="card-title">الوصف</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="info-item">
-                            <div class="info-value">{{ $team->description }}</div>
+                <!-- Workers in Team -->
+                <div class="um-category-card">
+                    <div class="um-category-card-header">
+                        <div class="um-category-info">
+                            <div class="um-category-icon" style="background: #f59e0b20; color: #f59e0b; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                                <i class="feather icon-user" style="font-size: 18px;"></i>
+                            </div>
+                            <div>
+                                <h6 class="um-category-name">العمال في المجموعة</h6>
+                                <span class="um-category-id">{{ $workers->count() }} عامل</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            @endif
 
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon warning">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">العمال في المجموعة ({{ $workers->count() }})</h3>
-                </div>
-                <div class="card-body">
-                    @if($workers->count() > 0)
-                        <div class="workers-list">
+                    <div class="um-category-card-body">
+                        @if($workers->count() > 0)
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
                             @foreach($workers as $worker)
-                                <div class="worker-item">
-                                    <div class="worker-info">
-                                        <div class="worker-avatar">
-                                            <i class="feather icon-user"></i>
-                                        </div>
-                                        <div class="worker-details">
-                                            <h4>{{ $worker->name }}</h4>
-                                            <p>{{ $worker->email ?? 'لا يوجد بريد' }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="worker-status">
-                                        <span class="status active">عضو</span>
-                                    </div>
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div style="background: #667eea20; color: #667eea; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 6px;">
+                                    <i class="feather icon-user" style="font-size: 16px;"></i>
                                 </div>
+                                <div>
+                                    <div style="font-weight: 500; color: #0f172a;">{{ $worker->name }}</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">{{ $worker->email ?? 'لا يوجد بريد' }}</div>
+                                </div>
+                                <span class="um-badge um-badge-success" style="margin-right: auto;">عضو</span>
+                            </div>
                             @endforeach
                         </div>
-                    @else
-                        <p style="text-align: center; color: #999;">لا يوجد عمال في هذه المجموعة</p>
-                    @endif
+                        @else
+                        <div style="text-align: center; padding: 40px; color: #999;">
+                            <i class="feather icon-users" style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
+                            لا يوجد عمال في هذه المجموعة
+                        </div>
+                        @endif
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon warning">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="1"></circle>
-                        <circle cx="19" cy="12" r="1"></circle>
-                        <circle cx="5" cy="12" r="1"></circle>
-                    </svg>
-                </div>
-                <h3 class="card-title">الإجراءات المتاحة</h3>
-            </div>
-            <div class="card-body">
-                <div class="actions-grid">
-                    @if($team->is_active)
-                        <a href="{{ route('manufacturing.worker-teams.edit', $team->id) }}" class="action-btn activate">
-                            <div class="action-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                </svg>
-                            </div>
-                            <div class="action-text">
-                                <h4>تعديل المجموعة</h4>
-                                <p>تعديل العمال أو معلومات المجموعة</p>
-                            </div>
-                        </a>
-
-                        <form action="{{ route('manufacturing.worker-teams.toggle-status', $team->id) }}" method="POST" style="display: inline-block; width: 100%;">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="action-btn delete" style="width: 100%; text-align: right;">
-                                <div class="action-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <line x1="15" y1="9" x2="9" y2="15"></line>
-                                        <line x1="9" y1="9" x2="15" y2="15"></line>
-                                    </svg>
-                                </div>
-                                <div class="action-text">
-                                    <h4>تعطيل المجموعة</h4>
-                                    <p>إيقاف استخدام هذه المجموعة مؤقتاً</p>
-                                </div>
-                            </button>
-                        </form>
-                    @else
-                        <form action="{{ route('manufacturing.worker-teams.toggle-status', $team->id) }}" method="POST" style="display: inline-block; width: 100%;">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="action-btn activate" style="width: 100%; text-align: right;">
-                                <div class="action-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                </div>
-                                <div class="action-text">
-                                    <h4>تفعيل المجموعة</h4>
-                                    <p>إعادة تفعيل المجموعة للاستخدام</p>
-                                </div>
-                            </button>
-                        </form>
-                    @endif
-                </div>
-            </div>
-        </div>
+        </section>
     </div>
+
+    <style>
+        .count-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .um-category-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 16px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .um-category-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .um-category-card-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .um-category-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .um-category-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0 0 4px 0;
+        }
+
+        .um-category-id {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .um-category-card-body {
+            padding: 1.25rem;
+        }
+
+        .um-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .um-info-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .um-info-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .um-info-value {
+            font-weight: 500;
+            color: #0f172a;
+            text-align: left;
+        }
+
+        @media (max-width: 768px) {
+            .um-info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .um-info-value {
+                text-align: right;
+                width: 100%;
+            }
+        }
+    </style>
 @endsection

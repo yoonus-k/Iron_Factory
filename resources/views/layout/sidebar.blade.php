@@ -60,18 +60,18 @@
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage1.title') }}">
                     <i class="fas fa-cut"></i>
-                    <span>{{ __('app.production.stage1.title') }}</span>
+                    <span>قائمة الاستاندات</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     <li>
-                        <a href="{{ route('manufacturing.stage1.index') }}">
-                            <i class="fas fa-list"></i> {{ __('app.production.stage1.list') }}
+                        <a href="{{ route('manufacturing.stands.index') }}">
+                            <i class="fas fa-list"></i> قائمة الاستاندات
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.stage1.create') }}">
-                            <i class="fas fa-plus-circle"></i> {{ __('app.production.stage1.create_new') }}
+                            <i class="fas fa-plus-circle"></i> تقسيم المواد الى استاندات
                         </a>
                     </li>
                      <li>

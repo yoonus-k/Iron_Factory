@@ -446,7 +446,7 @@
 
             <div class="form-group">
                 <label>وزن الدخول (كجم) <span class="required">*</span></label>
-                <input type="number" id="inputWeight" class="form-control" placeholder="98.00" step="0.01" readonly style="background: #e8f4f8; font-weight: 600;">
+                <input type="number" id="inputWeight" class="form-control" step="0.01" readonly style="background: #e8f4f8; font-weight: 600;">
                 <small style="color: #27ae60; display: block; margin-top: 5px;">📊 يُملأ تلقائياً من وزن الاستاند</small>
             </div>
         </div>
@@ -454,32 +454,24 @@
         <div class="form-row">
             <div class="form-group">
                 <label>وزن الخروج (كجم) <span class="required">*</span></label>
-                <input type="number" id="outputWeight" class="form-control" placeholder="95.00" step="0.01">
+                <input type="number" id="outputWeight" class="form-control" step="0.01">
                 <small style="color: #7f8c8d; display: block; margin-top: 5px;">💡 الوزن بعد المعالجة</small>
             </div>
 
             <div class="form-group">
                 <label>كمية الهدر (كجم)</label>
-                <input type="number" id="wasteAmount" class="form-control" placeholder="3.00" step="0.01" readonly style="background: #ecf0f1;">
+                <input type="number" id="wasteAmount" class="form-control" step="0.01" readonly style="background: #ecf0f1;">
                 <small style="color: #7f8c8d; display: block; margin-top: 5px;">نسبة الهدر: <span id="wastePercentDisplay">0%</span></small>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label>💰 التكلفة (ريال) <span class="required">*</span></label>
-                <input type="number" id="cost" class="form-control" placeholder="800.00" step="0.01">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">تكلفة المعالجة (طاقة + عمالة + صيانة)</small>
-            </div>
-
-            <div class="form-group">
                 <label>تفاصيل المعالجة</label>
                 <textarea id="processDetails" class="form-control" placeholder="تفاصيل إضافية عن المعالجة..."></textarea>
             </div>
-        </div>
 
-        <div class="form-row">
-            <div class="form-group" style="grid-column: 1 / -1;">
+            <div class="form-group">
                 <label>ملاحظات</label>
                 <textarea id="notes" class="form-control" placeholder="ملاحظات اختيارية..."></textarea>
             </div>
@@ -559,41 +551,51 @@ function loadStand(barcode) {
         return;
     }
 
-    // Simulate API call - replace with actual AJAX
-    // fetch(`/api/stage1/get-by-barcode/${barcode}`)
-    //     .then(response => response.json())
-    //     .then(data => { ... })
+    // Fetch data from API
+    fetch(`/stage1/get-by-barcode/${barcode}`)
+        .then(response => {
+            if (!response.ok) throw new Error('لم يتم العثور على البيانات');
+            return response.json();
+        })
+        .then(result => {
+            if (!result.success) throw new Error(result.message);
+            
+            const data = result.data;
+            currentStand = {
+                id: data.id,
+                barcode: data.barcode,
+                wire_size: data.wire_size || '0',
+                weight: parseFloat(data.remaining_weight),
+                material_id: data.material_id
+            };
 
-    // Mock data for demonstration
-    currentStand = {
-        barcode: barcode,
-        wire_size: '2.5',
-        weight: 100,
-        material_type: 'سلك نحاسي'
-    };
+            // Display stand data
+            document.getElementById('displayBarcode').textContent = currentStand.barcode;
+            document.getElementById('displayWireSize').textContent = currentStand.wire_size + ' مم';
+            document.getElementById('displayWeight').textContent = currentStand.weight + ' كجم';
+            document.getElementById('standDisplay').classList.add('active');
 
-    // Display stand data
-    document.getElementById('displayBarcode').textContent = currentStand.barcode;
-    document.getElementById('displayWireSize').textContent = currentStand.wire_size + ' مم';
-    document.getElementById('displayWeight').textContent = currentStand.weight + ' كجم';
-    document.getElementById('standDisplay').classList.add('active');
+            // Fill input weight automatically
+            document.getElementById('inputWeight').value = currentStand.weight;
 
-    // Fill input weight automatically
-    document.getElementById('inputWeight').value = currentStand.weight;
+            // Calculate expected output weight (default 3% waste)
+            const expectedWaste = currentStand.weight * 0.03;
+            const expectedOutput = currentStand.weight - expectedWaste;
+            document.getElementById('outputWeight').value = '';
+            
+            // Calculate initial waste
+            calculateWaste();
 
-    // Calculate expected output weight (default 3% waste)
-    const expectedWaste = currentStand.weight * 0.03;
-    const expectedOutput = currentStand.weight - expectedWaste;
-    document.getElementById('outputWeight').value = expectedOutput.toFixed(2);
-    
-    // Calculate initial waste (will update when user changes output weight)
-    calculateWaste();
+            // Focus on process type
+            document.getElementById('processType').focus();
 
-    // Focus on process type
-    document.getElementById('processType').focus();
-
-    // Show success message
-    showToast('✅ تم تحميل بيانات الاستاند بنجاح!', 'success');
+            // Show success message
+            showToast('✅ تم تحميل بيانات الاستاند بنجاح!', 'success');
+        })
+        .catch(error => {
+            alert('❌ خطأ: ' + error.message);
+            document.getElementById('standBarcode').focus();
+        });
 }
 
 function calculateWaste() {
@@ -622,11 +624,10 @@ function addProcessed() {
     const inputWeight = document.getElementById('inputWeight').value;
     const outputWeight = document.getElementById('outputWeight').value;
     const wasteAmount = document.getElementById('wasteAmount').value || 0;
-    const cost = document.getElementById('cost').value;
     const processDetails = document.getElementById('processDetails').value.trim();
     const notes = document.getElementById('notes').value.trim();
 
-    if (!processType || !inputWeight || !outputWeight || !cost) {
+    if (!processType || !inputWeight || !outputWeight) {
         alert('⚠️ يرجى ملء جميع الحقول المطلوبة!');
         return;
     }
@@ -637,12 +638,12 @@ function addProcessed() {
     const processed = {
         id: Date.now(),
         stand_barcode: currentStand.barcode,
+        stage1_id: currentStand.id,
+        stage1_barcode: currentStand.barcode,
         process_type: processType,
-        input_weight: parseFloat(inputWeight),
-        output_weight: parseFloat(outputWeight),
-        waste_amount: parseFloat(wasteAmount),
-        waste_percentage: parseFloat(wastePercentage),
-        cost: parseFloat(cost),
+        total_weight: parseFloat(outputWeight),
+        waste_weight: parseFloat(wasteAmount),
+        net_weight: parseFloat(outputWeight),
         process_details: processDetails,
         notes: notes
     };
@@ -691,10 +692,9 @@ function renderProcessed() {
             <div class="processed-info">
                 <strong>⚙️ ${item.stand_barcode} → ${processTypeNames[item.process_type]}</strong>
                 <small>
-                    دخول: ${item.input_weight} كجم | 
-                    خروج: ${item.output_weight} كجم | 
-                    هدر: ${item.waste_amount} كجم (${item.waste_percentage}%) | 
-                    تكلفة: ${item.cost} ريال
+                    وزن إجمالي: ${item.total_weight} كجم | 
+                    وزن صافي: ${item.net_weight} كجم | 
+                    هدر: ${item.waste_weight} كجم
                     ${item.process_details ? '<br>📝 ' + item.process_details : ''}
                     ${item.notes ? '<br>💬 ' + item.notes : ''}
                 </small>
@@ -720,7 +720,6 @@ function clearForm() {
     document.getElementById('outputWeight').value = '';
     document.getElementById('wasteAmount').value = '';
     document.getElementById('wastePercentDisplay').textContent = '0%';
-    document.getElementById('cost').value = '';
     document.getElementById('processDetails').value = '';
     document.getElementById('notes').value = '';
     
@@ -740,37 +739,41 @@ function submitAll() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '⏳ جاري الحفظ...';
 
-    // Prepare data
-    const formData = {
-        processed_items: processedItems,
-        _token: '{{ csrf_token() }}'
-    };
+    // Send each item individually
+    let completed = 0;
+    const total = processedItems.length;
 
-    // Submit via AJAX
-    fetch('{{ route("manufacturing.stage2.store") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showToast('✅ تم حفظ جميع المعالجات بنجاح!', 'success');
-            localStorage.removeItem('stage2_processed');
-            setTimeout(() => {
-                window.location.href = '{{ route("manufacturing.stage2.index") }}';
-            }, 1500);
-        } else {
-            throw new Error(data.message || 'حدث خطأ أثناء الحفظ');
-        }
-    })
-    .catch(error => {
-        alert('❌ خطأ: ' + error.message);
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '✅ حفظ جميع المعالجات';
+    processedItems.forEach((item, index) => {
+
+        fetch('{{ route("manufacturing.stage2.store") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(item)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                completed++;
+                if (completed === total) {
+                    showToast('✅ تم حفظ جميع المعالجات بنجاح!', 'success');
+                    localStorage.removeItem('stage2_processed');
+                    setTimeout(() => {
+                        window.location.href = '{{ route("manufacturing.stage2.index") }}';
+                    }, 1500);
+                }
+            } else {
+                throw new Error(data.message || 'حدث خطأ أثناء الحفظ');
+            }
+        })
+        .catch(error => {
+            alert('❌ خطأ في المعالجة ' + (index + 1) + ': ' + error.message);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '✅ حفظ جميع المعالجات';
+        });
     });
 }
 
