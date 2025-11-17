@@ -5,8 +5,8 @@
 
 ## 📅 Meeting Information
 
-**Date:** November 14, 2025 (Yesterday)  
-**Meeting Type:** Progress Review & Requirements Clarification  
+**Date:** November 14, 2025 (Yesterday)
+**Meeting Type:** Progress Review & Requirements Clarification
 **Attendees:**
 - Client: Ali (Factory Owner/Manager)
 - Development Team: Younus, Abd Al-Mun'im
@@ -165,7 +165,7 @@ CREATE TABLE stands (
 );
 
 -- MODIFY: stage1_stands table
-ALTER TABLE stage1_stands 
+ALTER TABLE stage1_stands
 ADD COLUMN stand_id BIGINT REFERENCES stands(id),
 ADD COLUMN gross_weight_kg DECIMAL(10,2), -- Total weight with stand
 ADD COLUMN net_weight_kg DECIMAL(10,2);   -- Actual wire weight (gross - stand weight)
@@ -331,24 +331,24 @@ CREATE TABLE waste_approvals (
     threshold_percentage DECIMAL(5,2),
     recorded_by_user_id BIGINT,
     recorded_at TIMESTAMP,
-    
+
     supervisor_status ENUM('pending', 'approved', 'rejected'),
     supervisor_id BIGINT,
     supervisor_comment TEXT,
     supervisor_reviewed_at TIMESTAMP,
-    
+
     manager_status ENUM('pending', 'approved', 'rejected'),
     manager_id BIGINT,
     manager_comment TEXT,
     manager_reviewed_at TIMESTAMP,
-    
+
     final_status ENUM('pending', 'approved', 'rejected'),
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );
 
 -- ADD to each stage table
-ALTER TABLE stage1_stands 
+ALTER TABLE stage1_stands
 ADD COLUMN waste_approval_status ENUM('not_required', 'pending', 'approved', 'rejected') DEFAULT 'not_required';
 ```
 
@@ -596,8 +596,8 @@ Production Manager Dashboard - Morning Review:
 ### EPIC-NEW-01: Unified Delivery Note System
 
 #### US-NEW-01: Unified Delivery Note Form
-**As a** warehouse manager  
-**I want** ONE unified delivery note form for both incoming and outgoing inventory  
+**As a** warehouse manager
+**I want** ONE unified delivery note form for both incoming and outgoing inventory
 **So that** I don't have to use different forms and can simplify my workflow
 
 **Acceptance Criteria:**
@@ -608,8 +608,8 @@ Production Manager Dashboard - Morning Review:
 - [ ] Save button validates based on type
 - [ ] Success message shows delivery note number
 
-**Story Points:** 8  
-**Priority:** 🔴 Critical  
+**Story Points:** 8
+**Priority:** 🔴 Critical
 **Sprint:** Sprint 2
 
 **Subtasks:**
@@ -623,8 +623,8 @@ Production Manager Dashboard - Morning Review:
 ---
 
 #### US-NEW-02: Actual Weight Recording
-**As a** warehouse manager  
-**I want** to record ACTUAL weights from my scale, not invoice weights  
+**As a** warehouse manager
+**I want** to record ACTUAL weights from my scale, not invoice weights
 **So that** I have accurate inventory data regardless of supplier invoice
 
 **Acceptance Criteria:**
@@ -635,8 +635,8 @@ Production Manager Dashboard - Morning Review:
 - [ ] Barcode generation uses actual weight
 - [ ] Inventory calculations use actual weight
 
-**Story Points:** 5  
-**Priority:** 🔴 Critical  
+**Story Points:** 5
+**Priority:** 🔴 Critical
 **Sprint:** Sprint 2
 
 **Subtasks:**
@@ -652,8 +652,8 @@ Production Manager Dashboard - Morning Review:
 ### EPIC-NEW-02: Stand Master Data & Lifecycle
 
 #### US-NEW-07: Stand Master Records
-**As a** production manager  
-**I want** to create master records for physical stands with permanent IDs  
+**As a** production manager
+**I want** to create master records for physical stands with permanent IDs
 **So that** I can track stand inventory and lifecycle
 
 **Acceptance Criteria:**
@@ -664,8 +664,8 @@ Production Manager Dashboard - Morning Review:
 - [ ] Mark stand as damaged/maintenance
 - [ ] Search and filter stands
 
-**Story Points:** 5  
-**Priority:** 🔴 Critical  
+**Story Points:** 5
+**Priority:** 🔴 Critical
 **Sprint:** Sprint 2
 
 **Subtasks:**
@@ -679,8 +679,8 @@ Production Manager Dashboard - Morning Review:
 ---
 
 #### US-NEW-08: Stand Selection in Production
-**As a** stage1 worker  
-**I want** to SELECT an available stand when creating production batch  
+**As a** stage1 worker
+**I want** to SELECT an available stand when creating production batch
 **So that** I use physical stands correctly and track their usage
 
 **Acceptance Criteria:**
@@ -692,8 +692,8 @@ Production Manager Dashboard - Morning Review:
 - [ ] Stand status changes to "in_use"
 - [ ] Stand links to production batch
 
-**Story Points:** 5  
-**Priority:** 🔴 Critical  
+**Story Points:** 5
+**Priority:** 🔴 Critical
 **Sprint:** Sprint 2
 
 **Subtasks:**
@@ -710,8 +710,8 @@ Production Manager Dashboard - Morning Review:
 ### EPIC-NEW-03: Waste Approval Workflow
 
 #### US-NEW-13: Waste Threshold Configuration
-**As a** system administrator  
-**I want** to set waste threshold percentages per stage  
+**As a** system administrator
+**I want** to set waste threshold percentages per stage
 **So that** high waste automatically triggers approval workflow
 
 **Acceptance Criteria:**
@@ -721,8 +721,8 @@ Production Manager Dashboard - Morning Review:
 - [ ] Visual indicator shows threshold on waste entry form
 - [ ] Threshold changes logged in audit trail
 
-**Story Points:** 3  
-**Priority:** 🟡 High  
+**Story Points:** 3
+**Priority:** 🟡 High
 **Sprint:** Sprint 3
 
 **Subtasks:**
@@ -735,8 +735,8 @@ Production Manager Dashboard - Morning Review:
 ---
 
 #### US-NEW-14: Waste Alert to Supervisor
-**As a** supervisor  
-**I want** to receive alert when worker records waste above threshold  
+**As a** supervisor
+**I want** to receive alert when worker records waste above threshold
 **So that** I can review and approve high waste immediately
 
 **Acceptance Criteria:**
@@ -747,8 +747,8 @@ Production Manager Dashboard - Morning Review:
 - [ ] Alert dismissed after approval/rejection
 - [ ] Email notification sent (optional)
 
-**Story Points:** 3  
-**Priority:** 🟡 High  
+**Story Points:** 3
+**Priority:** 🟡 High
 **Sprint:** Sprint 3
 
 **Subtasks:**
@@ -764,8 +764,8 @@ Production Manager Dashboard - Morning Review:
 ### EPIC-NEW-05: Production Manager Dashboard
 
 #### US-NEW-26: Overnight Shift Summary
-**As a** production manager  
-**I want** to see overnight shift activity summary when I arrive  
+**As a** production manager
+**I want** to see overnight shift activity summary when I arrive
 **So that** I quickly understand what happened while I was away
 
 **Acceptance Criteria:**
@@ -775,8 +775,8 @@ Production Manager Dashboard - Morning Review:
 - [ ] Total waste percentage
 - [ ] Clickable items for details
 
-**Story Points:** 8  
-**Priority:** 🔴 Critical  
+**Story Points:** 8
+**Priority:** 🔴 Critical
 **Sprint:** Sprint 3
 
 **Subtasks:**
@@ -961,10 +961,10 @@ Production Manager Dashboard - Morning Review:
 
 ---
 
-**Document Version:** 1.0  
-**Created:** November 15, 2025  
-**Author:** Project Analysis Team  
-**Status:** Ready for Jira Import  
+**Document Version:** 1.0
+**Created:** November 15, 2025
+**Author:** Project Analysis Team
+**Status:** Ready for Jira Import
 **Next Review:** After client approval of timeline/budget
 
 ---

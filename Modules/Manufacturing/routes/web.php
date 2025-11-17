@@ -12,6 +12,8 @@ use Modules\Manufacturing\Http\Controllers\QualityController;
 use Modules\Manufacturing\Http\Controllers\WarehouseSettingsController;
 use Modules\Manufacturing\Http\Controllers\UnitController;
 use Modules\Manufacturing\Http\Controllers\MaterialTypeController;
+use Modules\Manufacturing\Http\Controllers\WarehouseRegistrationController;
+use Modules\Manufacturing\Http\Controllers\ReconciliationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,7 +38,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('materials/import', [WarehouseProductController::class, 'import'])->name('manufacturing.materials.import');
     Route::resource('delivery-notes', DeliveryNoteController::class)->names('manufacturing.delivery-notes');
     Route::put('delivery-notes/{id}/toggle-status', [DeliveryNoteController::class, 'toggleStatus'])->name('manufacturing.delivery-notes.toggle-status');
+    Route::put('delivery-notes/{id}/change-status', [DeliveryNoteController::class, 'changeStatus'])->name('manufacturing.delivery-notes.change-status');
+    Route::put('delivery-notes/{id}/update-status', [DeliveryNoteController::class, 'updateStatus'])->name('manufacturing.delivery-notes.update-status');
     Route::resource('purchase-invoices', PurchaseInvoiceController::class)->names('manufacturing.purchase-invoices');
+    Route::put('purchase-invoices/{id}/update-status', [PurchaseInvoiceController::class, 'updateStatus'])->name('manufacturing.purchase-invoices.update-status');
     Route::resource('suppliers', SupplierController::class)->names('manufacturing.suppliers');
     Route::put('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('manufacturing.suppliers.toggle-status');
     Route::resource('additives', AdditiveController::class)->names('manufacturing.additives');
@@ -60,6 +65,56 @@ Route::middleware(['auth'])->group(function () {
     // Material Types Resource Routes
     Route::resource('warehouse-settings/material-types', MaterialTypeController::class)->names('manufacturing.warehouse-settings.material-types');
     Route::put('warehouse-settings/material-types/{id}/toggle-status', [MaterialTypeController::class, 'toggleStatus'])->name('manufacturing.warehouse-settings.material-types.toggle-status');
+
+    // ========== تسجيل البضاعة ==========
+    Route::prefix('warehouse/registration')->group(function () {
+        Route::get('/', [WarehouseRegistrationController::class, 'pending'])->name('manufacturing.warehouse.registration.pending');
+        Route::get('create/{deliveryNote}', [WarehouseRegistrationController::class, 'create'])->name('manufacturing.warehouse.registration.create');
+        Route::post('store/{deliveryNote}', [WarehouseRegistrationController::class, 'store'])->name('manufacturing.warehouse.registration.store');
+        Route::get('show/{deliveryNote}', [WarehouseRegistrationController::class, 'show'])->name('manufacturing.warehouse.registration.show');
+
+        // النقل للإنتاج مع اختيار الكمية
+        Route::get('transfer/{deliveryNote}', [WarehouseRegistrationController::class, 'showTransferForm'])->name('manufacturing.warehouse.registration.transfer-form');
+        Route::post('transfer-to-production/{deliveryNote}', [WarehouseRegistrationController::class, 'transferToProduction'])->name('manufacturing.warehouse.registration.transfer-to-production');
+
+        // النقل الفوري (لاحتفاظ الرجعية)
+        Route::post('move-production/{deliveryNote}', [WarehouseRegistrationController::class, 'moveToProduction'])->name('manufacturing.warehouse.registration.move-production');
+
+        Route::post('lock/{deliveryNote}', [WarehouseRegistrationController::class, 'lock'])->name('manufacturing.warehouse.registration.lock');
+        Route::post('unlock/{deliveryNote}', [WarehouseRegistrationController::class, 'unlock'])->name('manufacturing.warehouse.registration.unlock');
+    });
+
+    // ========== التسوية ==========
+    Route::prefix('warehouse/reconciliation')->group(function () {
+        Route::get('/', [ReconciliationController::class, 'index'])->name('manufacturing.warehouses.reconciliation.index');
+        Route::get('show/{deliveryNote}', [ReconciliationController::class, 'show'])->name('manufacturing.warehouses.reconciliation.show');
+        Route::post('link/{deliveryNote}', [ReconciliationController::class, 'link'])->name('manufacturing.warehouses.reconciliation.link');
+        Route::post('decide/{deliveryNote}', [ReconciliationController::class, 'decide'])->name('manufacturing.warehouses.reconciliation.decide');
+        Route::get('history', [ReconciliationController::class, 'history'])->name('manufacturing.warehouses.reconciliation.history');
+        Route::get('supplier-report', [ReconciliationController::class, 'supplierReport'])->name('manufacturing.warehouses.reconciliation.supplier-report');
+    });
+
+    // Production Stages Routes
+    Route::resource('stage1', Stage1Controller::class)->names('manufacturing.stage1');
+    Route::resource('stage2', Stage2Controller::class)->names('manufacturing.stage2');
+    Route::resource('stage3', Stage3Controller::class)->names('manufacturing.stage3');
+    Route::resource('stage4', Stage4Controller::class)->names('manufacturing.stage4');
+
+    // Stage 1 Additional Routes
+    Route::get('stage1/barcode/scan', [Stage1Controller::class, 'barcodeScan'])->name('manufacturing.stage1.barcode-scan');
+    Route::post('stage1/barcode/process', [Stage1Controller::class, 'processBarcodeAction'])->name('manufacturing.stage1.process-barcode');
+    Route::get('stage1/waste/tracking', [Stage1Controller::class, 'wasteTracking'])->name('manufacturing.stage1.waste-tracking');
+
+    // Stage 2 Additional Routes
+    Route::get('stage2/complete/processing', [Stage2Controller::class, 'completeProcessing'])->name('manufacturing.stage2.complete-processing');
+    Route::put('stage2/complete', [Stage2Controller::class, 'completeAction'])->name('manufacturing.stage2.complete');
+    Route::get('stage2/waste/statistics', [Stage2Controller::class, 'wasteStatistics'])->name('manufacturing.stage2.waste-statistics');
+
+    // Stage 3 Additional Routes
+    Route::get('stage3/add-dye-plastic', [Stage3Controller::class, 'addDyePlastic'])->name('manufacturing.stage3.add-dye-plastic');
+    Route::post('stage3/add-dye', [Stage3Controller::class, 'addDyeAction'])->name('manufacturing.stage3.add-dye');
+    Route::get('stage3/completed-coils', [Stage3Controller::class, 'completedCoils'])->name('manufacturing.stage3.completed-coils');
+
 
     // Quality Management Routes
     Route::get('quality', [QualityController::class, 'index'])->name('manufacturing.quality.index');

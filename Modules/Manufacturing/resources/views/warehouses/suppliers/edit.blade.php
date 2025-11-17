@@ -63,7 +63,20 @@
                         </div>
                     </div>
 
-
+                    <div class="form-group">
+                        <label for="contact_person" class="form-label">
+                            الشخص المسؤول
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <input type="text" name="contact_person" id="contact_person"
+                                class="form-input" value="{{ old('contact_person', $supplier->contact_person) }}" required>
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <label for="phone" class="form-label">

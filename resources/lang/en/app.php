@@ -29,6 +29,7 @@ return [
         'raw_materials' => 'Raw Materials',
         'stores' => 'Stores',
         'delivery_notes' => 'Delivery Notes',
+        'registration' => 'Shipment Registration',
         'purchase_invoices' => 'Purchase Invoices',
         'suppliers' => 'Suppliers',
         'additives' => 'Dyes & Plastics',
@@ -54,14 +55,14 @@ return [
         'downtime_tracking' => 'Downtime & Failures',
         'waste_limits' => 'Allowed Waste Limits',
         'iron_journey' => 'Iron Journey',
-        
+
         // Stage 1
         'stage1' => [
             'title' => 'Stage 1: Cutting and Stands',
             'list' => 'Stands List',
             'create_new' => 'Create New Stand',
         ],
-        
+
         // Stage 2
         'stage2' => [
             'title' => 'Stage 2: Processing',
@@ -69,7 +70,7 @@ return [
             'start_new' => 'Start New Processing',
             'complete' => 'Complete Processing',
         ],
-        
+
         // Stage 3
         'stage3' => [
             'title' => 'Stage 3: Coil Manufacturing',
@@ -78,7 +79,7 @@ return [
             'add_additives' => 'Add Dye/Plastic',
             'completed' => 'Completed Coils',
         ],
-        
+
         // Stage 4
         'stage4' => [
             'title' => 'Stage 4: Packaging',
@@ -224,7 +225,7 @@ return [
         'sync_now' => 'Sync Now',
         'last_sync' => 'Last Sync',
     ],
-    
+
     // Settings
     'settings' => [
         'general' => 'General Settings',

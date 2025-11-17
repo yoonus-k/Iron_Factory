@@ -14,6 +14,7 @@ class MaterialDetail extends Model
         'material_id',
         'quantity',
         'original_weight',        // ✅ جديد - تم نقله من Material
+        'actual_weight',          // ✅ الوزن الفعلي من الميزان
         'remaining_weight',       // ✅ جديد - تم نقله من Material
         'unit_id',               // ✅ جديد - تم نقله من Material
         'min_quantity',
@@ -28,6 +29,7 @@ class MaterialDetail extends Model
 
     protected $casts = [
         'quantity' => 'float',
+        'actual_weight' => 'float',        // ✅ جديد
         'original_weight' => 'float',      // ✅ جديد
         'remaining_weight' => 'float',     // ✅ جديد
         'min_quantity' => 'float',
@@ -63,6 +65,42 @@ class MaterialDetail extends Model
     public function getUnitName(): string
     {
         return $this->unit?->unit_name ?? 'وحدة';
+    }
+
+    /**
+     * تحديث كمية المادة عند تسجيل أذن واردة
+     * @param float $quantity الكمية الجديدة المستقبلة
+     * @param float $actualWeight الوزن الفعلي
+     * @param float $originalWeight الوزن الأصلي
+     */
+    public function addIncomingQuantity(float $quantity, float $actualWeight, float $originalWeight): void
+    {
+        // زيادة الكمية
+        $this->quantity += $quantity;
+
+        // إضافة الأوزان
+        $this->actual_weight = ($this->actual_weight ?? 0) + $actualWeight;
+        $this->original_weight = ($this->original_weight ?? 0) + $originalWeight;
+
+        // حفظ التحديثات
+        $this->save();
+    }
+
+    /**
+     * تحديث كمية المادة عند تسجيل أذن صادرة
+     * @param float $quantity الكمية المخرجة
+     */
+    public function reduceOutgoingQuantity(float $quantity): void
+    {
+        if ($this->quantity >= $quantity) {
+            // تقليل الكمية
+            $this->quantity -= $quantity;
+
+            // حفظ التحديثات
+            $this->save();
+        } else {
+            throw new \Exception('الكمية المتاحة غير كافية. الكمية المتاحة: ' . $this->quantity);
+        }
     }
 
     /**
