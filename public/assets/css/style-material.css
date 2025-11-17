@@ -1,5 +1,5 @@
 
-        /* تحسينات تصميم المستودعات */
+        /* تحسينات تصميم المستودعات - Color Scheme: Blue & Dark Gray */
         .warehouses-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -8,22 +8,23 @@
         }
 
         .warehouse-item {
-
+            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
             border-radius: 12px;
             padding: 20px;
-            color: rgb(0, 0, 0);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 51, 102, 0.15);
             transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .warehouse-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 51, 102, 0.25);
         }
 
         .warehouse-item.empty {
-            background: linear-gradient(135deg, #757575 0%, #616161 100%);
-            opacity: 0.7;
+            background: linear-gradient(135deg, #4a4a4a 0%, #333333 100%);
+            opacity: 0.8;
         }
 
         .warehouse-item-header {
@@ -111,8 +112,8 @@
         }
 
         .modal-header {
-
-            color: black;
+            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+            color: white;
             border-radius: 15px 15px 0 0;
             padding: 20px 25px;
             border: none;
@@ -125,6 +126,7 @@
             font-size: 18px;
             font-weight: 600;
             margin: 0;
+            color: white;
         }
 
         .modal-title i {
@@ -168,14 +170,14 @@
         }
 
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+            border-color: #0066cc;
+            box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.15);
         }
 
         .input-group-text {
-            background: #667eea;
+            background: #0066cc;
             color: white;
-            border: 2px solid #667eea;
+            border: 2px solid #0066cc;
             border-radius: 0 8px 8px 0;
             font-weight: 500;
         }
@@ -197,15 +199,18 @@
         }
 
         .warehouse-card {
-
+            background: white;
             border-radius: 12px;
             overflow: hidden;
-            color: black;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0, 51, 102, 0.1);
         }
 
         .warehouse-card-header {
             padding: 15px 20px;
-            background: rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+            color: white;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -232,7 +237,7 @@
             gap: 10px;
             margin-bottom: 12px;
             padding-bottom: 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 1px solid #e0e0e0;
         }
 
         .warehouse-detail:last-child {
@@ -285,16 +290,17 @@
 
         .alert-info {
             background: #e3f2fd;
-            border: none;
+            border: 1px solid #0066cc;
             border-radius: 10px;
             padding: 15px 20px;
+            color: #004499;
         }
 
         .alert-heading {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #1976d2;
+            color: #0066cc;
             font-size: 15px;
             font-weight: 600;
             margin-bottom: 10px;
@@ -317,14 +323,15 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
             border: none;
+            color: white;
         }
 
         .btn-primary:hover {
-            /* background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%); */
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+            background: linear-gradient(135deg, #0059b3 0%, #003d7a 100%);
         }
 
         .add-quantity-btn-wrapper {
@@ -338,7 +345,8 @@
             padding: 12px;
             font-size: 15px;
             font-weight: 600;
-            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+            color: white;
             border: none;
             border-radius: 10px;
             display: flex;
@@ -350,5 +358,5 @@
 
         .add-quantity-btn-wrapper .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.3);
         }

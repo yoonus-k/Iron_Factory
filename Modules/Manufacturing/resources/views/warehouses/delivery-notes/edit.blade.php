@@ -28,6 +28,27 @@
 
     <!-- Form Card -->
     <div class="form-card">
+        <!-- Error Alert -->
+        @if ($errors->any())
+            <div style="margin-bottom: 20px; padding: 15px; background-color: #fee; border: 1px solid #fcc; border-radius: 6px; border-right: 4px solid #e74c3c;">
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <svg style="width: 24px; height: 24px; color: #e74c3c; flex-shrink: 0; margin-top: 2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <div>
+                        <h4 style="margin: 0 0 8px 0; color: #c0392b; font-weight: 600;">⚠️ هناك أخطاء في النموذج</h4>
+                        <ul style="margin: 0; padding-left: 20px; color: #c0392b;">
+                            @foreach ($errors->all() as $error)
+                                <li style="margin: 4px 0;">{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('manufacturing.delivery-notes.update', $deliveryNote->id) }}" id="deliveryNoteForm">
             @csrf
             @method('PUT')
@@ -77,8 +98,11 @@
                                 <path d="M14 12v4"></path>
                             </svg>
                             <input type="text" name="delivery_number" id="delivery_number"
-                                class="form-input" placeholder="مثال: DN-2024-001" value="{{ old('delivery_number', $deliveryNote->note_number) }}" required>
+                                class="form-input {{ $errors->has('delivery_number') ? 'is-invalid' : '' }}" placeholder="مثال: DN-2024-001" value="{{ old('delivery_number', $deliveryNote->note_number) }}" required>
                         </div>
+                        @if ($errors->has('delivery_number'))
+                            <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('delivery_number') }}</small>
+                        @endif
                     </div>
 
                     <div class="form-group">
@@ -94,21 +118,51 @@
                                 <line x1="3" y1="10" x2="21" y2="10"></line>
                             </svg>
                             <input type="date" name="delivery_date" id="delivery_date"
-                                class="form-input" value="{{ old('delivery_date', $deliveryNote->delivery_date->format('Y-m-d')) }}" required>
+                                class="form-input {{ $errors->has('delivery_date') ? 'is-invalid' : '' }}" value="{{ old('delivery_date', $deliveryNote->delivery_date->format('Y-m-d')) }}" required>
                         </div>
+                        @if ($errors->has('delivery_date'))
+                            <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('delivery_date') }}</small>
+                        @endif
                     </div>
 
+                    <!-- ✅ جديد: اختيار المستودع (إجباري) -->
+                    <div class="form-group">
+                        <label for="warehouse_id" class="form-label">
+                            المستودع
+                            <span class="required">*</span>
+                            <small style="color: #27ae60; display: block; margin-top: 5px;">👈 المستودع الرئيسي</small>
+                        </label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            </svg>
+                            <select name="warehouse_id" id="warehouse_id" class="form-input {{ $errors->has('warehouse_id') ? 'is-invalid' : '' }}" required>
+                                <option value="">-- اختر المستودع --</option>
+                                @foreach($warehouses as $warehouse)
+                                    <option value="{{ $warehouse->id }}" {{ old('warehouse_id', $deliveryNote->warehouse_id) == $warehouse->id ? 'selected' : '' }}>
+                                        {{ $warehouse->warehouse_name ?? $warehouse->name }} [{{ $warehouse->warehouse_code ?? '' }}]
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @if ($errors->has('warehouse_id'))
+                            <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('warehouse_id') }}</small>
+                        @endif
+                    </div>
+
+                    <!-- ✅ معدّل: اختيار المادة (اختياري الآن) -->
                     <div class="form-group">
                         <label for="material_id" class="form-label">
                             المادة
-                            <span class="required">*</span>
+                            <small style="color: #95a5a6; display: block; margin-top: 5px;">(اختياري)</small>
                         </label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                             </svg>
-                            <select name="material_id" id="material_id" class="form-input" required>
-                                <option value="">-- اختر المادة --</option>
+                            <select name="material_id" id="material_id" class="form-input {{ $errors->has('material_id') ? 'is-invalid' : '' }}">
+                                <option value="">-- اختر المادة (اختياري) --</option>
                                 @foreach($materials as $material)
                                     <option value="{{ $material->id }}" {{ old('material_id', $deliveryNote->material_id) == $material->id ? 'selected' : '' }}>
                                         {{ $material->name }}
@@ -116,6 +170,9 @@
                                 @endforeach
                             </select>
                         </div>
+                        @if ($errors->has('material_id'))
+                            <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('material_id') }}</small>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -139,10 +196,31 @@
 
                 <div class="form-grid">
                     <div class="form-group">
+                        <label for="weight_from_scale" class="form-label">
+                            الوزن المسجل من الميزان (كجم)
+                            <span class="required">*</span>
+                            <small style="color: #27ae60; display: block; margin-top: 5px;">👈 الوزن الرئيسي من الميزان</small>
+                        </label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="5" r="3"></circle>
+                                <line x1="9" y1="9" x2="9" y2="16"></line>
+                                <line x1="15" y1="9" x2="15" y2="16"></line>
+                                <path d="M9 16h6"></path>
+                            </svg>
+                            <input type="number" name="weight_from_scale" id="weight_from_scale"
+                                class="form-input {{ $errors->has('weight_from_scale') ? 'is-invalid' : '' }}" placeholder="0.00" step="0.01" value="{{ old('weight_from_scale', $deliveryNote->weight_from_scale) }}" required>
+                        </div>
+                        @if ($errors->has('weight_from_scale'))
+                            <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('weight_from_scale') }}</small>
+                        @endif
+                    </div>
+
+                    <div class="form-group">
                         <label for="actual_weight" class="form-label">
                             الوزن الفعلي (كجم)
                             <span class="required">*</span>
-                            <small style="color: #7f8c8d; display: block; margin-top: 5px;">الوزن المسجل من الميزان</small>
+                            <small style="color: #7f8c8d; display: block; margin-top: 5px;">الوزن المسجل بالنظام</small>
                         </label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -152,25 +230,11 @@
                                 <path d="M9 16h6"></path>
                             </svg>
                             <input type="number" name="actual_weight" id="actual_weight"
-                                class="form-input" placeholder="0.00" step="0.01" value="{{ old('actual_weight', $deliveryNote->actual_weight ?? $deliveryNote->delivered_weight) }}" required>
+                                class="form-input {{ $errors->has('actual_weight') ? 'is-invalid' : '' }}" placeholder="0.00" step="0.01" value="{{ old('actual_weight', $deliveryNote->actual_weight ?? $deliveryNote->delivered_weight) }}" required>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="invoice_weight" class="form-label">
-                            وزن الفاتورة (كجم)
-                            <small style="color: #7f8c8d; display: block; margin-top: 5px;">الوزن في فاتورة الموردين (اختياري)</small>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="5" r="3"></circle>
-                                <line x1="9" y1="9" x2="9" y2="16"></line>
-                                <line x1="15" y1="9" x2="15" y2="16"></line>
-                                <path d="M9 16h6"></path>
-                            </svg>
-                            <input type="number" name="invoice_weight" id="invoice_weight"
-                                class="form-input" placeholder="0.00" step="0.01" value="{{ old('invoice_weight', $deliveryNote->invoice_weight) }}">
-                        </div>
+                        @if ($errors->has('actual_weight'))
+                            <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('actual_weight') }}</small>
+                        @endif
                     </div>
 
                     @if($deliveryNote->weight_discrepancy)
@@ -215,7 +279,7 @@
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
-                                <select name="supplier_id" id="supplier_id" class="form-input" required>
+                                <select name="supplier_id" id="supplier_id" class="form-input {{ $errors->has('supplier_id') ? 'is-invalid' : '' }}" required>
                                     <option value="">-- اختر المورد --</option>
                                     @foreach($suppliers as $supplier)
                                         <option value="{{ $supplier->id }}" {{ old('supplier_id', $deliveryNote->supplier_id) == $supplier->id ? 'selected' : '' }}>
@@ -224,6 +288,9 @@
                                     @endforeach
                                 </select>
                             </div>
+                            @if ($errors->has('supplier_id'))
+                                <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('supplier_id') }}</small>
+                            @endif
                         </div>
 
                         <div class="form-group">
@@ -234,8 +301,11 @@
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
                                 <input type="text" name="driver_name" id="driver_name"
-                                    class="form-input" placeholder="اسم السائق" value="{{ old('driver_name', $deliveryNote->driver_name) }}">
+                                    class="form-input {{ $errors->has('driver_name') ? 'is-invalid' : '' }}" placeholder="اسم السائق" value="{{ old('driver_name', $deliveryNote->driver_name) }}">
                             </div>
+                            @if ($errors->has('driver_name'))
+                                <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('driver_name') }}</small>
+                            @endif
                         </div>
 
                         <div class="form-group">
@@ -247,8 +317,11 @@
                                     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                                 </svg>
                                 <input type="text" name="vehicle_number" id="vehicle_number"
-                                    class="form-input" placeholder="مثال: أ ب ت 1234" value="{{ old('vehicle_number', $deliveryNote->vehicle_number) }}">
+                                    class="form-input {{ $errors->has('vehicle_number') ? 'is-invalid' : '' }}" placeholder="مثال: أ ب ت 1234" value="{{ old('vehicle_number', $deliveryNote->vehicle_number) }}">
                             </div>
+                            @if ($errors->has('vehicle_number'))
+                                <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('vehicle_number') }}</small>
+                            @endif
                         </div>
 
                         <div class="form-group">
@@ -260,8 +333,11 @@
                                     <line x1="9" y1="15" x2="15" y2="15"></line>
                                 </svg>
                                 <input type="text" name="invoice_reference_number" id="invoice_reference_number"
-                                    class="form-input" placeholder="رقم الفاتورة من المورد" value="{{ old('invoice_reference_number', $deliveryNote->invoice_reference_number) }}">
+                                    class="form-input {{ $errors->has('invoice_reference_number') ? 'is-invalid' : '' }}" placeholder="رقم الفاتورة من المورد" value="{{ old('invoice_reference_number', $deliveryNote->invoice_reference_number) }}">
                             </div>
+                            @if ($errors->has('invoice_reference_number'))
+                                <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('invoice_reference_number') }}</small>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -293,7 +369,7 @@
                                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                                     <polyline points="17 21 17 13 7 13 7 21"></polyline>
                                 </svg>
-                                <select name="destination_id" id="destination_id" class="form-input" required>
+                                <select name="destination_id" id="destination_id" class="form-input {{ $errors->has('destination_id') ? 'is-invalid' : '' }}" required>
                                     <option value="">-- اختر الوجهة --</option>
                                     @foreach($warehouses as $warehouse)
                                         <option value="{{ $warehouse->id }}" {{ old('destination_id', $deliveryNote->destination_id) == $warehouse->id ? 'selected' : '' }}>
@@ -302,6 +378,9 @@
                                     @endforeach
                                 </select>
                             </div>
+                            @if ($errors->has('destination_id'))
+                                <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('destination_id') }}</small>
+                            @endif
                         </div>
 
                         <div class="form-group">
@@ -311,7 +390,7 @@
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
-                                <select name="received_by" id="received_by" class="form-input">
+                                <select name="received_by" id="received_by" class="form-input {{ $errors->has('received_by') ? 'is-invalid' : '' }}">
                                     <option value="">-- اختر المستخدم --</option>
                                     @foreach($users as $user)
                                         <option value="{{ $user->id }}" {{ old('received_by', $deliveryNote->received_by) == $user->id ? 'selected' : '' }}>
@@ -320,6 +399,9 @@
                                     @endforeach
                                 </select>
                             </div>
+                            @if ($errors->has('received_by'))
+                                <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('received_by') }}</small>
+                            @endif
                         </div>
                     </div>
                 </div>

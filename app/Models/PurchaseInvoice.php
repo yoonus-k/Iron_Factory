@@ -61,6 +61,7 @@ class PurchaseInvoice extends Model
         'approved_at',
         'paid_at',
         'is_active',
+        'created_by',
     ];
 
     protected $casts = [
@@ -106,17 +107,20 @@ class PurchaseInvoice extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    public function materials(): HasMany
-    {
-        return $this->hasMany(Material::class);
-    }
-
     /**
      * Get delivery notes linked to this invoice
      */
     public function deliveryNotes(): HasMany
     {
-        return $this->hasMany(DeliveryNote::class, 'invoice_number', 'invoice_number');
+        return $this->hasMany(DeliveryNote::class, 'purchase_invoice_id');
+    }
+
+    /**
+     * Get reconciliation logs for this invoice
+     */
+    public function reconciliationLogs(): HasMany
+    {
+        return $this->hasMany(ReconciliationLog::class);
     }
 
     /**
@@ -221,5 +225,81 @@ class PurchaseInvoice extends Model
     public function isOverdue(): bool
     {
         return !$this->isPaid() && $this->due_date && now()->isAfter($this->due_date);
+    }
+
+    /**
+     * Get total actual weight from linked delivery notes
+     */
+    public function getTotalActualWeight(): float
+    {
+        return $this->deliveryNotes()->sum('actual_weight') ?? 0;
+    }
+
+    /**
+     * Get total invoice weight from linked delivery notes
+     */
+    public function getTotalInvoiceWeight(): float
+    {
+        return $this->deliveryNotes()->sum('invoice_weight') ?? 0;
+    }
+
+    /**
+     * Get total discrepancy
+     */
+    public function getTotalDiscrepancy(): float
+    {
+        return $this->getTotalActualWeight() - $this->getTotalInvoiceWeight();
+    }
+
+    /**
+     * Get total discrepancy percentage
+     */
+    public function getDiscrepancyPercentage(): float
+    {
+        $invoiceWeight = $this->getTotalInvoiceWeight();
+        if ($invoiceWeight == 0) {
+            return 0;
+        }
+        return ($this->getTotalDiscrepancy() / $invoiceWeight) * 100;
+    }
+
+    /**
+     * Check if has discrepancies
+     */
+    public function hasDiscrepancies(): bool
+    {
+        return abs($this->getTotalDiscrepancy()) > 0.01;
+    }
+
+    /**
+     * Check if all delivery notes are reconciled
+     */
+    public function areAllReconciled(): bool
+    {
+        $unreconciled = $this->deliveryNotes()
+            ->whereNotIn('reconciliation_status', ['matched', 'adjusted'])
+            ->count();
+
+        return $unreconciled === 0;
+    }
+
+    /**
+     * Scope to get invoices with discrepancies
+     */
+    public function scopeWithDiscrepancies($query)
+    {
+        return $query->whereHas('deliveryNotes', function ($q) {
+            $q->where('reconciliation_status', 'discrepancy');
+        });
+    }
+
+    /**
+     * Scope to get invoices pending reconciliation
+     */
+    public function scopePendingReconciliation($query)
+    {
+        return $query->whereHas('deliveryNotes', function ($q) {
+            $q->whereNotIn('reconciliation_status', ['matched', 'adjusted', 'rejected']);
+        });
     }
 }

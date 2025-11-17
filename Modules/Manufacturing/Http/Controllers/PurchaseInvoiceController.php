@@ -89,8 +89,14 @@ class PurchaseInvoiceController extends Controller
             ]);
 
             $validated['recorded_by'] = Auth::id() ?? 1;
+            $validated['created_by'] = Auth::id() ?? 1;
             $validated['status'] = 'draft';
             $validated['is_active'] = $request->boolean('is_active', true);
+
+            // Ensure all required fields are present
+            if (empty($validated['created_by'])) {
+                throw new \Exception('فشل في تحديد المستخدم الحالي. الرجاء تسجيل الدخول مرة أخرى.');
+            }
 
             $invoice = PurchaseInvoice::create($validated);
 
@@ -113,9 +119,18 @@ class PurchaseInvoiceController extends Controller
                            ->with('success', 'تم إضافة الفاتورة بنجاح');
         } catch (\Exception $e) {
             Log::error('Error creating purchase invoice: ' . $e->getMessage());
+            
+            // Provide user-friendly error message
+            $errorMessage = 'فشل في حفظ الفاتورة. ';
+            if (str_contains($e->getMessage(), 'created_by')) {
+                $errorMessage .= 'الرجاء التحقق من بيانات المستخدم.';
+            } else {
+                $errorMessage .= 'الرجاء التحقق من المعلومات المدخلة.';
+            }
+            
             return redirect()->back()
                            ->withInput()
-                           ->withErrors(['error' => 'فشل في حفظ الفاتورة: ' . $e->getMessage()]);
+                           ->withErrors(['error' => $errorMessage]);
         }
     }
 
@@ -174,6 +189,11 @@ class PurchaseInvoiceController extends Controller
 
             $validated['is_active'] = $request->boolean('is_active', true);
 
+            // Ensure all required fields are present
+            if (empty($validated['created_by'])) {
+                $validated['created_by'] = Auth::id() ?? 1;
+            }
+
             $invoice->update($validated);
             $newValues = $invoice->fresh()->toArray();
 
@@ -196,9 +216,18 @@ class PurchaseInvoiceController extends Controller
                            ->with('success', 'تم تحديث الفاتورة بنجاح');
         } catch (\Exception $e) {
             Log::error('Error updating purchase invoice: ' . $e->getMessage());
+            
+            // Provide user-friendly error message
+            $errorMessage = 'فشل في تحديث الفاتورة. ';
+            if (str_contains($e->getMessage(), 'created_by')) {
+                $errorMessage .= 'الرجاء التحقق من بيانات المستخدم.';
+            } else {
+                $errorMessage .= 'الرجاء التحقق من المعلومات المدخلة.';
+            }
+            
             return redirect()->back()
                            ->withInput()
-                           ->withErrors(['error' => 'فشل في تحديث الفاتورة: ' . $e->getMessage()]);
+                           ->withErrors(['error' => $errorMessage]);
         }
     }
 
@@ -215,7 +244,13 @@ class PurchaseInvoiceController extends Controller
                 'status' => 'required|in:draft,pending,approved,rejected,paid',
             ]);
 
-            $invoice->update($validated);
+            // Ensure created_by is not null
+            $updateData = $validated;
+            if (empty($invoice->created_by)) {
+                $updateData['created_by'] = Auth::id() ?? 1;
+            }
+
+            $invoice->update($updateData);
 
             // Update approval info if approving
             if ($validated['status'] === 'approved') {
@@ -262,8 +297,17 @@ class PurchaseInvoiceController extends Controller
                            ->with('success', 'تم تحديث حالة الفاتورة بنجاح');
         } catch (\Exception $e) {
             Log::error('Error updating invoice status: ' . $e->getMessage());
+            
+            // Provide user-friendly error message
+            $errorMessage = 'فشل في تحديث الحالة. ';
+            if (str_contains($e->getMessage(), 'created_by')) {
+                $errorMessage .= 'الرجاء التحقق من بيانات المستخدم.';
+            } else {
+                $errorMessage .= 'الرجاء التحقق من المعلومات المدخلة.';
+            }
+            
             return redirect()->back()
-                           ->withErrors(['error' => 'فشل في تحديث الحالة: ' . $e->getMessage()]);
+                           ->withErrors(['error' => $errorMessage]);
         }
     }
 

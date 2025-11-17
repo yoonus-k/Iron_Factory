@@ -9,13 +9,11 @@
         .action-btn.status {
             display: flex;
             align-items: center;
-
-            color: rgb(0, 0, 0);
+            color: #0066cc;
             border: none;
         }
         .action-btn.status:hover {
-
-            color: white;
+            color: #004499;
         }
         .dropdown-menu .dropdown-item {
             display: flex;
@@ -23,13 +21,13 @@
             padding: 10px 15px;
         }
         .dropdown-menu .dropdown-item.active {
-            background-color: #667eea;
+            background-color: #0066cc;
             color: white;
         }
         .dropdown-menu .dropdown-item .badge {
             margin-right: 8px;
         }
-    </style>>
+    </style>
             @if (session('success'))
             <div class="um-alert-custom um-alert-success" role="alert" id="successMessage">
                 <i class="feather icon-check-circle"></i>

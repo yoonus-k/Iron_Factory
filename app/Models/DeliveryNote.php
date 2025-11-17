@@ -44,9 +44,11 @@ class DeliveryNote extends Model
         'status', // pending, approved, rejected, completed
         'material_id',
         'material_detail_id', // ربط مع تفاصيل المادة بالمستودع (لتجنب التكرار)
+        'warehouse_id', // ✅ المستودع - يكون إجباري عند عدم وجود material_detail_id
         'delivery_quantity', // كمية الأذن المسلمة
         'delivered_weight',
-        'actual_weight', // الوزن الفعلي من الميزان
+        'actual_weight', // الوزن الفعلي من الميزان ✅
+        'weight_from_scale', // ✅ الوزن المسجل من الميزان (جديد)
         'invoice_weight', // وزن الفاتورة
         'weight_discrepancy', // الفرق
         'delivery_date',
@@ -62,12 +64,30 @@ class DeliveryNote extends Model
         'invoice_number', // رقم الفاتورة
         'invoice_reference_number', // رقم مرجع الفاتورة
         'is_active',
+        'notes', // ملاحظات ✅
+        // ========== الحقول الجديدة ==========
+        'registration_status',
+        'registered_by',
+        'registered_at',
+        'purchase_invoice_id',
+        'invoice_date',
+        'reconciliation_status',
+        'reconciliation_notes',
+        'reconciled_by',
+        'reconciled_at',
+        'is_locked',
+        'lock_reason',
+        // ========== حقول منع التكرار ==========
+        'deduplicate_key',
+        'registration_attempts',
+        'last_registration_log_id',
     ];
 
     protected $casts = [
         'delivery_quantity' => 'float',
         'delivered_weight' => 'float',
         'actual_weight' => 'float',
+        'weight_from_scale' => 'float', // ✅ الوزن من الميزان
         'invoice_weight' => 'float',
         'weight_discrepancy' => 'float',
         'delivery_date' => 'date',
@@ -76,6 +96,11 @@ class DeliveryNote extends Model
         'is_active' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        // ========== الحقول الجديدة ==========
+        'registered_at' => 'datetime',
+        'invoice_date' => 'date',
+        'reconciled_at' => 'datetime',
+        'is_locked' => 'boolean',
     ];
 
     /**
@@ -84,6 +109,30 @@ class DeliveryNote extends Model
     public function material(): BelongsTo
     {
         return $this->belongsTo(Material::class);
+    }
+
+    /**
+     * Get the purchase invoice associated with this delivery note
+     */
+    public function purchaseInvoice(): BelongsTo
+    {
+        return $this->belongsTo(PurchaseInvoice::class);
+    }
+
+    /**
+     * Get reconciliation logs for this delivery note
+     */
+    public function reconciliationLogs(): HasMany
+    {
+        return $this->hasMany(ReconciliationLog::class);
+    }
+
+    /**
+     * Get registration logs for this delivery note
+     */
+    public function registrationLogs(): HasMany
+    {
+        return $this->hasMany(RegistrationLog::class);
     }
 
     /**
@@ -111,6 +160,30 @@ class DeliveryNote extends Model
     }
 
     /**
+     * Get the user who registered this delivery note
+     */
+    public function registeredBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'registered_by');
+    }
+
+    /**
+     * Get the user who reconciled this delivery note
+     */
+    public function reconciledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reconciled_by');
+    }
+
+    /**
+     * Get the user who transferred to production
+     */
+    public function transferredBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'transferred_by');
+    }
+
+    /**
      * Get the supplier (for incoming delivery notes)
      */
     public function supplier(): BelongsTo
@@ -133,6 +206,15 @@ class DeliveryNote extends Model
     public function materialDetail()
     {
         return $this->belongsTo(MaterialDetail::class);
+    }
+
+    /**
+     * Get the warehouse associated with this delivery note
+     * ✅ جديد - للسماح بتسجيل الأذن بدون مادة محددة
+     */
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
     }
 
     /**
@@ -243,5 +325,80 @@ class DeliveryNote extends Model
     public function scopeApproved($query)
     {
         return $query->where('status', 'approved');
+    }
+
+    /**
+     * Check if linked to invoice
+     */
+    public function isLinkedToInvoice(): bool
+    {
+        return $this->purchase_invoice_id !== null;
+    }
+
+    /**
+     * Check if registered in warehouse
+     */
+    public function isRegistered(): bool
+    {
+        return $this->registration_status === 'registered' ||
+               $this->registration_status === 'in_production' ||
+               $this->registration_status === 'completed';
+    }
+
+    /**
+     * Check if can be moved to production
+     */
+    public function canBeMovedToProduction(): bool
+    {
+        return $this->registration_status === 'registered' && !$this->is_locked;
+    }
+
+    /**
+     * Check if reconciliation is complete
+     */
+    public function isReconciled(): bool
+    {
+        return $this->reconciliation_status === 'matched' ||
+               $this->reconciliation_status === 'adjusted';
+    }
+
+    /**
+     * Get discrepancy from reconciliation logs
+     */
+    public function getDiscrepancy(): float
+    {
+        return $this->weight_discrepancy ?? 0;
+    }
+
+    /**
+     * Get discrepancy percentage
+     */
+    public function getDiscrepancyPercentage(): float
+    {
+        return $this->discrepancy_percentage ?? 0;
+    }
+
+    /**
+     * Scope to get pending registrations
+     */
+    public function scopePendingRegistration($query)
+    {
+        return $query->where('registration_status', 'not_registered');
+    }
+
+    /**
+     * Scope to get pending reconciliation
+     */
+    public function scopePendingReconciliation($query)
+    {
+        return $query->where('reconciliation_status', 'pending');
+    }
+
+    /**
+     * Scope to get discrepancies
+     */
+    public function scopeWithDiscrepancies($query)
+    {
+        return $query->where('reconciliation_status', 'discrepancy');
     }
 }
