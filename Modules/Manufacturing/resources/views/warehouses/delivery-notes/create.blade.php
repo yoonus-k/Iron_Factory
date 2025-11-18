@@ -4,6 +4,74 @@
 
 @section('content')
 
+    <style>
+        .info-tooltip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: help;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        .info-tooltip:hover {
+            background: #2980b9;
+        }
+
+        .info-tooltip .tooltip-text {
+            visibility: hidden;
+            width: 300px;
+            background-color: #2c3e50;
+            color: #fff;
+            text-align: right;
+            border-radius: 6px;
+            padding: 12px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            right: 50%;
+            margin-right: -150px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 13px;
+            line-height: 1.6;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .info-tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            right: 50%;
+            margin-right: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #2c3e50 transparent transparent transparent;
+        }
+
+        .info-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .info-tooltip .tooltip-text ol {
+            margin: 8px 0 0 0;
+            padding-right: 20px;
+        }
+
+        .info-tooltip .tooltip-text ol li {
+            margin-bottom: 6px;
+        }
+    </style>
+
     <!-- Header -->
     <div class="um-header-section">
         <h1 class="um-page-title">
@@ -26,31 +94,6 @@
             <i class="feather icon-chevron-left"></i>
             <span>إنشاء أذن</span>
         </nav>
-    </div>
-
-    <!-- Process Explanation -->
-    <div class="alert alert-info mb-4" style="border-right: 4px solid #3498db;">
-        <h5 class="mb-2"><strong>📌 نظام العمل الجديد (ثلاث مراحل):</strong></h5>
-        <div style="display: grid; gap: 10px; margin-top: 15px;">
-            <div style="background: white; padding: 12px; border-radius: 4px; border-right: 3px solid #3498db;">
-                <strong>المرحلة 1 - إنشاء الأذن (هنا):</strong>
-                <span style="color: #666; display: block; margin-top: 4px;">
-                    📝 بيانات أساسية فقط (رقم الأذن، التاريخ، المورد، المستودع) بدون أوزان أو كميات
-                </span>
-            </div>
-            <div style="background: white; padding: 12px; border-radius: 4px; border-right: 3px solid #27ae60;">
-                <strong>المرحلة 2 - التسجيل:</strong>
-                <span style="color: #666; display: block; margin-top: 4px;">
-                    ⚖️ تسجيل الوزن الفعلي من الميزان + تحديد المادة + الكمية بعد الفحص
-                </span>
-            </div>
-            <div style="background: white; padding: 12px; border-radius: 4px; border-right: 3px solid #f39c12;">
-                <strong>المرحلة 3 - التسوية (عند وصول الفاتورة):</strong>
-                <span style="color: #666; display: block; margin-top: 4px;">
-                    📊 ربط الفاتورة + حساب الفروقات بين الوزن الفعلي ووزن الفاتورة
-                </span>
-            </div>
-        </div>
     </div>
 
     <!-- Form Card -->
@@ -197,10 +240,41 @@
                             <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('delivery_date') }}</small>
                         @endif
                     </div>
+                </div>
+            </div>
 
+            <!-- Incoming Details Section (conditional) -->
+            <div class="form-section" id="incoming-section" style="{{ old('type', 'incoming') === 'incoming' ? '' : 'display: none;' }}">
+                <div class="section-header">
+                    <div class="section-icon personal">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="section-title">
+                            بيانات الموردين
+                            <span class="info-tooltip">
+                                ?
+                                <span class="tooltip-text">
+                                    <strong>📌 نظام العمل (ثلاث مراحل):</strong>
+                                    <ol>
+                                        <li><strong>المرحلة 1 - إنشاء الأذن (هنا):</strong> بيانات أساسية فقط بدون أوزان</li>
+                                        <li><strong>المرحلة 2 - التسجيل:</strong> تسجيل الوزن الفعلي من الميزان</li>
+                                        <li><strong>المرحلة 3 - التسوية:</strong> ربط الفاتورة وحساب الفروقات</li>
+                                    </ol>
+                                </span>
+                            </span>
+                        </h3>
+                        <p class="section-subtitle">معلومات المورد والتسليم</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
                     <div class="form-group">
                         <label for="warehouse_id" class="form-label">
-                            المستودع
+                            المستودع الوارد إليه
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -221,25 +295,7 @@
                             <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('warehouse_id') }}</small>
                         @endif
                     </div>
-                </div>
-            </div>
 
-            <!-- Incoming Details Section (conditional) -->
-            <div class="form-section" id="incoming-section" style="{{ old('type', 'incoming') === 'incoming' ? '' : 'display: none;' }}">
-                <div class="section-header">
-                    <div class="section-icon personal">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="section-title">بيانات الموردين</h3>
-                        <p class="section-subtitle">معلومات المورد والتسليم</p>
-                    </div>
-                </div>
-
-                <div class="form-grid">
                     <div class="form-group">
                         <label for="supplier_id" class="form-label">
                             المورد
@@ -250,7 +306,7 @@
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
-                            <select name="supplier_id" id="supplier_id" class="form-input {{ $errors->has('supplier_id') ? 'is-invalid' : '' }}">
+                            <select name="supplier_id" id="supplier_id" class="form-input {{ $errors->has('supplier_id') ? 'is-invalid' : '' }}" required>
                                 <option value="">-- اختر المورد --</option>
                                 @foreach($suppliers as $supplier)
                                     <option value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>
@@ -302,6 +358,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
 
             <!-- Outgoing Details Section (conditional) -->
@@ -313,8 +370,23 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">بيانات الوجهة</h3>
-                        <p class="section-subtitle">إلى أين تذهب البضاعة؟ (الإنتاج / مستودع آخر / عميل)</p>
+                        <h3 class="section-title">
+                            بيانات الوجهة
+                            <span class="info-tooltip">
+                                ?
+                                <span class="tooltip-text">
+                                    <strong>📋 خطوات الإخراج:</strong>
+                                    <ol>
+                                        <li>اختر المستودع المصدر أولاً</li>
+                                        <li>اختر المادة من المواد المتوفرة</li>
+                                        <li>أدخل الكمية المراد إخراجها</li>
+                                        <li>اختر الوجهة (الإنتاج / مستودع آخر)</li>
+                                        <li>سيتم خصم الكمية تلقائياً</li>
+                                    </ol>
+                                </span>
+                            </span>
+                        </h3>
+                        <p class="section-subtitle">إلى أين تذهب البضاعة؟</p>
                     </div>
                 </div>
 
@@ -329,7 +401,7 @@
                                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                                 <polyline points="17 21 17 13 7 13 7 21"></polyline>
                             </svg>
-                            <select name="warehouse_from_id" id="warehouse_from_id" class="form-input {{ $errors->has('warehouse_from_id') ? 'is-invalid' : '' }}" required>
+                            <select name="warehouse_from_id" id="warehouse_from_id" class="form-input {{ $errors->has('warehouse_from_id') ? 'is-invalid' : '' }}">
                                 <option value="">-- اختر المستودع --</option>
                                 @foreach($warehouses as $warehouse)
                                     <option value="{{ $warehouse->id }}" {{ old('warehouse_from_id') == $warehouse->id ? 'selected' : '' }}>
@@ -341,7 +413,7 @@
                         @if ($errors->has('warehouse_from_id'))
                             <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('warehouse_from_id') }}</small>
                         @endif
-                        <small style="color: #27ae60; display: block; margin-top: 5px;" id="warehouse_info_display">💡 اختر المستودع أولاً لعرض المواد المتوفرة</small>
+                        <small style="color: #27ae60; display: block; margin-top: 5px;" id="warehouse_info_display"></small>
                     </div>
 
                     <div class="form-group" id="material_from_group" style="display: none;">
@@ -386,13 +458,11 @@
                                 placeholder="أدخل الكمية"
                                 value="{{ old('delivery_quantity') }}"
                                 min="0.01"
-                                step="0.01"
-                                required>
+                                step="0.01">
                         </div>
                         @if ($errors->has('delivery_quantity'))
                             <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('delivery_quantity') }}</small>
                         @endif
-                        <small style="color: #f39c12; display: block; margin-top: 5px;">⚠️ سيتم خصم هذه الكمية من المستودع تلقائياً</small>
                     </div>
 
                     <div class="form-group">
@@ -417,7 +487,6 @@
                         @if ($errors->has('destination_id'))
                             <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('destination_id') }}</small>
                         @endif
-                        <small style="color: #7f8c8d; display: block; margin-top: 5px;">💡 اختر المستودع الذي سيستلم البضاعة أو قسم الإنتاج</small>
                     </div>
 
                     <div class="form-group">
@@ -429,27 +498,6 @@
                             </svg>
                             <input type="text" name="outgoing_notes" id="outgoing_notes"
                                 class="form-input" placeholder="مثال: للإنتاج - طلبية رقم 123" value="{{ old('outgoing_notes') }}">
-                        </div>
-                        <small style="color: #7f8c8d; display: block; margin-top: 5px;">💡 اكتب سبب إخراج البضاعة لتتبع أفضل</small>
-                    </div>
-                </div>
-
-                <div class="alert alert-info" style="border-right: 4px solid #3498db; margin-top: 15px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <svg style="width: 20px; height: 20px; min-width: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="16" x2="12" y2="12"></line>
-                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                        </svg>
-                        <div>
-                            <strong>📋 خطوات الإخراج:</strong>
-                            <ol style="margin: 10px 0 0 20px; padding: 0; color: #2c3e50;">
-                                <li style="margin-bottom: 5px;">1️⃣ اختر <strong>المستودع المصدر</strong> أولاً</li>
-                                <li style="margin-bottom: 5px;">2️⃣ اختر <strong>المادة</strong> من المواد المتوفرة في المستودع (مع الكمية)</li>
-                                <li style="margin-bottom: 5px;">3️⃣ أدخل <strong>الكمية</strong> المراد إخراجها</li>
-                                <li style="margin-bottom: 5px;">4️⃣ اختر <strong>الوجهة</strong> (الإنتاج / مستودع آخر)</li>
-                                <li>✅ سيتم خصم الكمية تلقائياً من المستودع المحدد</li>
-                            </ol>
                         </div>
                     </div>
                 </div>
@@ -474,21 +522,10 @@
                         <label for="notes" class="form-label">الملاحظات (اختياري)</label>
                         <div class="input-wrapper">
                             <textarea name="notes" id="notes"
-                                class="form-input {{ $errors->has('notes') ? 'is-invalid' : '' }}" rows="3" placeholder="أدخل أي ملاحظات إضافية... (مثلاً: سبب الإخراج، اسم المستلم، رقم الطلبية)">{{ old('notes') }}</textarea>
+                                class="form-input {{ $errors->has('notes') ? 'is-invalid' : '' }}" rows="3" placeholder="أدخل أي ملاحظات إضافية...">{{ old('notes') }}</textarea>
                         </div>
-                        <small style="color: #7f8c8d; display: block; margin-top: 5px;">💡 للإذن الصادر: يمكنك كتابة سبب الإخراج، جهة الاستلام، أو أي تفاصيل أخرى</small>
                     </div>
                 </div>
-            </div>
-
-            <!-- Next Steps Info -->
-            <div class="alert alert-success mb-4" style="border-right: 4px solid #27ae60;">
-                <h5 class="mb-2"><strong>✅ الخطوات التالية بعد إنشاء الأذن:</strong></h5>
-                <ol style="margin: 0; padding-right: 20px;">
-                    <li style="margin-bottom: 8px;">ستظهر الأذن في قائمة "الشحنات المعلقة للتسجيل"</li>
-                    <li style="margin-bottom: 8px;">عند وصول البضاعة، اذهب إلى صفحة التسجيل لإدخال الوزن الفعلي والكمية</li>
-                    <li style="margin-bottom: 8px;">بعد وصول الفاتورة، يمكن ربطها وحساب الفروقات في صفحة التسوية</li>
-                </ol>
             </div>
 
             <!-- Form Actions -->
@@ -519,17 +556,35 @@
             const supplierId = document.getElementById('supplier_id');
             const destinationId = document.getElementById('destination_id');
 
+            const warehouseId = document.getElementById('warehouse_id');
+
             function updateVisibility() {
                 if (typeIncoming.checked) {
                     incomingSection.style.display = '';
                     outgoingSection.style.display = 'none';
                     supplierId.required = true;
+                    warehouseId.required = true;
                     destinationId.required = false;
+                    // Remove required from outgoing fields
+                    if (quantityOutgoing) {
+                        quantityOutgoing.required = false;
+                    }
+                    if (warehouseFromId) {
+                        warehouseFromId.required = false;
+                    }
                 } else {
                     incomingSection.style.display = 'none';
                     outgoingSection.style.display = '';
                     supplierId.required = false;
+                    warehouseId.required = false;
                     destinationId.required = true;
+                    // Add required to outgoing fields
+                    if (quantityOutgoing) {
+                        quantityOutgoing.required = true;
+                    }
+                    if (warehouseFromId) {
+                        warehouseFromId.required = true;
+                    }
                 }
             }
 
@@ -570,7 +625,7 @@
             const warehouseInfoDisplay = document.getElementById('warehouse_info_display');
             const materialQuantityDisplay = document.getElementById('material_quantity_display');
 
-            // عند اختيار المستودع
+            // عند اختيار المستودع للصادر
             if (warehouseFromId) {
                 warehouseFromId.addEventListener('change', function() {
                     const warehouseId = this.value;
@@ -606,7 +661,7 @@
                     } else {
                         materialFromGroup.style.display = 'none';
                         materialDetailIdOutgoing.required = false;
-                        warehouseInfoDisplay.textContent = '💡 اختر المستودع أولاً لعرض المواد المتوفرة';
+                        warehouseInfoDisplay.textContent = '';
                         warehouseInfoDisplay.style.color = '#27ae60';
                     }
                 });
@@ -694,6 +749,29 @@
             });
 
             form.addEventListener('submit', function(e) {
+                let hasError = false;
+
+                // التحقق للإذن الوارد
+                if (typeIncoming.checked) {
+                    // التحقق من اختيار المستودع
+                    if (warehouseId && !warehouseId.value) {
+                        e.preventDefault();
+                        alert('❌ يجب اختيار المستودع الوارد إليه!');
+                        warehouseId.focus();
+                        hasError = true;
+                        return false;
+                    }
+
+                    // التحقق من اختيار المورد
+                    if (supplierId && !supplierId.value) {
+                        e.preventDefault();
+                        alert('❌ يجب اختيار المورد!');
+                        supplierId.focus();
+                        hasError = true;
+                        return false;
+                    }
+                }
+
                 // التحقق من الكمية للإذن الصادر
                 if (typeOutgoing.checked) {
                     // التحقق من اختيار المستودع
@@ -701,6 +779,7 @@
                         e.preventDefault();
                         alert('❌ يجب اختيار المستودع المصدر أولاً!');
                         warehouseFromId.focus();
+                        hasError = true;
                         return false;
                     }
 
@@ -709,34 +788,39 @@
                         e.preventDefault();
                         alert('❌ يجب اختيار المادة!');
                         materialDetailIdOutgoing.focus();
+                        hasError = true;
                         return false;
                     }
 
-                    // التحقق من الكمية
-                    if (quantityOutgoing) {
-                        const maxQty = parseFloat(quantityOutgoing.getAttribute('data-max'));
-                        const currentQty = parseFloat(quantityOutgoing.value);
+                    // التحقق من الكمية فقط إذا كانت المادة محددة
+                    if (materialDetailIdOutgoing && materialDetailIdOutgoing.value) {
+                        if (quantityOutgoing) {
+                            const maxQty = parseFloat(quantityOutgoing.getAttribute('data-max'));
+                            const currentQty = parseFloat(quantityOutgoing.value);
 
-                        if (!currentQty || currentQty <= 0) {
-                            e.preventDefault();
-                            alert('❌ يجب إدخال الكمية المراد إخراجها!');
-                            quantityOutgoing.focus();
-                            return false;
-                        }
+                            if (!currentQty || currentQty <= 0) {
+                                e.preventDefault();
+                                alert('❌ يجب إدخال الكمية المراد إخراجها!');
+                                quantityOutgoing.focus();
+                                hasError = true;
+                                return false;
+                            }
 
-                        if (maxQty && currentQty > maxQty) {
-                            e.preventDefault();
-                            alert('❌ الكمية المطلوبة أكبر من الكمية المتوفرة في المستودع!');
-                            quantityOutgoing.focus();
-                            return false;
+                            if (maxQty && currentQty > maxQty) {
+                                e.preventDefault();
+                                alert('❌ الكمية المطلوبة أكبر من الكمية المتوفرة في المستودع!');
+                                quantityOutgoing.focus();
+                                hasError = true;
+                                return false;
+                            }
                         }
                     }
-                }                const firstInvalid = form.querySelector('.is-invalid, :invalid');
-                if (firstInvalid) {
-                    firstInvalid.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
+                }
+
+                // إذا لم توجد أخطاء، اسمح بالإرسال
+                if (hasError) {
+                    e.preventDefault();
+                    return false;
                 }
             });
         });

@@ -196,6 +196,11 @@ class DeliveryNoteController extends Controller
                 }
             }
 
+            // ✅ للإذن الوارد: إذا لم يكن هناك material_id، اجعله null (سيتم تحديده لاحقاً في التسجيل)
+            if ($type === 'incoming' && empty($validated['material_id'])) {
+                $validated['material_id'] = null;
+            }
+
             // ✅ للإذن الصادر: التأكد من أن material_id موجود
             if ($type === 'outgoing' && empty($validated['material_id'])) {
                 throw new \Exception('يجب تحديد المادة للأذن الصادرة');
@@ -216,7 +221,9 @@ class DeliveryNoteController extends Controller
             $deliveryNote = DeliveryNote::create($validated);
 
             // ✅ تسجيل الحركة في material_movements
-            if (!empty($validated['delivery_quantity']) && $validated['delivery_quantity'] > 0) {
+            // ملاحظة: للأذن الوارد في المرحلة 1، لا نسجل حركة لأنه لا توجد مادة بعد
+            // سيتم تسجيل الحركة لاحقاً عند التسجيل (المرحلة 2)
+            if ($type === 'outgoing' && !empty($validated['delivery_quantity']) && $validated['delivery_quantity'] > 0) {
                 $materialDetail = null;
                 if (!empty($validated['material_detail_id'])) {
                     $materialDetail = \App\Models\MaterialDetail::find($validated['material_detail_id']);
@@ -224,18 +231,18 @@ class DeliveryNoteController extends Controller
 
                 MaterialMovement::create([
                     'movement_number' => MaterialMovement::generateMovementNumber(),
-                    'movement_type' => $type === 'incoming' ? 'incoming' : 'outgoing',
+                    'movement_type' => 'outgoing',
                     'source' => 'registration',
                     'delivery_note_id' => $deliveryNote->id,
                     'material_detail_id' => $validated['material_detail_id'] ?? null,
-                    'material_id' => $validated['material_id'] ?? null,
+                    'material_id' => $validated['material_id'],
                     'unit_id' => $materialDetail ? $materialDetail->unit_id : null,
                     'quantity' => $validated['delivery_quantity'],
-                    'from_warehouse_id' => $type === 'outgoing' ? $validated['warehouse_id'] : null,
-                    'to_warehouse_id' => $type === 'incoming' ? $validated['warehouse_id'] : null,
-                    'supplier_id' => $validated['supplier_id'] ?? null,
-                    'destination' => $type === 'outgoing' ? ($validated['destination_id'] ?? 'غير محدد') : null,
-                    'description' => ($type === 'incoming' ? 'دخول بضاعة - ' : 'خروج بضاعة - ') . 'أذن رقم ' . $deliveryNumber,
+                    'from_warehouse_id' => $validated['warehouse_id'],
+                    'to_warehouse_id' => null,
+                    'supplier_id' => null,
+                    'destination' => $validated['destination_id'] ?? 'غير محدد',
+                    'description' => 'خروج بضاعة - أذن رقم ' . $deliveryNumber,
                     'notes' => $validated['notes'] ?? null,
                     'reference_number' => $validated['invoice_number'] ?? null,
                     'created_by' => Auth::id() ?? 1,
@@ -244,24 +251,16 @@ class DeliveryNoteController extends Controller
                     'user_agent' => $request->userAgent(),
                     'status' => 'completed',
                 ]);
-            }            // ✅ تحديث كمية المستودع فقط إذا كان هناك material_detail_id
-            if (!empty($validated['material_detail_id']) && !empty($validated['delivery_quantity'])) {
+            }            // ✅ تحديث كمية المستودع (للصادر فقط في المرحلة 1)
+            if ($type === 'outgoing' && !empty($validated['material_detail_id']) && !empty($validated['delivery_quantity'])) {
                 try {
                     $materialDetail = \App\Models\MaterialDetail::find($validated['material_detail_id']);
-                    if ($type === 'incoming') {
-                        // أذن واردة - زيادة الكمية
-                        $materialDetail->addIncomingQuantity(
-                            $validated['delivery_quantity'],  // الكمية المدخلة من الأذن
-                            $validated['actual_weight'],
-                            $validated['invoice_weight'] ?? $validated['actual_weight']
-                        );
-                    } elseif ($type === 'outgoing') {
-                        // أذن صادرة - تقليل الكمية (والوزن إن وُجد)
-                        $materialDetail->reduceOutgoingQuantity(
-                            $validated['delivery_quantity'],
-                            $validated['actual_weight'] ?? null
-                        );
+                    // أذن صادرة - تقليل الكمية
+                    if ($materialDetail->quantity < $validated['delivery_quantity']) {
+                        throw new \Exception('الكمية المتوفرة غير كافية');
                     }
+                    $materialDetail->quantity -= $validated['delivery_quantity'];
+                    $materialDetail->save();
                 } catch (\Exception $inventoryError) {
                     Log::error('Failed to update inventory: ' . $inventoryError->getMessage());
                     // حذف أذن التسليم إذا فشل تحديث المستودع

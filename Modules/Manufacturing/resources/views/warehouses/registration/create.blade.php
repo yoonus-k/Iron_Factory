@@ -289,7 +289,7 @@
                     <textarea name="notes"
                               class="form-control @error('notes') is-invalid @enderror"
                               rows="3"
-                              placeholder="مثال: البضاعة سليمة بدون أضرار / هناك كسر في علبة واحدة"
+                              placeholder=" البضاعة سليمة بدون أضرار / هناك "
                               autocomplete="off">{{ old('notes') }}</textarea>
                     @error('notes')
                         <small class="text-danger d-block mt-1">{{ $message }}</small>

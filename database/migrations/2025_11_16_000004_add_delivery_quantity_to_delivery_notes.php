@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('delivery_notes', function (Blueprint $table) {
             if (!Schema::hasColumn('delivery_notes', 'delivery_quantity')) {
-                $table->float('delivery_quantity')->default(0)->after('material_detail_id')->comment('كمية المنتج المسلمة في الأذن');
+                $table->float('delivery_quantity')->nullable()->default(0)->after('material_detail_id')->comment('كمية المنتج المسلمة في الأذن');
             }
         });
     }
