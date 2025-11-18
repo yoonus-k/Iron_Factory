@@ -139,7 +139,7 @@
                             <input type="radio" name="type" id="type_outgoing" value="outgoing"
                                 class="form-input" {{ old('type') === 'outgoing' ? 'checked' : '' }}
                                 style="margin-right: 10px; cursor: pointer;">
-                            <span style="font-size: 16px; font-weight: 500;">🔼 أذن صادرة (للزبون)</span>
+                            <span style="font-size: 16px; font-weight: 500;">🔼 أذن صادرة (للإنتاج / للعملاء / لمستودع آخر)</span>
                         </label>
                     </div>
                 </div>
@@ -314,14 +314,90 @@
                     </div>
                     <div>
                         <h3 class="section-title">بيانات الوجهة</h3>
-                        <p class="section-subtitle">معلومات المستودع أو الوجهة</p>
+                        <p class="section-subtitle">إلى أين تذهب البضاعة؟ (الإنتاج / مستودع آخر / عميل)</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
+                        <label for="warehouse_from_id" class="form-label">
+                            المستودع المصدر
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            </svg>
+                            <select name="warehouse_from_id" id="warehouse_from_id" class="form-input {{ $errors->has('warehouse_from_id') ? 'is-invalid' : '' }}" required>
+                                <option value="">-- اختر المستودع --</option>
+                                @foreach($warehouses as $warehouse)
+                                    <option value="{{ $warehouse->id }}" {{ old('warehouse_from_id') == $warehouse->id ? 'selected' : '' }}>
+                                        {{ $warehouse->warehouse_name }} [{{ $warehouse->warehouse_code ?? '' }}]
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @if ($errors->has('warehouse_from_id'))
+                            <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('warehouse_from_id') }}</small>
+                        @endif
+                        <small style="color: #27ae60; display: block; margin-top: 5px;" id="warehouse_info_display">💡 اختر المستودع أولاً لعرض المواد المتوفرة</small>
+                    </div>
+
+                    <div class="form-group" id="material_from_group" style="display: none;">
+                        <label for="material_detail_id_outgoing" class="form-label">
+                            المادة المراد إخراجها
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="feather icon-box" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #7f8c8d; font-size: 18px;"></i>
+                            <select name="material_detail_id" id="material_detail_id_outgoing" class="form-input {{ $errors->has('material_detail_id') ? 'is-invalid' : '' }}">
+                                <option value="">-- اختر المادة --</option>
+                            </select>
+                            <input type="hidden" name="material_id" id="material_id_hidden">
+                        </div>
+                        @if ($errors->has('material_detail_id'))
+                            <small style="color: #e74c3c; display: block; margin-top: 5px;">
+                                <i class="feather icon-alert-circle"></i> {{ $errors->first('material_detail_id') }}
+                            </small>
+                        @endif
+                        <div style="margin-top: 10px; padding: 12px; background: #f8f9fa; border-radius: 6px; border-right: 3px solid #27ae60;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                <i class="feather icon-info" style="color: #3498db;"></i>
+                                <strong style="color: #2c3e50;" id="selected_material_name">لم يتم اختيار المادة</strong>
+                            </div>
+                            <small style="color: #27ae60; display: block;" id="material_quantity_display">
+                                <i class="feather icon-package"></i> اختر المادة لعرض الكمية المتوفرة
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="delivery_quantity_outgoing" class="form-label">
+                            الكمية المراد إخراجها
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            </svg>
+                            <input type="number" name="delivery_quantity" id="delivery_quantity_outgoing"
+                                class="form-input {{ $errors->has('delivery_quantity') ? 'is-invalid' : '' }}"
+                                placeholder="أدخل الكمية"
+                                value="{{ old('delivery_quantity') }}"
+                                min="0.01"
+                                step="0.01"
+                                required>
+                        </div>
+                        @if ($errors->has('delivery_quantity'))
+                            <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('delivery_quantity') }}</small>
+                        @endif
+                        <small style="color: #f39c12; display: block; margin-top: 5px;">⚠️ سيتم خصم هذه الكمية من المستودع تلقائياً</small>
+                    </div>
+
+                    <div class="form-group">
                         <label for="destination_id" class="form-label">
-                            المستودع / الوجهة
+                            الوجهة (مستودع / قسم الإنتاج)
                             <span class="required" id="destination_required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -333,10 +409,47 @@
                                 <option value="">-- اختر الوجهة --</option>
                                 @foreach($warehouses as $warehouse)
                                     <option value="{{ $warehouse->id }}" {{ old('destination_id') == $warehouse->id ? 'selected' : '' }}>
-                                        {{ $warehouse->name }}
+                                        {{ $warehouse->warehouse_name }} [{{ $warehouse->warehouse_code ?? '' }}]
                                     </option>
                                 @endforeach
                             </select>
+                        </div>
+                        @if ($errors->has('destination_id'))
+                            <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('destination_id') }}</small>
+                        @endif
+                        <small style="color: #7f8c8d; display: block; margin-top: 5px;">💡 اختر المستودع الذي سيستلم البضاعة أو قسم الإنتاج</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="outgoing_notes" class="form-label">سبب الإخراج (اختياري)</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            <input type="text" name="outgoing_notes" id="outgoing_notes"
+                                class="form-input" placeholder="مثال: للإنتاج - طلبية رقم 123" value="{{ old('outgoing_notes') }}">
+                        </div>
+                        <small style="color: #7f8c8d; display: block; margin-top: 5px;">💡 اكتب سبب إخراج البضاعة لتتبع أفضل</small>
+                    </div>
+                </div>
+
+                <div class="alert alert-info" style="border-right: 4px solid #3498db; margin-top: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <svg style="width: 20px; height: 20px; min-width: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <div>
+                            <strong>📋 خطوات الإخراج:</strong>
+                            <ol style="margin: 10px 0 0 20px; padding: 0; color: #2c3e50;">
+                                <li style="margin-bottom: 5px;">1️⃣ اختر <strong>المستودع المصدر</strong> أولاً</li>
+                                <li style="margin-bottom: 5px;">2️⃣ اختر <strong>المادة</strong> من المواد المتوفرة في المستودع (مع الكمية)</li>
+                                <li style="margin-bottom: 5px;">3️⃣ أدخل <strong>الكمية</strong> المراد إخراجها</li>
+                                <li style="margin-bottom: 5px;">4️⃣ اختر <strong>الوجهة</strong> (الإنتاج / مستودع آخر)</li>
+                                <li>✅ سيتم خصم الكمية تلقائياً من المستودع المحدد</li>
+                            </ol>
                         </div>
                     </div>
                 </div>
@@ -361,8 +474,9 @@
                         <label for="notes" class="form-label">الملاحظات (اختياري)</label>
                         <div class="input-wrapper">
                             <textarea name="notes" id="notes"
-                                class="form-input {{ $errors->has('notes') ? 'is-invalid' : '' }}" rows="3" placeholder="أدخل أي ملاحظات إضافية...">{{ old('notes') }}</textarea>
+                                class="form-input {{ $errors->has('notes') ? 'is-invalid' : '' }}" rows="3" placeholder="أدخل أي ملاحظات إضافية... (مثلاً: سبب الإخراج، اسم المستلم، رقم الطلبية)">{{ old('notes') }}</textarea>
                         </div>
+                        <small style="color: #7f8c8d; display: block; margin-top: 5px;">💡 للإذن الصادر: يمكنك كتابة سبب الإخراج، جهة الاستلام، أو أي تفاصيل أخرى</small>
                     </div>
                 </div>
             </div>
@@ -422,6 +536,144 @@
             typeIncoming.addEventListener('change', updateVisibility);
             typeOutgoing.addEventListener('change', updateVisibility);
 
+            // بيانات المواد المتوفرة في كل مستودع
+            const warehouseMaterials = {!! json_encode($materialDetails->where('quantity', '>', 0)->groupBy('warehouse_id')->map(function($details) {
+                return $details->map(function($detail) {
+                    // التأكد من تحميل اسم المادة من الأعمدة المتاحة
+                    $materialName = 'غير محدد';
+                    if ($detail->material) {
+                        if (!empty($detail->material->name_ar)) {
+                            $materialName = $detail->material->name_ar;
+                        } elseif (!empty($detail->material->name_en)) {
+                            $materialName = $detail->material->name_en;
+                        } elseif (!empty($detail->material->name)) {
+                            $materialName = $detail->material->name;
+                        }
+                    }
+
+                    return [
+                        'detail_id' => $detail->id,
+                        'material_id' => $detail->material_id,
+                        'material_name' => $materialName,
+                        'quantity' => $detail->quantity ?? 0,
+                        'unit_name' => $detail->unit?->unit_name ?? 'وحدة'
+                    ];
+                })->values();
+            })) !!};
+
+            // عناصر النموذج للإذن الصادر
+            const warehouseFromId = document.getElementById('warehouse_from_id');
+            const materialFromGroup = document.getElementById('material_from_group');
+            const materialDetailIdOutgoing = document.getElementById('material_detail_id_outgoing');
+            const materialIdHidden = document.getElementById('material_id_hidden');
+            const quantityOutgoing = document.getElementById('delivery_quantity_outgoing');
+            const warehouseInfoDisplay = document.getElementById('warehouse_info_display');
+            const materialQuantityDisplay = document.getElementById('material_quantity_display');
+
+            // عند اختيار المستودع
+            if (warehouseFromId) {
+                warehouseFromId.addEventListener('change', function() {
+                    const warehouseId = this.value;
+
+                    if (warehouseId && warehouseMaterials[warehouseId]) {
+                        const materials = warehouseMaterials[warehouseId];
+
+                        // عرض عدد المواد المتوفرة
+                        warehouseInfoDisplay.textContent = `✅ يحتوي على ${materials.length} مادة متوفرة`;
+                        warehouseInfoDisplay.style.color = '#27ae60';
+
+                        // ملء قائمة المواد
+                        materialDetailIdOutgoing.innerHTML = '<option value="">-- اختر المادة --</option>';
+                        materials.forEach(m => {
+                            const option = document.createElement('option');
+                            option.value = m.detail_id;
+
+                            // التأكد من وجود اسم المادة
+                            const materialName = m.material_name || 'غير محدد';
+                            const quantity = m.quantity || 0;
+                            const unitName = m.unit_name || 'وحدة';
+
+                            option.textContent = `${materialName} - متوفر: ${quantity} ${unitName}`;
+                            option.setAttribute('data-material-id', m.material_id);
+                            option.setAttribute('data-quantity', quantity);
+                            option.setAttribute('data-unit', unitName);
+                            option.setAttribute('data-material-name', materialName);
+                            materialDetailIdOutgoing.appendChild(option);
+                        });
+
+                        materialFromGroup.style.display = '';
+                        materialDetailIdOutgoing.required = true;
+                    } else {
+                        materialFromGroup.style.display = 'none';
+                        materialDetailIdOutgoing.required = false;
+                        warehouseInfoDisplay.textContent = '💡 اختر المستودع أولاً لعرض المواد المتوفرة';
+                        warehouseInfoDisplay.style.color = '#27ae60';
+                    }
+                });
+            }
+
+            // عند اختيار المادة
+            if (materialDetailIdOutgoing) {
+                materialDetailIdOutgoing.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const materialId = selectedOption.getAttribute('data-material-id');
+                    const availableQty = selectedOption.getAttribute('data-quantity');
+                    const unitName = selectedOption.getAttribute('data-unit');
+                    const materialName = selectedOption.getAttribute('data-material-name');
+                    const selectedMaterialName = document.getElementById('selected_material_name');
+
+                    if (this.value) {
+                        // حفظ material_id في حقل مخفي
+                        materialIdHidden.value = materialId;
+
+                        // عرض اسم المادة
+                        if (selectedMaterialName) {
+                            selectedMaterialName.innerHTML = `<i class="feather icon-check-circle" style="color: #27ae60;"></i> ${materialName}`;
+                            selectedMaterialName.style.color = '#27ae60';
+                        }
+
+                        // عرض الكمية المتوفرة
+                        materialQuantityDisplay.innerHTML = `<i class="feather icon-package"></i> متوفر: <strong>${availableQty} ${unitName}</strong>`;
+                        materialQuantityDisplay.style.color = '#27ae60';
+
+                        // تحديد الحد الأقصى للكمية
+                        if (quantityOutgoing) {
+                            quantityOutgoing.max = availableQty;
+                            quantityOutgoing.setAttribute('data-max', availableQty);
+                            quantityOutgoing.setAttribute('data-unit', unitName);
+                            quantityOutgoing.setAttribute('data-material-name', materialName);
+                        }
+                    } else {
+                        if (selectedMaterialName) {
+                            selectedMaterialName.innerHTML = '<i class="feather icon-info"></i> لم يتم اختيار المادة';
+                            selectedMaterialName.style.color = '#2c3e50';
+                        }
+                        materialQuantityDisplay.innerHTML = '<i class="feather icon-package"></i> اختر المادة لعرض الكمية المتوفرة';
+                        materialQuantityDisplay.style.color = '#27ae60';
+                    }
+                });
+            }
+
+            // التحقق من الكمية عند الإدخال
+            if (quantityOutgoing) {
+                quantityOutgoing.addEventListener('input', function() {
+                    const maxQty = parseFloat(this.getAttribute('data-max'));
+                    const currentQty = parseFloat(this.value);
+                    const unitName = this.getAttribute('data-unit') || 'وحدة';
+                    const materialName = this.getAttribute('data-material-name') || 'المادة';
+
+                    if (maxQty && currentQty > maxQty) {
+                        materialQuantityDisplay.innerHTML = `<i class="feather icon-alert-circle"></i> الكمية المطلوبة (<strong>${currentQty}</strong>) أكبر من المتوفر (<strong>${maxQty} ${unitName}</strong>)`;
+                        materialQuantityDisplay.style.color = '#e74c3c';
+                        this.classList.add('is-invalid');
+                    } else if (currentQty > 0) {
+                        materialQuantityDisplay.innerHTML = `<i class="feather icon-check-circle"></i> سيتم خصم <strong>${currentQty} ${unitName}</strong> من ${materialName}`;
+                        materialQuantityDisplay.style.color = '#27ae60';
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            }
+
             const form = document.getElementById('deliveryNoteForm');
             const inputs = form.querySelectorAll('.form-input');
 
@@ -442,7 +694,44 @@
             });
 
             form.addEventListener('submit', function(e) {
-                const firstInvalid = form.querySelector('.is-invalid, :invalid');
+                // التحقق من الكمية للإذن الصادر
+                if (typeOutgoing.checked) {
+                    // التحقق من اختيار المستودع
+                    if (warehouseFromId && !warehouseFromId.value) {
+                        e.preventDefault();
+                        alert('❌ يجب اختيار المستودع المصدر أولاً!');
+                        warehouseFromId.focus();
+                        return false;
+                    }
+
+                    // التحقق من اختيار المادة
+                    if (materialDetailIdOutgoing && !materialDetailIdOutgoing.value) {
+                        e.preventDefault();
+                        alert('❌ يجب اختيار المادة!');
+                        materialDetailIdOutgoing.focus();
+                        return false;
+                    }
+
+                    // التحقق من الكمية
+                    if (quantityOutgoing) {
+                        const maxQty = parseFloat(quantityOutgoing.getAttribute('data-max'));
+                        const currentQty = parseFloat(quantityOutgoing.value);
+
+                        if (!currentQty || currentQty <= 0) {
+                            e.preventDefault();
+                            alert('❌ يجب إدخال الكمية المراد إخراجها!');
+                            quantityOutgoing.focus();
+                            return false;
+                        }
+
+                        if (maxQty && currentQty > maxQty) {
+                            e.preventDefault();
+                            alert('❌ الكمية المطلوبة أكبر من الكمية المتوفرة في المستودع!');
+                            quantityOutgoing.focus();
+                            return false;
+                        }
+                    }
+                }                const firstInvalid = form.querySelector('.is-invalid, :invalid');
                 if (firstInvalid) {
                     firstInvalid.scrollIntoView({
                         behavior: 'smooth',

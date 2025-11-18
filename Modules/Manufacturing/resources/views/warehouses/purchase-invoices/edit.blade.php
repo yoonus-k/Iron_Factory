@@ -182,7 +182,7 @@
                 </div>
 
                 <div style="margin-bottom: 15px;">
-                    <button type="button" class="btn-submit" id="add-item-btn" style="background: #10b981;">
+                    <button type="button" class="btn-submit" id="add-item-btn">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -374,80 +374,7 @@
         </form>
     </div>
 
-    <style>
-        .invoice-items-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .invoice-items-table thead {
-
-            color: black;
-        }
-        .invoice-items-table th {
-            padding: 12px 8px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 13px;
-            white-space: nowrap;
-        }
-        .invoice-items-table tbody tr {
-            border-bottom: 1px solid #e2e8f0;
-            transition: background 0.2s;
-        }
-        .invoice-items-table tbody tr:hover {
-            background: #f8fafc;
-        }
-        .invoice-items-table td {
-            padding: 8px 4px;
-            text-align: center;
-        }
-        .invoice-items-table input,
-        .invoice-items-table select,
-        .invoice-items-table textarea {
-            width: 100%;
-            padding: 6px 8px;
-            border: 1px solid #e2e8f0;
-            border-radius: 4px;
-            font-size: 13px;
-            transition: border-color 0.2s;
-        }
-        .invoice-items-table input:focus,
-        .invoice-items-table select:focus,
-        .invoice-items-table textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        .invoice-items-table input[readonly] {
-            background: #f1f5f9;
-            font-weight: 600;
-            color: #1e293b;
-        }
-        .remove-item-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .remove-item-btn:hover {
-            background: #dc2626;
-            transform: scale(1.05);
-        }
-        .row-number {
-            background: #f1f5f9;
-            font-weight: 700;
-            color: #64748b;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('Modules/Manufacturing/resources/views/warehouses/purchase-invoices/styles/invoice-items-table.css') }}">
 
     <script>
         const materials = @json($materials);

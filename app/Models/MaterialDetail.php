@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Log;
 
 class MaterialDetail extends Model
 {
@@ -88,19 +89,51 @@ class MaterialDetail extends Model
 
     /**
      * تحديث كمية المادة عند تسجيل أذن صادرة
-     * @param float $quantity الكمية المخرجة
+     * @param float $quantity الكمية المخرجة (إجباري)
+     * @param float|null $weight الوزن المخرج (اختياري - يتم حسابه تلقائياً إذا لم يُحدد)
+     * @throws \Exception إذا كانت الكمية المتاحة غير كافية
      */
-    public function reduceOutgoingQuantity(float $quantity): void
+    public function reduceOutgoingQuantity(float $quantity, ?float $weight = null): void
     {
-        if ($this->quantity >= $quantity) {
-            // تقليل الكمية
-            $this->quantity -= $quantity;
-
-            // حفظ التحديثات
-            $this->save();
-        } else {
-            throw new \Exception('الكمية المتاحة غير كافية. الكمية المتاحة: ' . $this->quantity);
+        // التحقق من توفر الكمية
+        if ($this->quantity < $quantity) {
+            throw new \Exception(
+                'الكمية المتاحة غير كافية. ' .
+                'المطلوب: ' . $quantity . ' ' . $this->getUnitName() . ' | ' .
+                'المتوفر: ' . $this->quantity . ' ' . $this->getUnitName()
+            );
         }
+
+        // خصم الكمية (إجباري)
+        $this->quantity -= $quantity;
+
+        // خصم الوزن إذا تم تحديده أو حسابه تلقائياً
+        if ($weight !== null) {
+            // إذا تم تحديد الوزن، اخصمه
+            $this->actual_weight = max(0, ($this->actual_weight ?? 0) - $weight);
+            $this->remaining_weight = max(0, ($this->remaining_weight ?? 0) - $weight);
+        } elseif ($this->actual_weight > 0 && $this->quantity > 0) {
+            // حساب الوزن تلقائياً بناءً على النسبة
+            $weightPerUnit = ($this->actual_weight ?? 0) / ($this->quantity + $quantity);
+            $calculatedWeight = $weightPerUnit * $quantity;
+
+            $this->actual_weight = max(0, ($this->actual_weight ?? 0) - $calculatedWeight);
+            $this->remaining_weight = max(0, ($this->remaining_weight ?? 0) - $calculatedWeight);
+        }
+
+        // حفظ التحديثات
+        $this->save();
+
+        // سجل في الـ log
+        Log::info('تم خصم كمية من المستودع', [
+            'material_detail_id' => $this->id,
+            'material_name' => $this->material?->name,
+            'warehouse_name' => $this->warehouse?->warehouse_name,
+            'quantity_reduced' => $quantity,
+            'weight_reduced' => $weight,
+            'remaining_quantity' => $this->quantity,
+            'remaining_weight' => $this->actual_weight,
+        ]);
     }
 
     /**

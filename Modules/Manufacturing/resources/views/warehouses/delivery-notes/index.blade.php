@@ -43,13 +43,34 @@
             </div>
         @endif
 
+        <!-- Info Alert -->
+        <div class="alert alert-info" style="border-right: 4px solid #3498db; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <svg style="width: 24px; height: 24px; min-width: 24px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <div>
+                    <strong>📋 نظام أذون التسليم:</strong>
+                    <span style="display: block; margin-top: 5px; color: #666;">
+                        ✅ <strong>الواردة (🔽):</strong> البضاعة القادمة من الموردين للمستودع
+                        &nbsp;|&nbsp;
+                        ✅ <strong>الصادرة (🔼):</strong> البضاعة الخارجة من المستودع للإنتاج أو العملاء
+                        &nbsp;|&nbsp;
+                        💡 جميع الإذونات تظهر في سجل العمليات
+                    </span>
+                </div>
+            </div>
+        </div>
+
         <!-- Main Card -->
         <section class="um-main-card">
             <!-- Card Header -->
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    قائمة أذون التسليم
+                    قائمة أذون التسليم (الواردة والصادرة)
                 </h4>
                 <a href="{{ route('manufacturing.delivery-notes.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>
@@ -66,6 +87,13 @@
                         </div>
                         <div class="um-form-group">
                             <input type="text" name="delivery_number" class="um-form-control" placeholder="رقم الأذن..." value="{{ request('delivery_number') }}">
+                        </div>
+                        <div class="um-form-group">
+                            <select name="type" class="um-form-control">
+                                <option value="">جميع الأنواع</option>
+                                <option value="incoming" {{ request('type') == 'incoming' ? 'selected' : '' }}>🔽 واردة</option>
+                                <option value="outgoing" {{ request('type') == 'outgoing' ? 'selected' : '' }}>🔼 صادرة</option>
+                            </select>
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
@@ -96,8 +124,9 @@
                         <tr>
                             <th>#</th>
                             <th>رقم الأذن</th>
+                            <th>النوع</th>
                             <th>تاريخ التسليم</th>
-
+                            <th>المورد / الوجهة</th>
                             <th>الوزن</th>
                             <th>الحالة</th>
                             <th>الإجراءات</th>
@@ -108,10 +137,23 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $deliveryNote->note_number }}</td>
+                            <td>
+                                @if($deliveryNote->type === 'incoming')
+                                    <span class="um-badge" style="background: #d4edda; color: #155724;">🔽 واردة</span>
+                                @else
+                                    <span class="um-badge" style="background: #f8d7da; color: #721c24;">🔼 صادرة</span>
+                                @endif
+                            </td>
                             <td>{{ $deliveryNote->delivery_date->format('Y-m-d') }}</td>
-
-                            <td>{{ $deliveryNote->delivered_weight }} </td>
-                            <td><span class="um-badge um-badge-success"></span></td>
+                            <td>
+                                @if($deliveryNote->type === 'incoming')
+                                    {{ $deliveryNote->supplier->name ?? 'غير محدد' }}
+                                @else
+                                    {{ $deliveryNote->destination->warehouse_name ?? 'غير محدد' }}
+                                @endif
+                            </td>
+                            <td>{{ $deliveryNote->delivered_weight ?? '-' }} </td>
+                            <td><span class="um-badge um-badge-success">{{ $deliveryNote->status ?? 'معلق' }}</span></td>
                             <td>
                                 <div class="um-dropdown">
                                     <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
@@ -140,7 +182,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center">لا توجد أذون تسليم</td>
+                            <td colspan="8" class="text-center">لا توجد أذون تسليم</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -154,9 +196,13 @@
                     <div class="um-category-card-header">
                         <div class="um-category-info">
                             <h5>{{ $deliveryNote->note_number }}</h5>
-
+                            @if($deliveryNote->type === 'incoming')
+                                <span class="um-badge" style="background: #d4edda; color: #155724;">🔽 واردة</span>
+                            @else
+                                <span class="um-badge" style="background: #f8d7da; color: #721c24;">🔼 صادرة</span>
+                            @endif
                         </div>
-                        <span class="um-badge um-badge-success">مستقبل</span>
+                        <span class="um-badge um-badge-success">{{ $deliveryNote->status ?? 'معلق' }}</span>
                     </div>
                     <div class="um-category-card-body">
                         <div class="um-info-row">
@@ -164,8 +210,22 @@
                             <span>{{ $deliveryNote->delivery_date->format('Y-m-d') }}</span>
                         </div>
                         <div class="um-info-row">
+                            <span>النوع:</span>
+                            <span>{{ $deliveryNote->type === 'incoming' ? 'واردة من مورد' : 'صادرة للإنتاج/عميل' }}</span>
+                        </div>
+                        <div class="um-info-row">
+                            <span>{{ $deliveryNote->type === 'incoming' ? 'المورد:' : 'الوجهة:' }}</span>
+                            <span>
+                                @if($deliveryNote->type === 'incoming')
+                                    {{ $deliveryNote->supplier->name ?? 'غير محدد' }}
+                                @else
+                                    {{ $deliveryNote->destination->warehouse_name ?? 'غير محدد' }}
+                                @endif
+                            </span>
+                        </div>
+                        <div class="um-info-row">
                             <span>الوزن:</span>
-                            <span>{{ $deliveryNote->delivered_weight }} كجم</span>
+                            <span>{{ $deliveryNote->delivered_weight ?? '-' }} كجم</span>
                         </div>
                     </div>
                     <div class="um-category-card-footer">

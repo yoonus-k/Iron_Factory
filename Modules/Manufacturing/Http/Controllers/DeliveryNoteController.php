@@ -22,9 +22,36 @@ class DeliveryNoteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $deliveryNotes = DeliveryNote::with(['material', 'receiver', 'supplier', 'destination'])->get();
+        $query = DeliveryNote::with(['material', 'receiver', 'supplier', 'destination']);
+
+        // فلتر حسب النوع (واردة/صادرة)
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // فلتر حسب الحالة
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // فلتر حسب رقم الأذن
+        if ($request->filled('delivery_number')) {
+            $query->where('note_number', 'like', '%' . $request->delivery_number . '%');
+        }
+
+        // بحث عام
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('note_number', 'like', '%' . $request->search . '%')
+                  ->orWhere('notes', 'like', '%' . $request->search . '%')
+                  ->orWhere('driver_name', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $deliveryNotes = $query->orderBy('created_at', 'desc')->get();
+
         return view('manufacturing::warehouses.delivery-notes.index', compact('deliveryNotes'));
     }
 
@@ -96,9 +123,11 @@ class DeliveryNoteController extends Controller
             $validated = $request->validate([
                 'type' => 'required|in:incoming,outgoing',
                 'delivery_date' => 'required|date',
-                'material_detail_id' => 'nullable|exists:material_details,id',
+                'material_id' => $type === 'outgoing' ? 'required|exists:materials,id' : 'nullable|exists:materials,id',
+                'material_detail_id' => $type === 'outgoing' ? 'required|exists:material_details,id' : 'nullable|exists:material_details,id',
                 'warehouse_id' => 'required|exists:warehouses,id',
-                'delivery_quantity' => 'nullable|numeric|min:0',
+                'warehouse_from_id' => $type === 'outgoing' ? 'required|exists:warehouses,id' : 'nullable|exists:warehouses,id',
+                'delivery_quantity' => $type === 'outgoing' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
                 'actual_weight' => 'nullable|numeric|min:0', // ✅ اختياري - سيتم تعبئته في التسجيل
                 'weight_from_scale' => 'nullable|numeric|min:0', // ✅ اختياري - سيتم تعبئته في التسجيل
                 'invoice_weight' => 'nullable|numeric|min:0',
@@ -118,9 +147,15 @@ class DeliveryNoteController extends Controller
                 'delivery_date.date' => 'التاريخ غير صحيح',
                 'warehouse_id.required' => 'المستودع مطلوب',
                 'warehouse_id.exists' => 'المستودع المختار غير موجود',
-                'material_detail_id.exists' => 'المادة المختارة غير موجودة',
+                'material_id.required' => 'يجب اختيار المادة للأذن الصادرة',
+                'material_id.exists' => 'المادة المختارة غير موجودة',
+                'material_detail_id.required' => 'يجب اختيار المستودع المصدر',
+                'material_detail_id.exists' => 'المستودع المصدر غير موجود',
+                'warehouse_from_id.required' => 'يجب اختيار المستودع المصدر للأذن الصادرة',
+                'warehouse_from_id.exists' => 'المستودع المصدر غير موجود',
+                'delivery_quantity.required' => 'الكمية مطلوبة للأذن الصادرة',
                 'delivery_quantity.numeric' => 'الكمية يجب أن تكون رقماً',
-                'delivery_quantity.min' => 'الكمية لا يمكن أن تكون سالبة',
+                'delivery_quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
                 'actual_weight.numeric' => 'الوزن يجب أن يكون رقماً',
                 'actual_weight.min' => 'الوزن لا يمكن أن يكون سالباً',
                 'weight_from_scale.numeric' => 'وزن الميزان يجب أن يكون رقماً',
@@ -143,6 +178,11 @@ class DeliveryNoteController extends Controller
             // Prepare the data
             $validated['note_number'] = $deliveryNumber;
 
+            // ✅ للإذن الصادر: استخدام المستودع المصدر كـ warehouse_id
+            if ($type === 'outgoing' && !empty($validated['warehouse_from_id'])) {
+                $validated['warehouse_id'] = $validated['warehouse_from_id'];
+            }
+
             // ✅ إذا كان هناك وزن فعلي، استخدمه كـ delivered_weight
             if (!empty($validated['actual_weight'])) {
                 $validated['delivered_weight'] = $validated['actual_weight'];
@@ -151,7 +191,14 @@ class DeliveryNoteController extends Controller
             // ✅ إذا كان هناك material_detail_id، استخدم بيانات المادة
             if (!empty($validated['material_detail_id'])) {
                 $materialDetail = \App\Models\MaterialDetail::findOrFail($validated['material_detail_id']);
-                $validated['material_id'] = $materialDetail->material_id;
+                if (empty($validated['material_id'])) {
+                    $validated['material_id'] = $materialDetail->material_id;
+                }
+            }
+
+            // ✅ للإذن الصادر: التأكد من أن material_id موجود
+            if ($type === 'outgoing' && empty($validated['material_id'])) {
+                throw new \Exception('يجب تحديد المادة للأذن الصادرة');
             }
 
             // Set the user fields
@@ -209,8 +256,11 @@ class DeliveryNoteController extends Controller
                             $validated['invoice_weight'] ?? $validated['actual_weight']
                         );
                     } elseif ($type === 'outgoing') {
-                        // أذن صادرة - تقليل الكمية
-                        $materialDetail->reduceOutgoingQuantity($validated['delivery_quantity']);
+                        // أذن صادرة - تقليل الكمية (والوزن إن وُجد)
+                        $materialDetail->reduceOutgoingQuantity(
+                            $validated['delivery_quantity'],
+                            $validated['actual_weight'] ?? null
+                        );
                     }
                 } catch (\Exception $inventoryError) {
                     Log::error('Failed to update inventory: ' . $inventoryError->getMessage());
@@ -238,8 +288,12 @@ class DeliveryNoteController extends Controller
 
             DB::commit();
 
+            $successMessage = $type === 'incoming'
+                ? 'تم إضافة أذن التسليم الواردة بنجاح - رقم الأذن: ' . $deliveryNumber
+                : 'تم إضافة أذن التسليم الصادرة بنجاح - رقم الأذن: ' . $deliveryNumber . ' ✅ تم تسجيلها في سجل العمليات';
+
             return redirect()->route('manufacturing.delivery-notes.index')
-                ->with('success', 'تم إضافة أذن التسليم بنجاح');
+                ->with('success', $successMessage);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error creating delivery note: ' . $e->getMessage(), [
