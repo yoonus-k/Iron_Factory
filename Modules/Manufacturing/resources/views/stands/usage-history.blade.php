@@ -4,132 +4,211 @@
 
 @section('content')
 <style>
-    .history-container {
-        max-width: 1600px;
-        margin: 20px auto;
-        padding: 0 15px;
+    /* استيراد الخطوط */
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap');
+    
+    /* المتغيرات */
+    :root {
+        --primary-color: #0066B2;
+        --primary-light: #3A8FC7;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --info-color: #3b82f6;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-600: #4b5563;
+        --gray-800: #1f2937;
+        --white: #ffffff;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --radius-sm: 0.375rem;
+        --radius-md: 0.5rem;
+        --radius-lg: 0.75rem;
+        --radius-xl: 1rem;
+        --spacing-xs: 0.25rem;
+        --spacing-sm: 0.5rem;
+        --spacing-md: 1rem;
+        --spacing-lg: 1.5rem;
+        --spacing-xl: 2rem;
+        --transition-base: 250ms ease;
     }
 
+    /* تنسيقات أساسية */
+    .history-container {
+        font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: var(--spacing-lg);
+        background-color: var(--gray-50);
+        min-height: calc(100vh - 60px);
+    }
+
+    /* رأس الصفحة */
     .history-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 30px;
-        border-radius: 15px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        padding: var(--spacing-xl);
+        border-radius: var(--radius-xl);
+        color: var(--white);
+        margin-bottom: var(--spacing-xl);
+        box-shadow: var(--shadow-lg);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .history-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+        pointer-events: none;
     }
 
     .history-header h1 {
-        margin: 0 0 10px 0;
-        font-size: 32px;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
     }
 
     .history-header p {
-        margin: 0;
         opacity: 0.9;
-        font-size: 16px;
+        margin: 0;
+        font-size: 1rem;
     }
 
-    /* Filters Card */
+    /* بطاقة الفلاتر */
     .filters-card {
-        background: white;
-        border-radius: 15px;
-        padding: 25px;
-        margin-bottom: 30px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        background: var(--white);
+        padding: var(--spacing-lg);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--gray-200);
+        margin-bottom: var(--spacing-xl);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .filters-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
     }
 
     .filters-card h3 {
-        margin: 0 0 20px 0;
-        font-size: 18px;
-        color: #2c3e50;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin: 0 0 var(--spacing-lg) 0;
+        padding-bottom: var(--spacing-md);
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .filters-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-bottom: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
     }
 
     .filter-group {
         display: flex;
         flex-direction: column;
+        gap: var(--spacing-xs);
     }
 
-    .filter-group label {
+    .filter-label {
+        font-size: 0.875rem;
         font-weight: 600;
-        margin-bottom: 8px;
-        color: #495057;
-        font-size: 14px;
+        color: var(--gray-600);
     }
 
-    .filter-group input,
-    .filter-group select {
-        padding: 10px 15px;
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        font-size: 14px;
-        transition: all 0.3s;
+    .filter-input {
+        padding: var(--spacing-sm) var(--spacing-md);
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius-md);
+        font-size: 0.875rem;
+        transition: all var(--transition-base);
+        background: var(--white);
+        font-family: inherit;
     }
 
-    .filter-group input:focus,
-    .filter-group select:focus {
-        border-color: #667eea;
+    .filter-input:focus {
         outline: none;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(0, 102, 178, 0.1);
     }
 
     .filter-actions {
         display: flex;
-        gap: 10px;
-        justify-content: flex-end;
+        gap: var(--spacing-md);
+        flex-wrap: wrap;
     }
 
     .btn-filter {
-        padding: 10px 25px;
-        border-radius: 8px;
+        padding: var(--spacing-sm) var(--spacing-lg);
+        border-radius: var(--radius-md);
         font-weight: 600;
-        border: none;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all var(--transition-base);
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 0.5rem;
+        font-family: inherit;
+        border: none;
     }
 
     .btn-filter.primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        color: var(--white);
+        box-shadow: var(--shadow-sm);
     }
 
     .btn-filter.primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        box-shadow: var(--shadow-md);
     }
 
     .btn-filter.secondary {
-        background: #e9ecef;
-        color: #495057;
+        background: var(--gray-600);
+        color: var(--white);
+        box-shadow: var(--shadow-sm);
     }
 
     .btn-filter.secondary:hover {
-        background: #dee2e6;
+        background: var(--gray-800);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
     }
 
-    /* Stats Cards */
+    /* بطاقات الإحصائيات */
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
+        gap: var(--spacing-lg);
+        margin-bottom: var(--spacing-xl);
     }
 
     .stat-card {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        background: var(--white);
+        padding: var(--spacing-lg);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--gray-200);
+        transition: all var(--transition-base);
         position: relative;
         overflow: hidden;
     }
@@ -139,194 +218,291 @@
         position: absolute;
         top: 0;
         left: 0;
-        right: 0;
+        width: 100%;
         height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
     }
 
-    .stat-card.blue::before { background: linear-gradient(90deg, #3498db, #2980b9); }
-    .stat-card.green::before { background: linear-gradient(90deg, #2ecc71, #27ae60); }
-    .stat-card.orange::before { background: linear-gradient(90deg, #f39c12, #e67e22); }
-    .stat-card.purple::before { background: linear-gradient(90deg, #9b59b6, #8e44ad); }
+    .stat-card.blue::before {
+        background: linear-gradient(90deg, #3498db, #2980b9);
+    }
+
+    .stat-card.green::before {
+        background: linear-gradient(90deg, #2ecc71, #27ae60);
+    }
+
+    .stat-card.orange::before {
+        background: linear-gradient(90deg, #f39c12, #e67e22);
+    }
+
+    .stat-card.purple::before {
+        background: linear-gradient(90deg, #9b59b6, #8e44ad);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
 
     .stat-icon {
         width: 50px;
         height: 50px;
-        border-radius: 10px;
+        border-radius: var(--radius-md);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
-        margin-bottom: 15px;
+        font-size: 1.5rem;
+        margin-bottom: var(--spacing-md);
     }
 
-    .stat-card.blue .stat-icon { background: rgba(52, 152, 219, 0.1); color: #3498db; }
-    .stat-card.green .stat-icon { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
-    .stat-card.orange .stat-icon { background: rgba(243, 156, 18, 0.1); color: #f39c12; }
-    .stat-card.purple .stat-icon { background: rgba(155, 89, 182, 0.1); color: #9b59b6; }
+    .stat-card.blue .stat-icon {
+        background: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+    }
+
+    .stat-card.green .stat-icon {
+        background: rgba(46, 204, 113, 0.1);
+        color: #2ecc71;
+    }
+
+    .stat-card.orange .stat-icon {
+        background: rgba(243, 156, 18, 0.1);
+        color: #f39c12;
+    }
+
+    .stat-card.purple .stat-icon {
+        background: rgba(155, 89, 182, 0.1);
+        color: #9b59b6;
+    }
 
     .stat-label {
-        font-size: 14px;
-        color: #7f8c8d;
-        margin-bottom: 5px;
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        margin-bottom: var(--spacing-xs);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .stat-value {
-        font-size: 28px;
+        font-size: 2rem;
         font-weight: 700;
-        color: #2c3e50;
+        color: var(--gray-800);
+        margin: 0;
+        line-height: 1;
     }
 
-    /* Table Styles */
+    /* جدول التاريخ */
     .history-table-card {
-        background: white;
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        overflow-x: auto;
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--gray-200);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .history-table-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    }
+
+    .history-table-card h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin: 0 0 var(--spacing-lg) 0;
+        padding-bottom: var(--spacing-md);
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .history-table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 20px;
+        margin-top: var(--spacing-md);
     }
 
     .history-table thead {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        background: var(--gray-50);
     }
 
     .history-table th {
-        padding: 15px;
+        padding: var(--spacing-md);
         text-align: right;
         font-weight: 600;
-        font-size: 14px;
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid var(--gray-300);
         white-space: nowrap;
     }
 
-    .history-table th:first-child {
-        border-radius: 10px 0 0 0;
-    }
-
-    .history-table th:last-child {
-        border-radius: 0 10px 0 0;
-    }
-
     .history-table td {
-        padding: 15px;
-        border-bottom: 1px solid #e9ecef;
-        color: #495057;
-        font-size: 14px;
+        padding: var(--spacing-md);
+        border-bottom: 1px solid var(--gray-200);
+        color: var(--gray-800);
+        font-size: 0.875rem;
     }
 
     .history-table tbody tr {
-        transition: all 0.3s;
+        transition: all var(--transition-base);
     }
 
     .history-table tbody tr:hover {
-        background: #f8f9fa;
-        transform: scale(1.01);
+        background: rgba(0, 102, 178, 0.05);
     }
 
     .stand-badge {
         display: inline-block;
-        padding: 6px 12px;
-        border-radius: 20px;
+        padding: var(--spacing-xs) var(--spacing-md);
+        border-radius: var(--radius-sm);
         font-weight: 600;
-        font-size: 13px;
+        font-size: 0.75rem;
     }
 
     .stand-badge.active {
-        background: #d4edda;
-        color: #155724;
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success-color);
     }
 
     .stand-badge.inactive {
-        background: #f8d7da;
-        color: #721c24;
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger-color);
     }
 
     .status-badge {
         display: inline-block;
-        padding: 5px 12px;
-        border-radius: 15px;
+        padding: var(--spacing-xs) var(--spacing-md);
+        border-radius: var(--radius-sm);
         font-weight: 600;
-        font-size: 12px;
+        font-size: 0.75rem;
     }
 
     .status-badge.in_use {
-        background: #fff3cd;
-        color: #856404;
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning-color);
     }
 
     .status-badge.completed {
-        background: #d4edda;
-        color: #155724;
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success-color);
     }
 
     .status-badge.returned {
-        background: #d1ecf1;
-        color: #0c5460;
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--info-color);
     }
 
     .usage-count {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        padding: 5px 10px;
-        background: #e3f2fd;
-        color: #1976d2;
-        border-radius: 15px;
+        gap: 0.25rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--info-color);
+        border-radius: var(--radius-sm);
         font-weight: 600;
-        font-size: 13px;
+        font-size: 0.75rem;
     }
 
     .empty-state {
         text-align: center;
-        padding: 60px 20px;
-        color: #95a5a6;
+        padding: 3rem;
+        color: var(--gray-600);
     }
 
     .empty-state i {
-        font-size: 64px;
-        margin-bottom: 20px;
+        font-size: 3rem;
+        margin-bottom: 1rem;
         opacity: 0.5;
+        color: var(--gray-400);
     }
 
     .empty-state h3 {
-        margin: 0 0 10px 0;
-        color: #7f8c8d;
+        margin: 0 0 0.5rem 0;
+        color: var(--gray-700);
+        font-size: 1.25rem;
     }
 
     .pagination {
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 10px;
-        margin-top: 30px;
+        gap: var(--spacing-xs);
+        margin-top: var(--spacing-lg);
+        flex-wrap: wrap;
     }
 
     .pagination a,
     .pagination span {
-        padding: 8px 15px;
-        border-radius: 8px;
+        padding: var(--spacing-xs) var(--spacing-md);
+        border-radius: var(--radius-sm);
         text-decoration: none;
-        color: #495057;
-        background: white;
-        border: 2px solid #e9ecef;
-        transition: all 0.3s;
+        color: var(--gray-700);
+        background: var(--white);
+        border: 1px solid var(--gray-300);
+        transition: all var(--transition-base);
+        font-size: 0.875rem;
     }
 
     .pagination a:hover {
-        background: #667eea;
-        color: white;
-        border-color: #667eea;
+        background: var(--primary-color);
+        color: var(--white);
+        border-color: var(--primary-color);
     }
 
     .pagination .active {
-        background: #667eea;
-        color: white;
-        border-color: #667eea;
+        background: var(--primary-color);
+        color: var(--white);
+        border-color: var(--primary-color);
+    }
+
+    /* استجابة الشاشات */
+    @media (max-width: 768px) {
+        .history-container {
+            padding: var(--spacing-md);
+        }
+
+        .history-header {
+            padding: var(--spacing-lg);
+        }
+
+        .history-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .filters-grid,
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-actions {
+            flex-direction: column;
+        }
+
+        .history-table {
+            display: block;
+            overflow-x: auto;
+        }
+
+        .history-table-card {
+            padding: var(--spacing-md);
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: var(--spacing-sm);
+        }
     }
 
     @media print {
@@ -341,24 +517,37 @@
 <div class="history-container">
     <!-- Header -->
     <div class="history-header">
-        <h1>📊 تاريخ استخدام الاستاندات</h1>
+        <h1>
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            تاريخ استخدام الاستاندات
+        </h1>
         <p>عرض تفصيلي لجميع عمليات استخدام الاستاندات في المصنع</p>
     </div>
 
     <!-- Filters -->
     <div class="filters-card">
-        <h3><i class="fas fa-filter"></i> تصفية البيانات</h3>
+        <h3>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            تصفية البيانات
+        </h3>
         <form method="GET" action="{{ route('manufacturing.stands.usage-history') }}">
             <div class="filters-grid">
                 <div class="filter-group">
-                    <label>رقم الاستاند</label>
+                    <label class="filter-label">رقم الاستاند</label>
                     <input type="text" name="stand_number" value="{{ request('stand_number') }}" 
-                           placeholder="مثال: ST-001" class="form-control">
+                           placeholder="مثال: ST-001" class="filter-input">
                 </div>
 
                 <div class="filter-group">
-                    <label>المستخدم</label>
-                    <select name="user_id" class="form-control">
+                    <label class="filter-label">المستخدم</label>
+                    <select name="user_id" class="filter-input">
                         <option value="">الكل</option>
                         @foreach($users as $user)
                             <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
@@ -369,8 +558,8 @@
                 </div>
 
                 <div class="filter-group">
-                    <label>الحالة</label>
-                    <select name="status" class="form-control">
+                    <label class="filter-label">الحالة</label>
+                    <select name="status" class="filter-input">
                         <option value="">الكل</option>
                         <option value="in_use" {{ request('status') == 'in_use' ? 'selected' : '' }}>قيد الاستخدام</option>
                         <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>مكتمل</option>
@@ -379,25 +568,38 @@
                 </div>
 
                 <div class="filter-group">
-                    <label>من تاريخ</label>
-                    <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control">
+                    <label class="filter-label">من تاريخ</label>
+                    <input type="date" name="date_from" value="{{ request('date_from') }}" class="filter-input">
                 </div>
 
                 <div class="filter-group">
-                    <label>إلى تاريخ</label>
-                    <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control">
+                    <label class="filter-label">إلى تاريخ</label>
+                    <input type="date" name="date_to" value="{{ request('date_to') }}" class="filter-input">
                 </div>
             </div>
 
             <div class="filter-actions">
                 <button type="submit" class="btn-filter primary">
-                    <i class="fas fa-search"></i> بحث
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    بحث
                 </button>
                 <a href="{{ route('manufacturing.stands.usage-history') }}" class="btn-filter secondary">
-                    <i class="fas fa-redo"></i> إعادة تعيين
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="1 4 1 10 7 10"></polyline>
+                        <path d="M3.51 9A9 9 0 0 1 5.64 5.64"></path>
+                    </svg>
+                    إعادة تعيين
                 </a>
                 <button type="button" onclick="window.print()" class="btn-filter secondary">
-                    <i class="fas fa-print"></i> طباعة
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    طباعة
                 </button>
             </div>
         </form>
@@ -407,7 +609,12 @@
     <div class="stats-grid">
         <div class="stat-card blue">
             <div class="stat-icon">
-                <i class="fas fa-database"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
             </div>
             <div class="stat-label">إجمالي الاستخدامات</div>
             <div class="stat-value">{{ $totalUsages }}</div>
@@ -415,7 +622,9 @@
 
         <div class="stat-card green">
             <div class="stat-icon">
-                <i class="fas fa-box"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                </svg>
             </div>
             <div class="stat-label">عدد الاستاندات المستخدمة</div>
             <div class="stat-value">{{ $activeStands }}</div>
@@ -423,7 +632,10 @@
 
         <div class="stat-card orange">
             <div class="stat-icon">
-                <i class="fas fa-weight"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
             </div>
             <div class="stat-label">إجمالي الوزن (كجم)</div>
             <div class="stat-value">{{ number_format($totalWeight, 2) }}</div>
@@ -431,7 +643,12 @@
 
         <div class="stat-card purple">
             <div class="stat-icon">
-                <i class="fas fa-users"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
             </div>
             <div class="stat-label">عدد العاملين</div>
             <div class="stat-value">{{ $totalUsers }}</div>
@@ -440,7 +657,13 @@
 
     <!-- History Table -->
     <div class="history-table-card">
-        <h3><i class="fas fa-history"></i> سجل الاستخدامات</h3>
+        <h3>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            سجل الاستخدامات
+        </h3>
         
         @if($history->count() > 0)
         <table class="history-table">
@@ -466,19 +689,28 @@
                 <tr>
                     <td>{{ $history->firstItem() + $index }}</td>
                     <td>
-                        <strong style="color: #667eea;">{{ $record->stand->stand_number }}</strong>
+                        <strong style="color: var(--primary-color);">{{ $record->stand->stand_number }}</strong>
                     </td>
                     <td>
                         <span class="usage-count">
-                            <i class="fas fa-redo"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="1 4 1 10 7 10"></polyline>
+                                <path d="M3.51 9A9 9 0 0 1 5.64 5.64"></path>
+                            </svg>
                             {{ $record->stand->usage_count }} مرة
                         </span>
                     </td>
                     <td>
                         @if($record->user)
-                            <i class="fas fa-user"></i> {{ $record->user->name }}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            {{ $record->user->name }}
                         @else
-                            <span style="color: #95a5a6;">غير محدد</span>
+                            <span style="color: var(--gray-500);">غير محدد</span>
                         @endif
                     </td>
                     <td>{{ $record->material_barcode ?? '-' }}</td>
@@ -494,11 +726,11 @@
                     <td>{{ number_format($record->net_weight, 2) }} كجم</td>
                     <td>
                         @if($record->waste_percentage > 0)
-                            <span style="color: #e74c3c; font-weight: 600;">
+                            <span style="color: var(--danger-color); font-weight: 600;">
                                 {{ number_format($record->waste_percentage, 2) }}%
                             </span>
                         @else
-                            <span style="color: #2ecc71;">0%</span>
+                            <span style="color: var(--success-color);">0%</span>
                         @endif
                     </td>
                     <td>
@@ -511,15 +743,29 @@
                         @endif
                     </td>
                     <td>
-                        <i class="far fa-calendar"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
                         {{ \Carbon\Carbon::parse($record->started_at)->format('Y-m-d H:i') }}
                     </td>
                     <td>
                         @if($record->completed_at)
-                            <i class="far fa-calendar-check"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                                <path d="M16 14h.01"></path>
+                                <path d="M8 14h.01"></path>
+                                <path d="M16 18h.01"></path>
+                                <path d="M8 18h.01"></path>
+                            </svg>
                             {{ \Carbon\Carbon::parse($record->completed_at)->format('Y-m-d H:i') }}
                         @else
-                            <span style="color: #95a5a6;">-</span>
+                            <span style="color: var(--gray-500);">-</span>
                         @endif
                     </td>
                 </tr>
@@ -533,7 +779,9 @@
         </div>
         @else
         <div class="empty-state">
-            <i class="fas fa-inbox"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
             <h3>لا توجد سجلات</h3>
             <p>لم يتم العثور على أي سجلات استخدام للاستاندات</p>
         </div>

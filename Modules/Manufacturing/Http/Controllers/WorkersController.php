@@ -86,7 +86,7 @@ class WorkersController extends Controller
             'emergency_phone' => 'nullable|string|max:20',
             'user_id' => 'nullable|exists:users,id',
             // New user creation fields
-            'new_username' => 'required_if:allow_system_access,new|nullable|string|max:255|unique:users,name',
+            'new_username' => 'required_if:allow_system_access,new|nullable|string|max:255|unique:users,username',
             'new_email' => 'required_if:allow_system_access,new|nullable|email|max:255|unique:users,email',
             'new_password' => 'required_if:allow_system_access,new|nullable|string|min:8|confirmed',
         ]);
@@ -106,7 +106,8 @@ class WorkersController extends Controller
             // Create new user if requested
             if ($request->input('allow_system_access') === 'new' && $request->new_username) {
                 $newUser = User::create([
-                    'name' => $request->new_username,
+                    'name' => $request->name,  // Worker's full name
+                    'username' => $request->new_username,  // Username for login
                     'email' => $request->new_email,
                     'password' => bcrypt($request->new_password),
                     'is_active' => true,

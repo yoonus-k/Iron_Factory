@@ -17,7 +17,15 @@ class WorkerTeamsController extends Controller
     public function index()
     {
         $teams = WorkerTeam::latest()->paginate(15);
-        return view('manufacturing::worker-teams.index', compact('teams'));
+        
+        // حساب الإحصائيات
+        $stats = [
+            'total' => WorkerTeam::count(),
+            'active' => WorkerTeam::where('is_active', true)->count(),
+            'workers' => 0, // سيتم حسابها لاحقاً عند إضافة جدول الأعضاء
+        ];
+        
+        return view('manufacturing::worker-teams.index', compact('teams', 'stats'));
     }
 
     /**

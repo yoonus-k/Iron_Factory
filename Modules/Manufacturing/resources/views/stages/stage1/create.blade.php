@@ -6,7 +6,7 @@
 <style>
     /* Stage Container */
     .stage-container {
-        max-width: 1100px;
+        max-width: 1200px;
         margin: 20px auto;
         padding: 0 15px;
     }
@@ -19,21 +19,23 @@
         border-radius: var(--border-radius);
         margin-bottom: 25px;
         box-shadow: var(--shadow-medium);
+        text-align: center;
     }
 
     .stage-header h1 {
         margin: 0 0 8px 0;
-        font-size: 26px;
+        font-size: 28px;
         font-weight: 600;
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 12px;
     }
 
     .stage-header p {
         margin: 0;
         opacity: 0.95;
-        font-size: 14px;
+        font-size: 16px;
     }
 
     /* Form Section */
@@ -47,12 +49,15 @@
     }
 
     .section-title {
-        font-size: 18px;
+        font-size: 20px;
         font-weight: 600;
         color: var(--dark-color);
         margin: 0 0 20px 0;
         padding-bottom: 12px;
         border-bottom: 2px solid #f39c12;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     /* Form Layout */
@@ -69,10 +74,13 @@
     }
 
     .form-group label {
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 500;
         color: #34495e;
         margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
     }
 
     .required {
@@ -81,10 +89,10 @@
     }
 
     .form-control, .form-select {
-        padding: 12px 15px;
+        padding: 14px 15px;
         border: 1px solid #dce4ec;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: 15px;
         transition: all 0.3s;
         background: #f8fafb;
     }
@@ -103,30 +111,34 @@
 
     textarea.form-control {
         resize: vertical;
-        min-height: 80px;
+        min-height: 100px;
     }
 
     /* Barcode Section */
     .barcode-section {
         background: linear-gradient(135deg, #fef9e7 0%, #fcf3cf 100%);
-        padding: 20px;
+        padding: 25px;
         border-radius: 10px;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
         border: 2px dashed #f39c12;
+        text-align: center;
     }
 
     .barcode-input-wrapper {
         position: relative;
+        max-width: 600px;
+        margin: 0 auto;
     }
 
     .barcode-input {
         width: 100%;
-        padding: 15px 50px 15px 15px;
-        font-size: 16px;
+        padding: 16px 50px 16px 15px;
+        font-size: 17px;
         border: 2px solid #f39c12;
         border-radius: 8px;
         font-weight: 500;
         background: white;
+        text-align: center;
     }
 
     .barcode-icon {
@@ -141,9 +153,9 @@
     /* Material Display */
     .material-display {
         background: linear-gradient(135deg, #e8f8f5 0%, #d5f4e6 100%);
-        padding: 20px;
+        padding: 25px;
         border-radius: 10px;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
         border-right: 4px solid var(--success-color);
         display: none;
     }
@@ -155,74 +167,99 @@
 
     .material-display h4 {
         color: var(--success-color);
-        margin: 0 0 10px 0;
-        font-size: 16px;
+        margin: 0 0 15px 0;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .material-info {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-        margin-top: 10px;
+        gap: 20px;
+        margin-top: 15px;
     }
 
     .info-item {
         background: rgba(255, 255, 255, 0.7);
-        padding: 10px;
-        border-radius: 6px;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
     }
 
     .info-label {
-        font-size: 12px;
+        font-size: 14px;
         color: #7f8c8d;
-        margin-bottom: 4px;
+        margin-bottom: 8px;
+        font-weight: 500;
     }
 
     .info-value {
-        font-size: 15px;
-        font-weight: 600;
+        font-size: 18px;
+        font-weight: 700;
         color: var(--dark-color);
     }
 
     /* Stands List */
     .stands-list {
-        margin-top: 20px;
+        margin-top: 25px;
     }
 
     .stand-item {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 12px;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 15px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         border-right: 4px solid #f39c12;
         animation: slideIn 0.3s ease-out;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .stand-info {
+        flex: 1;
     }
 
     .stand-info strong {
         color: var(--dark-color);
-        font-size: 15px;
+        font-size: 17px;
         display: block;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
     }
 
     .stand-info small {
         color: #7f8c8d;
-        font-size: 13px;
+        font-size: 14px;
         line-height: 1.6;
+    }
+
+    .stand-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-delete, .btn-print {
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
     }
 
     .btn-delete {
         background: var(--danger-color);
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 13px;
-        transition: all 0.3s;
+    }
+
+    .btn-print {
+        background: #3498db;
     }
 
     .btn-delete:hover {
@@ -231,20 +268,27 @@
         box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
     }
 
+    .btn-print:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+    }
+
     /* Buttons */
     .btn-primary {
         background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
         color: white;
         border: none;
-        padding: 12px 24px;
+        padding: 14px 28px;
         border-radius: 8px;
-        font-size: 15px;
+        font-size: 16px;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.3s;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     .btn-primary:hover {
@@ -256,15 +300,16 @@
         background: linear-gradient(135deg, var(--success-color) 0%, #229954 100%);
         color: white;
         border: none;
-        padding: 14px 32px;
+        padding: 16px 36px;
         border-radius: 8px;
-        font-size: 16px;
+        font-size: 17px;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s;
         display: inline-flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     .btn-success:hover {
@@ -282,45 +327,53 @@
         background: #95a5a6;
         color: white;
         border: none;
-        padding: 12px 24px;
+        padding: 14px 28px;
         border-radius: 8px;
-        font-size: 15px;
+        font-size: 16px;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     .btn-secondary:hover {
         background: #7f8c8d;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(149, 165, 166, 0.3);
     }
 
     /* Actions */
     .form-actions {
         display: flex;
-        gap: 15px;
-        margin-top: 25px;
-        padding-top: 20px;
+        gap: 20px;
+        margin-top: 30px;
+        padding-top: 25px;
         border-top: 2px solid #ecf0f1;
         justify-content: center;
+        flex-wrap: wrap;
     }
 
     .button-group {
         display: flex;
-        gap: 12px;
-        margin-top: 15px;
+        gap: 15px;
+        margin-top: 20px;
+        flex-wrap: wrap;
     }
 
     /* Empty State */
     .empty-state {
         text-align: center;
-        padding: 40px 20px;
+        padding: 50px 20px;
         color: #95a5a6;
     }
 
     .empty-state svg {
-        width: 64px;
-        height: 64px;
-        margin-bottom: 15px;
+        width: 70px;
+        height: 70px;
+        margin-bottom: 20px;
         opacity: 0.5;
     }
 
@@ -328,21 +381,28 @@
     .info-box {
         background: linear-gradient(135deg, #fff9e6 0%, #ffeaa7 100%);
         border-right: 4px solid #f39c12;
-        padding: 15px;
+        padding: 20px;
         border-radius: 8px;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
     }
 
     .info-box strong {
         color: #e67e22;
         display: block;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
+        font-size: 16px;
     }
 
     .info-box ul {
-        margin: 8px 0 0 20px;
+        margin: 10px 0 0 25px;
         color: #7f8c8d;
-        font-size: 13px;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    /* Print Area */
+    .print-area {
+        display: none;
     }
 
     /* Animations */
@@ -363,7 +423,11 @@
     }
 
     /* Responsive */
-    @media (max-width: 768px) {
+    @media (max-width: 992px) {
+        .stage-container {
+            max-width: 100%;
+        }
+        
         .form-row {
             grid-template-columns: 1fr;
         }
@@ -374,6 +438,57 @@
         
         .form-actions {
             flex-direction: column;
+        }
+        
+        .stand-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .stand-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .stage-header {
+            padding: 20px 15px;
+        }
+        
+        .stage-header h1 {
+            font-size: 22px;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .form-section {
+            padding: 20px 15px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+        }
+        
+        .btn-primary, .btn-secondary {
+            padding: 12px 20px;
+            font-size: 15px;
+        }
+        
+        .btn-success {
+            padding: 14px 25px;
+            font-size: 16px;
+        }
+        
+        .button-group {
+            flex-direction: column;
+        }
+        
+        .button-group .btn-primary, 
+        .button-group .btn-secondary {
+            width: 100%;
+            justify-content: center;
         }
     }
 </style>
@@ -390,12 +505,12 @@
 
     <!-- Barcode Scanner -->
     <div class="form-section barcode-section">
-        <h3 style="margin: 0 0 15px 0; color: #f39c12;">📷 مسح باركود المادة الخام</h3>
+        <h3 style="margin: 0 0 20px 0; color: #f39c12; font-size: 22px;">📷 مسح باركود المادة الخام</h3>
         <div class="barcode-input-wrapper">
             <input type="text" id="materialBarcode" class="barcode-input" placeholder="امسح أو اكتب باركود المادة الخام" autofocus>
             <span class="barcode-icon">🏷️</span>
         </div>
-        <small style="color: #7f8c8d; display: block; margin-top: 10px;">💡 امسح الباركود أو اضغط Enter للبحث</small>
+        <small style="color: #7f8c8d; display: block; margin-top: 15px; font-size: 15px;">💡 امسح الباركود أو اضغط Enter للبحث</small>
     </div>
 
     <!-- Material Display -->
@@ -432,7 +547,7 @@
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
-                <label>🎯 اختر الاستاند المتوفر <span class="required">*</span></label>
+                <label for="standSelect">🎯 اختر الاستاند المتوفر <span class="required">*</span></label>
                 <select id="standSelect" class="form-control" onchange="loadStand()" style="font-size: 16px; padding: 14px;">
                     <option value="">-- اختر استاند متوفر من القائمة --</option>
                 </select>
@@ -440,8 +555,8 @@
             </div>
         </div>
 
-        <div id="standDetails" style="display: none; margin: 20px 0; padding: 20px; background: linear-gradient(135deg, #e8f8f5 0%, #d5f4e6 100%); border-radius: 8px; border-right: 4px solid #27ae60;">
-            <h4 style="margin: 0 0 15px 0; color: #27ae60; font-size: 16px;">📦 الاستاند المختار</h4>
+        <div id="standDetails" style="display: none; margin: 25px 0; padding: 25px; background: linear-gradient(135deg, #e8f8f5 0%, #d5f4e6 100%); border-radius: 10px; border-right: 4px solid #27ae60;">
+            <h4 style="margin: 0 0 20px 0; color: #27ae60; font-size: 18px; display: flex; align-items: center; gap: 10px;">📦 الاستاند المختار</h4>
             <div class="material-info" style="grid-template-columns: repeat(2, 1fr);">
                 <div class="info-item">
                     <div class="info-label">رقم الاستاند</div>
@@ -456,12 +571,12 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label>🗑️ وزن الهدر (كجم)</label>
+                <label for="wasteWeight">🗑️ وزن الهدر (كجم)</label>
                 <input type="number" id="wasteWeight" class="form-control" placeholder="سيتم حسابه تلقائياً" step="0.01" oninput="calculateWastePercentage()">
                 <small style="color: #7f8c8d; display: block; margin-top: 5px;">يُحسب تلقائياً: الإجمالي - الصافي - وزن الاستاند (يمكن التعديل)</small>
             </div>
             <div class="form-group">
-                <label>📊 نسبة الهدر (%)</label>
+                <label for="wastePercentage">📊 نسبة الهدر (%)</label>
                 <input type="number" id="wastePercentage" class="form-control" placeholder="0" step="0.01" readonly style="background: #ecf0f1;">
                 <small style="color: #7f8c8d; display: block; margin-top: 5px;">يُحسب تلقائياً من وزن الهدر</small>
             </div>
@@ -469,13 +584,13 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label>⚖️ الوزن الإجمالي (كجم) <span class="required">*</span></label>
-                <input type="number" id="totalWeight" class="form-control" placeholder="أدخل الوزن الإجمالي" step="0.01" oninput="calculateNetWeight()" style="font-size: 15px;">
+                <label for="totalWeight">⚖️ الوزن الإجمالي (كجم) <span class="required">*</span></label>
+                <input type="number" id="totalWeight" class="form-control" placeholder="أدخل الوزن الإجمالي" step="0.01" oninput="calculateNetWeight()" style="font-size: 16px;">
                 <small style="color: #7f8c8d; display: block; margin-top: 5px;">الوزن الكلي شامل وزن الاستاند</small>
             </div>
 
             <div class="form-group">
-                <label>📦 وزن الاستاند الفارغ (كجم)</label>
+                <label for="standWeight">📦 وزن الاستاند الفارغ (كجم)</label>
                 <input type="number" id="standWeight" class="form-control" placeholder="سيتم جلبه تلقائياً" step="0.01" readonly style="background: #ecf0f1; font-weight: 600;">
                 <small style="color: #7f8c8d; display: block; margin-top: 5px;">يتم جلبه تلقائياً من بيانات الاستاند</small>
             </div>
@@ -483,16 +598,16 @@
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
-                <label>✅ الوزن الصافي (كجم) <span class="required">*</span></label>
-                <input type="number" id="netWeight" class="form-control" placeholder="سيتم حسابه تلقائياً" step="0.01" readonly style="background: linear-gradient(135deg, #d5f4e6 0%, #e8f8f5 100%); font-weight: 700; font-size: 18px; text-align: center; color: #27ae60; border: 2px solid #27ae60;">
-                <small style="color: #27ae60; display: block; margin-top: 8px; font-weight: 600;">📊 يُحسب تلقائياً: الوزن الإجمالي - وزن الاستاند الفارغ</small>
+                <label for="netWeight">✅ الوزن الصافي (كجم) <span class="required">*</span></label>
+                <input type="number" id="netWeight" class="form-control" placeholder="سيتم حسابه تلقائياً" step="0.01" readonly style="background: linear-gradient(135deg, #d5f4e6 0%, #e8f8f5 100%); font-weight: 700; font-size: 20px; text-align: center; color: #27ae60; border: 2px solid #27ae60;">
+                <small style="color: #27ae60; display: block; margin-top: 8px; font-weight: 600; font-size: 15px;">📊 يُحسب تلقائياً: الوزن الإجمالي - وزن الاستاند الفارغ</small>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
-                <label>ملاحظات</label>
-                <textarea id="notes" class="form-control" placeholder="ملاحظات اختيارية..." rows="2"></textarea>
+                <label for="notes">ملاحظات</label>
+                <textarea id="notes" class="form-control" placeholder="ملاحظات اختيارية..." rows="3"></textarea>
             </div>
         </div>
 
@@ -530,6 +645,11 @@
             ❌ إلغاء
         </button>
     </div>
+</div>
+
+<!-- Print Area (Hidden) -->
+<div id="printArea" class="print-area">
+    <div id="barcodeContainer"></div>
 </div>
 
 <script>
@@ -721,8 +841,6 @@ function calculateWastePercentage() {
     }
 }
 
-
-
 function addProcessedStand() {
     if (!currentMaterial) {
         alert('⚠️ يرجى مسح باركود المادة الخام أولاً!');
@@ -802,7 +920,10 @@ function renderStands() {
                     ${item.notes ? '<br>📝 ' + item.notes : ''}
                 </small>
             </div>
-            <button class="btn-delete" onclick="removeStand(${item.id})">🗑️ حذف</button>
+            <div class="stand-actions">
+                <button class="btn-print" onclick="printBarcode(${item.id})">🖨️ طباعة</button>
+                <button class="btn-delete" onclick="removeStand(${item.id})">🗑️ حذف</button>
+            </div>
         </div>
     `).join('');
 }
@@ -819,12 +940,11 @@ function removeStand(id) {
 function clearForm() {
     document.getElementById('standSelect').value = '';
     document.getElementById('standDetails').style.display = 'none';
-    document.getElementById('wireSize').value = '';
     document.getElementById('totalWeight').value = '';
     document.getElementById('standWeight').value = '';
     document.getElementById('netWeight').value = '';
+    document.getElementById('wasteWeight').value = '';
     document.getElementById('wastePercentage').value = '';
-    document.getElementById('cost').value = '';
     document.getElementById('notes').value = '';
     selectedStand = null;
     
@@ -874,7 +994,7 @@ function submitAll() {
     .then(data => {
         if (data.success) {
             showToast('✅ تم حفظ جميع الاستاندات بنجاح!', 'success');
-            localStorage.removeItem('stage1_stands');
+            localStorage.removeItem('stage1_processed');
             setTimeout(() => {
                 window.location.href = '{{ route("manufacturing.stage1.index") }}';
             }, 1500);
@@ -889,16 +1009,68 @@ function submitAll() {
     });
 }
 
-function saveOffline() {
-    localStorage.setItem('stage1_processed', JSON.stringify({
-        stands: processedStands,
-        timestamp: new Date().toISOString()
-    }));
+// Print barcode for a processed stand
+function printBarcode(id) {
+    const stand = processedStands.find(s => s.id === id);
+    if (!stand) {
+        alert('❌ لم يتم العثور على بيانات الاستاند!');
+        return;
+    }
+
+    // Create barcode content
+    const barcodeContent = `
+        <div style="text-align: center; padding: 20px; font-family: Arial, sans-serif;">
+            <h2 style="margin: 0 0 10px 0;">استاند مُعالج - ${stand.stand_number}</h2>
+            <div style="margin: 15px 0;">
+                <div style="font-size: 18px; font-weight: bold;">${stand.material_type}</div>
+                <div style="font-size: 16px; margin: 5px 0;">الوزن الصافي: ${stand.net_weight} كجم</div>
+                <div style="font-size: 14px; color: #666;">الباركود: ${stand.material_barcode}</div>
+            </div>
+            <div style="margin: 20px 0;">
+                <img src="https://barcode.tec-it.com/barcode.ashx?data=${stand.material_barcode}&code=Code128&translate-esc=on" alt="Barcode">
+            </div>
+            <div style="font-size: 12px; color: #888;">
+                تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}
+            </div>
+        </div>
+    `;
+
+    // Create print window
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>طباعة الباركود - ${stand.stand_number}</title>
+            <style>
+                body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+                @media print {
+                    body { padding: 0; }
+                }
+            </style>
+        </head>
+        <body>
+            ${barcodeContent}
+            <script>
+                window.onload = function() {
+                    window.print();
+                    // Close after printing (optional)
+                    // window.close();
+                }
+            <\/script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
 }
 
 function showToast(message, type = 'info') {
-    // Simple toast notification
+    // Remove existing toasts
+    const existingToasts = document.querySelectorAll('.toast-notification');
+    existingToasts.forEach(toast => toast.remove());
+
+    // Create toast notification
     const toast = document.createElement('div');
+    toast.className = 'toast-notification';
     toast.textContent = message;
     toast.style.cssText = `
         position: fixed;
@@ -911,8 +1083,10 @@ function showToast(message, type = 'info') {
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         z-index: 10000;
         animation: slideIn 0.3s ease-out;
+        max-width: 400px;
     `;
     document.body.appendChild(toast);
+    
     setTimeout(() => {
         toast.style.animation = 'fadeOut 0.3s ease-out';
         setTimeout(() => toast.remove(), 300);

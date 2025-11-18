@@ -727,6 +727,13 @@
         existingSection.style.display = 'none';
         newSection.style.display = 'none';
         
+        // Remove required from all fields first
+        userIdSelect.required = false;
+        document.getElementById('new_username').required = false;
+        document.getElementById('new_email').required = false;
+        document.getElementById('new_password').required = false;
+        document.getElementById('new_password_confirmation').required = false;
+        
         // Clear user_id if not using existing user
         if (accessType !== 'existing') {
             userIdSelect.value = '';
@@ -751,13 +758,6 @@
             document.getElementById('new_email').required = true;
             document.getElementById('new_password').required = true;
             document.getElementById('new_password_confirmation').required = true;
-        } else {
-            // No access - remove required
-            userIdSelect.required = false;
-            document.getElementById('new_username').required = false;
-            document.getElementById('new_email').required = false;
-            document.getElementById('new_password').required = false;
-            document.getElementById('new_password_confirmation').required = false;
         }
     }
 

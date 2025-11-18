@@ -269,37 +269,51 @@
 
             <!-- التقارير والإحصائيات -->
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.reports') }}">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>{{ __('app.menu.reports') }}</span>
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="التقارير الإنتاجية">
+                    <i class="fas fa-chart-line"></i>
+                    <span>التقارير الإنتاجية</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
+                    <!-- تقارير الإنتاج -->
+                    <li class="submenu-header">
+                        <span>تقارير الإنتاج</span>
+                    </li>
                     <li>
-                        <a href="#">
-                            <i class="fas fa-calendar-day"></i> {{ __('app.reports.daily') }}
+                        <a href="{{ route('manufacturing.reports.wip') }}">
+                            <i class="fas fa-hourglass-half"></i> الأعمال غير المنتهية (WIP)
                         </a>
                     </li>
                     <li>
-                        <a href="#">
-                            <i class="fas fa-calendar-week"></i> {{ __('app.reports.weekly') }}
+                        <a href="{{ route('manufacturing.reports.shift-dashboard') }}">
+                            <i class="fas fa-clock"></i> ملخص الوردية
                         </a>
                     </li>
                     <li>
-                        <a href="#">
-                            <i class="fas fa-calendar"></i> {{ __('app.reports.monthly') }}
+                        <a href="{{ route('manufacturing.stands.usage-history') }}">
+                            <i class="fas fa-history"></i> تاريخ استخدام الستاندات
                         </a>
+                    </li>
+                    
+                    <!-- تقارير العمال -->
+                    <li class="submenu-header" style="margin-top: 10px;">
+                        <span>تقارير الأداء</span>
                     </li>
                     <li>
-                        <a href="#">
-                            <i class="fas fa-chart-line"></i> {{ __('app.reports.production_stats') }}
+                        <a href="{{ route('manufacturing.reports.worker-performance') }}">
+                            <i class="fas fa-user-chart"></i> أداء العمال
                         </a>
                     </li>
+                 
+
+                    <!-- تقارير عامة -->
+                    <li class="submenu-header" style="margin-top: 10px;">
+                        <span>تقارير عامة</span>
+                    </li>
+                   
+                  
                     <li>
-                        <a href="#">
-                            <i class="fas fa-chart-pie"></i> {{ __('app.reports.waste_distribution') }}
-                        </a>
-                    </li>
+                       
                 </ul>
             </li>
 
@@ -362,6 +376,30 @@
         </ul>
     </nav>
 </div>
+
+<style>
+    .submenu-header {
+        padding: 8px 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        pointer-events: none;
+        border-bottom: 1px solid #e5e7eb;
+        margin-bottom: 5px;
+    }
+
+    .submenu-header span {
+        display: block;
+        padding: 0;
+    }
+
+    .dark-mode .submenu-header {
+        color: #6b7280;
+        border-bottom-color: #374151;
+    }
+</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

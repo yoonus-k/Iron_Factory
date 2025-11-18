@@ -7,6 +7,9 @@ use Modules\Manufacturing\Http\Controllers\Stage3Controller;
 use Modules\Manufacturing\Http\Controllers\Stage4Controller;
 use Modules\Manufacturing\Http\Controllers\StandsController;
 use Modules\Manufacturing\Http\Controllers\ProductTrackingController;
+use Modules\Manufacturing\Http\Controllers\WorkInProgressController;
+use Modules\Manufacturing\Http\Controllers\WorkerPerformanceController;
+use Modules\Manufacturing\Http\Controllers\ShiftDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,5 +57,24 @@ Route::middleware(['auth'])->group(function () {
     Route::post('production-tracking/process', [ProductTrackingController::class, 'process'])->name('manufacturing.production-tracking.process');
     Route::get('production-tracking/report', [ProductTrackingController::class, 'report'])->name('manufacturing.production-tracking.report');
     Route::get('production-tracking/chart/{barcode}', [ProductTrackingController::class, 'getChartData'])->name('manufacturing.production-tracking.chart');
+
+    // ============================================
+    // Production Reports Routes
+    // ============================================
+    
+    // Work In Progress Report (الأعمال غير المنتهية)
+    Route::get('reports/wip', [WorkInProgressController::class, 'index'])->name('manufacturing.reports.wip');
+    Route::get('reports/wip/stats', [WorkInProgressController::class, 'stats'])->name('manufacturing.reports.wip.stats');
+    Route::get('reports/wip/export', [WorkInProgressController::class, 'export'])->name('manufacturing.reports.wip.export');
+
+    // Worker Performance Report (مؤشرات أداء العمال)
+    Route::get('reports/worker-performance', [WorkerPerformanceController::class, 'index'])->name('manufacturing.reports.worker-performance');
+    Route::get('reports/worker-performance/{workerId}', [WorkerPerformanceController::class, 'show'])->name('manufacturing.reports.worker-performance.show');
+    Route::get('reports/worker-performance/compare', [WorkerPerformanceController::class, 'compare'])->name('manufacturing.reports.worker-performance.compare');
+
+    // Shift Dashboard (ملخص الوردية)
+    Route::get('reports/shift-dashboard', [ShiftDashboardController::class, 'index'])->name('manufacturing.reports.shift-dashboard');
+    Route::get('reports/shift-dashboard/night-summary', [ShiftDashboardController::class, 'nightShiftSummary'])->name('manufacturing.reports.night-shift-summary');
+    Route::get('reports/shift-dashboard/live-stats', [ShiftDashboardController::class, 'liveStats'])->name('manufacturing.reports.live-stats');
 
 }); // End of Authentication Middleware
