@@ -8,12 +8,17 @@ use Modules\Manufacturing\Http\Controllers\PurchaseInvoiceController;
 use Modules\Manufacturing\Http\Controllers\SupplierController;
 use Modules\Manufacturing\Http\Controllers\AdditiveController;
 use Modules\Manufacturing\Http\Controllers\WarehouseController;
+use Modules\Manufacturing\Http\Controllers\Stage1Controller;
+use Modules\Manufacturing\Http\Controllers\Stage2Controller;
+use Modules\Manufacturing\Http\Controllers\Stage3Controller;
+use Modules\Manufacturing\Http\Controllers\Stage4Controller;
 use Modules\Manufacturing\Http\Controllers\QualityController;
 use Modules\Manufacturing\Http\Controllers\WarehouseSettingsController;
 use Modules\Manufacturing\Http\Controllers\UnitController;
 use Modules\Manufacturing\Http\Controllers\MaterialTypeController;
 use Modules\Manufacturing\Http\Controllers\WarehouseRegistrationController;
 use Modules\Manufacturing\Http\Controllers\ReconciliationController;
+use Modules\Manufacturing\Http\Controllers\MaterialMovementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +41,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('warehouse-products/{id}/change-status', [WarehouseProductController::class, 'changeStatus'])->name('manufacturing.warehouse-products.change-status');
     Route::get('materials/export', [WarehouseProductController::class, 'export'])->name('manufacturing.materials.export');
     Route::post('materials/import', [WarehouseProductController::class, 'import'])->name('manufacturing.materials.import');
+
+    // Material Routes
+    Route::get('warehouses/material/{id}', [WarehouseProductController::class, 'showMaterial'])->name('manufacturing.warehouses.material.show');
+    Route::post('warehouses/material/{id}/add-quantity', [WarehouseProductController::class, 'addMaterialQuantity'])->name('manufacturing.warehouses.material.add-quantity');
     Route::resource('delivery-notes', DeliveryNoteController::class)->names('manufacturing.delivery-notes');
     Route::put('delivery-notes/{id}/toggle-status', [DeliveryNoteController::class, 'toggleStatus'])->name('manufacturing.delivery-notes.toggle-status');
     Route::put('delivery-notes/{id}/change-status', [DeliveryNoteController::class, 'changeStatus'])->name('manufacturing.delivery-notes.change-status');
@@ -92,7 +101,20 @@ Route::middleware(['auth'])->group(function () {
         Route::post('decide/{deliveryNote}', [ReconciliationController::class, 'decide'])->name('manufacturing.warehouses.reconciliation.decide');
         Route::get('history', [ReconciliationController::class, 'history'])->name('manufacturing.warehouses.reconciliation.history');
         Route::get('supplier-report', [ReconciliationController::class, 'supplierReport'])->name('manufacturing.warehouses.reconciliation.supplier-report');
+
+        // ربط الفاتورة المتأخرة
+        Route::get('link-invoice', [ReconciliationController::class, 'showLinkInvoice'])->name('manufacturing.warehouses.reconciliation.link-invoice');
+        Route::post('link-invoice', [ReconciliationController::class, 'storeLinkInvoice'])->name('manufacturing.warehouses.reconciliation.link-invoice.store');
     });
+
+    // ========== سجل حركات المواد ==========
+    Route::prefix('warehouse/movements')->group(function () {
+        Route::get('/', [MaterialMovementController::class, 'index'])->name('manufacturing.warehouse.movements.index');
+        Route::get('show/{movement}', [MaterialMovementController::class, 'show'])->name('manufacturing.warehouse.movements.show');
+    });
+
+    // API endpoint for movement details
+    Route::get('material-movements/{id}', [MaterialMovementController::class, 'getDetails'])->name('manufacturing.material-movements.details');
 
     // Production Stages Routes
     Route::resource('stage1', Stage1Controller::class)->names('manufacturing.stage1');
@@ -115,7 +137,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('stage3/add-dye', [Stage3Controller::class, 'addDyeAction'])->name('manufacturing.stage3.add-dye');
     Route::get('stage3/completed-coils', [Stage3Controller::class, 'completedCoils'])->name('manufacturing.stage3.completed-coils');
 
-
     // Quality Management Routes
     Route::get('quality', [QualityController::class, 'index'])->name('manufacturing.quality.index');
     Route::get('quality/waste-report', [QualityController::class, 'wasteReport'])->name('manufacturing.quality.waste-report');
@@ -132,6 +153,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('quality/downtime-create', [QualityController::class, 'downtimeCreate'])->name('manufacturing.quality.downtime-create');
     Route::get('quality/downtime-show/{id}', [QualityController::class, 'downtimeShow'])->name('manufacturing.quality.downtime-show');
     Route::get('quality/downtime-edit/{id}', [QualityController::class, 'downtimeEdit'])->name('manufacturing.quality.downtime-edit');
+
+    // Production Tracking Routes
+    Route::get('production-tracking/scan', [QualityController::class, 'productionTrackingScan'])->name('manufacturing.production-tracking.scan');
+    Route::post('production-tracking/process', [QualityController::class, 'processProductionTracking'])->name('manufacturing.production-tracking.process');
+    Route::get('production-tracking/report', [QualityController::class, 'productionTrackingReport'])->name('manufacturing.production-tracking.report');
 
     // Iron Journey Tracking Routes
     Route::get('iron-journey', [QualityController::class, 'ironJourney'])->name('manufacturing.iron-journey');

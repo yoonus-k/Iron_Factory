@@ -3,12 +3,14 @@
 namespace Modules\Manufacturing\Http\Controllers;
 
 use App\Models\DeliveryNote;
+use App\Models\MaterialMovement;
 use App\Models\PurchaseInvoice;
 use App\Models\ReconciliationLog;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ReconciliationController extends Controller
 {
@@ -127,8 +129,13 @@ class ReconciliationController extends Controller
                 'purchase_invoice_id' => $validated['purchase_invoice_id'],
                 'actual_weight' => $deliveryNote->actual_weight,
                 'invoice_weight' => $validated['invoice_weight'],
+                'discrepancy' => $discrepancy,
+                'discrepancy_percentage' => $discrepancyPercentage,
                 'financial_impact' => $discrepancy * 50, // مثال: 50 ريال/كيلو
+                'reconciliation_status' => $deliveryNote->reconciliation_status,
                 'action' => 'pending',
+                'created_by' => Auth::id(),
+                'decided_by' => Auth::id(),
             ]);
 
             DB::commit();
@@ -241,14 +248,24 @@ class ReconciliationController extends Controller
             $query->where('reconciliation_status', $request->status);
         }
 
-        $completed = $query->with([
+        $reconciliations = $query->with([
             'supplier',
             'purchaseInvoice',
             'reconciledBy',
             'reconciliationLogs',
         ])->orderBy('reconciled_at', 'desc')->paginate(15);
 
-        return view('manufacturing::warehouses.reconciliation.history', compact('completed'));
+        // إحصائيات التسويات المكتملة
+        $stats = [
+            'matched' => DeliveryNote::where('reconciliation_status', 'matched')->count(),
+            'adjusted' => DeliveryNote::where('reconciliation_status', 'adjusted')->count(),
+            'rejected' => DeliveryNote::where('reconciliation_status', 'rejected')->count(),
+        ];
+
+        // جلب قائمة الموردين للفلتر
+        $suppliers = \App\Models\Supplier::where('is_active', true)->orderBy('name')->get();
+
+        return view('manufacturing::warehouses.reconciliation.history', compact('reconciliations', 'stats', 'suppliers'));
     }
 
     /**
@@ -256,35 +273,188 @@ class ReconciliationController extends Controller
      */
     public function supplierReport(Request $request)
     {
+        // جلب جميع الموردين مع علاقاتهم
         $suppliers = \App\Models\Supplier::with(['deliveryNotes' => function ($q) {
-            $q->whereNotNull('reconciliation_status');
+            $q->where('type', 'incoming')->whereNotNull('reconciliation_status');
         }])->get();
 
-        $report = $suppliers->map(function ($supplier) {
-            $deliveries = $supplier->deliveryNotes()->where('type', 'incoming')->get();
+        // حساب إحصائيات إجمالية
+        $totalShipments = 0;
+        $totalDiscrepancy = 0;
+        $accuracySum = 0;
+        $suppliersWithData = 0;
 
+        foreach ($suppliers as $supplier) {
+            $deliveries = $supplier->deliveryNotes;
             $total = $deliveries->count();
-            $matched = $deliveries->where('reconciliation_status', 'matched')->count();
-            $discrepancies = $deliveries->where('reconciliation_status', 'discrepancy')->count();
-            $adjusted = $deliveries->where('reconciliation_status', 'adjusted')->count();
-            $rejected = $deliveries->where('reconciliation_status', 'rejected')->count();
 
-            $totalDiscrepancy = $deliveries->sum('weight_discrepancy');
-            $avgDiscrepancy = $total > 0 ? $deliveries->avg('discrepancy_percentage') : 0;
+            if ($total > 0) {
+                $totalShipments += $total;
+                $matched = $deliveries->where('reconciliation_status', 'matched')->count();
+                $adjusted = $deliveries->where('reconciliation_status', 'adjusted')->count();
+                $accuracy = (($matched + $adjusted) / $total) * 100;
+                $accuracySum += $accuracy;
+                $suppliersWithData++;
+                $totalDiscrepancy += $deliveries->sum('weight_discrepancy') ?? 0;
+            }
+        }
 
-            return [
-                'supplier' => $supplier,
-                'total' => $total,
-                'matched' => $matched,
-                'discrepancies' => $discrepancies,
-                'adjusted' => $adjusted,
-                'rejected' => $rejected,
-                'accuracy' => $total > 0 ? (($matched + $adjusted) / $total) * 100 : 0,
-                'total_discrepancy' => $totalDiscrepancy,
-                'avg_discrepancy' => $avgDiscrepancy,
-            ];
-        });
+        $averageAccuracy = $suppliersWithData > 0 ? ($accuracySum / $suppliersWithData) : 0;
 
-        return view('manufacturing::warehouses.reconciliation.supplier-report', compact('report'));
+        return view('manufacturing::warehouses.reconciliation.supplier-report', compact(
+            'suppliers',
+            'totalShipments',
+            'totalDiscrepancy',
+            'averageAccuracy'
+        ));
+    }
+
+    /**
+     * ✅ جديد: عرض صفحة ربط الفواتير المتأخرة
+     */
+    public function showLinkInvoice()
+    {
+        // جلب الأذونات التي تم تسجيلها ولكن لا تملك فاتورة
+        $deliveryNotes = DeliveryNote::where('type', 'incoming')
+            ->where('registration_status', 'registered')
+            ->whereNull('purchase_invoice_id')
+            ->with(['supplier', 'warehouse'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('manufacturing::warehouses.reconciliation.link-invoice', compact('deliveryNotes'));
+    }
+
+    /**
+     * ✅ جديد: معالجة ربط الفاتورة المتأخرة
+     */
+    public function storeLinkInvoice(Request $request)
+    {
+        $validated = $request->validate([
+            'delivery_note_id' => 'required|exists:delivery_notes,id',
+            'invoice_number' => 'required|string|max:100',
+            'invoice_date' => 'required|date',
+            'invoice_weight' => 'required|numeric|min:0.01',
+            'invoice_reference_number' => 'nullable|string|max:100',
+            'reconciliation_notes' => 'nullable|string|max:1000',
+        ], [
+            'delivery_note_id.required' => 'يجب اختيار أذن التسليم',
+            'delivery_note_id.exists' => 'أذن التسليم المختارة غير موجودة',
+            'invoice_number.required' => 'رقم الفاتورة مطلوب',
+            'invoice_date.required' => 'تاريخ الفاتورة مطلوب',
+            'invoice_date.date' => 'تاريخ الفاتورة غير صحيح',
+            'invoice_weight.required' => 'وزن الفاتورة مطلوب',
+            'invoice_weight.numeric' => 'وزن الفاتورة يجب أن يكون رقماً',
+            'invoice_weight.min' => 'وزن الفاتورة يجب أن يكون أكبر من صفر',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $deliveryNote = DeliveryNote::findOrFail($validated['delivery_note_id']);
+
+            // التحقق من أن الأذن لا تملك فاتورة بالفعل
+            if ($deliveryNote->purchase_invoice_id) {
+                return back()->with('error', 'هذه الأذن مربوطة بفاتورة بالفعل');
+            }
+
+            // إنشاء فاتورة جديدة أو البحث عن موجودة
+            $invoice = PurchaseInvoice::firstOrCreate(
+                ['invoice_number' => $validated['invoice_number']],
+                [
+                    'supplier_id' => $deliveryNote->supplier_id,
+                    'invoice_date' => $validated['invoice_date'],
+                    'total_amount' => 0, // سيتم تحديثه لاحقاً
+                    'status' => 'pending',
+                    'created_by' => Auth::id(),
+                ]
+            );
+
+            // ربط الفاتورة بالأذن
+            $deliveryNote->update([
+                'purchase_invoice_id' => $invoice->id,
+                'invoice_weight' => $validated['invoice_weight'],
+                'invoice_date' => $validated['invoice_date'],
+                'invoice_reference_number' => $validated['invoice_reference_number'],
+                'reconciliation_notes' => $validated['reconciliation_notes'],
+            ]);
+
+            // حساب الفرق
+            $actualWeight = $deliveryNote->actual_weight ?? 0;
+            $invoiceWeight = $validated['invoice_weight'];
+            $discrepancy = $actualWeight - $invoiceWeight;
+            $discrepancyPercentage = $invoiceWeight > 0 ? (($discrepancy / $invoiceWeight) * 100) : 0;
+
+            // تحديد حالة التسوية بناءً على الفرق
+            if (abs($discrepancyPercentage) <= 1) {
+                // فرق صغير جداً (أقل من 1%) - قبول تلقائي
+                $reconciliationStatus = 'matched';
+                $message = 'تم ربط الفاتورة بنجاح! الأوزان متطابقة تقريباً (فرق ' . number_format($discrepancyPercentage, 2) . '%)';
+            } else if (abs($discrepancyPercentage) <= 5) {
+                // فرق مقبول (1-5%) - يحتاج مراجعة
+                $reconciliationStatus = 'discrepancy';
+                $message = 'تم ربط الفاتورة. يوجد فرق مقبول (' . number_format($discrepancyPercentage, 2) . '%) يحتاج موافقة';
+            } else {
+                // فرق كبير (أكثر من 5%) - يحتاج تدقيق
+                $reconciliationStatus = 'discrepancy';
+                $message = 'تم ربط الفاتورة. يوجد فرق كبير (' . number_format($discrepancyPercentage, 2) . '%) يحتاج مراجعة دقيقة';
+            }
+
+            $deliveryNote->update([
+                'reconciliation_status' => $reconciliationStatus,
+            ]);
+
+            // إنشاء سجل التسوية
+            $reconciliationLog = ReconciliationLog::create([
+                'delivery_note_id' => $deliveryNote->id,
+                'purchase_invoice_id' => $invoice->id,
+                'actual_weight' => $actualWeight,
+                'invoice_weight' => $invoiceWeight,
+                'discrepancy' => $discrepancy,
+                'discrepancy_percentage' => $discrepancyPercentage,
+                'reconciliation_status' => $reconciliationStatus,
+                'notes' => $validated['reconciliation_notes'],
+                'created_by' => Auth::id(),
+                'decided_by' => Auth::id(),
+                'decided_at' => now(),
+                'action' => $reconciliationStatus === 'matched' ? 'accepted' : 'pending',
+                'created_at' => now(),
+            ]);
+
+            // ✅ تسجيل حركة التسوية
+            if ($discrepancy != 0) {
+                MaterialMovement::create([
+                    'movement_number' => MaterialMovement::generateMovementNumber(),
+                    'movement_type' => $discrepancy > 0 ? 'adjustment' : 'reconciliation',
+                    'source' => 'reconciliation',
+                    'delivery_note_id' => $deliveryNote->id,
+                    'reconciliation_log_id' => $reconciliationLog->id,
+                    'material_detail_id' => $deliveryNote->material_detail_id,
+                    'material_id' => $deliveryNote->material_id,
+                    'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
+                    'quantity' => abs($discrepancy),
+                    'from_warehouse_id' => $deliveryNote->warehouse_id,
+                    'supplier_id' => $deliveryNote->supplier_id,
+                    'description' => 'تسوية فاتورة - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id) . ' | فرق: ' . number_format($discrepancy, 2) . ' كيلو',
+                    'notes' => $validated['reconciliation_notes'] ?? 'فرق بين الوزن الفعلي ووزن الفاتورة',
+                    'reference_number' => $invoice->invoice_number,
+                    'created_by' => Auth::id(),
+                    'movement_date' => now(),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'status' => 'completed',
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('manufacturing.warehouses.reconciliation.show', $deliveryNote)
+                ->with('success', $message);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to link invoice: ' . $e->getMessage());
+            return back()->with('error', 'حدث خطأ أثناء ربط الفاتورة: ' . $e->getMessage());
+        }
     }
 }

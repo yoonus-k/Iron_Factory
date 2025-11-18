@@ -3,24 +3,38 @@
 @section('title', 'نموذج تسجيل الشحنة')
 
 @section('content')
-<div class="container-fluid">
-    <div class="page-header" style="margin-bottom: 2rem;">
+<div class="um-content-wrapper">
+    <!-- Header Section -->
+    <div class="um-header-section">
         <div class="row align-items-center">
-            <div class="col-auto">
-                <a href="{{ route('manufacturing.warehouse.registration.pending') }}" class="btn btn-secondary">
-                    ← رجوع
-                </a>
-            </div>
             <div class="col">
-                <h1 class="page-title" style="margin-bottom: 5px;">📝 تسجيل شحنة جديدة</h1>
-                <p class="text-muted" style="font-size: 13px;">الرقم: <strong>#{{ $deliveryNote->note_number ?? $deliveryNote->id }}</strong></p>
+                <h1 class="um-page-title">
+                    <i class="feather icon-edit-3"></i>
+                    تسجيل شحنة جديدة
+                </h1>
+                <nav class="um-breadcrumb-nav">
+                    <span>
+                        <i class="feather icon-home"></i> لوحة التحكم
+                    </span>
+                    <i class="feather icon-chevron-left"></i>
+                    <span>المستودع</span>
+                    <i class="feather icon-chevron-left"></i>
+                    <span>التسجيل</span>
+                    <i class="feather icon-chevron-left"></i>
+                    <span>#{{ $deliveryNote->note_number ?? $deliveryNote->id }}</span>
+                </nav>
+            </div>
+            <div class="col-auto">
+                <a href="{{ route('manufacturing.warehouse.registration.pending') }}" class="um-btn um-btn-outline">
+                    <i class="feather icon-arrow-right"></i> رجوع
+                </a>
             </div>
         </div>
     </div>
 
     <!-- Step Indicator -->
-    <div class="alert alert-info mb-4" style="display: flex; align-items: center; gap: 15px;">
-        <div style="background: #3498db; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">
+    <div class="um-alert-custom um-alert-info" style="display: flex; align-items: center; gap: 15px; margin-bottom: 24px;">
+        <div style="background: #0066CC; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; font-size: 18px;">
             1
         </div>
         <div>
@@ -218,7 +232,7 @@
                             <label class="form-label"><strong>المادة <span class="text-danger">*</span></strong></label>
                             <select name="material_id" class="form-select @error('material_id') is-invalid @enderror" required>
                                 <option value="">-- اختر المادة من القائمة --</option>
-                                @foreach (\App\Models\Material::where('is_active', true)->orderBy('name_ar')->get() as $material)
+                                @foreach (\App\Models\Material::where('created_by', auth()->user()->id)->where('created_by', true)->orderBy('name_ar')->get() as $material)
                                     <option value="{{ $material->id }}"
                                         @selected(old('material_id', $previousLog->material_id ?? '') == $material->id)>
                                         {{ $material->name_ar ?? $material->name_en }}

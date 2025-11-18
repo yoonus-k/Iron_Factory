@@ -7,11 +7,25 @@
         <!-- Header -->
         <div class="page-header">
             <div class="row align-items-center">
-                <div class="col-auto">
+                <div class="col">
                     <h1 class="page-title">
                         <i class="fas fa-box"></i> تسجيل البضاعة في المستودع
                     </h1>
                     <p class="text-muted mb-0">إدارة تسجيل الشحنات الواردة والتحكم في حركتها</p>
+                </div>
+                <div class="col-auto">
+                    <a href="{{ route('manufacturing.warehouse.movements.index') }}"
+                       class="btn btn-success btn-lg">
+                        <i class="fas fa-exchange-alt"></i> سجل الحركات
+                    </a>
+                    <a href="{{ route('manufacturing.warehouses.reconciliation.link-invoice') }}"
+                       class="btn btn-warning btn-lg">
+                        <i class="fas fa-link"></i> ربط فاتورة
+                    </a>
+                    <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}"
+                       class="btn btn-info btn-lg">
+                        <i class="fas fa-balance-scale"></i> التسويات
+                    </a>
                 </div>
             </div>
         </div>

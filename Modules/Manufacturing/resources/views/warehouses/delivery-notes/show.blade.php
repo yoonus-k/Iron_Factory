@@ -330,24 +330,47 @@
             @endif
 
             @if($deliveryNote->isOutgoing())
-                <div class="card">
-                    <div class="card-header">
+                <div class="card" style="border-right: 4px solid #e74c3c;">
+                    <div class="card-header" style="background: #fff5f5;">
                         <div class="card-icon danger">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                <path d="M12 3v18M3 9h18M3 15h18"></path>
                             </svg>
                         </div>
-                        <h3 class="card-title">بيانات الوجهة</h3>
+                        <h3 class="card-title">🔼 بيانات الوجهة (إذن صادر)</h3>
                     </div>
                     <div class="card-body">
+                        <div class="alert alert-warning" style="margin-bottom: 15px; border-right: 4px solid #f39c12;">
+                            <strong>📤 إذن صادر:</strong> تم إخراج البضاعة من المستودع
+                        </div>
+
                         <div class="info-item">
-                            <div class="info-label">الوجهة / المستودع:</div>
-                            <div class="info-value">{{ $deliveryNote->destination->name ?? 'N/A' }}</div>
+                            <div class="info-label">الوجهة / المستودع المستلم:</div>
+                            <div class="info-value">
+                                <strong>{{ $deliveryNote->destination->warehouse_name ?? 'غير محدد' }}</strong>
+                                @if($deliveryNote->destination)
+                                    <span style="color: #7f8c8d; display: block; font-size: 12px;">
+                                        رمز: {{ $deliveryNote->destination->warehouse_code ?? '-' }}
+                                    </span>
+                                @endif
+                            </div>
                         </div>
 
                         <div class="info-item">
                             <div class="info-label">المستقبل:</div>
                             <div class="info-value">{{ $deliveryNote->receiver->name ?? 'N/A' }}</div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-label">سبب الإخراج:</div>
+                            <div class="info-value">{{ $deliveryNote->notes ?? 'غير محدد' }}</div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-label">✅ تم التسجيل في سجل العمليات:</div>
+                            <div class="info-value">
+                                <span class="badge badge-success">نعم - تم التسجيل بنجاح</span>
+                            </div>
                         </div>
                     </div>
                 </div>

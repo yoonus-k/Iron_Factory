@@ -288,15 +288,45 @@
                     <h3 class="card-title">📦 إدارة المستودع والنقل</h3>
                 </div>
                 <div class="card-body">
+                    @php
+                        // حساب الكميات من warehouseSummary
+                        $warehouseEntry = $warehouseSummary['quantities']['warehouse_entry'] ?? 0;
+                        $transferredQuantity = $warehouseSummary['quantities']['transferred_to_production'] ?? 0;
+
+                        // حساب الكميات المشتقة
+                        $displayQuantity = $transferredQuantity;
+                        $actualTransferred = $transferredQuantity;
+                        $actualPercentage = $warehouseEntry > 0 ? ($actualTransferred / $warehouseEntry * 100) : 0;
+                        $remainingQuantity = $warehouseEntry - $displayQuantity;
+
+                        // تحديد لون الحالة بناءً على النسبة الفعلية
+                        $statusColor = 'success';
+                        $statusColorStart = '#27ae60';
+                        $statusColorEnd = '#229954';
+                        $statusLabel = 'تم النقل بالكامل';
+
+                        if ($actualPercentage == 0) {
+                            $statusColor = 'warning';
+                            $statusColorStart = '#e74c3c';
+                            $statusColorEnd = '#c0392b';
+                            $statusLabel = 'لم يتم النقل بعد';
+                        } elseif ($actualPercentage < 100) {
+                            $statusColor = 'info';
+                            $statusColorStart = '#3498db';
+                            $statusColorEnd = '#2980b9';
+                            $statusLabel = 'نقل جزئي';
+                        }
+                    @endphp
+
                     <!-- الحالة الإجمالية -->
-                    <div style="background: linear-gradient(135deg, {{ $warehouseSummary['status']['warehouse_status_color'] === 'success' ? '#27ae60' : ($warehouseSummary['status']['warehouse_status_color'] === 'warning' ? '#e74c3c' : '#3498db') }} 0%, {{ $warehouseSummary['status']['warehouse_status_color'] === 'success' ? '#229954' : ($warehouseSummary['status']['warehouse_status_color'] === 'warning' ? '#c0392b' : '#2980b9') }} 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="background: linear-gradient(135deg, {{ $statusColorStart }} 0%, {{ $statusColorEnd }} 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <div>
                                 <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">حالة البضاعة:</div>
-                                <div style="font-size: 20px; font-weight: bold;">{{ $warehouseSummary['status']['warehouse_status_label'] }}</div>
+                                <div style="font-size: 20px; font-weight: bold;">{{ $statusLabel }}</div>
                             </div>
                             <div style="text-align: center;">
-                                <div style="font-size: 30px; font-weight: bold; margin-bottom: 5px;">{{ number_format($warehouseSummary['status']['transfer_percentage'], 1) }}%</div>
+                                <div style="font-size: 30px; font-weight: bold; margin-bottom: 5px;">{{ number_format($actualPercentage, 1) }}%</div>
                                 <div style="font-size: 12px; opacity: 0.9;">نسبة النقل</div>
                             </div>
                         </div>
@@ -318,7 +348,7 @@
                                 <i class="fas fa-arrow-right"></i> المنقول للإنتاج:
                             </div>
                             <div style="font-size: 18px; font-weight: bold; color: #e74c3c;">
-                                {{ number_format($warehouseSummary['quantities']['transferred_to_production'], 2) }} كيلو
+                                {{ number_format($displayQuantity, 2) }} كيلو
                             </div>
                         </div>
 
@@ -327,7 +357,7 @@
                                 <i class="fas fa-cube"></i> المتبقي:
                             </div>
                             <div style="font-size: 18px; font-weight: bold; color: #27ae60;">
-                                {{ number_format($warehouseSummary['quantities']['remaining_in_warehouse'], 2) }} كيلو
+                                {{ number_format($remainingQuantity, 2) }} كيلو
                             </div>
                         </div>
                     </div>
@@ -336,11 +366,11 @@
                     <div style="margin-bottom: 20px;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                             <label style="font-weight: 600; color: #2c3e50;">تقدم النقل للإنتاج:</label>
-                            <span style="font-weight: 600; color: #3498db;">{{ number_format($warehouseSummary['status']['transfer_percentage'], 1) }}%</span>
+                            <span style="font-weight: 600; color: #3498db;">{{ number_format($actualPercentage, 1) }}%</span>
                         </div>
                         <div class="progress" style="height: 30px; border-radius: 4px;">
-                            <div class="progress-bar" style="width: {{ $warehouseSummary['status']['transfer_percentage'] }}%; background: linear-gradient(90deg, #3498db 0%, #2980b9 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                {{ number_format($warehouseSummary['quantities']['transferred_to_production'], 1) }} كيلو
+                            <div class="progress-bar" style="width: {{ min($actualPercentage, 100) }}%; background: linear-gradient(90deg, #3498db 0%, #2980b9 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                {{ number_format($actualTransferred, 1) }} كيلو
                             </div>
                         </div>
                     </div>

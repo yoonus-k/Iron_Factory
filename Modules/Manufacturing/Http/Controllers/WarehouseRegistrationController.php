@@ -4,6 +4,7 @@ namespace Modules\Manufacturing\Http\Controllers;
 
 use App\Models\DeliveryNote;
 use App\Models\RegistrationLog;
+use App\Models\MaterialMovement;
 use App\Models\User;
 use App\Services\DuplicatePreventionService;
 use App\Services\WarehouseTransferService;
@@ -123,6 +124,9 @@ class WarehouseRegistrationController extends Controller
             // تحديث البيانات
             $deliveryNote->update([
                 'actual_weight' => $validated['actual_weight'],
+                'delivery_quantity' => $validated['actual_weight'], // ✅ استخدام الوزن كقيمة للكمية
+                'delivered_weight' => $validated['actual_weight'], // ✅ نفس القيمة
+                'material_id' => $validated['material_id'], // ✅ إضافة material_id
                 'registration_status' => 'registered',
                 'registered_by' => Auth::id(),
                 'registered_at' => now(),
@@ -150,6 +154,9 @@ class WarehouseRegistrationController extends Controller
             // تسجيل المحاولة
             $this->duplicateService->logAttempt($deliveryNote, $validated, true);
 
+            // ✅ تحديث الأذن لضمان وجود delivery_quantity قبل التسجيل في المستودع
+            $deliveryNote->refresh(); // إعادة تحميل البيانات المحدثة
+
             // تسجيل البضاعة في المستودع تلقائياً (للبضاعة الواردة)
             if ($deliveryNote->isIncoming()) {
                 $this->warehouseService->registerDeliveryToWarehouse(
@@ -158,6 +165,27 @@ class WarehouseRegistrationController extends Controller
                     $validated['material_id'],  // تمرير material_id
                     $validated['unit_id']       // تمرير unit_id
                 );
+
+                // ✅ تسجيل الحركة في جدول material_movements
+                MaterialMovement::create([
+                    'movement_number' => MaterialMovement::generateMovementNumber(),
+                    'movement_type' => 'incoming',
+                    'source' => 'registration',
+                    'delivery_note_id' => $deliveryNote->id,
+                    'material_detail_id' => $deliveryNote->material_detail_id,
+                    'material_id' => $validated['material_id'],
+                    'unit_id' => $validated['unit_id'],
+                    'quantity' => $validated['actual_weight'],
+                    'to_warehouse_id' => $deliveryNote->warehouse_id,
+                    'supplier_id' => $deliveryNote->supplier_id,
+                    'description' => 'تسجيل بضاعة واردة - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id),
+                    'notes' => $validated['notes'] ?? null,
+                    'created_by' => Auth::id(),
+                    'movement_date' => now(),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'status' => 'completed',
+                ]);
             }
 
             DB::commit();
@@ -274,6 +302,27 @@ class WarehouseRegistrationController extends Controller
                 Auth::id(),
                 $validated['notes'] ?? null
             );
+
+            // ✅ تسجيل حركة النقل للإنتاج
+            MaterialMovement::create([
+                'movement_number' => MaterialMovement::generateMovementNumber(),
+                'movement_type' => 'to_production',
+                'source' => 'production',
+                'delivery_note_id' => $deliveryNote->id,
+                'material_detail_id' => $deliveryNote->material_detail_id,
+                'material_id' => $deliveryNote->material_id,
+                'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
+                'quantity' => (float)$validated['quantity'],
+                'from_warehouse_id' => $deliveryNote->warehouse_id,
+                'destination' => 'الإنتاج',
+                'description' => 'نقل بضاعة للإنتاج - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id),
+                'notes' => $validated['notes'] ?? null,
+                'created_by' => Auth::id(),
+                'movement_date' => now(),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'status' => 'completed',
+            ]);
 
             DB::commit();
 

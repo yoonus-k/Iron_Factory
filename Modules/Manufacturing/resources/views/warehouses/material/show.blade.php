@@ -27,6 +27,82 @@
         .dropdown-menu .dropdown-item .badge {
             margin-right: 8px;
         }
+
+        /* Modal Animation */
+        #movementDetailsModal[style*="display: flex"] {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Spinner */
+        .spinner-border {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            vertical-align: text-bottom;
+            border: 0.25em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border 0.75s linear infinite;
+        }
+
+        @keyframes spinner-border {
+            to { transform: rotate(360deg); }
+        }
+
+        .text-primary {
+            color: #3498db !important;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Button Hover */
+        .view-movement-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        }
+
+        /* Table Responsive Styles */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 10px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
     </style>
             @if (session('success'))
             <div class="um-alert-custom um-alert-success" role="alert" id="successMessage">
@@ -294,45 +370,93 @@
                 </div>
                 <div class="card-body">
                     @php
-                        $warehouseDetails = $material->materialDetails->groupBy('warehouse_id');
+                        // جلب تفاصيل المادة من جدول material_details مع المستودعات
+                        $warehouseDetails = $material->materialDetails()->with(['warehouse', 'unit'])->get()->groupBy('warehouse_id');
                     @endphp
 
                     @if($warehouseDetails->isNotEmpty())
-                        <div class="warehouses-list">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
                             @foreach($warehouseDetails as $warehouseId => $details)
                                 @php
                                     $warehouse = $details->first()->warehouse;
-                                    $totalQuantity = $details->sum('remaining_weight');
+                                    // حساب الكميات من material_details بشكل صحيح
+                                    $totalQuantity = $details->sum('quantity');
+                                    $totalOriginalWeight = $details->sum('original_weight');
+                                    $totalActualWeight = $details->sum('actual_weight');
+                                    $totalRemainingWeight = $details->sum('remaining_weight');
                                     $unit = $details->first()->unit?->unit_name ?? 'وحدة';
-                                    $isEmpty = $totalQuantity <= 0;
+                                    $unitSymbol = $details->first()->unit?->unit_symbol ?? 'كغ';
+                                    $isEmpty = $totalRemainingWeight <= 0;
+                                    $percentageRemaining = $totalOriginalWeight > 0 ? ($totalRemainingWeight / $totalOriginalWeight * 100) : 0;
                                 @endphp
-                                <div class="warehouse-item {{ $isEmpty ? 'empty' : '' }}">
-                                    <div class="warehouse-item-header">
-                                        <div class="warehouse-item-icon">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                                            </svg>
-                                        </div>
-                                        <h4 class="warehouse-item-name">{{ $warehouse->warehouse_name }}</h4>
+                                <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; background: #f8f9fa;">
+                                    <div style="margin-bottom: 12px;">
+                                        <h5 style="margin: 0 0 4px 0; color: #2c3e50; font-size: 14px; font-weight: 600;">
+                                            {{ $warehouse->warehouse_name ?? '-' }}
+                                        </h5>
+                                        @if($warehouse->warehouse_code)
+                                            <small style="color: #7f8c8d;">{{ $warehouse->warehouse_code }}</small>
+                                        @endif
                                     </div>
-                                    <div class="warehouse-item-body">
-                                        <div class="warehouse-quantity">
-                                            <span class="warehouse-quantity-value">{{ number_format($totalQuantity, 2) }}</span>
-                                            <span class="warehouse-quantity-unit">{{ $unit }}</span>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                                        <div>
+                                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 4px;">الكمية</div>
+                                            <div style="font-size: 16px; font-weight: 600; color: #3498db;">
+                                                {{ $totalQuantity }}
+                                            </div>
                                         </div>
-                                        <div class="warehouse-status">
-                                            <span class="warehouse-status-dot"></span>
-                                            <span>{{ $isEmpty ? 'فارغ' : 'متوفر' }}</span>
+                                        <div>
+                                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 4px;">الوحدة</div>
+                                            <span style="background: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
+                                                {{ $unitSymbol }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                                        <div>
+                                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 4px;">الوزن الأصلي</div>
+                                            <div style="font-size: 14px; font-weight: 500; color: #2c3e50;">
+                                                {{ $totalOriginalWeight ?? '-' }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 4px;">الوزن المتبقي</div>
+                                            <div style="font-size: 14px; font-weight: 500; color: #27ae60;">
+                                                {{ $totalRemainingWeight ?? '-' }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            @if($isEmpty)
+                                                <span class="badge badge-danger">فارغ</span>
+                                            @elseif($percentageRemaining < 30)
+                                                <span class="badge badge-warning">منخفض</span>
+                                            @else
+                                                <span class="badge badge-success">متوفر</span>
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <small style="color: #7f8c8d; font-size: 11px;">عدد السجلات: {{ $details->count() }}</small>
                                         </div>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                     @else
-                        <p style="text-align: center; color: #999; padding: 20px 0;">لا توجد كميات في المستودعات</p>
+                        <div style="text-align: center; padding: 60px 20px; color: #95a5a6;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 64px; height: 64px; margin: 0 auto 15px; opacity: 0.3;">
+                                <path d="M6 9l6-6 6 6"></path>
+                                <path d="M6 9v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V9"></path>
+                            </svg>
+                            <p style="margin: 0; font-size: 16px; font-weight: 500;">لا توجد منتجات في هذا المستودع</p>
+                        </div>
                     @endif
 
-                    <div class="add-quantity-btn-wrapper">
+                    <div class="add-quantity-btn-wrapper" style="margin-top: 20px; text-align: center;">
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addQuantityModal">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -343,8 +467,7 @@
                     </div>
                 </div>
             </div>
-
-            <div class="card" style="margin-bottom: 20px;">
+             <div class="card" style="margin-bottom: 20px;">
                 <div class="card-header">
                     <div class="card-icon primary">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -369,58 +492,31 @@
                                         </style>
                                     @endif
 
-                                    <!-- رأس العملية -->
                                     <div class="operation-header" style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px;">
                                         <div style="flex: 1;">
-                                            <!-- النوع والوصف -->
                                             <div class="operation-description" style="margin-bottom: 8px;">
                                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                                                    <!-- Badge للنوع -->
                                                     @switch($log->action)
                                                         @case('create')
-                                                            <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
-                                                                </svg>
-                                                                إنشاء
-                                                            </span>
+                                                            <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">إنشاء</span>
                                                             @break
                                                         @case('update')
-                                                            <span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/>
-                                                                </svg>
-                                                                تعديل
-                                                            </span>
+                                                            <span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">تعديل</span>
                                                             @break
                                                         @case('delete')
-                                                            <span class="badge" style="background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-9l-1 1H5v2h14V4z"/>
-                                                                </svg>
-                                                                حذف
-                                                            </span>
+                                                            <span class="badge" style="background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">حذف</span>
                                                             @break
                                                         @case('add_quantity')
-                                                            <span class="badge" style="background-color: #f39c12; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
-                                                                </svg>
-                                                                إضافة كمية
-                                                            </span>
+                                                            <span class="badge" style="background-color: #f39c12; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">إضافة كمية</span>
                                                             @break
                                                         @default
-                                                            <span class="badge" style="background-color: #95a5a6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                                {{ $log->action_en ?? $log->action }}
-                                                            </span>
+                                                            <span class="badge" style="background-color: #95a5a6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">{{ $log->action_en ?? $log->action }}</span>
                                                     @endswitch
 
-                                                    <!-- الوصف -->
                                                     <strong style="color: #2c3e50; font-size: 14px;">{{ $log->description }}</strong>
                                                 </div>
                                             </div>
 
-                                            <!-- المستخدم والتاريخ -->
                                             <div style="display: flex; gap: 15px; font-size: 12px; color: #7f8c8d; flex-wrap: wrap;">
                                                 <div style="display: flex; align-items: center; gap: 5px;">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
@@ -457,8 +553,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-
                                 </div>
                             @endforeach
                         </div>
@@ -473,6 +567,218 @@
                     @endif
                 </div>
             </div>
+
+
+        </div>
+    </div>
+
+    <!-- حركة المخزون - Full Width -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card" style="margin-bottom: 20px;">
+                <div class="card-header">
+                    <div class="card-icon primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">حركة المخزون</h3>
+                </div>
+                <div class="card-body">
+                    <!-- فلاتر البحث -->
+                    <form method="GET" action="{{ route('manufacturing.warehouses.material.show', $material->id) }}" class="mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label" style="font-weight: 600; color: var(--secondary-gray); font-size: 14px;">نوع الحركة</label>
+                                <select name="movement_type" class="form-select" style="border: 2px solid #e9ecef; border-radius: 8px;">
+                                    <option value="">كل الأنواع</option>
+                                    <option value="in" {{ request('movement_type') == 'in' ? 'selected' : '' }}>وارد</option>
+                                    <option value="out" {{ request('movement_type') == 'out' ? 'selected' : '' }}>صادر</option>
+                                    <option value="transfer" {{ request('movement_type') == 'transfer' ? 'selected' : '' }}>تحويل</option>
+                                    <option value="adjustment" {{ request('movement_type') == 'adjustment' ? 'selected' : '' }}>تسوية</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" style="font-weight: 600; color: var(--secondary-gray); font-size: 14px;">المستودع</label>
+                                <select name="warehouse_id" class="form-select" style="border: 2px solid #e9ecef; border-radius: 8px;">
+                                    <option value="">كل المستودعات</option>
+                                    @foreach(\App\Models\Warehouse::all() as $wh)
+                                        <option value="{{ $wh->id }}" {{ request('warehouse_id') == $wh->id ? 'selected' : '' }}>
+                                            {{ $wh->warehouse_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label" style="font-weight: 600; color: var(--secondary-gray); font-size: 14px;">من تاريخ</label>
+                                <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}" style="border: 2px solid #e9ecef; border-radius: 8px;">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label" style="font-weight: 600; color: var(--secondary-gray); font-size: 14px;">إلى تاريخ</label>
+                                <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}" style="border: 2px solid #e9ecef; border-radius: 8px;">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end gap-2">
+                                <button type="submit" class="btn btn-primary flex-fill" style="background: var(--primary-blue); border: none; border-radius: 8px; font-weight: 600; padding: 10px;">
+                                    <i class="fas fa-search"></i> بحث
+                                </button>
+                                <a href="{{ route('manufacturing.warehouses.material.show', $material->id) }}" class="btn btn-outline-secondary" style="border: 2px solid var(--secondary-gray); border-radius: 8px; padding: 10px 15px;">
+                                    <i class="fas fa-redo"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- جدول الحركات -->
+                    @php
+                        $query = \App\Models\MaterialMovement::with(['material', 'warehouse', 'destinationWarehouse', 'deliveryNote.supplier', 'fromWarehouse', 'toWarehouse', 'supplier', 'createdBy'])
+                            ->where('material_id', $material->id);
+
+                        if(request('movement_type')) {
+                            $query->where('movement_type', request('movement_type'));
+                        }
+
+                        if(request('warehouse_id')) {
+                            $query->where(function($q) {
+                                $q->where('warehouse_id', request('warehouse_id'))
+                                  ->orWhere('destination_warehouse_id', request('warehouse_id'));
+                            });
+                        }
+
+                        if(request('date_from')) {
+                            $query->whereDate('movement_date', '>=', request('date_from'));
+                        }
+
+                        if(request('date_to')) {
+                            $query->whereDate('movement_date', '<=', request('date_to'));
+                        }
+
+                        $movements = $query->orderBy('movement_date', 'desc')->paginate(20);
+
+                        // Movement type colors to match warehouse design
+                        $movementTypeColors = [
+                            'in' => '#27ae60',
+                            'out' => '#e74c3c',
+                            'transfer' => '#3498db',
+                            'adjustment' => '#95a5a6',
+                            'reconciliation' => '#1abc9c',
+                            'waste' => '#e67e22',
+                            'return' => '#34495e'
+                        ];
+                    @endphp
+
+                    @if($movements->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table" style="margin: 0;">
+                                <thead style="background: #f8f9fa;">
+                                    <tr>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">التاريخ</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">نوع الحركة</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">المستودع المصدر</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">المستودع الوجهة</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">الكمية</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">المورد</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">المستخدم</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600; text-align: center;">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($movements as $movement)
+                                    <tr style="border-bottom: 1px solid #e9ecef;">
+                                        <td style="padding: 12px; font-size: 12px; color: #7f8c8d;">
+                                            {{ $movement->movement_date ? $movement->movement_date->format('Y-m-d H:i') : $movement->created_at->format('Y-m-d H:i') }}
+                                            <br>
+                                            <small style="color: #95a5a6; font-size: 10px;">{{ $movement->created_at->diffForHumans() }}</small>
+                                        </td>
+                                        <td style="padding: 12px;">
+                                            @php
+                                                $typeColors = [
+                                                    'in' => ['bg' => '#d4edda', 'text' => '#155724', 'label' => 'وارد'],
+                                                    'out' => ['bg' => '#f8d7da', 'text' => '#721c24', 'label' => 'صادر'],
+                                                    'transfer' => ['bg' => '#d1ecf1', 'text' => '#0c5460', 'label' => 'تحويل'],
+                                                    'adjustment' => ['bg' => '#fff3cd', 'text' => '#856404', 'label' => 'تسوية']
+                                                ];
+                                                $typeInfo = $typeColors[$movement->movement_type] ?? ['bg' => '#e2e3e5', 'text' => '#383d41', 'label' => $movement->movement_type];
+                                                $color = $movementTypeColors[$movement->movement_type] ?? '#95a5a6';
+                                            @endphp
+                                            <span style="background: {{ $color }}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap;">
+                                                {{ $movement->movement_type_name }}
+                                            </span>
+                                        </td>
+                                        <td style="padding: 12px; font-size: 12px; color: #2c3e50;">
+                                            @if($movement->fromWarehouse)
+                                                <span style="background: #ecf0f1; padding: 3px 8px; border-radius: 4px;">
+                                                    {{ $movement->fromWarehouse->warehouse_name }}
+                                                </span>
+                                            @elseif($movement->supplier)
+                                                <span style="background: #e8f5e9; padding: 3px 8px; border-radius: 4px; color: #27ae60;">
+                                                    {{ $movement->supplier->supplier_name ?? '-' }}
+                                                </span>
+                                            @else
+                                                <span style="color: #95a5a6;">-</span>
+                                            @endif
+                                        </td>
+                                        <td style="padding: 12px; font-size: 12px; color: #2c3e50;">
+                                            @if($movement->toWarehouse)
+                                                <span style="background: #ecf0f1; padding: 3px 8px; border-radius: 4px;">
+                                                    {{ $movement->toWarehouse->warehouse_name }}
+                                                </span>
+                                            @elseif($movement->destination)
+                                                <span style="background: #fff3e0; padding: 3px 8px; border-radius: 4px; color: #f39c12;">
+                                                    {{ $movement->destination }}
+                                                </span>
+                                            @else
+                                                <span style="color: #95a5a6;">-</span>
+                                            @endif
+                                        </td>
+                                        <td style="padding: 12px; font-size: 14px; font-weight: 600;">
+                                            <span style="color: #3498db;">{{ number_format($movement->quantity, 2) }}</span>
+                                            <small style="color: #7f8c8d;">{{ $movement->unit?->unit_symbol ?? '' }}</small>
+                                        </td>
+                                        <td style="padding: 12px; font-size: 12px; color: #2c3e50;">
+                                            {{ $movement->deliveryNote?->supplier?->supplier_name ?? '-' }}
+                                        </td>
+                                        <td style="padding: 12px; font-size: 12px; color: #2c3e50;">
+                                            {{ $movement->createdBy?->name ?? '-' }}
+                                        </td>
+                                        <td style="padding: 12px; text-align: center;">
+                                            <button type="button" class="view-movement-btn" onclick="viewMovementDetails({{ $movement->id }})" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 5px;">
+                                                <i class="feather icon-eye"></i>
+                                                عرض
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div style="padding: 20px; border-top: 1px solid #e9ecef; background: #f8f9fa;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                                <div style="font-size: 14px; color: #7f8c8d;">
+                                    عرض <strong>{{ $movements->firstItem() }}</strong> إلى <strong>{{ $movements->lastItem() }}</strong> من أصل <strong>{{ $movements->total() }}</strong> حركة
+                                </div>
+                                <div>
+                                    {{ $movements->appends(request()->query())->links() }}
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div style="text-align: center; padding: 60px 20px; color: #95a5a6;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 64px; height: 64px; margin: 0 auto 15px; opacity: 0.3;">
+                                <polyline points="16 16 12 12 8 16"></polyline>
+                                <line x1="12" y1="12" x2="12" y2="21"></line>
+                                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+                            </svg>
+                            <p style="margin: 0; font-size: 16px; font-weight: 500;">لا توجد حركات مسجلة على هذا المستودع</p>
+                            <small style="color: #bdc3c7; display: block; margin-top: 8px;">سيتم عرض جميع حركات الدخول والخروج هنا</small>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- سجل العمليات -->
+
         </div>
 
 
@@ -681,7 +987,7 @@
                 'quantity' => $details->sum('remaining_weight'),
                 'unit' => $details->first()->unit?->unit_name ?? 'وحدة'
             ];
-        }));
+        })->toArray());
 
         function updateUnitDisplay() {
             const unitSelect = document.getElementById('unit_id');
@@ -824,6 +1130,174 @@
             @if ($errors->any())
                 $('#addQuantityModal').modal('show');
             @endif
+        });
+
+        // View Movement Details (matching warehouse design)
+        function viewMovementDetails(movementId) {
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div id="movementDetailsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+                    <div style="background: white; border-radius: 12px; max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+                        <!-- Modal Header -->
+                        <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="margin: 0; font-size: 20px; font-weight: 700;">
+                                <i class="feather icon-info"></i>
+                                تفاصيل الحركة
+                            </h3>
+                            <button onclick="closeMovementModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+                                <i class="feather icon-x"></i>
+                            </button>
+                        </div>
+
+                        <!-- Modal Body -->
+                        <div id="movementDetailsContent" style="padding: 25px;">
+                            <div style="text-align: center; padding: 40px;">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="sr-only">جاري التحميل...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            const modalElement = document.getElementById('movementDetailsModal');
+            modalElement.style.display = 'flex';
+
+            // Fetch movement details
+            fetch(`/manufacturing/material-movements/${movementId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const movement = data.movement;
+
+                    // Movement type colors to match warehouse design
+                    const typeColors = {
+                        'in': '#27ae60',
+                        'out': '#e74c3c',
+                        'transfer': '#3498db',
+                        'adjustment': '#95a5a6',
+                        'reconciliation': '#1abc9c',
+                        'waste': '#e67e22',
+                        'return': '#34495e'
+                    };
+
+                    const color = typeColors[movement.movement_type] || '#95a5a6';
+
+                    const content = document.getElementById('movementDetailsContent');
+                    content.innerHTML = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-right: 4px solid ${color};">
+                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">رقم الحركة</div>
+                                <div style="font-size: 16px; font-weight: 700; color: #2c3e50;">
+                                    <code style="background: white; padding: 6px 10px; border-radius: 4px;">${movement.movement_number || '-'}</code>
+                                </div>
+                            </div>
+
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-right: 4px solid ${color};">
+                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">نوع الحركة</div>
+                                <div style="font-size: 16px; font-weight: 700;">
+                                    <span style="background: ${color}; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px;">${movement.movement_type_name || movement.movement_type}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <h4 style="margin: 0 0 15px 0; font-size: 16px; color: #2c3e50; font-weight: 700; border-bottom: 2px solid #ddd; padding-bottom: 10px;">
+                                <i class="feather icon-package"></i> معلومات المادة
+                            </h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div>
+                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">المادة</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: #2c3e50;">${movement.material?.name_ar || movement.material?.name_en || '-'}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">الكمية</div>
+                                    <div style="font-size: 18px; font-weight: 700; color: #3498db;">${movement.quantity || 0} <small style="color: #7f8c8d; font-size: 13px;">${movement.unit?.unit_symbol || ''}</small></div>
+                                </div>
+                                ${movement.unit_price ? `
+                                <div>
+                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">سعر الوحدة</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: #27ae60;">${movement.unit_price}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">القيمة الإجمالية</div>
+                                    <div style="font-size: 16px; font-weight: 700; color: #27ae60;">${movement.total_value}</div>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <h4 style="margin: 0 0 15px 0; font-size: 16px; color: #2c3e50; font-weight: 700; border-bottom: 2px solid #ddd; padding-bottom: 10px;">
+                                <i class="feather icon-truck"></i> معلومات النقل
+                            </h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div>
+                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">من</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: #2c3e50;">${movement.fromWarehouse?.warehouse_name || movement.supplier?.supplier_name || '-'}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">إلى</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: #2c3e50;">${movement.toWarehouse?.warehouse_name || movement.destination || '-'}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${movement.description || movement.notes ? `
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-right: 4px solid #f39c12; margin-bottom: 20px;">
+                            <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #856404; font-weight: 700;">
+                                <i class="feather icon-file-text"></i> ملاحظات
+                            </h4>
+                            ${movement.description ? `<p style="margin: 0 0 8px 0; color: #856404; font-size: 13px;"><strong>الوصف:</strong> ${movement.description}</p>` : ''}
+                            ${movement.notes ? `<p style="margin: 0; color: #856404; font-size: 13px;"><strong>ملاحظات:</strong> ${movement.notes}</p>` : ''}
+                        </div>
+                        ` : ''}
+
+                        <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-right: 4px solid #27ae60;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; font-size: 12px;">
+                                <div>
+                                    <div style="color: #7f8c8d; margin-bottom: 3px; font-weight: 600;">المصدر</div>
+                                    <div style="font-weight: 600; color: #2c3e50;">${movement.source_name || '-'}</div>
+                                </div>
+                                <div>
+                                    <div style="color: #7f8c8d; margin-bottom: 3px; font-weight: 600;">التاريخ</div>
+                                    <div style="font-weight: 600; color: #2c3e50;">${movement.movement_date || movement.created_at}</div>
+                                </div>
+                                <div>
+                                    <div style="color: #7f8c8d; margin-bottom: 3px; font-weight: 600;">المستخدم</div>
+                                    <div style="font-weight: 600; color: #2c3e50;">${movement.createdBy?.name || '-'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const content = document.getElementById('movementDetailsContent');
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #e74c3c;">
+                            <i class="feather icon-alert-circle" style="font-size: 48px; margin-bottom: 15px;"></i>
+                            <p style="margin: 0; font-size: 16px; font-weight: 600;">حدث خطأ في تحميل البيانات</p>
+                            <small style="color: #95a5a6;">يرجى المحاولة مرة أخرى</small>
+                        </div>
+                    `;
+                });
+        }
+
+        function closeMovementModal() {
+            const modal = document.getElementById('movementDetailsModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Close modal when clicking outside (matching warehouse design)
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('movementDetailsModal');
+            if (modal && e.target === modal) {
+                closeMovementModal();
+            }
         });
     </script>
 @endsection
