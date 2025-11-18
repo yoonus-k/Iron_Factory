@@ -167,7 +167,78 @@
                 </div>
             </div>
 
-            <!-- Amounts and Currency Section -->
+            <!-- Invoice Items Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <div class="section-icon personal">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 2v4H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2V2"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="section-title">منتجات الفاتورة</h3>
+                        <p class="section-subtitle">عدّل المنتجات والمواد الخاصة بالفاتورة</p>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <button type="button" class="btn-submit" id="add-item-btn" style="background: #10b981;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        إضافة منتج
+                    </button>
+                </div>
+
+                <!-- Items Table -->
+                <div style="overflow-x: auto;">
+                    <table class="invoice-items-table" id="items-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">#</th>
+                                <th style="min-width: 150px;">المادة</th>
+                                <th style="min-width: 150px;">اسم المنتج</th>
+                                <th style="min-width: 120px;">الوصف</th>
+                                <th style="width: 100px;">الكمية</th>
+                                <th style="width: 100px;">الوحدة</th>
+                                <th style="width: 100px;">السعر</th>
+                                <th style="width: 80px;">ض%</th>
+                                <th style="width: 80px;">خ%</th>
+                                <th style="width: 100px;">الإجمالي</th>
+                                <th style="width: 60px;">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoice-items-container">
+                            <!-- Items will be loaded here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Total Summary -->
+                <div style="margin-top: 20px; padding: 20px; background: #f8fafc; border-radius: 8px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div>
+                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">الإجمالي الفرعي</label>
+                            <div style="font-size: 24px; font-weight: 700; color: #1e293b;" id="subtotal-display">0.00</div>
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">الضريبة</label>
+                            <div style="font-size: 24px; font-weight: 700; color: #f59e0b;" id="tax-display">0.00</div>
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">الخصم</label>
+                            <div style="font-size: 24px; font-weight: 700; color: #ef4444;" id="discount-display">0.00</div>
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">الإجمالي النهائي</label>
+                            <div style="font-size: 24px; font-weight: 700; color: #10b981;" id="total-display">0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Currency and Payment Terms Section -->
             <div class="form-section">
                 <div class="section-header">
                     <div class="section-icon personal">
@@ -178,28 +249,12 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">المبالغ والعملة</h3>
-                        <p class="section-subtitle">قم بتحديث معلومات المبالغ والعملة</p>
+                        <h3 class="section-title">العملة وشروط الدفع</h3>
+                        <p class="section-subtitle">حدد العملة وشروط الدفع</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
-                    <div class="form-group">
-                        <label for="total_amount" class="form-label">
-                            المبلغ الإجمالي
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="8"></circle>
-                                <path d="M12 6v12"></path>
-                                <path d="M9 9h6a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H9"></path>
-                            </svg>
-                            <input type="number" name="total_amount" id="total_amount"
-                                class="form-input" placeholder="0.00" step="0.01" value="{{ old('total_amount', $invoice->total_amount) }}" required>
-                        </div>
-                    </div>
-
                     <div class="form-group">
                         <label for="currency" class="form-label">العملة</label>
                         <div class="input-wrapper">
@@ -319,17 +374,124 @@
         </form>
     </div>
 
+    <style>
+        .invoice-items-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .invoice-items-table thead {
+
+            color: black;
+        }
+        .invoice-items-table th {
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        .invoice-items-table tbody tr {
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.2s;
+        }
+        .invoice-items-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        .invoice-items-table td {
+            padding: 8px 4px;
+            text-align: center;
+        }
+        .invoice-items-table input,
+        .invoice-items-table select,
+        .invoice-items-table textarea {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: border-color 0.2s;
+        }
+        .invoice-items-table input:focus,
+        .invoice-items-table select:focus,
+        .invoice-items-table textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .invoice-items-table input[readonly] {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .remove-item-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .remove-item-btn:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+        .row-number {
+            background: #f1f5f9;
+            font-weight: 700;
+            color: #64748b;
+        }
+    </style>
+
     <script>
+        const materials = @json($materials);
+        const units = @json($units);
+        const existingItems = @json($invoice->items);
+        let itemCounter = 0;
+
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('purchaseInvoiceForm');
             const inputs = form.querySelectorAll('.form-input');
+            const addItemBtn = document.getElementById('add-item-btn');
+            const itemsContainer = document.getElementById('invoice-items-container');
+
+            // Load existing items
+            if (existingItems && existingItems.length > 0) {
+                existingItems.forEach(item => {
+                    addItem(item);
+                });
+            } else {
+                // Add at least one empty item
+                addItem();
+            }
+
+            // Add item button click
+            addItemBtn.addEventListener('click', function() {
+                addItem();
+            });
+
+            // Form validation
+            form.addEventListener('submit', function(e) {
+                const items = document.querySelectorAll('.invoice-item');
+                if (items.length === 0) {
+                    e.preventDefault();
+                    alert('يجب إضافة منتج واحد على الأقل');
+                    return false;
+                }
+            });
 
             // Auto-hide success/error messages after 5 seconds
             setTimeout(function() {
                 const successMsg = document.getElementById('successMessage');
                 const errorMsg = document.getElementById('errorMessage');
                 const validationErrors = document.getElementById('validationErrors');
-                
+
                 if (successMsg) {
                     successMsg.style.transition = 'opacity 0.5s';
                     successMsg.style.opacity = '0';
@@ -346,33 +508,133 @@
                     setTimeout(() => validationErrors.style.display = 'none', 500);
                 }
             }, 5000);
-
-            inputs.forEach(input => {
-                input.addEventListener('blur', function() {
-                    if (this.required && !this.value) {
-                        this.classList.add('is-invalid');
-                    } else {
-                        this.classList.remove('is-invalid');
-                    }
-                });
-
-                input.addEventListener('input', function() {
-                    if (this.classList.contains('is-invalid') && this.value) {
-                        this.classList.remove('is-invalid');
-                    }
-                });
-            });
-
-            form.addEventListener('submit', function(e) {
-                const firstInvalid = form.querySelector('.is-invalid, :invalid');
-                if (firstInvalid) {
-                    firstInvalid.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                }
-            });
         });
+
+        function addItem(existingItem = null) {
+            const container = document.getElementById('invoice-items-container');
+            const itemIndex = itemCounter++;
+            const rowNumber = itemCounter;
+
+            const itemHtml = `
+                <tr class="invoice-item" data-index="${itemIndex}">
+                    <td class="row-number">${rowNumber}</td>
+                    <td>
+                        <select name="items[${itemIndex}][material_id]" class="material-select" onchange="selectMaterial(${itemIndex}, this.value)">
+                            <option value="">-- اختر --</option>
+                            ${materials.map(m => `<option value="${m.id}" ${existingItem && existingItem.material_id == m.id ? 'selected' : ''} data-name="${m.name}" data-unit-id="${m.unit_id || ''}">${m.name}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" name="items[${itemIndex}][item_name]" class="item-name" placeholder="اسم المنتج" value="${existingItem ? existingItem.item_name : ''}" required>
+                    </td>
+                    <td>
+                        <textarea name="items[${itemIndex}][description]" rows="1" placeholder="الوصف">${existingItem && existingItem.description ? existingItem.description : ''}</textarea>
+                    </td>
+                    <td>
+                        <input type="number" name="items[${itemIndex}][quantity]" class="item-quantity" placeholder="0" step="0.001" min="0.001" value="${existingItem ? existingItem.quantity : 1}" required oninput="calculateItemTotal(${itemIndex})">
+                    </td>
+                    <td>
+                        <select name="items[${itemIndex}][unit]" class="item-unit" required>
+                            <option value="">-- اختر --</option>
+                            ${units.map(u => `<option value="${u.unit_name}" ${existingItem && existingItem.unit == u.unit_name ? 'selected' : ''}>${u.unit_name} (${u.unit_symbol})</option>`).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" name="items[${itemIndex}][unit_price]" class="item-price" placeholder="0.00" step="0.01" min="0" value="${existingItem ? existingItem.unit_price : 0}" required oninput="calculateItemTotal(${itemIndex})">
+                    </td>
+                    <td>
+                        <input type="number" name="items[${itemIndex}][tax_rate]" class="item-tax-rate" placeholder="0" step="0.01" min="0" max="100" value="${existingItem ? existingItem.tax_rate : 0}" oninput="calculateItemTotal(${itemIndex})">
+                    </td>
+                    <td>
+                        <input type="number" name="items[${itemIndex}][discount_rate]" class="item-discount-rate" placeholder="0" step="0.01" min="0" max="100" value="${existingItem ? existingItem.discount_rate : 0}" oninput="calculateItemTotal(${itemIndex})">
+                    </td>
+                    <td>
+                        <input type="text" class="item-total" readonly value="${existingItem ? existingItem.total : '0.00'}">
+                    </td>
+                    <td>
+                        <button type="button" class="remove-item-btn" onclick="removeItem(${itemIndex})">حذف</button>
+                    </td>
+                    <input type="hidden" name="items[${itemIndex}][notes]" value="${existingItem && existingItem.notes ? existingItem.notes : ''}">
+                </tr>
+            `;
+
+            container.insertAdjacentHTML('beforeend', itemHtml);
+            calculateGrandTotal();
+        }
+
+        function removeItem(index) {
+            const item = document.querySelector(`.invoice-item[data-index="${index}"]`);
+            if (item) {
+                item.remove();
+                calculateGrandTotal();
+                // Renumber remaining items
+                document.querySelectorAll('.invoice-item').forEach((el, idx) => {
+                    el.querySelector('.row-number').textContent = idx + 1;
+                });
+            }
+        }
+
+        function selectMaterial(index, materialId) {
+            if (!materialId) return;
+
+            const material = materials.find(m => m.id == materialId);
+            if (material) {
+                const item = document.querySelector(`.invoice-item[data-index="${index}"]`);
+                item.querySelector('.item-name').value = material.name;
+
+                // Set unit based on material's unit_id
+                if (material.unit_id) {
+                    const unit = units.find(u => u.id == material.unit_id);
+                    if (unit) {
+                        const unitSelect = item.querySelector('.item-unit');
+                        unitSelect.value = unit.unit_name;
+                    }
+                }
+            }
+        }        function calculateItemTotal(index) {
+            const item = document.querySelector(`.invoice-item[data-index="${index}"]`);
+            const quantity = parseFloat(item.querySelector('.item-quantity').value) || 0;
+            const price = parseFloat(item.querySelector('.item-price').value) || 0;
+            const taxRate = parseFloat(item.querySelector('.item-tax-rate').value) || 0;
+            const discountRate = parseFloat(item.querySelector('.item-discount-rate').value) || 0;
+
+            const subtotal = quantity * price;
+            const taxAmount = subtotal * (taxRate / 100);
+            const discountAmount = subtotal * (discountRate / 100);
+            const total = subtotal + taxAmount - discountAmount;
+
+            item.querySelector('.item-total').value = total.toFixed(2);
+            calculateGrandTotal();
+        }
+
+        function calculateGrandTotal() {
+            let subtotal = 0;
+            let taxTotal = 0;
+            let discountTotal = 0;
+            let grandTotal = 0;
+
+            document.querySelectorAll('.invoice-item').forEach(item => {
+                const quantity = parseFloat(item.querySelector('.item-quantity').value) || 0;
+                const price = parseFloat(item.querySelector('.item-price').value) || 0;
+                const taxRate = parseFloat(item.querySelector('.item-tax-rate').value) || 0;
+                const discountRate = parseFloat(item.querySelector('.item-discount-rate').value) || 0;
+
+                const itemSubtotal = quantity * price;
+                const itemTax = itemSubtotal * (taxRate / 100);
+                const itemDiscount = itemSubtotal * (discountRate / 100);
+                const itemTotal = itemSubtotal + itemTax - itemDiscount;
+
+                subtotal += itemSubtotal;
+                taxTotal += itemTax;
+                discountTotal += itemDiscount;
+                grandTotal += itemTotal;
+            });
+
+            document.getElementById('subtotal-display').textContent = subtotal.toFixed(2);
+            document.getElementById('tax-display').textContent = taxTotal.toFixed(2);
+            document.getElementById('discount-display').textContent = discountTotal.toFixed(2);
+            document.getElementById('total-display').textContent = grandTotal.toFixed(2);
+        }
     </script>
 
 @endsection

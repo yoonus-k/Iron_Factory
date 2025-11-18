@@ -9,9 +9,11 @@ use App\Models\Material;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use App\Models\User;
+use App\Models\MaterialMovement;
 use Modules\Manufacturing\Traits\LogsOperations;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DeliveryNoteController extends Controller
 {
@@ -90,15 +92,15 @@ class DeliveryNoteController extends Controller
                 $deliveryNumber = $this->generateDeliveryNoteNumber();
             }
 
-            // ✅ تحديث التحقق: material_detail_id اختياري الآن
+            // ✅ المرحلة 1: بيانات أساسية فقط - الأوزان والكميات ستُضاف في التسجيل
             $validated = $request->validate([
                 'type' => 'required|in:incoming,outgoing',
                 'delivery_date' => 'required|date',
-                'material_detail_id' => 'nullable|exists:material_details,id', // ✅ اختياري
-                'warehouse_id' => 'required|exists:warehouses,id', // ✅ إجباري (المستودع)
-                'delivery_quantity' => 'nullable|numeric|min:0|gt:0',
-                'actual_weight' => 'required|numeric|min:0|gt:0',
-                'weight_from_scale' => 'required|numeric|min:0', // ✅ مطلوب
+                'material_detail_id' => 'nullable|exists:material_details,id',
+                'warehouse_id' => 'required|exists:warehouses,id',
+                'delivery_quantity' => 'nullable|numeric|min:0',
+                'actual_weight' => 'nullable|numeric|min:0', // ✅ اختياري - سيتم تعبئته في التسجيل
+                'weight_from_scale' => 'nullable|numeric|min:0', // ✅ اختياري - سيتم تعبئته في التسجيل
                 'invoice_weight' => 'nullable|numeric|min:0',
                 'driver_name' => 'nullable|string|max:255',
                 'vehicle_number' => 'nullable|string|max:50',
@@ -118,11 +120,9 @@ class DeliveryNoteController extends Controller
                 'warehouse_id.exists' => 'المستودع المختار غير موجود',
                 'material_detail_id.exists' => 'المادة المختارة غير موجودة',
                 'delivery_quantity.numeric' => 'الكمية يجب أن تكون رقماً',
-                'delivery_quantity.gt' => 'الكمية يجب أن تكون أكبر من صفر',
-                'actual_weight.required' => 'الوزن الفعلي مطلوب',
+                'delivery_quantity.min' => 'الكمية لا يمكن أن تكون سالبة',
                 'actual_weight.numeric' => 'الوزن يجب أن يكون رقماً',
-                'actual_weight.gt' => 'الوزن يجب أن يكون أكبر من صفر',
-                'weight_from_scale.required' => 'الوزن من الميزان مطلوب',
+                'actual_weight.min' => 'الوزن لا يمكن أن يكون سالباً',
                 'weight_from_scale.numeric' => 'وزن الميزان يجب أن يكون رقماً',
                 'weight_from_scale.min' => 'وزن الميزان لا يمكن أن يكون سالباً',
                 'invoice_weight.numeric' => 'وزن الفاتورة يجب أن يكون رقماً',
@@ -142,7 +142,11 @@ class DeliveryNoteController extends Controller
 
             // Prepare the data
             $validated['note_number'] = $deliveryNumber;
-            $validated['delivered_weight'] = $validated['actual_weight'];
+
+            // ✅ إذا كان هناك وزن فعلي، استخدمه كـ delivered_weight
+            if (!empty($validated['actual_weight'])) {
+                $validated['delivered_weight'] = $validated['actual_weight'];
+            }
 
             // ✅ إذا كان هناك material_detail_id، استخدم بيانات المادة
             if (!empty($validated['material_detail_id'])) {
@@ -154,15 +158,46 @@ class DeliveryNoteController extends Controller
             $validated['received_by'] = $validated['received_by'] ?? Auth::id() ?? 1;
             $validated['recorded_by'] = Auth::id() ?? 1;
 
-            // Calculate weight discrepancy
-            if ($validated['actual_weight'] && isset($validated['invoice_weight']) && $validated['invoice_weight']) {
+            // Calculate weight discrepancy if both weights exist
+            if (!empty($validated['actual_weight']) && !empty($validated['invoice_weight'])) {
                 $validated['weight_discrepancy'] = $validated['actual_weight'] - $validated['invoice_weight'];
             }
+
+            DB::beginTransaction();
 
             // Create the delivery note
             $deliveryNote = DeliveryNote::create($validated);
 
-            // ✅ تحديث كمية المستودع فقط إذا كان هناك material_detail_id
+            // ✅ تسجيل الحركة في material_movements
+            if (!empty($validated['delivery_quantity']) && $validated['delivery_quantity'] > 0) {
+                $materialDetail = null;
+                if (!empty($validated['material_detail_id'])) {
+                    $materialDetail = \App\Models\MaterialDetail::find($validated['material_detail_id']);
+                }
+
+                MaterialMovement::create([
+                    'movement_number' => MaterialMovement::generateMovementNumber(),
+                    'movement_type' => $type === 'incoming' ? 'incoming' : 'outgoing',
+                    'source' => 'registration',
+                    'delivery_note_id' => $deliveryNote->id,
+                    'material_detail_id' => $validated['material_detail_id'] ?? null,
+                    'material_id' => $validated['material_id'] ?? null,
+                    'unit_id' => $materialDetail ? $materialDetail->unit_id : null,
+                    'quantity' => $validated['delivery_quantity'],
+                    'from_warehouse_id' => $type === 'outgoing' ? $validated['warehouse_id'] : null,
+                    'to_warehouse_id' => $type === 'incoming' ? $validated['warehouse_id'] : null,
+                    'supplier_id' => $validated['supplier_id'] ?? null,
+                    'destination' => $type === 'outgoing' ? ($validated['destination_id'] ?? 'غير محدد') : null,
+                    'description' => ($type === 'incoming' ? 'دخول بضاعة - ' : 'خروج بضاعة - ') . 'أذن رقم ' . $deliveryNumber,
+                    'notes' => $validated['notes'] ?? null,
+                    'reference_number' => $validated['invoice_number'] ?? null,
+                    'created_by' => Auth::id() ?? 1,
+                    'movement_date' => now(),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'status' => 'completed',
+                ]);
+            }            // ✅ تحديث كمية المستودع فقط إذا كان هناك material_detail_id
             if (!empty($validated['material_detail_id']) && !empty($validated['delivery_quantity'])) {
                 try {
                     $materialDetail = \App\Models\MaterialDetail::find($validated['material_detail_id']);
@@ -201,9 +236,12 @@ class DeliveryNoteController extends Controller
                 // Don't throw - just log the error, operation already completed
             }
 
+            DB::commit();
+
             return redirect()->route('manufacturing.delivery-notes.index')
                 ->with('success', 'تم إضافة أذن التسليم بنجاح');
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error creating delivery note: ' . $e->getMessage(), [
                 'exception' => $e,
                 'input' => $request->all()

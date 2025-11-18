@@ -3,67 +3,142 @@
 @section('title', 'تقرير أداء الموردين')
 
 @section('content')
-<div class="container-fluid mt-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h2 class="mb-0">
-                <i class="fas fa-chart-bar"></i> تقرير أداء الموردين
-            </h2>
-            <small class="text-muted">تحليل شامل لأداء الموردين والفروقات</small>
-        </div>
-        <div class="col-md-4 text-end">
-            <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="btn btn-primary">
-                <i class="fas fa-arrow-left"></i> العودة
-            </a>
+<div class="um-content-wrapper">
+    <!-- Header Section -->
+    <div class="um-header-section">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="um-page-title">
+                    <i class="feather icon-bar-chart-2"></i>
+                    تقرير أداء الموردين
+                </h1>
+                <nav class="um-breadcrumb-nav">
+                    <span>
+                        <i class="feather icon-home"></i> لوحة التحكم
+                    </span>
+                    <i class="feather icon-chevron-left"></i>
+                    <span>المستودع</span>
+                    <i class="feather icon-chevron-left"></i>
+                    <span>التسوية</span>
+                    <i class="feather icon-chevron-left"></i>
+                    <span>تقرير الموردين</span>
+                </nav>
+            </div>
+            <div class="col-auto">
+                <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="um-btn um-btn-outline">
+                    <i class="feather icon-arrow-right"></i> العودة
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- Overall Statistics -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h6 class="text-muted mb-2">عدد الموردين</h6>
-                    <h3 class="text-primary">{{ $suppliers->count() }}</h3>
+            <div class="um-stat-card">
+                <div class="um-stat-icon" style="background: linear-gradient(135deg, #0066CC 0%, #0052A3 100%);">
+                    <i class="feather icon-users"></i>
+                </div>
+                <div class="um-stat-content">
+                    <h3 class="um-stat-value" style="color: #0066CC;">{{ $suppliers->count() }}</h3>
+                    <p class="um-stat-label">عدد الموردين</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h6 class="text-muted mb-2">إجمالي الشحنات</h6>
-                    <h3 class="text-success">{{ $totalShipments ?? 0 }}</h3>
+            <div class="um-stat-card">
+                <div class="um-stat-icon" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
+                    <i class="feather icon-package"></i>
+                </div>
+                <div class="um-stat-content">
+                    <h3 class="um-stat-value" style="color: #10B981;">{{ $totalShipments ?? 0 }}</h3>
+                    <p class="um-stat-label">إجمالي الشحنات</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h6 class="text-muted mb-2">متوسط الدقة</h6>
-                    <h3 class="text-warning">{{ number_format($averageAccuracy ?? 0, 2) }}%</h3>
+            <div class="um-stat-card">
+                <div class="um-stat-icon" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
+                    <i class="feather icon-target"></i>
+                </div>
+                <div class="um-stat-content">
+                    <h3 class="um-stat-value" style="color: #F59E0B;">{{ number_format($averageAccuracy ?? 0, 2) }}%</h3>
+                    <p class="um-stat-label">متوسط الدقة</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h6 class="text-muted mb-2">إجمالي الفروقات</h6>
-                    <h3 class="text-danger">{{ number_format($totalDiscrepancy ?? 0, 2) }} كيلو</h3>
+            <div class="um-stat-card">
+                <div class="um-stat-icon" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
+                    <i class="feather icon-alert-circle"></i>
+                </div>
+                <div class="um-stat-content">
+                    <h3 class="um-stat-value" style="color: #EF4444;">{{ number_format($totalDiscrepancy ?? 0, 2) }}</h3>
+                    <p class="um-stat-label">إجمالي الفروقات (كيلو)</p>
                 </div>
             </div>
         </div>
     </div>
 
+    <style>
+        .um-stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .um-stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 102, 204, 0.15);
+        }
+        .um-stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .um-stat-icon i {
+            font-size: 28px;
+        }
+        .um-stat-content {
+            flex: 1;
+        }
+        .um-stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0;
+            color: #1A202C;
+        }
+        .um-stat-label {
+            font-size: 14px;
+            color: #718096;
+            margin: 0;
+            font-weight: 500;
+        }
+    </style>
+
     <!-- Suppliers Table -->
     @if($suppliers->count() > 0)
-        <div class="card">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">تفاصيل أداء الموردين</h5>
+        <section class="um-main-card">
+            <div class="um-card-header">
+                <h4 class="um-card-title">
+                    <i class="feather icon-activity"></i>
+                    تفاصيل أداء الموردين
+                </h4>
             </div>
-            <div class="table-responsive">
-                <table class="table table-striped mb-0">
-                    <thead class="table-light">
+            <div class="um-table-responsive">
+                <table class="um-table">
+                    <thead>
                         <tr>
                             <th>اسم المورد</th>
                             <th>الشحنات</th>
@@ -153,14 +228,15 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </section>
 
         <!-- Legend -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="card bg-light">
-                    <div class="card-body">
-                        <h6 class="card-title mb-3">📊 شرح المؤشرات</h6>
+                <div class="um-alert-custom um-alert-info">
+                    <i class="feather icon-info"></i>
+                    <div>
+                        <h6 style="margin: 0 0 10px 0; font-weight: 600;">شرح المؤشرات</h6>
                         <div class="row">
                             <div class="col-md-3">
                                 <small>
@@ -188,12 +264,29 @@
             </div>
         </div>
     @else
-        <div class="alert alert-info text-center py-5">
-            <h5>📭 لا توجد بيانات للموردين</h5>
+        <div class="um-alert-custom um-alert-info" style="text-align: center; padding: 40px;">
+            <i class="feather icon-inbox" style="font-size: 48px; margin-bottom: 15px;"></i>
+            <h4>لا توجد بيانات للموردين</h4>
             <p class="mb-0">لم يتم إضافة أي موردين بعد</p>
         </div>
     @endif
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-dismiss alerts after 5 seconds
+        const alerts = document.querySelectorAll('.um-alert-custom');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                alert.style.transition = 'opacity 0.3s';
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 300);
+            }, 5000);
+        });
+    });
+</script>
 
 @endsection
 

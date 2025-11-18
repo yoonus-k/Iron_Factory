@@ -18,6 +18,7 @@ use Modules\Manufacturing\Http\Controllers\UnitController;
 use Modules\Manufacturing\Http\Controllers\MaterialTypeController;
 use Modules\Manufacturing\Http\Controllers\WarehouseRegistrationController;
 use Modules\Manufacturing\Http\Controllers\ReconciliationController;
+use Modules\Manufacturing\Http\Controllers\MaterialMovementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('warehouse-products/{id}/change-status', [WarehouseProductController::class, 'changeStatus'])->name('manufacturing.warehouse-products.change-status');
     Route::get('materials/export', [WarehouseProductController::class, 'export'])->name('manufacturing.materials.export');
     Route::post('materials/import', [WarehouseProductController::class, 'import'])->name('manufacturing.materials.import');
+
+    // Material Routes
+    Route::get('warehouses/material/{id}', [WarehouseProductController::class, 'showMaterial'])->name('manufacturing.warehouses.material.show');
+    Route::post('warehouses/material/{id}/add-quantity', [WarehouseProductController::class, 'addMaterialQuantity'])->name('manufacturing.warehouses.material.add-quantity');
     Route::resource('delivery-notes', DeliveryNoteController::class)->names('manufacturing.delivery-notes');
     Route::put('delivery-notes/{id}/toggle-status', [DeliveryNoteController::class, 'toggleStatus'])->name('manufacturing.delivery-notes.toggle-status');
     Route::put('delivery-notes/{id}/change-status', [DeliveryNoteController::class, 'changeStatus'])->name('manufacturing.delivery-notes.change-status');
@@ -96,7 +101,20 @@ Route::middleware(['auth'])->group(function () {
         Route::post('decide/{deliveryNote}', [ReconciliationController::class, 'decide'])->name('manufacturing.warehouses.reconciliation.decide');
         Route::get('history', [ReconciliationController::class, 'history'])->name('manufacturing.warehouses.reconciliation.history');
         Route::get('supplier-report', [ReconciliationController::class, 'supplierReport'])->name('manufacturing.warehouses.reconciliation.supplier-report');
+
+        // ربط الفاتورة المتأخرة
+        Route::get('link-invoice', [ReconciliationController::class, 'showLinkInvoice'])->name('manufacturing.warehouses.reconciliation.link-invoice');
+        Route::post('link-invoice', [ReconciliationController::class, 'storeLinkInvoice'])->name('manufacturing.warehouses.reconciliation.link-invoice.store');
     });
+
+    // ========== سجل حركات المواد ==========
+    Route::prefix('warehouse/movements')->group(function () {
+        Route::get('/', [MaterialMovementController::class, 'index'])->name('manufacturing.warehouse.movements.index');
+        Route::get('show/{movement}', [MaterialMovementController::class, 'show'])->name('manufacturing.warehouse.movements.show');
+    });
+
+    // API endpoint for movement details
+    Route::get('material-movements/{id}', [MaterialMovementController::class, 'getDetails'])->name('manufacturing.material-movements.details');
 
     // Production Stages Routes
     Route::resource('stage1', Stage1Controller::class)->names('manufacturing.stage1');

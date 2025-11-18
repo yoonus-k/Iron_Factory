@@ -49,6 +49,11 @@ class Supplier extends Model
         return $this->hasMany(AdditivesInventory::class);
     }
 
+    public function deliveryNotes(): HasMany
+    {
+        return $this->hasMany(DeliveryNote::class);
+    }
+
     public function getName($locale = null)
     {
         $locale = $locale ?? app()->getLocale();

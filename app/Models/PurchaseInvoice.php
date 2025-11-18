@@ -132,6 +132,22 @@ class PurchaseInvoice extends Model
     }
 
     /**
+     * Get invoice items
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(PurchaseInvoiceItem::class);
+    }
+
+    /**
+     * Calculate total from items
+     */
+    public function calculateTotalFromItems(): float
+    {
+        return $this->items()->sum('total') ?? 0;
+    }
+
+    /**
      * Check if invoice is draft
      */
     public function isDraft(): bool

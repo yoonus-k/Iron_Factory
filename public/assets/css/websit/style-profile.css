@@ -88,7 +88,7 @@
   .info-icon-wrapper-compact {
       width: 40px;
       height: 40px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
+
       border-radius: 10px;
       display: flex;
       align-items: center;
@@ -149,7 +149,7 @@
   }
 
   .tab-btn.active {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
+
       color: white;
       box-shadow: 0 4px 12px rgba(45, 153, 153, 0.2);
   }
@@ -287,7 +287,7 @@
 
   .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--primary), var(--accent));
+
       border-radius: 10px;
       transition: width 0.3s ease;
   }

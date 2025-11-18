@@ -160,6 +160,21 @@ class WarehouseTransferService
         $qtyInWarehouse = ($materialDetail?->quantity ?? 0);
         $qtyDelivered = ($deliveryNote->delivery_quantity ?? 0);
 
+        // ✅ حساب الكمية المنقولة للإنتاج من جدول material_movements
+        $transferredQty = DB::table('material_movements')
+            ->where('delivery_note_id', $deliveryNote->id)
+            ->where('movement_type', 'to_production')
+            ->where('status', 'completed')
+            ->sum('quantity');
+
+        // الحصول على آخر حركة نقل للإنتاج
+        $lastTransfer = DB::table('material_movements')
+            ->where('delivery_note_id', $deliveryNote->id)
+            ->where('movement_type', 'to_production')
+            ->where('status', 'completed')
+            ->orderBy('movement_date', 'desc')
+            ->first();
+
         // بناء المصفوفة الرئيسية
         $result = [
             'delivery_note_id' => $deliveryNote->id,
@@ -189,28 +204,32 @@ class WarehouseTransferService
             'delivery_date' => $deliveryNote->delivery_date?->format('Y-m-d H:i'),
             'registered_at' => $deliveryNote->registered_at?->format('Y-m-d H:i'),
             'registered_to_warehouse' => $deliveryNote->registered_at?->format('d/m/Y H:i'),
-            'transferred_to_production' => null,  // سيتم تعديله إذا تم النقل
+            'transferred_to_production' => $lastTransfer ? date('d/m/Y H:i', strtotime($lastTransfer->movement_date)) : null,
         ];
 
         // إضافة المستخدمين
+        $transferredByUser = $lastTransfer ? \App\Models\User::find($lastTransfer->created_by) : null;
         $result['users'] = [
             'recorded_by' => $deliveryNote->recordedBy?->name,
             'registered_by' => $deliveryNote->registeredBy?->name,
-            'transferred_by' => null,  // سيتم تعديله إذا تم النقل
+            'transferred_by' => $transferredByUser?->name,
         ];
 
         // إضافة الكميات
         $result['quantities'] = [
             'delivery' => $qtyDelivered,
-            'warehouse_entry' => $qtyInWarehouse,
-            'transferred_to_production' => 0,
-            'remaining_in_warehouse' => $qtyInWarehouse,
+            'warehouse_entry' => $qtyDelivered,  // ✅ الكمية الأصلية المدخلة
+            'transferred_to_production' => $transferredQty,  // ✅ المنقول للإنتاج
+            'remaining_in_warehouse' => $qtyInWarehouse,  // المتبقي الحالي
         ];
 
         // إضافة الملاحظات
         $result['notes'] = [
-            'transfer_notes' => null,  // سيتم إضافة ملاحظات النقل إذا وجدت
+            'transfer_notes' => $lastTransfer?->notes,
         ];
+
+        // حساب نسبة النقل
+        $transferPercentage = $qtyDelivered > 0 ? ($transferredQty / $qtyDelivered * 100) : 0;
 
         // إضافة الحالة والنسبة المئوية
         $statusLabel = $isRegistered ? 'في المستودع' : 'قيد الانتظار';
@@ -222,7 +241,7 @@ class WarehouseTransferService
             'warehouse_status_label' => $statusLabel,
             'warehouse_status_color' => $statusColor,
             'can_transfer_to_production' => $canTransfer,
-            'transfer_percentage' => 0,
+            'transfer_percentage' => $transferPercentage,
         ];
 
         return $result;

@@ -5,11 +5,15 @@ namespace Modules\Manufacturing\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use App\Models\PurchaseInvoice;
+use App\Models\PurchaseInvoiceItem;
 use App\Models\Supplier;
 use App\Models\User;
+use App\Models\Material;
+use App\Models\Unit;
 use Modules\Manufacturing\Traits\LogsOperations;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseInvoiceController extends Controller
 {
@@ -65,8 +69,15 @@ class PurchaseInvoiceController extends Controller
     {
         $suppliers = Supplier::all();
         $users = User::all();
+        $materials = Material::all();
+        $units = Unit::all();
 
-        return view('manufacturing::warehouses.purchase-invoices.create', compact('suppliers', 'users'));
+        // Generate automatic invoice number
+        $lastInvoice = PurchaseInvoice::orderBy('id', 'desc')->first();
+        $nextNumber = $lastInvoice ? $lastInvoice->id + 1 : 1;
+        $invoiceNumber = 'PI-' . date('Y') . '-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+
+        return view('manufacturing::warehouses.purchase-invoices.create', compact('suppliers', 'users', 'materials', 'units', 'invoiceNumber'));
     }
 
     /**
@@ -81,31 +92,67 @@ class PurchaseInvoiceController extends Controller
                 'supplier_id' => 'required|exists:suppliers,id',
                 'invoice_date' => 'required|date',
                 'due_date' => 'nullable|date|after_or_equal:invoice_date',
-                'total_amount' => 'required|numeric|min:0|gt:0',
                 'currency' => 'required|string|max:3',
                 'payment_terms' => 'nullable|string|max:255',
                 'notes' => 'nullable|string|max:1000',
                 'is_active' => 'nullable|boolean',
+                // Items validation
+                'items' => 'required|array|min:1',
+                'items.*.material_id' => 'nullable|exists:materials,id',
+                'items.*.item_name' => 'required|string|max:255',
+                'items.*.description' => 'nullable|string|max:500',
+                'items.*.quantity' => 'required|numeric|min:0.001',
+                'items.*.unit' => 'required|string|max:50',
+                'items.*.unit_price' => 'required|numeric|min:0',
+                'items.*.tax_rate' => 'nullable|numeric|min:0|max:100',
+                'items.*.discount_rate' => 'nullable|numeric|min:0|max:100',
+                'items.*.notes' => 'nullable|string|max:500',
             ]);
+
+            DB::beginTransaction();
 
             $validated['recorded_by'] = Auth::id() ?? 1;
             $validated['created_by'] = Auth::id() ?? 1;
             $validated['status'] = 'draft';
             $validated['is_active'] = $request->boolean('is_active', true);
 
+            // Calculate total from items
+            $totalAmount = 0;
+            foreach ($request->items as $item) {
+                $subtotal = $item['quantity'] * $item['unit_price'];
+                $taxAmount = $subtotal * (($item['tax_rate'] ?? 0) / 100);
+                $discountAmount = $subtotal * (($item['discount_rate'] ?? 0) / 100);
+                $total = $subtotal + $taxAmount - $discountAmount;
+                $totalAmount += $total;
+            }
+
+            $validated['total_amount'] = round($totalAmount, 2);
+
             // Ensure all required fields are present
             if (empty($validated['created_by'])) {
                 throw new \Exception('فشل في تحديد المستخدم الحالي. الرجاء تسجيل الدخول مرة أخرى.');
             }
 
+            // Remove items from validated data before creating invoice
+            $itemsData = $validated['items'];
+            unset($validated['items']);
+
             $invoice = PurchaseInvoice::create($validated);
+
+            // Create invoice items
+            foreach ($itemsData as $itemData) {
+                $itemData['purchase_invoice_id'] = $invoice->id;
+                PurchaseInvoiceItem::create($itemData);
+            }
+
+            DB::commit();
 
             // Log the operation
             try {
                 $this->logOperation(
                     'create',
                     'Create Purchase Invoice',
-                    'تم إنشاء فاتورة شراء جديدة: ' . $invoice->invoice_number,
+                    'تم إنشاء فاتورة شراء جديدة: ' . $invoice->invoice_number . ' مع ' . count($itemsData) . ' منتج',
                     'purchase_invoices',
                     $invoice->id,
                     null,
@@ -116,10 +163,11 @@ class PurchaseInvoiceController extends Controller
             }
 
             return redirect()->route('manufacturing.purchase-invoices.show', $invoice->id)
-                           ->with('success', 'تم إضافة الفاتورة بنجاح');
+                           ->with('success', 'تم إضافة الفاتورة بنجاح مع ' . count($itemsData) . ' منتج');
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error creating purchase invoice: ' . $e->getMessage());
-            
+
             // Provide user-friendly error message
             $errorMessage = 'فشل في حفظ الفاتورة. ';
             if (str_contains($e->getMessage(), 'created_by')) {
@@ -127,7 +175,7 @@ class PurchaseInvoiceController extends Controller
             } else {
                 $errorMessage .= 'الرجاء التحقق من المعلومات المدخلة.';
             }
-            
+
             return redirect()->back()
                            ->withInput()
                            ->withErrors(['error' => $errorMessage]);
@@ -140,7 +188,7 @@ class PurchaseInvoiceController extends Controller
     public function show($id)
     {
         try {
-            $invoice = PurchaseInvoice::with(['supplier', 'recordedBy', 'approvedBy', 'operationLogs'])->findOrFail($id);
+            $invoice = PurchaseInvoice::with(['supplier', 'recordedBy', 'approvedBy', 'operationLogs', 'items.material'])->findOrFail($id);
             return view('manufacturing::warehouses.purchase-invoices.show', compact('invoice'));
         } catch (\Exception $e) {
             return redirect()->route('manufacturing.purchase-invoices.index')
@@ -154,11 +202,13 @@ class PurchaseInvoiceController extends Controller
     public function edit($id)
     {
         try {
-            $invoice = PurchaseInvoice::findOrFail($id);
+            $invoice = PurchaseInvoice::with('items')->findOrFail($id);
             $suppliers = Supplier::all();
             $users = User::all();
+            $materials = Material::where('is_active', true)->get();
+            $units = Unit::where('is_active', true)->get();
 
-            return view('manufacturing::warehouses.purchase-invoices.edit', compact('invoice', 'suppliers', 'users'));
+            return view('manufacturing::warehouses.purchase-invoices.edit', compact('invoice', 'suppliers', 'users', 'materials', 'units'));
         } catch (\Exception $e) {
             return redirect()->route('manufacturing.purchase-invoices.index')
                            ->withErrors(['error' => 'الفاتورة غير موجودة']);
@@ -171,7 +221,7 @@ class PurchaseInvoiceController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $invoice = PurchaseInvoice::findOrFail($id);
+            $invoice = PurchaseInvoice::with('items')->findOrFail($id);
             $oldValues = $invoice->toArray();
 
             $validated = $request->validate([
@@ -180,21 +230,59 @@ class PurchaseInvoiceController extends Controller
                 'supplier_id' => 'required|exists:suppliers,id',
                 'invoice_date' => 'required|date',
                 'due_date' => 'nullable|date|after_or_equal:invoice_date',
-                'total_amount' => 'required|numeric|min:0|gt:0',
                 'currency' => 'required|string|max:3',
                 'payment_terms' => 'nullable|string|max:255',
                 'notes' => 'nullable|string|max:1000',
                 'is_active' => 'nullable|boolean',
+                // Items validation
+                'items' => 'required|array|min:1',
+                'items.*.material_id' => 'nullable|exists:materials,id',
+                'items.*.item_name' => 'required|string|max:255',
+                'items.*.description' => 'nullable|string|max:500',
+                'items.*.quantity' => 'required|numeric|min:0.001',
+                'items.*.unit' => 'required|string|max:50',
+                'items.*.unit_price' => 'required|numeric|min:0',
+                'items.*.tax_rate' => 'nullable|numeric|min:0|max:100',
+                'items.*.discount_rate' => 'nullable|numeric|min:0|max:100',
+                'items.*.notes' => 'nullable|string|max:500',
             ]);
 
+            DB::beginTransaction();
+
             $validated['is_active'] = $request->boolean('is_active', true);
+
+            // Calculate total from items
+            $totalAmount = 0;
+            foreach ($request->items as $item) {
+                $subtotal = $item['quantity'] * $item['unit_price'];
+                $taxAmount = $subtotal * (($item['tax_rate'] ?? 0) / 100);
+                $discountAmount = $subtotal * (($item['discount_rate'] ?? 0) / 100);
+                $total = $subtotal + $taxAmount - $discountAmount;
+                $totalAmount += $total;
+            }
+
+            $validated['total_amount'] = round($totalAmount, 2);
 
             // Ensure all required fields are present
             if (empty($validated['created_by'])) {
                 $validated['created_by'] = Auth::id() ?? 1;
             }
 
+            // Remove items from validated data before updating invoice
+            $itemsData = $validated['items'];
+            unset($validated['items']);
+
             $invoice->update($validated);
+
+            // Delete old items and create new ones
+            $invoice->items()->delete();
+            foreach ($itemsData as $itemData) {
+                $itemData['purchase_invoice_id'] = $invoice->id;
+                PurchaseInvoiceItem::create($itemData);
+            }
+
+            DB::commit();
+
             $newValues = $invoice->fresh()->toArray();
 
             // Log the operation
@@ -202,7 +290,7 @@ class PurchaseInvoiceController extends Controller
                 $this->logOperation(
                     'update',
                     'Update Purchase Invoice',
-                    'تم تحديث فاتورة الشراء: ' . $invoice->invoice_number,
+                    'تم تحديث فاتورة الشراء: ' . $invoice->invoice_number . ' مع ' . count($itemsData) . ' منتج',
                     'purchase_invoices',
                     $invoice->id,
                     $oldValues,
@@ -215,8 +303,9 @@ class PurchaseInvoiceController extends Controller
             return redirect()->route('manufacturing.purchase-invoices.show', $invoice->id)
                            ->with('success', 'تم تحديث الفاتورة بنجاح');
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error updating purchase invoice: ' . $e->getMessage());
-            
+
             // Provide user-friendly error message
             $errorMessage = 'فشل في تحديث الفاتورة. ';
             if (str_contains($e->getMessage(), 'created_by')) {
@@ -224,7 +313,7 @@ class PurchaseInvoiceController extends Controller
             } else {
                 $errorMessage .= 'الرجاء التحقق من المعلومات المدخلة.';
             }
-            
+
             return redirect()->back()
                            ->withInput()
                            ->withErrors(['error' => $errorMessage]);
@@ -297,7 +386,7 @@ class PurchaseInvoiceController extends Controller
                            ->with('success', 'تم تحديث حالة الفاتورة بنجاح');
         } catch (\Exception $e) {
             Log::error('Error updating invoice status: ' . $e->getMessage());
-            
+
             // Provide user-friendly error message
             $errorMessage = 'فشل في تحديث الحالة. ';
             if (str_contains($e->getMessage(), 'created_by')) {
@@ -305,7 +394,7 @@ class PurchaseInvoiceController extends Controller
             } else {
                 $errorMessage .= 'الرجاء التحقق من المعلومات المدخلة.';
             }
-            
+
             return redirect()->back()
                            ->withErrors(['error' => $errorMessage]);
         }

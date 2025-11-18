@@ -3,45 +3,61 @@
 @section('title', 'نقل البضاعة للإنتاج')
 
 @section('content')
-
-        <!-- Header -->
-        <div class="page-header">
+<div class="um-content-wrapper">
+        <!-- Header Section -->
+        <div class="um-header-section">
             <div class="row align-items-center">
-                <div class="col-auto">
-                    <a href="{{ route('manufacturing.warehouse.registration.show', $deliveryNote) }}" class="btn btn-link">
-                        <i class="fas fa-arrow-right"></i> رجوع
-                    </a>
-                </div>
                 <div class="col">
-                    <h1 class="page-title">
-                        <i class="fas fa-arrow-right"></i> نقل البضاعة للإنتاج
+                    <h1 class="um-page-title">
+                        <i class="feather icon-arrow-left"></i>
+                        نقل البضاعة للإنتاج
                     </h1>
-                    <p class="text-muted mb-0">اختر الكمية المراد نقلها وقم بالنقل</p>
+                    <nav class="um-breadcrumb-nav">
+                        <span>
+                            <i class="feather icon-home"></i> لوحة التحكم
+                        </span>
+                        <i class="feather icon-chevron-left"></i>
+                        <span>المستودع</span>
+                        <i class="feather icon-chevron-left"></i>
+                        <span>التسجيل</span>
+                        <i class="feather icon-chevron-left"></i>
+                        <span>نقل للإنتاج</span>
+                    </nav>
+                </div>
+                <div class="col-auto">
+                    <a href="{{ route('manufacturing.warehouse.registration.show', $deliveryNote) }}" class="um-btn um-btn-outline">
+                        <i class="feather icon-arrow-right"></i> رجوع
+                    </a>
                 </div>
             </div>
         </div>
 
         <!-- Alerts -->
         @if ($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong>❌ خطأ!</strong>
-                <ul class="mb-0">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div class="um-alert-custom um-alert-error" role="alert">
+                <i class="feather icon-alert-circle"></i>
+                <div>
+                    <strong>خطأ في البيانات!</strong>
+                    <ul style="margin: 8px 0 0 0; padding-right: 20px;">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
             </div>
         @endif
 
         <div class="row">
             <div class="col-lg-8 offset-lg-2">
                 <!-- معلومات البضاعة -->
-                <div class="card mb-4">
-                    <div class="card-header" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white;">
-                        <h3 class="card-title mb-0" style="color: white;">
-                            <i class="fas fa-info-circle"></i> معلومات البضاعة
-                        </h3>
+                <section class="um-main-card">
+                    <div class="um-card-header" style="background: linear-gradient(135deg, #0066CC 0%, #0052A3 100%); color: white;">
+                        <h4 class="um-card-title" style="color: white;">
+                            <i class="feather icon-info"></i> معلومات البضاعة
+                        </h4>
                     </div>
                     <div class="card-body">
                         <div class="row mb-3">
@@ -93,11 +109,11 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
                 <!-- شريط التقدم -->
-                <div class="card mb-4">
-                    <div class="card-body">
+                <section class="um-main-card">
+                    <div class="um-card-body">
                         <div style="margin-bottom: 15px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <label style="font-weight: 600; color: #2c3e50; margin-bottom: 0;">الكمية الكلية:</label>
@@ -113,14 +129,14 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
                 <!-- نموذج النقل -->
-                <div class="card">
-                    <div class="card-header" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); color: white;">
-                        <h3 class="card-title mb-0" style="color: white;">
-                            <i class="fas fa-arrow-right"></i> نقل البضاعة
-                        </h3>
+                <section class="um-main-card">
+                    <div class="um-card-header" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white;">
+                        <h4 class="um-card-title" style="color: white;">
+                            <i class="feather icon-arrow-left"></i> نقل البضاعة
+                        </h4>
                     </div>
                     <div class="card-body">
                         <form action="{{ route('manufacturing.warehouse.registration.transfer-to-production', $deliveryNote) }}" method="POST">
@@ -210,17 +226,17 @@
                             </div>
 
                             <!-- الأزرار -->
-                            <div style="display: flex; gap: 10px; justify-content: space-between;">
-                                <a href="{{ route('manufacturing.warehouse.registration.show', $deliveryNote) }}" class="btn btn-outline-secondary" style="flex: 1; border: 2px solid #bdc3c7; color: #2c3e50;">
-                                    <i class="fas fa-times"></i> إلغاء
+                            <div style="display: flex; gap: 12px;">
+                                <a href="{{ route('manufacturing.warehouse.registration.show', $deliveryNote) }}" class="um-btn um-btn-outline" style="flex: 0 0 auto;">
+                                    <i class="feather icon-x"></i> إلغاء
                                 </a>
-                                <button type="submit" class="btn btn-success" style="flex: 1; background: linear-gradient(135deg, #27ae60 0%, #229954 100%); border: none; font-weight: 600;">
-                                    <i class="fas fa-check"></i> تأكيد النقل
+                                <button type="submit" class="um-btn um-btn-primary" style="flex: 1; background: linear-gradient(135deg, #10B981 0%, #059669 100%); border: none;">
+                                    <i class="feather icon-check"></i> تأكيد النقل
                                 </button>
                             </div>
                         </form>
                     </div>
-                </div>
+                </section>
             </div>
         </div>
 
