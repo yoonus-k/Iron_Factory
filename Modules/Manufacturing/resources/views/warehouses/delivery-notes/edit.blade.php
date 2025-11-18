@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تعديل أذن التسليم')
+@section('title', 'تعديل أذن التسليم - بيانات مبسطة')
 
 @section('content')
 
@@ -11,7 +11,7 @@
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
             </svg>
-            تعديل أذن التسليم
+            ✏️ تعديل أذن التسليم
         </h1>
         <nav class="um-breadcrumb-nav">
             <span>
@@ -26,25 +26,84 @@
         </nav>
     </div>
 
+    <!-- Process Explanation -->
+    <div class="alert alert-info mb-4" style="border-right: 4px solid #3498db;">
+        <h5 class="mb-2"><strong>📌 نظام العمل الجديد (ثلاث مراحل):</strong></h5>
+        <div style="display: grid; gap: 10px; margin-top: 15px;">
+            <div style="background: white; padding: 12px; border-radius: 4px; border-right: 3px solid #3498db;">
+                <strong>المرحلة 1 - إنشاء الأذن (هنا):</strong>
+                <span style="color: #666; display: block; margin-top: 4px;">
+                    📝 بيانات أساسية فقط (رقم الأذن، التاريخ، المورد، المستودع) بدون أوزان أو كميات
+                </span>
+            </div>
+            <div style="background: white; padding: 12px; border-radius: 4px; border-right: 3px solid #27ae60;">
+                <strong>المرحلة 2 - التسجيل:</strong>
+                <span style="color: #666; display: block; margin-top: 4px;">
+                    ⚖️ تسجيل الوزن الفعلي من الميزان + تحديد المادة + الكمية بعد الفحص
+                </span>
+            </div>
+            <div style="background: white; padding: 12px; border-radius: 4px; border-right: 3px solid #f39c12;">
+                <strong>المرحلة 3 - التسوية (عند وصول الفاتورة):</strong>
+                <span style="color: #666; display: block; margin-top: 4px;">
+                    📊 ربط الفاتورة + حساب الفروقات بين الوزن الفعلي ووزن الفاتورة
+                </span>
+            </div>
+        </div>
+    </div>
+
     <!-- Form Card -->
     <div class="form-card">
-        <!-- Error Alert -->
+        @if (session('success'))
+            <div class="um-alert-custom um-alert-success" role="alert" id="successMessage">
+                <i class="feather icon-check-circle"></i>
+                {{ session('success') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="um-alert-custom um-alert-error" role="alert" id="errorMessage">
+                <i class="feather icon-alert-circle"></i>
+                {{ session('error') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+        @endif
+
         @if ($errors->any())
-            <div style="margin-bottom: 20px; padding: 15px; background-color: #fee; border: 1px solid #fcc; border-radius: 6px; border-right: 4px solid #e74c3c;">
-                <div style="display: flex; align-items: flex-start; gap: 10px;">
-                    <svg style="width: 24px; height: 24px; color: #e74c3c; flex-shrink: 0; margin-top: 2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <div class="alert alert-danger alert-container">
+                <div class="alert-header">
+                    <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
                         <line x1="12" y1="8" x2="12" y2="12"></line>
                         <line x1="12" y1="16" x2="12.01" y2="16"></line>
                     </svg>
-                    <div>
-                        <h4 style="margin: 0 0 8px 0; color: #c0392b; font-weight: 600;">⚠️ هناك أخطاء في النموذج</h4>
-                        <ul style="margin: 0; padding-left: 20px; color: #c0392b;">
-                            @foreach ($errors->all() as $error)
-                                <li style="margin: 4px 0;">{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
+                    <h4 class="alert-title">يوجد أخطاء في البيانات المدخلة</h4>
+                    <button type="button" class="alert-close" onclick="this.parentElement.parentElement.style.display='none'">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="alert-body">
+                    <ul class="error-list">
+                        @foreach ($errors->all() as $error)
+                            <li>
+                                <span>
+                                    <svg style="width: 16px; height: 16px; margin-left: 8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                                    </svg>
+                                    {{ $error }}
+                                </span>
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
             </div>
         @endif
@@ -80,7 +139,7 @@
                     </div>
                     <div>
                         <h3 class="section-title">المعلومات الأساسية</h3>
-                        <p class="section-subtitle">قم بتحديث بيانات الأذن</p>
+                        <p class="section-subtitle">بيانات الأذن الأساسية فقط - بدون أوزان أو كميات</p>
                     </div>
                 </div>
 
@@ -125,12 +184,10 @@
                         @endif
                     </div>
 
-                    <!-- ✅ جديد: اختيار المستودع (إجباري) -->
                     <div class="form-group">
                         <label for="warehouse_id" class="form-label">
                             المستودع
                             <span class="required">*</span>
-                            <small style="color: #27ae60; display: block; margin-top: 5px;">👈 المستودع الرئيسي</small>
                         </label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -150,105 +207,6 @@
                             <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('warehouse_id') }}</small>
                         @endif
                     </div>
-
-                    <!-- ✅ معدّل: اختيار المادة (اختياري الآن) -->
-                    <div class="form-group">
-                        <label for="material_id" class="form-label">
-                            المادة
-                            <small style="color: #95a5a6; display: block; margin-top: 5px;">(اختياري)</small>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            </svg>
-                            <select name="material_id" id="material_id" class="form-input {{ $errors->has('material_id') ? 'is-invalid' : '' }}">
-                                <option value="">-- اختر المادة (اختياري) --</option>
-                                @foreach($materials as $material)
-                                    <option value="{{ $material->id }}" {{ old('material_id', $deliveryNote->material_id) == $material->id ? 'selected' : '' }}>
-                                        {{ $material->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        @if ($errors->has('material_id'))
-                            <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('material_id') }}</small>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <!-- Weight Information Section -->
-            <div class="form-section">
-                <div class="section-header">
-                    <div class="section-icon personal">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="5" r="3"></circle>
-                            <line x1="9" y1="9" x2="9" y2="16"></line>
-                            <line x1="15" y1="9" x2="15" y2="16"></line>
-                            <path d="M9 16h6"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="section-title">معلومات الوزن</h3>
-                        <p class="section-subtitle">سجل الأوزان من الميزان والفاتورة</p>
-                    </div>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="weight_from_scale" class="form-label">
-                            الوزن المسجل من الميزان (كجم)
-                            <span class="required">*</span>
-                            <small style="color: #27ae60; display: block; margin-top: 5px;">👈 الوزن الرئيسي من الميزان</small>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="5" r="3"></circle>
-                                <line x1="9" y1="9" x2="9" y2="16"></line>
-                                <line x1="15" y1="9" x2="15" y2="16"></line>
-                                <path d="M9 16h6"></path>
-                            </svg>
-                            <input type="number" name="weight_from_scale" id="weight_from_scale"
-                                class="form-input {{ $errors->has('weight_from_scale') ? 'is-invalid' : '' }}" placeholder="0.00" step="0.01" value="{{ old('weight_from_scale', $deliveryNote->weight_from_scale) }}" required>
-                        </div>
-                        @if ($errors->has('weight_from_scale'))
-                            <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('weight_from_scale') }}</small>
-                        @endif
-                    </div>
-
-                    <div class="form-group">
-                        <label for="actual_weight" class="form-label">
-                            الوزن الفعلي (كجم)
-                            <span class="required">*</span>
-                            <small style="color: #7f8c8d; display: block; margin-top: 5px;">الوزن المسجل بالنظام</small>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="5" r="3"></circle>
-                                <line x1="9" y1="9" x2="9" y2="16"></line>
-                                <line x1="15" y1="9" x2="15" y2="16"></line>
-                                <path d="M9 16h6"></path>
-                            </svg>
-                            <input type="number" name="actual_weight" id="actual_weight"
-                                class="form-input {{ $errors->has('actual_weight') ? 'is-invalid' : '' }}" placeholder="0.00" step="0.01" value="{{ old('actual_weight', $deliveryNote->actual_weight ?? $deliveryNote->delivered_weight) }}" required>
-                        </div>
-                        @if ($errors->has('actual_weight'))
-                            <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('actual_weight') }}</small>
-                        @endif
-                    </div>
-
-                    @if($deliveryNote->weight_discrepancy)
-                        <div class="form-group">
-                            <label class="form-label">
-                                الفرق في الوزن
-                            </label>
-                            <div class="input-wrapper">
-                                <div style="padding: 10px 15px; background: #ecf0f1; border-radius: 4px; font-weight: 500;">
-                                    {{ $deliveryNote->weight_discrepancy >= 0 ? '+' : '' }}{{ $deliveryNote->weight_discrepancy }} كجم
-                                </div>
-                            </div>
-                        </div>
-                    @endif
                 </div>
             </div>
 
@@ -294,7 +252,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="driver_name" class="form-label">اسم السائق</label>
+                            <label for="driver_name" class="form-label">اسم السائق (اختياري)</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -303,13 +261,10 @@
                                 <input type="text" name="driver_name" id="driver_name"
                                     class="form-input {{ $errors->has('driver_name') ? 'is-invalid' : '' }}" placeholder="اسم السائق" value="{{ old('driver_name', $deliveryNote->driver_name) }}">
                             </div>
-                            @if ($errors->has('driver_name'))
-                                <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('driver_name') }}</small>
-                            @endif
                         </div>
 
                         <div class="form-group">
-                            <label for="vehicle_number" class="form-label">رقم المركبة</label>
+                            <label for="vehicle_number" class="form-label">رقم المركبة (اختياري)</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="9" cy="21" r="1"></circle>
@@ -319,13 +274,10 @@
                                 <input type="text" name="vehicle_number" id="vehicle_number"
                                     class="form-input {{ $errors->has('vehicle_number') ? 'is-invalid' : '' }}" placeholder="مثال: أ ب ت 1234" value="{{ old('vehicle_number', $deliveryNote->vehicle_number) }}">
                             </div>
-                            @if ($errors->has('vehicle_number'))
-                                <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('vehicle_number') }}</small>
-                            @endif
                         </div>
 
                         <div class="form-group">
-                            <label for="invoice_reference_number" class="form-label">رقم مرجع الفاتورة</label>
+                            <label for="invoice_reference_number" class="form-label">رقم مرجع الفاتورة (اختياري)</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -333,11 +285,8 @@
                                     <line x1="9" y1="15" x2="15" y2="15"></line>
                                 </svg>
                                 <input type="text" name="invoice_reference_number" id="invoice_reference_number"
-                                    class="form-input {{ $errors->has('invoice_reference_number') ? 'is-invalid' : '' }}" placeholder="رقم الفاتورة من المورد" value="{{ old('invoice_reference_number', $deliveryNote->invoice_reference_number) }}">
+                                    class="form-input {{ $errors->has('invoice_reference_number') ? 'is-invalid' : '' }}" placeholder="رقم الفاتورة من المورد (إن وجدت)" value="{{ old('invoice_reference_number', $deliveryNote->invoice_reference_number) }}">
                             </div>
-                            @if ($errors->has('invoice_reference_number'))
-                                <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('invoice_reference_number') }}</small>
-                            @endif
                         </div>
                     </div>
                 </div>
@@ -382,30 +331,44 @@
                                 <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('destination_id') }}</small>
                             @endif
                         </div>
-
-                        <div class="form-group">
-                            <label for="received_by" class="form-label">المستقبل</label>
-                            <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
-                                </svg>
-                                <select name="received_by" id="received_by" class="form-input {{ $errors->has('received_by') ? 'is-invalid' : '' }}">
-                                    <option value="">-- اختر المستخدم --</option>
-                                    @foreach($users as $user)
-                                        <option value="{{ $user->id }}" {{ old('received_by', $deliveryNote->received_by) == $user->id ? 'selected' : '' }}>
-                                            {{ $user->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            @if ($errors->has('received_by'))
-                                <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('received_by') }}</small>
-                            @endif
-                        </div>
                     </div>
                 </div>
             @endif
+
+            <!-- Notes Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <div class="section-icon personal">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="section-title">ملاحظات إضافية</h3>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="notes" class="form-label">الملاحظات (اختياري)</label>
+                        <div class="input-wrapper">
+                            <textarea name="notes" id="notes"
+                                class="form-input {{ $errors->has('notes') ? 'is-invalid' : '' }}" rows="3" placeholder="أدخل أي ملاحظات إضافية...">{{ old('notes', $deliveryNote->notes) }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Steps Info -->
+            <div class="alert alert-success mb-4" style="border-right: 4px solid #27ae60;">
+                <h5 class="mb-2"><strong>✅ الخطوات التالية بعد تعديل الأذن:</strong></h5>
+                <ol style="margin: 0; padding-right: 20px;">
+                    <li style="margin-bottom: 8px;">إذا لم يتم التسجيل بعد، ستظهر الأذن في "الشحنات المعلقة للتسجيل"</li>
+                    <li style="margin-bottom: 8px;">عند وصول البضاعة، اذهب إلى صفحة التسجيل لإدخال الوزن الفعلي والكمية</li>
+                    <li style="margin-bottom: 8px;">بعد وصول الفاتورة، يمكن ربطها وحساب الفروقات في صفحة التسوية</li>
+                </ol>
+            </div>
 
             <!-- Form Actions -->
             <div class="form-actions">

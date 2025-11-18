@@ -8,6 +8,10 @@ use Modules\Manufacturing\Http\Controllers\PurchaseInvoiceController;
 use Modules\Manufacturing\Http\Controllers\SupplierController;
 use Modules\Manufacturing\Http\Controllers\AdditiveController;
 use Modules\Manufacturing\Http\Controllers\WarehouseController;
+use Modules\Manufacturing\Http\Controllers\Stage1Controller;
+use Modules\Manufacturing\Http\Controllers\Stage2Controller;
+use Modules\Manufacturing\Http\Controllers\Stage3Controller;
+use Modules\Manufacturing\Http\Controllers\Stage4Controller;
 use Modules\Manufacturing\Http\Controllers\QualityController;
 use Modules\Manufacturing\Http\Controllers\WarehouseSettingsController;
 use Modules\Manufacturing\Http\Controllers\UnitController;
@@ -115,7 +119,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('stage3/add-dye', [Stage3Controller::class, 'addDyeAction'])->name('manufacturing.stage3.add-dye');
     Route::get('stage3/completed-coils', [Stage3Controller::class, 'completedCoils'])->name('manufacturing.stage3.completed-coils');
 
-
     // Quality Management Routes
     Route::get('quality', [QualityController::class, 'index'])->name('manufacturing.quality.index');
     Route::get('quality/waste-report', [QualityController::class, 'wasteReport'])->name('manufacturing.quality.waste-report');
@@ -132,6 +135,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('quality/downtime-create', [QualityController::class, 'downtimeCreate'])->name('manufacturing.quality.downtime-create');
     Route::get('quality/downtime-show/{id}', [QualityController::class, 'downtimeShow'])->name('manufacturing.quality.downtime-show');
     Route::get('quality/downtime-edit/{id}', [QualityController::class, 'downtimeEdit'])->name('manufacturing.quality.downtime-edit');
+
+    // Production Tracking Routes
+    Route::get('production-tracking/scan', [QualityController::class, 'productionTrackingScan'])->name('manufacturing.production-tracking.scan');
+    Route::post('production-tracking/process', [QualityController::class, 'processProductionTracking'])->name('manufacturing.production-tracking.process');
+    Route::get('production-tracking/report', [QualityController::class, 'productionTrackingReport'])->name('manufacturing.production-tracking.report');
 
     // Iron Journey Tracking Routes
     Route::get('iron-journey', [QualityController::class, 'ironJourney'])->name('manufacturing.iron-journey');

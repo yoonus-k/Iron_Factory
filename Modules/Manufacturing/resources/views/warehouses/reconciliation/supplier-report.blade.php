@@ -1,4 +1,4 @@
-@extends('manufacturing::layouts.app')
+@extends('master')
 
 @section('title', 'تقرير أداء الموردين')
 

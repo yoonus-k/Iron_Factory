@@ -110,8 +110,8 @@
                             <td>{{ $deliveryNote->note_number }}</td>
                             <td>{{ $deliveryNote->delivery_date->format('Y-m-d') }}</td>
 
-                            <td>{{ $deliveryNote->delivered_weight }} كجم</td>
-                            <td><span class="um-badge um-badge-success">مستقبل</span></td>
+                            <td>{{ $deliveryNote->delivered_weight }} </td>
+                            <td><span class="um-badge um-badge-success"></span></td>
                             <td>
                                 <div class="um-dropdown">
                                     <button class="um-btn-action um-btn-dropdown" title="الإجراءات">

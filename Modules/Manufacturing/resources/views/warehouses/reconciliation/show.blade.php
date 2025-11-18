@@ -53,12 +53,12 @@
 
                     <div class="mb-3">
                         <label class="text-muted">تاريخ التسليم:</label>
-                        <p>{{ $deliveryNote->created_at->format('d/m/Y') }}</p>
+                        <p>{{ $deliveryNote->created_at ? $deliveryNote->created_at->format('d/m/Y') : '-' }}</p>
                     </div>
 
                     <div class="mb-3">
                         <label class="text-muted">مسجل بواسطة:</label>
-                        <p>{{ $deliveryNote->registeredBy->name }}</p>
+                        <p>{{ $deliveryNote->registeredBy ? $deliveryNote->registeredBy->name : '-' }}</p>
                     </div>
                 </div>
             </div>
@@ -94,7 +94,7 @@
 
                     <div class="mb-3">
                         <label class="text-muted">تاريخ الفاتورة:</label>
-                        <p>{{ $deliveryNote->invoiceDate->format('d/m/Y') ?? '-' }}</p>
+                        <p>{{ $deliveryNote->invoice_date ? \Carbon\Carbon::parse($deliveryNote->invoice_date)->format('d/m/Y') : '-' }}</p>
                     </div>
 
                     <div class="mb-3">
@@ -331,15 +331,15 @@
                         <tbody>
                             @foreach ($deliveryNote->reconciliationLogs as $log)
                                 <tr>
-                                    <td>{{ $log->decided_at->format('d/m/Y H:i') }}</td>
+                                    <td>{{ $log->decided_at ? $log->decided_at->format('d/m/Y H:i') : ($log->created_at ? $log->created_at->format('d/m/Y H:i') : '-') }}</td>
                                     <td>
                                         <span class="badge bg-{{ $log->action === 'accepted' ? 'success' : ($log->action === 'rejected' ? 'danger' : 'warning') }}">
-                                            {{ $log->action }}
+                                            {{ $log->action ?? 'pending' }}
                                         </span>
                                     </td>
-                                    <td>{{ $log->reason }}</td>
-                                    <td>{{ $log->decidedBy->name }}</td>
-                                    <td><small>{{ $log->comments }}</small></td>
+                                    <td>{{ $log->reason ?? '-' }}</td>
+                                    <td>{{ $log->decidedBy ? $log->decidedBy->name : ($log->createdBy ? $log->createdBy->name : '-') }}</td>
+                                    <td><small>{{ $log->comments ?? $log->notes ?? '-' }}</small></td>
                                 </tr>
                             @endforeach
                         </tbody>

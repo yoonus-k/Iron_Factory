@@ -218,7 +218,7 @@
                             <label class="form-label"><strong>المادة <span class="text-danger">*</span></strong></label>
                             <select name="material_id" class="form-select @error('material_id') is-invalid @enderror" required>
                                 <option value="">-- اختر المادة من القائمة --</option>
-                                @foreach (\App\Models\Material::where('is_active', true)->orderBy('name_ar')->get() as $material)
+                                @foreach (\App\Models\Material::where('created_by', auth()->user()->id)->where('created_by', true)->orderBy('name_ar')->get() as $material)
                                     <option value="{{ $material->id }}"
                                         @selected(old('material_id', $previousLog->material_id ?? '') == $material->id)>
                                         {{ $material->name_ar ?? $material->name_en }}
