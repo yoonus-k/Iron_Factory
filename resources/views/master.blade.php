@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.css">
     <link rel="stylesheet" href="{{ asset('assets/fonts/feather/iconfont.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/stages-common.css') }}">
 
 
     <!-- Dashboard CSS -->
@@ -24,10 +25,74 @@
     <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/language-switcher.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/warehouse-forms.css') }}">
-    
+
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
+    <!-- Tooltip CSS -->
+    <style>
+        /* Tooltip Styling */
+        [title] {
+            position: relative;
+            cursor: help;
+        }
+
+        [title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 125%;
+            right: 0;
+            background: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            white-space: nowrap;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            pointer-events: none;
+            animation: tooltipFadeIn 0.3s ease-out;
+        }
+
+        [title]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 120%;
+            right: 10px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #2c3e50;
+            z-index: 1000;
+            animation: tooltipFadeIn 0.3s ease-out;
+        }
+
+        @keyframes tooltipFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* For RTL (Arabic) - position tooltip to the left */
+        [dir="rtl"] [title]:hover::after {
+            right: auto;
+            left: 0;
+        }
+
+        [dir="rtl"] [title]:hover::before {
+            right: auto;
+            left: 10px;
+            border-left: 5px solid #2c3e50;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #2c3e50;
+        }
+    </style>
 
     <!-- Custom CSS -->
     @stack('styles')
@@ -55,7 +120,7 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
