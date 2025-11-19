@@ -3,6 +3,7 @@
 namespace Modules\Manufacturing\Http\Controllers;
 
 use App\Models\DeliveryNote;
+use App\Models\Material;
 use App\Models\RegistrationLog;
 use App\Models\MaterialMovement;
 use App\Models\User;
@@ -76,11 +77,11 @@ class WarehouseRegistrationController extends Controller
             return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
                 ->with('info', 'هذه التسليمة مسجلة بالفعل. إذا أردت التعديل، اضغط على زر التعديل');
         }
-
+$matrials = Material::all();
         // تحقق من وجود تسجيل سابق لنفس الشحنة
         $previousLog = $this->checkForDuplicateRegistration($deliveryNote);
 
-        return view('manufacturing::warehouses.registration.create', compact('deliveryNote', 'previousLog'));
+        return view('manufacturing::warehouses.registration.create', compact('deliveryNote', 'previousLog', 'matrials'));
     }
 
     /**
