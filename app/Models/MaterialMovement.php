@@ -14,6 +14,7 @@ class MaterialMovement extends Model
         'movement_number',
         'movement_type',
         'source',
+        'batch_id',
         'delivery_note_id',
         'reconciliation_log_id',
         'material_detail_id',

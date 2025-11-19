@@ -6,25 +6,26 @@
 <style>
     /* Stage Container */
     .stage-container {
-        max-width: 1200px;
+        max-width: 800px;
         margin: 20px auto;
         padding: 0 15px;
     }
 
     /* Stage Header */
     .stage-header {
-        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-        color: white;
-        padding: 25px 30px;
-        border-radius: var(--border-radius);
+        background: #f8f9fa;
+        color: #343a40;
+        padding: 20px;
+        border-radius: 10px;
         margin-bottom: 25px;
-        box-shadow: var(--shadow-medium);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         text-align: center;
+        border: 1px solid #dee2e6;
     }
 
     .stage-header h1 {
         margin: 0 0 8px 0;
-        font-size: 28px;
+        font-size: 24px;
         font-weight: 600;
         display: flex;
         align-items: center;
@@ -34,7 +35,7 @@
 
     .stage-header p {
         margin: 0;
-        opacity: 0.95;
+        color: #6c757d;
         font-size: 16px;
     }
 
@@ -42,19 +43,19 @@
     .form-section {
         background: white;
         padding: 25px;
-        border-radius: var(--border-radius);
+        border-radius: 10px;
         margin-bottom: 20px;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-light);
+        border: 1px solid #dee2e6;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     .section-title {
         font-size: 20px;
         font-weight: 600;
-        color: var(--dark-color);
+        color: #343a40;
         margin: 0 0 20px 0;
         padding-bottom: 12px;
-        border-bottom: 2px solid #f39c12;
+        border-bottom: 2px solid #6c757d;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -63,7 +64,7 @@
     /* Form Layout */
     .form-row {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
         gap: 20px;
         margin-bottom: 20px;
     }
@@ -76,7 +77,7 @@
     .form-group label {
         font-size: 15px;
         font-weight: 500;
-        color: #34495e;
+        color: #343a40;
         margin-bottom: 8px;
         display: flex;
         align-items: center;
@@ -84,28 +85,30 @@
     }
 
     .required {
-        color: var(--danger-color);
+        color: #dc3545;
         margin-right: 4px;
     }
 
     .form-control, .form-select {
         padding: 14px 15px;
-        border: 1px solid #dce4ec;
+        border: 1px solid #ced4da;
         border-radius: 8px;
-        font-size: 15px;
+        font-size: 16px;
         transition: all 0.3s;
-        background: #f8fafb;
+        background: #ffffff;
+        height: 50px;
+        touch-action: manipulation;
     }
 
     .form-control:focus, .form-select:focus {
         outline: none;
-        border-color: #f39c12;
+        border-color: #86b7fe;
         background: white;
-        box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25);
     }
 
     .form-control:disabled, .form-control:read-only {
-        background: #ecf0f1;
+        background: #e9ecef;
         cursor: not-allowed;
     }
 
@@ -116,17 +119,17 @@
 
     /* Barcode Section */
     .barcode-section {
-        background: linear-gradient(135deg, #fef9e7 0%, #fcf3cf 100%);
+        background: #f8f9fa;
         padding: 25px;
         border-radius: 10px;
         margin-bottom: 25px;
-        border: 2px dashed #f39c12;
+        border: 1px dashed #6c757d;
         text-align: center;
     }
 
     .barcode-input-wrapper {
         position: relative;
-        max-width: 600px;
+        max-width: 100%;
         margin: 0 auto;
     }
 
@@ -134,11 +137,12 @@
         width: 100%;
         padding: 16px 50px 16px 15px;
         font-size: 17px;
-        border: 2px solid #f39c12;
+        border: 2px solid #6c757d;
         border-radius: 8px;
         font-weight: 500;
         background: white;
         text-align: center;
+        height: 55px;
     }
 
     .barcode-icon {
@@ -147,16 +151,16 @@
         top: 50%;
         transform: translateY(-50%);
         font-size: 24px;
-        color: #f39c12;
+        color: #6c757d;
     }
 
     /* Material Display */
     .material-display {
-        background: linear-gradient(135deg, #e8f8f5 0%, #d5f4e6 100%);
+        background: #f8f9fa;
         padding: 25px;
         border-radius: 10px;
         margin-bottom: 25px;
-        border-right: 4px solid var(--success-color);
+        border-left: 4px solid #28a745;
         display: none;
     }
 
@@ -166,7 +170,7 @@
     }
 
     .material-display h4 {
-        color: var(--success-color);
+        color: #28a745;
         margin: 0 0 15px 0;
         font-size: 18px;
         display: flex;
@@ -176,7 +180,7 @@
 
     .material-info {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: 1fr;
         gap: 20px;
         margin-top: 15px;
     }
@@ -190,7 +194,7 @@
 
     .info-label {
         font-size: 14px;
-        color: #7f8c8d;
+        color: #6c757d;
         margin-bottom: 8px;
         font-weight: 500;
     }
@@ -198,7 +202,7 @@
     .info-value {
         font-size: 18px;
         font-weight: 700;
-        color: var(--dark-color);
+        color: #343a40;
     }
 
     /* Stands List */
@@ -207,14 +211,14 @@
     }
 
     .stand-item {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        background: #f8f9fa;
         padding: 20px;
         border-radius: 10px;
         margin-bottom: 15px;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-right: 4px solid #f39c12;
+        flex-direction: column;
+        gap: 15px;
+        border-left: 4px solid #6c757d;
         animation: slideIn 0.3s ease-out;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
@@ -224,14 +228,14 @@
     }
 
     .stand-info strong {
-        color: var(--dark-color);
+        color: #343a40;
         font-size: 17px;
         display: block;
         margin-bottom: 8px;
     }
 
     .stand-info small {
-        color: #7f8c8d;
+        color: #6c757d;
         font-size: 14px;
         line-height: 1.6;
     }
@@ -239,12 +243,13 @@
     .stand-actions {
         display: flex;
         gap: 10px;
+        justify-content: flex-end;
     }
 
     .btn-delete, .btn-print {
         color: white;
         border: none;
-        padding: 10px 18px;
+        padding: 12px 20px;
         border-radius: 6px;
         cursor: pointer;
         font-size: 14px;
@@ -252,31 +257,33 @@
         display: flex;
         align-items: center;
         gap: 5px;
+        min-height: 45px;
+        touch-action: manipulation;
     }
 
     .btn-delete {
-        background: var(--danger-color);
+        background: #dc3545;
     }
 
     .btn-print {
-        background: #3498db;
+        background: #17a2b8;
     }
 
     .btn-delete:hover {
-        background: #c0392b;
+        background: #c82333;
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
     }
 
     .btn-print:hover {
-        background: #2980b9;
+        background: #138496;
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
     }
 
     /* Buttons */
     .btn-primary {
-        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        background: #6c757d;
         color: white;
         border: none;
         padding: 14px 28px;
@@ -289,15 +296,18 @@
         align-items: center;
         gap: 10px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        min-height: 50px;
+        touch-action: manipulation;
     }
 
     .btn-primary:hover {
+        background: #5a6268;
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(243, 156, 18, 0.3);
+        box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
     }
 
     .btn-success {
-        background: linear-gradient(135deg, var(--success-color) 0%, #229954 100%);
+        background: #28a745;
         color: white;
         border: none;
         padding: 16px 36px;
@@ -310,21 +320,24 @@
         align-items: center;
         gap: 12px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        min-height: 55px;
+        touch-action: manipulation;
     }
 
     .btn-success:hover {
+        background: #218838;
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(39, 174, 96, 0.3);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
     }
 
     .btn-success:disabled {
-        background: #95a5a6;
+        background: #6c757d;
         cursor: not-allowed;
         transform: none;
     }
 
     .btn-secondary {
-        background: #95a5a6;
+        background: #6c757d;
         color: white;
         border: none;
         padding: 14px 28px;
@@ -337,12 +350,14 @@
         align-items: center;
         gap: 10px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        min-height: 50px;
+        touch-action: manipulation;
     }
 
     .btn-secondary:hover {
-        background: #7f8c8d;
+        background: #5a6268;
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(149, 165, 166, 0.3);
+        box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
     }
 
     /* Actions */
@@ -351,7 +366,7 @@
         gap: 20px;
         margin-top: 30px;
         padding-top: 25px;
-        border-top: 2px solid #ecf0f1;
+        border-top: 2px solid #e9ecef;
         justify-content: center;
         flex-wrap: wrap;
     }
@@ -361,13 +376,14 @@
         gap: 15px;
         margin-top: 20px;
         flex-wrap: wrap;
+        flex-direction: column;
     }
 
     /* Empty State */
     .empty-state {
         text-align: center;
         padding: 50px 20px;
-        color: #95a5a6;
+        color: #6c757d;
     }
 
     .empty-state svg {
@@ -379,15 +395,15 @@
 
     /* Info Box */
     .info-box {
-        background: linear-gradient(135deg, #fff9e6 0%, #ffeaa7 100%);
-        border-right: 4px solid #f39c12;
+        background: #f8f9fa;
+        border-left: 4px solid #6c757d;
         padding: 20px;
         border-radius: 8px;
         margin-bottom: 25px;
     }
 
     .info-box strong {
-        color: #e67e22;
+        color: #343a40;
         display: block;
         margin-bottom: 10px;
         font-size: 16px;
@@ -395,7 +411,7 @@
 
     .info-box ul {
         margin: 10px 0 0 25px;
-        color: #7f8c8d;
+        color: #6c757d;
         font-size: 14px;
         line-height: 1.7;
     }
@@ -458,7 +474,7 @@
         }
         
         .stage-header h1 {
-            font-size: 22px;
+            font-size: 20px;
             flex-direction: column;
             gap: 10px;
         }
@@ -505,12 +521,12 @@
 
     <!-- Barcode Scanner -->
     <div class="form-section barcode-section">
-        <h3 style="margin: 0 0 20px 0; color: #f39c12; font-size: 22px;">📷 مسح باركود المادة الخام</h3>
+        <h3 style="margin: 0 0 20px 0; color: #343a40; font-size: 22px;">📷 مسح باركود المادة الخام</h3>
         <div class="barcode-input-wrapper">
             <input type="text" id="materialBarcode" class="barcode-input" placeholder="امسح أو اكتب باركود المادة الخام" autofocus>
             <span class="barcode-icon">🏷️</span>
         </div>
-        <small style="color: #7f8c8d; display: block; margin-top: 15px; font-size: 15px;">💡 امسح الباركود أو اضغط Enter للبحث</small>
+        <small style="color: #6c757d; display: block; margin-top: 15px; font-size: 15px;">💡 امسح الباركود أو اضغط Enter للبحث</small>
     </div>
 
     <!-- Material Display -->
@@ -546,25 +562,25 @@
         </div>
 
         <div class="form-row">
-            <div class="form-group" style="grid-column: 1 / -1;">
+            <div class="form-group">
                 <label for="standSelect">🎯 اختر الاستاند المتوفر <span class="required">*</span></label>
-                <select id="standSelect" class="form-control" onchange="loadStand()" style="font-size: 16px; padding: 14px;">
+                <select id="standSelect" class="form-control" onchange="loadStand()" style="font-size: 16px;">
                     <option value="">-- اختر استاند متوفر من القائمة --</option>
                 </select>
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">💡 اختر الاستاند الذي تريد استخدامه (فقط الاستاندات الغير مستخدمة)</small>
+                <small style="color: #6c757d; display: block; margin-top: 5px;">💡 اختر الاستاند الذي تريد استخدامه (فقط الاستاندات الغير مستخدمة)</small>
             </div>
         </div>
 
-        <div id="standDetails" style="display: none; margin: 25px 0; padding: 25px; background: linear-gradient(135deg, #e8f8f5 0%, #d5f4e6 100%); border-radius: 10px; border-right: 4px solid #27ae60;">
-            <h4 style="margin: 0 0 20px 0; color: #27ae60; font-size: 18px; display: flex; align-items: center; gap: 10px;">📦 الاستاند المختار</h4>
-            <div class="material-info" style="grid-template-columns: repeat(2, 1fr);">
+        <div id="standDetails" style="display: none; margin: 25px 0; padding: 25px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #28a745;">
+            <h4 style="margin: 0 0 20px 0; color: #28a745; font-size: 18px; display: flex; align-items: center; gap: 10px;">📦 الاستاند المختار</h4>
+            <div class="material-info">
                 <div class="info-item">
                     <div class="info-label">رقم الاستاند</div>
-                    <div class="info-value" id="selectedStandNumber" style="color: #27ae60; font-weight: 700;">-</div>
+                    <div class="info-value" id="selectedStandNumber" style="color: #28a745; font-weight: 700;">-</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">وزن الاستاند الفارغ</div>
-                    <div class="info-value" id="selectedStandWeight" style="color: #e67e22; font-weight: 700;">-</div>
+                    <div class="info-value" id="selectedStandWeight" style="color: #343a40; font-weight: 700;">-</div>
                 </div>
             </div>
         </div>
@@ -573,12 +589,12 @@
             <div class="form-group">
                 <label for="wasteWeight">🗑️ وزن الهدر (كجم)</label>
                 <input type="number" id="wasteWeight" class="form-control" placeholder="سيتم حسابه تلقائياً" step="0.01" oninput="calculateWastePercentage()">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">يُحسب تلقائياً: الإجمالي - الصافي - وزن الاستاند (يمكن التعديل)</small>
+                <small style="color: #6c757d; display: block; margin-top: 5px;">يُحسب تلقائياً: الإجمالي - الصافي - وزن الاستاند (يمكن التعديل)</small>
             </div>
             <div class="form-group">
                 <label for="wastePercentage">📊 نسبة الهدر (%)</label>
-                <input type="number" id="wastePercentage" class="form-control" placeholder="0" step="0.01" readonly style="background: #ecf0f1;">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">يُحسب تلقائياً من وزن الهدر</small>
+                <input type="number" id="wastePercentage" class="form-control" placeholder="0" step="0.01" readonly style="background: #e9ecef;">
+                <small style="color: #6c757d; display: block; margin-top: 5px;">يُحسب تلقائياً من وزن الهدر</small>
             </div>
         </div>
 
@@ -586,26 +602,26 @@
             <div class="form-group">
                 <label for="totalWeight">⚖️ الوزن الإجمالي (كجم) <span class="required">*</span></label>
                 <input type="number" id="totalWeight" class="form-control" placeholder="أدخل الوزن الإجمالي" step="0.01" oninput="calculateNetWeight()" style="font-size: 16px;">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">الوزن الكلي شامل وزن الاستاند</small>
+                <small style="color: #6c757d; display: block; margin-top: 5px;">الوزن الكلي شامل وزن الاستاند</small>
             </div>
 
             <div class="form-group">
                 <label for="standWeight">📦 وزن الاستاند الفارغ (كجم)</label>
-                <input type="number" id="standWeight" class="form-control" placeholder="سيتم جلبه تلقائياً" step="0.01" readonly style="background: #ecf0f1; font-weight: 600;">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">يتم جلبه تلقائياً من بيانات الاستاند</small>
+                <input type="number" id="standWeight" class="form-control" placeholder="سيتم جلبه تلقائياً" step="0.01" readonly style="background: #e9ecef; font-weight: 600;">
+                <small style="color: #6c757d; display: block; margin-top: 5px;">يتم جلبه تلقائياً من بيانات الاستاند</small>
             </div>
         </div>
 
         <div class="form-row">
-            <div class="form-group" style="grid-column: 1 / -1;">
+            <div class="form-group">
                 <label for="netWeight">✅ الوزن الصافي (كجم) <span class="required">*</span></label>
-                <input type="number" id="netWeight" class="form-control" placeholder="سيتم حسابه تلقائياً" step="0.01" readonly style="background: linear-gradient(135deg, #d5f4e6 0%, #e8f8f5 100%); font-weight: 700; font-size: 20px; text-align: center; color: #27ae60; border: 2px solid #27ae60;">
-                <small style="color: #27ae60; display: block; margin-top: 8px; font-weight: 600; font-size: 15px;">📊 يُحسب تلقائياً: الوزن الإجمالي - وزن الاستاند الفارغ</small>
+                <input type="number" id="netWeight" class="form-control" placeholder="سيتم حسابه تلقائياً" step="0.01" readonly style="background: #f8f9fa; font-weight: 700; font-size: 20px; text-align: center; color: #28a745; border: 2px solid #28a745;">
+                <small style="color: #28a745; display: block; margin-top: 8px; font-weight: 600; font-size: 15px;">📊 يُحسب تلقائياً: الوزن الإجمالي - وزن الاستاند الفارغ</small>
             </div>
         </div>
 
         <div class="form-row">
-            <div class="form-group" style="grid-column: 1 / -1;">
+            <div class="form-group">
                 <label for="notes">ملاحظات</label>
                 <textarea id="notes" class="form-control" placeholder="ملاحظات اختيارية..." rows="3"></textarea>
             </div>
@@ -1076,7 +1092,7 @@ function showToast(message, type = 'info') {
         position: fixed;
         top: 20px;
         right: 20px;
-        background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#f39c12'};
+        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#6c757d'};
         color: white;
         padding: 15px 25px;
         border-radius: 8px;

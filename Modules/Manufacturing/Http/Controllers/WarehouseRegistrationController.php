@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Modules\Manufacturing\Entities\MaterialBatch;
+use Modules\Manufacturing\Entities\BarcodeSetting;
 
 class WarehouseRegistrationController extends Controller
 {
@@ -89,6 +91,7 @@ $matrials = Material::all();
      */
     public function store(Request $request, DeliveryNote $deliveryNote)
     {
+        
         // تحقق من أن التسليمة لم تُسجل بعد
         if ($deliveryNote->registration_status !== 'not_registered') {
             return back()->with('error', 'هذه التسليمة مسجلة بالفعل');
@@ -167,7 +170,39 @@ $matrials = Material::all();
                     $validated['unit_id']       // تمرير unit_id
                 );
 
-                // ✅ تسجيل الحركة في جدول material_movements
+                // === إنشاء سجل دفعة المواد وتوليد الباركود ===
+                // جلب إعدادات الباركود للمواد الخام
+                $barcodeSetting = BarcodeSetting::where('type', 'raw_material')->first();
+                if (!$barcodeSetting) {
+                    throw new \Exception('إعدادات الباركود للمواد الخام غير موجودة!');
+                }
+                $year = date('Y');
+                $nextNumber = $barcodeSetting->current_number + 1;
+                $numberStr = str_pad($nextNumber, $barcodeSetting->padding, '0', STR_PAD_LEFT);
+                $batchCode = str_replace(
+                    ['{prefix}', '{year}', '{number}'],
+                    [$barcodeSetting->prefix, $year, $numberStr],
+                    $barcodeSetting->format
+                );
+                // تحديث رقم الباركود في الإعدادات
+                $barcodeSetting->current_number = $nextNumber;
+                $barcodeSetting->save();
+
+                // إنشاء سجل الدفعة
+                $batch = MaterialBatch::create([
+                    'material_id' => $validated['material_id'],
+                    'unit_id' => $validated['unit_id'],
+                    'batch_code' => $batchCode,
+                    'initial_quantity' => $validated['actual_weight'],
+                    'available_quantity' => $validated['actual_weight'],
+                    'batch_date' => now()->toDateString(),
+                    'warehouse_id' => $deliveryNote->warehouse_id,
+                    'unit_price' => null,
+                    'total_value' => null,
+                    'notes' => $validated['notes'] ?? null,
+                ]);
+
+                // ✅ تسجيل الحركة في جدول material_movements مع batch_id
                 MaterialMovement::create([
                     'movement_number' => MaterialMovement::generateMovementNumber(),
                     'movement_type' => 'incoming',
@@ -175,6 +210,7 @@ $matrials = Material::all();
                     'delivery_note_id' => $deliveryNote->id,
                     'material_detail_id' => $deliveryNote->material_detail_id,
                     'material_id' => $validated['material_id'],
+                    'batch_id' => $batch->id,
                     'unit_id' => $validated['unit_id'],
                     'quantity' => $validated['actual_weight'],
                     'to_warehouse_id' => $deliveryNote->warehouse_id,
@@ -276,35 +312,116 @@ $matrials = Material::all();
      * Transfer to production
      * نقل البضاعة للإنتاج مع خصم من المستودع
      */
+    // public function transferToProduction(Request $request, DeliveryNote $deliveryNote)
+    // {
+    //     // التحقق من وجود MaterialDetail
+    //     if (!$deliveryNote->material_detail_id || !$deliveryNote->materialDetail) {
+    //         return back()->with('error', 'هذه البضاعة لم تسجل في المستودع بعد');
+    //     }
+
+    //     // التحقق من البيانات
+    //     $validated = $request->validate([
+    //         'quantity' => 'required|numeric|min:0.01',
+    //         'notes' => 'nullable|string|max:500',
+    //     ], [
+    //         'quantity.required' => 'الكمية مطلوبة',
+    //         'quantity.numeric' => 'الكمية يجب أن تكون رقم',
+    //         'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
+    //     ]);
+
+    //     try {
+    //         DB::beginTransaction();
+
+    //         // نقل البضاعة للإنتاج
+    //         $this->warehouseService->transferToProduction(
+    //             $deliveryNote,
+    //             (float)$validated['quantity'],
+    //             Auth::id(),
+    //             $validated['notes'] ?? null
+    //         );
+
+    //         // ✅ تسجيل حركة النقل للإنتاج
+    //         $movement = MaterialMovement::create([
+    //             'movement_number' => MaterialMovement::generateMovementNumber(),
+    //             'movement_type' => 'to_production',
+    //             'source' => 'production',
+    //             'delivery_note_id' => $deliveryNote->id,
+    //             'material_detail_id' => $deliveryNote->material_detail_id,
+    //             'material_id' => $deliveryNote->material_id,
+    //             'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
+    //             'quantity' => (float)$validated['quantity'],
+    //             'from_warehouse_id' => $deliveryNote->warehouse_id,
+    //             'destination' => 'الإنتاج',
+    //             'description' => 'نقل بضاعة للإنتاج - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id),
+    //             'notes' => $validated['notes'] ?? null,
+    //             'created_by' => Auth::id(),
+    //             'movement_date' => now(),
+    //             'ip_address' => request()->ip(),
+    //             'user_agent' => request()->userAgent(),
+    //             'status' => 'completed',
+    //         ]);
+
+    //         // تحديث الكمية المتبقية في الدفعة إذا كان هناك batch_id
+    //         if ($movement->batch_id) {
+    //             $batch = MaterialBatch::find($movement->batch_id);
+    //             if ($batch) {
+    //                 $batch->available_quantity = max(0, $batch->available_quantity - (float)$validated['quantity']);
+    //                 $batch->save();
+    //             }
+    //         }
+
+    //         DB::commit();
+
+    //         return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
+    //             ->with('success', 'تم نقل البضاعة للإنتاج بنجاح!');
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
+    //     }
+    // }
+
     public function transferToProduction(Request $request, DeliveryNote $deliveryNote)
-    {
-        // التحقق من وجود MaterialDetail
-        if (!$deliveryNote->material_detail_id || !$deliveryNote->materialDetail) {
-            return back()->with('error', 'هذه البضاعة لم تسجل في المستودع بعد');
+{
+    // التحقق من وجود MaterialDetail
+    if (!$deliveryNote->material_detail_id || !$deliveryNote->materialDetail) {
+        return back()->with('error', 'هذه البضاعة لم تسجل في المستودع بعد');
+    }
+
+    // التحقق من البيانات
+    $validated = $request->validate([
+        'quantity' => 'required|numeric|min:0.01',
+        'notes' => 'nullable|string|max:500',
+    ], [
+        'quantity.required' => 'الكمية مطلوبة',
+        'quantity.numeric' => 'الكمية يجب أن تكون رقم',
+        'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        $quantityToTransfer = (float)$validated['quantity'];
+        $remainingQuantity = $quantityToTransfer;
+
+        // البحث عن الدفعات المتاحة (FIFO)
+        $batches = MaterialBatch::where('material_id', $deliveryNote->material_id)
+            ->where('available_quantity', '>', 0)
+            ->orderBy('batch_date')
+            ->get();
+
+        if ($batches->isEmpty()) {
+            return back()->with('error', 'لا توجد كمية كافية في المخزن للمنتج المحدد');
         }
 
-        // التحقق من البيانات
-        $validated = $request->validate([
-            'quantity' => 'required|numeric|min:0.01',
-            'notes' => 'nullable|string|max:500',
-        ], [
-            'quantity.required' => 'الكمية مطلوبة',
-            'quantity.numeric' => 'الكمية يجب أن تكون رقم',
-            'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
-        ]);
+        foreach ($batches as $batch) {
+            if ($remainingQuantity <= 0) {
+                break; // تم تغطية الكمية المطلوبة
+            }
 
-        try {
-            DB::beginTransaction();
+            // تحديد كمية النقل من هذه الدفعة
+            $transferQuantity = min($batch->available_quantity, $remainingQuantity);
 
-            // نقل البضاعة للإنتاج
-            $this->warehouseService->transferToProduction(
-                $deliveryNote,
-                (float)$validated['quantity'],
-                Auth::id(),
-                $validated['notes'] ?? null
-            );
-
-            // ✅ تسجيل حركة النقل للإنتاج
+            // إنشاء حركة النقل للإنتاج لكل دفعة
             MaterialMovement::create([
                 'movement_number' => MaterialMovement::generateMovementNumber(),
                 'movement_type' => 'to_production',
@@ -313,7 +430,8 @@ $matrials = Material::all();
                 'material_detail_id' => $deliveryNote->material_detail_id,
                 'material_id' => $deliveryNote->material_id,
                 'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
-                'quantity' => (float)$validated['quantity'],
+                'batch_id' => $batch->id,
+                'quantity' => $transferQuantity,
                 'from_warehouse_id' => $deliveryNote->warehouse_id,
                 'destination' => 'الإنتاج',
                 'description' => 'نقل بضاعة للإنتاج - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id),
@@ -325,15 +443,28 @@ $matrials = Material::all();
                 'status' => 'completed',
             ]);
 
-            DB::commit();
+            // تحديث الكمية المتبقية في الدفعة
+            $batch->available_quantity -= $transferQuantity;
+            $batch->save();
 
-            return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
-                ->with('success', 'تم نقل البضاعة للإنتاج بنجاح!');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
+            // خصم الكمية المنقولة من الكمية المطلوبة
+            $remainingQuantity -= $transferQuantity;
         }
+
+        if ($remainingQuantity > 0) {
+            DB::rollBack();
+            return back()->with('error', 'لا توجد كمية كافية في المخزن لتغطية الطلب بالكامل.');
+        }
+
+        DB::commit();
+
+        return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
+            ->with('success', 'تم نقل البضاعة للإنتاج بنجاح!');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
     }
+}
 
     /**
      * Move to production (لاحتفاظ الرجعية)
