@@ -103,24 +103,24 @@ class Stage1Controller extends Controller
                 ]);
 
                 // خصم الكمية من المخزن (إنشاء معاملة خروج)
-                DB::table('warehouse_transactions')->insert([
-                    'warehouse_id' => $materialDetail->warehouse_id,
-                    'material_id' => $materialId,
-                    'transaction_number' => 'OUT-' . $validated['material_barcode'] . '-' . $stand->id,
-                    'transaction_type' => 'issue',
-                    'quantity' => $processedData['total_weight'],
-                    'unit_id' => $materialDetail->unit_id ?? 1,
-                    'reference_number' => 'STAGE1-' . $usageHistory->id,
-                    'notes' => "تقسيم على استاند {$stand->stand_number} - المرحلة الأولى",
-                    'created_by' => $userId,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                // DB::table('warehouse_transactions')->insert([
+                //     'warehouse_id' => $materialDetail->warehouse_id,
+                //     'material_id' => $materialId,
+                //     'transaction_number' => 'OUT-' . $validated['material_barcode'] . '-' . $stand->id,
+                //     'transaction_type' => 'issue',
+                //     'quantity' => $processedData['total_weight'],
+                //     'unit_id' => $materialDetail->unit_id ?? 1,
+                //     'reference_number' => 'STAGE1-' . $usageHistory->id,
+                //     'notes' => "تقسيم على استاند {$stand->stand_number} - المرحلة الأولى",
+                //     'created_by' => $userId,
+                //     'created_at' => now(),
+                //     'updated_at' => now(),
+                // ]);
 
                 // تحديث remaining_weight في material_details
-                DB::table('material_details')
-                    ->where('material_id', $materialId)
-                    ->decrement('remaining_weight', $processedData['total_weight']);
+                // DB::table('material_details')
+                //     ->where('material_id', $materialId)
+                //     ->decrement('remaining_weight', $processedData['total_weight']);
 
                 // حفظ في جدول stage1_stands
                 $stage1Barcode = $this->generateStageBarcode('stage1');

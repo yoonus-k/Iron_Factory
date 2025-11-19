@@ -31,6 +31,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('manufacturings', ManufacturingController::class)->names('manufacturing');
 
+    // API: جلب بيانات الدفعة (المادة الخام) حسب الباركود
+    Route::get('material-batches/get-by-barcode/{barcode}', [\Modules\Manufacturing\Http\Controllers\MaterialBatchController::class, 'getByBarcode'])->name('manufacturing.material-batches.get-by-barcode');
+
     // Warehouse Routes
     Route::resource('warehouses', WarehouseController::class)->names('manufacturing.warehouses');
     Route::get('warehouses/statistics', [WarehouseController::class, 'statistics'])->name('manufacturing.warehouses.statistics');
@@ -142,6 +145,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('stage1/waste/tracking', [Stage1Controller::class, 'wasteTracking'])->name('manufacturing.stage1.waste-tracking');
 
     // Stage 2 Additional Routes
+    // API: جلب بيانات الاستاند المعالج من المرحلة الثانية حسب الباركود
+    Route::get('stage2/get-by-barcode/{barcode}', [Stage2Controller::class, 'getByBarcode'])->name('manufacturing.stage2.get-by-barcode');
     Route::get('stage2/complete/processing', [Stage2Controller::class, 'completeProcessing'])->name('manufacturing.stage2.complete-processing');
     Route::put('stage2/complete', [Stage2Controller::class, 'completeAction'])->name('manufacturing.stage2.complete');
     Route::get('stage2/waste/statistics', [Stage2Controller::class, 'wasteStatistics'])->name('manufacturing.stage2.waste-statistics');
