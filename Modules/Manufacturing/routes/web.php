@@ -19,6 +19,7 @@ use Modules\Manufacturing\Http\Controllers\MaterialTypeController;
 use Modules\Manufacturing\Http\Controllers\WarehouseRegistrationController;
 use Modules\Manufacturing\Http\Controllers\ReconciliationController;
 use Modules\Manufacturing\Http\Controllers\MaterialMovementController;
+use Modules\Manufacturing\Http\Controllers\WarehouseReportsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -115,6 +116,19 @@ Route::middleware(['auth'])->group(function () {
 
     // API endpoint for movement details
     Route::get('material-movements/{id}', [MaterialMovementController::class, 'getDetails'])->name('manufacturing.material-movements.details');
+
+    // ========== تقارير وإحصائيات المستودع ==========
+    Route::prefix('warehouse/reports')->group(function () {
+        Route::get('/', [WarehouseReportsController::class, 'index'])->name('manufacturing.warehouse-reports.index');
+        Route::get('comprehensive', [WarehouseReportsController::class, 'comprehensiveReport'])->name('manufacturing.warehouse-reports.comprehensive');
+        Route::get('warehouses-statistics', [WarehouseReportsController::class, 'warehousesStatistics'])->name('manufacturing.warehouse-reports.warehouses-statistics');
+        Route::get('materials', [WarehouseReportsController::class, 'materialsReport'])->name('manufacturing.warehouse-reports.materials');
+        Route::get('delivery-notes', [WarehouseReportsController::class, 'deliveryNotesReport'])->name('manufacturing.warehouse-reports.delivery-notes');
+        Route::get('purchase-invoices', [WarehouseReportsController::class, 'purchaseInvoicesReport'])->name('manufacturing.warehouse-reports.purchase-invoices');
+        Route::get('additives', [WarehouseReportsController::class, 'additivesReport'])->name('manufacturing.warehouse-reports.additives');
+        Route::get('suppliers', [WarehouseReportsController::class, 'suppliersReport'])->name('manufacturing.warehouse-reports.suppliers');
+        Route::get('movements', [WarehouseReportsController::class, 'movementsReport'])->name('manufacturing.warehouse-reports.movements');
+    });
 
     // Production Stages Routes
     Route::resource('stage1', Stage1Controller::class)->names('manufacturing.stage1');

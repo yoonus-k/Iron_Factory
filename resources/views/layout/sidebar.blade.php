@@ -58,6 +58,11 @@
                             <i class="fas fa-cog"></i> {{ __('app.menu.settings') }}
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('manufacturing.warehouse-reports.index') }}">
+                            <i class="fas fa-chart-bar"></i> التقارير والإحصائيات
+                        </a>
+                    </li>
                 </ul>
             </li>
 
@@ -294,7 +299,7 @@
                             <i class="fas fa-history"></i> تاريخ استخدام الستاندات
                         </a>
                     </li>
-                    
+
                     <!-- تقارير العمال -->
                     <li class="submenu-header" style="margin-top: 10px;">
                         <span>تقارير الأداء</span>
@@ -304,16 +309,16 @@
                             <i class="fas fa-user-chart"></i> أداء العمال
                         </a>
                     </li>
-                 
+
 
                     <!-- تقارير عامة -->
                     <li class="submenu-header" style="margin-top: 10px;">
                         <span>تقارير عامة</span>
                     </li>
-                   
-                  
+
+
                     <li>
-                       
+
                 </ul>
             </li>
 

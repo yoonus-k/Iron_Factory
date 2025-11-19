@@ -116,6 +116,22 @@
                     </div>
                 </a>
             </div>
+
+            <!-- Reports Card -->
+            <div class="um-card um-card-link">
+                <a href="{{ route('manufacturing.warehouse-reports.index') }}" class="um-card-link-wrapper">
+                    <div class="um-card-icon reports">
+                        <i class="feather icon-bar-chart-2"></i>
+                    </div>
+                    <div class="um-card-content">
+                        <h3 class="um-card-title">التقارير والإحصائيات</h3>
+                        <p class="um-card-description">تقارير شاملة وإحصائيات متقدمة</p>
+                    </div>
+                    <div class="um-card-arrow">
+                        <i class="feather icon-chevron-left"></i>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -218,6 +234,11 @@
             color: #9e9e9e;
         }
 
+        .um-card-icon.reports {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
         .um-card-content {
             flex: 1;
         }
@@ -245,11 +266,11 @@
                 margin: 10px;
                 padding: 15px;
             }
-            
+
             .um-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .um-page-title {
                 font-size: 20px;
             }

@@ -152,6 +152,14 @@ class DeliveryNote extends Model
     }
 
     /**
+     * Get the user who created/recorded this delivery note (alias for recordedBy)
+     */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'recorded_by');
+    }
+
+    /**
      * Get the user who approved this delivery note
      */
     public function approvedBy(): BelongsTo

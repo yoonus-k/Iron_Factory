@@ -99,7 +99,7 @@ class WarehouseController extends Controller
      */
     public function show($id)
     {
-        $warehouse = $this->warehouseRepository->getById($id);
+        $warehouse = $this->warehouseRepository->getById((int) $id);
 
         if (!$warehouse) {
             return redirect()
@@ -117,7 +117,7 @@ class WarehouseController extends Controller
      */
     public function edit($id)
     {
-        $warehouse = $this->warehouseRepository->getById($id);
+        $warehouse = $this->warehouseRepository->getById((int) $id);
 
         if (!$warehouse) {
             return redirect()
@@ -140,7 +140,7 @@ class WarehouseController extends Controller
     public function update(UpdateWarehouseRequest $request, $id)
     {
         try {
-            $warehouse = $this->warehouseRepository->getById($id);
+            $warehouse = $this->warehouseRepository->getById((int) $id);
 
             if (!$warehouse) {
                 return redirect()
@@ -151,9 +151,9 @@ class WarehouseController extends Controller
             $oldValues = $warehouse->toArray();
             $data = $request->validated();
 
-            $this->warehouseRepository->update($id, $data);
+            $this->warehouseRepository->update((int) $id, $data);
 
-            $warehouse = $this->warehouseRepository->getById($id);
+            $warehouse = $this->warehouseRepository->getById((int) $id);
             $newValues = $warehouse->toArray();
 
             // تسجيل العملية
@@ -193,7 +193,7 @@ class WarehouseController extends Controller
     public function destroy($id)
     {
         try {
-            $warehouse = $this->warehouseRepository->getById($id);
+            $warehouse = $this->warehouseRepository->getById((int) $id);
 
             if (!$warehouse) {
                 return redirect()
@@ -218,7 +218,7 @@ class WarehouseController extends Controller
                 Log::error('Failed to log warehouse deletion: ' . $logError->getMessage());
             }
 
-            $this->warehouseRepository->delete($id);
+            $this->warehouseRepository->delete((int) $id);
 
             return redirect()
                 ->route('manufacturing.warehouses.index')
@@ -263,7 +263,7 @@ class WarehouseController extends Controller
     public function toggleStatus(Request $request, $id)
     {
         try {
-            $warehouse = $this->warehouseRepository->getById($id);
+            $warehouse = $this->warehouseRepository->getById((int) $id);
 
             if (!$warehouse) {
                 return redirect()->back()->with('error', 'المستودع غير موجود');
@@ -272,7 +272,7 @@ class WarehouseController extends Controller
             $oldStatus = $warehouse->is_active;
             $newStatus = !$oldStatus;
 
-            $this->warehouseRepository->update($id, ['is_active' => $newStatus]);
+            $this->warehouseRepository->update((int) $id, ['is_active' => $newStatus]);
 
             // Log the status change
             try {
