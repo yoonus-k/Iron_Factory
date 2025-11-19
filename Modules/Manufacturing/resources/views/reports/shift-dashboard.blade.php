@@ -6,7 +6,7 @@
 <style>
     /* استيراد الخطوط */
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap');
-    
+
     /* المتغيرات */
     :root {
         --primary-color: #0066B2;
@@ -671,7 +671,7 @@
             <label class="control-label">التاريخ:</label>
             <input type="date" class="select-input" id="dateFilter" value="{{ $date }}" onchange="applyFilters()">
         </div>
-        
+
         <div class="control-group">
             <label class="control-label">الوردية:</label>
             <select class="select-input" id="shiftFilter" onchange="applyFilters()">
