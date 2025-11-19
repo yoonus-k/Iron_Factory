@@ -3,493 +3,68 @@
 @section('title', 'المرحلة الأولى - تقسيم المواد')
 
 @section('content')
+
 <style>
-    /* Stage Container */
-    .stage-container {
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 0 15px;
-    }
-
-    /* Stage Header */
-    .stage-header {
-        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-        color: white;
-        padding: 25px 30px;
-        border-radius: var(--border-radius);
-        margin-bottom: 25px;
-        box-shadow: var(--shadow-medium);
-        text-align: center;
-    }
-
-    .stage-header h1 {
-        margin: 0 0 8px 0;
-        font-size: 28px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-    }
-
-    .stage-header p {
-        margin: 0;
-        opacity: 0.95;
-        font-size: 16px;
-    }
-
-    /* Form Section */
-    .form-section {
-        background: white;
-        padding: 25px;
-        border-radius: var(--border-radius);
-        margin-bottom: 20px;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-light);
-    }
-
-    .section-title {
-        font-size: 20px;
-        font-weight: 600;
-        color: var(--dark-color);
-        margin: 0 0 20px 0;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #f39c12;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    /* Form Layout */
-    .form-row {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-        margin-bottom: 20px;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .form-group label {
-        font-size: 15px;
-        font-weight: 500;
-        color: #34495e;
-        margin-bottom: 8px;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .required {
-        color: var(--danger-color);
-        margin-right: 4px;
-    }
-
-    .form-control, .form-select {
-        padding: 14px 15px;
-        border: 1px solid #dce4ec;
-        border-radius: 8px;
-        font-size: 15px;
-        transition: all 0.3s;
-        background: #f8fafb;
-    }
-
-    .form-control:focus, .form-select:focus {
-        outline: none;
-        border-color: #f39c12;
-        background: white;
-        box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
-    }
-
-    .form-control:disabled, .form-control:read-only {
-        background: #ecf0f1;
-        cursor: not-allowed;
-    }
-
-    textarea.form-control {
-        resize: vertical;
-        min-height: 100px;
-    }
-
-    /* Barcode Section */
-    .barcode-section {
-        background: linear-gradient(135deg, #fef9e7 0%, #fcf3cf 100%);
-        padding: 25px;
-        border-radius: 10px;
-        margin-bottom: 25px;
-        border: 2px dashed #f39c12;
-        text-align: center;
-    }
-
-    .barcode-input-wrapper {
+    .info-tooltip {
         position: relative;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    .barcode-input {
-        width: 100%;
-        padding: 16px 50px 16px 15px;
-        font-size: 17px;
-        border: 2px solid #f39c12;
-        border-radius: 8px;
-        font-weight: 500;
-        background: white;
-        text-align: center;
-    }
-
-    .barcode-icon {
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 24px;
-        color: #f39c12;
-    }
-
-    /* Material Display */
-    .material-display {
-        background: linear-gradient(135deg, #e8f8f5 0%, #d5f4e6 100%);
-        padding: 25px;
-        border-radius: 10px;
-        margin-bottom: 25px;
-        border-right: 4px solid var(--success-color);
-        display: none;
-    }
-
-    .material-display.active {
-        display: block;
-        animation: slideIn 0.3s ease-out;
-    }
-
-    .material-display h4 {
-        color: var(--success-color);
-        margin: 0 0 15px 0;
-        font-size: 18px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .material-info {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        margin-top: 15px;
-    }
-
-    .info-item {
-        background: rgba(255, 255, 255, 0.7);
-        padding: 15px;
-        border-radius: 8px;
-        text-align: center;
-    }
-
-    .info-label {
-        font-size: 14px;
-        color: #7f8c8d;
-        margin-bottom: 8px;
-        font-weight: 500;
-    }
-
-    .info-value {
-        font-size: 18px;
-        font-weight: 700;
-        color: var(--dark-color);
-    }
-
-    /* Stands List */
-    .stands-list {
-        margin-top: 25px;
-    }
-
-    .stand-item {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 15px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-right: 4px solid #f39c12;
-        animation: slideIn 0.3s ease-out;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-
-    .stand-info {
-        flex: 1;
-    }
-
-    .stand-info strong {
-        color: var(--dark-color);
-        font-size: 17px;
-        display: block;
-        margin-bottom: 8px;
-    }
-
-    .stand-info small {
-        color: #7f8c8d;
-        font-size: 14px;
-        line-height: 1.6;
-    }
-
-    .stand-actions {
-        display: flex;
-        gap: 10px;
-    }
-
-    .btn-delete, .btn-print {
-        color: white;
-        border: none;
-        padding: 10px 18px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .btn-delete {
-        background: var(--danger-color);
-    }
-
-    .btn-print {
-        background: #3498db;
-    }
-
-    .btn-delete:hover {
-        background: #c0392b;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
-    }
-
-    .btn-print:hover {
-        background: #2980b9;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
-    }
-
-    /* Buttons */
-    .btn-primary {
-        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-        color: white;
-        border: none;
-        padding: 14px 28px;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s;
         display: inline-flex;
         align-items: center;
-        gap: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(243, 156, 18, 0.3);
-    }
-
-    .btn-success {
-        background: linear-gradient(135deg, var(--success-color) 0%, #229954 100%);
-        color: white;
-        border: none;
-        padding: 16px 36px;
-        border-radius: 8px;
-        font-size: 17px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .btn-success:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(39, 174, 96, 0.3);
-    }
-
-    .btn-success:disabled {
-        background: #95a5a6;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    .btn-secondary {
-        background: #95a5a6;
-        color: white;
-        border: none;
-        padding: 14px 28px;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .btn-secondary:hover {
-        background: #7f8c8d;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(149, 165, 166, 0.3);
-    }
-
-    /* Actions */
-    .form-actions {
-        display: flex;
-        gap: 20px;
-        margin-top: 30px;
-        padding-top: 25px;
-        border-top: 2px solid #ecf0f1;
         justify-content: center;
-        flex-wrap: wrap;
+        width: 18px;
+        height: 18px;
+        background: #3498db;
+        color: white;
+        border-radius: 50%;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: help;
+        margin-right: 5px;
+        vertical-align: middle;
     }
 
-    .button-group {
-        display: flex;
-        gap: 15px;
-        margin-top: 20px;
-        flex-wrap: wrap;
+    .info-tooltip:hover {
+        background: #2980b9;
     }
 
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 50px 20px;
-        color: #95a5a6;
+    .info-tooltip .tooltip-text {
+        visibility: hidden;
+        width: 250px;
+        background-color: #2c3e50;
+        color: #fff;
+        text-align: right;
+        border-radius: 6px;
+        padding: 12px;
+        position: absolute;
+        z-index: 1000;
+        bottom: 125%;
+        right: 50%;
+        margin-right: -125px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 13px;
+        line-height: 1.6;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
 
-    .empty-state svg {
-        width: 70px;
-        height: 70px;
-        margin-bottom: 20px;
-        opacity: 0.5;
+    .info-tooltip .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        right: 50%;
+        margin-right: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #2c3e50 transparent transparent transparent;
     }
 
-    /* Info Box */
-    .info-box {
-        background: linear-gradient(135deg, #fff9e6 0%, #ffeaa7 100%);
-        border-right: 4px solid #f39c12;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 25px;
+    .info-tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
     }
 
-    .info-box strong {
-        color: #e67e22;
-        display: block;
-        margin-bottom: 10px;
-        font-size: 16px;
-    }
-
-    .info-box ul {
-        margin: 10px 0 0 25px;
-        color: #7f8c8d;
-        font-size: 14px;
-        line-height: 1.7;
-    }
-
-    /* Print Area */
-    .print-area {
-        display: none;
-    }
-
-    /* Animations */
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    /* Responsive */
-    @media (max-width: 992px) {
-        .stage-container {
-            max-width: 100%;
-        }
-        
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-        
-        .material-info {
-            grid-template-columns: 1fr;
-        }
-        
-        .form-actions {
-            flex-direction: column;
-        }
-        
-        .stand-item {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-        }
-        
-        .stand-actions {
-            width: 100%;
-            justify-content: flex-end;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .stage-header {
-            padding: 20px 15px;
-        }
-        
-        .stage-header h1 {
-            font-size: 22px;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .form-section {
-            padding: 20px 15px;
-        }
-        
-        .section-title {
-            font-size: 18px;
-        }
-        
-        .btn-primary, .btn-secondary {
-            padding: 12px 20px;
-            font-size: 15px;
-        }
-        
-        .btn-success {
-            padding: 14px 25px;
-            font-size: 16px;
-        }
-        
-        .button-group {
-            flex-direction: column;
-        }
-        
-        .button-group .btn-primary, 
-        .button-group .btn-secondary {
-            width: 100%;
-            justify-content: center;
-        }
+    .info-box-header {
+        cursor: help;
+        display: inline-block;
     }
 </style>
 
@@ -497,7 +72,7 @@
     <!-- Header -->
     <div class="stage-header">
         <h1>
-            <span>🔧</span>
+            <i class="fas fa-tools"></i>
             المرحلة الأولى - تقسيم المواد على الاستاندات
         </h1>
         <p>امسح باركود المادة الخام واختر استاند متوفر لبدء التقسيم</p>
@@ -505,28 +80,28 @@
 
     <!-- Barcode Scanner -->
     <div class="form-section barcode-section">
-        <h3 style="margin: 0 0 20px 0; color: #f39c12; font-size: 22px;">📷 مسح باركود المادة الخام</h3>
+        <h3 style="margin: 0 0 20px 0; color: #0066B2; font-size: 22px;"><i class="fas fa-barcode"></i> مسح باركود المادة الخام</h3>
         <div class="barcode-input-wrapper">
             <input type="text" id="materialBarcode" class="barcode-input" placeholder="امسح أو اكتب باركود المادة الخام" autofocus>
-            <span class="barcode-icon">🏷️</span>
+            <span class="barcode-icon"><i class="fas fa-tag" title="أيقونة تشير إلى حقل إدخال الباركود"></i></span>
         </div>
-        <small style="color: #7f8c8d; display: block; margin-top: 15px; font-size: 15px;">💡 امسح الباركود أو اضغط Enter للبحث</small>
+        <small style="color: #7f8c8d; display: block; margin-top: 15px; font-size: 15px;"><i class="fas fa-lightbulb"></i> امسح الباركود أو اضغط Enter للبحث عن المادة الخام</small>
     </div>
 
     <!-- Material Display -->
     <div id="materialDisplay" class="material-display">
-        <h4>✅ بيانات المادة الخام</h4>
+        <h4><i class="fas fa-circle-check"></i> بيانات المادة الخام</h4>
         <div class="material-info">
             <div class="info-item">
-                <div class="info-label">الباركود</div>
+                <div class="info-label">الباركود <span class="info-tooltip">?<span class="tooltip-text">الرمز الشريطي الفريد للمادة الخام</span></span></div>
                 <div class="info-value" id="displayBarcode">-</div>
             </div>
             <div class="info-item">
-                <div class="info-label">نوع المادة</div>
+                <div class="info-label">نوع المادة <span class="info-tooltip">?<span class="tooltip-text">تصنيف المادة الخام المستخدمة في الإنتاج</span></span></div>
                 <div class="info-value" id="displayMaterialType">-</div>
             </div>
             <div class="info-item">
-                <div class="info-label">الوزن المتبقي</div>
+                <div class="info-label">الوزن المتبقي <span class="info-tooltip">?<span class="tooltip-text">الكمية المتاحة من المادة الخام بالكيلوغرام</span></span></div>
                 <div class="info-value" id="displayWeight">-</div>
             </div>
         </div>
@@ -534,36 +109,33 @@
 
     <!-- Stand Form -->
     <div class="form-section">
-        <h3 class="section-title">🎯 اختيار الاستاند المتوفر</h3>
+        <h3 class="section-title"><i class="fas fa-target"></i> اختيار الاستاند المتوفر</h3>
 
         <div class="info-box">
-            <strong>📌 ملاحظة:</strong>
-            <ul>
-                <li>الوزن الصافي = الوزن الإجمالي - وزن الاستاند الفارغ</li>
-                <li>مثال: 100 كجم إجمالي - 2 كجم وزن الاستاند = 98 كجم صافي</li>
-                <li>سيتم تحويل حالة الاستاند إلى "مستخدم" تلقائياً</li>
-            </ul>
+            <div class="info-box-header">
+                <strong><i class="fas fa-thumbtack"></i> ملاحظة: <span class="info-tooltip">?<span class="tooltip-text"><strong>معلومات هامة عن تقسيم المواد:</strong><br><br>• الوزن الصافي = الوزن الإجمالي - وزن الاستاند الفارغ<br><br>• مثال: 100 كجم إجمالي - 2 كجم وزن الاستاند = 98 كجم صافي<br><br>• سيتم تحويل حالة الاستاند إلى "مستخدم" تلقائياً</span></span></strong>
+            </div>
         </div>
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
-                <label for="standSelect">🎯 اختر الاستاند المتوفر <span class="required">*</span></label>
+                <label for="standSelect"><i class="fas fa-bullseye"></i> اختر الاستاند المتوفر <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">اختر الاستاند الفارغ الذي سيتم استخدامه لتقسيم المادة الخام</span></span></label>
                 <select id="standSelect" class="form-control" onchange="loadStand()" style="font-size: 16px; padding: 14px;">
                     <option value="">-- اختر استاند متوفر من القائمة --</option>
                 </select>
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">💡 اختر الاستاند الذي تريد استخدامه (فقط الاستاندات الغير مستخدمة)</small>
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-lightbulb"></i> اختر الاستاند الذي تريد استخدامه (فقط الاستاندات الغير مستخدمة)</small>
             </div>
         </div>
 
         <div id="standDetails" style="display: none; margin: 25px 0; padding: 25px; background: linear-gradient(135deg, #e8f8f5 0%, #d5f4e6 100%); border-radius: 10px; border-right: 4px solid #27ae60;">
-            <h4 style="margin: 0 0 20px 0; color: #27ae60; font-size: 18px; display: flex; align-items: center; gap: 10px;">📦 الاستاند المختار</h4>
+            <h4 style="margin: 0 0 20px 0; color: #27ae60; font-size: 18px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-box"></i> الاستاند المختار</h4>
             <div class="material-info" style="grid-template-columns: repeat(2, 1fr);">
                 <div class="info-item">
-                    <div class="info-label">رقم الاستاند</div>
+                    <div class="info-label">رقم الاستاند <span class="info-tooltip">?<span class="tooltip-text">الرقم التعريفي الفريد للاستند</span></span></div>
                     <div class="info-value" id="selectedStandNumber" style="color: #27ae60; font-weight: 700;">-</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">وزن الاستاند الفارغ</div>
+                    <div class="info-label">وزن الاستاند الفارغ <span class="info-tooltip">?<span class="tooltip-text">الوزن الأساسي للاستاند بدون المادة الخام</span></span></div>
                     <div class="info-value" id="selectedStandWeight" style="color: #e67e22; font-weight: 700;">-</div>
                 </div>
             </div>
@@ -571,59 +143,60 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label for="wasteWeight">🗑️ وزن الهدر (كجم)</label>
+                <label for="wasteWeight"><i class="fas fa-trash-alt"></i> وزن الهدر (كجم) <span class="info-tooltip">?<span class="tooltip-text">الكمية المفقودة أثناء عملية التقسيم</span></span></label>
                 <input type="number" id="wasteWeight" class="form-control" placeholder="سيتم حسابه تلقائياً" step="0.01" oninput="calculateWastePercentage()">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">يُحسب تلقائياً: الإجمالي - الصافي - وزن الاستاند (يمكن التعديل)</small>
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-calculator"></i> <span class="info-tooltip">?<span class="tooltip-text">يُحسب تلقائياً: الإجمالي - الصافي - وزن الاستاند (يمكن التعديل)</span></span></small>
             </div>
             <div class="form-group">
-                <label for="wastePercentage">📊 نسبة الهدر (%)</label>
+                <label for="wastePercentage"><i class="fas fa-chart-bar"></i> نسبة الهدر (%) <span class="info-tooltip">?<span class="tooltip-text">النسبة المئوية للهدر من الوزن الإجمالي</span></span></label>
                 <input type="number" id="wastePercentage" class="form-control" placeholder="0" step="0.01" readonly style="background: #ecf0f1;">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">يُحسب تلقائياً من وزن الهدر</small>
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-percent"></i> <span class="info-tooltip">?<span class="tooltip-text">يُحسب تلقائياً من وزن الهدر</span></span></small>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label for="totalWeight">⚖️ الوزن الإجمالي (كجم) <span class="required">*</span></label>
+                <label for="totalWeight"><i class="fas fa-weight"></i> الوزن الإجمالي (كجم) <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">الوزن الكلي للستاند مع المادة الخام</span></span></label>
                 <input type="number" id="totalWeight" class="form-control" placeholder="أدخل الوزن الإجمالي" step="0.01" oninput="calculateNetWeight()" style="font-size: 16px;">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">الوزن الكلي شامل وزن الاستاند</small>
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-balance-scale"></i> <span class="info-tooltip">?<span class="tooltip-text">الوزن الكلي شامل وزن الاستاند</span></span></small>
             </div>
 
             <div class="form-group">
-                <label for="standWeight">📦 وزن الاستاند الفارغ (كجم)</label>
+                <label for="standWeight"><i class="fas fa-box-open"></i> وزن الاستاند الفارغ (كجم) <span class="info-tooltip">?<span class="tooltip-text">الوزن الأساسي للاستاند بدون المادة</span></span></label>
                 <input type="number" id="standWeight" class="form-control" placeholder="سيتم جلبه تلقائياً" step="0.01" readonly style="background: #ecf0f1; font-weight: 600;">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">يتم جلبه تلقائياً من بيانات الاستاند</small>
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-sync"></i> <span class="info-tooltip">?<span class="tooltip-text">يتم جلبه تلقائياً من بيانات الاستاند</span></span></small>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
-                <label for="netWeight">✅ الوزن الصافي (كجم) <span class="required">*</span></label>
+                <label for="netWeight"><i class="fas fa-check"></i> الوزن الصافي (كجم) <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">الوزن الفعلي للمادة الخام بدون وزن الاستاند</span></span></label>
                 <input type="number" id="netWeight" class="form-control" placeholder="سيتم حسابه تلقائياً" step="0.01" readonly style="background: linear-gradient(135deg, #d5f4e6 0%, #e8f8f5 100%); font-weight: 700; font-size: 20px; text-align: center; color: #27ae60; border: 2px solid #27ae60;">
-                <small style="color: #27ae60; display: block; margin-top: 8px; font-weight: 600; font-size: 15px;">📊 يُحسب تلقائياً: الوزن الإجمالي - وزن الاستاند الفارغ</small>
+                <small style="color: #27ae60; display: block; margin-top: 8px; font-weight: 600; font-size: 15px;"><i class="fas fa-calculator"></i> <span class="info-tooltip">?<span class="tooltip-text">يُحسب تلقائياً: الوزن الإجمالي - وزن الاستاند الفارغ</span></span></small>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
-                <label for="notes">ملاحظات</label>
+                <label for="notes">ملاحظات <span class="info-tooltip">?<span class="tooltip-text">ملاحظات إضافية حول عملية التقسيم</span></span></label>
                 <textarea id="notes" class="form-control" placeholder="ملاحظات اختيارية..." rows="3"></textarea>
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-sticky-note"></i> <span class="info-tooltip">?<span class="tooltip-text">يمكنك إضافة أي ملاحظات إضافية هنا</span></span></small>
             </div>
         </div>
 
         <div class="button-group">
             <button type="button" class="btn-primary" onclick="addProcessedStand()">
-                ➕ إضافة للقائمة
+                <i class="fas fa-plus"></i> إضافة للقائمة
             </button>
             <button type="button" class="btn-secondary" onclick="clearForm()">
-                🔄 مسح النموذج
+                <i class="fas fa-sync"></i> مسح النموذج
             </button>
         </div>
     </div>
 
     <!-- Processed Stands List -->
     <div class="form-section">
-        <h3 class="section-title">📋 الاستاندات المعالجة (<span id="standsCount">0</span>)</h3>
+        <h3 class="section-title"><i class="fas fa-list"></i> الاستاندات المعالجة (<span id="standsCount">0</span>)</h3>
         <div id="standsList" class="stands-list">
             <div class="empty-state">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -639,10 +212,10 @@
     <!-- Actions -->
     <div class="form-actions">
         <button type="button" class="btn-success" onclick="submitAll()" id="submitBtn" disabled>
-            ✅ حفظ جميع الاستاندات
+            <i class="fas fa-save"></i> حفظ جميع الاستاندات
         </button>
         <button type="button" class="btn-secondary" onclick="window.location.href='{{ route('manufacturing.stage1.index') }}'">
-            ❌ إلغاء
+            <i class="fas fa-times"></i> إلغاء
         </button>
     </div>
 </div>
@@ -660,7 +233,7 @@ let currentMaterial = null;
 // Load stands on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadStandsList();
-    
+
     const saved = localStorage.getItem('stage1_processed');
     if (saved) {
         const data = JSON.parse(saved);
@@ -676,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.removeItem('stage1_processed');
         }
     }
-    
+
     setInterval(saveOffline, 30000);
 });
 
@@ -734,8 +307,8 @@ function displayMaterialInfo(material) {
 
 // Load stands from API
 function loadStandsList() {
-    console.log('🔄 جاري تحميل الاستاندات...');
-    
+    console.log('Loading stands...');
+
     fetch('/stands?status=unused', {
         method: 'GET',
         headers: {
@@ -757,7 +330,7 @@ function loadStandsList() {
         console.log('✅ البيانات المستلمة:', data);
         const select = document.getElementById('standSelect');
         select.innerHTML = '<option value="">-- اختر استاند متوفر من القائمة --</option>';
-        
+
         if (data.stands && data.stands.length > 0) {
             console.log('📦 عدد الاستاندات:', data.stands.length);
             data.stands.forEach(stand => {
@@ -786,7 +359,7 @@ function loadStandsList() {
 function loadStand() {
     const select = document.getElementById('standSelect');
     const selectedOption = select.options[select.selectedIndex];
-    
+
     if (!selectedOption.value) {
         document.getElementById('standDetails').style.display = 'none';
         document.getElementById('standWeight').value = '';
@@ -794,14 +367,14 @@ function loadStand() {
         selectedStand = null;
         return;
     }
-    
+
     selectedStand = JSON.parse(selectedOption.dataset.stand);
-    
+
     document.getElementById('selectedStandNumber').textContent = selectedStand.stand_number;
     document.getElementById('selectedStandWeight').textContent = selectedStand.weight + ' كجم';
     document.getElementById('standWeight').value = selectedStand.weight;
     document.getElementById('standDetails').style.display = 'block';
-    
+
     calculateNetWeight();
     showToast('✅ تم تحميل بيانات الاستاند', 'success');
 }
@@ -810,11 +383,11 @@ function loadStand() {
 function calculateNetWeight() {
     const total = parseFloat(document.getElementById('totalWeight').value) || 0;
     const standWeight = parseFloat(document.getElementById('standWeight').value) || 0;
-    
+
     if (total > 0 && standWeight > 0) {
         const net = total - standWeight;
         document.getElementById('netWeight').value = net.toFixed(2);
-        
+
         // حساب وزن الهدر تلقائياً (الفرق بين الإجمالي والصافي والاستاند)
         const waste = total - standWeight - net;
         if (waste >= 0) {
@@ -832,7 +405,7 @@ function calculateNetWeight() {
 function calculateWastePercentage() {
     const wasteWeight = parseFloat(document.getElementById('wasteWeight').value) || 0;
     const totalWeight = parseFloat(document.getElementById('totalWeight').value) || 0;
-    
+
     if (totalWeight > 0 && wasteWeight >= 0) {
         const percentage = (wasteWeight / totalWeight) * 100;
         document.getElementById('wastePercentage').value = percentage.toFixed(2);
@@ -846,7 +419,7 @@ function addProcessedStand() {
         alert('⚠️ يرجى مسح باركود المادة الخام أولاً!');
         return;
     }
-    
+
     if (!selectedStand) {
         alert('⚠️ يرجى اختيار استاند متوفر من القائمة!');
         return;
@@ -910,19 +483,19 @@ function renderStands() {
     list.innerHTML = processedStands.map(item => `
         <div class="stand-item">
             <div class="stand-info">
-                <strong>🔧 ${item.stand_number}</strong>
+                <strong><i class="fas fa-wrench"></i> ${item.stand_number}</strong>
                 <small>
-                    مادة: ${item.material_type} | 
-                    إجمالي: ${item.total_weight} كجم | 
-                    صافي: ${item.net_weight} كجم | 
-                    وزن الاستاند: ${item.stand_weight} كجم | 
+                    مادة: ${item.material_type} |
+                    إجمالي: ${item.total_weight} كجم |
+                    صافي: ${item.net_weight} كجم |
+                    وزن الاستاند: ${item.stand_weight} كجم |
                     هدر: ${item.waste_weight || 0} كجم (${item.waste_percentage || 0}%)
                     ${item.notes ? '<br>📝 ' + item.notes : ''}
                 </small>
             </div>
             <div class="stand-actions">
-                <button class="btn-print" onclick="printBarcode(${item.id})">🖨️ طباعة</button>
-                <button class="btn-delete" onclick="removeStand(${item.id})">🗑️ حذف</button>
+                <button class="btn-print" onclick="printBarcode(${item.id})"><i class="fas fa-print"></i> طباعة</button>
+                <button class="btn-delete" onclick="removeStand(${item.id})"><i class="fas fa-trash"></i> حذف</button>
             </div>
         </div>
     `).join('');
@@ -933,7 +506,7 @@ function removeStand(id) {
         processedStands = processedStands.filter(s => s.id !== id);
         renderStands();
         saveOffline();
-        showToast('🗑️ تم حذف البيانات', 'info');
+        showToast('تم حذف البيانات', 'info');
     }
 }
 
@@ -947,7 +520,7 @@ function clearForm() {
     document.getElementById('wastePercentage').value = '';
     document.getElementById('notes').value = '';
     selectedStand = null;
-    
+
     document.getElementById('standSelect').focus();
 }
 
@@ -972,7 +545,7 @@ function submitAll() {
 
     const submitBtn = document.getElementById('submitBtn');
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '⏳ جاري الحفظ...';
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
 
     const formData = {
         material_id: currentMaterial.id,
@@ -993,7 +566,7 @@ function submitAll() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showToast('✅ تم حفظ جميع الاستاندات بنجاح!', 'success');
+            showToast('<i class="fas fa-check-circle"></i> تم حفظ جميع الاستاندات بنجاح!', 'success');
             localStorage.removeItem('stage1_processed');
             setTimeout(() => {
                 window.location.href = '{{ route("manufacturing.stage1.index") }}';
@@ -1086,7 +659,7 @@ function showToast(message, type = 'info') {
         max-width: 400px;
     `;
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.style.animation = 'fadeOut 0.3s ease-out';
         setTimeout(() => toast.remove(), 300);
