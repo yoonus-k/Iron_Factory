@@ -2,642 +2,11 @@
 
 @section('title', 'لوحة تحكم الوردية')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('assets/css/shift-dashboard.css') }}">
+@endpush
+
 @section('content')
-<style>
-    /* استيراد الخطوط */
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap');
-
-    /* المتغيرات */
-    :root {
-        --primary-color: #0066B2;
-        --primary-light: #3A8FC7;
-        --success-color: #10b981;
-        --warning-color: #f59e0b;
-        --danger-color: #ef4444;
-        --info-color: #3b82f6;
-        --gray-50: #f9fafb;
-        --gray-100: #f3f4f6;
-        --gray-200: #e5e7eb;
-        --gray-300: #d1d5db;
-        --gray-600: #4b5563;
-        --gray-800: #1f2937;
-        --white: #ffffff;
-        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        --radius-sm: 0.375rem;
-        --radius-md: 0.5rem;
-        --radius-lg: 0.75rem;
-        --radius-xl: 1rem;
-        --spacing-xs: 0.25rem;
-        --spacing-sm: 0.5rem;
-        --spacing-md: 1rem;
-        --spacing-lg: 1.5rem;
-        --spacing-xl: 2rem;
-        --transition-base: 250ms ease;
-    }
-
-    /* تنسيقات أساسية */
-    .shift-container {
-        font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        padding: var(--spacing-lg);
-        background-color: var(--gray-50);
-        min-height: calc(100vh - 60px);
-    }
-
-    /* رأس التقرير */
-    .shift-header {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-        padding: var(--spacing-xl);
-        border-radius: var(--radius-xl);
-        color: var(--white);
-        margin-bottom: var(--spacing-xl);
-        box-shadow: var(--shadow-lg);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .shift-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
-        pointer-events: none;
-    }
-
-    .shift-header h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        margin: 0 0 0.5rem 0;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .shift-info {
-        display: flex;
-        gap: var(--spacing-lg);
-        align-items: center;
-        margin-top: var(--spacing-md);
-        flex-wrap: wrap;
-    }
-
-    .shift-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: var(--spacing-sm) var(--spacing-md);
-        border-radius: var(--radius-md);
-        font-weight: 600;
-        background: rgba(255, 255, 255, 0.2);
-        font-size: 0.875rem;
-    }
-
-    .live-indicator {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: var(--success-color);
-        animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
-
-    /* عناصر التحكم */
-    .controls-bar {
-        display: flex;
-        gap: var(--spacing-md);
-        margin-bottom: var(--spacing-xl);
-        flex-wrap: wrap;
-        align-items: center;
-        background: var(--white);
-        padding: var(--spacing-lg);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-md);
-        border: 1px solid var(--gray-200);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .controls-bar::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
-    }
-
-    .control-group {
-        display: flex;
-        gap: var(--spacing-xs);
-        align-items: center;
-    }
-
-    .control-label {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--gray-600);
-    }
-
-    .select-input {
-        padding: var(--spacing-sm) var(--spacing-md);
-        border: 1px solid var(--gray-300);
-        border-radius: var(--radius-md);
-        font-size: 0.875rem;
-        transition: all var(--transition-base);
-        background: var(--white);
-        font-family: inherit;
-    }
-
-    .select-input:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(0, 102, 178, 0.1);
-    }
-
-    .refresh-btn {
-        padding: var(--spacing-sm) var(--spacing-lg);
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-        color: var(--white);
-        border: none;
-        border-radius: var(--radius-md);
-        cursor: pointer;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all var(--transition-base);
-        box-shadow: var(--shadow-sm);
-        font-family: inherit;
-    }
-
-    .refresh-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-
-    .last-update {
-        font-size: 0.75rem;
-        color: var(--gray-600);
-        margin-right: auto;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    /* تنبيه القطع العالقة */
-    .wip-alert {
-        background: linear-gradient(135deg, rgba(254, 243, 199, 0.8) 0%, rgba(253, 230, 138, 0.8) 100%);
-        padding: var(--spacing-lg);
-        border-radius: var(--radius-lg);
-        margin-bottom: var(--spacing-xl);
-        box-shadow: var(--shadow-md);
-        border: 1px solid var(--gray-200);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .wip-alert::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, var(--warning-color), #fbbf24);
-    }
-
-    .wip-alert.critical {
-        background: linear-gradient(135deg, rgba(254, 226, 226, 0.8) 0%, rgba(254, 202, 202, 0.8) 100%);
-    }
-
-    .wip-alert.critical::before {
-        background: linear-gradient(90deg, var(--danger-color), #f87171);
-    }
-
-    .wip-alert-header {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .wip-alert-title {
-        font-weight: 600;
-        color: #92400e;
-        margin: 0;
-    }
-
-    .wip-alert.critical .wip-alert-title {
-        color: #991b1b;
-    }
-
-    .wip-alert p {
-        margin: 0;
-        color: #92400e;
-        font-size: 0.875rem;
-    }
-
-    .wip-alert.critical p {
-        color: #991b1b;
-    }
-
-    .wip-alert a {
-        font-weight: 600;
-        text-decoration: underline;
-        color: inherit;
-    }
-
-    /* بطاقات الإحصائيات */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: var(--spacing-lg);
-        margin-bottom: var(--spacing-xl);
-    }
-
-    .stat-card {
-        background: var(--white);
-        padding: var(--spacing-lg);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-md);
-        border: 1px solid var(--gray-200);
-        transition: all var(--transition-base);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
-    }
-
-    .stat-card.primary::before {
-        background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
-    }
-
-    .stat-card.success::before {
-        background: linear-gradient(90deg, var(--success-color), #34d399);
-    }
-
-    .stat-card.warning::before {
-        background: linear-gradient(90deg, var(--warning-color), #fbbf24);
-    }
-
-    .stat-card.danger::before {
-        background: linear-gradient(90deg, var(--danger-color), #f87171);
-    }
-
-    .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .stat-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: var(--spacing-md);
-    }
-
-    .stat-title {
-        font-size: 0.875rem;
-        color: var(--gray-600);
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--gray-800);
-        margin: 0;
-        line-height: 1;
-    }
-
-    .stat-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: var(--radius-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .stat-icon.primary {
-        background: rgba(59, 130, 246, 0.1);
-        color: var(--primary-color);
-    }
-
-    .stat-icon.success {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success-color);
-    }
-
-    .stat-icon.warning {
-        background: rgba(245, 158, 11, 0.1);
-        color: var(--warning-color);
-    }
-
-    .stat-icon.danger {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger-color);
-    }
-
-    /* بطاقات المراحل */
-    .stage-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: var(--spacing-md);
-        margin-bottom: var(--spacing-xl);
-    }
-
-    .stage-card {
-        background: var(--white);
-        padding: var(--spacing-lg);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--gray-200);
-        transition: all var(--transition-base);
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .stage-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 3px;
-    }
-
-    .stage-card.stage-1::before {
-        background: linear-gradient(90deg, #3b82f6, #60a5fa);
-    }
-
-    .stage-card.stage-2::before {
-        background: linear-gradient(90deg, #f59e0b, #fbbf24);
-    }
-
-    .stage-card.stage-3::before {
-        background: linear-gradient(90deg, #8b5cf6, #a78bfa);
-    }
-
-    .stage-card.stage-4::before {
-        background: linear-gradient(90deg, #10b981, #34d399);
-    }
-
-    .stage-card:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--shadow-md);
-        border-color: var(--primary-color);
-    }
-
-    .stage-name {
-        font-size: 0.875rem;
-        color: var(--gray-600);
-        margin-bottom: var(--spacing-sm);
-        font-weight: 600;
-    }
-
-    .stage-items {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--gray-800);
-        margin: 0;
-    }
-
-    /* حاويات الرسوم البيانية */
-    .charts-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: var(--spacing-lg);
-        margin-bottom: var(--spacing-xl);
-    }
-
-    .chart-container {
-        background: var(--white);
-        padding: var(--spacing-lg);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-md);
-        border: 1px solid var(--gray-200);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .chart-container::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
-    }
-
-    .chart-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: var(--spacing-lg);
-        padding-bottom: var(--spacing-md);
-        border-bottom: 1px solid var(--gray-200);
-    }
-
-    .chart-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--gray-800);
-        margin: 0;
-    }
-
-    /* حاوية الرسم البياني */
-    .chart-wrapper {
-        position: relative;
-        height: 300px;
-        width: 100%;
-    }
-
-    /* لوحة المتصدرين */
-    .leaderboard {
-        background: var(--white);
-        padding: var(--spacing-lg);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-md);
-        border: 1px solid var(--gray-200);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .leaderboard::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
-    }
-
-    .leaderboard-item {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-md);
-        padding: var(--spacing-md);
-        border-bottom: 1px solid var(--gray-200);
-        transition: all var(--transition-base);
-    }
-
-    .leaderboard-item:last-child {
-        border-bottom: none;
-    }
-
-    .leaderboard-item:hover {
-        background: var(--gray-50);
-    }
-
-    .rank-number {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 1.125rem;
-    }
-
-    .rank-1 {
-        background: #fbbf24;
-        color: white;
-    }
-
-    .rank-2 {
-        background: #9ca3af;
-        color: white;
-    }
-
-    .rank-3 {
-        background: #d97706;
-        color: white;
-    }
-
-    .rank-other {
-        background: var(--gray-200);
-        color: var(--gray-600);
-    }
-
-    .worker-info {
-        flex: 1;
-    }
-
-    .worker-name {
-        font-weight: 600;
-        color: var(--gray-800);
-        margin: 0;
-    }
-
-    .worker-stats {
-        font-size: 0.875rem;
-        color: var(--gray-600);
-        margin: 0.25rem 0 0 0;
-    }
-
-    .efficiency-badge {
-        padding: var(--spacing-xs) var(--spacing-md);
-        border-radius: var(--radius-sm);
-        font-weight: 600;
-        font-size: 0.875rem;
-        white-space: nowrap;
-    }
-
-    .efficiency-excellent {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success-color);
-    }
-
-    .efficiency-good {
-        background: rgba(59, 130, 246, 0.1);
-        color: var(--info-color);
-    }
-
-    .efficiency-average {
-        background: rgba(245, 158, 11, 0.1);
-        color: var(--warning-color);
-    }
-
-    /* استجابة الشاشات */
-    @media (max-width: 768px) {
-        .shift-container {
-            padding: var(--spacing-md);
-        }
-
-        .shift-header {
-            padding: var(--spacing-lg);
-        }
-
-        .shift-header h1 {
-            font-size: 1.5rem;
-        }
-
-        .shift-info {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: var(--spacing-sm);
-        }
-
-        .controls-bar {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .control-group {
-            justify-content: space-between;
-        }
-
-        .last-update {
-            margin-right: 0;
-            justify-content: center;
-        }
-
-        .stats-grid,
-        .stage-grid,
-        .charts-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .chart-container {
-            padding: var(--spacing-md);
-        }
-
-        .chart-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: var(--spacing-sm);
-        }
-
-        .chart-wrapper {
-            height: 250px;
-        }
-    }
-</style>
 
 <div class="shift-container">
     <div class="shift-header">
@@ -802,7 +171,14 @@
         <!-- الإنتاج بالساعة -->
         <div class="chart-container">
             <div class="chart-header">
-                <h3 class="chart-title">الإنتاج بالساعة</h3>
+                <h3 class="chart-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="20" x2="12" y2="10"></line>
+                        <line x1="18" y1="20" x2="18" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="16"></line>
+                    </svg>
+                    الإنتاج بالساعة
+                </h3>
             </div>
             <div class="chart-wrapper">
                 <canvas id="hourlyChart"></canvas>
@@ -812,10 +188,49 @@
         <!-- توزيع الإنتاج -->
         <div class="chart-container">
             <div class="chart-header">
-                <h3 class="chart-title">توزيع الإنتاج</h3>
+                <h3 class="chart-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                        <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+                    </svg>
+                    توزيع الإنتاج
+                </h3>
             </div>
             <div class="chart-wrapper">
                 <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- اتجاه الكفاءة - جديد -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3 class="chart-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                    اتجاه الكفاءة خلال الوردية
+                </h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="efficiencyTrendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- مقارنة الإنتاج والهدر - جديد -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3 class="chart-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    مقارنة الإنتاج والهدر
+                </h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="outputWasteChart"></canvas>
             </div>
         </div>
     </div>
@@ -848,7 +263,19 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-    // Hourly Production Chart
+    // تكوين الألوان بناءً على ألوان الشعار
+    const primaryBlue = '#0066B2';
+    const lightBlue = '#3A8FC7';
+    const successGreen = '#10b981';
+    const warningOrange = '#f59e0b';
+    const dangerRed = '#ef4444';
+    const grayColor = '#4f5d6c';
+
+    // إعدادات عامة للـ Charts
+    Chart.defaults.font.family = 'Cairo, sans-serif';
+    Chart.defaults.color = '#475569';
+
+    // 1. Hourly Production Chart
     const hourlyData = @json($hourlyTrend);
     const hourlyHours = hourlyData.map(d => d.hour + ':00');
     const hourlyItems = hourlyData.map(d => d.items);
@@ -860,8 +287,9 @@
             datasets: [{
                 label: 'القطع المنتجة',
                 data: hourlyItems,
-                backgroundColor: '#3b82f6',
-                borderRadius: 8
+                backgroundColor: primaryBlue,
+                borderRadius: 8,
+                borderSkipped: false,
             }]
         },
         options: {
@@ -870,20 +298,53 @@
             plugins: {
                 legend: {
                     display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    cornerRadius: 8,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            return 'القطع: ' + context.parsed.y;
+                        }
+                    }
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        stepSize: 1
+                        stepSize: 1,
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        }
                     }
                 }
             }
         }
     });
 
-    // Stage Distribution Chart
+    // 2. Stage Distribution Chart (Doughnut)
     const stageData = @json($byStage);
     const stageLabels = stageData.map(s => s.name);
     const stageItems = stageData.map(s => s.items);
@@ -894,9 +355,10 @@
             labels: stageLabels,
             datasets: [{
                 data: stageItems,
-                backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6', '#10b981'],
-                borderWidth: 2,
-                borderColor: '#ffffff'
+                backgroundColor: [primaryBlue, warningOrange, '#8b5cf6', successGreen],
+                borderWidth: 3,
+                borderColor: '#ffffff',
+                hoverOffset: 15
             }]
         },
         options: {
@@ -904,7 +366,226 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom'
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 13,
+                            weight: '600'
+                        },
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    cornerRadius: 8,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return label + ': ' + value + ' قطعة (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 3. Efficiency Trend Chart (بيانات ثابتة - تصميم فقط)
+    const efficiencyTrendData = {
+        labels: ['6:00', '8:00', '10:00', '12:00', '14:00', '16:00', '18:00'],
+        datasets: [{
+            label: 'الكفاءة %',
+            data: [85, 88, 92, 95, 93, 96, 94],
+            borderColor: primaryBlue,
+            backgroundColor: 'rgba(0, 102, 178, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            pointBackgroundColor: primaryBlue,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointHoverBackgroundColor: primaryBlue,
+            pointHoverBorderColor: '#ffffff',
+            pointHoverBorderWidth: 3
+        }, {
+            label: 'الهدف 90%',
+            data: [90, 90, 90, 90, 90, 90, 90],
+            borderColor: dangerRed,
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [10, 5],
+            fill: false,
+            pointRadius: 0,
+            pointHoverRadius: 0
+        }]
+    };
+
+    new Chart(document.getElementById('efficiencyTrendChart'), {
+        type: 'line',
+        data: efficiencyTrendData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12,
+                            weight: '600'
+                        },
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    cornerRadius: 8,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y + '%';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 80,
+                    max: 100,
+                    ticks: {
+                        stepSize: 5,
+                        callback: function(value) {
+                            return value + '%';
+                        },
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 4. Output vs Waste Comparison Chart (بيانات ثابتة - تصميم فقط)
+    const outputWasteData = {
+        labels: ['المرحلة 1', 'المرحلة 2', 'المرحلة 3', 'المرحلة 4'],
+        datasets: [{
+            label: 'الإنتاج (كجم)',
+            data: [450, 380, 520, 410],
+            backgroundColor: successGreen,
+            borderRadius: 8,
+            borderSkipped: false,
+        }, {
+            label: 'الهدر (كجم)',
+            data: [25, 32, 28, 22],
+            backgroundColor: dangerRed,
+            borderRadius: 8,
+            borderSkipped: false,
+        }]
+    };
+
+    new Chart(document.getElementById('outputWasteChart'), {
+        type: 'bar',
+        data: outputWasteData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 13,
+                            weight: '600'
+                        },
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    cornerRadius: 8,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y + ' كجم';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value + ' كجم';
+                        },
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        }
+                    }
                 }
             }
         }
@@ -930,7 +611,18 @@
     setInterval(() => {
         const now = new Date();
         const seconds = Math.floor((now - startTime) / 1000);
-        document.getElementById('lastUpdateTime').textContent = seconds < 60 ? 'الآن' : `منذ ${seconds} ثانية`;
+        const minutes = Math.floor(seconds / 60);
+
+        if (seconds < 60) {
+            document.getElementById('lastUpdateTime').textContent = 'الآن';
+        } else if (minutes === 1) {
+            document.getElementById('lastUpdateTime').textContent = 'منذ دقيقة';
+        } else if (minutes < 60) {
+            document.getElementById('lastUpdateTime').textContent = `منذ ${minutes} دقيقة`;
+        } else {
+            const hours = Math.floor(minutes / 60);
+            document.getElementById('lastUpdateTime').textContent = `منذ ${hours} ساعة`;
+        }
     }, 5000);
 
     const startTime = new Date();

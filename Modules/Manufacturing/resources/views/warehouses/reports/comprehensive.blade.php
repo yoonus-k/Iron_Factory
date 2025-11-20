@@ -3,36 +3,33 @@
 @section('title', 'التقرير الشامل للمستودع')
 
 @section('content')
-    <div class="comprehensive-report-wrapper">
-        <!-- Header Section -->
+    <div class="report-container">
+        <!-- Header -->
         <div class="report-header">
             <div class="header-content">
                 <div class="icon-box">
                     <i class="feather icon-file-text"></i>
                 </div>
-                <div class="header-text">
+                <div>
                     <h1 class="page-title">التقرير الشامل للمستودع</h1>
                     <p class="page-subtitle">نظرة عامة متكاملة على جميع عمليات وأنشطة المستودعات</p>
                 </div>
             </div>
             <div class="header-actions">
-                <button onclick="window.print()" class="action-button print">
-                    <i class="feather icon-printer"></i>
-                    <span>طباعة</span>
+                <button onclick="window.print()" class="btn-action">
+                    <i class="feather icon-printer"></i> طباعة
                 </button>
-                <button onclick="exportReport()" class="action-button export">
-                    <i class="feather icon-download"></i>
-                    <span>تصدير</span>
+                <button onclick="exportReport()" class="btn-action">
+                    <i class="feather icon-download"></i> تصدير
                 </button>
-                <a href="{{ route('manufacturing.warehouse-reports.index') }}" class="action-button back">
-                    <i class="feather icon-arrow-right"></i>
-                    <span>رجوع</span>
+                <a href="{{ route('manufacturing.warehouse-reports.index') }}" class="btn-action">
+                    <i class="feather icon-arrow-right"></i> رجوع
                 </a>
             </div>
         </div>
 
-        <!-- Date Range Filter -->
-        <div class="filter-section">
+        <!-- Filter Section -->
+        <div class="filter-card">
             <form method="GET" action="{{ route('manufacturing.warehouse-reports.comprehensive') }}" class="filter-form">
                 <div class="filter-group">
                     <label>
@@ -48,196 +45,43 @@
                     </label>
                     <input type="date" name="end_date" value="{{ $endDate }}" class="form-control">
                 </div>
-                <button type="submit" class="filter-button">
+                <button type="submit" class="btn-filter">
                     <i class="feather icon-search"></i>
                     <span>عرض</span>
                 </button>
             </form>
         </div>
 
-        <!-- Statistics Overview Grid -->
-        <div class="stats-grid">
+        <!-- Statistics Cards -->
+        <div class="stats-cards">
             <!-- Warehouses Section -->
-            <div class="stat-section warehouses">
-                <div class="section-header">
-                    <div class="section-icon">
-                        <i class="feather icon-home"></i>
-                    </div>
-                    <h2 class="section-title">المستودعات</h2>
+            <div class="stat-card blue">
+                <div class="stat-icon">
+                    <i class="feather icon-home"></i>
                 </div>
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <span class="stat-label">إجمالي المستودعات</span>
-                        <span class="stat-value">{{ $data['warehouses']['total'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">المستودعات النشطة</span>
-                        <span class="stat-value success">{{ $data['warehouses']['active'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">السعة الإجمالية</span>
-                        <span class="stat-value info">{{ number_format($data['warehouses']['total_capacity'], 2) }}</span>
-                    </div>
+                <div class="stat-info">
+                    <h3>{{ $data['warehouses']['total'] }}</h3>
+                    <p>إجمالي المستودعات</p>
                 </div>
             </div>
-
-            <!-- Materials Section -->
-            <div class="stat-section materials">
-                <div class="section-header">
-                    <div class="section-icon">
-                        <i class="feather icon-package"></i>
-                    </div>
-                    <h2 class="section-title">المواد الخام</h2>
+            
+            <div class="stat-card green">
+                <div class="stat-icon">
+                    <i class="feather icon-check-circle"></i>
                 </div>
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <span class="stat-label">إجمالي المواد</span>
-                        <span class="stat-value">{{ $data['materials']['total'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">إجمالي الكميات</span>
-                        <span class="stat-value success">{{ number_format($data['materials']['total_quantity'], 2) }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">مخزون منخفض</span>
-                        <span class="stat-value warning">{{ $data['materials']['low_stock'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">الوزن الكلي</span>
-                        <span class="stat-value info">{{ number_format($data['materials']['total_weight'], 2) }} كجم</span>
-                    </div>
+                <div class="stat-info">
+                    <h3>{{ $data['warehouses']['active'] }}</h3>
+                    <p>المستودعات النشطة</p>
                 </div>
             </div>
-
-            <!-- Delivery Notes Section -->
-            <div class="stat-section delivery-notes">
-                <div class="section-header">
-                    <div class="section-icon">
-                        <i class="feather icon-file-text"></i>
-                    </div>
-                    <h2 class="section-title">أذون التسليم</h2>
+            
+            <div class="stat-card orange">
+                <div class="stat-icon">
+                    <i class="feather icon-database"></i>
                 </div>
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <span class="stat-label">إجمالي الأذون</span>
-                        <span class="stat-value">{{ $data['delivery_notes']['total'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">قيد الانتظار</span>
-                        <span class="stat-value warning">{{ $data['delivery_notes']['pending'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">موافق عليه</span>
-                        <span class="stat-value success">{{ $data['delivery_notes']['approved'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">مكتمل</span>
-                        <span class="stat-value info">{{ $data['delivery_notes']['completed'] }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Invoices Section -->
-            <div class="stat-section invoices">
-                <div class="section-header">
-                    <div class="section-icon">
-                        <i class="feather icon-file"></i>
-                    </div>
-                    <h2 class="section-title">فواتير المشتريات</h2>
-                </div>
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <span class="stat-label">عدد الفواتير</span>
-                        <span class="stat-value">{{ $data['invoices']['total'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">مدفوعة</span>
-                        <span class="stat-value success">{{ $data['invoices']['paid'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">قيد الانتظار</span>
-                        <span class="stat-value warning">{{ $data['invoices']['pending'] }}</span>
-                    </div>
-                    <div class="stat-item wide">
-                        <span class="stat-label">إجمالي المبلغ</span>
-                        <span class="stat-value primary">{{ number_format($data['invoices']['total_amount'], 2) }} ريال</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Movements Section -->
-            <div class="stat-section movements">
-                <div class="section-header">
-                    <div class="section-icon">
-                        <i class="feather icon-repeat"></i>
-                    </div>
-                    <h2 class="section-title">الحركات والتحويلات</h2>
-                </div>
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <span class="stat-label">إجمالي الحركات</span>
-                        <span class="stat-value">{{ $data['movements']['total'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">استلام</span>
-                        <span class="stat-value success">{{ $data['movements']['receive'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">صرف</span>
-                        <span class="stat-value warning">{{ $data['movements']['issue'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">تحويل</span>
-                        <span class="stat-value info">{{ $data['movements']['transfer'] }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Additives Section -->
-            <div class="stat-section additives">
-                <div class="section-header">
-                    <div class="section-icon">
-                        <i class="feather icon-droplet"></i>
-                    </div>
-                    <h2 class="section-title">الصبغات والبلاستيك</h2>
-                </div>
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <span class="stat-label">إجمالي المواد</span>
-                        <span class="stat-value">{{ $data['additives']['total'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">المواد النشطة</span>
-                        <span class="stat-value success">{{ $data['additives']['active'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">إجمالي الكمية</span>
-                        <span class="stat-value info">{{ number_format($data['additives']['total_quantity'], 2) }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">القيمة الإجمالية</span>
-                        <span class="stat-value primary">{{ number_format($data['additives']['total_value'], 2) }} ريال</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Suppliers Section -->
-            <div class="stat-section suppliers">
-                <div class="section-header">
-                    <div class="section-icon">
-                        <i class="feather icon-truck"></i>
-                    </div>
-                    <h2 class="section-title">الموردين</h2>
-                </div>
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <span class="stat-label">إجمالي الموردين</span>
-                        <span class="stat-value">{{ $data['suppliers']['total'] }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">الموردين النشطين</span>
-                        <span class="stat-value success">{{ $data['suppliers']['active'] }}</span>
-                    </div>
+                <div class="stat-info">
+                    <h3>{{ number_format($data['warehouses']['total_capacity'], 2) }}</h3>
+                    <p>السعة الإجمالية</p>
                 </div>
             </div>
         </div>
@@ -253,46 +97,162 @@
             </div>
         </div>
 
-        <!-- Report Footer -->
-        <div class="report-footer">
-            <div class="footer-info">
-                <p>تم إنشاء التقرير: {{ now()->format('Y-m-d H:i') }}</p>
-                <p>الفترة: من {{ $startDate }} إلى {{ $endDate }}</p>
+        <!-- Detailed Statistics -->
+        <div class="section-card">
+            <h2 class="section-title">
+                <i class="feather icon-list"></i>
+                الإحصائيات التفصيلية
+            </h2>
+            
+            <!-- Materials Section -->
+            <div class="sub-section">
+                <h3 class="sub-title">
+                    <i class="feather icon-package"></i>
+                    المواد الخام
+                </h3>
+                <div class="stats-cards">
+                    <div class="stat-card blue">
+                        <div class="stat-icon">
+                            <i class="feather icon-package"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ $data['materials']['total'] }}</h3>
+                            <p>إجمالي المواد</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card green">
+                        <div class="stat-icon">
+                            <i class="feather icon-layers"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ number_format($data['materials']['total_quantity'], 2) }}</h3>
+                            <p>إجمالي الكميات</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card orange">
+                        <div class="stat-icon">
+                            <i class="feather icon-alert-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ $data['materials']['low_stock'] }}</h3>
+                            <p>مخزون منخفض</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="footer-logo">
-                <p class="powered-by">مصنع الحديد الذكي</p>
+            
+            <!-- Delivery Notes Section -->
+            <div class="sub-section">
+                <h3 class="sub-title">
+                    <i class="feather icon-file-text"></i>
+                    أذون التسليم
+                </h3>
+                <div class="stats-cards">
+                    <div class="stat-card blue">
+                        <div class="stat-icon">
+                            <i class="feather icon-file-text"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ $data['delivery_notes']['total'] }}</h3>
+                            <p>إجمالي الأذون</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card orange">
+                        <div class="stat-icon">
+                            <i class="feather icon-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ $data['delivery_notes']['pending'] }}</h3>
+                            <p>قيد الانتظار</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card green">
+                        <div class="stat-icon">
+                            <i class="feather icon-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ $data['delivery_notes']['approved'] }}</h3>
+                            <p>موافق عليه</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Invoices Section -->
+            <div class="sub-section">
+                <h3 class="sub-title">
+                    <i class="feather icon-file"></i>
+                    فواتير المشتريات
+                </h3>
+                <div class="stats-cards">
+                    <div class="stat-card blue">
+                        <div class="stat-icon">
+                            <i class="feather icon-file"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ $data['invoices']['total'] }}</h3>
+                            <p>عدد الفواتير</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card green">
+                        <div class="stat-icon">
+                            <i class="feather icon-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ number_format($data['invoices']['paid'], 2) }}</h3>
+                            <p>مدفوعة</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card orange">
+                        <div class="stat-icon">
+                            <i class="feather icon-alert-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ number_format($data['invoices']['pending'], 2) }}</h3>
+                            <p>قيد الانتظار</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Report Footer -->
+        <div class="section-card">
+            <div class="report-footer">
+                <div class="footer-info">
+                    <p>تم إنشاء التقرير: {{ now()->format('Y-m-d H:i') }}</p>
+                    <p>الفترة: من {{ $startDate }} إلى {{ $endDate }}</p>
+                </div>
+                <div class="footer-logo">
+                    <p class="powered-by">مصنع الحديد الذكي</p>
+                </div>
             </div>
         </div>
     </div>
 
     <style>
-        :root {
-            --primary-color: #0066B2;
-            --secondary-color: #455A64;
-            --success-color: #27AE60;
-            --warning-color: #F39C12;
-            --info-color: #3498DB;
-            --gradient-header: linear-gradient(135deg, #0066B2 0%, #004d8a 100%);
-        }
-
-        .comprehensive-report-wrapper {
+        .report-container {
             max-width: 1400px;
             margin: 30px auto;
             padding: 0 20px;
         }
 
-        /* Header Styles */
         .report-header {
-            background: var(--gradient-header);
+            background: linear-gradient(135deg, #0066B2 0%, #004d8a 100%);
             border-radius: 16px;
             padding: 30px 40px;
             margin-bottom: 30px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
+            color: white;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
         }
 
         .header-content {
@@ -304,17 +264,12 @@
         .icon-box {
             width: 70px;
             height: 70px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255,255,255,0.2);
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 32px;
-            color: white;
-        }
-
-        .header-text {
-            color: white;
         }
 
         .page-title {
@@ -334,28 +289,27 @@
             gap: 10px;
         }
 
-        .action-button {
+        .btn-action {
             display: flex;
             align-items: center;
             gap: 8px;
             padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
             border-radius: 8px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.2);
             color: white;
+            text-decoration: none;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            text-decoration: none;
         }
 
-        .action-button:hover {
+        .btn-action:hover {
             background: white;
-            color: var(--primary-color);
+            color: #0066B2;
         }
 
-        /* Filter Section */
-        .filter-section {
+        .filter-card {
             background: white;
             border-radius: 12px;
             padding: 20px;
@@ -396,15 +350,15 @@
 
         .form-control:focus {
             outline: none;
-            border-color: var(--primary-color);
+            border-color: #0066B2;
         }
 
-        .filter-button {
+        .btn-filter {
             display: flex;
             align-items: center;
             gap: 8px;
             padding: 10px 24px;
-            background: var(--primary-color);
+            background: #0066B2;
             color: white;
             border: none;
             border-radius: 8px;
@@ -413,117 +367,103 @@
             transition: transform 0.2s;
         }
 
-        .filter-button:hover {
+        .btn-filter:hover {
             transform: translateY(-2px);
         }
 
-        /* Stats Grid */
-        .stats-grid {
+        .stats-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
             margin-bottom: 30px;
         }
 
-        .stat-section {
+        .stat-card {
             background: white;
             border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-top: 4px solid var(--primary-color);
-        }
-
-        .section-header {
+            padding: 25px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
-        .section-icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 10px;
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            background: linear-gradient(135deg, #0066B2 0%, #004d8a 100%);
+            font-size: 28px;
             color: white;
         }
 
-        .section-title {
-            font-size: 18px;
+        .stat-card.blue .stat-icon { background: linear-gradient(135deg, #0066B2, #004d8a); }
+        .stat-card.gray .stat-icon { background: linear-gradient(135deg, #455A64, #37474F); }
+        .stat-card.green .stat-icon { background: linear-gradient(135deg, #27AE60, #1e8449); }
+        .stat-card.orange .stat-icon { background: linear-gradient(135deg, #F39C12, #d68910); }
+
+        .stat-info h3 {
+            font-size: 32px;
             font-weight: 700;
+            margin: 0 0 5px 0;
             color: #2c3e50;
+        }
+
+        .stat-info p {
+            font-size: 14px;
+            color: #7f8c8d;
             margin: 0;
         }
 
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-        }
-
-        .stat-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .stat-item.wide {
-            grid-column: span 2;
-        }
-
-        .stat-label {
-            display: block;
-            font-size: 13px;
-            color: #7f8c8d;
-            margin-bottom: 8px;
-        }
-
-        .stat-value {
-            display: block;
-            font-size: 24px;
-            font-weight: 700;
-            color: #2c3e50;
-        }
-
-        .stat-value.success {
-            color: var(--success-color);
-        }
-
-        .stat-value.warning {
-            color: var(--warning-color);
-        }
-
-        .stat-value.info {
-            color: var(--info-color);
-        }
-
-        .stat-value.primary {
-            color: var(--primary-color);
-        }
-
-        /* Report Footer */
-        .report-footer {
+        .section-card {
             background: white;
             border-radius: 12px;
-            padding: 20px 30px;
+            padding: 30px;
+            margin-bottom: 30px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0 0 20px 0;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
+        }
+
+        .sub-section {
+            margin-bottom: 30px;
+        }
+
+        .sub-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         /* Chart Styles */
         .chart-container {
             position: relative;
-            height: 400px;
+            height: 300px;
             margin-top: 20px;
+        }
+
+        .report-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
         }
 
         .footer-info p {
@@ -535,36 +475,21 @@
         .powered-by {
             font-size: 18px;
             font-weight: 700;
-            color: var(--primary-color);
+            color: #0066B2;
             margin: 0;
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
-            .comprehensive-report-wrapper {
-                padding: 0 10px;
-                margin: 15px auto;
-            }
-
             .report-header {
-                padding: 20px;
-            }
-
-            .header-content {
                 flex-direction: column;
                 text-align: center;
             }
 
-            .page-title {
-                font-size: 22px;
+            .header-content {
+                flex-direction: column;
             }
 
-            .header-actions {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .stats-grid {
+            .stats-cards {
                 grid-template-columns: 1fr;
             }
 
@@ -579,13 +504,8 @@
 
         /* Print Styles */
         @media print {
-            .report-header .header-actions,
-            .filter-section {
+            .header-actions {
                 display: none;
-            }
-
-            .stat-section {
-                break-inside: avoid;
             }
         }
     </style>
@@ -662,14 +582,6 @@
             });
         });
 
-        function exportReport() {
-            alert('جارٍ تصدير التقرير...');
-            // Add export functionality
-        }
-    </script>
-    </style>
-
-    <script>
         function exportReport() {
             alert('جارٍ تصدير التقرير...');
             // Add export functionality

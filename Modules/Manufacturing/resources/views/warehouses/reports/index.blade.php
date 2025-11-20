@@ -3,169 +3,171 @@
 @section('title', 'تقارير وإحصائيات المستودع')
 
 @section('content')
-    <div class="reports-wrapper">
-        <!-- Header Section -->
-        <div class="reports-header">
+    <div class="report-container">
+        <!-- Header -->
+        <div class="report-header">
             <div class="header-content">
-                <div class="icon-wrapper">
+                <div class="icon-box">
                     <i class="feather icon-bar-chart-2"></i>
                 </div>
-                <div class="header-text">
+                <div>
                     <h1 class="page-title">تقارير وإحصائيات المستودع</h1>
                     <p class="page-subtitle">مركز التقارير الشامل لجميع عمليات المستودعات</p>
                 </div>
             </div>
-            <nav class="breadcrumb-nav">
-                <a href="" class="breadcrumb-item">
-                    <i class="feather icon-home"></i>
-                    الرئيسية
+            <div class="header-actions">
+                <button onclick="window.print()" class="btn-action">
+                    <i class="feather icon-printer"></i> طباعة
+                </button>
+                <a href="{{ url()->previous() }}" class="btn-action">
+                    <i class="feather icon-arrow-right"></i> رجوع
                 </a>
-                <i class="feather icon-chevron-left"></i>
-                <span class="breadcrumb-item active">التقارير والإحصائيات</span>
-            </nav>
+            </div>
         </div>
 
         <!-- Reports Grid -->
-        <div class="reports-grid">
-            <!-- Comprehensive Report -->
-            <div class="report-card featured">
-                <div class="card-decoration">
-                    <div class="decoration-circle circle-1"></div>
-                    <div class="decoration-circle circle-2"></div>
-                </div>
-                <a href="{{ route('manufacturing.warehouse-reports.comprehensive') }}" class="report-link">
-                    <div class="report-icon comprehensive">
-                        <i class="feather icon-file-text"></i>
-                    </div>
-                    <div class="report-content">
-                        <h3 class="report-title">التقرير الشامل</h3>
-                        <p class="report-description">نظرة عامة شاملة على جميع أقسام المستودع</p>
-                        <div class="report-badge">
-                            <i class="feather icon-trending-up"></i>
-                            تقرير متكامل
+        <div class="section-card">
+            <h2 class="section-title">
+                <i class="feather icon-layout"></i>
+                قائمة التقارير
+            </h2>
+            <div class="reports-grid">
+                <!-- Comprehensive Report -->
+                <div class="report-card featured">
+                    <a href="{{ route('manufacturing.warehouse-reports.comprehensive') }}" class="report-link">
+                        <div class="report-icon comprehensive">
+                            <i class="feather icon-file-text"></i>
                         </div>
-                    </div>
-                    <div class="report-arrow">
-                        <i class="feather icon-arrow-left"></i>
-                    </div>
-                </a>
-            </div>
+                        <div class="report-content">
+                            <h3 class="report-title">التقرير الشامل</h3>
+                            <p class="report-description">نظرة عامة شاملة على جميع أقسام المستودع</p>
+                            <div class="report-badge">
+                                <i class="feather icon-trending-up"></i>
+                                تقرير متكامل
+                            </div>
+                        </div>
+                        <div class="report-arrow">
+                            <i class="feather icon-arrow-left"></i>
+                        </div>
+                    </a>
+                </div>
 
-            <!-- Warehouses Statistics -->
-            <div class="report-card">
-                <a href="{{ route('manufacturing.warehouse-reports.warehouses-statistics') }}" class="report-link">
-                    <div class="report-icon primary">
-                        <i class="feather icon-home"></i>
-                    </div>
-                    <div class="report-content">
-                        <h3 class="report-title">إحصائيات المستودعات</h3>
-                        <p class="report-description">تقرير شامل عن جميع المستودعات والسعات التخزينية</p>
-                    </div>
-                    <div class="report-arrow">
-                        <i class="feather icon-arrow-left"></i>
-                    </div>
-                </a>
-            </div>
+                <!-- Warehouses Statistics -->
+                <div class="report-card">
+                    <a href="{{ route('manufacturing.warehouse-reports.warehouses-statistics') }}" class="report-link">
+                        <div class="report-icon primary">
+                            <i class="feather icon-home"></i>
+                        </div>
+                        <div class="report-content">
+                            <h3 class="report-title">إحصائيات المستودعات</h3>
+                            <p class="report-description">تقرير شامل عن جميع المستودعات والسعات التخزينية</p>
+                        </div>
+                        <div class="report-arrow">
+                            <i class="feather icon-arrow-left"></i>
+                        </div>
+                    </a>
+                </div>
 
-            <!-- Materials Report -->
-            <div class="report-card">
-                <a href="{{ route('manufacturing.warehouse-reports.materials') }}" class="report-link">
-                    <div class="report-icon success">
-                        <i class="feather icon-package"></i>
-                    </div>
-                    <div class="report-content">
-                        <h3 class="report-title">تقرير المواد والمخزون</h3>
-                        <p class="report-description">حالة المواد الخام والكميات المتاحة والتنبيهات</p>
-                    </div>
-                    <div class="report-arrow">
-                        <i class="feather icon-arrow-left"></i>
-                    </div>
-                </a>
-            </div>
+                <!-- Materials Report -->
+                <div class="report-card">
+                    <a href="{{ route('manufacturing.warehouse-reports.materials') }}" class="report-link">
+                        <div class="report-icon success">
+                            <i class="feather icon-package"></i>
+                        </div>
+                        <div class="report-content">
+                            <h3 class="report-title">تقرير المواد والمخزون</h3>
+                            <p class="report-description">حالة المواد الخام والكميات المتاحة والتنبيهات</p>
+                        </div>
+                        <div class="report-arrow">
+                            <i class="feather icon-arrow-left"></i>
+                        </div>
+                    </a>
+                </div>
 
-            <!-- Delivery Notes Report -->
-            <div class="report-card">
-                <a href="{{ route('manufacturing.warehouse-reports.delivery-notes') }}" class="report-link">
-                    <div class="report-icon warning">
-                        <i class="feather icon-file-text"></i>
-                    </div>
-                    <div class="report-content">
-                        <h3 class="report-title">تقرير أذون التسليم</h3>
-                        <p class="report-description">متابعة أذون التسليم والشحنات الواردة</p>
-                    </div>
-                    <div class="report-arrow">
-                        <i class="feather icon-arrow-left"></i>
-                    </div>
-                </a>
-            </div>
+                <!-- Delivery Notes Report -->
+                <div class="report-card">
+                    <a href="{{ route('manufacturing.warehouse-reports.delivery-notes') }}" class="report-link">
+                        <div class="report-icon warning">
+                            <i class="feather icon-file-text"></i>
+                        </div>
+                        <div class="report-content">
+                            <h3 class="report-title">تقرير أذون التسليم</h3>
+                            <p class="report-description">متابعة أذون التسليم والشحنات الواردة</p>
+                        </div>
+                        <div class="report-arrow">
+                            <i class="feather icon-arrow-left"></i>
+                        </div>
+                    </a>
+                </div>
 
-            <!-- Purchase Invoices Report -->
-            <div class="report-card">
-                <a href="{{ route('manufacturing.warehouse-reports.purchase-invoices') }}" class="report-link">
-                    <div class="report-icon info">
-                        <i class="feather icon-file"></i>
-                    </div>
-                    <div class="report-content">
-                        <h3 class="report-title">تقرير فواتير المشتريات</h3>
-                        <p class="report-description">التقارير المالية والفواتير وحالات الدفع</p>
-                    </div>
-                    <div class="report-arrow">
-                        <i class="feather icon-arrow-left"></i>
-                    </div>
-                </a>
-            </div>
+                <!-- Purchase Invoices Report -->
+                <div class="report-card">
+                    <a href="{{ route('manufacturing.warehouse-reports.purchase-invoices') }}" class="report-link">
+                        <div class="report-icon info">
+                            <i class="feather icon-file"></i>
+                        </div>
+                        <div class="report-content">
+                            <h3 class="report-title">تقرير فواتير المشتريات</h3>
+                            <p class="report-description">التقارير المالية والفواتير وحالات الدفع</p>
+                        </div>
+                        <div class="report-arrow">
+                            <i class="feather icon-arrow-left"></i>
+                        </div>
+                    </a>
+                </div>
 
-            <!-- Additives Report -->
-            <div class="report-card">
-                <a href="{{ route('manufacturing.warehouse-reports.additives') }}" class="report-link">
-                    <div class="report-icon purple">
-                        <i class="feather icon-droplet"></i>
-                    </div>
-                    <div class="report-content">
-                        <h3 class="report-title">تقرير الصبغات والبلاستيك</h3>
-                        <p class="report-description">حالة المواد الكيميائية والإضافات</p>
-                    </div>
-                    <div class="report-arrow">
-                        <i class="feather icon-arrow-left"></i>
-                    </div>
-                </a>
-            </div>
+                <!-- Additives Report -->
+                <div class="report-card">
+                    <a href="{{ route('manufacturing.warehouse-reports.additives') }}" class="report-link">
+                        <div class="report-icon purple">
+                            <i class="feather icon-droplet"></i>
+                        </div>
+                        <div class="report-content">
+                            <h3 class="report-title">تقرير الصبغات والبلاستيك</h3>
+                            <p class="report-description">حالة المواد الكيميائية والإضافات</p>
+                        </div>
+                        <div class="report-arrow">
+                            <i class="feather icon-arrow-left"></i>
+                        </div>
+                    </a>
+                </div>
 
-            <!-- Movements Report -->
-            <div class="report-card">
-                <a href="{{ route('manufacturing.warehouse-reports.movements') }}" class="report-link">
-                    <div class="report-icon orange">
-                        <i class="feather icon-repeat"></i>
-                    </div>
-                    <div class="report-content">
-                        <h3 class="report-title">تقرير الحركات والتحويلات</h3>
-                        <p class="report-description">سجل حركات المواد بين المستودعات</p>
-                    </div>
-                    <div class="report-arrow">
-                        <i class="feather icon-arrow-left"></i>
-                    </div>
-                </a>
-            </div>
+                <!-- Movements Report -->
+                <div class="report-card">
+                    <a href="{{ route('manufacturing.warehouse-reports.movements') }}" class="report-link">
+                        <div class="report-icon orange">
+                            <i class="feather icon-repeat"></i>
+                        </div>
+                        <div class="report-content">
+                            <h3 class="report-title">تقرير الحركات والتحويلات</h3>
+                            <p class="report-description">سجل حركات المواد بين المستودعات</p>
+                        </div>
+                        <div class="report-arrow">
+                            <i class="feather icon-arrow-left"></i>
+                        </div>
+                    </a>
+                </div>
 
-            <!-- Suppliers Report -->
-            <div class="report-card">
-                <a href="{{ route('manufacturing.warehouse-reports.suppliers') }}" class="report-link">
-                    <div class="report-icon secondary">
-                        <i class="feather icon-truck"></i>
-                    </div>
-                    <div class="report-content">
-                        <h3 class="report-title">تقرير الموردين</h3>
-                        <p class="report-description">إحصائيات الموردين والتعاملات معهم</p>
-                    </div>
-                    <div class="report-arrow">
-                        <i class="feather icon-arrow-left"></i>
-                    </div>
-                </a>
+                <!-- Suppliers Report -->
+                <div class="report-card">
+                    <a href="{{ route('manufacturing.warehouse-reports.suppliers') }}" class="report-link">
+                        <div class="report-icon secondary">
+                            <i class="feather icon-truck"></i>
+                        </div>
+                        <div class="report-content">
+                            <h3 class="report-title">تقرير الموردين</h3>
+                            <p class="report-description">إحصائيات الموردين والتعاملات معهم</p>
+                        </div>
+                        <div class="report-arrow">
+                            <i class="feather icon-arrow-left"></i>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
 
         <!-- Quick Actions Section -->
-        <div class="quick-actions-section">
+        <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-zap"></i>
                 إجراءات سريعة
@@ -192,130 +194,94 @@
     </div>
 
     <style>
-        :root {
-            --primary-color: #0066B2;
-            --secondary-color: #455A64;
-            --success-color: #27AE60;
-            --warning-color: #F39C12;
-            --info-color: #3498DB;
-            --purple-color: #9C27B0;
-            --orange-color: #FF6B35;
-            --gradient-primary: linear-gradient(135deg, #0066B2 0%, #004d8a 100%);
-            --gradient-success: linear-gradient(135deg, #27AE60 0%, #1e8449 100%);
-            --gradient-warning: linear-gradient(135deg, #F39C12 0%, #d68910 100%);
-            --gradient-info: linear-gradient(135deg, #3498DB 0%, #2874a6 100%);
-            --gradient-purple: linear-gradient(135deg, #9C27B0 0%, #7b1fa2 100%);
-            --gradient-orange: linear-gradient(135deg, #FF6B35 0%, #e55527 100%);
-            --gradient-comprehensive: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
-            --shadow-lg: 0 8px 16px rgba(0,0,0,0.15);
-            --shadow-xl: 0 12px 24px rgba(0,0,0,0.2);
-        }
-
-        .reports-wrapper {
+        .report-container {
             max-width: 1400px;
             margin: 30px auto;
             padding: 0 20px;
         }
 
-        /* Header Styles */
-        .reports-header {
+        .report-header {
             background: linear-gradient(135deg, #0066B2 0%, #004d8a 100%);
             border-radius: 16px;
-            padding: 40px;
-            margin-bottom: 40px;
-            box-shadow: var(--shadow-lg);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .reports-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-        }
-
-        .reports-header::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            left: -5%;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
+            padding: 30px 40px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
         }
 
         .header-content {
             display: flex;
             align-items: center;
             gap: 20px;
-            position: relative;
-            z-index: 1;
         }
 
-        .icon-wrapper {
+        .icon-box {
             width: 70px;
             height: 70px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255,255,255,0.2);
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 32px;
-            color: white;
-            backdrop-filter: blur(10px);
-        }
-
-        .header-text {
-            flex: 1;
         }
 
         .page-title {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
-            color: white;
-            margin: 0 0 8px 0;
+            margin: 0 0 5px 0;
         }
 
         .page-subtitle {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
             margin: 0;
+            opacity: 0.9;
         }
 
-        .breadcrumb-nav {
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-action:hover {
+            background: white;
+            color: #0066B2;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0 0 20px 0;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 20px;
-            font-size: 14px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .breadcrumb-item {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color 0.3s;
-        }
-
-        .breadcrumb-item:hover {
-            color: white;
-        }
-
-        .breadcrumb-item.active {
-            color: white;
-            font-weight: 600;
         }
 
         /* Reports Grid */
@@ -323,56 +289,26 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 24px;
-            margin-bottom: 40px;
         }
 
         .report-card {
             background: white;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            border: 1px solid #eee;
         }
 
         .report-card:hover {
             transform: translateY(-8px);
-            box-shadow: var(--shadow-xl);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
         }
 
         .report-card.featured {
             grid-column: span 2;
-            background: var(--gradient-comprehensive);
-        }
-
-        .card-decoration {
-            position: absolute;
-            top: 0;
-            right: 0;
-            left: 0;
-            bottom: 0;
-            pointer-events: none;
-            opacity: 0.3;
-        }
-
-        .decoration-circle {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .circle-1 {
-            width: 200px;
-            height: 200px;
-            top: -50px;
-            right: -50px;
-        }
-
-        .circle-2 {
-            width: 150px;
-            height: 150px;
-            bottom: -30px;
-            left: -30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .report-link {
@@ -395,7 +331,7 @@
             justify-content: center;
             font-size: 26px;
             flex-shrink: 0;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
         .report-icon.comprehensive {
@@ -404,37 +340,37 @@
         }
 
         .report-icon.primary {
-            background: var(--gradient-primary);
+            background: linear-gradient(135deg, #0066B2, #004d8a);
             color: white;
         }
 
         .report-icon.success {
-            background: var(--gradient-success);
+            background: linear-gradient(135deg, #27AE60, #1e8449);
             color: white;
         }
 
         .report-icon.warning {
-            background: var(--gradient-warning);
+            background: linear-gradient(135deg, #F39C12, #d68910);
             color: white;
         }
 
         .report-icon.info {
-            background: var(--gradient-info);
+            background: linear-gradient(135deg, #3498DB, #2874a6);
             color: white;
         }
 
         .report-icon.purple {
-            background: var(--gradient-purple);
+            background: linear-gradient(135deg, #9C27B0, #7b1fa2);
             color: white;
         }
 
         .report-icon.orange {
-            background: var(--gradient-orange);
+            background: linear-gradient(135deg, #FF6B35, #e55527);
             color: white;
         }
 
         .report-icon.secondary {
-            background: linear-gradient(135deg, #455A64 0%, #263238 100%);
+            background: linear-gradient(135deg, #455A64, #263238);
             color: white;
         }
 
@@ -498,27 +434,6 @@
         }
 
         /* Quick Actions Section */
-        .quick-actions-section {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: var(--shadow-md);
-        }
-
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #2c3e50;
-            margin: 0 0 20px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title i {
-            color: var(--primary-color);
-        }
-
         .quick-actions-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -542,11 +457,11 @@
         }
 
         .action-btn:hover {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
+            background: #0066B2;
+            border-color: #0066B2;
             color: white;
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         .action-btn i {
@@ -561,27 +476,13 @@
         }
 
         @media (max-width: 768px) {
-            .reports-wrapper {
-                padding: 0 15px;
-                margin: 15px auto;
-            }
-
-            .reports-header {
-                padding: 25px;
-                border-radius: 12px;
-            }
-
-            .header-content {
+            .report-header {
                 flex-direction: column;
                 text-align: center;
             }
 
-            .page-title {
-                font-size: 24px;
-            }
-
-            .page-subtitle {
-                font-size: 14px;
+            .header-content {
+                flex-direction: column;
             }
 
             .reports-grid {
@@ -614,8 +515,7 @@
 
         /* Print Styles */
         @media print {
-            .reports-header,
-            .quick-actions-section {
+            .header-actions {
                 display: none;
             }
 
