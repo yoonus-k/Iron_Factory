@@ -131,6 +131,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('additives', [WarehouseReportsController::class, 'additivesReport'])->name('manufacturing.warehouse-reports.additives');
         Route::get('suppliers', [WarehouseReportsController::class, 'suppliersReport'])->name('manufacturing.warehouse-reports.suppliers');
         Route::get('movements', [WarehouseReportsController::class, 'movementsReport'])->name('manufacturing.warehouse-reports.movements');
+
+        // ========== تقرير القطع قيد التشغيل (WIP) ==========
+        Route::get('reports/wip', [\Modules\Manufacturing\Http\Controllers\WorkInProgressController::class, 'index'])->name('manufacturing.reports.wip');
+        Route::get('reports/wip/stats', [\Modules\Manufacturing\Http\Controllers\WorkInProgressController::class, 'stats'])->name('manufacturing.reports.wip.stats');
     });
 
     // Production Stages Routes

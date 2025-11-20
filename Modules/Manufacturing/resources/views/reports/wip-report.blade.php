@@ -9,11 +9,16 @@
 @section('content')
 <style>
     /* تخصيصات إضافية خاصة بتقرير WIP */
+    .shift-container {
+        padding: 0;
+        background: transparent;
+    }
+    
     .delay-badge {
         display: inline-flex;
         align-items: center;
         padding: var(--spacing-xs) var(--spacing-md);
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius-full);
         font-size: 0.75rem;
         font-weight: 600;
         line-height: 1;
@@ -49,7 +54,7 @@
     .status-normal {
         color: var(--success-color);
     }
-
+    
     .data-table-container {
         background: var(--white);
         border-radius: var(--radius-xl);
@@ -119,6 +124,27 @@
     .data-table tbody tr:hover {
         background-color: rgba(0, 102, 178, 0.05);
     }
+    
+    .empty-state {
+        text-align: center;
+        padding: var(--spacing-2xl);
+        color: var(--gray-500);
+    }
+    
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .empty-state h3 {
+        margin: 0 0 var(--spacing-sm) 0;
+        color: var(--gray-700);
+    }
+    
+    .empty-state p {
+        margin: 0;
+        color: var(--gray-600);
+    }
 </style>
 
 <div class="shift-container">
@@ -139,7 +165,7 @@
             <div class="stat-header">
                 <div>
                     <div class="stat-title">القطع العالقة</div>
-                    <p class="stat-value">{{ number_format($stats['total_stuck']) }}</p>
+                    <p class="stat-value">{{ number_format($stats['total']) }}</p>
                 </div>
                 <div class="stat-icon danger">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -171,7 +197,7 @@
             <div class="stat-header">
                 <div>
                     <div class="stat-title">أطول تأخير</div>
-                    <p class="stat-value">{{ number_format($stats['max_delay_hours'], 1) }}</p>
+                    <p class="stat-value">{{ number_format($stuckItems->count() > 0 ? max($stuckItems->pluck('hours_stuck')->toArray()) : 0, 1) }}</p>
                     <small style="color: var(--gray-600);">ساعة</small>
                 </div>
                 <div class="stat-icon info">
@@ -220,12 +246,20 @@
     </div>
 
     <!-- فلاتر البيانات -->
-    <div class="filters-card">
-        <h3>فلترة البيانات</h3>
+    <div class="chart-container">
+        <div class="chart-header">
+            <h3 class="chart-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                فلترة البيانات
+            </h3>
+        </div>
         <form method="GET" action="{{ route('manufacturing.reports.wip') }}">
-            <div class="filter-grid">
+            <div class="filters-grid">
                 <div class="filter-group">
-                    <label class="filter-label">المرحلة</label>
+                    <label class="control-label">المرحلة</label>
                     <select name="stage" class="select-input">
                         <option value="">كل المراحل</option>
                         <option value="1" {{ request('stage') == '1' ? 'selected' : '' }}>المرحلة 1</option>
@@ -236,7 +270,7 @@
                 </div>
 
                 <div class="filter-group">
-                    <label class="filter-label">العامل</label>
+                    <label class="control-label">العامل</label>
                     <select name="worker_id" class="select-input">
                         <option value="">كل العمال</option>
                         @foreach($workers as $worker)
@@ -248,26 +282,35 @@
                 </div>
 
                 <div class="filter-group">
-                    <label class="filter-label">الحالة</label>
-                    <select name="delay_status" class="select-input">
+                    <label class="control-label">ساعات التأخير</label>
+                    <select name="delay_hours" class="select-input">
                         <option value="">كل الحالات</option>
-                        <option value="normal" {{ request('delay_status') == 'normal' ? 'selected' : '' }}>عادي</option>
-                        <option value="warning" {{ request('delay_status') == 'warning' ? 'selected' : '' }}>تحذير</option>
-                        <option value="critical" {{ request('delay_status') == 'critical' ? 'selected' : '' }}>حرج</option>
+                        <option value="24" {{ request('delay_hours') == '24' ? 'selected' : '' }}>أكثر من 24 ساعة</option>
+                        <option value="48" {{ request('delay_hours') == '48' ? 'selected' : '' }}>أكثر من 48 ساعة</option>
+                        <option value="72" {{ request('delay_hours') == '72' ? 'selected' : '' }}>أكثر من 72 ساعة</option>
                     </select>
                 </div>
 
                 <div class="filter-group">
-                    <label class="filter-label">تاريخ البداية</label>
+                    <label class="control-label">تاريخ البداية</label>
                     <input type="date" name="date_from" value="{{ request('date_from') }}" class="select-input">
                 </div>
+                <input type="hidden" name="date_to" value="{{ request('date_to', now()->format('Y-m-d')) }}">
             </div>
 
             <div class="filter-actions">
                 <button type="submit" class="refresh-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
                     تطبيق الفلاتر
                 </button>
                 <a href="{{ route('manufacturing.reports.wip') }}" class="reset-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="1 4 1 10 7 10"></polyline>
+                        <path d="M3.51 9A9 9 0 0 1 5.64 5.64"></path>
+                    </svg>
                     إعادة تعيين
                 </a>
             </div>
@@ -301,18 +344,18 @@
                         <td>{{ \Carbon\Carbon::parse($item->started_at)->format('Y-m-d H:i') }}</td>
                         <td>
                             <span class="delay-badge delay-{{
-                                $item->delay_hours < 24 ? 'normal' :
-                                ($item->delay_hours < 48 ? 'warning' : 'critical')
+                                $item->hours_stuck < 24 ? 'normal' :
+                                ($item->hours_stuck < 48 ? 'warning' : 'critical')
                             }}">
-                                {{ number_format($item->delay_hours, 1) }} ساعة
+                                {{ number_format($item->hours_stuck, 1) }} ساعة
                             </span>
                         </td>
                         <td>
                             <span class="status-text status-{{
-                                $item->delay_hours < 24 ? 'normal' :
-                                ($item->delay_hours < 48 ? 'warning' : 'critical')
+                                $item->hours_stuck < 24 ? 'normal' :
+                                ($item->hours_stuck < 48 ? 'warning' : 'critical')
                             }}">
-                                {{ $item->delay_hours < 24 ? 'عادي' : ($item->delay_hours < 48 ? 'تحذير' : 'حرج') }}
+                                {{ $item->hours_stuck < 24 ? 'عادي' : ($item->hours_stuck < 48 ? 'تحذير' : 'حرج') }}
                             </span>
                         </td>
                     </tr>
