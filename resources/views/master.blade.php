@@ -20,6 +20,7 @@
 
     <!-- Dashboard CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/reports-theme.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/manufacturing-reports.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style-index.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style-add.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
