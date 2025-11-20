@@ -100,6 +100,7 @@ class Stage1Controller extends Controller
                 throw new \Exception("الكمية المتوفرة للإنتاج ({$availableWeight} كجم) غير كافية للكمية المطلوبة ({$totalNetWeightNeeded} كجم)");
             }
 
+            
             $processedRecords = [];
 
             foreach ($validated['processed_stands'] as $processedData) {
