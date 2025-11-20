@@ -103,7 +103,7 @@
                     <p>الوزن الكلي (كجم)</p>
                 </div>
             </div>
-          
+
         </div>
 
         <!-- Materials Table -->

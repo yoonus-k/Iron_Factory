@@ -83,7 +83,7 @@
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <div class="stat-info">
-                            <span class="stat-label">🟢 شحنات مسجلة (مكتملة)</span>
+                            <span class="stat-label">🟢 شحنات مسجلة</span>
                             <span class="stat-number" style="color: #27ae60;">{{ $incomingRegistered->total() ?? 0 }}</span>
                         </div>
                     </div>
@@ -236,6 +236,10 @@
                             <i class="fas fa-arrow-right"></i> <strong>الخطوة 2:</strong> عرض التفاصيل أو نقل للإنتاج
                         </div>
                             @foreach ($incomingRegistered as $index => $shipment)
+                                @php
+                                    $availableQuantity = $shipment->materialDetail->quantity ?? 0;
+                                    $isMovedToProduction = $availableQuantity == 0;
+                                @endphp
                                 <div class="operation-item" style="padding-bottom: 20px; border-bottom: 1px solid #e9ecef; margin-bottom: 20px;">
                                     @if($index === count($incomingRegistered) - 1)
                                         <style>
@@ -250,13 +254,23 @@
                                             <div class="operation-description" style="margin-bottom: 8px;">
                                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
                                                     <!-- Badge للحالة -->
-                                                    <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                                        </svg>
-                                                        مسجلة
-                                                    </span>
+                                                    @if($isMovedToProduction)
+                                                        <span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                            <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
+                                                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                                            </svg>
+                                                            منقولة للإنتاج
+                                                        </span>
+                                                    @else
+                                                        <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                            <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
+                                                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                                            </svg>
+                                                            في المستودع
+                                                        </span>
+                                                    @endif
 
                                                     <!-- معلومات محاولات التسجيل -->
                                                     @if ($shipment->registration_attempts > 0)
@@ -270,13 +284,22 @@
                                                         #{{ $shipment->note_number ?? $shipment->id }}
                                                     </strong>
 
-                                                    <!-- الوزن -->
-                                                    <span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                                                        </svg>
-                                                        {{ number_format($shipment->actual_weight ?? 0, 2) }} كيلو
-                                                    </span>
+                                                    <!-- الكمية المتبقية -->
+                                                    @if($isMovedToProduction)
+                                                        <span class="badge" style="background-color: #95a5a6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                            <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
+                                                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                                                            </svg>
+                                                            الكمية: 0 كجم (مكتملة)
+                                                        </span>
+                                                    @else
+                                                        <span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                            <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
+                                                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                                                            </svg>
+                                                            متاح: {{ number_format($availableQuantity, 2) }} كجم
+                                                        </span>
+                                                    @endif
                                                 </div>
                                             </div>
 

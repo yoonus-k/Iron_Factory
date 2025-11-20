@@ -91,24 +91,7 @@
                     <p>المبلغ الإجمالي (ريال)</p>
                 </div>
             </div>
-            <div class="stat-card green">
-                <div class="stat-icon">
-                    <i class="feather icon-check-circle"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ number_format($stats['paid_amount'], 2) }}</h3>
-                    <p>المبلغ المدفوع (ريال)</p>
-                </div>
-            </div>
-            <div class="stat-card orange">
-                <div class="stat-icon">
-                    <i class="feather icon-alert-circle"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ number_format($stats['pending_amount'], 2) }}</h3>
-                    <p>المبلغ المعلق (ريال)</p>
-                </div>
-            </div>
+
             <div class="stat-card blue">
                 <div class="stat-icon">
                     <i class="feather icon-file-text"></i>
@@ -151,7 +134,7 @@
                                 <td>{{ number_format($invoice->paid_amount ?? 0, 2) }} ريال</td>
                                 <td>{{ number_format($invoice->total_amount - ($invoice->paid_amount ?? 0), 2) }} ريال</td>
                                 <td>
-                                    @if($invoice->payment_status == 'paid')
+                                    {{-- @if($invoice->payment_status == 'paid')
                                         <span class="status-badge paid">مدفوعة</span>
                                     @elseif($invoice->payment_status == 'pending')
                                         <span class="status-badge pending">قيد الانتظار</span>
@@ -159,7 +142,7 @@
                                         <span class="status-badge partial">مدفوعة جزئياً</span>
                                     @else
                                         <span class="status-badge">{{ $invoice->payment_status }}</span>
-                                    @endif
+                                    @endif --}}
                                 </td>
                             </tr>
                         @empty
@@ -467,20 +450,18 @@
                         data: [
                             {{ $stats['total_invoices'] }},
                             {{ $stats['total_amount'] }},
-                            {{ $stats['paid_amount'] }},
-                            {{ $stats['pending_amount'] }}
+
+
                         ],
                         backgroundColor: [
                             'rgba(0, 102, 178, 0.8)',
                             'rgba(156, 39, 176, 0.8)',
-                            'rgba(39, 174, 96, 0.8)',
-                            'rgba(243, 156, 18, 0.8)'
+
                         ],
                         borderColor: [
                             'rgba(0, 102, 178, 1)',
                             'rgba(156, 39, 176, 1)',
-                            'rgba(39, 174, 96, 1)',
-                            'rgba(243, 156, 18, 1)'
+
                         ],
                         borderWidth: 1
                     }]
