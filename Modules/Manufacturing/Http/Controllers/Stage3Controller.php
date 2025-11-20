@@ -47,21 +47,34 @@ class Stage3Controller extends Controller
     public function getByBarcode($barcode)
     {
         $stage2 = DB::table('stage2_processed')
-            ->where('barcode', $barcode)
+            ->leftJoin('stage1_stands', 'stage2_processed.stage1_id', '=', 'stage1_stands.id')
+            ->leftJoin('material_details', 'stage2_processed.material_id', '=', 'material_details.id')
+            ->leftJoin('materials', 'material_details.material_id', '=', 'materials.id')
+            ->where('stage2_processed.barcode', $barcode)
+            ->select(
+                'stage2_processed.*',
+                'stage1_stands.barcode as stage1_barcode',
+                'stage1_stands.stand_number',
+                'materials.name_ar as material_name_ar',
+                'materials.name_en as material_name_en',
+                'material_details.unit_id'
+            )
             ->first();
 
         if (!$stage2) {
             return response()->json([
                 'success' => false,
-                'message' => 'لم يتم العثور على بيانات بهذا الباركود في المرحلة الثانية'
+                'message' => 'لم يتم العثور على باركود المرحلة الثانية'
             ], 404);
         }
 
-        // الوزن الصحيح هو output_weight (وزن الخروج من المرحلة الثانية)
-        $outputWeight = $stage2->output_weight ?? $stage2->remaining_weight ?? 0;
-
-        // إرجاع كل بيانات المرحلة الثانية مع الوزن الصحيح
-        $stage2->final_output_weight = $outputWeight;
+        // التحقق من أن المرحلة الثانية في حالة نشطة
+        if ($stage2->status !== 'in_progress' && $stage2->status !== 'completed') {
+            return response()->json([
+                'success' => false,
+                'message' => 'حالة المرحلة الثانية غير صالحة للمعالجة'
+            ], 400);
+        }
 
         return response()->json([
             'success' => true,
