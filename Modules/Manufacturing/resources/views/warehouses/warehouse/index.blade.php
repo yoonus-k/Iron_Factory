@@ -91,7 +91,7 @@
                             <th>اسم المستودع</th>
                             <th>الرمز</th>
                             <th>الموقع</th>
-                            <th>المسؤول</th>
+                       >
                             <th>الحالة</th>
                             <th>الإجراءات</th>
                         </tr>
@@ -103,15 +103,13 @@
                             <td>
                                 <div class="um-course-info">
                                     <h6 class="um-course-title">{{ $warehouse->warehouse_name }}</h6>
-                                    @if($warehouse->warehouse_name_en)
-                                        <p class="um-course-desc text-muted">{{ $warehouse->warehouse_name_en }}</p>
-                                    @endif
-                                    <p class="um-course-desc">{{ $warehouse->description ?? 'بدون وصف' }}</p>
+
+
                                 </div>
                             </td>
                             <td>{{ $warehouse->warehouse_code }}</td>
                             <td>{{ $warehouse->location ?? 'غير محدد' }}</td>
-                            <td>{{ $warehouse->manager_name ?? 'غير محدد' }}</td>
+
                             <td>
                                 <span class="um-badge {{ $warehouse->is_active ? 'um-badge-success' : 'um-badge-danger' }}">
                                     {{ $warehouse->is_active ? 'نشط' : 'غير نشط' }}
@@ -249,7 +247,7 @@
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    
+
                     Swal.fire({
                         title: 'تأكيد الحذف',
                         text: 'هل أنت متأكد من حذف هذا المستودع؟ هذا الإجراء لا يمكن التراجع عنه!',

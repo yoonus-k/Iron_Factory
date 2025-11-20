@@ -137,26 +137,26 @@
                     </thead>
                     <tbody>
                         @forelse($materialDetails as $index => $detail)
-                            <tr class="{{ $detail->quantity <= $detail->min_quantity ? 'low-stock-row' : '' }}">
+                            <tr class="{{ $detail->quantity <= ($detail->min_quantity ?? 0) && $detail->min_quantity > 0 ? 'low-stock-row' : '' }}">
                                 <td>{{ $materialDetails->firstItem() + $index }}</td>
-                                <td><strong>{{ $detail->name_ar }}</strong></td>
-                                <td>{{ $detail->warehouse_name }}</td>
-                                <td>{{ $detail->type_name }}</td>
+                                <td><strong>{{ $detail->material->name_ar ?? $detail->material->name_en ?? 'غير محدد' }}</strong></td>
+                                <td>{{ $detail->warehouse->warehouse_name ?? 'غير محدد' }}</td>
+                                <td>{{ $detail->material->materialType->type_name ?? 'غير محدد' }}</td>
                                 <td>
-                                    <span class="quantity-badge {{ $detail->quantity <= $detail->min_quantity ? 'low' : '' }}">
+                                    <span class="quantity-badge {{ $detail->min_quantity > 0 && $detail->quantity <= $detail->min_quantity ? 'low' : '' }}">
                                         {{ number_format($detail->quantity, 2) }}
                                     </span>
                                 </td>
-                                <td>{{ $detail->unit_name ?? 'وحدة' }}</td>
-                                <td>{{ number_format($detail->min_quantity, 2) }}</td>
-                                <td>{{ number_format($detail->actual_weight, 2) }} كجم</td>
+                                <td>{{ $detail->unit->unit_name ?? 'وحدة' }}</td>
+                                <td>{{ $detail->min_quantity ? number_format($detail->min_quantity, 2) : '-' }}</td>
+                                <td>{{ number_format($detail->actual_weight ?? 0, 2) }} كجم</td>
                                 <td>
-                                    @if($detail->status == 'available')
+                                    @if($detail->material->status == 'available')
                                         <span class="status-badge active">متاح</span>
-                                    @elseif($detail->status == 'in_use')
+                                    @elseif($detail->material->status == 'in_use')
                                         <span class="status-badge warning">قيد الاستخدام</span>
                                     @else
-                                        <span class="status-badge inactive">{{ $detail->status }}</span>
+                                        <span class="status-badge inactive">{{ $detail->material->status }}</span>
                                     @endif
                                 </td>
                             </tr>

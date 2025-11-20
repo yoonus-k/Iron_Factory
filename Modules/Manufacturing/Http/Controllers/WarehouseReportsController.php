@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Warehouse;
 use App\Models\Material;
+use App\Models\MaterialDetail;
 use App\Models\DeliveryNote;
 use App\Models\PurchaseInvoice;
 use App\Models\AdditivesInventory;
@@ -56,38 +57,28 @@ class WarehouseReportsController extends Controller
      */
     public function materialsReport(Request $request)
     {
-        // جلب تفاصيل المواد من material_details
-        $materialDetails = DB::table('material_details')
-            ->join('materials', 'material_details.material_id', '=', 'materials.id')
-            ->join('warehouses', 'material_details.warehouse_id', '=', 'warehouses.id')
-            ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
-            ->leftJoin('units', 'material_details.unit_id', '=', 'units.id')
-            ->select(
-                'material_details.*',
-                'materials.name_ar',
-                'materials.name_en',
-                'materials.barcode',
-                'materials.status',
-                'warehouses.warehouse_name',
-                'material_types.type_name',
-                'units.unit_name'
-            )
+        // جلب تفاصيل المواد من material_details باستخدام Eloquent
+        $materialDetailsQuery = MaterialDetail::with(['material', 'warehouse', 'unit'])
             ->when($request->warehouse_id, function ($query) use ($request) {
-                $query->where('material_details.warehouse_id', $request->warehouse_id);
+                $query->where('warehouse_id', $request->warehouse_id);
             })
             ->when($request->status, function ($query) use ($request) {
-                $query->where('materials.status', $request->status);
-            })
-            ->orderBy('material_details.created_at', 'desc')
-            ->paginate(20);
+                $query->whereHas('material', function ($q) use ($request) {
+                    $q->where('status', $request->status);
+                });
+            });
 
+        $materialDetails = $materialDetailsQuery->orderBy('created_at', 'desc')->paginate(20);
+
+        // حساب الإحصائيات باستخدام Eloquent
         $stats = [
-            'total_materials' => DB::table('material_details')->count(),
-            'total_quantity' => DB::table('material_details')->sum('quantity'),
-            'low_stock' => DB::table('material_details')
-                ->whereRaw('quantity <= min_quantity')
+            'total_materials' => MaterialDetail::count(),
+            'total_quantity' => MaterialDetail::sum('quantity'),
+            'low_stock' => MaterialDetail::whereNotNull('min_quantity')
+                ->where('min_quantity', '>', 0)
+                ->whereColumn('quantity', '<=', 'min_quantity')
                 ->count(),
-            'total_weight' => DB::table('material_details')->sum('actual_weight'),
+            'total_weight' => MaterialDetail::sum('actual_weight'),
         ];
 
         $warehouses = Warehouse::where('is_active', true)->get();
@@ -259,10 +250,10 @@ class WarehouseReportsController extends Controller
                 'total_capacity' => Warehouse::sum('capacity'),
             ],
             'materials' => [
-                'total' => DB::table('material_details')->count(),
-                'total_quantity' => DB::table('material_details')->sum('quantity'),
-                'total_weight' => DB::table('material_details')->sum('actual_weight'),
-                'low_stock' => DB::table('material_details')->whereRaw('quantity <= min_quantity')->count(),
+                'total' => MaterialDetail::count(),
+                'total_quantity' => MaterialDetail::sum('quantity'),
+                'total_weight' => MaterialDetail::sum('actual_weight'),
+                'low_stock' => MaterialDetail::whereColumn('quantity', '<=', 'min_quantity')->count(),
             ],
             'delivery_notes' => [
                 'total' => DeliveryNote::whereBetween('delivery_date', [$startDate, $endDate])->count(),

@@ -121,8 +121,6 @@
                             <th>اسم المادة</th>
                             <th>الفئة</th>
 
-                            <th>الكمية الأصلية</th>
-                            <th>الكمية المتبقية</th>
                             <th>الوحدة</th>
 
                             <th>الحالة</th>
@@ -147,18 +145,8 @@
                                     <span class="badge badge-info">{{ $material->getCategoryLabel() }}</span>
                                 </td>
 
-                                <td>
-                                    @foreach ($material->materialDetails as $detail)
-                                        <strong>{{ $detail->original_weight }}</strong> {{ $detail->unit->unit_name?? 'N/A' }}
-                                        <br>
-                                    @endforeach
-                                </td>
-                                <td>
-                                    @foreach ($material->materialDetails as $detail)
-                                        <strong>{{ $detail->remaining_weight }}</strong> {{ $detail->unit->unit_name?? 'N/A' }}
-                                        <br>
-                                    @endforeach
-                                </td>
+
+
                                 <td>{{ $material->materialDetails->first()->unit->unit_name ?? 'N/A' }}</td>
 
                                 <td>

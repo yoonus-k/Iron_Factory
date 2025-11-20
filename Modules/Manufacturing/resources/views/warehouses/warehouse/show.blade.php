@@ -184,18 +184,7 @@
                                     </div>
 
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                                        <div>
-                                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 4px;">الوزن الأصلي</div>
-                                            <div style="font-size: 14px; font-weight: 500; color: #2c3e50;">
-                                                {{ $detail->original_weight ?? '-' }}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 4px;">الوزن المتبقي</div>
-                                            <div style="font-size: 14px; font-weight: 500; color: #27ae60;">
-                                                {{ $detail->remaining_weight ?? '-' }}
-                                            </div>
-                                        </div>
+
                                     </div>
 
                                     @if($detail->location_in_warehouse)

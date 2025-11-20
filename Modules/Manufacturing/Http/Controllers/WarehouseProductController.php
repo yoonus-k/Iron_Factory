@@ -163,6 +163,14 @@ class WarehouseProductController extends Controller
     }
 
     /**
+     * Display the specified material (alias for show method).
+     */
+    public function showMaterial($id)
+    {
+        return $this->show($id);
+    }
+
+    /**
      * Show the form for editing the specified warehouse product.
      */
     public function edit($id)
