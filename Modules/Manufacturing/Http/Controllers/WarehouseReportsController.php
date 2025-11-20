@@ -14,6 +14,7 @@ use App\Models\PurchaseInvoice;
 use App\Models\AdditivesInventory;
 use App\Models\Supplier;
 use App\Models\WarehouseTransaction;
+use App\Models\MaterialMovement;
 
 class WarehouseReportsController extends Controller
 {
@@ -133,7 +134,7 @@ class WarehouseReportsController extends Controller
                 $query->where('supplier_id', $request->supplier_id);
             })
             ->when($request->status, function($query) use ($request) {
-                $query->where('payment_status', $request->status);
+                $query->where('create_at', $request->status);
             })
             ->orderBy('invoice_date', 'desc')
             ->paginate(20);
@@ -141,8 +142,7 @@ class WarehouseReportsController extends Controller
         $stats = [
             'total_invoices' => PurchaseInvoice::whereBetween('invoice_date', [$startDate, $endDate])->count(),
             'total_amount' => PurchaseInvoice::whereBetween('invoice_date', [$startDate, $endDate])->sum('total_amount'),
-            'paid_amount' => PurchaseInvoice::whereBetween('invoice_date', [$startDate, $endDate])->where('payment_status', 'paid')->sum('total_amount'),
-            'pending_amount' => PurchaseInvoice::whereBetween('invoice_date', [$startDate, $endDate])->where('payment_status', 'pending')->sum('total_amount'),
+
         ];
 
         $suppliers = Supplier::where('is_active', true)->get();

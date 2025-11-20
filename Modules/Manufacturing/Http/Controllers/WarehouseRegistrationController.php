@@ -49,10 +49,23 @@ class WarehouseRegistrationController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
-        // البضاعة الداخلة (الواردة) المسجلة
+        // البضاعة الداخلة (الواردة) المسجلة (فقط التي لم تنقل للإنتاج بعد)
         $incomingRegistered = DeliveryNote::where('type', 'incoming')
             ->where('registration_status', '!=', 'not_registered')
-            ->with(['supplier', 'registeredBy', 'material'])
+            ->whereHas('materialDetail', function($query) {
+                $query->where('quantity', '>', 0);
+            })
+            ->with(['supplier', 'registeredBy', 'material', 'materialDetail'])
+            ->orderBy('registered_at', 'desc')
+            ->paginate(15);
+
+        // البضاعة المنقولة للإنتاج (الكمية = 0)
+        $movedToProduction = DeliveryNote::where('type', 'incoming')
+            ->where('registration_status', '!=', 'not_registered')
+            ->whereHas('materialDetail', function($query) {
+                $query->where('quantity', '=', 0);
+            })
+            ->with(['supplier', 'registeredBy', 'material', 'materialDetail'])
             ->orderBy('registered_at', 'desc')
             ->paginate(15);
 
@@ -65,6 +78,7 @@ class WarehouseRegistrationController extends Controller
         return view('manufacturing::warehouses.registration.pending', compact(
             'incomingUnregistered',
             'incomingRegistered',
+            'movedToProduction',
             'outgoing'
         ));
     }

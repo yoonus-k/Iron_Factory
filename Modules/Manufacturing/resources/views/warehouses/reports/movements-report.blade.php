@@ -51,9 +51,9 @@
                     <label>نوع الحركة</label>
                     <select name="transaction_type" class="form-control">
                         <option value="">الكل</option>
-                        <option value="receive" {{ request('transaction_type') == 'receive' ? 'selected' : '' }}>استلام</option>
-                        <option value="issue" {{ request('transaction_type') == 'issue' ? 'selected' : '' }}>صرف</option>
-                        <option value="transfer" {{ request('transaction_type') == 'transfer' ? 'selected' : '' }}>تحويل</option>
+                        <option value="incoming" {{ request('transaction_type') == 'incoming' ? 'selected' : '' }}>دخول بضاعة</option>
+                        <option value="outgoing" {{ request('transaction_type') == 'outgoing' ? 'selected' : '' }}>خروج بضاعة</option>
+                        <option value="transfer" {{ request('transaction_type') == 'transfer' ? 'selected' : '' }}>نقل بين مستودعات</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-filter">
@@ -90,7 +90,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['receive_count'] }}</h3>
-                    <p>عمليات استلام</p>
+                    <p>دخول بضاعة</p>
                 </div>
             </div>
             <div class="stat-card orange">
@@ -99,7 +99,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['issue_count'] }}</h3>
-                    <p>عمليات صرف</p>
+                    <p>خروج بضاعة</p>
                 </div>
             </div>
             <div class="stat-card purple">
@@ -108,7 +108,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['transfer_count'] }}</h3>
-                    <p>عمليات تحويل</p>
+                    <p>نقل بين مستودعات</p>
                 </div>
             </div>
             <div class="stat-card blue">
@@ -147,7 +147,15 @@
                             <tr>
                                 <td>{{ $movements->firstItem() + $index }}</td>
                                 <td><strong>{{ $movement->material->name_ar ?? $movement->material->name_en ?? 'غير محدد' }}</strong></td>
-                                <td>{{ $movement->warehouse->warehouse_name ?? 'غير محدد' }}</td>
+                                <td>
+                                    @if($movement->fromWarehouse)
+                                        {{ $movement->fromWarehouse->warehouse_name }}
+                                    @elseif($movement->supplier)
+                                        {{ $movement->supplier->name ?? 'غير محدد' }}
+                                    @else
+                                        غير محدد
+                                    @endif
+                                </td>
                                 <td>{{ $movement->material->materialType->type_name ?? 'غير محدد' }}</td>
                                 <td>
                                     <span class="quantity-badge">
@@ -156,20 +164,20 @@
                                 </td>
                                 <td>{{ $movement->unit->unit_name ?? 'وحدة' }}</td>
                                 <td>
-                                    @if($movement->transaction_type == 'receive')
+                                    @if($movement->movement_type == 'incoming')
                                         <span class="type-badge receive">
                                             <i class="feather icon-arrow-down"></i> استلام
                                         </span>
-                                    @elseif($movement->transaction_type == 'issue')
+                                    @elseif($movement->movement_type == 'outgoing')
                                         <span class="type-badge issue">
                                             <i class="feather icon-arrow-up"></i> صرف
                                         </span>
-                                    @elseif($movement->transaction_type == 'transfer')
+                                    @elseif($movement->movement_type == 'transfer')
                                         <span class="type-badge transfer">
                                             <i class="feather icon-shuffle"></i> تحويل
                                         </span>
                                     @else
-                                        <span class="type-badge">{{ $movement->transaction_type }}</span>
+                                        <span class="type-badge">{{ $movement->movement_type }}</span>
                                     @endif
                                 </td>
                                 <td>{{ \Carbon\Carbon::parse($movement->created_at)->format('Y-m-d H:i') }}</td>
@@ -484,7 +492,7 @@
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['إجمالي الحركات', 'استلام', 'صرف', 'تحويل'],
+                    labels: ['إجمالي الحركات', 'دخول بضاعة', 'خروج بضاعة', 'نقل بين مستودعات'],
                     datasets: [{
                         label: 'الإحصائيات',
                         data: [
