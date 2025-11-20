@@ -268,7 +268,7 @@ function loadMaterialByBarcode(barcode) {
     }
 
     // TODO: Replace with actual API call
-    fetch(`/manufacturing/warehouse-products/get-by-barcode/${barcode}`, {
+    fetch(`/warehouse-products/get-by-barcode/${barcode}`, {
         headers: {
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
