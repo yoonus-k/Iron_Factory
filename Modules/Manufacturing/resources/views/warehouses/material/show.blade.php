@@ -251,21 +251,6 @@
                     </div>
                     @endif
 
-                    <div class="info-item">
-                        <div class="info-label">إجمالي الوزن الأصلي:</div>
-                        <div class="info-value">
-                            {{ $material->materialDetails->sum('original_weight') }}
-                            {{ $material->materialDetails->first()?->getUnitName() ?? 'وحدة' }}
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">إجمالي الوزن المتبقي:</div>
-                        <div class="info-value">
-                            {{ $material->materialDetails->sum('remaining_weight') }}
-                            {{ $material->materialDetails->first()?->getUnitName() ?? 'وحدة' }}
-                        </div>
-                    </div>
 
                     <div class="info-item">
                         <div class="info-label">الحالة:</div>

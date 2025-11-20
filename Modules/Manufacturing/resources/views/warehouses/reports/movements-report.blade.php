@@ -41,7 +41,9 @@
                     <select name="warehouse_id" class="form-control">
                         <option value="">الكل</option>
                         @foreach($warehouses as $warehouse)
-                            <option value="{{ $warehouse->id }}">{{ $warehouse->warehouse_name }}</option>
+                            <option value="{{ $warehouse->id }}" {{ request('warehouse_id') == $warehouse->id ? 'selected' : '' }}>
+                                {{ $warehouse->warehouse_name }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -49,9 +51,9 @@
                     <label>نوع الحركة</label>
                     <select name="transaction_type" class="form-control">
                         <option value="">الكل</option>
-                        <option value="receive">استلام</option>
-                        <option value="issue">صرف</option>
-                        <option value="transfer">تحويل</option>
+                        <option value="receive" {{ request('transaction_type') == 'receive' ? 'selected' : '' }}>استلام</option>
+                        <option value="issue" {{ request('transaction_type') == 'issue' ? 'selected' : '' }}>صرف</option>
+                        <option value="transfer" {{ request('transaction_type') == 'transfer' ? 'selected' : '' }}>تحويل</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-filter">
@@ -131,12 +133,12 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>رقم الحركة</th>
-                            <th>نوع الحركة</th>
+                            <th>اسم المادة</th>
                             <th>المستودع</th>
-                            <th>المادة</th>
+                            <th>النوع</th>
                             <th>الكمية</th>
                             <th>الوحدة</th>
+                            <th>نوع الحركة</th>
                             <th>التاريخ</th>
                         </tr>
                     </thead>
@@ -144,7 +146,15 @@
                         @forelse($movements as $index => $movement)
                             <tr>
                                 <td>{{ $movements->firstItem() + $index }}</td>
-                                <td><span class="badge badge-info">{{ $movement->transaction_number }}</span></td>
+                                <td><strong>{{ $movement->material->name_ar ?? $movement->material->name_en ?? 'غير محدد' }}</strong></td>
+                                <td>{{ $movement->warehouse->warehouse_name ?? 'غير محدد' }}</td>
+                                <td>{{ $movement->material->materialType->type_name ?? 'غير محدد' }}</td>
+                                <td>
+                                    <span class="quantity-badge">
+                                        {{ number_format($movement->quantity, 2) }}
+                                    </span>
+                                </td>
+                                <td>{{ $movement->unit->unit_name ?? 'وحدة' }}</td>
                                 <td>
                                     @if($movement->transaction_type == 'receive')
                                         <span class="type-badge receive">
@@ -162,10 +172,6 @@
                                         <span class="type-badge">{{ $movement->transaction_type }}</span>
                                     @endif
                                 </td>
-                                <td>{{ $movement->warehouse_name }}</td>
-                                <td><strong>{{ $movement->material_name }}</strong></td>
-                                <td><strong>{{ $movement->quantity }}</strong></td>
-                                <td>{{ $movement->unit_name }}</td>
                                 <td>{{ \Carbon\Carbon::parse($movement->created_at)->format('Y-m-d H:i') }}</td>
                             </tr>
                         @empty
@@ -191,7 +197,7 @@
         }
 
         .report-header {
-            background: linear-gradient(135deg, #FF6B35, #e55527);
+            background: linear-gradient(135deg, #0066B2, #004d8a);
             border-radius: 16px;
             padding: 30px 40px;
             margin-bottom: 30px;
@@ -253,7 +259,7 @@
 
         .btn-action:hover {
             background: white;
-            color: #FF6B35;
+            color: #0066B2;
         }
 
         .filter-card {
@@ -297,7 +303,7 @@
             align-items: center;
             gap: 8px;
             padding: 10px 24px;
-            background: #FF6B35;
+            background: #0066B2;
             color: white;
             border: none;
             border-radius: 8px;
@@ -400,16 +406,12 @@
             background: #f8f9fa;
         }
 
-        .badge {
+        .quantity-badge {
             padding: 6px 12px;
             border-radius: 6px;
-            font-size: 12px;
             font-weight: 600;
-        }
-
-        .badge-info {
-            background: #e3f2fd;
-            color: #0066B2;
+            background: #e8f5e9;
+            color: #27AE60;
         }
 
         .type-badge {
@@ -462,6 +464,14 @@
 
             .header-content {
                 flex-direction: column;
+            }
+
+            .filter-form {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                width: 100%;
             }
         }
     </style>
@@ -521,5 +531,4 @@
             });
         });
     </script>
-    </style>
 @endsection

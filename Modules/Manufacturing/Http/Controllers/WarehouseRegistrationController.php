@@ -91,7 +91,7 @@ $matrials = Material::all();
      */
     public function store(Request $request, DeliveryNote $deliveryNote)
     {
-        
+
         // تحقق من أن التسليمة لم تُسجل بعد
         if ($deliveryNote->registration_status !== 'not_registered') {
             return back()->with('error', 'هذه التسليمة مسجلة بالفعل');
@@ -312,117 +312,36 @@ $matrials = Material::all();
      * Transfer to production
      * نقل البضاعة للإنتاج مع خصم من المستودع
      */
-    // public function transferToProduction(Request $request, DeliveryNote $deliveryNote)
-    // {
-    //     // التحقق من وجود MaterialDetail
-    //     if (!$deliveryNote->material_detail_id || !$deliveryNote->materialDetail) {
-    //         return back()->with('error', 'هذه البضاعة لم تسجل في المستودع بعد');
-    //     }
-
-    //     // التحقق من البيانات
-    //     $validated = $request->validate([
-    //         'quantity' => 'required|numeric|min:0.01',
-    //         'notes' => 'nullable|string|max:500',
-    //     ], [
-    //         'quantity.required' => 'الكمية مطلوبة',
-    //         'quantity.numeric' => 'الكمية يجب أن تكون رقم',
-    //         'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
-    //     ]);
-
-    //     try {
-    //         DB::beginTransaction();
-
-    //         // نقل البضاعة للإنتاج
-    //         $this->warehouseService->transferToProduction(
-    //             $deliveryNote,
-    //             (float)$validated['quantity'],
-    //             Auth::id(),
-    //             $validated['notes'] ?? null
-    //         );
-
-    //         // ✅ تسجيل حركة النقل للإنتاج
-    //         $movement = MaterialMovement::create([
-    //             'movement_number' => MaterialMovement::generateMovementNumber(),
-    //             'movement_type' => 'to_production',
-    //             'source' => 'production',
-    //             'delivery_note_id' => $deliveryNote->id,
-    //             'material_detail_id' => $deliveryNote->material_detail_id,
-    //             'material_id' => $deliveryNote->material_id,
-    //             'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
-    //             'quantity' => (float)$validated['quantity'],
-    //             'from_warehouse_id' => $deliveryNote->warehouse_id,
-    //             'destination' => 'الإنتاج',
-    //             'description' => 'نقل بضاعة للإنتاج - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id),
-    //             'notes' => $validated['notes'] ?? null,
-    //             'created_by' => Auth::id(),
-    //             'movement_date' => now(),
-    //             'ip_address' => request()->ip(),
-    //             'user_agent' => request()->userAgent(),
-    //             'status' => 'completed',
-    //         ]);
-
-    //         // تحديث الكمية المتبقية في الدفعة إذا كان هناك batch_id
-    //         if ($movement->batch_id) {
-    //             $batch = MaterialBatch::find($movement->batch_id);
-    //             if ($batch) {
-    //                 $batch->available_quantity = max(0, $batch->available_quantity - (float)$validated['quantity']);
-    //                 $batch->save();
-    //             }
-    //         }
-
-    //         DB::commit();
-
-    //         return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
-    //             ->with('success', 'تم نقل البضاعة للإنتاج بنجاح!');
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
-    //     }
-    // }
-
     public function transferToProduction(Request $request, DeliveryNote $deliveryNote)
-{
-    // التحقق من وجود MaterialDetail
-    if (!$deliveryNote->material_detail_id || !$deliveryNote->materialDetail) {
-        return back()->with('error', 'هذه البضاعة لم تسجل في المستودع بعد');
-    }
-
-    // التحقق من البيانات
-    $validated = $request->validate([
-        'quantity' => 'required|numeric|min:0.01',
-        'notes' => 'nullable|string|max:500',
-    ], [
-        'quantity.required' => 'الكمية مطلوبة',
-        'quantity.numeric' => 'الكمية يجب أن تكون رقم',
-        'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
-    ]);
-
-    try {
-        DB::beginTransaction();
-
-        $quantityToTransfer = (float)$validated['quantity'];
-        $remainingQuantity = $quantityToTransfer;
-
-        // البحث عن الدفعات المتاحة (FIFO)
-        $batches = MaterialBatch::where('material_id', $deliveryNote->material_id)
-            ->where('available_quantity', '>', 0)
-            ->orderBy('batch_date')
-            ->get();
-
-        if ($batches->isEmpty()) {
-            return back()->with('error', 'لا توجد كمية كافية في المخزن للمنتج المحدد');
+    {
+        // التحقق من وجود MaterialDetail
+        if (!$deliveryNote->material_detail_id || !$deliveryNote->materialDetail) {
+            return back()->with('error', 'هذه البضاعة لم تسجل في المستودع بعد');
         }
 
-        foreach ($batches as $batch) {
-            if ($remainingQuantity <= 0) {
-                break; // تم تغطية الكمية المطلوبة
-            }
+        // التحقق من البيانات
+        $validated = $request->validate([
+            'quantity' => 'required|numeric|min:0.01',
+            'notes' => 'nullable|string|max:500',
+        ], [
+            'quantity.required' => 'الكمية مطلوبة',
+            'quantity.numeric' => 'الكمية يجب أن تكون رقم',
+            'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
+        ]);
 
-            // تحديد كمية النقل من هذه الدفعة
-            $transferQuantity = min($batch->available_quantity, $remainingQuantity);
+        try {
+            DB::beginTransaction();
 
-            // إنشاء حركة النقل للإنتاج لكل دفعة
-            MaterialMovement::create([
+            // نقل البضاعة للإنتاج
+            $this->warehouseService->transferToProduction(
+                $deliveryNote,
+                (float)$validated['quantity'],
+                Auth::id(),
+                $validated['notes'] ?? null
+            );
+
+            // ✅ تسجيل حركة النقل للإنتاج
+            $movement = MaterialMovement::create([
                 'movement_number' => MaterialMovement::generateMovementNumber(),
                 'movement_type' => 'to_production',
                 'source' => 'production',
@@ -430,8 +349,7 @@ $matrials = Material::all();
                 'material_detail_id' => $deliveryNote->material_detail_id,
                 'material_id' => $deliveryNote->material_id,
                 'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
-                'batch_id' => $batch->id,
-                'quantity' => $transferQuantity,
+                'quantity' => (float)$validated['quantity'],
                 'from_warehouse_id' => $deliveryNote->warehouse_id,
                 'destination' => 'الإنتاج',
                 'description' => 'نقل بضاعة للإنتاج - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id),
@@ -443,33 +361,26 @@ $matrials = Material::all();
                 'status' => 'completed',
             ]);
 
-            // تحديث الكمية المتبقية في الدفعة
-            $batch->available_quantity -= $transferQuantity;
-            $batch->save();
+            // تحديث الكمية المتبقية في الدفعة إذا كان هناك batch_id
+            if ($movement->batch_id) {
+                $batch = MaterialBatch::find($movement->batch_id);
+                if ($batch) {
+                    $batch->available_quantity = max(0, $batch->available_quantity - (float)$validated['quantity']);
+                    $batch->save();
+                }
+            }
 
-            // خصم الكمية المنقولة من الكمية المطلوبة
-            $remainingQuantity -= $transferQuantity;
-        }
+            DB::commit();
 
-        if ($remainingQuantity > 0) {
+            return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
+                ->with('success', 'تم نقل البضاعة للإنتاج بنجاح!');
+        } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'لا توجد كمية كافية في المخزن لتغطية الطلب بالكامل.');
+            return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
         }
-
-        DB::commit();
-
-        return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
-            ->with('success', 'تم نقل البضاعة للإنتاج بنجاح!');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
     }
-}
 
-    /**
-     * Move to production (لاحتفاظ الرجعية)
-     * نقل كامل الكمية المتاحة للإنتاج
-     */
+
     public function moveToProduction(Request $request, DeliveryNote $deliveryNote)
     {
         // التحقق من وجود MaterialDetail

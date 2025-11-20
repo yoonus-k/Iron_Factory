@@ -297,6 +297,30 @@
     transform: rotate(90deg);
 }
 
+.reset-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: var(--gray-600);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    text-decoration: none;
+}
+
+.reset-btn:hover {
+    background: var(--gray-800);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
 .last-update {
     font-size: 0.8125rem;
     color: var(--gray-500);
@@ -428,6 +452,10 @@
     background: linear-gradient(90deg, var(--danger-color), #f87171);
 }
 
+.stat-card.info::before {
+    background: linear-gradient(90deg, var(--info-color), #60a5fa);
+}
+
 .stat-card:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-xl);
@@ -492,6 +520,11 @@
 .stat-icon.danger {
     background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(248, 113, 113, 0.15) 100%);
     color: var(--danger-color);
+}
+
+.stat-icon.info {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(96, 165, 250, 0.15) 100%);
+    color: var(--info-color);
 }
 
 /* ===============================================
@@ -621,6 +654,49 @@
 
 .chart-title svg {
     color: var(--primary-blue);
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.filter-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-600);
+}
+
+.filter-group select,
+.filter-group input {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    transition: all var(--transition-base);
+    background: var(--white);
+    font-family: inherit;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 102, 178, 0.1);
+}
+
+.filter-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
 }
 
 .chart-wrapper {

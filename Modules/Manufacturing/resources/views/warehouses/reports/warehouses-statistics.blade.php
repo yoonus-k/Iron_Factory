@@ -447,7 +447,7 @@
                             {{ $stats['total_warehouses'] }},
                             {{ $stats['active_warehouses'] }},
                             {{ $stats['inactive_warehouses'] }},
-                            {{ number_format($stats['total_capacity'] ?? 0, 2) }}
+                            {{ $stats['total_capacity'] ?? 0 }}
                         ],
                         backgroundColor: [
                             'rgba(0, 102, 178, 0.8)',

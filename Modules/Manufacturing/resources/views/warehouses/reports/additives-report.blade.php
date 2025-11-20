@@ -490,7 +490,7 @@
                             {{ $stats['total_additives'] }},
                             {{ $stats['active_additives'] }},
                             {{ $stats['low_stock'] }},
-                            {{ number_format($stats['total_value'], 2) }}
+                            {{ $stats['total_value'] }}
                         ],
                         backgroundColor: [
                             'rgba(0, 102, 178, 0.8)',
