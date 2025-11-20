@@ -466,9 +466,9 @@
                         label: 'الإحصائيات',
                         data: [
                             {{ $stats['total_invoices'] }},
-                            {{ number_format($stats['total_amount'], 2) }},
-                            {{ number_format($stats['paid_amount'], 2) }},
-                            {{ number_format($stats['pending_amount'], 2) }}
+                            {{ $stats['total_amount'] }},
+                            {{ $stats['paid_amount'] }},
+                            {{ $stats['pending_amount'] }}
                         ],
                         backgroundColor: [
                             'rgba(0, 102, 178, 0.8)',

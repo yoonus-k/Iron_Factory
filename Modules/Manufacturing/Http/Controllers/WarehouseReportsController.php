@@ -228,6 +228,7 @@ class WarehouseReportsController extends Controller
             'receive_count' => DB::table('warehouse_transactions')->whereBetween('created_at', [$startDate, $endDate])->where('transaction_type', 'receive')->count(),
             'issue_count' => DB::table('warehouse_transactions')->whereBetween('created_at', [$startDate, $endDate])->where('transaction_type', 'issue')->count(),
             'transfer_count' => DB::table('warehouse_transactions')->whereBetween('created_at', [$startDate, $endDate])->where('transaction_type', 'transfer')->count(),
+            'total_quantity' => DB::table('warehouse_transactions')->whereBetween('created_at', [$startDate, $endDate])->sum('quantity'),
         ];
 
         $warehouses = Warehouse::where('is_active', true)->get();

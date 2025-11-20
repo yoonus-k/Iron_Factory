@@ -103,15 +103,7 @@
                     <p>الوزن الكلي (كجم)</p>
                 </div>
             </div>
-            <div class="stat-card green">
-                <div class="stat-icon">
-                    <i class="feather icon-trending-up"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ number_format($stats['total_weight'], 2) }}</h3>
-                    <p>الوزن الكلي (كجم)</p>
-                </div>
-            </div>
+          
         </div>
 
         <!-- Materials Table -->
@@ -477,9 +469,9 @@
                         label: 'الإحصائيات',
                         data: [
                             {{ $stats['total_materials'] }},
-                            {{ number_format($stats['total_quantity'], 2) }},
+                            {{ $stats['total_quantity'] }},
                             {{ $stats['low_stock'] }},
-                            {{ number_format($stats['total_weight'], 2) }}
+                            {{ $stats['total_weight'] }}
                         ],
                         backgroundColor: [
                             'rgba(0, 102, 178, 0.8)',
