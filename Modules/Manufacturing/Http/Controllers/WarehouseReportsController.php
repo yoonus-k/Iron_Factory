@@ -13,6 +13,7 @@ use App\Models\DeliveryNote;
 use App\Models\PurchaseInvoice;
 use App\Models\AdditivesInventory;
 use App\Models\Supplier;
+use App\Models\WarehouseTransaction;
 
 class WarehouseReportsController extends Controller
 {
@@ -203,32 +204,28 @@ class WarehouseReportsController extends Controller
         $startDate = $request->start_date ?? Carbon::now()->subMonth()->format('Y-m-d');
         $endDate = $request->end_date ?? Carbon::now()->format('Y-m-d');
 
-        $movements = DB::table('warehouse_transactions')
-            ->join('warehouses', 'warehouse_transactions.warehouse_id', '=', 'warehouses.id')
-            ->join('materials', 'warehouse_transactions.material_id', '=', 'materials.id')
-            ->join('units', 'warehouse_transactions.unit_id', '=', 'units.id')
-            ->select(
-                'warehouse_transactions.*',
-                'warehouses.warehouse_name',
-                'materials.material_name',
-                'units.unit_name'
-            )
-            ->whereBetween('warehouse_transactions.created_at', [$startDate, $endDate])
-            ->when($request->warehouse_id, function($query) use ($request) {
-                $query->where('warehouse_transactions.warehouse_id', $request->warehouse_id);
+        // جلب تفاصيل الحركات باستخدام Eloquent
+        $movementsQuery = MaterialMovement::with(['material', 'fromWarehouse', 'toWarehouse', 'unit', 'supplier', 'createdBy'])
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->when($request->warehouse_id, function ($query) use ($request) {
+                $query->where(function($q) use ($request) {
+                    $q->where('from_warehouse_id', $request->warehouse_id)
+                      ->orWhere('to_warehouse_id', $request->warehouse_id);
+                });
             })
-            ->when($request->transaction_type, function($query) use ($request) {
-                $query->where('warehouse_transactions.transaction_type', $request->transaction_type);
-            })
-            ->orderBy('warehouse_transactions.created_at', 'desc')
-            ->paginate(20);
+            ->when($request->transaction_type, function ($query) use ($request) {
+                $query->where('movement_type', $request->transaction_type);
+            });
 
+        $movements = $movementsQuery->orderBy('created_at', 'desc')->paginate(20);
+
+        // حساب الإحصائيات باستخدام Eloquent
         $stats = [
-            'total_movements' => DB::table('warehouse_transactions')->whereBetween('created_at', [$startDate, $endDate])->count(),
-            'receive_count' => DB::table('warehouse_transactions')->whereBetween('created_at', [$startDate, $endDate])->where('transaction_type', 'receive')->count(),
-            'issue_count' => DB::table('warehouse_transactions')->whereBetween('created_at', [$startDate, $endDate])->where('transaction_type', 'issue')->count(),
-            'transfer_count' => DB::table('warehouse_transactions')->whereBetween('created_at', [$startDate, $endDate])->where('transaction_type', 'transfer')->count(),
-            'total_quantity' => DB::table('warehouse_transactions')->whereBetween('created_at', [$startDate, $endDate])->sum('quantity'),
+            'total_movements' => MaterialMovement::whereBetween('created_at', [$startDate, $endDate])->count(),
+            'receive_count' => MaterialMovement::whereBetween('created_at', [$startDate, $endDate])->where('movement_type', 'incoming')->count(),
+            'issue_count' => MaterialMovement::whereBetween('created_at', [$startDate, $endDate])->where('movement_type', 'outgoing')->count(),
+            'transfer_count' => MaterialMovement::whereBetween('created_at', [$startDate, $endDate])->where('movement_type', 'transfer')->count(),
+            'total_quantity' => MaterialMovement::whereBetween('created_at', [$startDate, $endDate])->sum('quantity'),
         ];
 
         $warehouses = Warehouse::where('is_active', true)->get();
