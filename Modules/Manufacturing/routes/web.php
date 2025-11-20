@@ -47,8 +47,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('materials/import', [WarehouseProductController::class, 'import'])->name('manufacturing.materials.import');
 
     // Material Routes
-    Route::get('warehouses/material/{id}', [WarehouseProductController::class, 'showMaterial'])->name('manufacturing.warehouses.material.show');
-    Route::post('warehouses/material/{id}/add-quantity', [WarehouseProductController::class, 'addMaterialQuantity'])->name('manufacturing.warehouses.material.add-quantity');
+    Route::get('warehouses/material/{id}', [WarehouseProductController::class, 'show'])->name('manufacturing.warehouses.material.show');
+    Route::post('warehouses/material/{id}/add-quantity', [WarehouseProductController::class, 'addQuantity'])->name('manufacturing.warehouses.material.add-quantity');
     Route::resource('delivery-notes', DeliveryNoteController::class)->names('manufacturing.delivery-notes');
     Route::put('delivery-notes/{id}/toggle-status', [DeliveryNoteController::class, 'toggleStatus'])->name('manufacturing.delivery-notes.toggle-status');
     Route::put('delivery-notes/{id}/change-status', [DeliveryNoteController::class, 'changeStatus'])->name('manufacturing.delivery-notes.change-status');
