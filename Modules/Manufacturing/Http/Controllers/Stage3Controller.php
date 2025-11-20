@@ -210,6 +210,13 @@ class Stage3Controller extends Controller
 
             DB::commit();
 
+            // الحصول على اسم المادة
+            $materialName = 'غير محدد';
+            if ($stage2->material_id) {
+                $material = DB::table('materials')->where('id', $stage2->material_id)->first();
+                $materialName = $material->name_ar ?? 'غير محدد';
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'تم حفظ اللفاف بنجاح',
@@ -218,7 +225,17 @@ class Stage3Controller extends Controller
                     'barcode' => $barcode,
                     'input_weight' => $inputWeight,
                     'total_weight' => $totalWeight,
-                    'added_weight' => $addedWeight
+                    'added_weight' => $addedWeight,
+                    'barcode_info' => [
+                        'barcode' => $barcode,
+                        'coil_number' => 'LF-' . date('Ymd') . '-' . str_pad($lafafId, 4, '0', STR_PAD_LEFT),
+                        'material_name' => $materialName,
+                        'total_weight' => $totalWeight,
+                        'input_weight' => $inputWeight,
+                        'added_weight' => $addedWeight,
+                        'color' => $request->color ?? 'غير محدد',
+                        'plastic_type' => $request->plastic_type ?? 'غير محدد',
+                    ]
                 ]
             ]);
 

@@ -110,7 +110,9 @@ class MaterialMovementController extends Controller
             'fromWarehouse',
             'toWarehouse',
             'supplier',
-            'createdBy'
+            'createdBy',
+            'materialBatch.material',
+            'materialBatch.unit'
         ])->findOrFail($id);
 
         return response()->json([
@@ -138,6 +140,9 @@ class MaterialMovementController extends Controller
                 'created_by_name' => $movement->createdBy?->name,
                 'status' => $movement->status,
                 'status_name' => $movement->status_name,
+                'batch_code' => $movement->materialBatch?->batch_code,
+                'batch_initial_quantity' => $movement->materialBatch ? number_format((float)$movement->materialBatch->initial_quantity, 2) : null,
+                'batch_available_quantity' => $movement->materialBatch ? number_format((float)$movement->materialBatch->available_quantity, 2) : null,
             ]
         ]);
     }

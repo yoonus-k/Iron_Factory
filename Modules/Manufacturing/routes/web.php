@@ -144,6 +144,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('stage1/barcode/scan', [Stage1Controller::class, 'barcodeScan'])->name('manufacturing.stage1.barcode-scan');
     Route::post('stage1/barcode/process', [Stage1Controller::class, 'processBarcodeAction'])->name('manufacturing.stage1.process-barcode');
     Route::get('stage1/waste/tracking', [Stage1Controller::class, 'wasteTracking'])->name('manufacturing.stage1.waste-tracking');
+    Route::get('material-batches/get-by-barcode/{barcode}', [Stage1Controller::class, 'getMaterialByBarcode'])->name('manufacturing.material-batch.get-by-barcode');
 
     // Stage 2 Additional Routes
     Route::get('stage2/complete/processing', [Stage2Controller::class, 'completeProcessing'])->name('manufacturing.stage2.complete-processing');

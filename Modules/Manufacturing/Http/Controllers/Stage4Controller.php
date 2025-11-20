@@ -127,6 +127,7 @@ class Stage4Controller extends Controller
 
             $boxIds = [];
             $boxBarcodes = [];
+            $barcodeInfoArray = [];
 
             // إنشاء الكراتين
             foreach ($boxes as $index => $box) {
@@ -149,6 +150,22 @@ class Stage4Controller extends Controller
 
                 $boxIds[] = $boxId;
                 $boxBarcodes[] = $barcode;
+                
+                // جمع معلومات الباركود للعرض
+                $materialName = DB::table('materials')
+                    ->join('material_details', 'materials.id', '=', 'material_details.material_id')
+                    ->where('material_details.id', $lafaf->material_id)
+                    ->value('materials.name_ar');
+                    
+                $barcodeInfoArray[] = [
+                    'barcode' => $barcode,
+                    'box_number' => 'كرتون ' . ($index + 1),
+                    'material_name' => $materialName ?? 'غير محدد',
+                    'weight' => $box['weight'],
+                    'lafaf_barcode' => $request->lafaf_barcode,
+                    'packaging_type' => $request->packaging_type ?? 'standard',
+                    'notes' => $box['notes'] ?? ''
+                ];
 
                 // إدراج في جدول box_coils (ربط الكرتون باللفاف)
                 DB::table('box_coils')->insert([
@@ -215,7 +232,8 @@ class Stage4Controller extends Controller
                 'data' => [
                     'box_count' => count($boxes),
                     'barcodes' => $boxBarcodes,
-                    'total_weight' => $totalBoxesWeight
+                    'total_weight' => $totalBoxesWeight,
+                    'barcode_info' => $barcodeInfoArray
                 ]
             ]);
 

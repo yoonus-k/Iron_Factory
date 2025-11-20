@@ -139,6 +139,13 @@ class Stage2Controller extends Controller
 
             DB::commit();
 
+            // الحصول على اسم المادة
+            $materialName = 'غير محدد';
+            if ($stage1Data->material_id) {
+                $material = DB::table('materials')->where('id', $stage1Data->material_id)->first();
+                $materialName = $material->name_ar ?? 'غير محدد';
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'تم حفظ البيانات بنجاح!',
@@ -146,6 +153,14 @@ class Stage2Controller extends Controller
                     'stage2_id' => $stage2Id,
                     'stage2_barcode' => $stage2Barcode,
                     'net_weight' => $validated['net_weight'],
+                    'barcode_info' => [
+                        'barcode' => $stage2Barcode,
+                        'stand_number' => $stage1Data->stand_number ?? 'غير محدد',
+                        'material_name' => $materialName,
+                        'net_weight' => $validated['net_weight'],
+                        'input_weight' => $stage1Data->remaining_weight,
+                        'waste_weight' => $validated['waste_weight'] ?? 0,
+                    ]
                 ]
             ]);
 

@@ -14,7 +14,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Manufacturing\Entities\MaterialBatch;
-use Modules\Manufacturing\Entities\BarcodeSetting;
+use App\Models\BarcodeSetting;
 
 class WarehouseRegistrationController extends Controller
 {
@@ -202,6 +202,9 @@ $matrials = Material::all();
                     'notes' => $validated['notes'] ?? null,
                 ]);
 
+                // ✅ حفظ batch_id في DeliveryNote لاستخدامه لاحقاً
+                $deliveryNote->update(['batch_id' => $batch->id]);
+
                 // ✅ تسجيل الحركة في جدول material_movements مع batch_id
                 MaterialMovement::create([
                     'movement_number' => MaterialMovement::generateMovementNumber(),
@@ -231,6 +234,13 @@ $matrials = Material::all();
                 ? 'تم تسجيل البضاعة بنجاح وإدخالها للمستودع!'
                 : 'تم تسجيل البضاعة بنجاح!';
 
+            // إذا كانت واردة، أضف رسالة الباركود
+            if ($deliveryNote->isIncoming() && isset($batch)) {
+                session()->flash('batch_code', $batch->batch_code);
+                session()->flash('batch_id', $batch->id);
+                $message .= ' رقم الدفعة: ' . $batch->batch_code;
+            }
+
             return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
                 ->with('success', $message);
         } catch (\Exception $e) {
@@ -256,7 +266,8 @@ $matrials = Material::all();
             'purchaseInvoice.supplier',
             'reconciliationLogs',
             'material',
-            'materialDetail'  // أضفنا MaterialDetail
+            'materialDetail',
+            'materialBatch'  // ✅ إضافة معلومات الدفعة والباركود
         ]);
 
         // الحصول على معلومات منع التكرار
@@ -340,7 +351,10 @@ $matrials = Material::all();
                 $validated['notes'] ?? null
             );
 
-            // ✅ تسجيل حركة النقل للإنتاج
+            // جلب batch_id من DeliveryNote
+            $batchId = $deliveryNote->batch_id;
+
+            // ✅ تسجيل حركة النقل للإنتاج مع batch_id
             $movement = MaterialMovement::create([
                 'movement_number' => MaterialMovement::generateMovementNumber(),
                 'movement_type' => 'to_production',
@@ -348,6 +362,7 @@ $matrials = Material::all();
                 'delivery_note_id' => $deliveryNote->id,
                 'material_detail_id' => $deliveryNote->material_detail_id,
                 'material_id' => $deliveryNote->material_id,
+                'batch_id' => $batchId,
                 'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
                 'quantity' => (float)$validated['quantity'],
                 'from_warehouse_id' => $deliveryNote->warehouse_id,
@@ -361,11 +376,12 @@ $matrials = Material::all();
                 'status' => 'completed',
             ]);
 
-            // تحديث الكمية المتبقية في الدفعة إذا كان هناك batch_id
-            if ($movement->batch_id) {
-                $batch = MaterialBatch::find($movement->batch_id);
+            // ✅ تحديث الكمية المتبقية في الدفعة
+            if ($batchId) {
+                $batch = MaterialBatch::find($batchId);
                 if ($batch) {
-                    $batch->available_quantity = max(0, $batch->available_quantity - (float)$validated['quantity']);
+                    $newAvailableQty = max(0, $batch->available_quantity - (float)$validated['quantity']);
+                    $batch->available_quantity = $newAvailableQty;
                     $batch->save();
                 }
             }

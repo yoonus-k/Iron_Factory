@@ -769,7 +769,7 @@
             content.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="spinner-border text-primary" role="status"><span class="sr-only">جاري التحميل...</span></div></div>';
 
             // Fetch movement details
-            fetch(`/manufacturing/material-movements/${movementId}`)
+            fetch(`/material-movements/${movementId}`)
                 .then(response => response.json())
                 .then(data => {
                     const movement = data.movement;
@@ -831,6 +831,55 @@
                             </div>
                         </div>
 
+                        ${movement.batch_code ? `
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <h4 style="margin: 0; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="7" y1="8" x2="7" y2="16"></line>
+                                        <line x1="11" y1="8" x2="11" y2="16"></line>
+                                        <line x1="15" y1="8" x2="15" y2="16"></line>
+                                        <line x1="17" y1="8" x2="17" y2="16"></line>
+                                    </svg>
+                                    معلومات الباركود
+                                </h4>
+                                <button onclick="printModalBarcode('${movement.batch_code}', '${movement.material_name}', ${movement.quantity}, '${movement.unit_symbol || ''}')" style="background: rgba(255,255,255,0.25); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; display: flex; align-items: center; gap: 6px; transition: all 0.3s;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                        <rect x="6" y="14" width="12" height="8"></rect>
+                                    </svg>
+                                    طباعة الباركود
+                                </button>
+                            </div>
+                            
+                            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);">
+                                <div style="display: flex; justify-content: center; align-items: center; background: white; padding: 15px; border-radius: 6px; margin-bottom: 12px;">
+                                    <svg id="modal-barcode-svg"></svg>
+                                </div>
+                                <div style="text-align: center; font-size: 16px; font-weight: 700; letter-spacing: 2px; font-family: 'Courier New', monospace;">
+                                    ${movement.batch_code}
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px;">
+                                <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 12px; border-radius: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">
+                                    <div style="font-size: 11px; opacity: 0.9; margin-bottom: 5px;">الكمية الأولية</div>
+                                    <div style="font-size: 16px; font-weight: 700;">${movement.batch_initial_quantity || '-'}</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 12px; border-radius: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">
+                                    <div style="font-size: 11px; opacity: 0.9; margin-bottom: 5px;">الكمية المتاحة</div>
+                                    <div style="font-size: 16px; font-weight: 700;">${movement.batch_available_quantity || '-'}</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 12px; border-radius: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">
+                                    <div style="font-size: 11px; opacity: 0.9; margin-bottom: 5px;">نسبة الاستهلاك</div>
+                                    <div style="font-size: 16px; font-weight: 700;">${movement.batch_initial_quantity && movement.batch_available_quantity ? Math.round(((movement.batch_initial_quantity.replace(',', '') - movement.batch_available_quantity.replace(',', '')) / movement.batch_initial_quantity.replace(',', '') * 100)) + '%' : '-'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
+
                         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                             <h4 style="margin: 0 0 15px 0; font-size: 16px; color: #2c3e50; font-weight: 700; border-bottom: 2px solid #ddd; padding-bottom: 10px;">
                                 <i class="feather icon-truck"></i> معلومات النقل
@@ -874,6 +923,19 @@
                             </div>
                         </div>
                     `;
+
+                    // Generate barcode if batch_code exists
+                    if (movement.batch_code) {
+                        setTimeout(() => {
+                            JsBarcode("#modal-barcode-svg", movement.batch_code, {
+                                format: "CODE128",
+                                width: 2,
+                                height: 60,
+                                displayValue: false,
+                                margin: 10
+                            });
+                        }, 100);
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -885,6 +947,36 @@
                         </div>
                     `;
                 });
+        }
+
+        function printModalBarcode(batchCode, materialName, quantity, unitSymbol) {
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - ' + batchCode + '</title>');
+            printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
+            printWindow.document.write('<style>');
+            printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
+            printWindow.document.write('.barcode-container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 400px; }');
+            printWindow.document.write('.barcode-title { font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #3498db; }');
+            printWindow.document.write('.barcode-svg { margin: 20px 0; }');
+            printWindow.document.write('.barcode-code { font-size: 20px; font-weight: bold; color: #2c3e50; margin: 15px 0; letter-spacing: 2px; font-family: "Courier New", monospace; }');
+            printWindow.document.write('.material-info { margin-top: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-right: 4px solid #667eea; }');
+            printWindow.document.write('.material-info .label { font-size: 12px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600; }');
+            printWindow.document.write('.material-info .value { font-size: 16px; color: #2c3e50; font-weight: bold; margin-bottom: 12px; }');
+            printWindow.document.write('@media print { body { background: white; } .barcode-container { box-shadow: none; max-width: 100%; } }');
+            printWindow.document.write('</style></head><body>');
+            printWindow.document.write('<div class="barcode-container">');
+            printWindow.document.write('<div class="barcode-title">باركود المادة الخام</div>');
+            printWindow.document.write('<svg id="print-barcode" class="barcode-svg"></svg>');
+            printWindow.document.write('<div class="barcode-code">' + batchCode + '</div>');
+            printWindow.document.write('<div class="material-info">');
+            printWindow.document.write('<div><div class="label">المادة</div><div class="value">' + materialName + '</div></div>');
+            printWindow.document.write('<div><div class="label">الكمية</div><div class="value">' + quantity + ' ' + unitSymbol + '</div></div>');
+            printWindow.document.write('</div></div>');
+            printWindow.document.write('<script>');
+            printWindow.document.write('JsBarcode("#print-barcode", "' + batchCode + '", { format: "CODE128", width: 2, height: 80, displayValue: false, margin: 10 });');
+            printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };');
+            printWindow.document.write('<\/script></body></html>');
+            printWindow.document.close();
         }
 
         function closeMovementModal() {
@@ -950,4 +1042,7 @@
             }
         });
     </script>
+
+    <!-- JsBarcode Library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 @endsection

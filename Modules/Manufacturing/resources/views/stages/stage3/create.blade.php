@@ -1449,37 +1449,52 @@ function submitAll() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '⏳ جاري الحفظ...';
 
-    // Prepare data
-    const formData = {
-        coils: coils,
-        _token: '{{ csrf_token() }}'
-    };
+    // إرسال كل كويل على حدة وجمع البيانات
+    let completed = 0;
+    const total = coils.length;
+    const barcodesData = [];
 
-    // Submit via AJAX
-    fetch('{{ route("manufacturing.stage3.store") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showToast('✅ تم حفظ جميع الكويلات بنجاح!', 'success');
-            localStorage.removeItem('stage3_coils');
-            setTimeout(() => {
-                window.location.href = '{{ route("manufacturing.stage3.index") }}';
-            }, 1500);
-        } else {
-            throw new Error(data.message || 'حدث خطأ أثناء الحفظ');
-        }
-    })
-    .catch(error => {
-        alert('❌ خطأ: ' + error.message);
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '✅ حفظ جميع الكويلات';
+    coils.forEach((coil, index) => {
+        fetch('{{ route("manufacturing.stage3.store") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify(coil)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                completed++;
+                
+                // جمع بيانات الباركود
+                if (data.data && data.data.barcode_info) {
+                    barcodesData.push(data.data.barcode_info);
+                }
+                
+                if (completed === total) {
+                    showToast('✅ تم حفظ جميع اللفائف بنجاح!', 'success');
+                    localStorage.removeItem('stage3_coils');
+                    
+                    // عرض نافذة الباركودات
+                    if (barcodesData.length > 0) {
+                        showBarcodesModal(barcodesData);
+                    } else {
+                        setTimeout(() => {
+                            window.location.href = '{{ route("manufacturing.stage3.index") }}';
+                        }, 1500);
+                    }
+                }
+            } else {
+                throw new Error(data.message || 'حدث خطأ أثناء الحفظ');
+            }
+        })
+        .catch(error => {
+            alert('❌ خطأ في اللفاف ' + (index + 1) + ': ' + error.message);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '✅ حفظ جميع اللفائف';
+        });
     });
 }
 
@@ -1509,6 +1524,212 @@ function showToast(message, type = 'info') {
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
+
+// عرض نافذة الباركودات
+function showBarcodesModal(barcodes) {
+    const modal = document.createElement('div');
+    modal.id = 'barcodesModal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        padding: 20px;
+    `;
+
+    // حساب الإجماليات
+    const totalWeight = barcodes.reduce((sum, item) => sum + parseFloat(item.total_weight), 0);
+    const totalAddedWeight = barcodes.reduce((sum, item) => sum + parseFloat(item.added_weight || 0), 0);
+    const coilsCount = barcodes.length;
+
+    let barcodesHTML = barcodes.map((item, index) => `
+        <div style="background: linear-gradient(135deg, #f8f9fa 0%, #fce4ec 100%); padding: 25px; border-radius: 12px; margin-bottom: 20px; border-right: 5px solid #9b59b6; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; margin-bottom: 20px;">
+                <div>
+                    <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 20px; font-weight: 700;">
+                        <i class="fas fa-circle" style="color: #9b59b6;"></i> ${item.coil_number}
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px;">
+                        <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #27ae60;">
+                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">المادة</div>
+                            <div style="font-size: 14px; color: #2c3e50; font-weight: 700;">${item.material_name}</div>
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #9b59b6;">
+                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">الوزن الكلي</div>
+                            <div style="font-size: 18px; color: #9b59b6; font-weight: 700;">${item.total_weight} كجم</div>
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #3498db;">
+                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">الوزن المضاف</div>
+                            <div style="font-size: 16px; color: #3498db; font-weight: 700;">${item.added_weight} كجم</div>
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #e67e22;">
+                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">اللون</div>
+                            <div style="font-size: 14px; color: #e67e22; font-weight: 700;">${item.color}</div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="printStage3Barcode('${item.barcode}', '${item.coil_number}', '${item.material_name}', ${item.total_weight}, '${item.color}')" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 3px 10px rgba(155, 89, 182, 0.3); transition: all 0.3s;">
+                    <i class="fas fa-print"></i> طباعة
+                </button>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+                <svg id="barcode-stage3-${index}" style="max-width: 100%;"></svg>
+                <div style="font-family: 'Courier New', monospace; font-size: 18px; font-weight: bold; color: #2c3e50; margin-top: 12px; letter-spacing: 3px; background: #f8f9fa; padding: 10px; border-radius: 6px;">
+                    ${item.barcode}
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    modal.innerHTML = `
+        <div style="background: white; border-radius: 12px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+            <div style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; padding: 25px; border-radius: 12px 12px 0 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 24px; font-weight: 700;">
+                        <i class="fas fa-check-circle"></i> تم إنتاج اللفائف بنجاح!
+                    </h2>
+                    <button onclick="closeBarcodesModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+                        ✕
+                    </button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 15px; background: rgba(255,255,255,0.15); border-radius: 10px; backdrop-filter: blur(10px);">
+                    <div style="text-align: center;">
+                        <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">عدد اللفائف</div>
+                        <div style="font-size: 28px; font-weight: 700;">${coilsCount}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">إجمالي الوزن</div>
+                        <div style="font-size: 28px; font-weight: 700;">${totalWeight.toFixed(2)} كجم</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">الوزن المضاف</div>
+                        <div style="font-size: 28px; font-weight: 700;">${totalAddedWeight.toFixed(2)} كجم</div>
+                    </div>
+                </div>
+            </div>
+            <div style="padding: 30px;">
+                <h3 style="margin: 0 0 20px 0; color: #2c3e50; font-size: 18px; border-bottom: 2px solid #e9ecef; padding-bottom: 12px;">
+                    <i class="fas fa-barcode"></i> الباركودات المولدة
+                </h3>
+                ${barcodesHTML}
+                <div style="display: flex; gap: 15px; margin-top: 25px; padding-top: 20px; border-top: 2px solid #e9ecef;">
+                    <button onclick="printAllStage3Barcodes(${JSON.stringify(barcodes).replace(/"/g, '&quot;')})" style="flex: 1; background: #9b59b6; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <i class="fas fa-print"></i> طباعة الكل
+                    </button>
+                    <button onclick="window.location.href='{{ route('manufacturing.stage3.index') }}'" style="flex: 1; background: #27ae60; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <i class="fas fa-check"></i> تم، العودة للرئيسية
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // توليد الباركودات
+    setTimeout(() => {
+        barcodes.forEach((item, index) => {
+            JsBarcode(`#barcode-stage3-${index}`, item.barcode, {
+                format: 'CODE128',
+                width: 2,
+                height: 60,
+                displayValue: false,
+                margin: 10
+            });
+        });
+    }, 100);
+}
+
+function closeBarcodesModal() {
+    const modal = document.getElementById('barcodesModal');
+    if (modal) {
+        modal.remove();
+    }
+    window.location.href = '{{ route("manufacturing.stage3.index") }}';
+}
+
+function printStage3Barcode(barcode, coilNumber, materialName, totalWeight, color) {
+    const printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - المرحلة الثالثة</title>');
+    printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
+    printWindow.document.write('.barcode-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 500px; }');
+    printWindow.document.write('.title { font-size: 24px; font-weight: bold; color: #2c3e50; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 3px solid #9b59b6; }');
+    printWindow.document.write('.coil-number { font-size: 20px; color: #9b59b6; font-weight: bold; margin: 15px 0; }');
+    printWindow.document.write('.barcode-code { font-size: 18px; font-weight: bold; color: #2c3e50; margin: 20px 0; letter-spacing: 3px; font-family: "Courier New", monospace; }');
+    printWindow.document.write('.info { margin-top: 25px; padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: right; }');
+    printWindow.document.write('.info-row { margin: 10px 0; display: flex; justify-content: space-between; }');
+    printWindow.document.write('.label { color: #7f8c8d; font-size: 14px; }');
+    printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 16px; }');
+    printWindow.document.write('@media print { body { background: white; } }');
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write('<div class="barcode-container">');
+    printWindow.document.write('<div class="title">باركود اللفاف - المرحلة الثالثة</div>');
+    printWindow.document.write('<div class="coil-number">' + coilNumber + '</div>');
+    printWindow.document.write('<svg id="print-barcode"></svg>');
+    printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
+    printWindow.document.write('<div class="info">');
+    printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + materialName + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">الوزن الكلي:</span><span class="value">' + totalWeight + ' كجم</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">اللون:</span><span class="value">' + color + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+    printWindow.document.write('</div></div>');
+    printWindow.document.write('<script>');
+    printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 80, displayValue: false, margin: 10 });');
+    printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };');
+    printWindow.document.write('<\/script></body></html>');
+    printWindow.document.close();
+}
+
+function printAllStage3Barcodes(barcodes) {
+    const printWindow = window.open('', '', 'height=800,width=1000');
+    printWindow.document.write('<html dir="rtl"><head><title>طباعة جميع الباركودات - المرحلة الثالثة</title>');
+    printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }');
+    printWindow.document.write('.barcode-item { background: white; padding: 30px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); page-break-inside: avoid; }');
+    printWindow.document.write('.title { font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #9b59b6; }');
+    printWindow.document.write('.barcode-code { font-size: 16px; font-weight: bold; color: #2c3e50; margin: 15px 0; text-align: center; letter-spacing: 2px; font-family: "Courier New", monospace; }');
+    printWindow.document.write('.info { margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; }');
+    printWindow.document.write('.info-row { margin: 8px 0; display: flex; justify-content: space-between; }');
+    printWindow.document.write('.label { color: #7f8c8d; font-size: 13px; }');
+    printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 14px; }');
+    printWindow.document.write('@media print { body { background: white; padding: 0; } .barcode-item { box-shadow: none; page-break-after: always; } }');
+    printWindow.document.write('</style></head><body>');
+    
+    barcodes.forEach((item, index) => {
+        printWindow.document.write('<div class="barcode-item">');
+        printWindow.document.write('<div class="title">باركود اللفاف - ' + item.coil_number + '</div>');
+        printWindow.document.write('<div style="text-align: center;"><svg id="print-barcode-' + index + '"></svg></div>');
+        printWindow.document.write('<div class="barcode-code">' + item.barcode + '</div>');
+        printWindow.document.write('<div class="info">');
+        printWindow.document.write('<div class="info-row"><span class="label">اللفاف:</span><span class="value">' + item.coil_number + '</span></div>');
+        printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + item.material_name + '</span></div>');
+        printWindow.document.write('<div class="info-row"><span class="label">الوزن الكلي:</span><span class="value">' + item.total_weight + ' كجم</span></div>');
+        printWindow.document.write('<div class="info-row"><span class="label">الوزن المضاف:</span><span class="value">' + item.added_weight + ' كجم</span></div>');
+        printWindow.document.write('<div class="info-row"><span class="label">اللون:</span><span class="value">' + item.color + '</span></div>');
+        printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+        printWindow.document.write('</div></div>');
+    });
+    
+    printWindow.document.write('<script>');
+    barcodes.forEach((item, index) => {
+        printWindow.document.write('JsBarcode("#print-barcode-' + index + '", "' + item.barcode + '", { format: "CODE128", width: 2, height: 70, displayValue: false, margin: 10 });');
+    });
+    printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 800); };');
+    printWindow.document.write('<\/script></body></html>');
+    printWindow.document.close();
+}
 </script>
+
+<!-- JsBarcode Library -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
 @endsection

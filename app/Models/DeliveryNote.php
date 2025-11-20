@@ -44,6 +44,7 @@ class DeliveryNote extends Model
         'status', // pending, approved, rejected, completed
         'material_id',
         'material_detail_id', // ربط مع تفاصيل المادة بالمستودع (لتجنب التكرار)
+        'batch_id', // ✅ رقم الدفعة
         'warehouse_id', // ✅ المستودع - يكون إجباري عند عدم وجود material_detail_id
         'delivery_quantity', // كمية الأذن المسلمة
         'delivered_weight',
@@ -205,6 +206,14 @@ class DeliveryNote extends Model
     public function destination()
     {
         return $this->belongsTo(Warehouse::class, 'destination_id');
+    }
+
+    /**
+     * Get the material batch
+     */
+    public function materialBatch(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Manufacturing\Entities\MaterialBatch::class, 'batch_id');
     }
 
     /**

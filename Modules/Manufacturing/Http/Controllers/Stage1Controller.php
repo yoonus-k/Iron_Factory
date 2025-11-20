@@ -53,23 +53,51 @@ class Stage1Controller extends Controller
             $userId = Auth::id();
             $materialId = $validated['material_id'];
             
-            // جلب بيانات المادة من material_details
-            $materialDetail = DB::table('material_details')
-                ->where('material_id', $materialId)
+            // البحث عن الباركود في جدول barcodes
+            $barcodeRecord = DB::table('barcodes')
+                ->where('barcode', $validated['material_barcode'])
+                ->where('reference_table', 'material_batches')
                 ->first();
 
-            if (!$materialDetail) {
+            if (!$barcodeRecord) {
+                // إذا لم يوجد في جدول barcodes، نبحث مباشرة في material_batches.batch_code
+                $materialBatch = DB::table('material_batches')
+                    ->join('materials', 'material_batches.material_id', '=', 'materials.id')
+                    ->where('material_batches.batch_code', $validated['material_barcode'])
+                    ->select('material_batches.*', 'materials.name_ar as material_name')
+                    ->first();
+            } else {
+                // إذا وُجد في جدول barcodes، نجلب البيانات من material_batches باستخدام reference_id
+                $materialBatch = DB::table('material_batches')
+                    ->join('materials', 'material_batches.material_id', '=', 'materials.id')
+                    ->where('material_batches.id', $barcodeRecord->reference_id)
+                    ->select('material_batches.*', 'materials.name_ar as material_name')
+                    ->first();
+            }
+
+            if (!$materialBatch) {
                 throw new \Exception('لم يتم العثور على المادة بهذا الباركود');
             }
 
-            // حساب إجمالي الوزن المطلوب
-            $totalWeightNeeded = collect($validated['processed_stands'])->sum('total_weight');
+            // حساب إجمالي الوزن الصافي المطلوب (بدون وزن الاستاندات)
+            $totalNetWeightNeeded = collect($validated['processed_stands'])->sum('net_weight');
 
-            // التحقق من توفر الكمية
-            $availableWeight = $materialDetail->remaining_weight;
+            // حساب الكمية المنقولة للإنتاج
+            $transferredToProduction = DB::table('material_movements')
+                ->where('batch_id', $materialBatch->id)
+                ->where('movement_type', 'to_production')
+                ->sum('quantity');
+
+            // حساب الكمية المستخدمة سابقاً في المرحلة الأولى (الوزن الصافي فقط)
+            $usedInStage1 = DB::table('stage1_stands')
+                ->where('parent_barcode', $validated['material_barcode'])
+                ->sum('remaining_weight');
+
+            // الكمية المتاحة للاستخدام = المنقولة للإنتاج - المستخدمة
+            $availableWeight = $transferredToProduction - $usedInStage1;
             
-            if ($availableWeight < $totalWeightNeeded) {
-                throw new \Exception("الكمية المتوفرة ({$availableWeight} كجم) غير كافية للكمية المطلوبة ({$totalWeightNeeded} كجم)");
+            if ($availableWeight < $totalNetWeightNeeded) {
+                throw new \Exception("الكمية المتوفرة للإنتاج ({$availableWeight} كجم) غير كافية للكمية المطلوبة ({$totalNetWeightNeeded} كجم)");
             }
 
             $processedRecords = [];
@@ -90,7 +118,7 @@ class Stage1Controller extends Controller
                     'user_id' => $userId,
                     'material_id' => $materialId,
                     'material_barcode' => $validated['material_barcode'],
-                    'material_type' => $materialDetail->notes ?? 'غير محدد',
+                    'material_type' => $materialBatch->material_name ?? 'غير محدد',
                     'wire_size' => $processedData['wire_size'] ?? 0,
                     'total_weight' => $processedData['total_weight'],
                     'net_weight' => $processedData['net_weight'],
@@ -158,6 +186,8 @@ class Stage1Controller extends Controller
                         'stand_id' => $stand->id,
                         'stand_number' => $stand->stand_number,
                         'material_id' => $materialId,
+                        'batch_id' => $materialBatch->id,
+                        'batch_code' => $materialBatch->batch_code,
                         'wire_size' => $processedData['wire_size'] ?? 0,
                     ]),
                     'created_at' => now(),
@@ -173,16 +203,31 @@ class Stage1Controller extends Controller
                 ];
             }
 
+            // ملاحظة: لا نقوم بتحديث available_quantity في material_batches
+            // لأن الكمية المتوفرة تمثل ما هو موجود في المخزن فعلياً
+            // نحن فقط نتتبع الاستخدام من الكمية المنقولة للإنتاج عبر جدول stage1_stands
+
             DB::commit();
+
+            // تحضير قائمة الباركودات لعرضها
+            $barcodesList = collect($processedRecords)->map(function($record) use ($materialBatch) {
+                return [
+                    'stand_number' => $record['stand_number'],
+                    'barcode' => $record['stage1_barcode'],
+                    'net_weight' => $record['net_weight'],
+                    'material_name' => $materialBatch->material_name ?? 'غير محدد',
+                ];
+            })->toArray();
 
             return response()->json([
                 'success' => true,
                 'message' => 'تم حفظ جميع الاستاندات بنجاح!',
                 'data' => [
                     'processed_count' => count($processedRecords),
-                    'total_weight_used' => $totalWeightNeeded,
-                    'remaining_weight' => $availableWeight - $totalWeightNeeded,
+                    'total_weight_used' => $totalNetWeightNeeded,
+                    'remaining_weight' => $availableWeight - $totalNetWeightNeeded,
                     'records' => $processedRecords,
+                    'barcodes' => $barcodesList,
                 ]
             ]);
 
@@ -281,6 +326,92 @@ class Stage1Controller extends Controller
 
         return redirect()->route('manufacturing.stage1.index')
             ->with('success', 'تم حذف الاستاند بنجاح');
+    }
+
+    /**
+     * Get material by barcode
+     */
+    public function getMaterialByBarcode($barcode)
+    {
+        try {
+            // البحث عن الباركود في جدول barcodes أولاً
+            $barcodeRecord = DB::table('barcodes')
+                ->where('barcode', $barcode)
+                ->where('reference_table', 'material_batches')
+                ->first();
+
+            if (!$barcodeRecord) {
+                // إذا لم يوجد في جدول barcodes، نبحث مباشرة في material_batches.batch_code
+                $batch = DB::table('material_batches')
+                    ->join('materials', 'material_batches.material_id', '=', 'materials.id')
+                    ->join('units', 'material_batches.unit_id', '=', 'units.id')
+                    ->where('material_batches.batch_code', $barcode)
+                    ->select(
+                        'material_batches.*',
+                        'materials.name_ar as material_name',
+                        'units.unit_symbol'
+                    )
+                    ->first();
+            } else {
+                // إذا وُجد في جدول barcodes، نجلب البيانات باستخدام reference_id
+                $batch = DB::table('material_batches')
+                    ->join('materials', 'material_batches.material_id', '=', 'materials.id')
+                    ->join('units', 'material_batches.unit_id', '=', 'units.id')
+                    ->where('material_batches.id', $barcodeRecord->reference_id)
+                    ->select(
+                        'material_batches.*',
+                        'materials.name_ar as material_name',
+                        'units.unit_symbol'
+                    )
+                    ->first();
+            }
+
+            if (!$batch) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'الباركود غير موجود في النظام'
+                ], 404);
+            }
+
+            // حساب الكمية المنقولة للإنتاج (to_production)
+            $transferredToProduction = DB::table('material_movements')
+                ->where('batch_id', $batch->id)
+                ->where('movement_type', 'to_production')
+                ->sum('quantity');
+
+            // التحقق من توفر كمية منقولة للإنتاج
+            if ($transferredToProduction <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لم يتم نقل أي كمية من هذه المادة للإنتاج بعد. يجب النقل للإنتاج أولاً من صفحة تسجيل البضاعة.'
+                ], 400);
+            }
+
+            return response()->json([
+                'success' => true,
+                'material' => [
+                    'id' => $batch->material_id,
+                    'batch_id' => $batch->id,
+                    'barcode' => $batch->batch_code,
+                    'material_name' => $batch->material_name,
+                    'material_type' => $batch->material_name,
+                    'initial_quantity' => $batch->initial_quantity,
+                    'available_quantity' => $batch->available_quantity,
+                    'transferred_to_production' => $transferredToProduction,
+                    'production_weight' => $transferredToProduction,
+                    'remaining_weight' => $batch->available_quantity,
+                    'unit_symbol' => $batch->unit_symbol,
+                    'warehouse_id' => $batch->warehouse_id,
+                    'unit_id' => $batch->unit_id,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

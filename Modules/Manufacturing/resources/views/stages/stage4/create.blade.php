@@ -359,9 +359,17 @@
             .then(data => {
                 if (data.success) {
                     showToast('تم حفظ الكراتين بنجاح! عدد الكراتين: ' + data.data.box_count, 'success');
-                    setTimeout(() => {
-                        window.location.href = '{{ route('manufacturing.stage4.index') }}';
-                    }, 2000);
+                    
+                    // عرض نافذة الباركودات
+                    if (data.data.barcode_info && data.data.barcode_info.length > 0) {
+                        setTimeout(() => {
+                            showBarcodesModal(data.data.barcode_info);
+                        }, 500);
+                    } else {
+                        setTimeout(() => {
+                            window.location.href = '{{ route('manufacturing.stage4.index') }}';
+                        }, 2000);
+                    }
                 } else {
                     throw new Error(data.message || 'حدث خطأ أثناء الحفظ');
                 }
@@ -397,6 +405,207 @@
             setTimeout(() => toast.remove(), 300);
         }, 3000);
     }
+
+    // عرض نافذة الباركودات
+    function showBarcodesModal(barcodes) {
+        const modal = document.createElement('div');
+        modal.id = 'barcodesModal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 20px;
+        `;
+
+        // حساب الإجماليات
+        const totalWeight = barcodes.reduce((sum, item) => sum + parseFloat(item.weight), 0);
+        const boxesCount = barcodes.length;
+
+        let barcodesHTML = barcodes.map((item, index) => `
+            <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%); padding: 25px; border-radius: 12px; margin-bottom: 20px; border-right: 5px solid #e67e22; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div style="display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; margin-bottom: 20px;">
+                    <div>
+                        <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 20px; font-weight: 700;">
+                            <i class="fas fa-box" style="color: #e67e22;"></i> ${item.box_number}
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px;">
+                            <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #27ae60;">
+                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">المادة</div>
+                                <div style="font-size: 14px; color: #2c3e50; font-weight: 700;">${item.material_name}</div>
+                            </div>
+                            <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #e67e22;">
+                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">الوزن</div>
+                                <div style="font-size: 18px; color: #e67e22; font-weight: 700;">${item.weight} كجم</div>
+                            </div>
+                            <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #3498db;">
+                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">نوع التعبئة</div>
+                                <div style="font-size: 14px; color: #3498db; font-weight: 700;">${item.packaging_type}</div>
+                            </div>
+                            <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #9b59b6;">
+                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">باركود اللفاف</div>
+                                <div style="font-size: 12px; color: #9b59b6; font-weight: 700;">${item.lafaf_barcode}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="printStage4Barcode('${item.barcode}', '${item.box_number}', '${item.material_name}', ${item.weight}, '${item.lafaf_barcode}')" style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 3px 10px rgba(230, 126, 34, 0.3); transition: all 0.3s;">
+                        <i class="fas fa-print"></i> طباعة
+                    </button>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+                    <svg id="barcode-stage4-${index}" style="max-width: 100%;"></svg>
+                    <div style="font-family: 'Courier New', monospace; font-size: 18px; font-weight: bold; color: #2c3e50; margin-top: 12px; letter-spacing: 3px; background: #f8f9fa; padding: 10px; border-radius: 6px;">
+                        ${item.barcode}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        modal.innerHTML = `
+            <div style="background: white; border-radius: 12px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                <div style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: white; padding: 25px; border-radius: 12px 12px 0 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="margin: 0; font-size: 24px; font-weight: 700;">
+                            <i class="fas fa-check-circle"></i> تم تعبئة الكراتين بنجاح!
+                        </h2>
+                        <button onclick="closeBarcodesModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+                            ✕
+                        </button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; background: rgba(255,255,255,0.15); border-radius: 10px; backdrop-filter: blur(10px);">
+                        <div style="text-align: center;">
+                            <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">عدد الكراتين</div>
+                            <div style="font-size: 28px; font-weight: 700;">${boxesCount}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">إجمالي الوزن</div>
+                            <div style="font-size: 28px; font-weight: 700;">${totalWeight.toFixed(2)} كجم</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="padding: 30px;">
+                    <h3 style="margin: 0 0 20px 0; color: #2c3e50; font-size: 18px; border-bottom: 2px solid #e9ecef; padding-bottom: 12px;">
+                        <i class="fas fa-barcode"></i> الباركودات المولدة
+                    </h3>
+                    ${barcodesHTML}
+                    <div style="display: flex; gap: 15px; margin-top: 25px; padding-top: 20px; border-top: 2px solid #e9ecef;">
+                        <button onclick="printAllStage4Barcodes(${JSON.stringify(barcodes).replace(/"/g, '&quot;')})" style="flex: 1; background: #e67e22; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <i class="fas fa-print"></i> طباعة الكل
+                        </button>
+                        <button onclick="window.location.href='{{ route('manufacturing.stage4.index') }}'" style="flex: 1; background: #27ae60; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <i class="fas fa-check"></i> تم، العودة للرئيسية
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // توليد الباركودات
+        setTimeout(() => {
+            barcodes.forEach((item, index) => {
+                JsBarcode(`#barcode-stage4-${index}`, item.barcode, {
+                    format: 'CODE128',
+                    width: 2,
+                    height: 60,
+                    displayValue: false,
+                    margin: 10
+                });
+            });
+        }, 100);
+    }
+
+    function closeBarcodesModal() {
+        const modal = document.getElementById('barcodesModal');
+        if (modal) {
+            modal.remove();
+        }
+        window.location.href = '{{ route("manufacturing.stage4.index") }}';
+    }
+
+    function printStage4Barcode(barcode, boxNumber, materialName, weight, lafafBarcode) {
+        const printWindow = window.open('', '', 'height=600,width=800');
+        printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - المرحلة الرابعة</title>');
+        printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
+        printWindow.document.write('<style>');
+        printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
+        printWindow.document.write('.barcode-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 500px; }');
+        printWindow.document.write('.title { font-size: 24px; font-weight: bold; color: #2c3e50; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 3px solid #e67e22; }');
+        printWindow.document.write('.box-number { font-size: 20px; color: #e67e22; font-weight: bold; margin: 15px 0; }');
+        printWindow.document.write('.barcode-code { font-size: 18px; font-weight: bold; color: #2c3e50; margin: 20px 0; letter-spacing: 3px; font-family: "Courier New", monospace; }');
+        printWindow.document.write('.info { margin-top: 25px; padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: right; }');
+        printWindow.document.write('.info-row { margin: 10px 0; display: flex; justify-content: space-between; }');
+        printWindow.document.write('.label { color: #7f8c8d; font-size: 14px; }');
+        printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 16px; }');
+        printWindow.document.write('@media print { body { background: white; } }');
+        printWindow.document.write('</style></head><body>');
+        printWindow.document.write('<div class="barcode-container">');
+        printWindow.document.write('<div class="title">باركود الكرتون - المرحلة الرابعة</div>');
+        printWindow.document.write('<div class="box-number">' + boxNumber + '</div>');
+        printWindow.document.write('<svg id="print-barcode"></svg>');
+        printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
+        printWindow.document.write('<div class="info">');
+        printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + materialName + '</span></div>');
+        printWindow.document.write('<div class="info-row"><span class="label">الوزن:</span><span class="value">' + weight + ' كجم</span></div>');
+        printWindow.document.write('<div class="info-row"><span class="label">باركود اللفاف:</span><span class="value">' + lafafBarcode + '</span></div>');
+        printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+        printWindow.document.write('</div></div>');
+        printWindow.document.write('<script>');
+        printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 80, displayValue: false, margin: 10 });');
+        printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };');
+        printWindow.document.write('<\/script></body></html>');
+        printWindow.document.close();
+    }
+
+    function printAllStage4Barcodes(barcodes) {
+        const printWindow = window.open('', '', 'height=800,width=1000');
+        printWindow.document.write('<html dir="rtl"><head><title>طباعة جميع الباركودات - المرحلة الرابعة</title>');
+        printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
+        printWindow.document.write('<style>');
+        printWindow.document.write('body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }');
+        printWindow.document.write('.barcode-item { background: white; padding: 30px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); page-break-inside: avoid; }');
+        printWindow.document.write('.title { font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #e67e22; }');
+        printWindow.document.write('.barcode-code { font-size: 16px; font-weight: bold; color: #2c3e50; margin: 15px 0; text-align: center; letter-spacing: 2px; font-family: "Courier New", monospace; }');
+        printWindow.document.write('.info { margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; }');
+        printWindow.document.write('.info-row { margin: 8px 0; display: flex; justify-content: space-between; }');
+        printWindow.document.write('.label { color: #7f8c8d; font-size: 13px; }');
+        printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 14px; }');
+        printWindow.document.write('@media print { body { background: white; padding: 0; } .barcode-item { box-shadow: none; page-break-after: always; } }');
+        printWindow.document.write('</style></head><body>');
+        
+        barcodes.forEach((item, index) => {
+            printWindow.document.write('<div class="barcode-item">');
+            printWindow.document.write('<div class="title">باركود الكرتون - ' + item.box_number + '</div>');
+            printWindow.document.write('<div style="text-align: center;"><svg id="print-barcode-' + index + '"></svg></div>');
+            printWindow.document.write('<div class="barcode-code">' + item.barcode + '</div>');
+            printWindow.document.write('<div class="info">');
+            printWindow.document.write('<div class="info-row"><span class="label">الكرتون:</span><span class="value">' + item.box_number + '</span></div>');
+            printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + item.material_name + '</span></div>');
+            printWindow.document.write('<div class="info-row"><span class="label">الوزن:</span><span class="value">' + item.weight + ' كجم</span></div>');
+            printWindow.document.write('<div class="info-row"><span class="label">باركود اللفاف:</span><span class="value">' + item.lafaf_barcode + '</span></div>');
+            printWindow.document.write('<div class="info-row"><span class="label">نوع التعبئة:</span><span class="value">' + item.packaging_type + '</span></div>');
+            printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+            printWindow.document.write('</div></div>');
+        });
+        
+        printWindow.document.write('<script>');
+        barcodes.forEach((item, index) => {
+            printWindow.document.write('JsBarcode("#print-barcode-' + index + '", "' + item.barcode + '", { format: "CODE128", width: 2, height: 70, displayValue: false, margin: 10 });');
+        });
+        printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 800); };');
+        printWindow.document.write('<\/script></body></html>');
+        printWindow.document.close();
+    }
 </script>
+
+<!-- JsBarcode Library -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
 @endsection

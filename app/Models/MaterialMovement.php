@@ -126,6 +126,11 @@ class MaterialMovement extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    public function materialBatch(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Manufacturing\Entities\MaterialBatch::class, 'batch_id');
+    }
+
     /**
      * Scopes
      */
