@@ -114,12 +114,7 @@
                         </div>
                     </div>
 
-                    @if($unit->conversion_factor)
-                    <div class="info-item">
-                        <div class="info-label">معامل التحويل:</div>
-                        <div class="info-value">{{ $unit->conversion_factor }}</div>
-                    </div>
-                    @endif
+
 
                     <div class="info-item">
                         <div class="info-label">الحالة:</div>

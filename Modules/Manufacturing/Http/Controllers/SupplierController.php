@@ -106,6 +106,24 @@ class SupplierController extends Controller
                 Log::error('Failed to log supplier creation: ' . $logError->getMessage());
             }
 
+            // إرسال الإشعارات بإضافة المورد
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'إضافة مورد جديد',
+                        'تم إضافة مورد جديد: ' . $supplier->name,
+                        'create_supplier',
+                        'success',
+                        'feather icon-plus-circle',
+                        route('manufacturing.suppliers.show', $supplier->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send supplier creation notifications: ' . $notifError->getMessage());
+            }
+
             return redirect()->route('manufacturing.suppliers.index')
                 ->with('success', 'تم إضافة المورد بنجاح');
         } catch (\Exception $e) {
@@ -197,6 +215,24 @@ class SupplierController extends Controller
                 Log::error('Failed to log supplier update: ' . $logError->getMessage());
             }
 
+            // إرسال الإشعارات بتحديث المورد
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'تحديث مورد',
+                        'تم تحديث معلومات المورد: ' . $supplier->name,
+                        'update_supplier',
+                        'info',
+                        'feather icon-edit',
+                        route('manufacturing.suppliers.show', $supplier->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send supplier update notifications: ' . $notifError->getMessage());
+            }
+
             return redirect()->route('manufacturing.suppliers.index')
                 ->with('success', 'تم تحديث بيانات المورد بنجاح');
         } catch (\Exception $e) {
@@ -229,6 +265,24 @@ class SupplierController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log supplier deletion: ' . $logError->getMessage());
+            }
+
+            // إرسال الإشعارات بحذف المورد
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'حذف مورد',
+                        'تم حذف المورد: ' . $supplier->name,
+                        'delete_supplier',
+                        'danger',
+                        'feather icon-trash-2',
+                        route('manufacturing.suppliers.index')
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send supplier delete notifications: ' . $notifError->getMessage());
             }
 
             $supplier->delete();
@@ -271,6 +325,24 @@ class SupplierController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log supplier status change: ' . $logError->getMessage());
+            }
+
+            // إرسال الإشعارات بتغيير حالة المورد
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'تغيير حالة مورد',
+                        'تم تغيير حالة المورد ' . $supplier->name . ' إلى ' . $statusText,
+                        'toggle_supplier_status',
+                        'info',
+                        'feather icon-toggle-' . ($newStatus ? 'right' : 'left'),
+                        route('manufacturing.suppliers.show', $supplier->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send supplier status toggle notifications: ' . $notifError->getMessage());
             }
 
             return redirect()->back()

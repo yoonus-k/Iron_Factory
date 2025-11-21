@@ -10,6 +10,7 @@ use App\Models\Supplier;
 use App\Models\Warehouse;
 use App\Models\User;
 use App\Models\MaterialMovement;
+use App\Services\NotificationService;
 use Modules\Manufacturing\Traits\LogsOperations;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,13 @@ use Illuminate\Support\Facades\DB;
 class DeliveryNoteController extends Controller
 {
     use LogsOperations;
+
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
 
     /**
      * Display a listing of the resource.
@@ -289,6 +297,20 @@ class DeliveryNoteController extends Controller
                 // Don't throw - just log the error, operation already completed
             }
 
+            // إرسال الإشعارات
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyDeliveryNoteRegistered(
+                        $manager,
+                        $deliveryNote,
+                        Auth::user()
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send delivery note notifications: ' . $notifError->getMessage());
+            }
+
             DB::commit();
 
             $successMessage = $type === 'incoming'
@@ -444,6 +466,24 @@ class DeliveryNoteController extends Controller
             $deliveryNote->update($validated);
             $newValues = $deliveryNote->fresh()->toArray();
 
+            // Check for weight discrepancy and notify
+            $weightDiscrepancy = $validated['weight_discrepancy'] ?? null;
+            if ($weightDiscrepancy && abs($weightDiscrepancy) > 0) {
+                try {
+                    $users = User::where('id', '!=', Auth::id())->get();
+                    foreach ($users as $user) {
+                        $this->notificationService->notifyWeightDiscrepancy(
+                            $user,
+                            $deliveryNote->fresh(),
+                            abs($weightDiscrepancy),
+                            Auth::user()
+                        );
+                    }
+                } catch (\Exception $notifError) {
+                    Log::warning('Failed to send weight discrepancy notifications: ' . $notifError->getMessage());
+                }
+            }
+
             // Log the operation
             try {
                 $this->logOperation(
@@ -458,6 +498,20 @@ class DeliveryNoteController extends Controller
             } catch (\Exception $logError) {
                 Log::error('Failed to log delivery note update: ' . $logError->getMessage());
                 // Don't throw - just log the error
+            }
+
+            // إرسال إشعار بالتحديث
+            try {
+                $users = User::where('id', '!=', Auth::id())->get();
+                foreach ($users as $user) {
+                    $this->notificationService->notifyDeliveryNoteRegistered(
+                        $user,
+                        $deliveryNote->fresh(),
+                        Auth::user()
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send update notifications: ' . $notifError->getMessage());
             }
 
             return redirect()->route('manufacturing.delivery-notes.index')
@@ -501,6 +555,24 @@ class DeliveryNoteController extends Controller
 
             $deliveryNote->delete();
 
+            // إرسال إشعار بحذف أذن التسليم
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'تم حذف أذن تسليم',
+                        'تم حذف أذن التسليم برقم: ' . $deliveryNote->note_number,
+                        'delete_delivery_note',
+                        'danger',
+                        'feather icon-trash-2',
+                        route('manufacturing.delivery-notes.index')
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send delivery note delete notifications: ' . $notifError->getMessage());
+            }
+
             return redirect()->route('manufacturing.delivery-notes.index')
                 ->with('success', 'تم حذف أذن التسليم بنجاح');
         } catch (\Exception $e) {
@@ -537,6 +609,26 @@ class DeliveryNoteController extends Controller
             } catch (\Exception $logError) {
                 Log::error('Failed to log delivery note status change: ' . $logError->getMessage());
                 // Don't throw - just log the error
+            }
+
+            $statusText = $newStatus ? 'مفعلة' : 'معطلة';
+
+            // إرسال إشعار بتغيير حالة أذن التسليم
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'تغيير حالة أذن التسليم',
+                        'تم تغيير حالة أذن التسليم رقم ' . $deliveryNote->note_number . ' إلى ' . $statusText,
+                        'toggle_delivery_note_status',
+                        'info',
+                        'feather icon-toggle-' . ($newStatus ? 'right' : 'left'),
+                        route('manufacturing.delivery-notes.show', $deliveryNote->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send delivery note status toggle notifications: ' . $notifError->getMessage());
             }
 
             return redirect()->back()
@@ -590,6 +682,24 @@ class DeliveryNoteController extends Controller
                 // Don't throw
             }
 
+            // إرسال إشعار بإضافة تفاصيل الفاتورة
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'إضافة تفاصيل فاتورة',
+                        'تم إضافة تفاصيل الفاتورة لأذن التسليم رقم: ' . $deliveryNote->note_number,
+                        'add_invoice_details',
+                        'success',
+                        'feather icon-file-text',
+                        route('manufacturing.delivery-notes.show', $deliveryNote->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send add invoice details notifications: ' . $notifError->getMessage());
+            }
+
             return redirect()->back()
                 ->with('success', 'تم إضافة تفاصيل الفاتورة بنجاح');
         } catch (\Exception $e) {
@@ -632,6 +742,25 @@ class DeliveryNoteController extends Controller
                 // Don't throw - just log the error
             }
 
+            // إرسال إشعار بتحديث حالة أذن التسليم
+            try {
+                $statusLabel = \App\Models\DeliveryNoteStatus::from($validated['status'])->label();
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'تحديث حالة أذن التسليم',
+                        'تم تغيير حالة أذن التسليم رقم ' . $deliveryNote->note_number . ' إلى ' . $statusLabel,
+                        'update_delivery_note_status',
+                        'info',
+                        'feather icon-edit',
+                        route('manufacturing.delivery-notes.show', $deliveryNote->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send delivery note status update notifications: ' . $notifError->getMessage());
+            }
+
             return redirect()->back()
                            ->with('success', 'تم تحديث حالة الأذن بنجاح');
         } catch (\Exception $e) {
@@ -672,6 +801,25 @@ class DeliveryNoteController extends Controller
             } catch (\Exception $logError) {
                 Log::error('Failed to log status change: ' . $logError->getMessage());
                 // Don't throw
+            }
+
+            // إرسال إشعار بتغيير حالة أذن التسليم
+            try {
+                $statusText = $validated['is_active'] ? 'فعّالة' : 'معطّلة';
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'تغيير حالة أذن التسليم',
+                        'تم تغيير حالة أذن التسليم رقم ' . $deliveryNote->note_number . ' إلى ' . $statusText,
+                        'change_delivery_note_status',
+                        'info',
+                        'feather icon-toggle-' . ($validated['is_active'] ? 'right' : 'left'),
+                        route('manufacturing.delivery-notes.show', $deliveryNote->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send delivery note status change notifications: ' . $notifError->getMessage());
             }
 
             return redirect()->back()

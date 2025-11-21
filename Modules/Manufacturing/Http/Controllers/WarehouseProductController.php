@@ -10,6 +10,7 @@ use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\OperationLog;
+use App\Services\NotificationService;
 use Modules\Manufacturing\Http\Requests\StoreMaterialRequest;
 use Modules\Manufacturing\Http\Requests\UpdateMaterialRequest;
 use Modules\Manufacturing\Services\MaterialService;
@@ -18,13 +19,14 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class WarehouseProductController extends Controller
-
 {
     private MaterialService $materialService;
+    private NotificationService $notificationService;
 
-    public function __construct(MaterialService $materialService)
+    public function __construct(MaterialService $materialService, NotificationService $notificationService)
     {
         $this->materialService = $materialService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -138,6 +140,14 @@ class WarehouseProductController extends Controller
                 throw new \Exception('فشل تسجيل العملية: ' . $logError->getMessage());
             }
 
+            // إرسال الإشعارات
+            try {
+                $this->createMaterialWithNotification($material);
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send notifications for material creation: ' . $notifError->getMessage());
+                // لا نفشل العملية بسبب فشل الإشعارات
+            }
+
             return redirect()->route('manufacturing.warehouse-products.index')
                            ->with('success', 'تم إضافة المادة بنجاح وتسجيل حركة المستودع');
         } catch (\Exception $e) {
@@ -152,9 +162,28 @@ class WarehouseProductController extends Controller
                            ->withInput()
                            ->withErrors(['error' => 'فشل في حفظ المادة: ' . $e->getMessage()]);
         }
-    }    /**
-     * Display the specified warehouse product.
+    }
+
+    /**
+     * اضافة مادة وإرسال إشعار
      */
+    private function createMaterialWithNotification($material)
+    {
+        // إرسال إشعار لجميع المستخدمين الآخرين (بما فيهم الـ admins و managers)
+        $users = User::where('id', '!=', Auth::id())->get();
+
+        foreach ($users as $user) {
+            try {
+                $this->notificationService->notifyMaterialAdded(
+                    $user,
+                    $material,
+                    Auth::user()
+                );
+            } catch (\Exception $e) {
+                Log::warning('Failed to send notification to user ' . $user->id . ': ' . $e->getMessage());
+            }
+        }
+    }
     public function show($id)
     {
         $material = Material::with(['supplier', 'unit', 'creator', 'purchaseInvoice'])->findOrFail($id);
@@ -213,6 +242,20 @@ class WarehouseProductController extends Controller
                 throw new \Exception('فشل تسجيل تحديث المادة: ' . $logError->getMessage());
             }
 
+            // إرسال إشعار بالتحديث
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyMaterialUpdated(
+                        $manager,
+                        $material,
+                        Auth::user()
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send update notifications: ' . $notifError->getMessage());
+            }
+
             return redirect()->route('manufacturing.warehouse-products.index')
                            ->with('success', 'تم تحديث المادة بنجاح وتسجيل حركة المستودع');
         } catch (\Exception $e) {
@@ -251,6 +294,24 @@ class WarehouseProductController extends Controller
 
         $material->delete();
 
+        // إرسال إشعار بحذف المادة
+        try {
+            $users = User::where('id', '!=', Auth::id())->get();
+            foreach ($users as $user) {
+                $this->notificationService->notifyCustom(
+                    $user,
+                    'تم حذف مادة',
+                    'تم حذف المادة: ' . $material->name_ar,
+                    'delete_material',
+                    'danger',
+                    'feather icon-trash-2',
+                    route('manufacturing.warehouse-products.index')
+                );
+            }
+        } catch (\Exception $notifError) {
+            \Illuminate\Support\Facades\Log::warning('Failed to send material delete notifications: ' . $notifError->getMessage());
+        }
+
         return redirect()->route('manufacturing.warehouse-products.index')
                        ->with('success', 'تم حذف المادة بنجاح');
     }
@@ -262,6 +323,21 @@ class WarehouseProductController extends Controller
     {
         $material = Material::with(['warehouseTransactions.unit'])->findOrFail($id);
         $transactions = $material->warehouseTransactions()->orderBy('created_at', 'desc')->get();
+
+        // إرسال إشعار بعرض حركات المادة
+        try {
+            $this->notificationService->notifyCustom(
+                Auth::user(),
+                'عرض حركات المادة',
+                'تم عرض حركات المادة: ' . $material->name_ar,
+                'view_transactions',
+                'info',
+                'feather icon-list',
+                route('manufacturing.warehouse-products.show', $id)
+            );
+        } catch (\Exception $notifError) {
+            \Illuminate\Support\Facades\Log::warning('Failed to send view transactions notification: ' . $notifError->getMessage());
+        }
 
         return view('manufacturing::warehouses.material.transactions', compact('material', 'transactions'));
     }

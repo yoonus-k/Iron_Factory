@@ -10,6 +10,7 @@ use App\Models\Supplier;
 use App\Models\User;
 use App\Models\Material;
 use App\Models\Unit;
+use App\Services\NotificationService;
 use Modules\Manufacturing\Traits\LogsOperations;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,13 @@ use Illuminate\Support\Facades\DB;
 class PurchaseInvoiceController extends Controller
 {
     use LogsOperations;
+
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
 
     /**
      * Display a listing of the purchase invoices
@@ -169,6 +177,20 @@ class PurchaseInvoiceController extends Controller
                 Log::error('Failed to log invoice creation: ' . $logError->getMessage());
             }
 
+            // إرسال الإشعارات لجميع المستخدمين الآخرين
+            try {
+                $users = User::where('id', '!=', Auth::id())->get();
+                foreach ($users as $user) {
+                    $this->notificationService->notifyPurchaseInvoiceCreated(
+                        $user,
+                        $invoice,
+                        Auth::user()
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send invoice creation notifications: ' . $notifError->getMessage());
+            }
+
             return redirect()->route('manufacturing.purchase-invoices.show', $invoice->id)
                            ->with('success', 'تم إضافة الفاتورة بنجاح مع ' . count($itemsData) . ' منتج');
         } catch (\Exception $e) {
@@ -314,6 +336,24 @@ class PurchaseInvoiceController extends Controller
                 Log::error('Failed to log invoice update: ' . $logError->getMessage());
             }
 
+            // إرسال الإشعارات بتحديث الفاتورة
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'تحديث فاتورة شراء',
+                        'تم تحديث فاتورة الشراء: ' . $invoice->invoice_number . ' مع ' . count($itemsData) . ' منتج',
+                        'update_purchase_invoice',
+                        'info',
+                        'feather icon-edit',
+                        route('manufacturing.purchase-invoices.show', $invoice->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send invoice update notifications: ' . $notifError->getMessage());
+            }
+
             return redirect()->route('manufacturing.purchase-invoices.show', $invoice->id)
                            ->with('success', 'تم تحديث الفاتورة بنجاح');
         } catch (\Exception $e) {
@@ -396,6 +436,33 @@ class PurchaseInvoiceController extends Controller
                 Log::error('Failed to log status update: ' . $logError->getMessage());
             }
 
+            // إرسال الإشعارات بتحديث حالة الفاتورة
+            try {
+                // Get the status label from the enum
+                $statuses = [
+                    'draft' => 'مسودة',
+                    'pending' => 'قيد الانتظار',
+                    'approved' => 'موافق عليه',
+                    'rejected' => 'مرفوض',
+                    'paid' => 'مدفوع',
+                ];
+                $statusLabel = $statuses[$validated['status']] ?? $validated['status'];
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'تحديث حالة فاتورة شراء',
+                        'تم تغيير حالة الفاتورة ' . $invoice->invoice_number . ' إلى ' . $statusLabel,
+                        'update_invoice_status',
+                        'info',
+                        'feather icon-edit-2',
+                        route('manufacturing.purchase-invoices.show', $invoice->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send invoice status update notifications: ' . $notifError->getMessage());
+            }
+
             return redirect()->back()
                            ->with('success', 'تم تحديث حالة الفاتورة بنجاح');
         } catch (\Exception $e) {
@@ -438,6 +505,24 @@ class PurchaseInvoiceController extends Controller
                 );
             } catch (\Exception $logError) {
                 Log::error('Failed to log invoice deletion: ' . $logError->getMessage());
+            }
+
+            // إرسال الإشعارات بحذف الفاتورة
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'حذف فاتورة شراء',
+                        'تم حذف فاتورة الشراء: ' . $invoice->invoice_number,
+                        'delete_purchase_invoice',
+                        'danger',
+                        'feather icon-trash-2',
+                        route('manufacturing.purchase-invoices.index')
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send invoice delete notifications: ' . $notifError->getMessage());
             }
 
             return redirect()->route('manufacturing.purchase-invoices.index')

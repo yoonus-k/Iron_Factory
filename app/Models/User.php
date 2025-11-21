@@ -93,6 +93,11 @@ class User extends Authenticatable
         return $this->hasMany(OperationLog::class);
     }
 
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class, 'user_id');
+    }
+
     /**
      * التحقق من الصلاحيات
      */

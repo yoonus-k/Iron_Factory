@@ -139,17 +139,7 @@
                         <div class="error-message" id="unit_type-error" style="display: none;"></div>
                     </div>
 
-                    <!-- معامل التحويل -->
-                    <div class="form-group">
-                        <label for="conversion_factor" class="form-label">معامل التحويل</label>
-                        <div class="input-wrapper">
-                            <input type="number" name="conversion_factor" id="conversion_factor" class="form-input @error('conversion_factor') error @enderror"
-                                   placeholder="مثال: 1000" value="{{ old('conversion_factor', $unit->conversion_factor) }}" step="0.01">
-                        </div>
-                        @error('conversion_factor')
-                            <div class="error-message" style="display: block;">{{ $message }}</div>
-                        @enderror
-                    </div>
+
 
                     <!-- الحالة -->
                     <div class="form-group">

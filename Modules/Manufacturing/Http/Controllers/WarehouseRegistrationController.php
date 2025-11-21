@@ -9,6 +9,7 @@ use App\Models\MaterialMovement;
 use App\Models\User;
 use App\Services\DuplicatePreventionService;
 use App\Services\WarehouseTransferService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -28,12 +29,19 @@ class WarehouseRegistrationController extends Controller
      */
     protected $warehouseService;
 
+    /**
+     * Notification Service
+     */
+    protected $notificationService;
+
     public function __construct(
         DuplicatePreventionService $duplicateService,
-        WarehouseTransferService $warehouseService
+        WarehouseTransferService $warehouseService,
+        NotificationService $notificationService
     ) {
         $this->duplicateService = $duplicateService;
         $this->warehouseService = $warehouseService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -261,6 +269,20 @@ class WarehouseRegistrationController extends Controller
                 $message .= ' رقم الدفعة: ' . $batch->batch_code;
             }
 
+            // إرسال إشعارات التسجيل
+            try {
+                $users = User::where('id', '!=', Auth::id())->get();
+                foreach ($users as $user) {
+                    $this->notificationService->notifyDeliveryNoteRegistered(
+                        $user,
+                        $deliveryNote->fresh(),
+                        Auth::user()
+                    );
+                }
+            } catch (\Exception $notifError) {
+                \Illuminate\Support\Facades\Log::warning('Failed to send registration notifications: ' . $notifError->getMessage());
+            }
+
             return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
                 ->with('success', $message);
         } catch (\Exception $e) {
@@ -442,6 +464,21 @@ class WarehouseRegistrationController extends Controller
 
             DB::commit();
 
+            // إرسال إشعار بنقل البضاعة للإنتاج
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyMoveToProduction(
+                        $manager,
+                        $deliveryNote->fresh(),
+                        $transferQuantity,
+                        Auth::user()
+                    );
+                }
+            } catch (\Exception $notifError) {
+                \Illuminate\Support\Facades\Log::warning('Failed to send move to production notifications: ' . $notifError->getMessage());
+            }
+
             return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
                 ->with('success', $successMessage);
         } catch (\Exception $e) {
@@ -475,6 +512,21 @@ class WarehouseRegistrationController extends Controller
             // تحديث حالة التسجيل إلى "في الإنتاج"
             $deliveryNote->update(['registration_status' => 'in_production']);
 
+            // إرسال إشعار بنقل البضاعة للإنتاج
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyMoveToProduction(
+                        $manager,
+                        $deliveryNote->fresh(),
+                        $availableQuantity,
+                        Auth::user()
+                    );
+                }
+            } catch (\Exception $notifError) {
+                \Illuminate\Support\Facades\Log::warning('Failed to send move to production notifications: ' . $notifError->getMessage());
+            }
+
             return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
                 ->with('success', 'تم نقل البضاعة إلى الإنتاج بنجاح');
         } catch (\Exception $e) {
@@ -497,6 +549,24 @@ class WarehouseRegistrationController extends Controller
                 'lock_reason' => $validated['lock_reason'],
             ]);
 
+            // إرسال إشعار بالتقفيل
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'تم تقفيل الشحنة',
+                        'تم تقفيل الشحنة برقم الأذن: ' . $deliveryNote->note_number . ' للسبب: ' . $validated['lock_reason'],
+                        'lock_shipment',
+                        'warning',
+                        'feather icon-lock',
+                        route('manufacturing.warehouse.registration.show', $deliveryNote->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                \Illuminate\Support\Facades\Log::warning('Failed to send lock notifications: ' . $notifError->getMessage());
+            }
+
             return back()->with('success', 'تم تقفيل الشحنة بنجاح');
         } catch (\Exception $e) {
             return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
@@ -513,6 +583,24 @@ class WarehouseRegistrationController extends Controller
                 'is_locked' => false,
                 'lock_reason' => null,
             ]);
+
+            // إرسال إشعار بفتح الشحنة
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'تم فتح الشحنة',
+                        'تم فتح الشحنة برقم الأذن: ' . $deliveryNote->note_number,
+                        'unlock_shipment',
+                        'success',
+                        'feather icon-unlock',
+                        route('manufacturing.warehouse.registration.show', $deliveryNote->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                \Illuminate\Support\Facades\Log::warning('Failed to send unlock notifications: ' . $notifError->getMessage());
+            }
 
             return back()->with('success', 'تم فتح الشحنة بنجاح');
         } catch (\Exception $e) {

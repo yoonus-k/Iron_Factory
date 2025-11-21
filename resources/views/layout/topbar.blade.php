@@ -10,10 +10,10 @@
 
     <div class="topbar-right">
         <!-- الإشعارات -->
-        <div class="notification-icon">
-            <a href="#">
+        <div class="notification-icon" id="notificationBell">
+            <a href="{{ route('notifications.index') }}" title="الإشعارات">
                 <i class="fas fa-bell"></i>
-                <span class="notification-badge">5</span>
+                <span class="notification-badge" id="notifBadge">5</span>
             </a>
         </div>
 
@@ -116,10 +116,38 @@
         }
     });
 
-    // تحميل اللغة المحفوظة عند تحميل الصفحة
+    // تحميل عدد الإشعارات غير المقروءة عند تحميل الصفحة
+    function updateNotificationBadge() {
+        fetch('/notifications/unread-count', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.getElementById('notifBadge');
+            if (data.unread_count !== undefined) {
+                if (data.unread_count > 0) {
+                    badge.textContent = data.unread_count;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        })
+        .catch(error => console.log('Could not fetch notification count:', error));
+    }
+
+    // تحديث الـ badge عند تحميل الصفحة
     document.addEventListener('DOMContentLoaded', function() {
+        updateNotificationBadge();
+        // تحديث كل 30 ثانية
+        setInterval(updateNotificationBadge, 30000);
+
         const currentLang = document.documentElement.getAttribute('lang') || 'ar';
-        
+
         // تحديث الـ body classes بناءً على اللغة الحالية
         document.body.classList.remove('lang-ar', 'lang-en');
         document.body.classList.add(`lang-${currentLang}`);
@@ -131,7 +159,7 @@
                 link.classList.add('active');
             }
         });
-        
+
         // تحديث زر اللغة الحالية
         const currentLangSpan = document.querySelector('.current-lang');
         if (currentLangSpan) {
