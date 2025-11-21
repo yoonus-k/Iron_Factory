@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('purchase_invoice_id')->constrained('purchase_invoices')->onDelete('cascade')->comment('فاتورة الشراء');
             $table->foreignId('material_id')->nullable()->constrained('materials')->onDelete('set null')->comment('المادة');
-            $table->string('item_name')->comment('اسم المنتج');
+
             $table->text('description')->nullable()->comment('وصف المنتج');
             $table->decimal('quantity', 12, 3)->comment('الكمية');
             $table->string('unit', 50)->default('طن')->comment('الوحدة');

@@ -56,6 +56,8 @@ class PurchaseInvoice extends Model
         'payment_terms',
         'notes',
         'notes_en',
+        'weight',
+        'weight_unit',
         'recorded_by',
         'approved_by',
         'approved_at',
@@ -66,6 +68,7 @@ class PurchaseInvoice extends Model
 
     protected $casts = [
         'total_amount' => 'float',
+        'weight' => 'float',
         'invoice_date' => 'date',
         'due_date' => 'date',
         'approved_at' => 'datetime',

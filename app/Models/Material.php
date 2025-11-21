@@ -18,8 +18,7 @@ class Material extends Model
         'material_category',
 
         'delivery_note_number',
-        'manufacture_date',
-        'expiry_date',
+     
         'shelf_location',
         'shelf_location_en',
         'purchase_invoice_id',
@@ -34,8 +33,6 @@ class Material extends Model
         // 'original_weight' => 'float',
         // 'remaining_weight' => 'float',
 
-        'manufacture_date' => 'date',
-        'expiry_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

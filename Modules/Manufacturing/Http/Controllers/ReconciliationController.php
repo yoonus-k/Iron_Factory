@@ -320,29 +320,68 @@ class ReconciliationController extends Controller
             ->whereNull('purchase_invoice_id')
             ->with(['supplier', 'warehouse'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function($note) {
+                return [
+                    'id' => $note->id,
+                    'note_number' => $note->note_number,
+                    'supplier' => ['id' => $note->supplier?->id, 'name' => $note->supplier?->name],
+                    'delivery_date' => $note->delivery_date?->format('Y-m-d'),
+                    'actual_weight' => $note->actual_weight,
+                    'created_at' => $note->created_at?->format('Y-m-d'),
+                ];
+            })
+            ->toArray();
 
-        return view('manufacturing::warehouses.reconciliation.link-invoice', compact('deliveryNotes'));
+        // جلب الفواتير المتاحة للربط مع الـ items
+        $invoices = PurchaseInvoice::with(['supplier', 'items.material'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function($invoice) {
+                return [
+                    'id' => $invoice->id,
+                    'invoice_number' => $invoice->invoice_number,
+                    'supplier' => ['id' => $invoice->supplier?->id, 'name' => $invoice->supplier?->name],
+                    'invoice_date' => $invoice->invoice_date?->format('Y-m-d'),
+                    'weight' => $invoice->weight,
+                    'weight_unit' => $invoice->weight_unit ?? 'كجم',
+                    'invoice_reference_number' => $invoice->invoice_reference_number,
+                    'items' => $invoice->items->map(function($item) {
+                        // الحصول على اسم المادة من علاقة Material
+                        $materialName = $item->material?->name_ar ?? $item->material?->name ?? $item->item_name;
+
+                        return [
+                            'id' => $item->id,
+                            'item_name' => $materialName,
+                            'quantity' => $item->quantity,
+                            'unit' => $item->unit,
+                            'weight' => $item->weight,
+                            'weight_unit' => $item->weight_unit ?? 'كجم',
+                            'material' => ['id' => $item->material?->id, 'name' => $materialName],
+                            'unit_price' => $item->unit_price,
+                            'subtotal' => $item->subtotal,
+                            'total' => $item->total,
+                        ];
+                    })->toArray(),
+                ];
+            })
+            ->toArray();
+
+        return view('manufacturing::warehouses.reconciliation.link-invoice', compact('deliveryNotes', 'invoices'));
     }
-
-    /**
-     * ✅ جديد: معالجة ربط الفاتورة المتأخرة
-     */
     public function storeLinkInvoice(Request $request)
     {
         $validated = $request->validate([
             'delivery_note_id' => 'required|exists:delivery_notes,id',
-            'invoice_number' => 'required|string|max:100',
-            'invoice_date' => 'required|date',
+            'invoice_id' => 'required|exists:purchase_invoices,id',
             'invoice_weight' => 'required|numeric|min:0.01',
             'invoice_reference_number' => 'nullable|string|max:100',
             'reconciliation_notes' => 'nullable|string|max:1000',
         ], [
             'delivery_note_id.required' => 'يجب اختيار أذن التسليم',
             'delivery_note_id.exists' => 'أذن التسليم المختارة غير موجودة',
-            'invoice_number.required' => 'رقم الفاتورة مطلوب',
-            'invoice_date.required' => 'تاريخ الفاتورة مطلوب',
-            'invoice_date.date' => 'تاريخ الفاتورة غير صحيح',
+            'invoice_id.required' => 'يجب اختيار فاتورة',
+            'invoice_id.exists' => 'الفاتورة المختارة غير موجودة',
             'invoice_weight.required' => 'وزن الفاتورة مطلوب',
             'invoice_weight.numeric' => 'وزن الفاتورة يجب أن يكون رقماً',
             'invoice_weight.min' => 'وزن الفاتورة يجب أن يكون أكبر من صفر',
@@ -352,32 +391,29 @@ class ReconciliationController extends Controller
             DB::beginTransaction();
 
             $deliveryNote = DeliveryNote::findOrFail($validated['delivery_note_id']);
+            $invoice = PurchaseInvoice::findOrFail($validated['invoice_id']);
 
             // التحقق من أن الأذن لا تملك فاتورة بالفعل
             if ($deliveryNote->purchase_invoice_id) {
                 return back()->with('error', 'هذه الأذن مربوطة بفاتورة بالفعل');
             }
 
-            // إنشاء فاتورة جديدة أو البحث عن موجودة
-            $invoice = PurchaseInvoice::firstOrCreate(
-                ['invoice_number' => $validated['invoice_number']],
-                [
-                    'supplier_id' => $deliveryNote->supplier_id,
-                    'invoice_date' => $validated['invoice_date'],
-                    'total_amount' => 0, // سيتم تحديثه لاحقاً
-                    'status' => 'pending',
-                    'created_by' => Auth::id(),
-                ]
-            );
-
             // ربط الفاتورة بالأذن
-            $deliveryNote->update([
+            $updateData = [
                 'purchase_invoice_id' => $invoice->id,
                 'invoice_weight' => $validated['invoice_weight'],
-                'invoice_date' => $validated['invoice_date'],
-                'invoice_reference_number' => $validated['invoice_reference_number'],
-                'reconciliation_notes' => $validated['reconciliation_notes'],
-            ]);
+                'invoice_date' => $invoice->invoice_date,
+            ];
+
+            // إضافة الحقول الاختيارية إذا كانت موجودة
+            if (isset($validated['invoice_reference_number'])) {
+                $updateData['invoice_reference_number'] = $validated['invoice_reference_number'];
+            }
+            if (isset($validated['reconciliation_notes'])) {
+                $updateData['reconciliation_notes'] = $validated['reconciliation_notes'];
+            }
+
+            $deliveryNote->update($updateData);
 
             // حساب الفرق
             $actualWeight = $deliveryNote->actual_weight ?? 0;
@@ -410,15 +446,10 @@ class ReconciliationController extends Controller
                 'purchase_invoice_id' => $invoice->id,
                 'actual_weight' => $actualWeight,
                 'invoice_weight' => $invoiceWeight,
-                'discrepancy' => $discrepancy,
-                'discrepancy_percentage' => $discrepancyPercentage,
-                'reconciliation_status' => $reconciliationStatus,
-                'notes' => $validated['reconciliation_notes'],
-                'created_by' => Auth::id(),
+                'action' => $reconciliationStatus === 'matched' ? 'accepted' : 'pending',
+                'comments' => $validated['reconciliation_notes'],
                 'decided_by' => Auth::id(),
                 'decided_at' => now(),
-                'action' => $reconciliationStatus === 'matched' ? 'accepted' : 'pending',
-                'created_at' => now(),
             ]);
 
             // ✅ تسجيل حركة التسوية
@@ -455,6 +486,407 @@ class ReconciliationController extends Controller
             DB::rollBack();
             Log::error('Failed to link invoice: ' . $e->getMessage());
             return back()->with('error', 'حدث خطأ أثناء ربط الفاتورة: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * ✅ API: البحث عن أذونات التسليم
+     */
+    public function searchDeliveryNotes(Request $request)
+    {
+        $search = $request->get('q', '');
+
+        if (strlen($search) < 2) {
+            return response()->json(['results' => []]);
+        }
+
+        $notes = DeliveryNote::where('type', 'incoming')
+            ->where('registration_status', 'registered')
+            ->whereNull('purchase_invoice_id')
+            ->where(function($query) use ($search) {
+                $query->where('note_number', 'like', "%{$search}%")
+                      ->orWhereHas('supplier', function($q) use ($search) {
+                          $q->where('name', 'like', "%{$search}%");
+                      })
+                      ->orWhere('id', $search);
+            })
+            ->with('supplier')
+            ->limit(10)
+            ->get()
+            ->map(function($note) {
+                return [
+                    'id' => $note->id,
+                    'text' => "أذن #{$note->note_number} - {$note->supplier->name} - الوزن: {$note->actual_weight} كيلو",
+                    'note_number' => $note->note_number,
+                    'supplier_name' => $note->supplier->name,
+                    'actual_weight' => $note->actual_weight,
+                    'delivery_date' => $note->delivery_date?->format('Y-m-d'),
+                ];
+            });
+
+        return response()->json(['results' => $notes]);
+    }
+
+    /**
+     * ✅ API: البحث عن الفواتير
+     */
+    public function searchInvoices(Request $request)
+    {
+        $search = $request->get('q', '');
+        $supplierId = $request->get('supplier_id');
+
+        if (strlen($search) < 2) {
+            return response()->json(['results' => []]);
+        }
+
+        $query = PurchaseInvoice::where(function($q) use ($search) {
+            $q->where('invoice_number', 'like', "%{$search}%")
+              ->orWhere('reference_number', 'like', "%{$search}%")
+              ->orWhereHas('supplier', function($sq) use ($search) {
+                  $sq->where('name', 'like', "%{$search}%");
+              });
+        });
+
+        if ($supplierId) {
+            $query->where('supplier_id', $supplierId);
+        }
+
+        $invoices = $query->with('supplier')
+            ->limit(10)
+            ->get()
+            ->map(function($invoice) {
+                return [
+                    'id' => $invoice->id,
+                    'text' => "#{$invoice->invoice_number} - {$invoice->supplier->name} - التاريخ: {$invoice->invoice_date?->format('Y-m-d')}",
+                    'invoice_number' => $invoice->invoice_number,
+                    'supplier_name' => $invoice->supplier->name,
+                    'invoice_date' => $invoice->invoice_date?->format('Y-m-d'),
+                    'status' => $invoice->status,
+                ];
+            });
+
+        return response()->json(['results' => $invoices]);
+    }
+
+    /**
+     * ✅ API: الحصول على تفاصيل أذن التسليم
+     */
+    public function getDeliveryNoteDetails($id)
+    {
+        $note = DeliveryNote::with(['supplier', 'materialDetail'])
+            ->find($id);
+
+        if (!$note) {
+            return response()->json(['error' => 'الأذن غير موجودة'], 404);
+        }
+
+        return response()->json([
+            'id' => $note->id,
+            'note_number' => $note->note_number,
+            'supplier_id' => $note->supplier_id,
+            'supplier_name' => $note->supplier->name,
+            'actual_weight' => $note->actual_weight,
+            'delivery_date' => $note->delivery_date?->format('Y-m-d'),
+            'warehouse_id' => $note->warehouse_id,
+            'material_id' => $note->material_id,
+            'material_name' => $note->material?->name,
+        ]);
+    }
+
+    /**
+     * ✅ API: الحصول على تفاصيل الفاتورة
+     */
+    public function getInvoiceDetails($id)
+    {
+        $invoice = PurchaseInvoice::with('supplier')->find($id);
+
+        if (!$invoice) {
+            return response()->json(['error' => 'الفاتورة غير موجودة'], 404);
+        }
+
+        return response()->json([
+            'id' => $invoice->id,
+            'invoice_number' => $invoice->invoice_number,
+            'supplier_id' => $invoice->supplier_id,
+            'supplier_name' => $invoice->supplier->name,
+            'invoice_date' => $invoice->invoice_date?->format('Y-m-d'),
+            'status' => $invoice->status,
+            'total_amount' => $invoice->total_amount,
+        ]);
+    }
+
+    /**
+     * ✅ صفحة تعديل الأذن
+     */
+    public function editDeliveryNote(DeliveryNote $deliveryNote)
+    {
+        return view('manufacturing::warehouses.reconciliation.edit-delivery-note', compact('deliveryNote'));
+    }
+
+    /**
+     * ✅ صفحة تعديل الفاتورة
+     */
+    public function editInvoice(PurchaseInvoice $purchaseInvoice)
+    {
+        return view('manufacturing::warehouses.reconciliation.edit-invoice', compact('purchaseInvoice'));
+    }
+
+    /**
+     * ✅ صفحة تعديل التسوية
+     */
+    public function editReconciliation(ReconciliationLog $reconciliationLog)
+    {
+        return view('manufacturing::warehouses.reconciliation.edit-reconciliation', compact('reconciliationLog'));
+    }
+
+    /**
+     * ✅ عرض صفحة تعديل ربط الفاتورة
+     */
+    public function editLinkInvoice($id)
+    {
+        $reconciliation = ReconciliationLog::with(['deliveryNote', 'deliveryNote.supplier', 'purchaseInvoice'])->find($id);
+
+        if (!$reconciliation) {
+            return back()->with('error', 'السجل غير موجود');
+        }
+
+        return view('manufacturing::warehouses.reconciliation.edit-link-invoice', compact('reconciliation'));
+    }
+
+    /**
+     * ✅ تحديث ربط الفاتورة
+     */
+    public function updateLinkInvoice(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'invoice_number' => 'required|string',
+            'invoice_date' => 'required|date',
+            'invoice_weight' => 'required|numeric|min:0.01',
+            'invoice_reference_number' => 'nullable|string',
+            'reconciliation_notes' => 'nullable|string',
+            'edit_reason' => 'required|string|min:5',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $reconciliation = ReconciliationLog::find($id);
+
+            if (!$reconciliation) {
+                return back()->with('error', 'السجل غير موجود');
+            }
+
+            // تحديث البيانات
+            $oldWeight = $reconciliation->invoice_weight;
+            $oldNotes = $reconciliation->reconciliation_notes;
+
+            $updateData = [
+                'invoice_weight' => $validated['invoice_weight'],
+                'reconciliation_notes' => isset($validated['reconciliation_notes']) ? $validated['reconciliation_notes'] : null,
+            ];
+
+            // إضافة الحقول الاختيارية إذا كانت موجودة في البيانات المدخلة
+            if (isset($validated['invoice_reference_number'])) {
+                $updateData['invoice_reference_number'] = $validated['invoice_reference_number'];
+            }
+
+            $reconciliation->update($updateData);
+
+            // إعادة حساب الفرق إذا تغير الوزن
+            if ($oldWeight != $validated['invoice_weight']) {
+                $actualWeight = $reconciliation->deliveryNote->actual_weight;
+                $newDiscrepancy = $actualWeight - $validated['invoice_weight'];
+                $newPercentage = $validated['invoice_weight'] > 0 ?
+                    (($newDiscrepancy / $validated['invoice_weight']) * 100) : 0;
+
+                $reconciliation->update([
+                    'discrepancy' => $newDiscrepancy,
+                    'discrepancy_percentage' => $newPercentage,
+                ]);
+
+                // تحديث حالة التسوية بناءً على الفرق الجديد
+                $newStatus = abs($newPercentage) <= 1 ? 'matched' : 'discrepancy';
+                $reconciliation->deliveryNote->update(['reconciliation_status' => $newStatus]);
+            }
+
+            // تسجيل التعديل
+            $reconciliation->update([
+                'edit_count' => ($reconciliation->edit_count ?? 0) + 1,
+                'updated_by' => Auth::id(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('manufacturing.warehouses.reconciliation.index')
+                ->with('success', 'تم تحديث ربط الفاتورة بنجاح!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * ✅ حذف ربط الفاتورة
+     */
+    public function deleteLinkInvoice(Request $request, $id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $reconciliation = ReconciliationLog::find($id);
+
+            if (!$reconciliation) {
+                return back()->with('error', 'السجل غير موجود');
+            }
+
+            // تحديث حالة الأذن إلى pending
+            $reconciliation->deliveryNote->update([
+                'reconciliation_status' => 'pending',
+                'purchase_invoice_id' => null,
+                'invoice_weight' => null,
+                'invoice_date' => null,
+            ]);
+
+            // حذف السجل
+            $reconciliation->delete();
+
+            DB::commit();
+
+            return back()->with('success', 'تم حذف ربط الفاتورة بنجاح!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * ✅ API: إنشاء أذن تسليم من الفاتورة
+     */
+    public function createDeliveryNoteFromInvoice(Request $request)
+    {
+        $validated = $request->validate([
+            'invoice_id' => 'required|exists:purchase_invoices,id',
+            'selected_items' => 'required|array|min:1',
+            'selected_items.*' => 'required|integer',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $invoice = PurchaseInvoice::with('items.material', 'supplier')->findOrFail($validated['invoice_id']);
+
+            // فلترة الـ items المختارة
+            $selectedItems = $invoice->items()
+                ->whereIn('id', $validated['selected_items'])
+                ->get();
+
+            if ($selectedItems->isEmpty()) {
+                return response()->json(['error' => 'لم يتم اختيار منتجات صحيحة'], 422);
+            }
+
+            // حساب الوزن الإجمالي والكمية
+            $totalWeight = $selectedItems->sum(function($item) {
+                return $item->weight ?? 0;
+            });
+
+            $totalQuantity = $selectedItems->sum(function($item) {
+                return $item->quantity ?? 0;
+            });
+
+            // إنشاء رقم فريد للأذن
+            $noteNumber = 'DN-' . now()->format('YmdHis') . '-' . strtoupper(substr(md5(time()), 0, 4));
+
+            // إنشاء أذن التسليم الجديدة
+            $createData = [
+                'note_number' => $noteNumber,
+                'type' => 'incoming',
+                'supplier_id' => $invoice->supplier_id,
+                'delivery_date' => now(),
+                'actual_weight' => $totalWeight,
+                'recorded_by' => Auth::id(),
+                'registration_status' => 'registered',  // مسجلة مباشرة
+                'reconciliation_status' => 'pending',
+                'warehouse_id' => 1, // Default warehouse
+                'purchase_invoice_id' => $invoice->id,
+                'invoice_weight' => $invoice->weight ?? $totalWeight,
+                'invoice_date' => $invoice->invoice_date,
+                'notes' => 'تم إنشاء أذن تسليم من الفاتورة #' . $invoice->invoice_number .
+                          ' - عدد المنتجات: ' . $selectedItems->count(),
+            ];
+
+            // إضافة reference number إذا كان موجود
+            if ($invoice->invoice_reference_number) {
+                $createData['invoice_reference_number'] = $invoice->invoice_reference_number;
+            }
+
+            $deliveryNote = DeliveryNote::create($createData);
+
+            // تسجيل الحركة
+            MaterialMovement::create([
+                'movement_type' => 'in',
+                'delivery_note_id' => $deliveryNote->id,
+                'warehouse_id' => 1,
+                'notes' => 'تم إنشاء أذن تسليم من الفاتورة #' . $invoice->invoice_number .
+                          ' بـ ' . $selectedItems->count() . ' منتجات | الوزن: ' . $totalWeight . ' كجم',
+                'created_by' => Auth::id(),
+                'movement_date' => now(),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'status' => 'completed',
+            ]);
+
+            // إنشاء سجل تسوية إذا كان الوزن مطابق
+            $discrepancy = $totalWeight - ($invoice->weight ?? $totalWeight);
+
+            if (abs($discrepancy) < 0.01) {
+                // الأوزان متطابقة - تسوية مباشرة
+                ReconciliationLog::create([
+                    'delivery_note_id' => $deliveryNote->id,
+                    'purchase_invoice_id' => $invoice->id,
+                    'actual_weight' => $totalWeight,
+                    'invoice_weight' => $invoice->weight ?? $totalWeight,
+                    'action' => 'accepted',
+                    'comments' => 'تم المطابقة تلقائياً عند الإنشاء من الفاتورة',
+                    'decided_by' => Auth::id(),
+                    'decided_at' => now(),
+                ]);
+
+                $deliveryNote->update(['reconciliation_status' => 'matched']);
+            } else {
+                // يوجد فرق - تسوية قيد الانتظار
+                $discrepancyPercentage = ($invoice->weight ?? $totalWeight) > 0
+                    ? (abs($discrepancy) / ($invoice->weight ?? $totalWeight)) * 100
+                    : 0;
+
+                ReconciliationLog::create([
+                    'delivery_note_id' => $deliveryNote->id,
+                    'purchase_invoice_id' => $invoice->id,
+                    'actual_weight' => $totalWeight,
+                    'invoice_weight' => $invoice->weight ?? $totalWeight,
+                    'action' => 'pending',
+                    'comments' => 'فرق في الوزن: ' . abs($discrepancy) . ' كجم (' . round($discrepancyPercentage, 2) . '%)',
+                    'decided_by' => Auth::id(),
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم إنشاء أذن التسليم بنجاح',
+                'delivery_note_id' => $deliveryNote->id,
+                'note_number' => $deliveryNote->note_number,
+                'items_count' => $selectedItems->count(),
+                'total_weight' => $totalWeight,
+                'total_quantity' => $totalQuantity,
+                'discrepancy' => $discrepancy,
+                'is_matched' => abs($discrepancy) < 0.01,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to create delivery note from invoice: ' . $e->getMessage());
+            return response()->json(['error' => 'حدث خطأ: ' . $e->getMessage()], 500);
         }
     }
 }

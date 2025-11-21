@@ -227,6 +227,73 @@
                                 <input type="hidden" name="warehouse_id" value="{{ $deliveryNote->warehouse_id }}">
                             @endif
 
+                            <!-- المستودع والمادة في صف واحد -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-0">
+                                        <label class="form-label"><strong>المستودع <span
+                                                    class="text-danger">*</span></strong></label>
+                                        <select name="warehouse_select" class="form-select @error('warehouse_id') is-invalid @enderror"
+                                            id="warehouseSelect" required>
+                                            <option value="">-- اختر المستودع --</option>
+                                            @if ($deliveryNote->warehouse_id && $deliveryNote->warehouse)
+                                                <option value="{{ $deliveryNote->warehouse_id }}" selected>
+                                                    {{ $deliveryNote->warehouse->warehouse_name ?? 'مستودع' }}
+                                                </option>
+                                            @else
+                                                @foreach (\App\Models\Warehouse::where('is_active', true)->get() as $warehouse)
+                                                    <option value="{{ $warehouse->id }}">
+                                                        {{ $warehouse->warehouse_name }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        @error('warehouse_id')
+                                            <small class="text-danger d-block mt-1">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group mb-0">
+                                        <label class="form-label"><strong>المادة <span
+                                                    class="text-danger">*</span></strong></label>
+                                        <select name="material_id" class="form-select @error('material_id') is-invalid @enderror"
+                                            id="materialSelect" required>
+                                            <option value="">-- اختر المادة --</option>
+                                            @foreach ($materials as $mat)
+                                                <option value="{{ $mat->id }}" @selected(old('material_id', $previousLog->material_id ?? '') == $mat->id)>
+                                                    {{ $mat->name_ar }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('material_id')
+                                            <small class="text-danger d-block mt-1">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="form-label"><strong>الكمية المسلمة (من الأذن) <span
+                                            class="text-danger">*</span></strong></label>
+                                <div class="input-group">
+                                    <input type="number" name="quantity"
+                                        class="form-control @error('quantity') is-invalid @enderror"
+                                        placeholder="الكمية من أذن التسليم" step="0.01" min="0.01"
+                                        value="{{ old('quantity', $deliveryNote->quantity ?? $deliveryNote->delivered_weight ?? '') }}"
+                                        readonly
+                                        style="background-color: #f8f9fa; cursor: not-allowed;">
+                                    <span class="input-group-text">وحدة</span>
+                                </div>
+                                <small class="text-muted d-block mt-1">
+                                    ✅ الكمية المسجلة من أذن التسليم الأصلية
+                                    @if($deliveryNote->quantity && $deliveryNote->quantity > 0)
+                                        - تم تسجيل: <strong style="color: #0066CC;">{{ number_format($deliveryNote->quantity, 2) }}</strong> وحدة
+                                    @endif
+                                </small>
+                            </div>
+
                             <div class="form-group mb-3">
                                 <label class="form-label"><strong>الوزن الفعلي من الميزان (كيلو) <span
                                             class="text-danger">*</span></strong></label>
@@ -239,23 +306,6 @@
                                     <span class="input-group-text">كيلو</span>
                                 </div>
                                 @error('actual_weight')
-                                    <small class="text-danger d-block mt-1">{{ $message }}</small>
-                                @enderror
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label class="form-label"><strong>المادة <span
-                                            class="text-danger">*</span></strong></label>
-                                <select name="material_id" class="form-select @error('material_id') is-invalid @enderror"
-                                    required>
-                                    <option value="">-- اختر المادة من القائمة --</option>
-                                    @foreach ($matrials as $mat)
-                                        <option value="{{ $mat->id }}">{{ $mat->name_ar }}
-
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('material_id')
                                     <small class="text-danger d-block mt-1">{{ $message }}</small>
                                 @enderror
                             </div>
@@ -351,6 +401,34 @@
             document.getElementById('submitBtn').disabled = !this.checked;
         });
         document.getElementById('submitBtn').disabled = true;
+
+        // تحديث حقل warehouse_id المخفي عند تغيير select المستودع
+        const warehouseSelect = document.getElementById('warehouseSelect');
+        if (warehouseSelect) {
+            warehouseSelect.addEventListener('change', function() {
+                // تحديث أو إنشاء hidden input
+                let hiddenInput = document.querySelector('input[name="warehouse_id"]');
+                if (!hiddenInput) {
+                    hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'warehouse_id';
+                    document.getElementById('registrationForm').appendChild(hiddenInput);
+                }
+                hiddenInput.value = this.value;
+            });
+
+            // تعيين القيمة الأولية إذا كانت موجودة
+            if (warehouseSelect.value) {
+                let hiddenInput = document.querySelector('input[name="warehouse_id"]');
+                if (!hiddenInput) {
+                    hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'warehouse_id';
+                    document.getElementById('registrationForm').appendChild(hiddenInput);
+                }
+                hiddenInput.value = warehouseSelect.value;
+            }
+        }
 
         function usePreviousData() {
             document.getElementById('usePreviousBtn').style.display = 'none';

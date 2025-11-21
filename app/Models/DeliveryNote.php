@@ -52,6 +52,9 @@ class DeliveryNote extends Model
         'weight_from_scale', // ✅ الوزن المسجل من الميزان (جديد)
         'invoice_weight', // وزن الفاتورة
         'weight_discrepancy', // الفرق
+        'quantity', // ✅ الكمية المسجلة لهذه الأذن على حدة
+        'quantity_used', // ✅ الكمية المستخدمة من هذه الأذن
+        'quantity_remaining', // ✅ الكمية المتبقية من هذه الأذن
         'delivery_date',
         'driver_name',
         'driver_name_en',
@@ -91,6 +94,9 @@ class DeliveryNote extends Model
         'weight_from_scale' => 'float', // ✅ الوزن من الميزان
         'invoice_weight' => 'float',
         'weight_discrepancy' => 'float',
+        'quantity' => 'float', // ✅ الكمية لهذه الأذن
+        'quantity_used' => 'float', // ✅ الكمية المستخدمة
+        'quantity_remaining' => 'float', // ✅ الكمية المتبقية
         'delivery_date' => 'date',
         'approved_at' => 'datetime',
         'status' => DeliveryNoteStatus::class,

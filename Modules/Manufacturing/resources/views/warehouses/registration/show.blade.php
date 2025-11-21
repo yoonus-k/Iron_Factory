@@ -79,7 +79,7 @@
                     العودة
                 </a>
 
-                @if ($deliveryNote->registration_status === 'registered' && $canMoveToProduction)
+
                     <a href="{{ route('manufacturing.warehouse.registration.transfer-form', $deliveryNote) }}" class="btn btn-success">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline>
@@ -89,7 +89,7 @@
                         </svg>
                         نقل للإنتاج
                     </a>
-                @endif
+
 
                 @if (!$deliveryNote->is_locked && $canEdit)
                     <a href="{{ route('manufacturing.warehouse.registration.create', $deliveryNote) }}" class="btn btn-edit">
@@ -191,6 +191,33 @@
                         <span class="badge badge-info">{{ number_format($deliveryNote->actual_weight ?? 0, 2) }} كيلو</span>
                     </div>
                 </div>
+
+                <div class="info-item">
+                    <div class="info-label">الكمية المسجلة:</div>
+                    <div class="info-value">
+                        @if($deliveryNote->quantity && $deliveryNote->quantity > 0)
+                            <span class="badge badge-success">{{ number_format($deliveryNote->quantity, 2) }} وحدة</span>
+                        @else
+                            <span class="badge badge-secondary">لم يتم تسجيل كمية بعد</span>
+                        @endif
+                    </div>
+                </div>
+
+                @if ($deliveryNote->quantity_used && $deliveryNote->quantity_used > 0)
+                <div class="info-item">
+                    <div class="info-label">الكمية المنقولة للإنتاج:</div>
+                    <div class="info-value">
+                        <span class="badge badge-warning">{{ number_format($deliveryNote->quantity_used, 2) }} وحدة</span>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">الكمية المتبقية:</div>
+                    <div class="info-value">
+                        <span class="badge badge-info">{{ number_format($deliveryNote->quantity_remaining ?? 0, 2) }} وحدة</span>
+                    </div>
+                </div>
+                @endif
 
                 @if ($deliveryNote->registeredBy)
                     <div class="info-item">

@@ -28,8 +28,7 @@ return new class extends Migration {
             $table->foreignId('unit_id')->nullable()->constrained('units')->onDelete('set null')->comment('الوحدة');
 
             $table->string('delivery_note_number', 100)->nullable()->comment('رقم إشعار التسليم');
-            $table->date('manufacture_date')->nullable()->comment('تاريخ التصنيع');
-            $table->date('expiry_date')->nullable()->comment('تاريخ الانتهاء');
+
             $table->string('shelf_location', 100)->nullable()->comment('موقع الرف في المستودع');
             $table->string('shelf_location_en', 100)->nullable()->comment('موقع الرف بالإنجليزية');
             $table->foreignId('purchase_invoice_id')->nullable()->constrained('purchase_invoices')->onDelete('set null')->comment('فاتورة الشراء');
@@ -50,7 +49,6 @@ return new class extends Migration {
             $table->index('status');
             $table->index('name_ar');
 
-            $table->index('expiry_date');
 
         });
     }

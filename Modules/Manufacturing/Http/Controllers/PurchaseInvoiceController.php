@@ -99,10 +99,11 @@ class PurchaseInvoiceController extends Controller
                 // Items validation
                 'items' => 'required|array|min:1',
                 'items.*.material_id' => 'nullable|exists:materials,id',
-                'items.*.item_name' => 'required|string|max:255',
+                'items.*.item_name' => 'nullable|string|max:255',
                 'items.*.description' => 'nullable|string|max:500',
                 'items.*.quantity' => 'required|numeric|min:0.001',
                 'items.*.unit' => 'required|string|max:50',
+                'items.*.weight' => 'nullable|numeric|min:0',
                 'items.*.unit_price' => 'required|numeric|min:0',
                 'items.*.tax_rate' => 'nullable|numeric|min:0|max:100',
                 'items.*.discount_rate' => 'nullable|numeric|min:0|max:100',
@@ -118,15 +119,21 @@ class PurchaseInvoiceController extends Controller
 
             // Calculate total from items
             $totalAmount = 0;
+            $totalQuantity = 0;
             foreach ($request->items as $item) {
                 $subtotal = $item['quantity'] * $item['unit_price'];
                 $taxAmount = $subtotal * (($item['tax_rate'] ?? 0) / 100);
                 $discountAmount = $subtotal * (($item['discount_rate'] ?? 0) / 100);
                 $total = $subtotal + $taxAmount - $discountAmount;
                 $totalAmount += $total;
+
+                // Calculate total quantity as weight for invoice
+                $totalQuantity += (float)($item['quantity'] ?? 0);
             }
 
             $validated['total_amount'] = round($totalAmount, 2);
+            $validated['weight'] = round($totalQuantity, 3);
+            $validated['weight_unit'] = 'وحدة';
 
             // Ensure all required fields are present
             if (empty($validated['created_by'])) {
@@ -237,10 +244,11 @@ class PurchaseInvoiceController extends Controller
                 // Items validation
                 'items' => 'required|array|min:1',
                 'items.*.material_id' => 'nullable|exists:materials,id',
-                'items.*.item_name' => 'required|string|max:255',
+                'items.*.item_name' => 'nullable|string|max:255',
                 'items.*.description' => 'nullable|string|max:500',
                 'items.*.quantity' => 'required|numeric|min:0.001',
                 'items.*.unit' => 'required|string|max:50',
+                'items.*.weight' => 'nullable|numeric|min:0',
                 'items.*.unit_price' => 'required|numeric|min:0',
                 'items.*.tax_rate' => 'nullable|numeric|min:0|max:100',
                 'items.*.discount_rate' => 'nullable|numeric|min:0|max:100',
@@ -253,15 +261,21 @@ class PurchaseInvoiceController extends Controller
 
             // Calculate total from items
             $totalAmount = 0;
+            $totalQuantity = 0;
             foreach ($request->items as $item) {
                 $subtotal = $item['quantity'] * $item['unit_price'];
                 $taxAmount = $subtotal * (($item['tax_rate'] ?? 0) / 100);
                 $discountAmount = $subtotal * (($item['discount_rate'] ?? 0) / 100);
                 $total = $subtotal + $taxAmount - $discountAmount;
                 $totalAmount += $total;
+
+                // Calculate total quantity as weight for invoice
+                $totalQuantity += (float)($item['quantity'] ?? 0);
             }
 
             $validated['total_amount'] = round($totalAmount, 2);
+            $validated['weight'] = round($totalQuantity, 3);
+            $validated['weight_unit'] = 'وحدة';
 
             // Ensure all required fields are present
             if (empty($validated['created_by'])) {

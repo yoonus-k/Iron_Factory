@@ -289,27 +289,7 @@
                         <div class="info-value">{{ $material->purchaseInvoice->invoice_number ?? 'N/A' }}</div>
                     </div>
 
-                    <div class="info-item">
-                        <div class="info-label">تاريخ الصنع:</div>
-                        <div class="info-value">{{ $material->manufacture_date?->format('Y-m-d') ?? 'N/A' }}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">تاريخ الصلاحية:</div>
-                        <div class="info-value">
-                            @if ($material->expiry_date)
-                                @if ($material->isExpired())
-                                    <span class="badge badge-danger">منتهي</span> {{ $material->expiry_date->format('Y-m-d') }}
-                                @elseif ($material->isExpiringSoon())
-                                    <span class="badge badge-warning">قريب الانتهاء</span> {{ $material->expiry_date->format('Y-m-d') }}
-                                @else
-                                    {{ $material->expiry_date->format('Y-m-d') }}
-                                @endif
-                            @else
-                                N/A
-                            @endif
-                        </div>
-                    </div>
+                    
 
                     <div class="info-item">
                         <div class="info-label">موقع التخزين:</div>

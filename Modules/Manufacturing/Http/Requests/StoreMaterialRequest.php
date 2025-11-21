@@ -29,8 +29,7 @@ class StoreMaterialRequest extends FormRequest
 
 
             'delivery_note_number' => 'nullable|string|max:255',
-            'manufacture_date' => 'nullable|date',
-            'expiry_date' => 'nullable|date|after:manufacture_date',
+          
             'shelf_location' => 'nullable|string|max:255',
             'shelf_location_en' => 'nullable|string|max:255',
             'purchase_invoice_id' => 'nullable|exists:purchase_invoices,id',
@@ -53,7 +52,7 @@ class StoreMaterialRequest extends FormRequest
             'barcode.unique' => 'رمز المادة موجود بالفعل',
 
 
-            'expiry_date.after' => 'تاريخ الصلاحية يجب أن يكون بعد تاريخ الصنع',
+         
         ];
     }
 }

@@ -40,9 +40,7 @@ return new class extends Migration
                     $table->foreignId('supplier_id')->nullable()->constrained()->onDelete('set null')->after('material_id')->comment('المورد (للأذن الواردة)');
                 }
 
-                if (!Schema::hasColumn('delivery_notes', 'destination_id')) {
-                    $table->foreignId('destination_id')->nullable()->constrained('warehouses')->onDelete('set null')->after('supplier_id')->comment('الوجهة/المستودع (للأذن الصادرة)');
-                }
+
 
                 // Add invoice details if they don't exist
                 if (!Schema::hasColumn('delivery_notes', 'invoice_number')) {
@@ -79,9 +77,7 @@ return new class extends Migration
             if (Schema::hasColumn('delivery_notes', 'supplier_id')) {
                 $table->dropForeign(['supplier_id']);
             }
-            if (Schema::hasColumn('delivery_notes', 'destination_id')) {
-                $table->dropForeign(['destination_id']);
-            }
+
             if (Schema::hasColumn('delivery_notes', 'recorded_by')) {
                 $table->dropForeign(['recorded_by']);
             }
@@ -96,7 +92,7 @@ return new class extends Migration
                 'invoice_weight',
                 'weight_discrepancy',
                 'supplier_id',
-                'destination_id',
+
                 'invoice_number',
                 'invoice_reference_number',
                 'recorded_by',

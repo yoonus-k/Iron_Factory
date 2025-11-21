@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('note_number', 100)->unique();
             $table->foreignId('material_id')->constrained()->onDelete('cascade');
-            $table->decimal('delivered_weight', 10, 3);
+            $table->decimal('delivered_weight', 10, 3)->nullable();
             $table->date('delivery_date');
             $table->string('driver_name')->nullable()->comment('اسم السائق');
             $table->string('driver_name_en')->nullable()->comment('اسم السائق بالإنجليزية');

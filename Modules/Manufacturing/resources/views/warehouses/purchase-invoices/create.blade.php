@@ -3,7 +3,7 @@
 @section('title', 'إضافة فاتورة شراء جديدة')
 
 @section('content')
-
+<link rel="stylesheet" href="{{ asset('assets/css/invoice-items-table.css') }}">
     <!-- Header -->
     <div class="um-header-section">
         <h1 class="um-page-title">
@@ -199,13 +199,14 @@
                             <tr>
                                 <th style="width: 40px;">#</th>
                                 <th style="min-width: 150px;">المادة</th>
-                                <th style="min-width: 150px;">اسم المنتج</th>
+
                                 <th style="min-width: 120px;">الوصف</th>
                                 <th style="width: 100px;">الكمية</th>
                                 <th style="width: 100px;">الوحدة</th>
                                 <th style="width: 100px;">السعر</th>
                                 <th style="width: 80px;">ض%</th>
                                 <th style="width: 80px;">خ%</th>
+                                <th style="width: 80px;">الوزن</th>
                                 <th style="width: 100px;">الإجمالي</th>
                                 <th style="width: 60px;">إجراء</th>
                             </tr>
@@ -230,6 +231,10 @@
                         <div>
                             <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">الخصم</label>
                             <div style="font-size: 24px; font-weight: 700; color: #ef4444;" id="discount-display">0.00</div>
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">الوزن الإجمالي</label>
+                            <div style="font-size: 24px; font-weight: 700; color: #8b5cf6;" id="weight-display">0.00 كجم</div>
                         </div>
                         <div>
                             <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">الإجمالي النهائي</label>
@@ -444,9 +449,7 @@
                             ${materials.map(m => `<option value="${m.id}" data-name="${m.name_ar}" data-unit-id="${m.unit_id || ''}">${m.name_ar}</option>`).join('')}
                         </select>
                     </td>
-                    <td>
-                        <input type="text" name="items[${itemIndex}][item_name]" class="item-name" placeholder="اسم المنتج" required>
-                    </td>
+
                     <td>
                         <textarea name="items[${itemIndex}][description]" rows="1" placeholder="الوصف"></textarea>
                     </td>
@@ -467,6 +470,9 @@
                     </td>
                     <td>
                         <input type="number" name="items[${itemIndex}][discount_rate]" class="item-discount-rate" placeholder="0" step="0.01" min="0" max="100" value="0" oninput="calculateItemTotal(${itemIndex})">
+                    </td>
+                    <td>
+                        <input type="number" name="items[${itemIndex}][weight]" class="item-weight" placeholder="0.00" step="0.01" min="0" value="0" oninput="calculateItemTotal(${itemIndex})">
                     </td>
                     <td>
                         <input type="text" class="item-total" readonly value="0.00">
@@ -534,6 +540,7 @@
             let taxTotal = 0;
             let discountTotal = 0;
             let grandTotal = 0;
+            let totalQuantity = 0;
 
             document.querySelectorAll('.invoice-item').forEach(item => {
                 const quantity = parseFloat(item.querySelector('.item-quantity').value) || 0;
@@ -550,11 +557,13 @@
                 taxTotal += itemTax;
                 discountTotal += itemDiscount;
                 grandTotal += itemTotal;
+                totalQuantity += quantity;
             });
 
             document.getElementById('subtotal-display').textContent = subtotal.toFixed(2);
             document.getElementById('tax-display').textContent = taxTotal.toFixed(2);
             document.getElementById('discount-display').textContent = discountTotal.toFixed(2);
+            document.getElementById('weight-display').textContent = totalQuantity.toFixed(2) + ' وحدة';
             document.getElementById('total-display').textContent = grandTotal.toFixed(2);
         }
     </script>

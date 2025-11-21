@@ -66,6 +66,10 @@ class DeliveryNoteController extends Controller
             ->where('quantity', '>', 0)
             ->get();
 
+        // Debug: Log the material details to see what we're getting
+        \Illuminate\Support\Facades\Log::info('Material Details Count: ' . $materialDetails->count());
+        \Illuminate\Support\Facades\Log::info('First Material Detail: ' . $materialDetails->first());
+
         $suppliers = Supplier::all();
         $warehouses = Warehouse::all(); // ✅ قائمة المستودعات
         $users = User::all();
@@ -125,7 +129,7 @@ class DeliveryNoteController extends Controller
                 'delivery_date' => 'required|date',
                 'material_id' => $type === 'outgoing' ? 'required|exists:materials,id' : 'nullable|exists:materials,id',
                 'material_detail_id' => $type === 'outgoing' ? 'required|exists:material_details,id' : 'nullable|exists:material_details,id',
-                'warehouse_id' => 'required|exists:warehouses,id',
+                'warehouse_id' => $type === 'incoming' ? 'required|exists:warehouses,id' : 'nullable',
                 'warehouse_from_id' => $type === 'outgoing' ? 'required|exists:warehouses,id' : 'nullable|exists:warehouses,id',
                 'delivery_quantity' => $type === 'outgoing' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
                 'actual_weight' => 'nullable|numeric|min:0', // ✅ اختياري - سيتم تعبئته في التسجيل
@@ -135,7 +139,7 @@ class DeliveryNoteController extends Controller
                 'vehicle_number' => 'nullable|string|max:50',
                 'received_by' => 'nullable|exists:users,id',
                 'supplier_id' => $type === 'incoming' ? 'required|exists:suppliers,id' : 'nullable',
-                'destination_id' => $type === 'outgoing' ? 'required|exists:warehouses,id' : 'nullable',
+                'destination_id' => $type === 'outgoing' ? 'required|string' : 'nullable', // ✅ تغيير: قبول أي قيمة نصية
                 'invoice_number' => 'nullable|string|max:100',
                 'invoice_reference_number' => 'nullable|string|max:100',
 
@@ -169,7 +173,7 @@ class DeliveryNoteController extends Controller
                 'supplier_id.required' => 'المورد مطلوب للأذن الواردة',
                 'supplier_id.exists' => 'المورد المختار غير موجود',
                 'destination_id.required' => 'الوجهة مطلوبة للأذن الصادرة',
-                'destination_id.exists' => 'الوجهة المختارة غير موجودة',
+                'destination_id.string' => 'الوجهة يجب أن تكون نصاً',
                 'invoice_number.string' => 'رقم الفاتورة يجب أن يكون نصاً',
                 'invoice_reference_number.string' => 'رقم مرجع الفاتورة يجب أن يكون نصاً',
                 'notes.string' => 'الملاحظات يجب أن تكون نصاً',
@@ -291,6 +295,12 @@ class DeliveryNoteController extends Controller
                 ? 'تم إضافة أذن التسليم الواردة بنجاح - رقم الأذن: ' . $deliveryNumber
                 : 'تم إضافة أذن التسليم الصادرة بنجاح - رقم الأذن: ' . $deliveryNumber . ' ✅ تم تسجيلها في سجل العمليات';
 
+            // For incoming delivery notes, redirect to registration page
+            if ($type === 'incoming') {
+                return redirect()->route('manufacturing.warehouse.registration.create', $deliveryNote)
+                    ->with('success', $successMessage);
+            }
+
             return redirect()->route('manufacturing.delivery-notes.index')
                 ->with('success', $successMessage);
         } catch (\Exception $e) {
@@ -336,12 +346,24 @@ class DeliveryNoteController extends Controller
         $warehouses = Warehouse::all();
         $users = User::all();
 
+        // ✅ استخدام المنتجات الموجودة في المستودع (اختياري الآن)
+        $materialDetails = \App\Models\MaterialDetail::with(['material', 'warehouse', 'unit'])
+            ->where('quantity', '>', 0)
+            ->get();
+
+        // Debug: Log the material details to see what we're getting
+        \Illuminate\Support\Facades\Log::info('Edit Material Details Count: ' . $materialDetails->count());
+        if ($materialDetails->count() > 0) {
+            \Illuminate\Support\Facades\Log::info('Edit First Material Detail: ' . json_encode($materialDetails->first()));
+        }
+
         return view('manufacturing::warehouses.delivery-notes.edit', compact(
             'deliveryNote',
             'materials',
             'suppliers',
             'warehouses',
-            'users'
+            'users',
+            'materialDetails'
         ));
     }
 
@@ -370,7 +392,7 @@ class DeliveryNoteController extends Controller
                 'vehicle_number' => 'nullable|string|max:50',
                 'received_by' => 'nullable|exists:users,id',
                 'supplier_id' => $type === 'incoming' ? 'required|exists:suppliers,id' : 'nullable',
-                'destination_id' => $type === 'outgoing' ? 'required|exists:warehouses,id' : 'nullable',
+                'destination_id' => $type === 'outgoing' ? 'required|string' : 'nullable', // ✅ قبول أي قيمة نصية
                 'invoice_number' => 'nullable|string|max:100',
                 'invoice_reference_number' => 'nullable|string|max:100',
                 'notes' => 'nullable|string',
@@ -385,7 +407,7 @@ class DeliveryNoteController extends Controller
                 'warehouse_id.exists' => 'المستودع المختار غير موجود',
                 'material_id.exists' => 'المادة المختارة غير موجودة',
                 'material_detail_id.exists' => 'تفاصيل المادة غير موجودة',
-                'actual_weight.required' => 'الوزن الفعلي مطلوب',
+
                 'actual_weight.numeric' => 'الوزن يجب أن يكون رقماً',
                 'actual_weight.gt' => 'الوزن يجب أن يكون أكبر من صفر',
                 'weight_from_scale.required' => 'الوزن من الميزان مطلوب',
@@ -400,7 +422,7 @@ class DeliveryNoteController extends Controller
                 'supplier_id.required' => 'المورد مطلوب للأذن الواردة',
                 'supplier_id.exists' => 'المورد المختار غير موجود',
                 'destination_id.required' => 'الوجهة مطلوبة للأذن الصادرة',
-                'destination_id.exists' => 'الوجهة المختارة غير موجودة',
+                'destination_id.string' => 'الوجهة يجب أن تكون نصاً',
                 'invoice_number.string' => 'رقم الفاتورة يجب أن يكون نصاً',
                 'invoice_reference_number.string' => 'رقم مرجع الفاتورة يجب أن يكون نصاً',
                 'notes.string' => 'الملاحظات يجب أن تكون نصاً',

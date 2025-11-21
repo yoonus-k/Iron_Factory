@@ -52,6 +52,7 @@ class WarehouseRegistrationController extends Controller
         // البضاعة الداخلة (الواردة) المسجلة (فقط التي لم تنقل للإنتاج بعد)
         $incomingRegistered = DeliveryNote::where('type', 'incoming')
             ->where('registration_status', '!=', 'not_registered')
+            ->where('registration_status', '!=', 'in_production')
             ->whereHas('materialDetail', function($query) {
                 $query->where('quantity', '>', 0);
             })
@@ -59,11 +60,13 @@ class WarehouseRegistrationController extends Controller
             ->orderBy('registered_at', 'desc')
             ->paginate(15);
 
-        // البضاعة المنقولة للإنتاج (الكمية = 0)
+        // البضاعة المنقولة للإنتاج (الكمية = 0 أو registration_status = in_production)
         $movedToProduction = DeliveryNote::where('type', 'incoming')
-            ->where('registration_status', '!=', 'not_registered')
-            ->whereHas('materialDetail', function($query) {
-                $query->where('quantity', '=', 0);
+            ->where(function($query) {
+                $query->where('registration_status', 'in_production')
+                      ->orWhereHas('materialDetail', function($subQuery) {
+                          $subQuery->where('quantity', '=', 0);
+                      });
             })
             ->with(['supplier', 'registeredBy', 'material', 'materialDetail'])
             ->orderBy('registered_at', 'desc')
@@ -93,11 +96,11 @@ class WarehouseRegistrationController extends Controller
             return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
                 ->with('info', 'هذه التسليمة مسجلة بالفعل. إذا أردت التعديل، اضغط على زر التعديل');
         }
-$matrials = Material::all();
+        $materials = Material::all();
         // تحقق من وجود تسجيل سابق لنفس الشحنة
         $previousLog = $this->checkForDuplicateRegistration($deliveryNote);
 
-        return view('manufacturing::warehouses.registration.create', compact('deliveryNote', 'previousLog', 'matrials'));
+        return view('manufacturing::warehouses.registration.create', compact('deliveryNote', 'previousLog', 'materials'));
     }
 
     /**
@@ -118,39 +121,38 @@ $matrials = Material::all();
 
         // التحقق من صحة البيانات
         $validated = $request->validate([
-            'actual_weight' => 'required|numeric|min:0.01',
-            'material_id' => 'required|exists:materials,id',
-            'unit_id' => 'required|exists:units,id',
-            'location' => 'required|string|max:100',
+            'actual_weight' => 'nullable|numeric|min:0.01',
+            'material_id' => 'nullable|exists:materials,id',
+            'unit_id' => 'nullable|exists:units,id',
+            'location' => 'nullable|string|max:100',
             'notes' => 'nullable|string|max:1000',
             'use_existing' => 'nullable|boolean',
             'warehouse_id' => 'nullable|exists:warehouses,id',
         ], [
-            'actual_weight.required' => 'الوزن الفعلي مطلوب',
-            'actual_weight.numeric' => 'الوزن يجب أن يكون رقم',
-            'actual_weight.min' => 'الوزن يجب أن يكون أكبر من صفر',
-            'material_id.required' => 'المادة مطلوبة',
-            'material_id.exists' => 'المادة غير موجودة',
-            'unit_id.required' => 'الوحدة مطلوبة',
-            'unit_id.exists' => 'الوحدة غير موجودة',
-            'location.required' => 'موقع التخزين مطلوب',
+
         ]);
 
         try {
             DB::beginTransaction();
 
-            // تحديث البيانات
-            $deliveryNote->update([
+            // تحضير بيانات التحديث - إضافة الكمية لكل أذن على حدة
+            $updateData = [
                 'actual_weight' => $validated['actual_weight'],
                 'delivery_quantity' => $validated['actual_weight'], // ✅ استخدام الوزن كقيمة للكمية
                 'delivered_weight' => $validated['actual_weight'], // ✅ نفس القيمة
+                'quantity' => $validated['actual_weight'], // ✅ الكمية الخاصة بهذه الأذن
+                'quantity_remaining' => $validated['actual_weight'], // ✅ الكمية المتبقية من الأذن
+                'quantity_used' => 0, // ✅ لم تُستخدم بعد
                 'material_id' => $validated['material_id'], // ✅ إضافة material_id
                 'registration_status' => 'registered',
                 'registered_by' => Auth::id(),
                 'registered_at' => now(),
                 'registration_attempts' => ($deliveryNote->registration_attempts ?? 0) + 1,
                 'deduplicate_key' => $this->duplicateService->generateUniqueKey($deliveryNote),
-            ]);
+            ];
+
+            // تحديث البيانات مرة واحدة فقط
+            $deliveryNote->update($updateData);
 
             // إنشاء سجل التسجيل
             $log = RegistrationLog::create([
@@ -166,16 +168,14 @@ $matrials = Material::all();
                 'user_agent' => $request->userAgent(),
             ]);
 
-            // احفظ معرف السجل الأخير
-            $deliveryNote->update(['last_registration_log_id' => $log->id]);
+            // احفظ معرف السجل الأخير مع batch_id (إن وجد)
+            $updateDataWithLog = ['last_registration_log_id' => $log->id];
 
             // تسجيل المحاولة
             $this->duplicateService->logAttempt($deliveryNote, $validated, true);
 
-            // ✅ تحديث الأذن لضمان وجود delivery_quantity قبل التسجيل في المستودع
-            $deliveryNote->refresh(); // إعادة تحميل البيانات المحدثة
-
             // تسجيل البضاعة في المستودع تلقائياً (للبضاعة الواردة)
+            $batch = null;
             if ($deliveryNote->isIncoming()) {
                 $this->warehouseService->registerDeliveryToWarehouse(
                     $deliveryNote,
@@ -216,8 +216,11 @@ $matrials = Material::all();
                     'notes' => $validated['notes'] ?? null,
                 ]);
 
-                // ✅ حفظ batch_id في DeliveryNote لاستخدامه لاحقاً
-                $deliveryNote->update(['batch_id' => $batch->id]);
+                // إضافة batch_id إلى بيانات التحديث
+                $updateDataWithLog['batch_id'] = $batch->id;
+
+                // تحديث واحد فقط مع batch_id و last_registration_log_id
+                $deliveryNote->update($updateDataWithLog);
 
                 // ✅ تسجيل الحركة في جدول material_movements مع batch_id
                 MaterialMovement::create([
@@ -240,6 +243,9 @@ $matrials = Material::all();
                     'user_agent' => request()->userAgent(),
                     'status' => 'completed',
                 ]);
+            } else {
+                // للبضاعة الخارجة، تحديث بسيط
+                $deliveryNote->update($updateDataWithLog);
             }
 
             DB::commit();
@@ -249,7 +255,7 @@ $matrials = Material::all();
                 : 'تم تسجيل البضاعة بنجاح!';
 
             // إذا كانت واردة، أضف رسالة الباركود
-            if ($deliveryNote->isIncoming() && isset($batch)) {
+            if ($deliveryNote->isIncoming() && $batch !== null) {
                 session()->flash('batch_code', $batch->batch_code);
                 session()->flash('batch_id', $batch->id);
                 $message .= ' رقم الدفعة: ' . $batch->batch_code;
@@ -296,7 +302,8 @@ $matrials = Material::all();
         // التحقق من إمكانية النقل (يجب أن تكون هناك MaterialDetail مع كمية متاحة)
         $canMoveToProduction = $deliveryNote->materialDetail
             && $deliveryNote->materialDetail->quantity > 0
-            && $deliveryNote->isIncoming();
+            && $deliveryNote->isIncoming()
+            && $deliveryNote->registration_status !== 'in_production'; // ✅ إضافة التحقق من حالة التسجيل
 
         // التحقق من إمكانية التعديل (يجب أن تكون الشحنة غير مقفلة وغير مسجلة أو الحالة سماح بالتعديل)
         $canEdit = !$deliveryNote->is_locked && $deliveryNote->registration_status !== 'completed';
@@ -330,12 +337,17 @@ $matrials = Material::all();
             return back()->with('error', 'لا توجد كمية متاحة للنقل');
         }
 
-        return view('manufacturing::warehouses.registration.transfer', compact('deliveryNote', 'availableQuantity'));
+        // عرض نموذج نقل الكمية
+        return view('manufacturing::warehouses.registration.transfer-form', compact(
+            'deliveryNote',
+            'availableQuantity'
+        ));
     }
 
     /**
      * Transfer to production
      * نقل البضاعة للإنتاج مع خصم من المستودع
+     * ✅ الآن يدعم النقل الجزئي
      */
     public function transferToProduction(Request $request, DeliveryNote $deliveryNote)
     {
@@ -344,9 +356,11 @@ $matrials = Material::all();
             return back()->with('error', 'هذه البضاعة لم تسجل في المستودع بعد');
         }
 
-        // التحقق من البيانات
+        $availableQuantity = $deliveryNote->materialDetail->quantity ?? 0;
+
+        // التحقق من البيانات - السماح بنقل أكثر من 100%
         $validated = $request->validate([
-            'quantity' => 'required|numeric|min:0.01',
+            'quantity' => 'required|numeric|min:0.01', // ✅ تم إزالة قيد max للسماح بأكثر من 100%
             'notes' => 'nullable|string|max:500',
         ], [
             'quantity.required' => 'الكمية مطلوبة',
@@ -354,13 +368,17 @@ $matrials = Material::all();
             'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
         ]);
 
+        $transferQuantity = (float)$validated['quantity'];
+        $isFullTransfer = abs($transferQuantity - $availableQuantity) < 0.001;
+        $exceedsQuantity = $transferQuantity > $availableQuantity; // ✅ تحذير إذا تجاوز الكمية
+
         try {
             DB::beginTransaction();
 
             // نقل البضاعة للإنتاج
             $this->warehouseService->transferToProduction(
                 $deliveryNote,
-                (float)$validated['quantity'],
+                $transferQuantity,
                 Auth::id(),
                 $validated['notes'] ?? null
             );
@@ -369,7 +387,7 @@ $matrials = Material::all();
             $batchId = $deliveryNote->batch_id;
 
             // ✅ تسجيل حركة النقل للإنتاج مع batch_id
-            $movement = MaterialMovement::create([
+            MaterialMovement::create([
                 'movement_number' => MaterialMovement::generateMovementNumber(),
                 'movement_type' => 'to_production',
                 'source' => 'production',
@@ -378,10 +396,10 @@ $matrials = Material::all();
                 'material_id' => $deliveryNote->material_id,
                 'batch_id' => $batchId,
                 'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
-                'quantity' => (float)$validated['quantity'],
+                'quantity' => $transferQuantity,
                 'from_warehouse_id' => $deliveryNote->warehouse_id,
                 'destination' => 'الإنتاج',
-                'description' => 'نقل بضاعة للإنتاج - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id),
+                'description' => 'نقل بضاعة للإنتاج - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id) . ($isFullTransfer ? ' (نقل كامل)' : ($exceedsQuantity ? ' (نقل يتجاوز الكمية)' : ' (نقل جزئي)')),
                 'notes' => $validated['notes'] ?? null,
                 'created_by' => Auth::id(),
                 'movement_date' => now(),
@@ -394,22 +412,43 @@ $matrials = Material::all();
             if ($batchId) {
                 $batch = MaterialBatch::find($batchId);
                 if ($batch) {
-                    $newAvailableQty = max(0, $batch->available_quantity - (float)$validated['quantity']);
+                    $newAvailableQty = max(0, $batch->available_quantity - $transferQuantity);
                     $batch->available_quantity = $newAvailableQty;
                     $batch->save();
                 }
             }
 
+            // ✅ تحديث كمية الأذن المنقولة
+            $newQuantityUsed = ($deliveryNote->quantity_used ?? 0) + $transferQuantity;
+            $deliveryNote->update([
+                'quantity_used' => $newQuantityUsed,
+                'quantity_remaining' => max(0, $deliveryNote->quantity - $newQuantityUsed)
+            ]);
+
+            // ✅ تحديث حالة التسجيل فقط إذا كان النقل كاملاً أو أكثر
+            if ($isFullTransfer || $exceedsQuantity) {
+                $deliveryNote->update(['registration_status' => 'in_production']);
+            }
+
+            // ✅ رسالة نجاح مع تنبيه إذا تجاوز
+            if ($exceedsQuantity) {
+                $percentage = ($transferQuantity / $availableQuantity) * 100;
+                $successMessage = '⚠️ تم نقل ' . number_format($transferQuantity, 2) . ' كيلو للإنتاج (بنسبة ' . number_format($percentage, 2) . '% من المتاح)!';
+            } elseif ($isFullTransfer) {
+                $successMessage = 'تم نقل البضاعة بالكامل للإنتاج بنجاح!';
+            } else {
+                $successMessage = 'تم نقل ' . number_format($transferQuantity, 2) . ' كيلو للإنتاج! المتبقي: ' . number_format($availableQuantity - $transferQuantity, 2) . ' كيلو';
+            }
+
             DB::commit();
 
             return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
-                ->with('success', 'تم نقل البضاعة للإنتاج بنجاح!');
+                ->with('success', $successMessage);
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
         }
     }
-
 
     public function moveToProduction(Request $request, DeliveryNote $deliveryNote)
     {
@@ -432,6 +471,9 @@ $matrials = Material::all();
                 Auth::id(),
                 'نقل فوري للإنتاج'
             );
+
+            // تحديث حالة التسجيل إلى "في الإنتاج"
+            $deliveryNote->update(['registration_status' => 'in_production']);
 
             return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
                 ->with('success', 'تم نقل البضاعة إلى الإنتاج بنجاح');

@@ -4,6 +4,9 @@
 
 @section('content')
 
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
     <style>
         .info-tooltip {
             position: relative;
@@ -69,6 +72,122 @@
 
         .info-tooltip .tooltip-text ol li {
             margin-bottom: 6px;
+        }
+
+        /* تنسيق السيلكت العادي */
+        select.form-input {
+            width: 100% !important;
+            padding: 10px !important;
+            border: 2px solid #e0e0e0 !important;
+            border-radius: 8px !important;
+            background-color: white !important;
+            color: #2c3e50 !important;
+            font-size: 16px !important;
+            direction: rtl !important;
+            text-align: right !important;
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+            background-repeat: no-repeat !important;
+            background-position: left 10px center !important;
+            background-size: 20px !important;
+            padding-left: 40px !important;
+        }
+
+        select.form-input:hover {
+            border-color: #3498db !important;
+        }
+
+        select.form-input:focus {
+            border-color: #3498db !important;
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1) !important;
+        }
+
+        select.form-input option {
+            background-color: white;
+            color: #2c3e50;
+            padding: 10px;
+            text-align: right;
+            direction: rtl;
+        }
+
+        /* Select2 Custom Styling */
+        .select2-container--default .select2-selection--single {
+            height: 45px !important;
+            border: 2px solid #e0e0e0 !important;
+            border-radius: 8px !important;
+            padding: 8px !important;
+            direction: rtl !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 28px !important;
+            color: #2c3e50 !important;
+            padding-right: 40px !important;
+            text-align: right !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 43px !important;
+            left: 10px !important;
+            right: auto !important;
+        }
+
+        .select2-dropdown {
+            border: 2px solid #3498db !important;
+            border-radius: 8px !important;
+            direction: rtl !important;
+        }
+
+        .select2-results__option {
+            text-align: right !important;
+            padding: 10px 15px !important;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #3498db !important;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 2px solid #e0e0e0 !important;
+            border-radius: 6px !important;
+            padding: 8px !important;
+            direction: rtl !important;
+            text-align: right !important;
+        }
+
+        .select2-container--default .select2-results__group {
+            font-weight: bold !important;
+            color: #2c3e50 !important;
+            background-color: #f8f9fa !important;
+            padding: 8px 15px !important;
+            text-align: right !important;
+        }
+
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .input-wrapper .select2-container {
+            margin-top: 0 !important;
+        }
+
+        /* Fix for Select2 inside input-wrapper */
+        .input-wrapper .select2-selection {
+            padding-right: 40px !important;
+        }
+
+        /* Button disabled state styling */
+        #submitBtn:disabled {
+            background-color: #95a5a6 !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+        }
+
+        #submitBtn:disabled:hover {
+            background-color: #95a5a6 !important;
+            transform: none !important;
         }
     </style>
 
@@ -416,14 +535,14 @@
                         <small style="color: #27ae60; display: block; margin-top: 5px;" id="warehouse_info_display"></small>
                     </div>
 
-                    <div class="form-group" id="material_from_group" style="display: none;">
+                   <div class="form-group" id="material_from_group">
                         <label for="material_detail_id_outgoing" class="form-label">
                             المادة المراد إخراجها
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
                             <i class="feather icon-box" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #7f8c8d; font-size: 18px;"></i>
-                            <select name="material_detail_id" id="material_detail_id_outgoing" class="form-input {{ $errors->has('material_detail_id') ? 'is-invalid' : '' }}">
+                            <select name="material_detail_id" id="material_detail_id_outgoing" class="form-input {{ $errors->has('material_detail_id') ? 'is-invalid' : '' }}" style="width: 100%; padding: 10px 40px 10px 10px; border: 2px solid #e0e0e0; border-radius: 8px; direction: rtl; text-align: right; font-size: 16px;">
                                 <option value="">-- اختر المادة --</option>
                             </select>
                             <input type="hidden" name="material_id" id="material_id_hidden">
@@ -467,7 +586,7 @@
 
                     <div class="form-group">
                         <label for="destination_id" class="form-label">
-                            الوجهة (مستودع / قسم الإنتاج)
+                            الوجهة(مستودع / الإنتاج / عميل)
                             <span class="required" id="destination_required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -475,18 +594,30 @@
                                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                                 <polyline points="17 21 17 13 7 13 7 21"></polyline>
                             </svg>
-                            <select name="destination_id" id="destination_id" class="form-input {{ $errors->has('destination_id') ? 'is-invalid' : '' }}">
+                            <select name="destination_id" id="destination_id" class="form-input {{ $errors->has('destination_id') ? 'is-invalid' : '' }}  select2">
                                 <option value="">-- اختر الوجهة --</option>
-                                @foreach($warehouses as $warehouse)
-                                    <option value="{{ $warehouse->id }}" {{ old('destination_id') == $warehouse->id ? 'selected' : '' }}>
-                                        {{ $warehouse->warehouse_name }} [{{ $warehouse->warehouse_code ?? '' }}]
-                                    </option>
-                                @endforeach
+                                <optgroup label="🏭 مراحل الإنتاج">
+                                    <option value="stage_1" {{ old('destination_id') == 'stage_1' ? 'selected' : '' }}>المرحلة 1 - التقطيع</option>
+                                    <option value="stage_2" {{ old('destination_id') == 'stage_2' ? 'selected' : '' }}>المرحلة 2 - التشكيل</option>
+                                    <option value="stage_3" {{ old('destination_id') == 'stage_3' ? 'selected' : '' }}>المرحلة 3 - اللحام</option>
+                                    <option value="stage_4" {{ old('destination_id') == 'stage_4' ? 'selected' : '' }}>المرحلة 4 - التشطيب</option>
+                                </optgroup>
+                                <optgroup label="📦 مستودعات أخرى">
+                                    @foreach($warehouses as $warehouse)
+                                        <option value="warehouse_{{ $warehouse->id }}" {{ old('destination_id') == 'warehouse_'.$warehouse->id ? 'selected' : '' }}>
+                                            {{ $warehouse->warehouse_name }} [{{ $warehouse->warehouse_code ?? '' }}]
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                                <optgroup label="👥 عملاء">
+                                    <option value="customer_external" {{ old('destination_id') == 'customer_external' ? 'selected' : '' }}>للعميل (خارجي)</option>
+                                </optgroup>
                             </select>
                         </div>
                         @if ($errors->has('destination_id'))
                             <small style="color: #e74c3c; display: block; margin-top: 5px;">❌ {{ $errors->first('destination_id') }}</small>
                         @endif
+
                     </div>
 
                     <div class="form-group">
@@ -530,11 +661,11 @@
 
             <!-- Form Actions -->
             <div class="form-actions">
-                <button type="submit" class="btn-submit">
+                <button type="submit" class="btn-submit" id="submitBtn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                    إنشاء الأذن
+                    <span id="submitText">إنشاء الأذن</span>
                 </button>
                 <a href="{{ route('manufacturing.delivery-notes.index') }}" class="btn-cancel">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -547,6 +678,26 @@
         </form>
     </div>
 
+    <!-- Debug Info -->
+    <script>
+        // تحقق من البيانات المرسلة من الـ Controller
+        console.log('Material Details Count:', {{ $materialDetails->count() }});
+        console.log('Material Details:', {!! json_encode($materialDetails->map(function($d) {
+            return [
+                'id' => $d->id,
+                'warehouse_id' => $d->warehouse_id,
+                'quantity' => $d->quantity,
+                'material_name' => $d->material?->name_ar ?? $d->material?->name_en ?? 'N/A'
+            ];
+        })) !!});
+    </script>
+
+    <!-- jQuery (مطلوب لـ Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const typeIncoming = document.getElementById('type_incoming');
@@ -555,7 +706,6 @@
             const outgoingSection = document.getElementById('outgoing-section');
             const supplierId = document.getElementById('supplier_id');
             const destinationId = document.getElementById('destination_id');
-
             const warehouseId = document.getElementById('warehouse_id');
 
             function updateVisibility() {
@@ -592,145 +742,194 @@
             typeOutgoing.addEventListener('change', updateVisibility);
 
             // بيانات المواد المتوفرة في كل مستودع
-            const warehouseMaterials = {!! json_encode($materialDetails->where('quantity', '>', 0)->groupBy('warehouse_id')->map(function($details) {
-                return $details->map(function($detail) {
-                    // التأكد من تحميل اسم المادة من الأعمدة المتاحة
-                    $materialName = 'غير محدد';
-                    if ($detail->material) {
-                        if (!empty($detail->material->name_ar)) {
-                            $materialName = $detail->material->name_ar;
-                        } elseif (!empty($detail->material->name_en)) {
-                            $materialName = $detail->material->name_en;
-                        } elseif (!empty($detail->material->name)) {
-                            $materialName = $detail->material->name;
-                        }
-                    }
+            const warehouseMaterials = {!! json_encode(
+                $materialDetails
+                    ->filter(function($detail) { return $detail->quantity > 0; })
+                    ->groupBy('warehouse_id')
+                    ->map(function($details) {
+                        return $details->map(function($detail) {
+                            $materialName = 'غير محدد';
+                            if ($detail->material) {
+                                if (!empty($detail->material->name_ar)) {
+                                    $materialName = $detail->material->name_ar;
+                                } elseif (!empty($detail->material->name_en)) {
+                                    $materialName = $detail->material->name_en;
+                                } elseif (!empty($detail->material->name)) {
+                                    $materialName = $detail->material->name;
+                                }
+                            }
 
-                    return [
-                        'detail_id' => $detail->id,
-                        'material_id' => $detail->material_id,
-                        'material_name' => $materialName,
-                        'quantity' => $detail->quantity ?? 0,
-                        'unit_name' => $detail->unit?->unit_name ?? 'وحدة'
-                    ];
-                })->values();
-            })) !!};
+                            return [
+                                'detail_id' => $detail->id,
+                                'material_id' => $detail->material_id,
+                                'material_name' => $materialName,
+                                'quantity' => $detail->quantity ?? 0,
+                                'unit_name' => ($detail->unit ? $detail->unit->unit_name : 'وحدة')
+                            ];
+                        })->values();
+                    })
+            ) !!};
+
+            // Debug: Log the warehouse materials
+            console.log('Warehouse Materials:', warehouseMaterials);
 
             // عناصر النموذج للإذن الصادر
             const warehouseFromId = document.getElementById('warehouse_from_id');
-            const materialFromGroup = document.getElementById('material_from_group');
             const materialDetailIdOutgoing = document.getElementById('material_detail_id_outgoing');
             const materialIdHidden = document.getElementById('material_id_hidden');
             const quantityOutgoing = document.getElementById('delivery_quantity_outgoing');
-            const warehouseInfoDisplay = document.getElementById('warehouse_info_display');
             const materialQuantityDisplay = document.getElementById('material_quantity_display');
+            const selectedMaterialName = document.getElementById('selected_material_name');
 
-            // عند اختيار المستودع للصادر
-            if (warehouseFromId) {
-                warehouseFromId.addEventListener('change', function() {
-                    const warehouseId = this.value;
+            // تفعيل Select2 على حقل اختيار المادة
+            const materialSelect = $('#material_detail_id_outgoing');
 
-                    if (warehouseId && warehouseMaterials[warehouseId]) {
-                        const materials = warehouseMaterials[warehouseId];
+            // تحضير بيانات المواد لSelect2
+            function prepareMaterialData(selectedWarehouseId = null) {
+                let materialData = [];
 
-                        // عرض عدد المواد المتوفرة
-                        warehouseInfoDisplay.textContent = `✅ يحتوي على ${materials.length} مادة متوفرة`;
-                        warehouseInfoDisplay.style.color = '#27ae60';
-
-                        // ملء قائمة المواد
-                        materialDetailIdOutgoing.innerHTML = '<option value="">-- اختر المادة --</option>';
-                        materials.forEach(m => {
-                            const option = document.createElement('option');
-                            option.value = m.detail_id;
-
-                            // التأكد من وجود اسم المادة
-                            const materialName = m.material_name || 'غير محدد';
-                            const quantity = m.quantity || 0;
-                            const unitName = m.unit_name || 'وحدة';
-
-                            option.textContent = `${materialName} - متوفر: ${quantity} ${unitName}`;
-                            option.setAttribute('data-material-id', m.material_id);
-                            option.setAttribute('data-quantity', quantity);
-                            option.setAttribute('data-unit', unitName);
-                            option.setAttribute('data-material-name', materialName);
-                            materialDetailIdOutgoing.appendChild(option);
+                // إذا تم تحديد مستودع، نعرض فقط المواد الخاصة بهذا المستودع
+                if (selectedWarehouseId && warehouseMaterials[selectedWarehouseId]) {
+                    warehouseMaterials[selectedWarehouseId].forEach(material => {
+                        materialData.push({
+                            id: material.detail_id,
+                            text: `${material.material_name} (${material.quantity} ${material.unit_name})`,
+                            material_id: material.material_id,
+                            quantity: material.quantity,
+                            unit_name: material.unit_name,
+                            material_name: material.material_name
                         });
-
-                        materialFromGroup.style.display = '';
-                        materialDetailIdOutgoing.required = true;
-                    } else {
-                        materialFromGroup.style.display = 'none';
-                        materialDetailIdOutgoing.required = false;
-                        warehouseInfoDisplay.textContent = '';
-                        warehouseInfoDisplay.style.color = '#27ae60';
+                    });
+                } else {
+                    // إذا لم يتم تحديد مستودع، نعرض جميع المواد
+                    for (let warehouseId in warehouseMaterials) {
+                        if (warehouseMaterials.hasOwnProperty(warehouseId)) {
+                            warehouseMaterials[warehouseId].forEach(material => {
+                                materialData.push({
+                                    id: material.detail_id,
+                                    text: `${material.material_name} (${material.quantity} ${material.unit_name})`,
+                                    material_id: material.material_id,
+                                    quantity: material.quantity,
+                                    unit_name: material.unit_name,
+                                    material_name: material.material_name
+                                });
+                            });
+                        }
                     }
-                });
+                }
+
+                return materialData;
             }
 
-            // عند اختيار المادة
-            if (materialDetailIdOutgoing) {
-                materialDetailIdOutgoing.addEventListener('change', function() {
-                    const selectedOption = this.options[this.selectedIndex];
-                    const materialId = selectedOption.getAttribute('data-material-id');
-                    const availableQty = selectedOption.getAttribute('data-quantity');
-                    const unitName = selectedOption.getAttribute('data-unit');
-                    const materialName = selectedOption.getAttribute('data-material-name');
-                    const selectedMaterialName = document.getElementById('selected_material_name');
-
-                    if (this.value) {
-                        // حفظ material_id في حقل مخفي
-                        materialIdHidden.value = materialId;
-
-                        // عرض اسم المادة
-                        if (selectedMaterialName) {
-                            selectedMaterialName.innerHTML = `<i class="feather icon-check-circle" style="color: #27ae60;"></i> ${materialName}`;
-                            selectedMaterialName.style.color = '#27ae60';
-                        }
-
-                        // عرض الكمية المتوفرة
-                        materialQuantityDisplay.innerHTML = `<i class="feather icon-package"></i> متوفر: <strong>${availableQty} ${unitName}</strong>`;
-                        materialQuantityDisplay.style.color = '#27ae60';
-
-                        // تحديد الحد الأقصى للكمية
-                        if (quantityOutgoing) {
-                            quantityOutgoing.max = availableQty;
-                            quantityOutgoing.setAttribute('data-max', availableQty);
-                            quantityOutgoing.setAttribute('data-unit', unitName);
-                            quantityOutgoing.setAttribute('data-material-name', materialName);
-                        }
-                    } else {
-                        if (selectedMaterialName) {
-                            selectedMaterialName.innerHTML = '<i class="feather icon-info"></i> لم يتم اختيار المادة';
-                            selectedMaterialName.style.color = '#2c3e50';
-                        }
-                        materialQuantityDisplay.innerHTML = '<i class="feather icon-package"></i> اختر المادة لعرض الكمية المتوفرة';
-                        materialQuantityDisplay.style.color = '#27ae60';
+            // تهيئة Select2 لأول مرة مع المستودع المحدد مسبقاً إن وجد
+            const initialWarehouseId = $('#warehouse_from_id').val();
+            materialSelect.select2({
+                placeholder: '-- اختر المادة --',
+                dir: 'rtl',
+                language: {
+                    noResults: function() {
+                        return 'لا توجد نتائج';
+                    },
+                    searching: function() {
+                        return 'جاري البحث...';
                     }
-                });
-            }
+                },
+                width: '100%',
+                data: prepareMaterialData(initialWarehouseId)
+            });
 
-            // التحقق من الكمية عند الإدخال
-            if (quantityOutgoing) {
-                quantityOutgoing.addEventListener('input', function() {
-                    const maxQty = parseFloat(this.getAttribute('data-max'));
-                    const currentQty = parseFloat(this.value);
-                    const unitName = this.getAttribute('data-unit') || 'وحدة';
-                    const materialName = this.getAttribute('data-material-name') || 'المادة';
+            // تحديث قائمة المواد عند تغيير المستودع
+            $('#warehouse_from_id').on('change', function() {
+                const selectedWarehouseId = this.value;
 
-                    if (maxQty && currentQty > maxQty) {
-                        materialQuantityDisplay.innerHTML = `<i class="feather icon-alert-circle"></i> الكمية المطلوبة (<strong>${currentQty}</strong>) أكبر من المتوفر (<strong>${maxQty} ${unitName}</strong>)`;
-                        materialQuantityDisplay.style.color = '#e74c3c';
-                        this.classList.add('is-invalid');
-                    } else if (currentQty > 0) {
-                        materialQuantityDisplay.innerHTML = `<i class="feather icon-check-circle"></i> سيتم خصم <strong>${currentQty} ${unitName}</strong> من ${materialName}`;
-                        materialQuantityDisplay.style.color = '#27ae60';
-                        this.classList.remove('is-invalid');
-                    }
+                // تحديث بيانات المواد حسب المستودع المختار
+                const newMaterialData = prepareMaterialData(selectedWarehouseId);
+
+                // إعادة تهيئة Select2 مع البيانات الجديدة
+                materialSelect.empty().trigger('change');
+                materialSelect.select2({
+                    placeholder: '-- اختر المادة --',
+                    dir: 'rtl',
+                    language: {
+                        noResults: function() {
+                            return 'لا توجد نتائج';
+                        },
+                        searching: function() {
+                            return 'جاري البحث...';
+                        }
+                    },
+                    width: '100%',
+                    data: newMaterialData
                 });
-            }
+
+                // إعادة تعيين الحقول
+                materialDetailIdOutgoing.value = '';
+                materialIdHidden.value = '';
+
+                if (selectedMaterialName) {
+                    selectedMaterialName.innerHTML = '<i class="feather icon-info"></i> لم يتم اختيار المادة';
+                    selectedMaterialName.style.color = '#2c3e50';
+                }
+
+                if (materialQuantityDisplay) {
+                    materialQuantityDisplay.innerHTML = '<i class="feather icon-package"></i> اختر المادة لعرض الكمية المتوفرة';
+                    materialQuantityDisplay.style.color = '#27ae60';
+                }
+            });
+
+            // عند تغيير حقل المادة في Select2
+            materialSelect.on('select2:select', function(e) {
+                const material = e.params.data;
+
+                // تحديث الحقول المخفية
+                materialDetailIdOutgoing.value = material.id;
+                materialIdHidden.value = material.material_id;
+
+                // تحديث عرض اسم المادة
+                if (selectedMaterialName) {
+                    selectedMaterialName.innerHTML = `<i class="feather icon-check-circle" style="color: #27ae60;"></i> ${material.material_name}`;
+                    selectedMaterialName.style.color = '#27ae60';
+                }
+
+                // تحديث عرض الكمية
+                if (materialQuantityDisplay) {
+                    materialQuantityDisplay.innerHTML = `<i class="feather icon-package"></i> متوفر: <strong>${material.quantity} ${material.unit_name}</strong>`;
+                    materialQuantityDisplay.style.color = '#27ae60';
+                }
+
+                // تحديث حقل الكمية
+                if (quantityOutgoing) {
+                    quantityOutgoing.max = material.quantity;
+                    quantityOutgoing.setAttribute('data-max', material.quantity);
+                    quantityOutgoing.setAttribute('data-unit', material.unit_name);
+                    quantityOutgoing.setAttribute('data-material-name', material.material_name);
+                }
+            });
+
+            // عند إزالة اختيار المادة
+            materialSelect.on('select2:unselect', function() {
+                // إعادة تعيين الحقول
+                materialDetailIdOutgoing.value = '';
+                materialIdHidden.value = '';
+
+                // إعادة تعيين عرض اسم المادة
+                if (selectedMaterialName) {
+                    selectedMaterialName.innerHTML = '<i class="feather icon-info"></i> لم يتم اختيار المادة';
+                    selectedMaterialName.style.color = '#2c3e50';
+                }
+
+                // إعادة تعيين عرض الكمية
+                if (materialQuantityDisplay) {
+                    materialQuantityDisplay.innerHTML = '<i class="feather icon-package"></i> اختر المادة لعرض الكمية المتوفرة';
+                    materialQuantityDisplay.style.color = '#27ae60';
+                }
+            });
 
             const form = document.getElementById('deliveryNoteForm');
             const inputs = form.querySelectorAll('.form-input');
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            let isSubmitting = false;
 
             inputs.forEach(input => {
                 input.addEventListener('blur', function() {
@@ -749,6 +948,12 @@
             });
 
             form.addEventListener('submit', function(e) {
+                // منع الإرسال المتكرر
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+
                 let hasError = false;
 
                 // التحقق للإذن الوارد
@@ -815,13 +1020,97 @@
                             }
                         }
                     }
+
+                    // التحقق من اختيار الوجهة
+                    if (!destinationId.value) {
+                        e.preventDefault();
+                        alert('❌ يجب اختيار الوجهة (مستودع / الإنتاج / عميل)!');
+                        destinationId.focus();
+                        hasError = true;
+                        return false;
+                    }
                 }
 
-                // إذا لم توجد أخطاء، اسمح بالإرسال
+                // إذا كان هناك خطأ، منع الإرسال
                 if (hasError) {
                     e.preventDefault();
                     return false;
                 }
+
+                // إذا لم توجد أخطاء، عطّل الزر وغيّر النص
+                if (!isSubmitting) {
+                    isSubmitting = true;
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.7';
+                    submitBtn.style.cursor = 'not-allowed';
+                    submitText.textContent = '⏳ جاري الإرسال...';
+
+                    // إعادة تفعيل الزر بعد 30 ثانية للأمان
+                    setTimeout(() => {
+                        isSubmitting = false;
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = '1';
+                        submitBtn.style.cursor = 'pointer';
+                        submitText.textContent = 'إنشاء الأذن';
+                    }, 30000);
+                }
+            });
+
+            // ✅ تفعيل Select2 على جميع القوائم المنسدلة
+            $('#warehouse_id').select2({
+                placeholder: '-- اختر المستودع الوارد إليه --',
+                dir: 'rtl',
+                language: {
+                    noResults: function() {
+                        return 'لا توجد نتائج';
+                    },
+                    searching: function() {
+                        return 'جاري البحث...';
+                    }
+                },
+                width: '100%'
+            });
+
+            $('#supplier_id').select2({
+                placeholder: '-- اختر المورد --',
+                dir: 'rtl',
+                language: {
+                    noResults: function() {
+                        return 'لا توجد نتائج';
+                    },
+                    searching: function() {
+                        return 'جاري البحث...';
+                    }
+                },
+                width: '100%'
+            });
+
+            $('#warehouse_from_id').select2({
+                placeholder: '-- اختر المستودع المصدر --',
+                dir: 'rtl',
+                language: {
+                    noResults: function() {
+                        return 'لا توجد نتائج';
+                    },
+                    searching: function() {
+                        return 'جاري البحث...';
+                    }
+                },
+                width: '100%'
+            });
+
+            $('#destination_id').select2({
+                placeholder: '-- اختر الوجهة --',
+                dir: 'rtl',
+                language: {
+                    noResults: function() {
+                        return 'لا توجد نتائج';
+                    },
+                    searching: function() {
+                        return 'جاري البحث...';
+                    }
+                },
+                width: '100%'
             });
         });
     </script>

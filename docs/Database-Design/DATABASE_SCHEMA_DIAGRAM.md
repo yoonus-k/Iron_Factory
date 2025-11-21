@@ -222,8 +222,7 @@ erDiagram
         int unit_id FK
         int supplier_id FK
         varchar delivery_note_number
-        date manufacture_date
-        date expiry_date
+    
         varchar shelf_location
         int purchase_invoice_id FK
         varchar status

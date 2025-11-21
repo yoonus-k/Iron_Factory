@@ -106,6 +106,40 @@ Route::middleware(['auth'])->group(function () {
         // ربط الفاتورة المتأخرة
         Route::get('link-invoice', [ReconciliationController::class, 'showLinkInvoice'])->name('manufacturing.warehouses.reconciliation.link-invoice');
         Route::post('link-invoice', [ReconciliationController::class, 'storeLinkInvoice'])->name('manufacturing.warehouses.reconciliation.link-invoice.store');
+        Route::get('link-invoice/{reconciliation}/edit', [ReconciliationController::class, 'editLinkInvoice'])->name('manufacturing.warehouses.reconciliation.link-invoice.edit');
+        Route::put('link-invoice/{reconciliation}', [ReconciliationController::class, 'updateLinkInvoice'])->name('manufacturing.warehouses.reconciliation.link-invoice.update');
+        Route::delete('link-invoice/{reconciliation}', [ReconciliationController::class, 'deleteLinkInvoice'])->name('manufacturing.warehouses.reconciliation.link-invoice.delete');
+
+        // ✅ لوحة التحكم الإدارية
+        Route::get('management', [ReconciliationController::class, 'showManagement'])->name('manufacturing.warehouses.reconciliation.management');
+
+        // ✅ APIs للبحث والـ Auto-complete
+        Route::get('api/search-delivery-notes', [ReconciliationController::class, 'searchDeliveryNotes'])->name('manufacturing.warehouses.reconciliation.api.search-delivery-notes');
+        Route::get('api/search-invoices', [ReconciliationController::class, 'searchInvoices'])->name('manufacturing.warehouses.reconciliation.api.search-invoices');
+        Route::get('api/delivery-note/{id}', [ReconciliationController::class, 'getDeliveryNoteDetails'])->name('manufacturing.warehouses.reconciliation.api.delivery-note-details');
+        Route::get('api/invoice/{id}', [ReconciliationController::class, 'getInvoiceDetails'])->name('manufacturing.warehouses.reconciliation.api.invoice-details');
+        Route::post('api/create-delivery-note-from-invoice', [ReconciliationController::class, 'createDeliveryNoteFromInvoice'])->name('manufacturing.warehouses.reconciliation.api.create-delivery-note-from-invoice');
+
+        // ✅ APIs لـ CRUD لوحة التحكم
+        Route::get('api/get-delivery-notes', [ReconciliationController::class, 'getDeliveryNotes'])->name('manufacturing.warehouses.reconciliation.api.get-delivery-notes');
+        Route::get('api/get-invoices', [ReconciliationController::class, 'getInvoices'])->name('manufacturing.warehouses.reconciliation.api.get-invoices');
+        Route::get('api/get-reconciliation-logs', [ReconciliationController::class, 'getReconciliationLogs'])->name('manufacturing.warehouses.reconciliation.api.get-reconciliation-logs');
+        Route::get('api/get-movements', [ReconciliationController::class, 'getMovements'])->name('manufacturing.warehouses.reconciliation.api.get-movements');
+        Route::get('api/reconciliation/{id}', [ReconciliationController::class, 'getReconciliationDetails'])->name('manufacturing.warehouses.reconciliation.api.reconciliation-details');
+
+        // ✅ Routes التعديل والحذف
+        Route::patch('update-delivery-note/{deliveryNote}', [ReconciliationController::class, 'updateDeliveryNote'])->name('manufacturing.warehouses.reconciliation.update-delivery-note');
+        Route::patch('update-invoice/{purchaseInvoice}', [ReconciliationController::class, 'updateInvoice'])->name('manufacturing.warehouses.reconciliation.update-invoice');
+        Route::patch('update-reconciliation/{reconciliationLog}', [ReconciliationController::class, 'updateReconciliation'])->name('manufacturing.warehouses.reconciliation.update-reconciliation');
+        Route::delete('delete-delivery-note/{deliveryNote}', [ReconciliationController::class, 'deleteDeliveryNote'])->name('manufacturing.warehouses.reconciliation.delete-delivery-note');
+        Route::delete('delete-invoice/{purchaseInvoice}', [ReconciliationController::class, 'deleteInvoice'])->name('manufacturing.warehouses.reconciliation.delete-invoice');
+        Route::delete('delete-reconciliation/{reconciliationLog}', [ReconciliationController::class, 'deleteReconciliation'])->name('manufacturing.warehouses.reconciliation.delete-reconciliation');
+        Route::delete('delete-movement/{materialMovement}', [ReconciliationController::class, 'deleteMovement'])->name('manufacturing.warehouses.reconciliation.delete-movement');
+
+        // ✅ صفحات التعديل (Edit Pages)
+        Route::get('edit-delivery-note/{deliveryNote}', [ReconciliationController::class, 'editDeliveryNote'])->name('manufacturing.warehouses.reconciliation.edit-delivery-note');
+        Route::get('edit-invoice/{purchaseInvoice}', [ReconciliationController::class, 'editInvoice'])->name('manufacturing.warehouses.reconciliation.edit-invoice');
+        Route::get('edit-reconciliation/{reconciliationLog}', [ReconciliationController::class, 'editReconciliation'])->name('manufacturing.warehouses.reconciliation.edit-reconciliation');
     });
 
     // ========== سجل حركات المواد ==========

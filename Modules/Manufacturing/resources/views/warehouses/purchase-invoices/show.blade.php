@@ -257,6 +257,13 @@
                     </div>
 
                     <div class="info-item">
+                        <div class="info-label">الوزن الإجمالي:</div>
+                        <div class="info-value" style="font-size: 1.2em; font-weight: bold; color: #8b5cf6;">
+                            {{ number_format($invoice->weight ?? 0, 2) }} {{ $invoice->weight_unit ?? 'وحدة' }}
+                        </div>
+                    </div>
+
+                    <div class="info-item">
                         <div class="info-label">شروط الدفع:</div>
                         <div class="info-value">{{ $invoice->payment_terms ?? 'عام' }}</div>
                     </div>

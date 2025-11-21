@@ -185,33 +185,6 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
-                            <label for="manufacture_date" class="form-label">تاريخ الصنع</label>
-                            <div class="input-wrapper {{ $errors->has('manufacture_date') ? 'has-error' : '' }}">
-                                <input type="date" name="manufacture_date" id="manufacture_date"
-                                       class="form-input @error('manufacture_date') input-error @enderror"
-                                       value="{{ old('manufacture_date', $material->manufacture_date?->format('Y-m-d')) }}">
-                            </div>
-                            @error('manufacture_date')
-                                <div class="error-message" style="display: block;">{{ $message }}</div>
-                            @else
-                                <div class="error-message" id="manufacture_date-error" style="display: none;"></div>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="expiry_date" class="form-label">تاريخ الصلاحية</label>
-                            <div class="input-wrapper {{ $errors->has('expiry_date') ? 'has-error' : '' }}">
-                                <input type="date" name="expiry_date" id="expiry_date"
-                                       class="form-input @error('expiry_date') input-error @enderror"
-                                       value="{{ old('expiry_date', $material->expiry_date?->format('Y-m-d')) }}">
-                            </div>
-                            @error('expiry_date')
-                                <div class="error-message" style="display: block;">{{ $message }}</div>
-                            @else
-                                <div class="error-message" id="expiry_date-error" style="display: none;"></div>
-                            @enderror
-                        </div>
 
                         <div class="form-group full-width">
                             <label for="notes" class="form-label">الملاحظات (عربي)</label>

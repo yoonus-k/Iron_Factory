@@ -37,11 +37,7 @@
                             <i class="fas fa-receipt"></i> {{ __('app.warehouse.delivery_notes') }}
                         </a>
                     </li>
-                    <li>
-                        <a href="{{ route('manufacturing.warehouse.registration.pending') }}">
-                            <i class="fas fa-clipboard-check"></i> 📦 {{ __('app.warehouse.registration') }}
-                        </a>
-                    </li>
+
                     <li>
                         <a href="{{ route('manufacturing.purchase-invoices.index') }}">
                             <i class="fas fa-file-invoice-dollar"></i> {{ __('app.warehouse.purchase_invoices') }}

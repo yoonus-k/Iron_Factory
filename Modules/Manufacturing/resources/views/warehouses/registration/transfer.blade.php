@@ -141,15 +141,15 @@
                             <strong>حالة الكميات:</strong>
                             <div style="margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                                 <div>
-                                    <div style="font-size: 12px; color: #666; margin-bottom: 3px;">الكمية في المستودع:</div>
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 3px;">الكمية المسلمة (من الأذن):</div>
                                     <div style="font-size: 18px; font-weight: bold; color: #3498db;">
-                                        {{ number_format($availableQuantity, 2) }} كيلو
+                                        {{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }} وحدة
                                     </div>
                                 </div>
                                 <div>
-                                    <div style="font-size: 12px; color: #666; margin-bottom: 3px;">الكمية المتاحة للنقل:</div>
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 3px;">الكمية المتبقية للنقل:</div>
                                     <div style="font-size: 18px; font-weight: bold; color: #27ae60;">
-                                        {{ number_format($availableQuantity, 2) }} كيلو
+                                        {{ number_format($deliveryNote->quantity_remaining ?? ($deliveryNote->quantity ?? $availableQuantity), 2) }} وحدة
                                     </div>
                                 </div>
                             </div>
@@ -162,15 +162,15 @@
                     <div class="um-card-body">
                         <div style="margin-bottom: 15px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <label style="font-weight: 600; color: #2c3e50; margin-bottom: 0;">الكمية الكلية:</label>
+                                <label style="font-weight: 600; color: #2c3e50; margin-bottom: 0;">الكمية المسلمة من الأذن:</label>
                                 <span style="font-weight: 600; color: #3498db;">
-                                    {{ number_format($availableQuantity, 2) }} كيلو
+                                    {{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }} وحدة
                                 </span>
                             </div>
                             <div class="progress" style="height: 25px; border-radius: 4px; overflow: hidden;">
                                 <div class="progress-bar"
                                     style="width: 100%; background: linear-gradient(90deg, #3498db 0%, #2980b9 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
-                                    {{ number_format($availableQuantity, 2) }} كيلو
+                                    {{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }} وحدة
                                 </div>
                             </div>
                         </div>
@@ -181,57 +181,37 @@
                 <section class="um-main-card">
                     <div class="um-card-header" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white;">
                         <h4 class="um-card-title" style="color: white;">
-                            <i class="feather icon-arrow-left"></i> نقل البضاعة
+                            <i class="feather icon-arrow-left"></i> نقل البضاعة للإنتاج
                         </h4>
                     </div>
                     <div class="card-body">
+                        <div class="alert alert-warning" style="margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 18px;"></i>
+                                <div>
+                                    <strong>تنبيه مهم:</strong> سيتم نقل الكمية الكاملة للبضاعة إلى الإنتاج. لا يمكن إجراء نقل جزئي.
+                                </div>
+                            </div>
+                        </div>
+
                         <form action="{{ route('manufacturing.warehouse.registration.transfer-to-production', $deliveryNote) }}" method="POST">
                             @csrf
 
+                            <!-- استخدام الكمية من أذن الاستلام -->
+                            <input type="hidden" name="quantity" value="{{ $deliveryNote->quantity ?? $availableQuantity }}">
+
                             <div class="mb-4">
-                                <label for="quantity" class="form-label" style="font-weight: 600;">
-                                    <i class="fas fa-weight"></i> الكمية المراد نقلها (كيلو):
-                                    <span style="color: #e74c3c;">*</span>
+                                <label class="form-label" style="font-weight: 600;">
+                                    <i class="fas fa-weight"></i> الكمية المراد نقلها (وحدة):
                                 </label>
-
-                                <div style="position: relative;">
-                                    <input
-                                        type="number"
-                                        id="quantity"
-                                        name="quantity"
-                                        class="form-control @error('quantity') is-invalid @enderror"
-                                        step="0.01"
-                                        min="0.01"
-                                        max="{{ $availableQuantity }}"
-                                        placeholder="أدخل الكمية"
-                                        required
-                                        style="padding: 12px; font-size: 16px; border-radius: 4px; border: 2px solid #ddd; transition: all 0.3s;">
+                                <div style="font-size: 24px; font-weight: bold; color: #27ae60; padding: 15px; background: #f8f9fa; border-radius: 4px; border: 1px solid #ddd;">
+                                    {{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }} وحدة
                                 </div>
-
-                                <!-- رسالة المساعدة -->
                                 <small class="form-text" style="color: #666; margin-top: 8px;">
                                     <i class="fas fa-info-circle"></i>
-                                    الحد الأقصى: <strong>{{ number_format($availableQuantity, 2) }}</strong> كيلو
+                                    الكمية المسلمة من أذن الاستلام الأصلية
                                 </small>
-
-                                @error('quantity')
-                                    <div class="invalid-feedback" style="display: block; margin-top: 5px;">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-
-                            <!-- شريط معلومات الكمية -->
-                            <div class="alert alert-warning" style="margin-bottom: 20px;">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <i class="fas fa-lightbulb" style="font-size: 18px;"></i>
-                                    <div>
-                                        <strong>ملاحظة:</strong> الكمية المدخلة ستُخصم من المستودع وتُضاف للإنتاج
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
+                            </div>                            <div class="mb-4">
                                 <label for="notes" class="form-label" style="font-weight: 600;">
                                     <i class="fas fa-sticky-note"></i> ملاحظات (اختياري):
                                 </label>
@@ -241,7 +221,7 @@
                                     name="notes"
                                     class="form-control"
                                     rows="3"
-                                    placeholder="مثال: نقل جزئي بسبب الصيانة"
+                                    placeholder="مثال: نقل كامل للإنتاج"
                                     style="padding: 12px; border-radius: 4px; border: 1px solid #ddd; font-size: 14px;"></textarea>
 
                                 <small class="form-text" style="color: #666; margin-top: 5px;">
@@ -251,14 +231,14 @@
 
                             <!-- معاينة -->
                             <div class="alert alert-info">
-                                <strong>معاينة:</strong>
+                                <strong>معاينة العملية:</strong>
                                 <div style="margin-top: 10px; font-size: 13px; line-height: 1.8;">
                                     <div>
                                         <i class="fas fa-arrow-down" style="color: #3498db;"></i>
                                         <strong>قبل النقل:</strong>
                                     </div>
                                     <div style="margin-right: 20px; margin-bottom: 10px;">
-                                        المستودع: <strong id="preview-warehouse">{{ number_format($availableQuantity, 2) }}</strong> كيلو
+                                        الكمية المسلمة: <strong>{{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }}</strong> وحدة
                                     </div>
 
                                     <div>
@@ -266,7 +246,7 @@
                                         <strong>بعد النقل:</strong>
                                     </div>
                                     <div style="margin-right: 20px;">
-                                        المستودع: <strong id="preview-warehouse-after">{{ number_format($availableQuantity, 2) }}</strong> كيلو
+                                        الكمية المتبقية: <strong>0.00</strong> وحدة
                                     </div>
                                 </div>
                             </div>
@@ -277,7 +257,7 @@
                                     <i class="feather icon-x"></i> إلغاء
                                 </a>
                                 <button type="submit" class="um-btn um-btn-primary" style="flex: 1; background: linear-gradient(135deg, #10B981 0%, #059669 100%); border: none;">
-                                    <i class="feather icon-check"></i> تأكيد النقل
+                                    <i class="feather icon-check"></i> تأكيد النقل الكامل
                                 </button>
                             </div>
                         </form>
@@ -391,44 +371,5 @@
             border-radius: 4px;
             border: none;
         }
-
-        #quantity {
-            font-size: 16px;
-        }
-
-        #quantity:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
-        }
     </style>
-
-    <script>
-        const quantityInput = document.getElementById('quantity');
-        const previewWarehouse = document.getElementById('preview-warehouse');
-        const previewWarehouseAfter = document.getElementById('preview-warehouse-after');
-        const availableQuantity = {{ $availableQuantity }};
-
-        quantityInput.addEventListener('input', function() {
-            const quantity = parseFloat(this.value) || 0;
-            const remaining = Math.max(0, availableQuantity - quantity);
-
-            previewWarehouseAfter.textContent = remaining.toFixed(2);
-
-            // تحديث اللون بناءً على الكمية
-            if (quantity > availableQuantity) {
-                this.classList.add('is-invalid');
-            } else {
-                this.classList.remove('is-invalid');
-            }
-        });
-
-        // التحقق من الصيغة عند الإرسال
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const quantity = parseFloat(quantityInput.value);
-            if (quantity > availableQuantity) {
-                e.preventDefault();
-                alert('الكمية المدخلة تتجاوز الكمية المتاحة!');
-            }
-        });
-    </script>
 @endsection

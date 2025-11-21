@@ -116,21 +116,6 @@
                     </a>
                 </div>
 
-                <!-- Additives Report -->
-                <div class="report-card">
-                    <a href="{{ route('manufacturing.warehouse-reports.additives') }}" class="report-link">
-                        <div class="report-icon purple">
-                            <i class="feather icon-droplet"></i>
-                        </div>
-                        <div class="report-content">
-                            <h3 class="report-title">تقرير الصبغات والبلاستيك</h3>
-                            <p class="report-description">حالة المواد الكيميائية والإضافات</p>
-                        </div>
-                        <div class="report-arrow">
-                            <i class="feather icon-arrow-left"></i>
-                        </div>
-                    </a>
-                </div>
 
                 <!-- Movements Report -->
                 <div class="report-card">

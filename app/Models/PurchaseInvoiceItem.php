@@ -10,10 +10,12 @@ class PurchaseInvoiceItem extends Model
     protected $fillable = [
         'purchase_invoice_id',
         'material_id',
-        'item_name',
+
         'description',
         'quantity',
         'unit',
+        'weight',
+        'weight_unit',
         'unit_price',
         'subtotal',
         'tax_rate',
@@ -27,6 +29,7 @@ class PurchaseInvoiceItem extends Model
     protected $casts = [
         'quantity' => 'float',
         'unit_price' => 'float',
+        'weight' => 'float',
         'subtotal' => 'float',
         'tax_rate' => 'float',
         'tax_amount' => 'float',

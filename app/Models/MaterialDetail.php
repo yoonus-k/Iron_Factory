@@ -51,9 +51,10 @@ class MaterialDetail extends Model
     }
 
     public function unit()
-{
-    return $this->belongsTo(Unit::class, 'unit_id');
-}
+    {
+        return $this->belongsTo(Unit::class, 'unit_id');
+    }
+    
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

@@ -72,10 +72,16 @@
                     <i class="feather icon-list"></i>
                     قائمة أذون التسليم (الواردة والصادرة)
                 </h4>
-                <a href="{{ route('manufacturing.delivery-notes.create') }}" class="um-btn um-btn-primary">
-                    <i class="feather icon-plus"></i>
-                    إضافة أذن تسليم جديد
-                </a>
+                <div style="display: flex; gap: 10px;">
+                    <a href="{{ route('manufacturing.warehouse.registration.pending') }}" class="um-btn um-btn-info">
+                        <i class="feather icon-package"></i>
+                        تسجيل البضاعة
+                    </a>
+                    <a href="{{ route('manufacturing.delivery-notes.create') }}" class="um-btn um-btn-primary">
+                        <i class="feather icon-plus"></i>
+                        إضافة أذن تسليم جديد
+                    </a>
+                </div>
             </div>
 
             <!-- Filters Section -->
