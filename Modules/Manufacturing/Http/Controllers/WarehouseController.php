@@ -4,6 +4,7 @@ namespace Modules\Manufacturing\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Traits\StoresNotifications;
 use Modules\Manufacturing\Http\Requests\StoreWarehouseRequest;
 use Modules\Manufacturing\Http\Requests\UpdateWarehouseRequest;
 use Modules\Manufacturing\Repositories\WarehouseRepository;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 
 class WarehouseController extends Controller
 {
-    use LogsOperations;
+    use LogsOperations, StoresNotifications;
 
     private WarehouseRepository $warehouseRepository;
 
@@ -78,6 +79,13 @@ class WarehouseController extends Controller
             } catch (\Exception $logError) {
                 Log::error('Failed to log warehouse creation: ' . $logError->getMessage());
             }
+
+            // ✅ تخزين الإشعار
+            $this->notifyCreate(
+                'مستودع',
+                $warehouse->warehouse_name,
+                route('manufacturing.warehouses.show', $warehouse->id)
+            );
 
             return redirect()
                 ->route('manufacturing.warehouses.index')
@@ -171,6 +179,13 @@ class WarehouseController extends Controller
                 Log::error('Failed to log warehouse update: ' . $logError->getMessage());
             }
 
+            // ✅ تخزين الإشعار
+            $this->notifyUpdate(
+                'مستودع',
+                $warehouse->warehouse_name,
+                route('manufacturing.warehouses.show', $warehouse->id)
+            );
+
             return redirect()
                 ->route('manufacturing.warehouses.index')
                 ->with('success', 'تم تحديث بيانات المستودع بنجاح');
@@ -219,6 +234,13 @@ class WarehouseController extends Controller
             }
 
             $this->warehouseRepository->delete((int) $id);
+
+            // ✅ تخزين الإشعار
+            $this->notifyDelete(
+                'مستودع',
+                $warehouse->warehouse_name,
+                route('manufacturing.warehouses.index')
+            );
 
             return redirect()
                 ->route('manufacturing.warehouses.index')
@@ -288,6 +310,15 @@ class WarehouseController extends Controller
             } catch (\Exception $logError) {
                 Log::error('Failed to log warehouse status change: ' . $logError->getMessage());
             }
+
+            // ✅ تخزين الإشعار لتغيير الحالة
+            $this->notifyStatusChange(
+                'مستودع',
+                $oldStatus ? 'مفعل' : 'معطل',
+                $newStatus ? 'مفعل' : 'معطل',
+                $warehouse->warehouse_name,
+                route('manufacturing.warehouses.show', $warehouse->id)
+            );
 
             return redirect()->back()
                            ->with('success', 'تم تغيير حالة المستودع بنجاح');

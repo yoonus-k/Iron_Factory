@@ -11,6 +11,7 @@ use App\Models\Unit;
 use App\Models\User;
 use App\Models\OperationLog;
 use App\Services\NotificationService;
+use App\Traits\StoresNotifications;
 use Modules\Manufacturing\Http\Requests\StoreMaterialRequest;
 use Modules\Manufacturing\Http\Requests\UpdateMaterialRequest;
 use Modules\Manufacturing\Services\MaterialService;
@@ -20,6 +21,8 @@ use Illuminate\Support\Facades\Auth;
 
 class WarehouseProductController extends Controller
 {
+    use StoresNotifications;
+
     private MaterialService $materialService;
     private NotificationService $notificationService;
 
@@ -140,6 +143,13 @@ class WarehouseProductController extends Controller
                 throw new \Exception('فشل تسجيل العملية: ' . $logError->getMessage());
             }
 
+            // ✅ تخزين الإشعار
+            $this->notifyCreate(
+                'مادة',
+                $material->name_ar,
+                route('manufacturing.warehouse-products.show', $material->id)
+            );
+
             // إرسال الإشعارات
             try {
                 $this->createMaterialWithNotification($material);
@@ -242,6 +252,13 @@ class WarehouseProductController extends Controller
                 throw new \Exception('فشل تسجيل تحديث المادة: ' . $logError->getMessage());
             }
 
+            // ✅ تخزين الإشعار
+            $this->notifyUpdate(
+                'مادة',
+                $material->name_ar,
+                route('manufacturing.warehouse-products.show', $material->id)
+            );
+
             // إرسال إشعار بالتحديث
             try {
                 $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
@@ -293,6 +310,13 @@ class WarehouseProductController extends Controller
         );
 
         $material->delete();
+
+        // ✅ تخزين الإشعار
+        $this->notifyDelete(
+            'مادة',
+            $material->name_ar,
+            route('manufacturing.warehouse-products.index')
+        );
 
         // إرسال إشعار بحذف المادة
         try {
@@ -442,6 +466,16 @@ $materialDetail->unit_id = $validated['unit_id']; // ✅ تحديث في Materia
                 throw new \Exception('فشل تسجيل العملية: ' . $logError->getMessage());
             }
 
+            // ✅ تخزين الإشعار
+            $this->notifyCustomOperation(
+                'quantity_added',
+                'إضافة كمية للمادة',
+                'تم إضافة كمية ' . $validated['quantity'] . ' للمادة: ' . $material->name_ar,
+                'success',
+                'fas fa-plus',
+                route('manufacturing.warehouse-products.show', $material->id)
+            );
+
             return redirect()->back()
                            ->with('success', 'تم إضافة الكمية بنجاح وإنشاء أذن مخزنية رقم: ' . $deliveryNote->note_number);
         } catch (\Exception $e) {
@@ -526,6 +560,15 @@ $materialDetail->unit_id = $validated['unit_id']; // ✅ تحديث في Materia
                 Log::error('Failed to log status change: ' . $logError->getMessage());
                 throw new \Exception('فشل تسجيل تغيير الحالة: ' . $logError->getMessage());
             }
+
+            // ✅ تخزين الإشعار
+            $this->notifyStatusChange(
+                'مادة',
+                $this->getStatusLabel($oldStatus),
+                $this->getStatusLabel($validated['status']),
+                $material->name_ar,
+                route('manufacturing.warehouse-products.show', $material->id)
+            );
 
             return redirect()->back()
                            ->with('success', 'تم تغيير الحالة من ' . $this->getStatusLabel($oldStatus) . ' إلى ' . $this->getStatusLabel($validated['status']));

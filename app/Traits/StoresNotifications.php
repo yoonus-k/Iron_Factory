@@ -22,7 +22,7 @@ trait StoresNotifications
     {
         try {
             return Notification::create([
-                'user_id' => , // عام لجميع المستخدمين
+                'user_id' =>null , // عام لجميع المستخدمين
                 'type' => $type,
                 'title' => $title,
                 'message' => $message,

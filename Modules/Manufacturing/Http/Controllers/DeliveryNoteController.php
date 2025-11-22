@@ -308,7 +308,7 @@ class DeliveryNoteController extends Controller
                         Auth::user()
                     );
                 }
-                
+
                 // ✅ تخزين الإشعار في قاعدة البيانات
                 $type = $request->input('type', 'incoming');
                 $this->storeNotification(
@@ -491,7 +491,7 @@ class DeliveryNoteController extends Controller
                             Auth::user()
                         );
                     }
-                    
+
                     // ✅ تخزين إشعار اختلاف الوزن في قاعدة البيانات
                     $this->storeNotification(
                         'weight_discrepancy_detected',
@@ -532,7 +532,7 @@ class DeliveryNoteController extends Controller
                         Auth::user()
                     );
                 }
-                
+
                 // ✅ تخزين إشعار التحديث في قاعدة البيانات
                 $this->storeNotification(
                     'delivery_note_updated',
@@ -601,7 +601,7 @@ class DeliveryNoteController extends Controller
                         route('manufacturing.delivery-notes.index')
                     );
                 }
-                
+
                 // ✅ تخزين إشعار الحذف في قاعدة البيانات
                 $this->storeNotification(
                     'delivery_note_deleted',
@@ -669,7 +669,7 @@ class DeliveryNoteController extends Controller
                         route('manufacturing.delivery-notes.show', $deliveryNote->id)
                     );
                 }
-                
+
                 // ✅ تخزين إشعار تغيير الحالة في قاعدة البيانات
                 $this->storeNotification(
                     'delivery_note_status_changed',
@@ -748,7 +748,7 @@ class DeliveryNoteController extends Controller
                         route('manufacturing.delivery-notes.show', $deliveryNote->id)
                     );
                 }
-                
+
                 // ✅ تخزين إشعار إضافة تفاصيل الفاتورة في قاعدة البيانات
                 $this->storeNotification(
                     'invoice_details_added',
@@ -819,7 +819,7 @@ class DeliveryNoteController extends Controller
                         route('manufacturing.delivery-notes.show', $deliveryNote->id)
                     );
                 }
-                
+
                 // ✅ تخزين إشعار تحديث الحالة في قاعدة البيانات
                 $this->storeNotification(
                     'delivery_note_status_updated',
@@ -890,7 +890,7 @@ class DeliveryNoteController extends Controller
                         route('manufacturing.delivery-notes.show', $deliveryNote->id)
                     );
                 }
-                
+
                 // ✅ تخزين إشعار تغيير الحالة النشطة في قاعدة البيانات
                 $this->storeNotification(
                     'delivery_note_active_status_changed',

@@ -8,6 +8,7 @@ use App\Models\PurchaseInvoice;
 use App\Models\ReconciliationLog;
 use App\Models\User;
 use App\Services\NotificationService;
+use App\Traits\StoresNotifications;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Log;
 
 class ReconciliationController extends Controller
 {
+    use StoresNotifications;
+
     protected $notificationService;
 
     public function __construct(NotificationService $notificationService)
@@ -161,6 +164,16 @@ class ReconciliationController extends Controller
                         route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
                     );
                 }
+
+                // ✅ تخزين الإشعار
+                $this->storeNotification(
+                    'invoice_linked',
+                    'ربط الفاتورة بأذن التسليم',
+                    'تم ربط الفاتورة برقم ' . $invoice->invoice_number . ' مع أذن التسليم رقم ' . $deliveryNote->note_number,
+                    'success',
+                    'fas fa-link',
+                    route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
+                );
             } catch (\Exception $notifError) {
                 Log::warning('Failed to send link invoice notifications: ' . $notifError->getMessage());
             }
@@ -246,7 +259,7 @@ class ReconciliationController extends Controller
                     'adjusted' => 'تعديل',
                     default => 'تحديث'
                 };
-                
+
                 foreach ($managers as $manager) {
                     $this->notificationService->notifyCustom(
                         $manager,
@@ -258,6 +271,16 @@ class ReconciliationController extends Controller
                         route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
                     );
                 }
+
+                // ✅ تخزين الإشعار
+                $this->storeNotification(
+                    'reconciliation_decided',
+                    'قرار تسوية أذن تسليم',
+                    'تم ' . $actionLabel . ' تسوية أذن التسليم رقم ' . $deliveryNote->note_number,
+                    $validated['action'] === 'rejected' ? 'danger' : 'success',
+                    $validated['action'] === 'rejected' ? 'fas fa-times-circle' : 'fas fa-check-circle',
+                    route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
+                );
             } catch (\Exception $notifError) {
                 Log::warning('Failed to send reconciliation decision notifications: ' . $notifError->getMessage());
             }
@@ -543,6 +566,16 @@ class ReconciliationController extends Controller
                         route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
                     );
                 }
+
+                // ✅ تخزين الإشعار
+                $this->storeNotification(
+                    'invoice_linked_from_bulk',
+                    'ربط فاتورة بأذن تسليم',
+                    'تم ربط الفاتورة برقم ' . $invoice->invoice_number . ' مع أذن التسليم رقم ' . $deliveryNote->note_number,
+                    'success',
+                    'fas fa-link',
+                    route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
+                );
             } catch (\Exception $notifError) {
                 Log::warning('Failed to send link invoice notifications: ' . $notifError->getMessage());
             }
@@ -799,6 +832,16 @@ class ReconciliationController extends Controller
                         route('manufacturing.warehouses.reconciliation.show', $reconciliation->deliveryNote->id)
                     );
                 }
+
+                // ✅ تخزين الإشعار
+                $this->storeNotification(
+                    'invoice_link_updated',
+                    'تحديث ربط فاتورة',
+                    'تم تحديث ربط الفاتورة برقم ' . $reconciliation->purchaseInvoice->invoice_number . ' مع أذن التسليم رقم ' . $reconciliation->deliveryNote->note_number,
+                    'warning',
+                    'fas fa-edit',
+                    route('manufacturing.warehouses.reconciliation.show', $reconciliation->deliveryNote->id)
+                );
             } catch (\Exception $notifError) {
                 Log::warning('Failed to send update link invoice notifications: ' . $notifError->getMessage());
             }
@@ -852,6 +895,16 @@ class ReconciliationController extends Controller
                         route('manufacturing.warehouses.reconciliation.index')
                     );
                 }
+
+                // ✅ تخزين الإشعار
+                $this->storeNotification(
+                    'invoice_link_deleted',
+                    'حذف ربط فاتورة',
+                    'تم حذف ربط الفاتورة برقم ' . $reconciliation->purchaseInvoice->invoice_number . ' من أذن التسليم رقم ' . $reconciliation->deliveryNote->note_number,
+                    'danger',
+                    'fas fa-trash',
+                    route('manufacturing.warehouses.reconciliation.index')
+                );
             } catch (\Exception $notifError) {
                 Log::warning('Failed to send delete link invoice notifications: ' . $notifError->getMessage());
             }
@@ -868,149 +921,5 @@ class ReconciliationController extends Controller
     /**
      * ✅ API: إنشاء أذن تسليم من الفاتورة
      */
-    public function createDeliveryNoteFromInvoice(Request $request)
-    {
-        $validated = $request->validate([
-            'invoice_id' => 'required|exists:purchase_invoices,id',
-            'selected_items' => 'required|array|min:1',
-            'selected_items.*' => 'required|integer',
-        ]);
 
-        try {
-            DB::beginTransaction();
-
-            $invoice = PurchaseInvoice::with('items.material', 'supplier')->findOrFail($validated['invoice_id']);
-
-            // فلترة الـ items المختارة
-            $selectedItems = $invoice->items()
-                ->whereIn('id', $validated['selected_items'])
-                ->get();
-
-            if ($selectedItems->isEmpty()) {
-                return response()->json(['error' => 'لم يتم اختيار منتجات صحيحة'], 422);
-            }
-
-            // حساب الوزن الإجمالي والكمية
-            $totalWeight = $selectedItems->sum(function($item) {
-                return $item->weight ?? 0;
-            });
-
-            $totalQuantity = $selectedItems->sum(function($item) {
-                return $item->quantity ?? 0;
-            });
-
-            // إنشاء رقم فريد للأذن
-            $noteNumber = 'DN-' . now()->format('YmdHis') . '-' . strtoupper(substr(md5(time()), 0, 4));
-
-            // إنشاء أذن التسليم الجديدة
-            $createData = [
-                'note_number' => $noteNumber,
-                'type' => 'incoming',
-                'supplier_id' => $invoice->supplier_id,
-                'delivery_date' => now(),
-                'actual_weight' => $totalWeight,
-                'recorded_by' => Auth::id(),
-                'registration_status' => 'registered',  // مسجلة مباشرة
-                'reconciliation_status' => 'pending',
-                'warehouse_id' => 1, // Default warehouse
-                'purchase_invoice_id' => $invoice->id,
-                'invoice_weight' => $invoice->weight ?? $totalWeight,
-                'invoice_date' => $invoice->invoice_date,
-                'notes' => 'تم إنشاء أذن تسليم من الفاتورة #' . $invoice->invoice_number .
-                          ' - عدد المنتجات: ' . $selectedItems->count(),
-            ];
-
-            // إضافة reference number إذا كان موجود
-            if ($invoice->invoice_reference_number) {
-                $createData['invoice_reference_number'] = $invoice->invoice_reference_number;
-            }
-
-            $deliveryNote = DeliveryNote::create($createData);
-
-            // تسجيل الحركة
-            MaterialMovement::create([
-                'movement_type' => 'in',
-                'delivery_note_id' => $deliveryNote->id,
-                'warehouse_id' => 1,
-                'notes' => 'تم إنشاء أذن تسليم من الفاتورة #' . $invoice->invoice_number .
-                          ' بـ ' . $selectedItems->count() . ' منتجات | الوزن: ' . $totalWeight . ' كجم',
-                'created_by' => Auth::id(),
-                'movement_date' => now(),
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-                'status' => 'completed',
-            ]);
-
-            // إنشاء سجل تسوية إذا كان الوزن مطابق
-            $discrepancy = $totalWeight - ($invoice->weight ?? $totalWeight);
-
-            if (abs($discrepancy) < 0.01) {
-                // الأوزان متطابقة - تسوية مباشرة
-                ReconciliationLog::create([
-                    'delivery_note_id' => $deliveryNote->id,
-                    'purchase_invoice_id' => $invoice->id,
-                    'actual_weight' => $totalWeight,
-                    'invoice_weight' => $invoice->weight ?? $totalWeight,
-                    'action' => 'accepted',
-                    'comments' => 'تم المطابقة تلقائياً عند الإنشاء من الفاتورة',
-                    'decided_by' => Auth::id(),
-                    'decided_at' => now(),
-                ]);
-
-                $deliveryNote->update(['reconciliation_status' => 'matched']);
-            } else {
-                // يوجد فرق - تسوية قيد الانتظار
-                $discrepancyPercentage = ($invoice->weight ?? $totalWeight) > 0
-                    ? (abs($discrepancy) / ($invoice->weight ?? $totalWeight)) * 100
-                    : 0;
-
-                ReconciliationLog::create([
-                    'delivery_note_id' => $deliveryNote->id,
-                    'purchase_invoice_id' => $invoice->id,
-                    'actual_weight' => $totalWeight,
-                    'invoice_weight' => $invoice->weight ?? $totalWeight,
-                    'action' => 'pending',
-                    'comments' => 'فرق في الوزن: ' . abs($discrepancy) . ' كجم (' . round($discrepancyPercentage, 2) . '%)',
-                    'decided_by' => Auth::id(),
-                ]);
-            }
-
-            // إرسال إشعار بإنشاء أذن تسليم من فاتورة
-            try {
-                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
-                foreach ($managers as $manager) {
-                    $this->notificationService->notifyCustom(
-                        $manager,
-                        'إنشاء أذن تسليم من فاتورة',
-                        'تم إنشاء أذن التسليم رقم ' . $deliveryNote->note_number . ' من الفاتورة رقم ' . $invoice->invoice_number . ' | عدد المنتجات: ' . $selectedItems->count() . ' | الوزن: ' . $totalWeight . ' كجم',
-                        'create_delivery_note_from_invoice',
-                        'success',
-                        'feather icon-file-plus',
-                        route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
-                    );
-                }
-            } catch (\Exception $notifError) {
-                Log::warning('Failed to send create delivery note from invoice notifications: ' . $notifError->getMessage());
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'تم إنشاء أذن التسليم بنجاح',
-                'delivery_note_id' => $deliveryNote->id,
-                'note_number' => $deliveryNote->note_number,
-                'items_count' => $selectedItems->count(),
-                'total_weight' => $totalWeight,
-                'total_quantity' => $totalQuantity,
-                'discrepancy' => $discrepancy,
-                'is_matched' => abs($discrepancy) < 0.01,
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to create delivery note from invoice: ' . $e->getMessage());
-            return response()->json(['error' => 'حدث خطأ: ' . $e->getMessage()], 500);
-        }
-    }
 }
