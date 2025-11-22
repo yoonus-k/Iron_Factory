@@ -5,67 +5,73 @@
 @section('content')
 
 <style>
-    .info-tooltip {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 18px;
-        height: 18px;
-        background: #3498db;
-        color: white;
-        border-radius: 50%;
-        font-size: 12px;
-        font-weight: bold;
-        cursor: help;
-        margin-right: 5px;
-        vertical-align: middle;
+    :root{
+        --brand-1: #0b5fa5;
+        --brand-2: #2a9fd6;
+        --muted: #6e7a81;
+        --surface: #f5f7fa;
+        --card: #ffffff;
+        --success: #27ae60;
+        --danger: #e74c3c;
+        --radius: 12px;
     }
 
-    .info-tooltip:hover {
-        background: #2980b9;
-    }
+    /* base layout */
+    .stage-container{ max-width:1200px; margin:26px auto; padding:20px; font-family: 'Segoe UI', Tahoma, Arial; color:#24303a }
 
-    .info-tooltip .tooltip-text {
-        visibility: hidden;
-        width: 250px;
-        background-color: #2c3e50;
-        color: #fff;
-        text-align: right;
-        border-radius: 6px;
-        padding: 12px;
-        position: absolute;
-        z-index: 1000;
-        bottom: 125%;
-        right: 50%;
-        margin-right: -125px;
-        opacity: 0;
-        transition: opacity 0.3s;
-        font-size: 13px;
-        line-height: 1.6;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
+    .stage-header{ display:flex; gap:14px; align-items:center; background: linear-gradient(90deg,var(--brand-1),var(--brand-2)); color:#fff; padding:20px 22px; border-radius:10px; box-shadow:0 10px 30px rgba(11,95,165,0.12) }
+    .stage-header h1{ margin:0; font-size:20px }
+    .stage-header p{ margin:0; opacity:0.95; font-size:13px }
 
-    .info-tooltip .tooltip-text::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        right: 50%;
-        margin-right: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: #2c3e50 transparent transparent transparent;
-    }
+    /* cards */
+    .form-section{ background:var(--card); padding:18px; border-radius:var(--radius); margin-top:18px; box-shadow:0 6px 18px rgba(10,30,60,0.04); border:1px solid rgba(34,47,62,0.04) }
+    .section-title{ font-size:16px; color:var(--brand-1); font-weight:700 }
 
-    .info-tooltip:hover .tooltip-text {
-        visibility: visible;
-        opacity: 1;
-    }
+    /* tooltip */
+    .info-tooltip{ position:relative; display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; background:var(--brand-1); color:#fff; border-radius:50%; font-size:11px; font-weight:700; cursor:help; margin-left:6px }
+    .info-tooltip .tooltip-text{ visibility:hidden; opacity:0; width:260px; background:#24303a; color:#fff; padding:10px; border-radius:8px; position:absolute; z-index:1000; right:50%; transform:translateX(50%); bottom:130%; font-size:13px; line-height:1.5; box-shadow:0 6px 18px rgba(0,0,0,0.12) }
+    .info-tooltip:hover .tooltip-text{ visibility:visible; opacity:1 }
 
-    .info-box-header {
-        cursor: help;
-        display: inline-block;
-    }
+    /* barcode */
+    .barcode-section{ background: linear-gradient(180deg,#f3fbff 0,#eef9ff 100%); padding:20px; border-radius:10px; text-align:center; border:1px dashed rgba(11,95,165,0.06) }
+    .barcode-input-wrapper{ max-width:720px; margin:0 auto; position:relative }
+    .barcode-input{ width:100%; padding:16px 18px; border-radius:10px; border:2px solid rgba(11,95,165,0.12); font-size:16px; font-weight:600 }
+    .barcode-icon{ position:absolute; left:16px; top:50%; transform:translateY(-50%); font-size:18px }
+
+    /* display cards */
+    .stand-display{ display:none; padding:14px; border-radius:10px; background:linear-gradient(180deg,#f8fcff,#eef9ff); border-left:4px solid var(--brand-1); margin-top:12px }
+    .stand-display.active{ display:block }
+    .stand-info{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px }
+    .info-item{ background:var(--card); padding:12px; border-radius:8px; text-align:center; box-shadow:0 4px 12px rgba(10,30,60,0.03) }
+    .info-label{ font-size:13px; color:var(--muted); margin-bottom:6px; font-weight:600 }
+    .info-value{ font-size:15px; font-weight:700; color:#22303a }
+
+    /* form grid */
+    .form-row{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:14px; margin-top:10px }
+    .form-group label{ font-size:13px; color:var(--muted); font-weight:700; margin-bottom:6px }
+    .form-control, .form-select{ padding:10px 12px; border-radius:8px; border:1.5px solid #e7eef5; background:#fbfeff }
+    .form-control[readonly]{ background:#f1f6f9; font-weight:600 }
+
+    textarea.form-control{ min-height:100px }
+
+    /* processed list */
+    .processed-item{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px; border-radius:10px; background:linear-gradient(180deg,#ffffff,#fbfeff); box-shadow:0 6px 18px rgba(10,30,60,0.03); margin-bottom:10px }
+    .processed-info strong{ font-size:15px }
+
+    /* buttons */
+    .button-group{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px }
+    .btn-primary, .btn-success, .btn-secondary{ border:none; border-radius:8px; padding:10px 14px; font-weight:700; cursor:pointer }
+    .btn-primary{ background:var(--brand-1); color:white }
+    .btn-success{ background:var(--success); color:white }
+    .btn-secondary{ background:#8e9aa4; color:white }
+
+    .btn-delete{ background:var(--danger); color:white; padding:8px 12px; border-radius:8px }
+    .btn-print{ background:#1976d2; color:white; padding:8px 12px; border-radius:8px }
+
+    .empty-state{ padding:30px; text-align:center; color:#98a2a8 }
+
+    /* responsive */
+    @media (max-width:900px){ .form-row{ grid-template-columns:1fr } .stand-info{ grid-template-columns:1fr } .stage-header{ flex-direction:column; text-align:center } }
 </style>
 
 <div class="stage-container">

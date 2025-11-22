@@ -5,574 +5,107 @@
 @section('content')
 
 <style>
-    /* Improved UI/UX Design with More White Space and Better Readability */
-    .stage-container {
+    /* Design system variables */
+    :root{
+        --brand-1: #0b5fa5; /* deep factory blue */
+        --brand-2: #2a9fd6; /* accent */
+        --success: #27ae60;
+        --muted: #7f8c8d;
+        --card-bg: #ffffff;
+        --surface: #f5f7fa;
+        --danger: #e74c3c;
+        --radius: 12px;
+        --gap: 20px;
+    }
+
+    /* Container */
+    .stage-container{
         max-width: 1200px;
-        margin: 30px auto;
-        padding: 0 20px;
+        margin: 28px auto;
+        padding: 24px;
+        font-family: 'Segoe UI', Tahoma, system-ui, -apple-system, 'Helvetica Neue', Arial;
+        color: #263238;
     }
 
-    /* Stage Header */
-    .stage-header {
-        background: linear-gradient(135deg, #0066B2 0%, #3A8FC7 100%);
-        color: white;
-        padding: 35px 40px;
-        border-radius: 16px;
-        margin-bottom: 35px;
-        box-shadow: 0 6px 20px rgba(0, 102, 178, 0.2);
-        text-align: center;
-    }
-
-    .stage-header h1 {
-        margin: 0 0 12px 0;
-        font-size: 32px;
-        font-weight: 700;
-        display: flex;
+    /* Header */
+    .stage-header{
+        background: linear-gradient(90deg, var(--brand-1), var(--brand-2));
+        color: #fff;
+        padding: 28px 30px;
+        border-radius: 14px;
+        display:flex;
+        gap: 18px;
         align-items: center;
-        justify-content: center;
-        gap: 15px;
+        box-shadow: 0 10px 30px rgba(11,95,165,0.12);
     }
 
-    .stage-header p {
-        margin: 0;
-        opacity: 0.95;
-        font-size: 18px;
-        max-width: 800px;
-        margin: 0 auto;
-        line-height: 1.7;
+    .stage-header h1{ font-size: 22px; margin: 0; font-weight: 700; display:flex; gap:12px; align-items:center }
+    .stage-header p{ margin:0; opacity:0.95; font-size:14px }
+
+    /* Card sections */
+    .form-section{
+        background: var(--card-bg);
+        padding: 22px;
+        border-radius: var(--radius);
+        margin-top: var(--gap);
+        box-shadow: 0 6px 18px rgba(40,50,60,0.04);
+        border: 1px solid rgba(34,47,62,0.04);
     }
 
-    /* Form Section */
-    .form-section {
-        background: white;
-        padding: 35px;
-        border-radius: 16px;
-        margin-bottom: 30px;
-        border: 1px solid #e3e6f0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    }
-
-    .section-title {
-        font-size: 24px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin: 0 0 25px 0;
-        padding-bottom: 15px;
-        border-bottom: 3px solid #0066B2;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    /* Form Layout */
-    .form-row {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 30px;
-        margin-bottom: 30px;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .form-group label {
-        font-size: 16px;
-        font-weight: 600;
-        color: #34495e;
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .required {
-        color: #e74c3c;
-        margin-right: 5px;
-    }
-
-    .form-control, .form-select {
-        padding: 16px 18px;
-        border: 2px solid #dce4ec;
-        border-radius: 10px;
-        font-size: 16px;
-        transition: all 0.3s;
-        background: #f8fafb;
-        font-weight: 400;
-    }
-
-    .form-control:focus, .form-select:focus {
-        outline: none;
-        border-color: #0066B2;
-        background: white;
-        box-shadow: 0 0 0 4px rgba(0, 102, 178, 0.15);
-    }
-
-    .form-control:disabled, .form-control:read-only {
-        background: #ecf0f1;
-        cursor: not-allowed;
-    }
-
-    textarea.form-control {
-        resize: vertical;
-        min-height: 120px;
-    }
-
-    /* Barcode Section */
-    .barcode-section {
-        background: linear-gradient(135deg, #e6f2fa 0%, #d5e8f7 100%);
-        padding: 35px;
-        border-radius: 16px;
-        margin-bottom: 35px;
-        border: 2px dashed #0066B2;
-        text-align: center;
-    }
-
-    .barcode-input-wrapper {
-        position: relative;
-        max-width: 700px;
-        margin: 0 auto;
-    }
-
-    .barcode-input {
-        width: 100%;
-        padding: 20px 60px 20px 20px;
-        font-size: 18px;
-        border: 3px solid #0066B2;
-        border-radius: 12px;
-        font-weight: 500;
-        background: white;
-        text-align: center;
-        transition: all 0.3s;
-    }
-
-    .barcode-input:focus {
-        box-shadow: 0 0 0 5px rgba(0, 102, 178, 0.2);
-    }
-
-    .barcode-icon {
-        position: absolute;
-        left: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 28px;
-        color: #0066B2;
-    }
-
-    /* Display Sections */
-    .material-display,
-    .stand-display {
-        background: linear-gradient(135deg, #e6f2fa 0%, #d5e8f7 100%);
-        padding: 30px;
-        border-radius: 16px;
-        margin-bottom: 30px;
-        border-right: 5px solid #0066B2;
-        display: none;
-    }
-
-    .material-display.active,
-    .stand-display.active {
-        display: block;
-        animation: slideIn 0.4s ease-out;
-    }
-
-    .material-display h4,
-    .stand-display h4 {
-        color: #0066B2;
-        margin: 0 0 20px 0;
-        font-size: 22px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .material-info,
-    .stand-info {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 25px;
-        margin-top: 15px;
-    }
-
-    .info-item {
-        background: rgba(255, 255, 255, 0.85);
-        padding: 20px;
-        border-radius: 12px;
-        text-align: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-
-    .info-label {
-        font-size: 16px;
-        color: #7f8c8d;
-        margin-bottom: 12px;
-        font-weight: 600;
-    }
-
-    .info-value {
-        font-size: 20px;
-        font-weight: 700;
-        color: #2c3e50;
-    }
-
-    /* Info Box */
-    .info-box {
-        background: linear-gradient(135deg, #e6f2fa 0%, #d5e8f7 100%);
-        border-right: 5px solid #0066B2;
-        padding: 25px;
-        border-radius: 12px;
-        margin-bottom: 30px;
-    }
-
-    .info-box strong {
-        color: #0066B2;
-        display: block;
-        margin-bottom: 15px;
-        font-size: 18px;
-        font-weight: 700;
-    }
-
-    .info-box ul {
-        margin: 15px 0 0 30px;
-        color: #7f8c8d;
-        font-size: 16px;
-        line-height: 1.8;
-    }
-
-    /* Buttons */
-    .btn-primary {
-        background: linear-gradient(135deg, #0066B2 0%, #3A8FC7 100%);
-        color: white;
-        border: none;
-        padding: 16px 32px;
-        border-radius: 10px;
-        font-size: 17px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        box-shadow: 0 4px 15px rgba(0, 102, 178, 0.2);
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0, 102, 178, 0.3);
-    }
-
-    .btn-success {
-        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-        color: white;
-        border: none;
-        padding: 18px 40px;
-        border-radius: 10px;
-        font-size: 18px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: inline-flex;
-        align-items: center;
-        gap: 14px;
-        box-shadow: 0 4px 15px rgba(39, 174, 96, 0.2);
-    }
-
-    .btn-success:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(39, 174, 96, 0.3);
-    }
-
-    .btn-success:disabled {
-        background: #95a5a6;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-    }
-
-    .btn-secondary {
-        background: #95a5a6;
-        color: white;
-        border: none;
-        padding: 16px 32px;
-        border-radius: 10px;
-        font-size: 17px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        box-shadow: 0 4px 15px rgba(149, 165, 166, 0.2);
-    }
-
-    .btn-secondary:hover {
-        background: #7f8c8d;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(149, 165, 166, 0.3);
-    }
-
-    /* Button Group */
-    .button-group {
-        display: flex;
-        gap: 20px;
-        margin-top: 25px;
-        flex-wrap: wrap;
-    }
-
-    /* Form Actions */
-    .form-actions {
-        display: flex;
-        gap: 25px;
-        margin-top: 40px;
-        padding-top: 30px;
-        border-top: 3px solid #ecf0f1;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    /* List Items */
-    .stands-list,
-    .processed-list {
-        margin-top: 25px;
-    }
-
-    .stand-item,
-    .processed-item {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        padding: 25px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-right: 5px solid #0066B2;
-        animation: slideIn 0.3s ease-out;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-    }
-
-    .stand-info,
-    .processed-info {
-        flex: 1;
-    }
-
-    .stand-info strong,
-    .processed-info strong {
-        color: #2c3e50;
-        font-size: 18px;
-        display: block;
-        margin-bottom: 10px;
-    }
-
-    .stand-info small,
-    .processed-info small {
-        color: #7f8c8d;
-        font-size: 15px;
-        line-height: 1.7;
-    }
-
-    .stand-actions {
-        display: flex;
-        gap: 12px;
-    }
-
-    /* Buttons in Lists */
-    .btn-delete {
-        background: #e74c3c;
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 15px;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .btn-delete:hover {
-        background: #c0392b;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
-    }
-
-    .btn-print {
-        background: #3498db;
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 15px;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .btn-print:hover {
-        background: #2980b9;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
-    }
-
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 60px 30px;
-        color: #95a5a6;
-    }
-
-    .empty-state svg {
-        width: 80px;
-        height: 80px;
-        margin-bottom: 25px;
-        opacity: 0.6;
-    }
-
-    .empty-state p {
-        font-size: 18px;
-        margin: 0;
-    }
-
-    /* Animations */
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-15px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    /* Responsive Design */
-    @media (max-width: 992px) {
-        .stage-container {
-            margin: 20px auto;
-            padding: 0 15px;
-        }
-
-        .stage-header {
-            padding: 25px 30px;
-        }
-
-        .stage-header h1 {
-            font-size: 26px;
-            gap: 12px;
-        }
-
-        .stage-header p {
-            font-size: 16px;
-        }
-
-        .form-section {
-            padding: 25px;
-        }
-
-        .section-title {
-            font-size: 20px;
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .material-info,
-        .stand-info {
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-
-        .button-group,
-        .form-actions {
-            flex-direction: column;
-        }
-
-        .stand-item,
-        .processed-item {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 20px;
-        }
-
-        .stand-actions {
-            width: 100%;
-            justify-content: flex-end;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .stage-header {
-            padding: 20px 15px;
-        }
-
-        .stage-header h1 {
-            font-size: 22px;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .form-section {
-            padding: 20px 15px;
-        }
-
-        .section-title {
-            font-size: 18px;
-        }
-
-        .barcode-section {
-            padding: 25px 20px;
-        }
-
-        .barcode-input {
-            padding: 16px 50px 16px 16px;
-            font-size: 16px;
-        }
-
-        .btn-primary,
-        .btn-secondary {
-            padding: 14px 24px;
-            font-size: 15px;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .btn-success {
-            padding: 16px 30px;
-            font-size: 16px;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .button-group {
-            gap: 15px;
-        }
-
-        .form-actions {
-            gap: 15px;
-            margin-top: 30px;
-            padding-top: 20px;
-        }
-
-        .empty-state {
-            padding: 40px 20px;
-        }
-
-        .empty-state svg {
-            width: 60px;
-            height: 60px;
-        }
-    }
+    .section-title{ font-size:18px; font-weight:700; color:var(--brand-1); display:flex; gap:10px; align-items:center }
+
+    /* Grid layout */
+    .form-row{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:18px; margin-top:16px }
+    .form-group label{ font-size:14px; color:var(--muted); font-weight:600; margin-bottom:8px }
+
+    .form-control, .form-select{ padding:12px 14px; border-radius:10px; border:1.5px solid #e6edf3; font-size:15px; background:#fbfeff; transition:box-shadow .18s, border-color .18s }
+    .form-control:focus, .form-select:focus{ outline:none; border-color:var(--brand-1); box-shadow:0 6px 20px rgba(11,95,165,0.08) }
+
+    textarea.form-control{ min-height:110px }
+
+    /* Barcode prominent input */
+    .barcode-section{ background: linear-gradient(180deg,#f3fbff 0,#e8f6ff 100%); padding:26px; border-radius:12px; border:1px dashed rgba(10,110,180,0.08); text-align:center }
+    .barcode-input-wrapper{ max-width:720px; margin:0 auto; position:relative }
+    .barcode-input{ width:100%; padding:20px 22px; border-radius:10px; font-size:18px; border:2px solid rgba(11,95,165,0.12); font-weight:600; box-shadow: inset 0 -6px 18px rgba(0,0,0,0.02) }
+    .barcode-icon{ position:absolute; left:18px; top:50%; transform:translateY(-50%); color:var(--brand-1); font-size:22px }
+
+    /* Info cards */
+    .material-display, .stand-display{ display:none; padding:18px; border-radius:12px; background:linear-gradient(180deg,#f8fcff 0,#eef8ff 100%); border-left:4px solid var(--brand-1) }
+    .material-display.active, .stand-display.active{ display:block }
+    .material-info{ display:grid; grid-template-columns: repeat(3,1fr); gap:12px }
+    .info-item{ background: #fff; padding:14px; border-radius:10px; box-shadow:0 4px 14px rgba(10,30,60,0.03); text-align:center }
+    .info-label{ font-size:13px; color:var(--muted); margin-bottom:8px; font-weight:600 }
+    .info-value{ font-size:16px; font-weight:700; color:#22303a }
+
+    /* Action buttons improved */
+    .button-group{ display:flex; gap:12px; flex-wrap:wrap }
+    .btn-primary, .btn-success, .btn-secondary{ border: none; border-radius:10px; padding:12px 20px; font-weight:700; cursor:pointer }
+    .btn-primary{ background:var(--brand-1); color:white; box-shadow:0 8px 24px rgba(11,95,165,0.12) }
+    .btn-primary:hover{ transform:translateY(-3px) }
+    .btn-success{ background:var(--success); color:white }
+    .btn-secondary{ background:#8e9aa4; color:white }
+
+    .form-actions{ display:flex; gap:12px; justify-content:center; margin-top:20px }
+
+    /* Lists */
+    .stand-item{ display:flex; justify-content:space-between; gap:12px; align-items:center; padding:12px; border-radius:10px; background:linear-gradient(180deg,#ffffff,#fbfdff); box-shadow:0 6px 18px rgba(10,30,60,0.03) }
+
+    .btn-delete{ background:var(--danger); color:#fff; padding:8px 12px; border-radius:8px }
+    .btn-print{ background:#1976d2; color:#fff; padding:8px 12px; border-radius:8px }
+
+    /* Empty state */
+    .empty-state{ padding:36px; text-align:center; color:#96a0a6 }
+
+    /* Small helpers */
+    .note { font-size:13px; color:var(--muted); }
+
+    /* Responsive */
+    @media (max-width: 900px){ .form-row{ grid-template-columns: 1fr } .material-info{ grid-template-columns:1fr } .stage-header{ flex-direction:column; text-align:center } .stage-header p{ font-size:13px } }
+    @media (max-width: 480px){ .barcode-input{ font-size:16px; padding:14px } .btn-primary, .btn-success, .btn-secondary{ width:100%; padding:12px } }
+
+    /* small animation */
+    @keyframes subtlePop{ from{ transform: translateY(-6px); opacity:0 } to{ transform:none; opacity:1 } }
+    .material-display.active .info-item{ animation: subtlePop .25s ease }
 </style>
 
 <div class="stage-container">
