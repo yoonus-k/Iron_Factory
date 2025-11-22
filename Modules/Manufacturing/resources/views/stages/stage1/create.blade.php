@@ -184,7 +184,7 @@
             </div>
         </div>
 
-        <div class="form-row">
+         <div class="form-row">
             <div class="form-group">
                 <label for="wasteWeight"><i class="fas fa-trash-alt"></i> وزن الهدر (كجم)</label>
                 <input type="number" id="wasteWeight" class="form-control" placeholder="سيتم حسابه تلقائياً" step="0.01" oninput="calculateWastePercentage()">
@@ -602,7 +602,7 @@ function submitAll() {
         if (data.success) {
             showToast('<i class="fas fa-check-circle"></i> تم حفظ جميع الاستاندات بنجاح!', 'success');
             localStorage.removeItem('stage1_processed');
-            
+
             // عرض قائمة الباركودات
             if (data.data && data.data.barcodes) {
                 showBarcodesModal(data.data.barcodes);
@@ -786,7 +786,7 @@ function printAllBarcodes(barcodes) {
     printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 16px; }');
     printWindow.document.write('@media print { body { background: white; padding: 0; } .barcode-item { box-shadow: none; page-break-after: always; } }');
     printWindow.document.write('</style></head><body>');
-    
+
     barcodes.forEach((item, index) => {
         printWindow.document.write('<div class="barcode-item">');
         printWindow.document.write('<div class="title">باركود المرحلة الأولى - ' + item.stand_number + '</div>');
@@ -799,7 +799,7 @@ function printAllBarcodes(barcodes) {
         printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
         printWindow.document.write('</div></div>');
     });
-    
+
     printWindow.document.write('<script>');
     barcodes.forEach((item, index) => {
         printWindow.document.write('JsBarcode("#print-barcode-' + index + '", "' + item.barcode + '", { format: "CODE128", width: 2, height: 80, displayValue: false, margin: 12 });');
