@@ -276,10 +276,10 @@ function submitLafaf() {
     })
     .catch(error => {
         showToast('❌ خطأ: ' + error.message, 'error');
-        submitBtn.disabled = false;
+        szubmitBtn.disabled = false;
         submitBtn.innerHTML = '✅ حفظ اللفاف';
     });
-}
+}P=
 
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
