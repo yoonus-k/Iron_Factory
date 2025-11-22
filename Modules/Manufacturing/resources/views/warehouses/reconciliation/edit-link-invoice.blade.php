@@ -170,7 +170,7 @@
                                             <th style="text-align: right;">المنتج</th>
                                             <th>الكمية</th>
                                             <th>الوحدة</th>
-                                            <th>الوزن</th>
+                                          
                                         </tr>
                                     </thead>
                                     <tbody id="invoiceItemsBody">
@@ -181,7 +181,7 @@
                                             </td>
                                             <td>{{ number_format($item->quantity ?? 0, 2) }}</td>
                                             <td>{{ $item->unit ?? 'قطعة' }}</td>
-                                            <td>{{ number_format($item->weight ?? 0, 2) }} {{ $item->weight_unit ?? 'كجم' }}</td>
+                                          
                                         </tr>
                                         @endforeach
                                     </tbody>

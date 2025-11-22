@@ -138,7 +138,7 @@
                         <label>النسبة المئوية:</label>
                         <div class="comparison-value {{ abs($deliveryNote->discrepancy_percentage) > 5 ? 'danger' : 'warning' }}">
                             {{ $deliveryNote->discrepancy_percentage > 0 ? '+ ' : '- ' }}
-                            {{ number_format(abs($deliveryNote->discrepancy_percentage), 2) }}%
+                            {{ number_format(min(abs($deliveryNote->discrepancy_percentage), 100), 2) }}%
                         </div>
                     </div>
 
@@ -208,7 +208,7 @@
                             <td class="text-center">
                                 <strong class="text-{{ abs($deliveryNote->discrepancy_percentage) > 5 ? 'danger' : 'warning' }}">
                                     {{ $deliveryNote->discrepancy_percentage > 0 ? '+ ' : '- ' }}
-                                    {{ number_format(abs($deliveryNote->discrepancy_percentage), 2) }}%
+                                    {{ number_format(min(abs($deliveryNote->discrepancy_percentage), 100), 2) }}%
                                 </strong>
                             </td>
                         </tr>

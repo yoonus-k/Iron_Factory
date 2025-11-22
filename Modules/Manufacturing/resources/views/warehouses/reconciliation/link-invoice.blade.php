@@ -165,7 +165,7 @@
                                             <th style="text-align: right;">المنتج</th>
                                             <th>الكمية</th>
                                             <th>الوحدة</th>
-                                            <th>الوزن</th>
+                                        
                                         </tr>
                                     </thead>
                                     <tbody id="invoiceItemsBody">
@@ -179,48 +179,7 @@
         </div>
 
         <!-- بطاقة إنشاء أذن تسليم من الفاتورة -->
-        <div class="card mb-4" id="createDeliveryNoteCard" style="display: none; border-left: 4px solid #27ae60;">
-            <div class="card-header" style="background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%); color: white;">
-                <h5 class="mb-0">📦 إنشاء أذن تسليم من الفاتورة</h5>
-            </div>
-            <div class="card-body">
-                <p class="text-muted mb-3">اختر المنتجات التي تريد إضافتها إلى أذن التسليم:</p>
-                <div id="productsChecklistContainer">
-                </div>
-
-                <!-- ملخص البيانات المختارة -->
-                <div id="selectionSummary" style="display: none; margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #27ae60;">
-                    <h6 class="mb-3"><strong>📊 ملخص الاختيار:</strong></h6>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-2">
-                                <strong>عدد المنتجات المختارة:</strong>
-                                <span id="selectedItemsCount" class="badge bg-info">0</span>
-                            </div>
-                            <div class="mb-2">
-                                <strong>الوزن الإجمالي:</strong>
-                                <span id="selectedTotalWeight" style="font-weight: 600; color: #27ae60;">0.00 كجم</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-2">
-                                <strong>إجمالي الكمية:</strong>
-                                <span id="selectedTotalQuantity" style="font-weight: 600; color: #27ae60;">0.00</span>
-                            </div>
-                            <div class="mb-2">
-                                <strong>المورد:</strong>
-                                <span id="selectedSupplier" style="font-weight: 600;">-</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="button" class="btn btn-success mt-3" id="createDeliveryNoteBtn">
-                    <i class="fas fa-save"></i> إنشاء أذن تسليم
-                </button>
-            </div>
-        </div>
-
+        
         <!-- حساب الفرق -->
         <div class="card mb-4" id="discrepancyCard" style="display: none; border-left: 4px solid #0051E5;">
             <div class="card-header" style="background: linear-gradient(135deg, #0051E5 0%, #003FA0 100%); color: white;">
@@ -454,24 +413,42 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        deliveryNoteResultsList.innerHTML = notes.map(note => `
-            <button type="button" class="list-group-item list-group-item-action delivery-note-item"
-                    data-id="${note.id}"
-                    data-actual-weight="${note.actual_weight || 0}"
-                    data-supplier="${note.supplier?.name || 'N/A'}"
-                    data-date="${formatGregorianDate(note.delivery_date)}"
-                    data-note-number="${note.note_number}"
-                    style="text-align: right;">
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">#${note.note_number}</small>
-                    <div>
-                        <strong>${note.supplier?.name || 'N/A'}</strong>
-                        <br>
-                        <small class="text-muted">${formatGregorianDate(note.delivery_date)} | وزن: ${parseFloat(note.actual_weight || 0).toFixed(2)} كجم</small>
+        deliveryNoteResultsList.innerHTML = notes.map(note => {
+            // تحديد لون الزر حسب حالة الأذن
+            let buttonClass = 'list-group-item list-group-item-action delivery-note-item';
+            let statusBadge = '';
+            
+            if (note.has_invoice) {
+                if (note.reconciliation_status === 'matched') {
+                    buttonClass += ' list-group-item-success';
+                    statusBadge = '<span class="badge bg-success ms-2">مطابق</span>';
+                } else {
+                    buttonClass += ' list-group-item-warning';
+                    statusBadge = '<span class="badge bg-warning ms-2">مرتبط بفاتورة</span>';
+                }
+            }
+
+            return `
+                <button type="button" class="${buttonClass}"
+                        data-id="${note.id}"
+                        data-actual-weight="${note.actual_weight || 0}"
+                        data-supplier="${note.supplier?.name || 'N/A'}"
+                        data-date="${formatGregorianDate(note.delivery_date)}"
+                        data-note-number="${note.note_number}"
+                        data-has-invoice="${note.has_invoice ? 'true' : 'false'}"
+                        data-reconciliation-status="${note.reconciliation_status || ''}"
+                        style="text-align: right;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">#${note.note_number}</small>
+                        <div>
+                            <strong>${note.supplier?.name || 'N/A'}</strong> ${statusBadge}
+                            <br>
+                            <small class="text-muted">${formatGregorianDate(note.delivery_date)} | وزن: ${parseFloat(note.actual_weight || 0).toFixed(2)} كجم</small>
+                        </div>
                     </div>
-                </div>
-            </button>
-        `).join('');
+                </button>
+            `;
+        }).join('');
 
         deliveryNoteResultsList.style.display = 'block';
 
@@ -490,6 +467,37 @@ document.addEventListener('DOMContentLoaded', function() {
         const supplier = element.dataset.supplier;
         const date = element.dataset.date;
         const actualWeight = element.dataset.actualWeight;
+        const hasInvoice = element.dataset.hasInvoice === 'true';
+        const reconciliationStatus = element.dataset.reconciliationStatus;
+
+        // إذا كانت الأذن مرتبطة بفاتورة، نعرض تحذير
+        if (hasInvoice) {
+            let message = `هذه الأذن (#${noteNumber}) مرتبطة بفاتورة بالفعل.`;
+            if (reconciliationStatus === 'matched') {
+                message += '\nالأوزان متطابقة.';
+            } else {
+                message += '\nالأوزان غير متطابقة وتحتاج مراجعة.';
+            }
+            
+            // عرض رسالة تحذير
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'alert alert-warning alert-dismissible fade show mt-3';
+            warningDiv.innerHTML = `
+                <strong>⚠️ تحذير:</strong> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // إضافة التحذير قبل نموذج الربط
+            const formElement = document.getElementById('linkInvoiceForm');
+            formElement.parentNode.insertBefore(warningDiv, formElement);
+            
+            // إزالة التحذير تلقائياً بعد 5 ثوانٍ
+            setTimeout(() => {
+                if (warningDiv.parentNode) {
+                    warningDiv.parentNode.removeChild(warningDiv);
+                }
+            }, 5000);
+        }
 
         deliveryNoteIdInput.value = id;
         deliveryNoteSearchInput.value = `#${noteNumber} - ${supplier}`;
@@ -644,7 +652,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </td>
                     <td>${parseFloat(item.quantity || 0).toFixed(2)}</td>
                     <td>${unit}</td>
-                    <td>${weight} ${item.weight_unit || 'كجم'}</td>
+                    
                 </tr>
             `;
         }).join('');

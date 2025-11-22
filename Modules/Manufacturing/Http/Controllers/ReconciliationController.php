@@ -387,63 +387,7 @@ class ReconciliationController extends Controller
     /**
      * ✅ جديد: عرض صفحة ربط الفواتير المتأخرة
      */
-    public function showLinkInvoice()
-    {
-        // جلب الأذونات التي تم تسجيلها ولكن لا تملك فاتورة
-        $deliveryNotes = DeliveryNote::where('type', 'incoming')
-            ->where('registration_status', 'registered')
-            ->whereNull('purchase_invoice_id')
-            ->with(['supplier', 'warehouse'])
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function($note) {
-                return [
-                    'id' => $note->id,
-                    'note_number' => $note->note_number,
-                    'supplier' => ['id' => $note->supplier?->id, 'name' => $note->supplier?->name],
-                    'delivery_date' => $note->delivery_date?->format('Y-m-d'),
-                    'actual_weight' => $note->actual_weight,
-                    'created_at' => $note->created_at?->format('Y-m-d'),
-                ];
-            })
-            ->toArray();
 
-        // جلب الفواتير المتاحة للربط مع الـ items
-        $invoices = PurchaseInvoice::with(['supplier', 'items.material'])
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function($invoice) {
-                return [
-                    'id' => $invoice->id,
-                    'invoice_number' => $invoice->invoice_number,
-                    'supplier' => ['id' => $invoice->supplier?->id, 'name' => $invoice->supplier?->name],
-                    'invoice_date' => $invoice->invoice_date?->format('Y-m-d'),
-                    'weight' => $invoice->weight,
-                    'weight_unit' => $invoice->weight_unit ?? 'كجم',
-                    'invoice_reference_number' => $invoice->invoice_reference_number,
-                    'items' => $invoice->items->map(function($item) {
-                        // الحصول على اسم المادة من علاقة Material
-                        $materialName = $item->material?->name_ar ?? $item->material?->name ?? $item->item_name;
-
-                        return [
-                            'id' => $item->id,
-                            'item_name' => $materialName,
-                            'quantity' => $item->quantity,
-                            'unit' => $item->unit,
-                            'weight' => $item->weight,
-                            'weight_unit' => $item->weight_unit ?? 'كجم',
-                            'material' => ['id' => $item->material?->id, 'name' => $materialName],
-                            'unit_price' => $item->unit_price,
-                            'subtotal' => $item->subtotal,
-                            'total' => $item->total,
-                        ];
-                    })->toArray(),
-                ];
-            })
-            ->toArray();
-
-        return view('manufacturing::warehouses.reconciliation.link-invoice', compact('deliveryNotes', 'invoices'));
-    }
     public function storeLinkInvoice(Request $request)
     {
         $validated = $request->validate([
@@ -469,8 +413,16 @@ class ReconciliationController extends Controller
             $invoice = PurchaseInvoice::findOrFail($validated['invoice_id']);
 
             // التحقق من أن الأذن لا تملك فاتورة بالفعل
+            $isUpdate = false;
             if ($deliveryNote->purchase_invoice_id) {
-                return back()->with('error', 'هذه الأذن مربوطة بفاتورة بالفعل');
+                $isUpdate = true;
+                // إذا كانت الأذن مرتبطة بفاتورة مختلفة، نسمح بإعادة الربط
+                if ($deliveryNote->purchase_invoice_id != $invoice->id) {
+                    // حذف السجل القديم للتسوية
+                    ReconciliationLog::where('delivery_note_id', $deliveryNote->id)
+                        ->where('purchase_invoice_id', $deliveryNote->purchase_invoice_id)
+                        ->delete();
+                }
             }
 
             // ربط الفاتورة بالأذن
@@ -511,45 +463,101 @@ class ReconciliationController extends Controller
                 $message = 'تم ربط الفاتورة. يوجد فرق كبير (' . number_format($discrepancyPercentage, 2) . '%) يحتاج مراجعة دقيقة';
             }
 
+            // إذا كانت هذه عملية تحديث، نحدث السجل القديم بدلاً من إنشاء سجل جديد
+            if ($isUpdate) {
+                $reconciliationLog = ReconciliationLog::where('delivery_note_id', $deliveryNote->id)
+                    ->where('purchase_invoice_id', $invoice->id)
+                    ->first();
+                
+                if ($reconciliationLog) {
+                    $reconciliationLog->update([
+                        'actual_weight' => $actualWeight,
+                        'invoice_weight' => $invoiceWeight,
+                        'discrepancy' => $discrepancy,
+                        'discrepancy_percentage' => $discrepancyPercentage,
+                        'reconciliation_status' => $reconciliationStatus,
+                        'comments' => $validated['reconciliation_notes'] ?? null,
+                        'updated_by' => Auth::id(),
+                        'updated_at' => now(),
+                    ]);
+                } else {
+                    // إنشاء سجل التسوية الجديد إذا لم يكن موجوداً
+                    $reconciliationLog = ReconciliationLog::create([
+                        'delivery_note_id' => $deliveryNote->id,
+                        'purchase_invoice_id' => $invoice->id,
+                        'actual_weight' => $actualWeight,
+                        'invoice_weight' => $invoiceWeight,
+                        'discrepancy' => $discrepancy,
+                        'discrepancy_percentage' => $discrepancyPercentage,
+                        'financial_impact' => $discrepancy * 50, // مثال: 50 ريال/كيلو
+                        'reconciliation_status' => $reconciliationStatus,
+                        'action' => $reconciliationStatus === 'matched' ? 'accepted' : 'pending',
+                        'comments' => $validated['reconciliation_notes'],
+                        'decided_by' => Auth::id(),
+                        'decided_at' => now(),
+                    ]);
+                }
+            } else {
+                // إنشاء سجل التسوية الجديد
+                $reconciliationLog = ReconciliationLog::create([
+                    'delivery_note_id' => $deliveryNote->id,
+                    'purchase_invoice_id' => $invoice->id,
+                    'actual_weight' => $actualWeight,
+                    'invoice_weight' => $invoiceWeight,
+                    'discrepancy' => $discrepancy,
+                    'discrepancy_percentage' => $discrepancyPercentage,
+                    'financial_impact' => $discrepancy * 50, // مثال: 50 ريال/كيلو
+                    'reconciliation_status' => $reconciliationStatus,
+                    'action' => $reconciliationStatus === 'matched' ? 'accepted' : 'pending',
+                    'comments' => $validated['reconciliation_notes'],
+                    'decided_by' => Auth::id(),
+                    'decided_at' => now(),
+                ]);
+            }
+
             $deliveryNote->update([
                 'reconciliation_status' => $reconciliationStatus,
             ]);
 
-            // إنشاء سجل التسوية
-            $reconciliationLog = ReconciliationLog::create([
-                'delivery_note_id' => $deliveryNote->id,
-                'purchase_invoice_id' => $invoice->id,
-                'actual_weight' => $actualWeight,
-                'invoice_weight' => $invoiceWeight,
-                'action' => $reconciliationStatus === 'matched' ? 'accepted' : 'pending',
-                'comments' => $validated['reconciliation_notes'],
-                'decided_by' => Auth::id(),
-                'decided_at' => now(),
-            ]);
-
             // ✅ تسجيل حركة التسوية
             if ($discrepancy != 0) {
-                MaterialMovement::create([
-                    'movement_number' => MaterialMovement::generateMovementNumber(),
-                    'movement_type' => $discrepancy > 0 ? 'adjustment' : 'reconciliation',
-                    'source' => 'reconciliation',
-                    'delivery_note_id' => $deliveryNote->id,
-                    'reconciliation_log_id' => $reconciliationLog->id,
-                    'material_detail_id' => $deliveryNote->material_detail_id,
-                    'material_id' => $deliveryNote->material_id,
-                    'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
-                    'quantity' => abs($discrepancy),
-                    'from_warehouse_id' => $deliveryNote->warehouse_id,
-                    'supplier_id' => $deliveryNote->supplier_id,
-                    'description' => 'تسوية فاتورة - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id) . ' | فرق: ' . number_format($discrepancy, 2) . ' كيلو',
-                    'notes' => $validated['reconciliation_notes'] ?? 'فرق بين الوزن الفعلي ووزن الفاتورة',
-                    'reference_number' => $invoice->invoice_number,
-                    'created_by' => Auth::id(),
-                    'movement_date' => now(),
-                    'ip_address' => request()->ip(),
-                    'user_agent' => request()->userAgent(),
-                    'status' => 'completed',
-                ]);
+                // التحقق مما إذا كانت هناك حركة موجودة بالفعل
+                $existingMovement = MaterialMovement::where('delivery_note_id', $deliveryNote->id)
+                    ->where('reconciliation_log_id', $reconciliationLog->id)
+                    ->first();
+                
+                if ($existingMovement) {
+                    // تحديث الحركة الموجودة
+                    $existingMovement->update([
+                        'quantity' => abs($discrepancy),
+                        'description' => 'تسوية فاتورة - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id) . ' | فرق: ' . number_format($discrepancy, 2) . ' كيلو',
+                        'notes' => $validated['reconciliation_notes'] ?? 'فرق بين الوزن الفعلي ووزن الفاتورة',
+                        'movement_date' => now(),
+                    ]);
+                } else {
+                    // إنشاء حركة جديدة
+                    MaterialMovement::create([
+                        'movement_number' => MaterialMovement::generateMovementNumber(),
+                        'movement_type' => $discrepancy > 0 ? 'adjustment' : 'reconciliation',
+                        'source' => 'reconciliation',
+                        'delivery_note_id' => $deliveryNote->id,
+                        'reconciliation_log_id' => $reconciliationLog->id,
+                        'material_detail_id' => $deliveryNote->material_detail_id,
+                        'material_id' => $deliveryNote->material_id,
+                        'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
+                        'quantity' => abs($discrepancy),
+                        'from_warehouse_id' => $deliveryNote->warehouse_id,
+                        'supplier_id' => $deliveryNote->supplier_id,
+                        'description' => 'تسوية فاتورة - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id) . ' | فرق: ' . number_format($discrepancy, 2) . ' كيلو',
+                        'notes' => $validated['reconciliation_notes'] ?? 'فرق بين الوزن الفعلي ووزن الفاتورة',
+                        'reference_number' => $invoice->invoice_number,
+                        'created_by' => Auth::id(),
+                        'movement_date' => now(),
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent(),
+                        'status' => 'completed',
+                    ]);
+                }
             }
 
             // إرسال إشعار بربط الفاتورة
@@ -558,8 +566,8 @@ class ReconciliationController extends Controller
                 foreach ($managers as $manager) {
                     $this->notificationService->notifyCustom(
                         $manager,
-                        'ربط فاتورة بأذن تسليم',
-                        'تم ربط الفاتورة برقم ' . $invoice->invoice_number . ' بأذن التسليم رقم ' . $deliveryNote->note_number . ' | ' . $message,
+                        $isUpdate ? 'تحديث ربط فاتورة بأذن تسليم' : 'ربط فاتورة بأذن تسليم',
+                        'تم ' . ($isUpdate ? 'تحديث' : 'ربط') . ' الفاتورة برقم ' . $invoice->invoice_number . ' بأذن التسليم رقم ' . $deliveryNote->note_number . ' | ' . $message,
                         'link_invoice_to_delivery_note',
                         'success',
                         'feather icon-link',
@@ -569,9 +577,9 @@ class ReconciliationController extends Controller
 
                 // ✅ تخزين الإشعار
                 $this->storeNotification(
-                    'invoice_linked_from_bulk',
-                    'ربط فاتورة بأذن تسليم',
-                    'تم ربط الفاتورة برقم ' . $invoice->invoice_number . ' مع أذن التسليم رقم ' . $deliveryNote->note_number,
+                    $isUpdate ? 'invoice_relinked' : 'invoice_linked_from_bulk',
+                    $isUpdate ? 'تحديث ربط فاتورة بأذن تسليم' : 'ربط فاتورة بأذن تسليم',
+                    'تم ' . ($isUpdate ? 'تحديث' : 'ربط') . ' الفاتورة برقم ' . $invoice->invoice_number . ' مع أذن التسليم رقم ' . $deliveryNote->note_number,
                     'success',
                     'fas fa-link',
                     route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
@@ -583,7 +591,7 @@ class ReconciliationController extends Controller
             DB::commit();
 
             return redirect()->route('manufacturing.warehouses.reconciliation.show', $deliveryNote)
-                ->with('success', $message);
+                ->with('success', $isUpdate ? 'تم تحديث ربط الفاتورة بنجاح!' : $message);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -605,7 +613,6 @@ class ReconciliationController extends Controller
 
         $notes = DeliveryNote::where('type', 'incoming')
             ->where('registration_status', 'registered')
-            ->whereNull('purchase_invoice_id')
             ->where(function($query) use ($search) {
                 $query->where('note_number', 'like', "%{$search}%")
                       ->orWhereHas('supplier', function($q) use ($search) {
@@ -617,13 +624,20 @@ class ReconciliationController extends Controller
             ->limit(10)
             ->get()
             ->map(function($note) {
+                $status = '';
+                if ($note->purchase_invoice_id) {
+                    $status = $note->reconciliation_status === 'matched' ? ' (مطابق)' : ' (مرتبط بفاتورة)';
+                }
+                
                 return [
                     'id' => $note->id,
-                    'text' => "أذن #{$note->note_number} - {$note->supplier->name} - الوزن: {$note->actual_weight} كيلو",
+                    'text' => "أذن #{$note->note_number} - {$note->supplier->name} - الوزن: {$note->actual_weight} كيلو{$status}",
                     'note_number' => $note->note_number,
                     'supplier_name' => $note->supplier->name,
                     'actual_weight' => $note->actual_weight,
                     'delivery_date' => $note->delivery_date?->format('Y-m-d'),
+                    'has_invoice' => $note->purchase_invoice_id ? true : false,
+                    'reconciliation_status' => $note->reconciliation_status,
                 ];
             });
 
@@ -959,6 +973,70 @@ class ReconciliationController extends Controller
             return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
         }
     }
+    public function showLinkInvoice()
+{
+    // جلب جميع الأذونات بكامل حالات التسجيل
+    $deliveryNotes = DeliveryNote::where('type', 'incoming')
+        ->with(['supplier', 'warehouse', 'purchaseInvoice'])
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function($note) {
+            $status = '';
+            if ($note->purchase_invoice_id) {
+                $status = $note->reconciliation_status === 'matched' ? ' (مطابق)' : ' (مرتبط بفاتورة)';
+            }
+            
+            return [
+                'id' => $note->id,
+                'note_number' => $note->note_number,
+                'supplier' => ['id' => $note->supplier?->id, 'name' => $note->supplier?->name],
+                'delivery_date' => $note->delivery_date?->format('Y-m-d'),
+                'actual_weight' => $note->actual_weight,
+                'created_at' => $note->created_at?->format('Y-m-d'),
+                'has_invoice' => $note->purchase_invoice_id ? true : false,
+                'reconciliation_status' => $note->reconciliation_status,
+                'invoice_number' => $note->purchaseInvoice?->invoice_number,
+                'registration_status' => $note->registration_status, // إضافة حالة التسجيل للعرض
+            ];
+        })
+        ->toArray();
+
+    // جلب الفواتير المتاحة للربط مع الـ items
+    $invoices = PurchaseInvoice::with(['supplier', 'items.material'])
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function($invoice) {
+            return [
+                'id' => $invoice->id,
+                'invoice_number' => $invoice->invoice_number,
+                'supplier' => ['id' => $invoice->supplier?->id, 'name' => $invoice->supplier?->name],
+                'invoice_date' => $invoice->invoice_date?->format('Y-m-d'),
+                'weight' => $invoice->weight,
+                'weight_unit' => $invoice->weight_unit ?? 'كجم',
+                'invoice_reference_number' => $invoice->invoice_reference_number,
+                'items' => $invoice->items->map(function($item) {
+                    // الحصول على اسم المادة من علاقة Material
+                    $materialName = $item->material?->name_ar ?? $item->material?->name ?? $item->item_name;
+
+                    return [
+                        'id' => $item->id,
+                        'item_name' => $materialName,
+                        'quantity' => $item->quantity,
+                        'unit' => $item->unit,
+                        'weight' => $item->weight,
+                        'weight_unit' => $item->weight_unit ?? 'كجم',
+                        'material' => ['id' => $item->material?->id, 'name' => $materialName],
+                        'unit_price' => $item->unit_price,
+                        'subtotal' => $item->subtotal,
+                        'total' => $item->total,
+                    ];
+                })->toArray(),
+            ];
+        })
+        ->toArray();
+
+    return view('manufacturing::warehouses.reconciliation.link-invoice', compact('deliveryNotes', 'invoices'));
+}
 
     /**
      * ✅ API: إنشاء أذن تسليم من الفاتورة
