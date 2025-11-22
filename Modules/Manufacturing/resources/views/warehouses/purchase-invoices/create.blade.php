@@ -304,22 +304,7 @@
                     </div>
                 </div>
 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="status" class="form-label">
-                            الحالة
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <select name="status" id="status" class="form-input" required>
-                                <option value="">-- اختر الحالة --</option>
-                                <option value="draft" {{ old('status') == 'draft' ? 'selected' : '' }}>مسودة</option>
-                                <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>في الانتظار</option>
-                                <option value="approved" {{ old('status') == 'approved' ? 'selected' : '' }}>موافق عليها</option>
-                                <option value="paid" {{ old('status') == 'paid' ? 'selected' : '' }}>مدفوعة</option>
-                            </select>
-                        </div>
-                    </div>
+
 
                     <div class="form-group">
                         <label class="form-label">النشاط</label>

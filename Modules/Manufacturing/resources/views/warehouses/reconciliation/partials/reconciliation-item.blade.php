@@ -70,16 +70,14 @@
                 <a href="{{ route('manufacturing.warehouses.reconciliation.show', $item) }}" class="um-btn-action um-btn-view" title="عرض التفاصيل">
                     <i class="feather icon-eye"></i>
                 </a>
-                @if($item->reconciliation_status === 'discrepancy' || $item->reconciliation_status === 'pending')
-                    <a href="{{ route('manufacturing.warehouses.reconciliation.link-invoice.edit', $item->id) }}" class="um-btn-action um-btn-edit" title="تعديل">
-                        <i class="feather icon-edit-2"></i>
-                    </a>
-                @endif
+                <a href="{{ route('manufacturing.warehouses.reconciliation.link-invoice.edit', $item->id) }}" class="um-btn-action um-btn-edit" title="تعديل">
+                    <i class="feather icon-edit-2"></i>
+                </a>
                 @if($item->reconciliation_status !== 'matched' && $item->reconciliation_status !== 'adjusted')
                     <form action="{{ route('manufacturing.warehouses.reconciliation.link-invoice.delete', $item->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('هل تريد حذف هذه التسوية؟');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="um-btn-action um-btn-delete" title="حذف" style="border: none; background: transparent; cursor: pointer;">
+                        <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
                             <i class="feather icon-trash-2"></i>
                         </button>
                     </form>

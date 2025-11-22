@@ -12,13 +12,14 @@ use App\Models\Material;
 use App\Models\Unit;
 use App\Services\NotificationService;
 use Modules\Manufacturing\Traits\LogsOperations;
+use App\Traits\StoresNotifications;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PurchaseInvoiceController extends Controller
 {
-    use LogsOperations;
+    use LogsOperations, StoresNotifications;
 
     protected $notificationService;
 
@@ -77,8 +78,8 @@ class PurchaseInvoiceController extends Controller
     {
         $suppliers = Supplier::all();
         $users = User::all();
-        $materials = Material::all();
-        $units = Unit::all();
+        $materials = Material::select('id', 'name_ar', 'name_en', 'unit_id')->get();
+        $units = Unit::where('is_active', true)->get();
 
         // Generate automatic invoice number
         $lastInvoice = PurchaseInvoice::orderBy('id', 'desc')->first();
@@ -162,6 +163,16 @@ class PurchaseInvoiceController extends Controller
 
             DB::commit();
 
+            // ✅ تخزين الإشعار
+            $this->storeNotification(
+                'purchase_invoice_created',
+                'تم إنشاء فاتورة شراء جديدة',
+                'تم إنشاء فاتورة شراء رقم ' . $invoice->invoice_number . ' مع ' . count($itemsData) . ' منتج - المبلغ: ' . number_format($invoice->total_amount, 2),
+                'success',
+                'fas fa-file-invoice',
+                route('manufacturing.purchase-invoices.show', $invoice->id)
+            );
+
             // Log the operation
             try {
                 $this->logOperation(
@@ -230,18 +241,15 @@ class PurchaseInvoiceController extends Controller
      */
     public function edit($id)
     {
-        try {
-            $invoice = PurchaseInvoice::with('items')->findOrFail($id);
+
+            $invoice = PurchaseInvoice::with(['items.material', 'supplier'])->findOrFail($id);
             $suppliers = Supplier::all();
             $users = User::all();
-            $materials = Material::where('is_active', true)->get();
+            $materials = Material::select('id', 'name_ar', 'name_en')->get();
             $units = Unit::where('is_active', true)->get();
 
             return view('manufacturing::warehouses.purchase-invoices.edit', compact('invoice', 'suppliers', 'users', 'materials', 'units'));
-        } catch (\Exception $e) {
-            return redirect()->route('manufacturing.purchase-invoices.index')
-                           ->withErrors(['error' => 'الفاتورة غير موجودة']);
-        }
+
     }
 
     /**
@@ -320,6 +328,16 @@ class PurchaseInvoiceController extends Controller
             DB::commit();
 
             $newValues = $invoice->fresh()->toArray();
+
+            // ✅ تخزين الإشعار
+            $this->storeNotification(
+                'purchase_invoice_updated',
+                'تم تحديث فاتورة شراء',
+                'تم تحديث فاتورة الشراء رقم ' . $invoice->invoice_number . ' - المبلغ: ' . number_format($invoice->total_amount, 2),
+                'warning',
+                'fas fa-edit',
+                route('manufacturing.purchase-invoices.show', $invoice->id)
+            );
 
             // Log the operation
             try {
@@ -412,17 +430,28 @@ class PurchaseInvoiceController extends Controller
 
             $newValues = $invoice->fresh()->toArray();
 
+            // Get the status label from the enum
+            $statuses = [
+                'draft' => 'مسودة',
+                'pending' => 'قيد الانتظار',
+                'approved' => 'موافق عليه',
+                'rejected' => 'مرفوض',
+                'paid' => 'مدفوع',
+            ];
+            $statusLabel = $statuses[$validated['status']] ?? $validated['status'];
+
+            // ✅ تخزين الإشعار
+            $this->storeNotification(
+                'purchase_invoice_status_changed',
+                'تم تغيير حالة فاتورة شراء',
+                'تم تغيير حالة الفاتورة رقم ' . $invoice->invoice_number . ' إلى ' . $statusLabel,
+                'info',
+                'fas fa-sync-alt',
+                route('manufacturing.purchase-invoices.show', $invoice->id)
+            );
+
             // Log the operation
             try {
-                // Get the status label from the enum
-                $statuses = [
-                    'draft' => 'مسودة',
-                    'pending' => 'قيد الانتظار',
-                    'approved' => 'موافق عليه',
-                    'rejected' => 'مرفوض',
-                    'paid' => 'مدفوع',
-                ];
-                $statusLabel = $statuses[$validated['status']] ?? $validated['status'];
                 $this->logOperation(
                     'update',
                     'Update Status',
@@ -489,6 +518,16 @@ class PurchaseInvoiceController extends Controller
         try {
             $invoice = PurchaseInvoice::findOrFail($id);
             $invoiceData = $invoice->toArray();
+
+            // ✅ تخزين الإشعار
+            $this->storeNotification(
+                'purchase_invoice_deleted',
+                'تم حذف فاتورة شراء',
+                'تم حذف فاتورة الشراء رقم ' . $invoice->invoice_number,
+                'danger',
+                'fas fa-trash',
+                route('manufacturing.purchase-invoices.index')
+            );
 
             $invoice->delete();
 

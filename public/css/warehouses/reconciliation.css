@@ -1,0 +1,443 @@
+/* ===== تصميم الإحصائيات على نمط الشعار ===== */
+.um-stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(0, 82, 163, 0.12);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(0, 102, 204, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+.um-stat-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.um-stat-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(0, 82, 163, 0.2);
+    border-color: rgba(0, 102, 204, 0.3);
+}
+
+.um-stat-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    font-size: 32px;
+    font-weight: 600;
+}
+
+.um-stat-content {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.um-stat-value {
+    font-size: 36px;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, #0052A3 0%, #456575 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1px;
+}
+
+.um-stat-label {
+    font-size: 13px;
+    color: #718096;
+    margin: 6px 0 0 0;
+    font-weight: 600;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+}
+
+/* ===== علامات التبويب على نمط الشعار ===== */
+.nav-tabs {
+    gap: 8px;
+    background: linear-gradient(90deg, rgba(0, 82, 163, 0.05) 0%, rgba(67, 101, 117, 0.05) 100%);
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(0, 102, 204, 0.1);
+}
+
+.nav-tabs .nav-link {
+    color: #718096;
+    border: 2px solid transparent;
+    padding: 12px 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #0066CC;
+    background: rgba(0, 102, 204, 0.08);
+    border-color: rgba(0, 102, 204, 0.2);
+}
+
+.nav-tabs .nav-link.active {
+    color: white;
+    background: linear-gradient(135deg, #0066CC 0%, #0052A3 100%);
+    border-color: #0066CC;
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+}
+
+.nav-tabs .nav-link .badge {
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+}
+
+.nav-tabs .nav-link.active .badge {
+    background: rgba(255, 255, 255, 0.3) !important;
+    color: white;
+}
+
+/* ===== عناصر التسوية على نمط الشعار ===== */
+.um-reconciliation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.um-reconciliation-item {
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.um-reconciliation-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #0066CC 0%, #456575 100%);
+}
+
+.um-reconciliation-item:hover {
+    box-shadow: 0 12px 30px rgba(0, 82, 163, 0.15);
+    transform: translateY(-4px);
+    border-color: rgba(0, 102, 204, 0.2);
+}
+
+/* ===== صناديق المعلومات ===== */
+.um-info-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.um-info-label {
+    font-size: 12px;
+    color: #718096;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.um-info-label i {
+    font-size: 14px;
+    color: #0066CC;
+}
+
+.um-info-value {
+    font-size: 16px;
+    color: #1A202C;
+    font-weight: 700;
+}
+
+/* ===== جدول المقارنة ===== */
+.um-comparison-table {
+    background: white;
+    border-radius: 12px;
+    padding: 18px;
+    margin-top: 20px;
+    border: 1px solid rgba(0, 102, 204, 0.1);
+    overflow: hidden;
+}
+
+.um-comparison-table .um-table {
+    margin: 0;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.um-comparison-table .um-table thead {
+    background: linear-gradient(135deg, #0052A3 0%, #0066CC 100%);
+}
+
+.um-comparison-table .um-table thead th {
+    color: #000000;
+    font-weight: 700;
+    border: none;
+    padding: 12px 16px;
+    text-align: center;
+}
+
+/* ===== جدول التسويات الرئيسي ===== */
+.um-reconciliation-table-wrapper {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.um-main-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.um-main-table thead {
+    background: linear-gradient(135deg, #0052A3 0%, #0066CC 100%);
+}
+
+.um-main-table thead th {
+    color: #000000;
+    font-weight: 700;
+    padding: 14px 12px;
+    text-align: right;
+    border: none;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.um-main-table thead th.text-center {
+    text-align: center;
+}
+
+.um-main-table thead th.text-end {
+    text-align: left;
+}
+
+.um-main-table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(0, 102, 204, 0.1);
+}
+
+.um-main-table tbody tr:hover {
+    background: rgba(0, 102, 204, 0.05);
+    transform: scale(1.01);
+}
+
+.um-main-table tbody tr.row-discrepancy {
+    background: #FFF9E6;
+    border-right: 4px solid #F59E0B;
+}
+
+.um-main-table tbody tr.row-pending {
+    background: #E6F2FF;
+    border-right: 4px solid #0066CC;
+}
+
+.um-main-table tbody td {
+    padding: 14px 12px;
+    color: #000000;
+    font-weight: 500;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.um-main-table tbody td strong {
+    color: #000000;
+    font-weight: 700;
+}
+
+.um-comparison-table .um-table tbody td {
+    padding: 12px 16px;
+    color: #000000;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(0, 102, 204, 0.1);
+}
+
+.um-comparison-table .um-table tbody td strong {
+    color: #000000;
+    font-weight: 700;
+}
+
+.um-comparison-table .um-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ===== الإجراءات ===== */
+.um-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.um-btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+    background: rgba(0, 102, 204, 0.1);
+    color: #0066CC;
+    font-size: 18px;
+    position: relative;
+    overflow: hidden;
+}
+
+.um-btn-action::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(0, 102, 204, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+}
+
+.um-btn-action:hover::before {
+    width: 40px;
+    height: 40px;
+}
+
+.um-btn-action:hover {
+    background: linear-gradient(135deg, rgba(0, 102, 204, 0.2) 0%, rgba(67, 101, 117, 0.1) 100%);
+    transform: translateY(-3px);
+    border-color: #0066CC;
+}
+
+.um-btn-action.um-btn-view {
+    background: rgba(0, 102, 204, 0.1);
+    color: #0066CC;
+}
+
+.um-btn-action.um-btn-view:hover {
+    background: linear-gradient(135deg, #0066CC 0%, #0052A3 100%);
+    color: white;
+    border-color: #0066CC;
+}
+
+.um-btn-action.um-btn-edit {
+    background: rgba(0, 102, 204, 0.08);
+    color: #0066CC;
+}
+
+.um-btn-action.um-btn-edit:hover {
+    background: linear-gradient(135deg, #0066CC 0%, #0052A3 100%);
+    color: white;
+    border-color: #0066CC;
+}
+
+.um-btn-action.um-btn-delete {
+    background: rgba(239, 68, 68, 0.05);
+    color: #718096;
+}
+
+.um-btn-action.um-btn-delete:hover {
+    color: #EF4444;
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #EF4444;
+}
+
+.um-btn-action i {
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== ملاحظات ===== */
+.um-notes-section {
+    background: linear-gradient(135deg, rgba(0, 102, 204, 0.08) 0%, rgba(67, 101, 117, 0.05) 100%);
+    padding: 16px;
+    border-radius: 10px;
+    border-left: 4px solid #0066CC;
+    margin-top: 20px;
+}
+
+.um-notes-section strong {
+    color: #0066CC;
+    font-weight: 700;
+}
+
+/* ===== تنبيهات ===== */
+.um-alert-info {
+    background: linear-gradient(135deg, #E8F0FF 0%, #F0F4F8 100%);
+    border-left: 4px solid #0066CC;
+    border-radius: 10px;
+}
+
+.um-alert-success {
+    background: linear-gradient(135deg, #E6F7ED 0%, #F0F8F5 100%);
+    border-left: 4px solid #10B981;
+    border-radius: 10px;
+}
+
+/* ===== بطاقات البيانات الرئيسية ===== */
+.um-main-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 82, 163, 0.1);
+    border: 1px solid rgba(0, 102, 204, 0.1);
+    overflow: hidden;
+}
+
+.um-card-header {
+    background: linear-gradient(135deg, #0052A3 0%, #0066CC 100%);
+    padding: 24px;
+    color: white;
+}
+
+.um-card-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.um-card-title i {
+    font-size: 24px;
+}
+
+/* ===== تأثيرات عامة ===== */
+.badge {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}

@@ -73,7 +73,7 @@
                     قائمة أذون التسليم (الواردة والصادرة)
                 </h4>
                 <div style="display: flex; gap: 10px;">
-                    <a href="{{ route('manufacturing.warehouse.registration.pending') }}" class="um-btn um-btn-info">
+                    <a href="{{ route('manufacturing.warehouse.registration.pending') }}" class="um-btn um-btn-primary">
                         <i class="feather icon-package"></i>
                         تسجيل البضاعة
                     </a>

@@ -10,6 +10,8 @@
             <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="12" y1="11" x2="12" y2="17"></line>
+                <line x1="9" y1="14" x2="15" y2="14"></line>
             </svg>
             تعديل فاتورة شراء
         </h1>
@@ -198,7 +200,6 @@
                             <tr>
                                 <th style="width: 40px;">#</th>
                                 <th style="min-width: 150px;">المادة</th>
-
                                 <th style="min-width: 120px;">الوصف</th>
                                 <th style="width: 100px;">الكمية</th>
                                 <th style="width: 100px;">الوحدة</th>
@@ -299,27 +300,11 @@
                     </div>
                     <div>
                         <h3 class="section-title">الحالة والنشاط</h3>
-                        <p class="section-subtitle">قم بتحديث حالة الفاتورة ونشاطها</p>
+                        <p class="section-subtitle">حدد حالة الفاتورة ونشاطها</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
-                    <div class="form-group">
-                        <label for="status" class="form-label">
-                            الحالة
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <select name="status" id="status" class="form-input" required>
-                                <option value="">-- اختر الحالة --</option>
-                                <option value="draft" {{ old('status', $invoice->status->value) == 'draft' ? 'selected' : '' }}>مسودة</option>
-                                <option value="pending" {{ old('status', $invoice->status->value) == 'pending' ? 'selected' : '' }}>في الانتظار</option>
-                                <option value="approved" {{ old('status', $invoice->status->value) == 'approved' ? 'selected' : '' }}>موافق عليها</option>
-                                <option value="paid" {{ old('status', $invoice->status->value) == 'paid' ? 'selected' : '' }}>مدفوعة</option>
-                            </select>
-                        </div>
-                    </div>
-
                     <div class="form-group">
                         <label class="form-label">النشاط</label>
                         <div class="input-wrapper">
@@ -388,6 +373,10 @@
         let itemCounter = 0;
 
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Existing Items:', existingItems);
+            console.log('Materials:', materials);
+            console.log('Units:', units);
+
             const form = document.getElementById('purchaseInvoiceForm');
             const inputs = form.querySelectorAll('.form-input');
             const addItemBtn = document.getElementById('add-item-btn');
@@ -395,9 +384,11 @@
 
             // Load existing items
             if (existingItems && existingItems.length > 0) {
-                existingItems.forEach(item => {
+                existingItems.forEach((item, idx) => {
                     addItem(item);
                 });
+                // حساب المجاميع بعد إضافة كل العناصر مباشرة
+                updateAllCalculations();
             } else {
                 // Add at least one empty item
                 addItem();
@@ -453,15 +444,14 @@
                     <td>
                         <select name="items[${itemIndex}][material_id]" class="material-select" onchange="selectMaterial(${itemIndex}, this.value)">
                             <option value="">-- اختر --</option>
-                            ${materials.map(m => `<option value="${m.id}" ${existingItem && existingItem.material_id == m.id ? 'selected' : ''} data-name="${m.name}" data-unit-id="${m.unit_id || ''}">${m.name}</option>`).join('')}
+                            ${materials.map(m => `<option value="${m.id}" ${existingItem && existingItem.material_id == m.id ? 'selected' : ''} data-name="${m.name_ar}" data-unit-id="${m.unit_id || ''}">${m.name_ar}</option>`).join('')}
                         </select>
                     </td>
-
                     <td>
                         <textarea name="items[${itemIndex}][description]" rows="1" placeholder="الوصف">${existingItem && existingItem.description ? existingItem.description : ''}</textarea>
                     </td>
                     <td>
-                        <input type="number" name="items[${itemIndex}][quantity]" class="item-quantity" placeholder="0" step="0.001" min="0.001" value="${existingItem ? existingItem.quantity : 1}" required oninput="calculateItemTotal(${itemIndex})">
+                        <input type="number" name="items[${itemIndex}][quantity]" class="item-quantity" placeholder="0" step="0.001" min="0.001" value="${existingItem && existingItem.quantity ? existingItem.quantity : 1}" required oninput="calculateItemTotal(${itemIndex})">
                     </td>
                     <td>
                         <select name="items[${itemIndex}][unit]" class="item-unit" required>
@@ -470,19 +460,19 @@
                         </select>
                     </td>
                     <td>
-                        <input type="number" name="items[${itemIndex}][unit_price]" class="item-price" placeholder="0.00" step="0.01" min="0" value="${existingItem ? existingItem.unit_price : 0}" required oninput="calculateItemTotal(${itemIndex})">
+                        <input type="number" name="items[${itemIndex}][unit_price]" class="item-price" placeholder="0.00" step="0.01" min="0" value="${existingItem && existingItem.unit_price ? existingItem.unit_price : 0}" required oninput="calculateItemTotal(${itemIndex})">
                     </td>
                     <td>
-                        <input type="number" name="items[${itemIndex}][tax_rate]" class="item-tax-rate" placeholder="0" step="0.01" min="0" max="100" value="${existingItem ? existingItem.tax_rate : 0}" oninput="calculateItemTotal(${itemIndex})">
+                        <input type="number" name="items[${itemIndex}][tax_rate]" class="item-tax-rate" placeholder="0" step="0.01" min="0" max="100" value="${existingItem && existingItem.tax_rate ? existingItem.tax_rate : 0}" oninput="calculateItemTotal(${itemIndex})">
                     </td>
                     <td>
-                        <input type="number" name="items[${itemIndex}][discount_rate]" class="item-discount-rate" placeholder="0" step="0.01" min="0" max="100" value="${existingItem ? existingItem.discount_rate : 0}" oninput="calculateItemTotal(${itemIndex})">
+                        <input type="number" name="items[${itemIndex}][discount_rate]" class="item-discount-rate" placeholder="0" step="0.01" min="0" max="100" value="${existingItem && existingItem.discount_rate ? existingItem.discount_rate : 0}" oninput="calculateItemTotal(${itemIndex})">
                     </td>
                     <td>
-                        <input type="number" name="items[${itemIndex}][weight]" class="item-weight" placeholder="0.00" step="0.01" min="0" value="${existingItem ? existingItem.weight : 0}" oninput="calculateItemTotal(${itemIndex})">
+                        <input type="number" name="items[${itemIndex}][weight]" class="item-weight" placeholder="0.00" step="0.01" min="0" value="${existingItem && existingItem.weight ? existingItem.weight : 0}" oninput="calculateItemTotal(${itemIndex})">
                     </td>
                     <td>
-                        <input type="text" class="item-total" readonly value="${existingItem ? existingItem.total : '0.00'}">
+                        <input type="text" class="item-total" readonly value="0.00">
                     </td>
                     <td>
                         <button type="button" class="remove-item-btn" onclick="removeItem(${itemIndex})">حذف</button>
@@ -492,7 +482,6 @@
             `;
 
             container.insertAdjacentHTML('beforeend', itemHtml);
-            calculateGrandTotal();
         }
 
         function removeItem(index) {
@@ -513,7 +502,6 @@
             const material = materials.find(m => m.id == materialId);
             if (material) {
                 const item = document.querySelector(`.invoice-item[data-index="${index}"]`);
-                item.querySelector('.item-name').value = material.name;
 
                 // Set unit based on material's unit_id
                 if (material.unit_id) {
@@ -524,8 +512,12 @@
                     }
                 }
             }
-        }        function calculateItemTotal(index) {
+        }
+
+        function calculateItemTotal(index) {
             const item = document.querySelector(`.invoice-item[data-index="${index}"]`);
+            if (!item) return;
+
             const quantity = parseFloat(item.querySelector('.item-quantity').value) || 0;
             const price = parseFloat(item.querySelector('.item-price').value) || 0;
             const taxRate = parseFloat(item.querySelector('.item-tax-rate').value) || 0;
@@ -545,13 +537,14 @@
             let taxTotal = 0;
             let discountTotal = 0;
             let grandTotal = 0;
-            let totalQuantity = 0;
+            let totalWeight = 0;
 
             document.querySelectorAll('.invoice-item').forEach(item => {
                 const quantity = parseFloat(item.querySelector('.item-quantity').value) || 0;
                 const price = parseFloat(item.querySelector('.item-price').value) || 0;
                 const taxRate = parseFloat(item.querySelector('.item-tax-rate').value) || 0;
                 const discountRate = parseFloat(item.querySelector('.item-discount-rate').value) || 0;
+                const weight = parseFloat(item.querySelector('.item-weight').value) || 0;
 
                 const itemSubtotal = quantity * price;
                 const itemTax = itemSubtotal * (taxRate / 100);
@@ -562,14 +555,22 @@
                 taxTotal += itemTax;
                 discountTotal += itemDiscount;
                 grandTotal += itemTotal;
-                totalQuantity += quantity;
+                totalWeight += weight;
             });
 
             document.getElementById('subtotal-display').textContent = subtotal.toFixed(2);
             document.getElementById('tax-display').textContent = taxTotal.toFixed(2);
             document.getElementById('discount-display').textContent = discountTotal.toFixed(2);
-            document.getElementById('weight-display').textContent = totalQuantity.toFixed(2) + ' وحدة';
+            document.getElementById('weight-display').textContent = totalWeight.toFixed(2) + ' كجم';
             document.getElementById('total-display').textContent = grandTotal.toFixed(2);
+        }
+
+        function updateAllCalculations() {
+            document.querySelectorAll('.invoice-item').forEach((itemRow) => {
+                const itemIndexAttr = itemRow.getAttribute('data-index');
+                calculateItemTotal(parseInt(itemIndexAttr));
+            });
+            calculateGrandTotal();
         }
     </script>
 
