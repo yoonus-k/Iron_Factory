@@ -49,51 +49,117 @@ class WarehouseRegistrationController extends Controller
 
     /**
      * Show list of unregistered shipments
-     * يعرض البضاعة الواردة والصادرة
+     * يعرض البضاعة الواردة والصادرة مع فلترة التاريخ
      */
-    public function pending()
+    public function pending(Request $request)
     {
-        // البضاعة الداخلة (الواردة) غير المسجلة
-        $incomingUnregistered = DeliveryNote::where('type', 'incoming')
-            ->where('registration_status', 'not_registered')
-            ->with(['supplier', 'recordedBy', 'material'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        // الحصول على نطاق التاريخ من الطلب
+        $fromDate = $request->get('from_date');
+        $toDate = $request->get('to_date');
+        $sortBy = $request->get('sort_by', 'created_at'); // الحقل الافتراضي للترتيب
+        $sortOrder = $request->get('sort_order', 'desc'); // ترتيب تنازلي افتراضي
+        
+        // الحصول على عدد السجلات لكل صفحة (مع قيمة افتراضية آمنة)
+        $perPage = (int) $request->get('per_page', 15);
+        $perPage = in_array($perPage, [15, 25, 50, 100]) ? $perPage : 15;
 
-        // البضاعة الداخلة (الواردة) المسجلة (فقط التي لم تنقل للإنتاج بعد)
-        $incomingRegistered = DeliveryNote::where('type', 'incoming')
+        // التحقق من صحة ترتيب الترتيب
+        $sortOrder = in_array(strtolower($sortOrder), ['asc', 'desc']) ? strtolower($sortOrder) : 'desc';
+
+        // بناء الاستعلام الأساسي للبضاعة الواردة غير المسجلة
+        $unregisteredQuery = DeliveryNote::where('type', 'incoming')
+            ->where('registration_status', 'not_registered')
+            ->with(['supplier', 'recordedBy', 'material']);
+
+        // تطبيق فلتر التاريخ
+        if ($fromDate) {
+            $unregisteredQuery->whereDate('created_at', '>=', $fromDate);
+        }
+        if ($toDate) {
+            $unregisteredQuery->whereDate('created_at', '<=', $toDate);
+        }
+
+        $incomingUnregistered = $unregisteredQuery
+            ->orderBy($sortBy === 'date' ? 'created_at' : $sortBy, $sortOrder)
+            ->paginate($perPage)
+            ->appends($request->query());
+
+        // بناء الاستعلام الأساسي للبضاعة الواردة المسجلة
+        $registeredQuery = DeliveryNote::where('type', 'incoming')
             ->where('registration_status', '!=', 'not_registered')
             ->where('registration_status', '!=', 'in_production')
             ->whereHas('materialDetail', function($query) {
                 $query->where('quantity', '>', 0);
             })
-            ->with(['supplier', 'registeredBy', 'material', 'materialDetail'])
-            ->orderBy('registered_at', 'desc')
-            ->paginate(15);
+            ->with(['supplier', 'registeredBy', 'material', 'materialDetail']);
 
-        // البضاعة المنقولة للإنتاج (الكمية = 0 أو registration_status = in_production)
-        $movedToProduction = DeliveryNote::where('type', 'incoming')
+        // تطبيق فلتر التاريخ
+        if ($fromDate) {
+            $registeredQuery->whereDate('registered_at', '>=', $fromDate);
+        }
+        if ($toDate) {
+            $registeredQuery->whereDate('registered_at', '<=', $toDate);
+        }
+
+        $incomingRegistered = $registeredQuery
+            ->orderBy($sortBy === 'date' ? 'registered_at' : $sortBy, $sortOrder)
+            ->paginate($perPage)
+            ->appends($request->query());
+
+        // بناء الاستعلام الأساسي للبضاعة المنقولة للإنتاج
+        $productionQuery = DeliveryNote::where('type', 'incoming')
             ->where(function($query) {
                 $query->where('registration_status', 'in_production')
                       ->orWhereHas('materialDetail', function($subQuery) {
                           $subQuery->where('quantity', '=', 0);
                       });
             })
-            ->with(['supplier', 'registeredBy', 'material', 'materialDetail'])
-            ->orderBy('registered_at', 'desc')
-            ->paginate(15);
+            ->with(['supplier', 'registeredBy', 'material', 'materialDetail']);
 
-        // البضاعة الخارجة (الصادرة)
-        $outgoing = DeliveryNote::where('type', 'outgoing')
-            ->with(['destination', 'recordedBy', 'material'])
-            ->orderBy('delivery_date', 'desc')
-            ->paginate(15);
+        // تطبيق فلتر التاريخ
+        if ($fromDate) {
+            $productionQuery->whereDate('registered_at', '>=', $fromDate);
+        }
+        if ($toDate) {
+            $productionQuery->whereDate('registered_at', '<=', $toDate);
+        }
+
+        $movedToProduction = $productionQuery
+            ->orderBy($sortBy === 'date' ? 'registered_at' : $sortBy, $sortOrder)
+            ->paginate($perPage)
+            ->appends($request->query());
+
+        // بناء الاستعلام الأساسي للبضاعة الخارجة (الصادرة)
+        $outgoingQuery = DeliveryNote::where('type', 'outgoing')
+            ->with(['destination', 'recordedBy', 'material']);
+
+        // تطبيق فلتر التاريخ
+        if ($fromDate) {
+            $outgoingQuery->whereDate('delivery_date', '>=', $fromDate);
+        }
+        if ($toDate) {
+            $outgoingQuery->whereDate('delivery_date', '<=', $toDate);
+        }
+
+        $outgoing = $outgoingQuery
+            ->orderBy($sortBy === 'date' ? 'delivery_date' : $sortBy, $sortOrder)
+            ->paginate($perPage)
+            ->appends($request->query());
+
+        // نقل معاملات التاريخ للـ View
+        $appliedFilters = [
+            'from_date' => $fromDate,
+            'to_date' => $toDate,
+            'sort_by' => $sortBy,
+            'sort_order' => $sortOrder,
+        ];
 
         return view('manufacturing::warehouses.registration.pending', compact(
             'incomingUnregistered',
             'incomingRegistered',
             'movedToProduction',
-            'outgoing'
+            'outgoing',
+            'appliedFilters'
         ));
     }
 
@@ -407,7 +473,7 @@ class WarehouseRegistrationController extends Controller
         $isFullTransfer = abs($transferQuantity - $availableQuantity) < 0.001;
         $exceedsQuantity = $transferQuantity > $availableQuantity; // ✅ تحذير إذا تجاوز الكمية
 
-        try {
+
             DB::beginTransaction();
 
             // نقل البضاعة للإنتاج
@@ -488,7 +554,7 @@ class WarehouseRegistrationController extends Controller
             );
 
             // إرسال إشعار بنقل البضاعة للإنتاج
-            try {
+
                 $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
                 foreach ($managers as $manager) {
                     $this->notificationService->notifyMoveToProduction(
@@ -498,16 +564,11 @@ class WarehouseRegistrationController extends Controller
                         Auth::user()
                     );
                 }
-            } catch (\Exception $notifError) {
-                \Illuminate\Support\Facades\Log::warning('Failed to send move to production notifications: ' . $notifError->getMessage());
-            }
+
 
             return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
                 ->with('success', $successMessage);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
-        }
+
     }
 
     public function moveToProduction(Request $request, DeliveryNote $deliveryNote)

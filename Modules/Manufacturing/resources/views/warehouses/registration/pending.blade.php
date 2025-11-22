@@ -103,6 +103,102 @@
             </div>
         </div>
 
+        <!-- Filter Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card" style="border: 1px solid #e9ecef; box-shadow: 0 2px 6px rgba(0, 81, 229, 0.08);">
+                    <div class="card-header" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-bottom: 2px solid #dee2e6;">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;">
+                                    <i class="fas fa-filter" style="color: #0051E5; margin-left: 8px;"></i> فلترة متقدمة
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form method="GET" action="{{ route('manufacturing.warehouse.registration.pending') }}" class="filter-form">
+                            <div class="row align-items-end">
+                                <!-- From Date -->
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
+                                        <i class="fas fa-calendar-alt" style="color: #0051E5; margin-left: 5px;"></i> من التاريخ
+                                    </label>
+                                    <input type="date" name="from_date" class="form-control form-control-lg"
+                                           value="{{ $appliedFilters['from_date'] ?? '' }}"
+                                           style="border: 1px solid #dee2e6; border-radius: 6px; padding: 8px 12px;">
+                                </div>
+
+                                <!-- To Date -->
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
+                                        <i class="fas fa-calendar-check" style="color: #0051E5; margin-left: 5px;"></i> إلى التاريخ
+                                    </label>
+                                    <input type="date" name="to_date" class="form-control form-control-lg"
+                                           value="{{ $appliedFilters['to_date'] ?? '' }}"
+                                           style="border: 1px solid #dee2e6; border-radius: 6px; padding: 8px 12px;">
+                                </div>
+
+                                <!-- Sort By -->
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
+                                        <i class="fas fa-sort" style="color: #0051E5; margin-left: 5px;"></i> ترتيب حسب
+                                    </label>
+                                    <select name="sort_by" class="form-select form-control-lg"
+                                            style="border: 1px solid #dee2e6; border-radius: 6px; padding: 8px 12px;">
+                                        <option value="date" {{ ($appliedFilters['sort_by'] ?? 'date') === 'date' ? 'selected' : '' }}>التاريخ</option>
+                                        <option value="note_number" {{ ($appliedFilters['sort_by'] ?? 'date') === 'note_number' ? 'selected' : '' }}>رقم الأذن</option>
+                                    </select>
+                                </div>
+
+                                <!-- Sort Order -->
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
+                                        <i class="fas fa-arrow-up-down" style="color: #0051E5; margin-left: 5px;"></i> الترتيب
+                                    </label>
+                                    <select name="sort_order" class="form-select form-control-lg"
+                                            style="border: 1px solid #dee2e6; border-radius: 6px; padding: 8px 12px;">
+                                        <option value="desc" {{ ($appliedFilters['sort_order'] ?? 'desc') === 'desc' ? 'selected' : '' }}>الأحدث أولاً</option>
+                                        <option value="asc" {{ ($appliedFilters['sort_order'] ?? 'desc') === 'asc' ? 'selected' : '' }}>الأقدم أولاً</option>
+                                    </select>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="col-md-2 mb-3">
+                                    <div style="display: flex; gap: 8px;">
+                                        <button type="submit" class="btn btn-primary btn-lg"
+                                                style="background: linear-gradient(135deg, #0051E5 0%, #003FA0 100%); border: none; padding: 8px 12px; flex: 1; border-radius: 6px; font-weight: 600;">
+                                            <i class="fas fa-search"></i> بحث
+                                        </button>
+                                        <a href="{{ route('manufacturing.warehouse.registration.pending') }}" class="btn btn-secondary btn-lg"
+                                           style="background-color: #e9ecef; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; color: #2c3e50; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-redo"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Filter Info -->
+                            @if (($appliedFilters['from_date'] ?? null) || ($appliedFilters['to_date'] ?? null))
+                                <div style="margin-top: 12px; padding: 10px 12px; background-color: #e8f0ff; border-radius: 6px; border-right: 4px solid #0051E5;">
+                                    <small style="color: #0051E5; font-weight: 500;">
+                                        <i class="fas fa-info-circle"></i>
+                                        تم تطبيق الفلترة:
+                                        @if ($appliedFilters['from_date'])
+                                            من <strong>{{ date('Y-m-d', strtotime($appliedFilters['from_date'])) }}</strong>
+                                        @endif
+                                        @if ($appliedFilters['to_date'])
+                                            إلى <strong>{{ date('Y-m-d', strtotime($appliedFilters['to_date'])) }}</strong>
+                                        @endif
+                                    </small>
+                                </div>
+                            @endif
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Unregistered Shipments -->
 
     <div class="row">
@@ -207,7 +303,7 @@
 
                         <!-- Pagination -->
                         <div style="margin-top: 20px;">
-                            {{ $incomingUnregistered->links() }}
+                            @include('manufacturing::components.advanced-pagination', ['paginator' => $incomingUnregistered])
                         </div>
                     @else
                         <div style="text-align: center; padding: 40px 20px; color: #27ae60;">
@@ -482,7 +578,7 @@
 
                         <!-- Pagination -->
                         <div style="margin-top: 20px;">
-                            {{ $incomingRegistered->links() }}
+                            @include('manufacturing::components.advanced-pagination', ['paginator' => $incomingRegistered])
                         </div>
                     @else
                         <div style="text-align: center; padding: 40px 20px; color: #95a5a6;">
@@ -561,6 +657,74 @@
             line-height: 1;
         }
 
+        /* Filter Form Styles */
+        .filter-form {
+            padding: 0;
+        }
+
+        .filter-form .form-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .filter-form .form-control,
+        .filter-form .form-select {
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .filter-form .form-control:focus,
+        .filter-form .form-select:focus {
+            border-color: #0051E5;
+            box-shadow: 0 0 0 3px rgba(0, 81, 229, 0.1);
+            background-color: white;
+        }
+
+        .filter-form .form-control::placeholder {
+            color: #adb5bd;
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #0051E5 0%, #003FA0 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 10px 15px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 12px rgba(0, 81, 229, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: #e9ecef;
+            border: 1px solid #dee2e6;
+            color: #2c3e50;
+            font-weight: 600;
+            padding: 10px 15px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: #dee2e6;
+        }
+
         .card {
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
             border: none;
@@ -627,16 +791,6 @@
             color: white !important;
         }
 
-        .btn-primary {
-            background-color: #0051E5;
-            border-color: #0051E5;
-        }
-
-        .btn-primary:hover {
-            background-color: #003FA0;
-            border-color: #003FA0;
-        }
-
         .btn-info {
             background-color: #0051E5;
             border-color: #0051E5;
@@ -701,6 +855,22 @@
 
         .table-responsive {
             border-radius: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .filter-form .row {
+                gap: 0;
+            }
+
+            .filter-form .col-md-2,
+            .filter-form .col-md-3 {
+                margin-bottom: 15px;
+            }
+
+            .stat-item {
+                min-width: 200px;
+            }
         }
     </style>
 @endsection

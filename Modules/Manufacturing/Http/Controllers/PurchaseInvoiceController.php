@@ -78,8 +78,8 @@ class PurchaseInvoiceController extends Controller
     {
         $suppliers = Supplier::all();
         $users = User::all();
-        $materials = Material::all();
-        $units = Unit::all();
+        $materials = Material::select('id', 'name_ar', 'name_en', 'unit_id')->get();
+        $units = Unit::where('is_active', true)->get();
 
         // Generate automatic invoice number
         $lastInvoice = PurchaseInvoice::orderBy('id', 'desc')->first();
@@ -242,10 +242,10 @@ class PurchaseInvoiceController extends Controller
     public function edit($id)
     {
 
-            $invoice = PurchaseInvoice::with('items')->findOrFail($id);
+            $invoice = PurchaseInvoice::with(['items.material', 'supplier'])->findOrFail($id);
             $suppliers = Supplier::all();
             $users = User::all();
-            $materials = Material::all();
+            $materials = Material::select('id', 'name_ar', 'name_en')->get();
             $units = Unit::where('is_active', true)->get();
 
             return view('manufacturing::warehouses.purchase-invoices.edit', compact('invoice', 'suppliers', 'users', 'materials', 'units'));
