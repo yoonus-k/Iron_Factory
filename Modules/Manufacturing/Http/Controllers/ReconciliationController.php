@@ -747,13 +747,17 @@ class ReconciliationController extends Controller
      */
     public function editLinkInvoice($id)
     {
-        $reconciliation = ReconciliationLog::with(['deliveryNote', 'deliveryNote.supplier', 'purchaseInvoice'])->find($id);
+        $deliveryNote = DeliveryNote::with(['supplier', 'purchaseInvoice'])->find($id);
 
-        if (!$reconciliation) {
-            return back()->with('error', 'السجل غير موجود');
+        if (!$deliveryNote) {
+            return back()->with('error', 'أذن التسليم غير موجود');
         }
 
-        return view('manufacturing::warehouses.reconciliation.edit-link-invoice', compact('reconciliation'));
+        if (!$deliveryNote->purchase_invoice_id) {
+            return back()->with('error', 'هذا الأذن غير مربوط بفاتورة');
+        }
+
+        return view('manufacturing::warehouses.reconciliation.edit-link-invoice', compact('deliveryNote'));
     }
 
     /**
@@ -762,88 +766,100 @@ class ReconciliationController extends Controller
     public function updateLinkInvoice(Request $request, $id)
     {
         $validated = $request->validate([
-            'invoice_number' => 'required|string',
-            'invoice_date' => 'required|date',
             'invoice_weight' => 'required|numeric|min:0.01',
-            'invoice_reference_number' => 'nullable|string',
-            'reconciliation_notes' => 'nullable|string',
+            'invoice_reference_number' => 'nullable|string|max:100',
+            'reconciliation_notes' => 'nullable|string|max:1000',
             'edit_reason' => 'required|string|min:5',
+        ], [
+            'invoice_weight.required' => 'وزن الفاتورة مطلوب',
+            'invoice_weight.numeric' => 'وزن الفاتورة يجب أن يكون رقماً',
+            'invoice_weight.min' => 'وزن الفاتورة يجب أن يكون أكبر من صفر',
+            'edit_reason.required' => 'يجب ذكر سبب التعديل',
+            'edit_reason.min' => 'سبب التعديل يجب أن يكون 5 أحرف على الأقل',
         ]);
 
         try {
             DB::beginTransaction();
 
-            $reconciliation = ReconciliationLog::find($id);
+            $deliveryNote = DeliveryNote::with(['purchaseInvoice'])->find($id);
 
-            if (!$reconciliation) {
-                return back()->with('error', 'السجل غير موجود');
+            if (!$deliveryNote) {
+                return back()->with('error', 'أذن التسليم غير موجود');
             }
 
-            // تحديث البيانات
-            $oldWeight = $reconciliation->invoice_weight;
-            $oldNotes = $reconciliation->reconciliation_notes;
+            if (!$deliveryNote->purchase_invoice_id) {
+                return back()->with('error', 'هذا الأذن غير مربوط بفاتورة');
+            }
 
+            // حفظ القيم القديمة
+            $oldWeight = $deliveryNote->invoice_weight;
+
+            // تحديث البيانات
             $updateData = [
                 'invoice_weight' => $validated['invoice_weight'],
-                'reconciliation_notes' => isset($validated['reconciliation_notes']) ? $validated['reconciliation_notes'] : null,
             ];
 
-            // إضافة الحقول الاختيارية إذا كانت موجودة في البيانات المدخلة
+            // إضافة الحقول الاختيارية
             if (isset($validated['invoice_reference_number'])) {
                 $updateData['invoice_reference_number'] = $validated['invoice_reference_number'];
             }
 
-            $reconciliation->update($updateData);
-
-            // إعادة حساب الفرق إذا تغير الوزن
-            if ($oldWeight != $validated['invoice_weight']) {
-                $actualWeight = $reconciliation->deliveryNote->actual_weight;
-                $newDiscrepancy = $actualWeight - $validated['invoice_weight'];
-                $newPercentage = $validated['invoice_weight'] > 0 ?
-                    (($newDiscrepancy / $validated['invoice_weight']) * 100) : 0;
-
-                $reconciliation->update([
-                    'discrepancy' => $newDiscrepancy,
-                    'discrepancy_percentage' => $newPercentage,
-                ]);
-
-                // تحديث حالة التسوية بناءً على الفرق الجديد
-                $newStatus = abs($newPercentage) <= 1 ? 'matched' : 'discrepancy';
-                $reconciliation->deliveryNote->update(['reconciliation_status' => $newStatus]);
+            if (isset($validated['reconciliation_notes'])) {
+                $updateData['reconciliation_notes'] = $validated['reconciliation_notes'];
             }
 
-            // تسجيل التعديل
-            $reconciliation->update([
-                'edit_count' => ($reconciliation->edit_count ?? 0) + 1,
-                'updated_by' => Auth::id(),
+            $deliveryNote->update($updateData);
+
+            // إعادة حساب الفرق
+            $actualWeight = $deliveryNote->actual_weight ?? 0;
+            $invoiceWeight = $validated['invoice_weight'];
+            $discrepancy = $actualWeight - $invoiceWeight;
+            $discrepancyPercentage = $invoiceWeight > 0 ? (($discrepancy / $invoiceWeight) * 100) : 0;
+
+            // تحديد حالة التسوية الجديدة
+            if (abs($discrepancyPercentage) <= 1) {
+                $reconciliationStatus = 'matched';
+            } else if (abs($discrepancyPercentage) <= 5) {
+                $reconciliationStatus = 'discrepancy';
+            } else {
+                $reconciliationStatus = 'discrepancy';
+            }
+
+            $deliveryNote->update([
+                'reconciliation_status' => $reconciliationStatus,
             ]);
 
-            // إرسال إشعار بتحديث ربط الفاتورة
+            // تحديث سجل التسوية
+            $reconciliationLog = $deliveryNote->reconciliationLogs()->latest()->first();
+            
+            if ($reconciliationLog) {
+                $reconciliationLog->update([
+                    'invoice_weight' => $validated['invoice_weight'],
+                    'weight_discrepancy' => $discrepancy,
+                    'discrepancy_percentage' => $discrepancyPercentage,
+                    'reconciliation_status' => $reconciliationStatus,
+                    'reconciliation_notes' => $validated['reconciliation_notes'] ?? $reconciliationLog->reconciliation_notes,
+                    'edit_reason' => $validated['edit_reason'],
+                    'updated_by' => Auth::id(),
+                ]);
+            }
+
+            // إرسال إشعار
             try {
                 $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
                 foreach ($managers as $manager) {
                     $this->notificationService->notifyCustom(
                         $manager,
-                        'تحديث ربط فاتورة بأذن تسليم',
-                        'تم تحديث ربط الفاتورة برقم ' . $reconciliation->purchaseInvoice->invoice_number . ' بأذن التسليم رقم ' . $reconciliation->deliveryNote->note_number . ' | السبب: ' . $validated['edit_reason'],
-                        'update_link_invoice',
-                        'warning',
+                        'تحديث ربط فاتورة',
+                        "تم تحديث ربط الفاتورة #{$deliveryNote->purchaseInvoice->invoice_number} بأذن التسليم #{$deliveryNote->note_number}. السبب: {$validated['edit_reason']}",
+                        'edit_link_invoice',
+                        'info',
                         'feather icon-edit',
-                        route('manufacturing.warehouses.reconciliation.show', $reconciliation->deliveryNote->id)
+                        route('manufacturing.warehouses.reconciliation.index')
                     );
                 }
-
-                // ✅ تخزين الإشعار
-                $this->storeNotification(
-                    'invoice_link_updated',
-                    'تحديث ربط فاتورة',
-                    'تم تحديث ربط الفاتورة برقم ' . $reconciliation->purchaseInvoice->invoice_number . ' مع أذن التسليم رقم ' . $reconciliation->deliveryNote->note_number,
-                    'warning',
-                    'fas fa-edit',
-                    route('manufacturing.warehouses.reconciliation.show', $reconciliation->deliveryNote->id)
-                );
             } catch (\Exception $notifError) {
-                Log::warning('Failed to send update link invoice notifications: ' . $notifError->getMessage());
+                Log::warning('Failed to send edit notification: ' . $notifError->getMessage());
             }
 
             DB::commit();
@@ -852,6 +868,7 @@ class ReconciliationController extends Controller
                 ->with('success', 'تم تحديث ربط الفاتورة بنجاح!');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Failed to update link invoice: ' . $e->getMessage());
             return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
         }
     }

@@ -392,6 +392,16 @@ document.addEventListener('DOMContentLoaded', function() {
     let deliveryNotesData = @json($deliveryNotes ?? []);
     let invoicesData = @json($invoices ?? []);
 
+    // دالة لتحويل التاريخ للميلادي
+    function formatGregorianDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     // تتبع البيانات المرسلة
     console.log('✅ أذن التسليم:', deliveryNotesData.length, 'أذن');
     console.log('✅ الفواتير:', invoicesData.length, 'فاتورة');
@@ -449,7 +459,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data-id="${note.id}"
                     data-actual-weight="${note.actual_weight || 0}"
                     data-supplier="${note.supplier?.name || 'N/A'}"
-                    data-date="${new Date(note.delivery_date).toLocaleDateString('ar-SA')}"
+                    data-date="${formatGregorianDate(note.delivery_date)}"
                     data-note-number="${note.note_number}"
                     style="text-align: right;">
                 <div class="d-flex justify-content-between align-items-center">
@@ -457,7 +467,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div>
                         <strong>${note.supplier?.name || 'N/A'}</strong>
                         <br>
-                        <small class="text-muted">${new Date(note.delivery_date).toLocaleDateString('ar-SA')} | وزن: ${parseFloat(note.actual_weight || 0).toFixed(2)} كجم</small>
+                        <small class="text-muted">${formatGregorianDate(note.delivery_date)} | وزن: ${parseFloat(note.actual_weight || 0).toFixed(2)} كجم</small>
                     </div>
                 </div>
             </button>
@@ -545,7 +555,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         data-id="${invoice.id}"
                         data-invoice-number="${invoice.invoice_number}"
                         data-supplier="${invoice.supplier?.name || 'N/A'}"
-                        data-date="${new Date(invoice.invoice_date).toLocaleDateString('ar-SA')}"
+                        data-date="${formatGregorianDate(invoice.invoice_date)}"
                         data-weight="${displayWeight}"
                         style="text-align: right;">
                     <div class="d-flex justify-content-between align-items-center">
@@ -553,7 +563,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div>
                             <strong>${invoice.supplier?.name || 'N/A'}</strong>
                             <br>
-                            <small class="text-muted">${new Date(invoice.invoice_date).toLocaleDateString('ar-SA')} | الكمية الإجمالية: ${parseFloat(displayWeight).toFixed(2)} وحدة</small>
+                            <small class="text-muted">${formatGregorianDate(invoice.invoice_date)} | الكمية الإجمالية: ${parseFloat(displayWeight).toFixed(2)} وحدة</small>
                         </div>
                     </div>
                 </button>
@@ -662,7 +672,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     </label>
                 </div>
             `;
-        }).join('');        createDeliveryNoteCard.style.display = 'block';
+        }).join('');
+
+        createDeliveryNoteCard.style.display = 'block';
 
         // إضافة مستمع لزر إنشاء أذن التسليم
         document.getElementById('createDeliveryNoteBtn').addEventListener('click', createDeliveryNoteFromInvoice);

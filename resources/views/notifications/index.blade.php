@@ -133,27 +133,11 @@
                                 <div class="list-group-item notification-item {{ !$notification->is_read ? 'unread' : '' }}"
                                      style="background-color: {{ !$notification->is_read ? '#f3f4f6' : 'white' }}; border-left: 4px solid {{ $notification->color === 'success' ? '#10b981' : ($notification->color === 'danger' ? '#ef4444' : ($notification->color === 'warning' ? '#f59e0b' : '#3b82f6')) }};">
                                     <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex align-items-center mb-2">
-                                                @if($notification->icon)
-                                                    <i class="{{ $notification->icon }} me-2" style="font-size: 1.25rem; color: {{ $notification->color === 'success' ? '#10b981' : ($notification->color === 'danger' ? '#ef4444' : ($notification->color === 'warning' ? '#f59e0b' : '#3b82f6')) }};"></i>
-                                                @endif
-                                                <h6 class="mb-0" style="font-weight: 600;">{{ $notification->title }}</h6>
-                                                @if(!$notification->is_read)
-                                                    <span class="badge bg-primary ms-2">جديد</span>
-                                                @endif
-                                            </div>
-                                            <p class="mb-2 text-dark">{{ $notification->message }}</p>
-                                            <small class="text-muted">
-                                                <i class="feather icon-user"></i> {{ $notification->creator?->name ?? 'النظام' }}
-                                                • <i class="feather icon-clock"></i> {{ $notification->created_at->diffForHumans() }}
-                                            </small>
-                                        </div>
-                                        <div class="dropdown ms-3">
+                                        <div class="dropdown" style="position: absolute; left: 15px; top: 15px;">
                                             <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
                                                 <i class="feather icon-more-vertical"></i>
                                             </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
+                                            <ul class="dropdown-menu">
                                                 @if(!$notification->is_read)
                                                     <li>
                                                         <a class="dropdown-item mark-read" href="#" data-id="{{ $notification->id }}">
@@ -175,6 +159,22 @@
                                                     </a>
                                                 </li>
                                             </ul>
+                                        </div>
+                                        <div class="flex-grow-1" style="padding-left: 50px;">
+                                            <div class="d-flex align-items-center mb-2">
+                                                @if($notification->icon)
+                                                    <i class="{{ $notification->icon }} me-2" style="font-size: 1.25rem; color: {{ $notification->color === 'success' ? '#10b981' : ($notification->color === 'danger' ? '#ef4444' : ($notification->color === 'warning' ? '#f59e0b' : '#3b82f6')) }};"></i>
+                                                @endif
+                                                <h6 class="mb-0" style="font-weight: 600;">{{ $notification->title }}</h6>
+                                                @if(!$notification->is_read)
+                                                    <span class="badge bg-primary ms-2">جديد</span>
+                                                @endif
+                                            </div>
+                                            <p class="mb-2 text-dark">{{ $notification->message }}</p>
+                                            <small class="text-muted">
+                                                <i class="feather icon-user"></i> {{ $notification->creator?->name ?? 'النظام' }}
+                                                • <i class="feather icon-clock"></i> {{ $notification->created_at->diffForHumans() }}
+                                            </small>
                                         </div>
                                     </div>
                                 </div>
@@ -202,6 +202,7 @@
 .notification-item {
     padding: 1rem;
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .notification-item:hover {
@@ -222,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const id = this.getAttribute('data-id');
             fetch(`/notifications/${id}/mark-as-read`, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Content-Type': 'application/json'
                 }
@@ -243,12 +244,12 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             if (confirm('هل أنت متأكد من حذف هذا الإشعار؟')) {
                 const id = this.getAttribute('data-id');
-                fetch(`/notifications/${id}`, { 
-                    method: 'DELETE', 
-                    headers: { 
+                fetch(`/notifications/${id}`, {
+                    method: 'DELETE',
+                    headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Content-Type': 'application/json'
-                    } 
+                    }
                 })
                     .then(response => response.json())
                     .then(data => {
@@ -264,12 +265,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mark all as read
     document.getElementById('markAllReadBtn')?.addEventListener('click', function() {
         if (confirm('وضع علامة على جميع الإشعارات كمقروءة؟')) {
-            fetch('/notifications/mark-all-read', { 
-                method: 'POST', 
-                headers: { 
+            fetch('/notifications/mark-all-read', {
+                method: 'POST',
+                headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Content-Type': 'application/json'
-                } 
+                }
             })
                 .then(response => response.json())
                 .then(data => {
@@ -284,12 +285,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Delete all
     document.getElementById('deleteAllBtn')?.addEventListener('click', function() {
         if (confirm('هل أنت متأكد من حذف جميع الإشعارات؟')) {
-            fetch('/notifications', { 
-                method: 'DELETE', 
-                headers: { 
+            fetch('/notifications', {
+                method: 'DELETE',
+                headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Content-Type': 'application/json'
-                } 
+                }
             })
                 .then(response => response.json())
                 .then(data => {
