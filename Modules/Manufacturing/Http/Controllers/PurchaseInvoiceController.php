@@ -104,7 +104,7 @@ class PurchaseInvoiceController extends Controller
                 'supplier_id' => 'required|exists:suppliers,id',
                 'invoice_date' => 'required|date',
                 'due_date' => 'nullable|date|after_or_equal:invoice_date',
-                'currency' => 'required|string|max:3',
+
                 'payment_terms' => 'nullable|string|max:255',
                 'notes' => 'nullable|string|max:1000',
                 'is_active' => 'nullable|boolean',
@@ -270,7 +270,7 @@ class PurchaseInvoiceController extends Controller
                 'supplier_id' => 'required|exists:suppliers,id',
                 'invoice_date' => 'required|date',
                 'due_date' => 'nullable|date|after_or_equal:invoice_date',
-                'currency' => 'required|string|max:3',
+                
                 'payment_terms' => 'nullable|string|max:255',
                 'notes' => 'nullable|string|max:1000',
                 'is_active' => 'nullable|boolean',
