@@ -54,6 +54,8 @@ Route::middleware(['auth'])->group(function () {
     Route::put('purchase-invoices/{id}/update-status', [PurchaseInvoiceController::class, 'updateStatus'])->name('manufacturing.purchase-invoices.update-status');
     Route::resource('suppliers', SupplierController::class)->names('manufacturing.suppliers');
     Route::put('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('manufacturing.suppliers.toggle-status');
+    Route::get('suppliers/{id}/invoices', [SupplierController::class, 'getInvoices'])->name('manufacturing.suppliers.invoices');
+    Route::get('suppliers/{id}/delivery-notes', [SupplierController::class, 'getDeliveryNotes'])->name('manufacturing.suppliers.delivery-notes');
     Route::resource('additives', AdditiveController::class)->names('manufacturing.additives');
 
     // Warehouse Settings Routes

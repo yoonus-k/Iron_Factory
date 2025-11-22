@@ -58,7 +58,7 @@ class WarehouseRegistrationController extends Controller
         $toDate = $request->get('to_date');
         $sortBy = $request->get('sort_by', 'created_at'); // الحقل الافتراضي للترتيب
         $sortOrder = $request->get('sort_order', 'desc'); // ترتيب تنازلي افتراضي
-        
+
         // الحصول على عدد السجلات لكل صفحة (مع قيمة افتراضية آمنة)
         $perPage = (int) $request->get('per_page', 15);
         $perPage = in_array($perPage, [15, 25, 50, 100]) ? $perPage : 15;

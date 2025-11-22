@@ -54,7 +54,10 @@ class MaterialMovementController extends Controller
             $query->whereDate('movement_date', '<=', $request->to_date);
         }
 
-        $movements = $query->paginate(20);
+        // ترتيب البيانات حسب الأحدث أولاً مع الباجنيشن
+        $movements = $query->orderBy('movement_date', 'desc')
+            ->paginate(15)
+            ->appends($request->query());
 
         // احصائيات
         $stats = [

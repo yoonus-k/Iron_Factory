@@ -4,6 +4,98 @@
 
 @section('content')
 
+    <style>
+        /* Pagination Styling */
+        .um-pagination-section {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px 0;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .um-pagination-info {
+            margin: 0;
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Bootstrap Pagination Custom Styling */
+        .pagination {
+            margin: 0;
+            gap: 5px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .pagination .page-link {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            color: #3498db;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            background-color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 36px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .pagination .page-link:hover {
+            background-color: #f0f2f5;
+            border-color: #3498db;
+            color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.15);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-color: #2980b9;
+            color: white;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #adb5bd;
+            border-color: #dee2e6;
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .pagination .page-item.disabled .page-link:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        @media (max-width: 768px) {
+            .um-pagination-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .um-pagination-info {
+                text-align: center;
+            }
+
+            .pagination {
+                justify-content: center;
+            }
+
+            .pagination .page-link {
+                padding: 6px 10px;
+                font-size: 12px;
+                min-width: 32px;
+            }
+        }
+    </style>
+
     <div class="um-content-wrapper">
         <!-- Header Section -->
         <div class="um-header-section">
@@ -116,7 +208,7 @@
                 <table class="um-table">
                     <thead>
                         <tr>
-                            <th>#</th>
+
                             <th>رمز المادة</th>
                             <th>اسم المادة</th>
                             <th>الفئة</th>
@@ -131,7 +223,7 @@
                     <tbody>
                         @forelse ($materials as $material)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
+
                                 <td>
                                     <span class="badge badge-primary">{{ $material->barcode ?? 'N/A' }}</span>
                                 </td>
@@ -239,7 +331,7 @@
                         </p>
                     </div>
                     <div>
-                        {{ $materials->links() }}
+                        {{ $materials->links('pagination::bootstrap-4') }}
                     </div>
                 </div>
             @endif

@@ -103,53 +103,6 @@
         @endif
 
 
-        <!-- تنبيه إذا كانت هناك بيانات مسجلة سابقاً -->
-        @if ($previousLog)
-            <div class="card card-warning mb-4" style="border-left: 4px solid #f39c12; background: #fffbea;">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h5 class="mb-3" style="color: #d68910;">
-                                <strong>⚠️ تنبيه مهم - بيانات مسجلة سابقاً!</strong>
-                            </h5>
-                            <p style="color: #666; margin-bottom: 12px;">
-                                تم تسجيل هذه الشحنة من قبل بالبيانات التالية. اختر أحد الخيارين:
-                            </p>
-                            <div
-                                style="background: white; padding: 12px; border-radius: 4px; border-left: 3px solid #f39c12; margin-bottom: 12px;">
-                                <small style="display: grid; gap: 6px;">
-                                    <span><strong>📊 الوزن:</strong>
-                                        {{ number_format($previousLog->weight_recorded ?? 0, 2) }} كيلو</span>
-                                    <span><strong>📍 الموقع:</strong> {{ $previousLog->location ?? 'غير محدد' }}</span>
-                                    <span><strong>🏷️ النوع:</strong>
-                                        {{ $previousLog->materialType->type_name ?? 'غير محدد' }}</span>
-                                    <span><strong>👤 المسجل:</strong>
-                                        {{ $previousLog->registeredBy->name ?? 'مستخدم محذوف' }}</span>
-                                    <span><strong>⏰ التاريخ:</strong>
-                                        {{ $previousLog->registered_at?->format('d/m/Y H:i') ?? 'N/A' }}</span>
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row g-2">
-                        <div class="col-sm-6">
-                            <button type="button" class="btn btn-info w-100" id="usePreviousBtn"
-                                onclick="usePreviousData()">
-                                <i class="fas fa-check-circle"></i> استخدم البيانات السابقة
-                            </button>
-                        </div>
-                        <div class="col-sm-6">
-                            <button type="button" class="btn btn-warning w-100" id="enterNewBtn"
-                                onclick="enterNewData()">
-                                <i class="fas fa-pencil-alt"></i> أدخل بيانات جديدة
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-
         <form action="{{ route('manufacturing.warehouse.registration.store', $deliveryNote) }}" method="POST"
             id="registrationForm">
             @csrf

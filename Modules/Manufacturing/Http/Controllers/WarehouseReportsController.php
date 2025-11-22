@@ -96,28 +96,105 @@ class WarehouseReportsController extends Controller
         $startDate = $request->start_date ?? Carbon::now()->subMonth()->format('Y-m-d');
         $endDate = $request->end_date ?? Carbon::now()->format('Y-m-d');
 
-        $deliveryNotes = DeliveryNote::with(['supplier', 'warehouse', 'recordedBy'])
-            ->whereBetween('delivery_date', [$startDate, $endDate])
+        $baseQuery = DeliveryNote::with(['supplier', 'warehouse', 'recordedBy', 'material'])
+            ->whereBetween('delivery_date', [$startDate, $endDate]);
+
+        $deliveryNotes = $baseQuery->clone()
             ->when($request->supplier_id, function($query) use ($request) {
                 $query->where('supplier_id', $request->supplier_id);
             })
             ->when($request->status, function($query) use ($request) {
                 $query->where('status', $request->status);
             })
+            ->when($request->warehouse_id, function($query) use ($request) {
+                $query->where('warehouse_id', $request->warehouse_id);
+            })
             ->orderBy('delivery_date', 'desc')
             ->paginate(20);
 
+        // إحصائيات شاملة
+        $baseCountQuery = $baseQuery->clone();
+
         $stats = [
-            'total_notes' => DeliveryNote::whereBetween('delivery_date', [$startDate, $endDate])->count(),
-            'pending_notes' => DeliveryNote::whereBetween('delivery_date', [$startDate, $endDate])->where('status', 'pending')->count(),
-            'received_notes' => DeliveryNote::whereBetween('delivery_date', [$startDate, $endDate])->where('status', 'received')->count(),
-            'total_quantity' => DeliveryNote::whereBetween('delivery_date', [$startDate, $endDate])->sum('delivery_quantity'),
+            'total_notes' => $baseCountQuery->count(),
+            'pending_notes' => $baseCountQuery->clone()->where('status', 'pending')->count(),
+            'approved_notes' => $baseCountQuery->clone()->where('status', 'approved')->count(),
+            'completed_notes' => $baseCountQuery->clone()->where('status', 'completed')->count(),
+            'rejected_notes' => $baseCountQuery->clone()->where('status', 'rejected')->count(),
+            'total_quantity' => $baseCountQuery->clone()->sum('delivery_quantity'),
+            'total_weight' => $baseCountQuery->clone()->sum('actual_weight'),
+            'avg_quantity' => round($baseCountQuery->clone()->avg('delivery_quantity'), 2),
+            'avg_weight' => round($baseCountQuery->clone()->avg('actual_weight'), 2),
+        ];
+
+        // إحصائيات حسب نوع الحركة
+        $typeStats = [
+            'incoming' => $baseCountQuery->clone()->where('type', 'incoming')->count(),
+            'outgoing' => $baseCountQuery->clone()->where('type', 'outgoing')->count(),
+        ];
+
+        // أفضل 10 موردين
+        $topSuppliers = DeliveryNote::with('supplier')
+            ->whereBetween('delivery_date', [$startDate, $endDate])
+            ->where('type', 'incoming')
+            ->select('supplier_id', DB::raw('COUNT(*) as count, SUM(delivery_quantity) as total_quantity'))
+            ->groupBy('supplier_id')
+            ->orderByDesc('count')
+            ->limit(10)
+            ->get();
+
+        // إحصائيات حسب المستودع
+        $warehouseStats = DeliveryNote::with('warehouse')
+            ->whereBetween('delivery_date', [$startDate, $endDate])
+            ->select('warehouse_id', DB::raw('COUNT(*) as count, SUM(delivery_quantity) as total_quantity'))
+            ->groupBy('warehouse_id')
+            ->orderByDesc('count')
+            ->get();
+
+        // إحصائيات حسب المادة/الوحدة
+        $materialsDistribution = DeliveryNote::whereBetween('delivery_date', [$startDate, $endDate])
+            ->where('material_id', '!=', null)
+            ->select(
+                'material_id',
+                DB::raw('COUNT(*) as count'),
+                DB::raw('SUM(delivery_quantity) as total_quantity'),
+                DB::raw('AVG(delivery_quantity) as avg_quantity'),
+                DB::raw('SUM(actual_weight) as total_weight')
+            )
+            ->groupBy('material_id')
+            ->orderByDesc('count')
+            ->get()
+            ->map(function ($item) {
+                $item->material = Material::find($item->material_id);
+                return $item;
+            });
+
+        // الاتجاهات الشهرية
+        $monthlyTrends = DeliveryNote::whereBetween('delivery_date', [$startDate, $endDate])
+            ->select(
+                DB::raw('DATE_FORMAT(delivery_date, "%Y-%m") as month'),
+                DB::raw('COUNT(*) as count'),
+                DB::raw('SUM(delivery_quantity) as quantity')
+            )
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        // توزيع الحالة
+        $statusDistribution = [
+            'pending' => $stats['pending_notes'],
+            'approved' => $stats['approved_notes'],
+            'completed' => $stats['completed_notes'],
+            'rejected' => $stats['rejected_notes'],
         ];
 
         $suppliers = Supplier::where('is_active', true)->get();
         $warehouses = Warehouse::where('is_active', true)->get();
 
-        return view('manufacturing::warehouses.reports.delivery-notes-report', compact('deliveryNotes', 'stats', 'suppliers', 'warehouses', 'startDate', 'endDate'));
+        return view('manufacturing::warehouses.reports.delivery-notes-report', compact(
+            'deliveryNotes', 'stats', 'suppliers', 'warehouses', 'startDate', 'endDate',
+            'typeStats', 'topSuppliers', 'warehouseStats', 'monthlyTrends', 'statusDistribution', 'materialsDistribution'
+        ));
     }
 
     /**

@@ -245,50 +245,7 @@
             </div>
 
             <!-- Currency and Payment Terms Section -->
-            <div class="form-section">
-                <div class="section-header">
-                    <div class="section-icon personal">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="1"></circle>
-                            <circle cx="19" cy="12" r="1"></circle>
-                            <circle cx="5" cy="12" r="1"></circle>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="section-title">العملة وشروط الدفع</h3>
-                        <p class="section-subtitle">حدد العملة وشروط الدفع</p>
-                    </div>
-                </div>
 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="currency" class="form-label">العملة</label>
-                        <div class="input-wrapper">
-                            <select name="currency" id="currency" class="form-input">
-                                <option value="SAR" {{ old('currency', 'SAR') == 'SAR' ? 'selected' : '' }}>ريال سعودي (SAR)</option>
-                                <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>دولار أمريكي (USD)</option>
-                                <option value="EUR" {{ old('currency') == 'EUR' ? 'selected' : '' }}>يورو (EUR)</option>
-                                <option value="AED" {{ old('currency') == 'AED' ? 'selected' : '' }}>درهم إماراتي (AED)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="payment_terms" class="form-label">شروط الدفع</label>
-                        <div class="input-wrapper">
-                            <select name="payment_terms" id="payment_terms" class="form-input">
-                                <option value="">-- اختر شروط الدفع --</option>
-                                <option value="دفع فوري" {{ old('payment_terms') == 'دفع فوري' ? 'selected' : '' }}>دفع فوري</option>
-                                <option value="15 يوم" {{ old('payment_terms') == '15 يوم' ? 'selected' : '' }}>15 يوم</option>
-                                <option value="30 يوم" {{ old('payment_terms') == '30 يوم' ? 'selected' : '' }}>30 يوم</option>
-                                <option value="45 يوم" {{ old('payment_terms') == '45 يوم' ? 'selected' : '' }}>45 يوم</option>
-                                <option value="60 يوم" {{ old('payment_terms') == '60 يوم' ? 'selected' : '' }}>60 يوم</option>
-                                <option value="مخصص" {{ old('payment_terms') == 'مخصص' ? 'selected' : '' }}>مخصص</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Status and Activity Section -->
             <div class="form-section">
@@ -548,7 +505,7 @@
             document.getElementById('subtotal-display').textContent = subtotal.toFixed(2);
             document.getElementById('tax-display').textContent = taxTotal.toFixed(2);
             document.getElementById('discount-display').textContent = discountTotal.toFixed(2);
-            document.getElementById('weight-display').textContent = totalQuantity.toFixed(2) + ' وحدة';
+            document.getElementById('weight-display').textContent = totalQuantity.toFixed(2) + ' كجم';
             document.getElementById('total-display').textContent = grandTotal.toFixed(2);
         }
     </script>

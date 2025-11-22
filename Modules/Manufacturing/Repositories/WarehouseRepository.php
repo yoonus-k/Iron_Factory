@@ -14,7 +14,7 @@ class WarehouseRepository
      */
     public function getAllPaginated(int $perPage = 15): LengthAwarePaginator
     {
-        return Warehouse::paginate($perPage);
+        return Warehouse::orderBy('created_at', 'desc')->paginate($perPage);
     }
 
     /**
@@ -48,7 +48,8 @@ class WarehouseRepository
             $query->where('is_active', $isActive);
         }
 
-        return $query->paginate(15);
+        // ترتيب البيانات حسب الأحدث أولاً مع الباجنيشن
+        return $query->orderBy('created_at', 'desc')->paginate(15);
     }
 
     /**

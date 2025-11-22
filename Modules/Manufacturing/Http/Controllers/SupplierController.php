@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use App\Models\Supplier;
 use App\Models\User;
+use App\Models\DeliveryNote;
+use App\Models\PurchaseInvoice;
 use Modules\Manufacturing\Traits\LogsOperations;
 use App\Traits\StoresNotifications;
 use Illuminate\Support\Facades\Log;
@@ -38,7 +40,10 @@ class SupplierController extends Controller
             $query->where('is_active', $isActive);
         }
 
-        $suppliers = $query->paginate(10);
+        // ترتيب البيانات حسب الأحدث أولاً مع الباجنيشن
+        $suppliers = $query->orderBy('created_at', 'desc')
+            ->paginate(15)
+            ->appends($request->query());
 
         return view('manufacturing::warehouses.suppliers.index', compact('suppliers'));
     }
@@ -133,11 +138,24 @@ class SupplierController extends Controller
 
     /**
      * Display the specified resource.
+     * عرض تفاصيل المورد مع فواتيره وأذون التسليم
      */
     public function show($id)
     {
         $supplier = Supplier::findOrFail($id);
-        return view('manufacturing::warehouses.suppliers.show', compact('supplier'));
+
+        // الحصول على فواتير المورد مع الترتيب الأحدث أولاً
+        $invoices = $supplier->purchaseInvoices()
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        // الحصول على أذون التسليم (الواردة من المورد)
+        $deliveryNotes = DeliveryNote::where('supplier_id', $supplier->id)
+            ->where('type', 'incoming')
+            ->orderBy('delivery_date', 'desc')
+            ->paginate(10);
+
+        return view('manufacturing::warehouses.suppliers.show', compact('supplier', 'invoices', 'deliveryNotes'));
     }
 
     /**
@@ -322,5 +340,50 @@ class SupplierController extends Controller
             return redirect()->back()
                            ->withErrors(['error' => 'فشل في تغيير حالة المورد: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * Get supplier invoices via AJAX
+     */
+    public function getInvoices($id, Request $request)
+    {
+        $supplier = Supplier::findOrFail($id);
+        $page = $request->get('page', 1);
+
+        $invoices = $supplier->purchaseInvoices()
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'invoice_page', $page);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('manufacturing::warehouses.suppliers.partials.invoices-table', compact('invoices'))->render(),
+                'pagination' => (string) $invoices->links()
+            ]);
+        }
+
+        return view('manufacturing::warehouses.suppliers.partials.invoices-table', compact('invoices'));
+    }
+
+    /**
+     * Get supplier delivery notes via AJAX
+     */
+    public function getDeliveryNotes($id, Request $request)
+    {
+        $supplier = Supplier::findOrFail($id);
+        $page = $request->get('page', 1);
+
+        $deliveryNotes = DeliveryNote::where('supplier_id', $supplier->id)
+            ->where('type', 'incoming')
+            ->orderBy('delivery_date', 'desc')
+            ->paginate(10, ['*'], 'delivery_page', $page);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('manufacturing::warehouses.suppliers.partials.delivery-notes-table', compact('deliveryNotes'))->render(),
+                'pagination' => (string) $deliveryNotes->links()
+            ]);
+        }
+
+        return view('manufacturing::warehouses.suppliers.partials.delivery-notes-table', compact('deliveryNotes'));
     }
 }

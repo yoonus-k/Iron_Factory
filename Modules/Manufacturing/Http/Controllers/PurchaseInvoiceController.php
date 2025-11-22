@@ -65,7 +65,10 @@ class PurchaseInvoiceController extends Controller
             $query->whereDate('invoice_date', '<=', $request->get('date_to'));
         }
 
-        $invoices = $query->paginate(15);
+        // ترتيب البيانات حسب الأحدث أولاً مع الباجنيشن
+        $invoices = $query->orderBy('created_at', 'desc')
+            ->paginate(15)
+            ->appends($request->query());
         $suppliers = Supplier::all();
 
         return view('manufacturing::warehouses.purchase-invoices.index', compact('invoices', 'suppliers'));
@@ -78,7 +81,7 @@ class PurchaseInvoiceController extends Controller
     {
         $suppliers = Supplier::all();
         $users = User::all();
-        $materials = Material::select('id', 'name_ar', 'name_en', 'unit_id')->get();
+        $materials = Material::select('id', 'name_ar', 'name_en')->get();
         $units = Unit::where('is_active', true)->get();
 
         // Generate automatic invoice number

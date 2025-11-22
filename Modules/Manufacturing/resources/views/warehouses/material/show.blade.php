@@ -144,13 +144,7 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('manufacturing.warehouse-products.transactions', $material->id) }}" class="btn btn-info" title="عرض حركات المستودع">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                            <polyline points="17 6 23 6 23 12"></polyline>
-                        </svg>
-                        الحركات
-                    </a>
+
                     <a href="{{ route('manufacturing.warehouse-products.edit', $material->id) }}" class="btn btn-edit">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -289,7 +283,7 @@
                         <div class="info-value">{{ $material->purchaseInvoice->invoice_number ?? 'N/A' }}</div>
                     </div>
 
-                    
+
 
                     <div class="info-item">
                         <div class="info-label">موقع التخزين:</div>
@@ -380,18 +374,7 @@
                                     </div>
 
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                                        <div>
-                                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 4px;">الوزن الأصلي</div>
-                                            <div style="font-size: 14px; font-weight: 500; color: #2c3e50;">
-                                                {{ $totalOriginalWeight ?? '-' }}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 4px;">الوزن المتبقي</div>
-                                            <div style="font-size: 14px; font-weight: 500; color: #27ae60;">
-                                                {{ $totalRemainingWeight ?? '-' }}
-                                            </div>
-                                        </div>
+
                                     </div>
 
                                     <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -583,7 +566,7 @@
                                 <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}" style="border: 2px solid #e9ecef; border-radius: 8px;">
                             </div>
                             <div class="col-md-2 d-flex align-items-end gap-2">
-                                <button type="submit" class="btn btn-primary flex-fill" style="background: var(--primary-blue); border: none; border-radius: 8px; font-weight: 600; padding: 10px;">
+                                <button type="submit" class="btn btn-primary " >
                                     <i class="fas fa-search"></i> بحث
                                 </button>
                                 <a href="{{ route('manufacturing.warehouses.material.show', $material->id) }}" class="btn btn-outline-secondary" style="border: 2px solid var(--secondary-gray); border-radius: 8px; padding: 10px 15px;">
@@ -945,11 +928,11 @@
     </div>
 
     <script>
-        // بيانات المستودعات والكميات
+        // بيانات المستودعات والكميات من material_details
         const warehouseData = @json($material->materialDetails->groupBy('warehouse_id')->map(function($details) {
             return [
                 'name' => $details->first()->warehouse->warehouse_name,
-                'quantity' => $details->sum('remaining_weight'),
+                'quantity' => $details->sum('quantity'), // ✅ الكمية من quantity field
                 'unit' => $details->first()->unit?->unit_name ?? 'وحدة'
             ];
         })->toArray());

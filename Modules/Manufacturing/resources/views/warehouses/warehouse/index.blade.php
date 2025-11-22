@@ -87,19 +87,15 @@
                 <table class="um-table">
                     <thead>
                         <tr>
-                            <th>#</th>
+
                             <th>اسم المستودع</th>
                             <th>الرمز</th>
                             <th>الموقع</th>
-                       >
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
+                       > </thead>
                     <tbody>
                         @forelse($warehouses as $key => $warehouse)
                         <tr>
-                            <td>{{ $warehouses->firstItem() + $key }}</td>
+
                             <td>
                                 <div class="um-course-info">
                                     <h6 class="um-course-title">{{ $warehouse->warehouse_name }}</h6>

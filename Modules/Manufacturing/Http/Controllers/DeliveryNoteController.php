@@ -59,7 +59,10 @@ class DeliveryNoteController extends Controller
             });
         }
 
-        $deliveryNotes = $query->orderBy('created_at', 'desc')->get();
+        // ترتيب البيانات حسب الأحدث أولاً مع الباجنيشن
+        $deliveryNotes = $query->orderBy('created_at', 'desc')
+            ->paginate(15)
+            ->appends($request->query());
 
         return view('manufacturing::warehouses.delivery-notes.index', compact('deliveryNotes'));
     }

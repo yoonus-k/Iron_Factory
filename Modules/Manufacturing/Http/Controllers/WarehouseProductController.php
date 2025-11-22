@@ -65,7 +65,10 @@ class WarehouseProductController extends Controller
             $query->where('supplier_id', $request->get('supplier_id'));
         }
 
-        $materials = $query->paginate(10);
+        // ترتيب البيانات حسب الأحدث أولاً مع الباجنيشن
+        $materials = $query->orderBy('created_at', 'desc')
+            ->paginate(15)
+            ->appends($request->query());
         $suppliers = Supplier::all();
 
         return view('manufacturing::warehouses.material.index', compact('materials', 'suppliers'));
@@ -421,16 +424,23 @@ $materialDetail->unit_id = $validated['unit_id']; // ✅ تحديث في Materia
                 ]);
             }
 
-            // إنشاء أذن مخزنية (Delivery Note) تلقائياً
+            // إنشاء أذن مخزنية (Delivery Note) تلقائياً - وارد (incoming)
             $deliveryNote = \App\Models\DeliveryNote::create([
                 'note_number' => $this->generateDeliveryNoteNumber(),
+                'type' => 'incoming', // ✅ نوع الأذن: وارد
+                'status' => 'approved', // ✅ الحالة: موافق عليه
                 'material_id' => $material->id,
+                'warehouse_id' => $validated['warehouse_id'], // ✅ المستودع المقصود
                 'delivered_weight' => $validated['quantity'],
                 'delivery_date' => now()->toDateString(),
                 'driver_name' => 'إضافة مستودع', // قيمة افتراضية
                 'driver_name_en' => 'Warehouse Addition',
                 'vehicle_number' => 'N/A',
                 'received_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
+                'recorded_by' => \Illuminate\Support\Facades\Auth::id() ?? 1, // ✅ من سجل الأذن
+                'approved_by' => \Illuminate\Support\Facades\Auth::id() ?? 1, // ✅ من وافق
+                'approved_at' => now(), // ✅ وقت الموافقة
+                'is_active' => true, // ✅ نشط
             ]);
 
             // تسجيل الحركة في المستودع

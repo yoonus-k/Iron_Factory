@@ -128,7 +128,7 @@
                 <table class="um-table">
                     <thead>
                         <tr>
-                            <th>#</th>
+
                             <th>رقم الأذن</th>
                             <th>النوع</th>
                             <th>تاريخ التسليم</th>
@@ -141,7 +141,7 @@
                     <tbody>
                         @forelse($deliveryNotes as $deliveryNote)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+
                             <td>{{ $deliveryNote->note_number }}</td>
                             <td>
                                 @if($deliveryNote->type === 'incoming')
@@ -264,6 +264,21 @@
                 <div class="text-center">لا توجد أذون تسليم</div>
                 @endforelse
             </div>
+
+            <!-- Pagination -->
+            @if ($deliveryNotes->hasPages())
+                <div class="um-pagination-section">
+                    <div>
+                        <p class="um-pagination-info">
+                            عرض {{ $deliveryNotes->firstItem() ?? 0 }} إلى {{ $deliveryNotes->lastItem() ?? 0 }} من أصل
+                            {{ $deliveryNotes->total() }} أذن تسليم
+                        </p>
+                    </div>
+                    <div>
+                        {{ $deliveryNotes->links() }}
+                    </div>
+                </div>
+            @endif
         </section>
     </div>
 

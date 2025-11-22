@@ -106,7 +106,7 @@
                 <table class="um-table">
                     <thead>
                         <tr>
-                            <th>#</th>
+
                             <th>رقم الفاتورة</th>
                             <th>المورد</th>
                             <th>تاريخ الفاتورة</th>
@@ -118,7 +118,7 @@
                     <tbody>
                         @forelse($invoices as $invoice)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+
                             <td>{{ $invoice->invoice_number }}</td>
                             <td>{{ $invoice->supplier->name ?? 'N/A' }}</td>
                             <td>{{ $invoice->invoice_date->format('Y-m-d') }}</td>
@@ -252,6 +252,21 @@
                 <div class="text-center">لا توجد فواتير شراء</div>
                 @endforelse
             </div>
+
+            <!-- Pagination -->
+            @if ($invoices->hasPages())
+                <div class="um-pagination-section">
+                    <div>
+                        <p class="um-pagination-info">
+                            عرض {{ $invoices->firstItem() ?? 0 }} إلى {{ $invoices->lastItem() ?? 0 }} من أصل
+                            {{ $invoices->total() }} فاتورة شراء
+                        </p>
+                    </div>
+                    <div>
+                        {{ $invoices->links() }}
+                    </div>
+                </div>
+            @endif
         </section>
     </div>
 
