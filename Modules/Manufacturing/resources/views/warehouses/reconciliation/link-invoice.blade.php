@@ -97,7 +97,7 @@
                                     <div id="info-date" style="font-weight: 600;"></div>
                                 </div>
                                 <div>
-                                    <small class="text-muted">الوزن الفعلي (من الميزان):</small>
+                                    <small class="text-muted">actual_weight:</small>
                                     <div id="info-actual-weight" style="font-weight: 600; color: #3E4651;"></div>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-outline-danger mt-2" id="clearDeliveryNote">
@@ -165,7 +165,7 @@
                                             <th style="text-align: right;">المنتج</th>
                                             <th>الكمية</th>
                                             <th>الوحدة</th>
-                                        
+
                                         </tr>
                                     </thead>
                                     <tbody id="invoiceItemsBody">
@@ -179,7 +179,7 @@
         </div>
 
         <!-- بطاقة إنشاء أذن تسليم من الفاتورة -->
-        
+
         <!-- حساب الفرق -->
         <div class="card mb-4" id="discrepancyCard" style="display: none; border-left: 4px solid #0051E5;">
             <div class="card-header" style="background: linear-gradient(135deg, #0051E5 0%, #003FA0 100%); color: white;">
@@ -189,7 +189,7 @@
                 <div class="row text-center">
                     <div class="col-md-3">
                         <div class="p-3 bg-light rounded">
-                            <small class="text-muted d-block mb-2">الوزن الفعلي (الميزان)</small>
+                            <small class="text-muted d-block mb-2">actual_weight</small>
                             <h4 id="display-actual-weight" class="mb-0 text-success">0.00 كجم</h4>
                         </div>
                     </div>
@@ -417,7 +417,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // تحديد لون الزر حسب حالة الأذن
             let buttonClass = 'list-group-item list-group-item-action delivery-note-item';
             let statusBadge = '';
-            
+
             if (note.has_invoice) {
                 if (note.reconciliation_status === 'matched') {
                     buttonClass += ' list-group-item-success';
@@ -478,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 message += '\nالأوزان غير متطابقة وتحتاج مراجعة.';
             }
-            
+
             // عرض رسالة تحذير
             const warningDiv = document.createElement('div');
             warningDiv.className = 'alert alert-warning alert-dismissible fade show mt-3';
@@ -486,11 +486,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 <strong>⚠️ تحذير:</strong> ${message}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             `;
-            
+
             // إضافة التحذير قبل نموذج الربط
             const formElement = document.getElementById('linkInvoiceForm');
             formElement.parentNode.insertBefore(warningDiv, formElement);
-            
+
             // إزالة التحذير تلقائياً بعد 5 ثوانٍ
             setTimeout(() => {
                 if (warningDiv.parentNode) {
@@ -652,7 +652,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </td>
                     <td>${parseFloat(item.quantity || 0).toFixed(2)}</td>
                     <td>${unit}</td>
-                    
+
                 </tr>
             `;
         }).join('');
@@ -839,7 +839,7 @@ ${data.is_matched ? '✓ الأوزان متطابقة - تم المطابقة �
             return;
         }
 
-        const actualWeight = parseFloat(selectedNote.actual_weight) || 0;
+        const actualWeight = parseFloat(selectedNote.actual_weight) ;
         const discrepancy = actualWeight - invoiceWeight;
         const percentage = invoiceWeight > 0 ? ((discrepancy / invoiceWeight) * 100) : 0;
 

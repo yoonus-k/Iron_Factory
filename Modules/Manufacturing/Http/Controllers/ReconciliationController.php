@@ -468,7 +468,7 @@ class ReconciliationController extends Controller
                 $reconciliationLog = ReconciliationLog::where('delivery_note_id', $deliveryNote->id)
                     ->where('purchase_invoice_id', $invoice->id)
                     ->first();
-                
+
                 if ($reconciliationLog) {
                     $reconciliationLog->update([
                         'actual_weight' => $actualWeight,
@@ -525,7 +525,7 @@ class ReconciliationController extends Controller
                 $existingMovement = MaterialMovement::where('delivery_note_id', $deliveryNote->id)
                     ->where('reconciliation_log_id', $reconciliationLog->id)
                     ->first();
-                
+
                 if ($existingMovement) {
                     // تحديث الحركة الموجودة
                     $existingMovement->update([
@@ -628,7 +628,7 @@ class ReconciliationController extends Controller
                 if ($note->purchase_invoice_id) {
                     $status = $note->reconciliation_status === 'matched' ? ' (مطابق)' : ' (مرتبط بفاتورة)';
                 }
-                
+
                 return [
                     'id' => $note->id,
                     'text' => "أذن #{$note->note_number} - {$note->supplier->name} - الوزن: {$note->actual_weight} كيلو{$status}",
@@ -985,7 +985,7 @@ class ReconciliationController extends Controller
             if ($note->purchase_invoice_id) {
                 $status = $note->reconciliation_status === 'matched' ? ' (مطابق)' : ' (مرتبط بفاتورة)';
             }
-            
+
             return [
                 'id' => $note->id,
                 'note_number' => $note->note_number,
