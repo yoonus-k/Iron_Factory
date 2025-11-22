@@ -831,7 +831,7 @@ class ReconciliationController extends Controller
 
             // تحديث سجل التسوية
             $reconciliationLog = $deliveryNote->reconciliationLogs()->latest()->first();
-            
+
             if ($reconciliationLog) {
                 $reconciliationLog->update([
                     'invoice_weight' => $validated['invoice_weight'],
@@ -844,7 +844,7 @@ class ReconciliationController extends Controller
                 ]);
             }
 
-            // إرسال إشعار
+            // ✅ إرسال إشعار
             try {
                 $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
                 foreach ($managers as $manager) {
@@ -853,19 +853,37 @@ class ReconciliationController extends Controller
                         'تحديث ربط فاتورة',
                         "تم تحديث ربط الفاتورة #{$deliveryNote->purchaseInvoice->invoice_number} بأذن التسليم #{$deliveryNote->note_number}. السبب: {$validated['edit_reason']}",
                         'edit_link_invoice',
-                        'info',
+                        'warning',
                         'feather icon-edit',
-                        route('manufacturing.warehouses.reconciliation.index')
+                        route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
                     );
                 }
+
+                // ✅ تخزين الإشعار
+                $this->notifyUpdate(
+                    'ربط فاتورة',
+                    "#{$deliveryNote->note_number}",
+                    route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
+                );
             } catch (\Exception $notifError) {
                 Log::warning('Failed to send edit notification: ' . $notifError->getMessage());
+            }
+
+            // ✅ إرسال إشعار بحفظ التسوية
+            try {
+                $this->notifyCreate(
+                    'تسوية بضاعة وفاتورة',
+                    "#{$deliveryNote->note_number}",
+                    route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
+                );
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send save reconciliation notification: ' . $notifError->getMessage());
             }
 
             DB::commit();
 
             return redirect()->route('manufacturing.warehouses.reconciliation.index')
-                ->with('success', 'تم تحديث ربط الفاتورة بنجاح!');
+                ->with('success', 'تم حفظ التسوية بنجاح!');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to update link invoice: ' . $e->getMessage());
@@ -898,7 +916,7 @@ class ReconciliationController extends Controller
             // حذف السجل
             $reconciliation->delete();
 
-            // إرسال إشعار بحذف ربط الفاتورة
+            // ✅ إرسال إشعار بحذف ربط الفاتورة
             try {
                 $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
                 foreach ($managers as $manager) {
@@ -912,6 +930,13 @@ class ReconciliationController extends Controller
                         route('manufacturing.warehouses.reconciliation.index')
                     );
                 }
+
+                // ✅ تخزين الإشعار
+                $this->notifyDelete(
+                    'ربط فاتورة',
+                    "#{$reconciliation->deliveryNote->note_number}",
+                    route('manufacturing.warehouses.reconciliation.index')
+                );
 
                 // ✅ تخزين الإشعار
                 $this->storeNotification(

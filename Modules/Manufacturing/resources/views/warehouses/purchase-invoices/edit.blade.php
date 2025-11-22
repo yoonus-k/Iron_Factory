@@ -10,6 +10,8 @@
             <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="12" y1="11" x2="12" y2="17"></line>
+                <line x1="9" y1="14" x2="15" y2="14"></line>
             </svg>
             تعديل فاتورة شراء
         </h1>
@@ -299,27 +301,11 @@
                     </div>
                     <div>
                         <h3 class="section-title">الحالة والنشاط</h3>
-                        <p class="section-subtitle">قم بتحديث حالة الفاتورة ونشاطها</p>
+                        <p class="section-subtitle">حدد حالة الفاتورة ونشاطها</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
-                    <div class="form-group">
-                        <label for="status" class="form-label">
-                            الحالة
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <select name="status" id="status" class="form-input" required>
-                                <option value="">-- اختر الحالة --</option>
-                                <option value="draft" {{ old('status', $invoice->status->value) == 'draft' ? 'selected' : '' }}>مسودة</option>
-                                <option value="pending" {{ old('status', $invoice->status->value) == 'pending' ? 'selected' : '' }}>في الانتظار</option>
-                                <option value="approved" {{ old('status', $invoice->status->value) == 'approved' ? 'selected' : '' }}>موافق عليها</option>
-                                <option value="paid" {{ old('status', $invoice->status->value) == 'paid' ? 'selected' : '' }}>مدفوعة</option>
-                            </select>
-                        </div>
-                    </div>
-
                     <div class="form-group">
                         <label class="form-label">النشاط</label>
                         <div class="input-wrapper">
@@ -398,6 +384,10 @@
                 existingItems.forEach(item => {
                     addItem(item);
                 });
+                // Calculate totals after loading all items
+                setTimeout(() => {
+                    calculateGrandTotal();
+                }, 100);
             } else {
                 // Add at least one empty item
                 addItem();
@@ -453,7 +443,7 @@
                     <td>
                         <select name="items[${itemIndex}][material_id]" class="material-select" onchange="selectMaterial(${itemIndex}, this.value)">
                             <option value="">-- اختر --</option>
-                            ${materials.map(m => `<option value="${m.id}" ${existingItem && existingItem.material_id == m.id ? 'selected' : ''} data-name="${m.name}" data-unit-id="${m.unit_id || ''}">${m.name}</option>`).join('')}
+                            ${materials.map(m => `<option value="${m.id}" ${existingItem && existingItem.material_id == m.id ? 'selected' : ''} data-name="${m.name_ar}" data-unit-id="${m.unit_id || ''}">${m.name_ar}</option>`).join('')}
                         </select>
                     </td>
 
@@ -492,6 +482,14 @@
             `;
 
             container.insertAdjacentHTML('beforeend', itemHtml);
+
+            // Calculate total for this item if it has existing data
+            if (existingItem) {
+                setTimeout(() => {
+                    calculateItemTotal(itemIndex);
+                }, 50);
+            }
+
             calculateGrandTotal();
         }
 
@@ -513,7 +511,6 @@
             const material = materials.find(m => m.id == materialId);
             if (material) {
                 const item = document.querySelector(`.invoice-item[data-index="${index}"]`);
-                item.querySelector('.item-name').value = material.name;
 
                 // Set unit based on material's unit_id
                 if (material.unit_id) {

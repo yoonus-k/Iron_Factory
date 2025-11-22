@@ -241,18 +241,15 @@ class PurchaseInvoiceController extends Controller
      */
     public function edit($id)
     {
-        try {
+
             $invoice = PurchaseInvoice::with('items')->findOrFail($id);
             $suppliers = Supplier::all();
             $users = User::all();
-            $materials = Material::where('is_active', true)->get();
+            $materials = Material::all();
             $units = Unit::where('is_active', true)->get();
 
             return view('manufacturing::warehouses.purchase-invoices.edit', compact('invoice', 'suppliers', 'users', 'materials', 'units'));
-        } catch (\Exception $e) {
-            return redirect()->route('manufacturing.purchase-invoices.index')
-                           ->withErrors(['error' => 'الفاتورة غير موجودة']);
-        }
+
     }
 
     /**
