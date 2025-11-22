@@ -5,66 +5,573 @@
 @section('content')
 
 <style>
-    .info-tooltip {
-        position: relative;
-        display: inline-flex;
+    /* Improved UI/UX Design with More White Space and Better Readability */
+    .stage-container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 0 20px;
+    }
+
+    /* Stage Header */
+    .stage-header {
+        background: linear-gradient(135deg, #0066B2 0%, #3A8FC7 100%);
+        color: white;
+        padding: 35px 40px;
+        border-radius: 16px;
+        margin-bottom: 35px;
+        box-shadow: 0 6px 20px rgba(0, 102, 178, 0.2);
+        text-align: center;
+    }
+
+    .stage-header h1 {
+        margin: 0 0 12px 0;
+        font-size: 32px;
+        font-weight: 700;
+        display: flex;
         align-items: center;
         justify-content: center;
-        width: 18px;
-        height: 18px;
+        gap: 15px;
+    }
+
+    .stage-header p {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 18px;
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.7;
+    }
+
+    /* Form Section */
+    .form-section {
+        background: white;
+        padding: 35px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        border: 1px solid #e3e6f0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0 0 25px 0;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #0066B2;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* Form Layout */
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-size: 16px;
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .required {
+        color: #e74c3c;
+        margin-right: 5px;
+    }
+
+    .form-control, .form-select {
+        padding: 16px 18px;
+        border: 2px solid #dce4ec;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s;
+        background: #f8fafb;
+        font-weight: 400;
+    }
+
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: #0066B2;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(0, 102, 178, 0.15);
+    }
+
+    .form-control:disabled, .form-control:read-only {
+        background: #ecf0f1;
+        cursor: not-allowed;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    /* Barcode Section */
+    .barcode-section {
+        background: linear-gradient(135deg, #e6f2fa 0%, #d5e8f7 100%);
+        padding: 35px;
+        border-radius: 16px;
+        margin-bottom: 35px;
+        border: 2px dashed #0066B2;
+        text-align: center;
+    }
+
+    .barcode-input-wrapper {
+        position: relative;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .barcode-input {
+        width: 100%;
+        padding: 20px 60px 20px 20px;
+        font-size: 18px;
+        border: 3px solid #0066B2;
+        border-radius: 12px;
+        font-weight: 500;
+        background: white;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .barcode-input:focus {
+        box-shadow: 0 0 0 5px rgba(0, 102, 178, 0.2);
+    }
+
+    .barcode-icon {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 28px;
+        color: #0066B2;
+    }
+
+    /* Display Sections */
+    .material-display,
+    .stand-display {
+        background: linear-gradient(135deg, #e6f2fa 0%, #d5e8f7 100%);
+        padding: 30px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        border-right: 5px solid #0066B2;
+        display: none;
+    }
+
+    .material-display.active,
+    .stand-display.active {
+        display: block;
+        animation: slideIn 0.4s ease-out;
+    }
+
+    .material-display h4,
+    .stand-display h4 {
+        color: #0066B2;
+        margin: 0 0 20px 0;
+        font-size: 22px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .material-info,
+    .stand-info {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+        margin-top: 15px;
+    }
+
+    .info-item {
+        background: rgba(255, 255, 255, 0.85);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .info-label {
+        font-size: 16px;
+        color: #7f8c8d;
+        margin-bottom: 12px;
+        font-weight: 600;
+    }
+
+    .info-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    /* Info Box */
+    .info-box {
+        background: linear-gradient(135deg, #e6f2fa 0%, #d5e8f7 100%);
+        border-right: 5px solid #0066B2;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+    }
+
+    .info-box strong {
+        color: #0066B2;
+        display: block;
+        margin-bottom: 15px;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .info-box ul {
+        margin: 15px 0 0 30px;
+        color: #7f8c8d;
+        font-size: 16px;
+        line-height: 1.8;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background: linear-gradient(135deg, #0066B2 0%, #3A8FC7 100%);
+        color: white;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 10px;
+        font-size: 17px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 4px 15px rgba(0, 102, 178, 0.2);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 102, 178, 0.3);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        color: white;
+        border: none;
+        padding: 18px 40px;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        box-shadow: 0 4px 15px rgba(39, 174, 96, 0.2);
+    }
+
+    .btn-success:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-success:disabled {
+        background: #95a5a6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .btn-secondary {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 10px;
+        font-size: 17px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 4px 15px rgba(149, 165, 166, 0.2);
+    }
+
+    .btn-secondary:hover {
+        background: #7f8c8d;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(149, 165, 166, 0.3);
+    }
+
+    /* Button Group */
+    .button-group {
+        display: flex;
+        gap: 20px;
+        margin-top: 25px;
+        flex-wrap: wrap;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 25px;
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 3px solid #ecf0f1;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    /* List Items */
+    .stands-list,
+    .processed-list {
+        margin-top: 25px;
+    }
+
+    .stand-item,
+    .processed-item {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-right: 5px solid #0066B2;
+        animation: slideIn 0.3s ease-out;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+
+    .stand-info,
+    .processed-info {
+        flex: 1;
+    }
+
+    .stand-info strong,
+    .processed-info strong {
+        color: #2c3e50;
+        font-size: 18px;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .stand-info small,
+    .processed-info small {
+        color: #7f8c8d;
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .stand-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    /* Buttons in Lists */
+    .btn-delete {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-delete:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-print {
         background: #3498db;
         color: white;
-        border-radius: 50%;
-        font-size: 12px;
-        font-weight: bold;
-        cursor: help;
-        margin-right: 5px;
-        vertical-align: middle;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
-    .info-tooltip:hover {
+    .btn-print:hover {
         background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
     }
 
-    .info-tooltip .tooltip-text {
-        visibility: hidden;
-        width: 250px;
-        background-color: #2c3e50;
-        color: #fff;
-        text-align: right;
-        border-radius: 6px;
-        padding: 12px;
-        position: absolute;
-        z-index: 1000;
-        bottom: 125%;
-        right: 50%;
-        margin-right: -125px;
-        opacity: 0;
-        transition: opacity 0.3s;
-        font-size: 13px;
-        line-height: 1.6;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 30px;
+        color: #95a5a6;
     }
 
-    .info-tooltip .tooltip-text::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        right: 50%;
-        margin-right: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: #2c3e50 transparent transparent transparent;
+    .empty-state svg {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 25px;
+        opacity: 0.6;
     }
 
-    .info-tooltip:hover .tooltip-text {
-        visibility: visible;
-        opacity: 1;
+    .empty-state p {
+        font-size: 18px;
+        margin: 0;
     }
 
-    .info-box-header {
-        cursor: help;
-        display: inline-block;
+    /* Animations */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .stage-container {
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .stage-header {
+            padding: 25px 30px;
+        }
+
+        .stage-header h1 {
+            font-size: 26px;
+            gap: 12px;
+        }
+
+        .stage-header p {
+            font-size: 16px;
+        }
+
+        .form-section {
+            padding: 25px;
+        }
+
+        .section-title {
+            font-size: 20px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .material-info,
+        .stand-info {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .button-group,
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .stand-item,
+        .processed-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .stand-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .stage-header {
+            padding: 20px 15px;
+        }
+
+        .stage-header h1 {
+            font-size: 22px;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-section {
+            padding: 20px 15px;
+        }
+
+        .section-title {
+            font-size: 18px;
+        }
+
+        .barcode-section {
+            padding: 25px 20px;
+        }
+
+        .barcode-input {
+            padding: 16px 50px 16px 16px;
+            font-size: 16px;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            padding: 14px 24px;
+            font-size: 15px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-success {
+            padding: 16px 30px;
+            font-size: 16px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .button-group {
+            gap: 15px;
+        }
+
+        .form-actions {
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+        }
+
+        .empty-state {
+            padding: 40px 20px;
+        }
+
+        .empty-state svg {
+            width: 60px;
+            height: 60px;
+        }
     }
 </style>
 
@@ -80,12 +587,12 @@
 
     <!-- Barcode Scanner -->
     <div class="form-section barcode-section">
-        <h3 style="margin: 0 0 20px 0; color: #0066B2; font-size: 22px;"><i class="fas fa-barcode"></i> مسح باركود المادة الخام</h3>
+        <h3 class="section-title"><i class="fas fa-barcode"></i> مسح باركود المادة الخام</h3>
         <div class="barcode-input-wrapper">
             <input type="text" id="materialBarcode" class="barcode-input" placeholder="امسح أو اكتب باركود المادة الخام" autofocus>
-            <span class="barcode-icon"><i class="fas fa-tag" title="أيقونة تشير إلى حقل إدخال الباركود"></i></span>
+            <span class="barcode-icon"><i class="fas fa-tag"></i></span>
         </div>
-        <small style="color: #7f8c8d; display: block; margin-top: 15px; font-size: 15px;"><i class="fas fa-lightbulb"></i> امسح الباركود أو اضغط Enter للبحث عن المادة الخام</small>
+        <small style="color: #7f8c8d; display: block; margin-top: 20px; font-size: 16px;"><i class="fas fa-lightbulb"></i> امسح الباركود أو اضغط Enter للبحث عن المادة الخام</small>
     </div>
 
     <!-- Material Display -->
@@ -93,15 +600,15 @@
         <h4><i class="fas fa-circle-check"></i> بيانات المادة الخام</h4>
         <div class="material-info">
             <div class="info-item">
-                <div class="info-label">الباركود <span class="info-tooltip">?<span class="tooltip-text">الرمز الشريطي الفريد للمادة الخام</span></span></div>
+                <div class="info-label">الباركود</div>
                 <div class="info-value" id="displayBarcode">-</div>
             </div>
             <div class="info-item">
-                <div class="info-label">نوع المادة <span class="info-tooltip">?<span class="tooltip-text">تصنيف المادة الخام المستخدمة في الإنتاج</span></span></div>
+                <div class="info-label">نوع المادة</div>
                 <div class="info-value" id="displayMaterialType">-</div>
             </div>
             <div class="info-item">
-                <div class="info-label">الوزن المنقول للإنتاج <span class="info-tooltip">?<span class="tooltip-text">الكمية التي تم نقلها من المستودع للإنتاج</span></span></div>
+                <div class="info-label">الوزن المنقول للإنتاج</div>
                 <div class="info-value" id="displayWeight">-</div>
             </div>
         </div>
@@ -112,30 +619,33 @@
         <h3 class="section-title"><i class="fas fa-target"></i> اختيار الاستاند المتوفر</h3>
 
         <div class="info-box">
-            <div class="info-box-header">
-                <strong><i class="fas fa-thumbtack"></i> ملاحظة: <span class="info-tooltip">?<span class="tooltip-text"><strong>معلومات هامة عن تقسيم المواد:</strong><br><br>• الوزن الصافي = الوزن الإجمالي - وزن الاستاند الفارغ<br><br>• مثال: 100 كجم إجمالي - 2 كجم وزن الاستاند = 98 كجم صافي<br><br>• سيتم تحويل حالة الاستاند إلى "مستخدم" تلقائياً</span></span></strong>
-            </div>
+            <strong><i class="fas fa-thumbtack"></i> ملاحظة مهمة:</strong>
+            <ul>
+                <li><strong>الوزن الصافي = الوزن الإجمالي - وزن الاستاند الفارغ</strong></li>
+                <li>مثال: 100 كجم إجمالي - 2 كجم وزن الاستاند = 98 كجم صافي</li>
+                <li>سيتم تحويل حالة الاستاند إلى "مستخدم" تلقائياً</li>
+            </ul>
         </div>
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
-                <label for="standSelect"><i class="fas fa-bullseye"></i> اختر الاستاند المتوفر <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">اختر الاستاند الفارغ الذي سيتم استخدامه لتقسيم المادة الخام</span></span></label>
-                <select id="standSelect" class="form-control" onchange="loadStand()" style="font-size: 16px; padding: 14px;">
+                <label for="standSelect"><i class="fas fa-bullseye"></i> اختر الاستاند المتوفر <span class="required">*</span></label>
+                <select id="standSelect" class="form-control" onchange="loadStand()" style="font-size: 17px; padding: 16px;">
                     <option value="">-- اختر استاند متوفر من القائمة --</option>
                 </select>
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-lightbulb"></i> اختر الاستاند الذي تريد استخدامه (فقط الاستاندات الغير مستخدمة)</small>
+                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-lightbulb"></i> اختر الاستاند الذي تريد استخدامه (فقط الاستاندات الغير مستخدمة)</small>
             </div>
         </div>
 
-        <div id="standDetails" style="display: none; margin: 25px 0; padding: 25px; background: linear-gradient(135deg, #e8f8f5 0%, #d5f4e6 100%); border-radius: 10px; border-right: 4px solid #27ae60;">
-            <h4 style="margin: 0 0 20px 0; color: #27ae60; font-size: 18px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-box"></i> الاستاند المختار</h4>
-            <div class="material-info" style="grid-template-columns: repeat(2, 1fr);">
+        <div id="standDetails" style="display: none; margin: 30px 0; padding: 30px; background: linear-gradient(135deg, #e8f8f5 0%, #d5f4e6 100%); border-radius: 12px; border-right: 5px solid #27ae60;">
+            <h4 style="margin: 0 0 25px 0; color: #27ae60; font-size: 22px; display: flex; align-items: center; gap: 12px;"><i class="fas fa-box"></i> الاستاند المختار</h4>
+            <div class="stand-info" style="grid-template-columns: repeat(2, 1fr);">
                 <div class="info-item">
-                    <div class="info-label">رقم الاستاند <span class="info-tooltip">?<span class="tooltip-text">الرقم التعريفي الفريد للاستند</span></span></div>
+                    <div class="info-label">رقم الاستاند</div>
                     <div class="info-value" id="selectedStandNumber" style="color: #27ae60; font-weight: 700;">-</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">وزن الاستاند الفارغ <span class="info-tooltip">?<span class="tooltip-text">الوزن الأساسي للاستاند بدون المادة الخام</span></span></div>
+                    <div class="info-label">وزن الاستاند الفارغ</div>
                     <div class="info-value" id="selectedStandWeight" style="color: #e67e22; font-weight: 700;">-</div>
                 </div>
             </div>
@@ -143,44 +653,44 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label for="wasteWeight"><i class="fas fa-trash-alt"></i> وزن الهدر (كجم) <span class="info-tooltip">?<span class="tooltip-text">الكمية المفقودة أثناء عملية التقسيم</span></span></label>
+                <label for="wasteWeight"><i class="fas fa-trash-alt"></i> وزن الهدر (كجم)</label>
                 <input type="number" id="wasteWeight" class="form-control" placeholder="سيتم حسابه تلقائياً" step="0.01" oninput="calculateWastePercentage()">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-calculator"></i> <span class="info-tooltip">?<span class="tooltip-text">يُحسب تلقائياً: الإجمالي - الصافي - وزن الاستاند (يمكن التعديل)</span></span></small>
+                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-calculator"></i> يُحسب تلقائياً: الإجمالي - الصافي - وزن الاستاند (يمكن التعديل)</small>
             </div>
             <div class="form-group">
-                <label for="wastePercentage"><i class="fas fa-chart-bar"></i> نسبة الهدر (%) <span class="info-tooltip">?<span class="tooltip-text">النسبة المئوية للهدر من الوزن الإجمالي</span></span></label>
+                <label for="wastePercentage"><i class="fas fa-chart-bar"></i> نسبة الهدر (%)</label>
                 <input type="number" id="wastePercentage" class="form-control" placeholder="0" step="0.01" readonly style="background: #ecf0f1;">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-percent"></i> <span class="info-tooltip">?<span class="tooltip-text">يُحسب تلقائياً من وزن الهدر</span></span></small>
+                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-percent"></i> يُحسب تلقائياً من وزن الهدر</small>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label for="totalWeight"><i class="fas fa-weight"></i> الوزن الإجمالي (كجم) <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">الوزن الكلي للستاند مع المادة الخام</span></span></label>
-                <input type="number" id="totalWeight" class="form-control" placeholder="أدخل الوزن الإجمالي" step="0.01" oninput="calculateNetWeight()" style="font-size: 16px;">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-balance-scale"></i> <span class="info-tooltip">?<span class="tooltip-text">الوزن الكلي شامل وزن الاستاند</span></span></small>
+                <label for="totalWeight"><i class="fas fa-weight"></i> الوزن الإجمالي (كجم) <span class="required">*</span></label>
+                <input type="number" id="totalWeight" class="form-control" placeholder="أدخل الوزن الإجمالي" step="0.01" oninput="calculateNetWeight()" style="font-size: 17px;">
+                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-balance-scale"></i> الوزن الكلي شامل وزن الاستاند</small>
             </div>
 
             <div class="form-group">
-                <label for="standWeight"><i class="fas fa-box-open"></i> وزن الاستاند الفارغ (كجم) <span class="info-tooltip">?<span class="tooltip-text">الوزن الأساسي للاستاند بدون المادة</span></span></label>
+                <label for="standWeight"><i class="fas fa-box-open"></i> وزن الاستاند الفارغ (كجم)</label>
                 <input type="number" id="standWeight" class="form-control" placeholder="سيتم جلبه تلقائياً" step="0.01" readonly style="background: #ecf0f1; font-weight: 600;">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-sync"></i> <span class="info-tooltip">?<span class="tooltip-text">يتم جلبه تلقائياً من بيانات الاستاند</span></span></small>
+                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-sync"></i> يتم جلبه تلقائياً من بيانات الاستاند</small>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
-                <label for="netWeight"><i class="fas fa-check"></i> الوزن الصافي (كجم) <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">الوزن الفعلي للمادة الخام بدون وزن الاستاند</span></span></label>
-                <input type="number" id="netWeight" class="form-control" placeholder="سيتم حسابه تلقائياً" step="0.01" readonly style="background: linear-gradient(135deg, #d5f4e6 0%, #e8f8f5 100%); font-weight: 700; font-size: 20px; text-align: center; color: #27ae60; border: 2px solid #27ae60;">
-                <small style="color: #27ae60; display: block; margin-top: 8px; font-weight: 600; font-size: 15px;"><i class="fas fa-calculator"></i> <span class="info-tooltip">?<span class="tooltip-text">يُحسب تلقائياً: الوزن الإجمالي - وزن الاستاند الفارغ</span></span></small>
+                <label for="netWeight"><i class="fas fa-check"></i> الوزن الصافي (كجم) <span class="required">*</span></label>
+                <input type="number" id="netWeight" class="form-control" placeholder="سيتم حسابه تلقائياً" step="0.01" readonly style="background: linear-gradient(135deg, #d5f4e6 0%, #e8f8f5 100%); font-weight: 700; font-size: 22px; text-align: center; color: #27ae60; border: 3px solid #27ae60; border-radius: 12px;">
+                <small style="color: #27ae60; display: block; margin-top: 10px; font-weight: 600; font-size: 16px;"><i class="fas fa-calculator"></i> يُحسب تلقائياً: الوزن الإجمالي - وزن الاستاند الفارغ</small>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
-                <label for="notes">ملاحظات <span class="info-tooltip">?<span class="tooltip-text">ملاحظات إضافية حول عملية التقسيم</span></span></label>
-                <textarea id="notes" class="form-control" placeholder="ملاحظات اختيارية..." rows="3"></textarea>
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-sticky-note"></i> <span class="info-tooltip">?<span class="tooltip-text">يمكنك إضافة أي ملاحظات إضافية هنا</span></span></small>
+                <label for="notes"><i class="fas fa-sticky-note"></i> ملاحظات</label>
+                <textarea id="notes" class="form-control" placeholder="ملاحظات اختيارية..." rows="4"></textarea>
+                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-sticky-note"></i> يمكنك إضافة أي ملاحظات إضافية هنا</small>
             </div>
         </div>
 
@@ -598,30 +1108,30 @@ function showBarcodesModal(barcodes) {
     `;
 
     let barcodesHTML = barcodes.map((item, index) => `
-        <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%); padding: 25px; border-radius: 12px; margin-bottom: 20px; border-right: 5px solid #27ae60; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <div style="display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; margin-bottom: 20px;">
+        <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%); padding: 30px; border-radius: 16px; margin-bottom: 25px; border-right: 5px solid #27ae60; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 25px; align-items: start; margin-bottom: 25px;">
                 <div>
-                    <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 20px; font-weight: 700;">
+                    <h4 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 22px; font-weight: 700;">
                         <i class="fas fa-box" style="color: #27ae60;"></i> استاند ${item.stand_number}
                     </h4>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px;">
-                        <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #3498db;">
-                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">المادة</div>
-                            <div style="font-size: 15px; color: #2c3e50; font-weight: 700;">${item.material_name}</div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; border-right: 4px solid #3498db; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                            <div style="font-size: 13px; color: #7f8c8d; margin-bottom: 8px; font-weight: 600;">المادة</div>
+                            <div style="font-size: 17px; color: #2c3e50; font-weight: 700;">${item.material_name}</div>
                         </div>
-                        <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #e67e22;">
-                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">الوزن الصافي</div>
-                            <div style="font-size: 18px; color: #e67e22; font-weight: 700;">${item.net_weight} كجم</div>
+                        <div style="background: white; padding: 15px; border-radius: 10px; border-right: 4px solid #e67e22; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                            <div style="font-size: 13px; color: #7f8c8d; margin-bottom: 8px; font-weight: 600;">الوزن الصافي</div>
+                            <div style="font-size: 20px; color: #e67e22; font-weight: 700;">${item.net_weight} كجم</div>
                         </div>
                     </div>
                 </div>
-                <button onclick="printSingleBarcode('${item.barcode}', '${item.stand_number}', '${item.material_name}', ${item.net_weight})" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 3px 10px rgba(39, 174, 96, 0.3); transition: all 0.3s;">
+                <button onclick="printSingleBarcode('${item.barcode}', '${item.stand_number}', '${item.material_name}', ${item.net_weight})" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3); transition: all 0.3s;">
                     <i class="fas fa-print"></i> طباعة
                 </button>
             </div>
-            <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="background: white; padding: 25px; border-radius: 12px; text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
                 <svg id="barcode-${index}" style="max-width: 100%;"></svg>
-                <div style="font-family: 'Courier New', monospace; font-size: 18px; font-weight: bold; color: #2c3e50; margin-top: 12px; letter-spacing: 3px; background: #f8f9fa; padding: 10px; border-radius: 6px;">
+                <div style="font-family: 'Courier New', monospace; font-size: 20px; font-weight: bold; color: #2c3e50; margin-top: 15px; letter-spacing: 4px; background: #f8f9fa; padding: 12px; border-radius: 8px;">
                     ${item.barcode}
                 </div>
             </div>
@@ -633,37 +1143,37 @@ function showBarcodesModal(barcodes) {
     const standsCount = barcodes.length;
 
     modal.innerHTML = `
-        <div style="background: white; border-radius: 12px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 12px 12px 0 0;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; font-size: 24px; font-weight: 700;">
+        <div style="background: white; border-radius: 16px; max-width: 950px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 15px 50px rgba(0,0,0,0.3);">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 16px 16px 0 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h2 style="margin: 0; font-size: 28px; font-weight: 700;">
                         <i class="fas fa-check-circle"></i> تم الحفظ بنجاح!
                     </h2>
-                    <button onclick="closeBarcodesModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+                    <button onclick="closeBarcodesModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 28px; cursor: pointer; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
                         ✕
                     </button>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; background: rgba(255,255,255,0.15); border-radius: 10px; backdrop-filter: blur(10px);">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 20px; background: rgba(255,255,255,0.15); border-radius: 12px; backdrop-filter: blur(10px);">
                     <div style="text-align: center;">
-                        <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">عدد الاستاندات</div>
-                        <div style="font-size: 28px; font-weight: 700;">${standsCount}</div>
+                        <div style="font-size: 15px; opacity: 0.9; margin-bottom: 8px;">عدد الاستاندات</div>
+                        <div style="font-size: 32px; font-weight: 700;">${standsCount}</div>
                     </div>
                     <div style="text-align: center;">
-                        <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">إجمالي الوزن</div>
-                        <div style="font-size: 28px; font-weight: 700;">${totalWeight.toFixed(2)} كجم</div>
+                        <div style="font-size: 15px; opacity: 0.9; margin-bottom: 8px;">إجمالي الوزن</div>
+                        <div style="font-size: 32px; font-weight: 700;">${totalWeight.toFixed(2)} كجم</div>
                     </div>
                 </div>
             </div>
-            <div style="padding: 30px;">
-                <h3 style="margin: 0 0 20px 0; color: #2c3e50; font-size: 18px; border-bottom: 2px solid #e9ecef; padding-bottom: 12px;">
+            <div style="padding: 35px;">
+                <h3 style="margin: 0 0 25px 0; color: #2c3e50; font-size: 22px; border-bottom: 3px solid #e9ecef; padding-bottom: 15px;">
                     <i class="fas fa-barcode"></i> الباركودات المولدة
                 </h3>
                 ${barcodesHTML}
-                <div style="display: flex; gap: 15px; margin-top: 25px; padding-top: 20px; border-top: 2px solid #e9ecef;">
-                    <button onclick="printAllBarcodes(${JSON.stringify(barcodes).replace(/"/g, '&quot;')})" style="flex: 1; background: #3498db; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <div style="display: flex; gap: 20px; margin-top: 30px; padding-top: 25px; border-top: 3px solid #e9ecef;">
+                    <button onclick="printAllBarcodes(${JSON.stringify(barcodes).replace(/"/g, '&quot;')})" style="flex: 1; background: #3498db; color: white; border: none; padding: 18px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);">
                         <i class="fas fa-print"></i> طباعة الكل
                     </button>
-                    <button onclick="window.location.href='{{ route('manufacturing.stage1.index') }}'" style="flex: 1; background: #27ae60; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <button onclick="window.location.href='{{ route('manufacturing.stage1.index') }}'" style="flex: 1; background: #27ae60; color: white; border: none; padding: 18px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);">
                         <i class="fas fa-check"></i> تم، العودة للرئيسية
                     </button>
                 </div>
@@ -679,9 +1189,9 @@ function showBarcodesModal(barcodes) {
             JsBarcode(`#barcode-${index}`, item.barcode, {
                 format: 'CODE128',
                 width: 2,
-                height: 60,
+                height: 70,
                 displayValue: false,
-                margin: 10
+                margin: 12
             });
         });
     }, 100);
@@ -696,19 +1206,19 @@ function closeBarcodesModal() {
 }
 
 function printSingleBarcode(barcode, standNumber, materialName, netWeight) {
-    const printWindow = window.open('', '', 'height=600,width=800');
+    const printWindow = window.open('', '', 'height=650,width=850');
     printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - ' + standNumber + '</title>');
     printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
     printWindow.document.write('<style>');
     printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
-    printWindow.document.write('.barcode-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 500px; }');
-    printWindow.document.write('.title { font-size: 24px; font-weight: bold; color: #2c3e50; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 3px solid #667eea; }');
-    printWindow.document.write('.stand-number { font-size: 20px; color: #667eea; font-weight: bold; margin: 15px 0; }');
-    printWindow.document.write('.barcode-code { font-size: 18px; font-weight: bold; color: #2c3e50; margin: 20px 0; letter-spacing: 3px; font-family: "Courier New", monospace; }');
-    printWindow.document.write('.info { margin-top: 25px; padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: right; }');
-    printWindow.document.write('.info-row { margin: 10px 0; display: flex; justify-content: space-between; }');
-    printWindow.document.write('.label { color: #7f8c8d; font-size: 14px; }');
-    printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 16px; }');
+    printWindow.document.write('.barcode-container { background: white; padding: 50px; border-radius: 16px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); text-align: center; max-width: 550px; }');
+    printWindow.document.write('.title { font-size: 28px; font-weight: bold; color: #2c3e50; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 4px solid #667eea; }');
+    printWindow.document.write('.stand-number { font-size: 24px; color: #667eea; font-weight: bold; margin: 20px 0; }');
+    printWindow.document.write('.barcode-code { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 25px 0; letter-spacing: 4px; font-family: "Courier New", monospace; }');
+    printWindow.document.write('.info { margin-top: 30px; padding: 25px; background: #f8f9fa; border-radius: 10px; text-align: right; }');
+    printWindow.document.write('.info-row { margin: 12px 0; display: flex; justify-content: space-between; }');
+    printWindow.document.write('.label { color: #7f8c8d; font-size: 16px; }');
+    printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 18px; }');
     printWindow.document.write('@media print { body { background: white; } }');
     printWindow.document.write('</style></head><body>');
     printWindow.document.write('<div class="barcode-container">');
@@ -722,25 +1232,25 @@ function printSingleBarcode(barcode, standNumber, materialName, netWeight) {
     printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
     printWindow.document.write('</div></div>');
     printWindow.document.write('<script>');
-    printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 80, displayValue: false, margin: 10 });');
+    printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');
     printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };');
     printWindow.document.write('<\/script></body></html>');
     printWindow.document.close();
 }
 
 function printAllBarcodes(barcodes) {
-    const printWindow = window.open('', '', 'height=800,width=1000');
+    const printWindow = window.open('', '', 'height=900,width=1100');
     printWindow.document.write('<html dir="rtl"><head><title>طباعة جميع الباركودات</title>');
     printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
     printWindow.document.write('<style>');
-    printWindow.document.write('body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }');
-    printWindow.document.write('.barcode-item { background: white; padding: 30px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); page-break-inside: avoid; }');
-    printWindow.document.write('.title { font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }');
-    printWindow.document.write('.barcode-code { font-size: 16px; font-weight: bold; color: #2c3e50; margin: 15px 0; text-align: center; letter-spacing: 2px; font-family: "Courier New", monospace; }');
-    printWindow.document.write('.info { margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; }');
-    printWindow.document.write('.info-row { margin: 8px 0; display: flex; justify-content: space-between; }');
-    printWindow.document.write('.label { color: #7f8c8d; font-size: 13px; }');
-    printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 14px; }');
+    printWindow.document.write('body { font-family: Arial, sans-serif; margin: 0; padding: 30px; background: #f5f5f5; }');
+    printWindow.document.write('.barcode-item { background: white; padding: 35px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 3px 12px rgba(0,0,0,0.1); page-break-inside: avoid; }');
+    printWindow.document.write('.title { font-size: 24px; font-weight: bold; color: #2c3e50; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 3px solid #667eea; }');
+    printWindow.document.write('.barcode-code { font-size: 18px; font-weight: bold; color: #2c3e50; margin: 20px 0; text-align: center; letter-spacing: 3px; font-family: "Courier New", monospace; }');
+    printWindow.document.write('.info { margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; }');
+    printWindow.document.write('.info-row { margin: 10px 0; display: flex; justify-content: space-between; }');
+    printWindow.document.write('.label { color: #7f8c8d; font-size: 15px; }');
+    printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 16px; }');
     printWindow.document.write('@media print { body { background: white; padding: 0; } .barcode-item { box-shadow: none; page-break-after: always; } }');
     printWindow.document.write('</style></head><body>');
     
@@ -759,7 +1269,7 @@ function printAllBarcodes(barcodes) {
     
     printWindow.document.write('<script>');
     barcodes.forEach((item, index) => {
-        printWindow.document.write('JsBarcode("#print-barcode-' + index + '", "' + item.barcode + '", { format: "CODE128", width: 2, height: 70, displayValue: false, margin: 10 });');
+        printWindow.document.write('JsBarcode("#print-barcode-' + index + '", "' + item.barcode + '", { format: "CODE128", width: 2, height: 80, displayValue: false, margin: 12 });');
     });
     printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 800); };');
     printWindow.document.write('<\/script></body></html>');
@@ -776,17 +1286,17 @@ function printBarcode(id) {
 
     // Create barcode content
     const barcodeContent = `
-        <div style="text-align: center; padding: 20px; font-family: Arial, sans-serif;">
-            <h2 style="margin: 0 0 10px 0;">استاند مُعالج - ${stand.stand_number}</h2>
-            <div style="margin: 15px 0;">
-                <div style="font-size: 18px; font-weight: bold;">${stand.material_type}</div>
-                <div style="font-size: 16px; margin: 5px 0;">الوزن الصافي: ${stand.net_weight} كجم</div>
-                <div style="font-size: 14px; color: #666;">الباركود: ${stand.material_barcode}</div>
-            </div>
+        <div style="text-align: center; padding: 25px; font-family: Arial, sans-serif;">
+            <h2 style="margin: 0 0 15px 0;">استاند مُعالج - ${stand.stand_number}</h2>
             <div style="margin: 20px 0;">
+                <div style="font-size: 20px; font-weight: bold;">${stand.material_type}</div>
+                <div style="font-size: 18px; margin: 8px 0;">الوزن الصافي: ${stand.net_weight} كجم</div>
+                <div style="font-size: 16px; color: #666;">الباركود: ${stand.material_barcode}</div>
+            </div>
+            <div style="margin: 25px 0;">
                 <img src="https://barcode.tec-it.com/barcode.ashx?data=${stand.material_barcode}&code=Code128&translate-esc=on" alt="Barcode">
             </div>
-            <div style="font-size: 12px; color: #888;">
+            <div style="font-size: 14px; color: #888;">
                 تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}
             </div>
         </div>
@@ -799,7 +1309,7 @@ function printBarcode(id) {
         <head>
             <title>طباعة الباركود - ${stand.stand_number}</title>
             <style>
-                body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+                body { margin: 0; padding: 25px; font-family: Arial, sans-serif; }
                 @media print {
                     body { padding: 0; }
                 }
@@ -831,23 +1341,25 @@ function showToast(message, type = 'info') {
     toast.textContent = message;
     toast.style.cssText = `
         position: fixed;
-        top: 20px;
-        right: 20px;
+        top: 30px;
+        right: 30px;
         background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#f39c12'};
         color: white;
-        padding: 15px 25px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        padding: 20px 30px;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
         z-index: 10000;
-        animation: slideIn 0.3s ease-out;
-        max-width: 400px;
+        animation: slideIn 0.4s ease-out;
+        max-width: 450px;
+        font-size: 16px;
+        font-weight: 500;
     `;
     document.body.appendChild(toast);
 
     setTimeout(() => {
-        toast.style.animation = 'fadeOut 0.3s ease-out';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+        toast.style.animation = 'fadeOut 0.4s ease-out';
+        setTimeout(() => toast.remove(), 400);
+    }, 4000);
 }
 </script>
 

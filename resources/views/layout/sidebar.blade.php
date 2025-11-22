@@ -66,7 +66,7 @@
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage1.title') }}">
                     <i class="fas fa-cut"></i>
-                    <span>قائمة الاستاندات</span>
+                    <span>المرحلة الأولى: الاستاندات</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
@@ -128,30 +128,30 @@
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage3.title') }}">
                     <i class="fas fa-codiepie"></i>
-                    <span>{{ __('app.production.stage3.title') }}</span>
+                    <span>المرحلة الثالثة: الفافات</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
-                    <li>
+                    <!-- <li>
                         <a href="{{ route('manufacturing.stage3.index') }}">
                             <i class="fas fa-list"></i> {{ __('app.production.stage3.list') }}
                         </a>
-                    </li>
+                    </li> -->
                     <li>
                         <a href="{{ route('manufacturing.stage3.create') }}">
-                            <i class="fas fa-plus-circle"></i> {{ __('app.production.stage3.create_new') }}
+                            <i class="fas fa-plus-circle"></i> انشاء لفافة جديدة
                         </a>
                     </li>
-                      <li>
+                      <!-- <li>
                         <a href="{{ route('manufacturing.stage3.add-dye-plastic') }}">
                             <i class="fas fa-palette"></i> {{ __('app.production.stage3.add_additives') }}
                         </a>
-                    </li>
-                    <li>
+                    </li> -->
+                    <!-- <li>
                         <a href="{{ route('manufacturing.stage3.completed-coils') }}">
                             <i class="fas fa-check-circle"></i> {{ __('app.production.stage3.completed') }}
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
             </li>
 
