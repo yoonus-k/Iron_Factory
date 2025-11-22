@@ -25,29 +25,39 @@ class NotificationController extends Controller
         $user = Auth::user();
         $limit = $request->input('limit', 50);
         $type = $request->input('type', null);
-        $unread = $request->input('unread', null); // Changed from boolean to allow null
+        $unreadFilter = $request->input('unread', null);
 
-        // Use with() to eager load relationships
-        $query = Notification::with(['creator', 'user'])->where('user_id', $user->id);
+        // جلب جميع الإشعارات بدون قيود على المستخدم
+        $query = Notification::with(['creator', 'user']);
 
-        if ($type) {
+        // Filter by type only if provided and not empty
+        if ($type && $type !== '') {
             $query->where('type', $type);
         }
 
-        // Handle unread filter properly
-        if ($unread !== null) {
-            if ($unread == '1' || $unread === true || $unread === 'true') {
-                $query->unread();
-            } elseif ($unread == '0' || $unread === false || $unread === 'false') {
-                $query->read();
+        // Handle unread filter - only apply if explicitly set to 0 or 1
+        if ($unreadFilter !== null && $unreadFilter !== '') {
+            if ($unreadFilter == '1' || $unreadFilter === 'true') {
+                $query->where('is_read', false);
+            } elseif ($unreadFilter == '0' || $unreadFilter === 'false') {
+                $query->where('is_read', true);
             }
         }
 
         // Order by created_at descending (newest first)
         $notifications = $query->orderBy('created_at', 'desc')->paginate($limit);
-        $stats = Notification::getStatistics($user->id);
 
-        return view('notifications.index', compact('notifications', 'stats', 'type', 'unread'));
+        // Get statistics - لجميع الإشعارات
+        $stats = [
+            'total' => Notification::count(),
+            'unread' => Notification::where('is_read', false)->count(),
+            'read' => Notification::where('is_read', true)->count(),
+            'by_color' => Notification::selectRaw('color, count(*) as count')
+                ->groupBy('color')
+                ->get()
+        ];
+
+        return view('notifications.index', compact('notifications', 'stats'));
     }
 
     /**
@@ -57,12 +67,18 @@ class NotificationController extends Controller
     {
         $user = Auth::user();
         $limit = $request->input('limit', 20);
-        $unread = $request->boolean('unread', true);
+        $unreadFilter = $request->input('unread', null);
 
-        $query = Notification::where('user_id', $user->id);
+        // جلب جميع الإشعارات بدون قيود
+        $query = Notification::query();
 
-        if ($unread) {
-            $query->unread();
+        // Only filter by read status if explicitly requested
+        if ($unreadFilter !== null && $unreadFilter !== '') {
+            if ($unreadFilter == '1' || $unreadFilter === true || $unreadFilter === 'true') {
+                $query->where('is_read', false);
+            } elseif ($unreadFilter == '0' || $unreadFilter === false || $unreadFilter === 'false') {
+                $query->where('is_read', true);
+            }
         }
 
         $notifications = $query->latest()->take($limit)->get();
@@ -86,7 +102,7 @@ class NotificationController extends Controller
         return response()->json([
             'success' => true,
             'count' => count($result),
-            'unread_count' => Notification::where('user_id', $user->id)->unread()->count(),
+            'unread_count' => Notification::where('is_read', false)->count(),
             'notifications' => $result,
         ]);
     }
@@ -96,8 +112,8 @@ class NotificationController extends Controller
      */
     public function markAsRead($id)
     {
-        $user = Auth::user();
-        $notification = Notification::where('user_id', $user->id)->findOrFail($id);
+        // حذف شرط المستخدم
+        $notification = Notification::findOrFail($id);
 
         $notification->markAsRead();
 
@@ -112,8 +128,8 @@ class NotificationController extends Controller
      */
     public function markAllAsRead()
     {
-        $user = Auth::user();
-        $this->notificationService->markAllAsRead($user);
+        // وضع علامة قراءة على جميع الإشعارات
+        Notification::where('is_read', false)->update(['is_read' => true]);
 
         return response()->json([
             'success' => true,
@@ -126,8 +142,8 @@ class NotificationController extends Controller
      */
     public function destroy($id)
     {
-        $user = Auth::user();
-        $notification = Notification::where('user_id', $user->id)->findOrFail($id);
+        // حذف بدون شرط المستخدم
+        $notification = Notification::findOrFail($id);
 
         $notification->delete();
 
@@ -142,8 +158,8 @@ class NotificationController extends Controller
      */
     public function destroyAll()
     {
-        $user = Auth::user();
-        Notification::where('user_id', $user->id)->delete();
+        // حذف جميع الإشعارات
+        Notification::query()->delete();
 
         return response()->json([
             'success' => true,
@@ -156,8 +172,8 @@ class NotificationController extends Controller
      */
     public function getUnreadCount()
     {
-        $user = Auth::user();
-        $unread_count = Notification::where('user_id', $user->id)->unread()->count();
+        // عدد الإشعارات غير المقروءة لجميع المستخدمين
+        $unread_count = Notification::where('is_read', false)->count();
 
         return response()->json([
             'success' => true,
@@ -170,8 +186,8 @@ class NotificationController extends Controller
      */
     public function show($id)
     {
-        $user = Auth::user();
-        $notification = Notification::where('user_id', $user->id)->findOrFail($id);
+        // عرض أي إشعار بدون شرط المستخدم
+        $notification = Notification::findOrFail($id);
 
         if (!$notification->is_read) {
             $notification->markAsRead();

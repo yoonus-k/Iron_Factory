@@ -11,6 +11,7 @@ use App\Models\Warehouse;
 use App\Models\User;
 use App\Models\MaterialMovement;
 use App\Services\NotificationService;
+use App\Traits\StoresNotifications;
 use Modules\Manufacturing\Traits\LogsOperations;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 
 class DeliveryNoteController extends Controller
 {
-    use LogsOperations;
+    use LogsOperations, StoresNotifications;
 
     protected $notificationService;
 
@@ -307,6 +308,17 @@ class DeliveryNoteController extends Controller
                         Auth::user()
                     );
                 }
+                
+                // ✅ تخزين الإشعار في قاعدة البيانات
+                $type = $request->input('type', 'incoming');
+                $this->storeNotification(
+                    'delivery_note_created',
+                    'أذن تسليم ' . ($type === 'incoming' ? 'واردة' : 'صادرة') . ' جديدة',
+                    'تم إنشاء أذن تسليم جديدة برقم: ' . $deliveryNote->note_number,
+                    $type === 'incoming' ? 'success' : 'info',
+                    $type === 'incoming' ? 'fas fa-arrow-down' : 'fas fa-arrow-up',
+                    route('manufacturing.delivery-notes.show', $deliveryNote->id)
+                );
             } catch (\Exception $notifError) {
                 Log::warning('Failed to send delivery note notifications: ' . $notifError->getMessage());
             }
@@ -479,6 +491,16 @@ class DeliveryNoteController extends Controller
                             Auth::user()
                         );
                     }
+                    
+                    // ✅ تخزين إشعار اختلاف الوزن في قاعدة البيانات
+                    $this->storeNotification(
+                        'weight_discrepancy_detected',
+                        'اختلاف في الوزن',
+                        'تم اكتشاف اختلاف في الوزن لأذن التسليم رقم ' . $deliveryNote->note_number . ' (الفرق: ' . abs($weightDiscrepancy) . ' كجم)',
+                        'warning',
+                        'fas fa-exclamation-triangle',
+                        route('manufacturing.delivery-notes.show', $deliveryNote->id)
+                    );
                 } catch (\Exception $notifError) {
                     Log::warning('Failed to send weight discrepancy notifications: ' . $notifError->getMessage());
                 }
@@ -510,6 +532,16 @@ class DeliveryNoteController extends Controller
                         Auth::user()
                     );
                 }
+                
+                // ✅ تخزين إشعار التحديث في قاعدة البيانات
+                $this->storeNotification(
+                    'delivery_note_updated',
+                    'تحديث أذن تسليم',
+                    'تم تحديث أذن التسليم برقم: ' . $deliveryNote->note_number,
+                    'warning',
+                    'fas fa-edit',
+                    route('manufacturing.delivery-notes.show', $deliveryNote->id)
+                );
             } catch (\Exception $notifError) {
                 Log::warning('Failed to send update notifications: ' . $notifError->getMessage());
             }
@@ -569,6 +601,16 @@ class DeliveryNoteController extends Controller
                         route('manufacturing.delivery-notes.index')
                     );
                 }
+                
+                // ✅ تخزين إشعار الحذف في قاعدة البيانات
+                $this->storeNotification(
+                    'delivery_note_deleted',
+                    'حذف أذن تسليم',
+                    'تم حذف أذن التسليم برقم: ' . $deliveryNote->note_number,
+                    'danger',
+                    'fas fa-trash',
+                    route('manufacturing.delivery-notes.index')
+                );
             } catch (\Exception $notifError) {
                 Log::warning('Failed to send delivery note delete notifications: ' . $notifError->getMessage());
             }
@@ -627,6 +669,16 @@ class DeliveryNoteController extends Controller
                         route('manufacturing.delivery-notes.show', $deliveryNote->id)
                     );
                 }
+                
+                // ✅ تخزين إشعار تغيير الحالة في قاعدة البيانات
+                $this->storeNotification(
+                    'delivery_note_status_changed',
+                    'تغيير حالة أذن التسليم',
+                    'تم تغيير حالة أذن التسليم رقم ' . $deliveryNote->note_number . ' إلى ' . $statusText,
+                    'info',
+                    'fas fa-exchange-alt',
+                    route('manufacturing.delivery-notes.show', $deliveryNote->id)
+                );
             } catch (\Exception $notifError) {
                 Log::warning('Failed to send delivery note status toggle notifications: ' . $notifError->getMessage());
             }
@@ -696,6 +748,16 @@ class DeliveryNoteController extends Controller
                         route('manufacturing.delivery-notes.show', $deliveryNote->id)
                     );
                 }
+                
+                // ✅ تخزين إشعار إضافة تفاصيل الفاتورة في قاعدة البيانات
+                $this->storeNotification(
+                    'invoice_details_added',
+                    'إضافة تفاصيل فاتورة',
+                    'تم إضافة تفاصيل الفاتورة لأذن التسليم رقم: ' . $deliveryNote->note_number . ' (فاتورة: ' . $validated['invoice_number'] . ')',
+                    'success',
+                    'fas fa-file-invoice',
+                    route('manufacturing.delivery-notes.show', $deliveryNote->id)
+                );
             } catch (\Exception $notifError) {
                 Log::warning('Failed to send add invoice details notifications: ' . $notifError->getMessage());
             }
@@ -757,6 +819,16 @@ class DeliveryNoteController extends Controller
                         route('manufacturing.delivery-notes.show', $deliveryNote->id)
                     );
                 }
+                
+                // ✅ تخزين إشعار تحديث الحالة في قاعدة البيانات
+                $this->storeNotification(
+                    'delivery_note_status_updated',
+                    'تحديث حالة أذن التسليم',
+                    'تم تغيير حالة أذن التسليم رقم ' . $deliveryNote->note_number . ' إلى ' . $statusLabel,
+                    'info',
+                    'fas fa-sync-alt',
+                    route('manufacturing.delivery-notes.show', $deliveryNote->id)
+                );
             } catch (\Exception $notifError) {
                 Log::warning('Failed to send delivery note status update notifications: ' . $notifError->getMessage());
             }
@@ -818,6 +890,16 @@ class DeliveryNoteController extends Controller
                         route('manufacturing.delivery-notes.show', $deliveryNote->id)
                     );
                 }
+                
+                // ✅ تخزين إشعار تغيير الحالة النشطة في قاعدة البيانات
+                $this->storeNotification(
+                    'delivery_note_active_status_changed',
+                    'تغيير حالة النشاط',
+                    'تم تغيير حالة نشاط أذن التسليم رقم ' . $deliveryNote->note_number . ' إلى ' . $statusText,
+                    $validated['is_active'] ? 'success' : 'warning',
+                    $validated['is_active'] ? 'fas fa-check-circle' : 'fas fa-ban',
+                    route('manufacturing.delivery-notes.show', $deliveryNote->id)
+                );
             } catch (\Exception $notifError) {
                 Log::warning('Failed to send delivery note status change notifications: ' . $notifError->getMessage());
             }

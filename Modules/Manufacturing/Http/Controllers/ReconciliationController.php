@@ -6,6 +6,8 @@ use App\Models\DeliveryNote;
 use App\Models\MaterialMovement;
 use App\Models\PurchaseInvoice;
 use App\Models\ReconciliationLog;
+use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +16,13 @@ use Illuminate\Support\Facades\Log;
 
 class ReconciliationController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * Show pending reconciliations
      */
@@ -138,6 +147,24 @@ class ReconciliationController extends Controller
                 'decided_by' => Auth::id(),
             ]);
 
+            // إرسال إشعار بربط الفاتورة
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'ربط فاتورة بأذن تسليم',
+                        'تم ربط الفاتورة برقم ' . $invoice->invoice_number . ' بأذن التسليم رقم ' . $deliveryNote->note_number,
+                        'link_invoice_to_delivery_note',
+                        'info',
+                        'feather icon-link',
+                        route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send link invoice notifications: ' . $notifError->getMessage());
+            }
+
             DB::commit();
 
             $message = $deliveryNote->reconciliation_status === 'matched' ?
@@ -208,6 +235,31 @@ class ReconciliationController extends Controller
                 $deliveryNote->purchaseInvoice->update([
                     'status' => 'rejected',
                 ]);
+            }
+
+            // إرسال إشعار بقرار التسوية
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                $actionLabel = match($validated['action']) {
+                    'accepted' => 'موافقة',
+                    'rejected' => 'رفض',
+                    'adjusted' => 'تعديل',
+                    default => 'تحديث'
+                };
+                
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'قرار تسوية أذن تسليم',
+                        'تم ' . $actionLabel . ' تسوية أذن التسليم رقم ' . $deliveryNote->note_number,
+                        'reconciliation_decision',
+                        'info',
+                        'feather icon-check-square',
+                        route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send reconciliation decision notifications: ' . $notifError->getMessage());
             }
 
             DB::commit();
@@ -477,6 +529,24 @@ class ReconciliationController extends Controller
                 ]);
             }
 
+            // إرسال إشعار بربط الفاتورة
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'ربط فاتورة بأذن تسليم',
+                        'تم ربط الفاتورة برقم ' . $invoice->invoice_number . ' بأذن التسليم رقم ' . $deliveryNote->note_number . ' | ' . $message,
+                        'link_invoice_to_delivery_note',
+                        'success',
+                        'feather icon-link',
+                        route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send link invoice notifications: ' . $notifError->getMessage());
+            }
+
             DB::commit();
 
             return redirect()->route('manufacturing.warehouses.reconciliation.show', $deliveryNote)
@@ -715,6 +785,24 @@ class ReconciliationController extends Controller
                 'updated_by' => Auth::id(),
             ]);
 
+            // إرسال إشعار بتحديث ربط الفاتورة
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'تحديث ربط فاتورة بأذن تسليم',
+                        'تم تحديث ربط الفاتورة برقم ' . $reconciliation->purchaseInvoice->invoice_number . ' بأذن التسليم رقم ' . $reconciliation->deliveryNote->note_number . ' | السبب: ' . $validated['edit_reason'],
+                        'update_link_invoice',
+                        'warning',
+                        'feather icon-edit',
+                        route('manufacturing.warehouses.reconciliation.show', $reconciliation->deliveryNote->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send update link invoice notifications: ' . $notifError->getMessage());
+            }
+
             DB::commit();
 
             return redirect()->route('manufacturing.warehouses.reconciliation.index')
@@ -749,6 +837,24 @@ class ReconciliationController extends Controller
 
             // حذف السجل
             $reconciliation->delete();
+
+            // إرسال إشعار بحذف ربط الفاتورة
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'حذف ربط فاتورة بأذن تسليم',
+                        'تم حذف ربط الفاتورة برقم ' . $reconciliation->purchaseInvoice->invoice_number . ' من أذن التسليم رقم ' . $reconciliation->deliveryNote->note_number,
+                        'delete_link_invoice',
+                        'danger',
+                        'feather icon-trash-2',
+                        route('manufacturing.warehouses.reconciliation.index')
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send delete link invoice notifications: ' . $notifError->getMessage());
+            }
 
             DB::commit();
 
@@ -867,6 +973,24 @@ class ReconciliationController extends Controller
                     'comments' => 'فرق في الوزن: ' . abs($discrepancy) . ' كجم (' . round($discrepancyPercentage, 2) . '%)',
                     'decided_by' => Auth::id(),
                 ]);
+            }
+
+            // إرسال إشعار بإنشاء أذن تسليم من فاتورة
+            try {
+                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+                foreach ($managers as $manager) {
+                    $this->notificationService->notifyCustom(
+                        $manager,
+                        'إنشاء أذن تسليم من فاتورة',
+                        'تم إنشاء أذن التسليم رقم ' . $deliveryNote->note_number . ' من الفاتورة رقم ' . $invoice->invoice_number . ' | عدد المنتجات: ' . $selectedItems->count() . ' | الوزن: ' . $totalWeight . ' كجم',
+                        'create_delivery_note_from_invoice',
+                        'success',
+                        'feather icon-file-plus',
+                        route('manufacturing.warehouses.reconciliation.show', $deliveryNote->id)
+                    );
+                }
+            } catch (\Exception $notifError) {
+                Log::warning('Failed to send create delivery note from invoice notifications: ' . $notifError->getMessage());
             }
 
             DB::commit();

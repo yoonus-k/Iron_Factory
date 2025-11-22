@@ -262,11 +262,11 @@
     <!-- الأنشطة الأخيرة والإشعارات -->
     <div class="recent-activities">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3 class="section-title" style="margin-bottom: 0;">الإشعارات والأنشطة الأخيرة</h3>
+            <h3 class="section-title" style="margin-bottom: 0;">جميع الإشعارات والأنشطة</h3>
             <a href="{{ route('notifications.index') }}" class="btn btn-sm btn-primary">
-                <i class="fas fa-bell"></i> عرض الكل
+                <i class="fas fa-bell"></i> إدارة الإشعارات
                 @if($unreadCount > 0)
-                    <span class="badge bg-danger ms-2">{{ $unreadCount }}</span>
+                    <span class="badge bg-danger ms-2">{{ $unreadCount }} غير مقروءة</span>
                 @endif
             </a>
         </div>
