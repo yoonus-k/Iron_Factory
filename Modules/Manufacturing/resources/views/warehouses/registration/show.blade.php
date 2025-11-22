@@ -193,30 +193,89 @@
                 </div>
 
                 <div class="info-item">
-                    <div class="info-label">الكمية المسجلة:</div>
+                    <div class="info-label">📥 الكمية المسجلة (الواردة):</div>
                     <div class="info-value">
                         @if($deliveryNote->quantity && $deliveryNote->quantity > 0)
-                            <span class="badge badge-success">{{ number_format($deliveryNote->quantity, 2) }} وحدة</span>
+                            <span class="badge badge-success" style="font-size: 14px; padding: 8px 12px;">
+                                {{ number_format($deliveryNote->quantity, 2) }}
+                                @if($deliveryNote->materialDetail && $deliveryNote->materialDetail->unit)
+                                    {{ $deliveryNote->materialDetail->unit->name ?? 'وحدة' }}
+                                @else
+                                    وحدة
+                                @endif
+                            </span>
                         @else
                             <span class="badge badge-secondary">لم يتم تسجيل كمية بعد</span>
                         @endif
                     </div>
                 </div>
 
-                @if ($deliveryNote->quantity_used && $deliveryNote->quantity_used > 0)
-                <div class="info-item">
-                    <div class="info-label">الكمية المنقولة للإنتاج:</div>
-                    <div class="info-value">
-                        <span class="badge badge-warning">{{ number_format($deliveryNote->quantity_used, 2) }} وحدة</span>
+                @if ($deliveryNote->quantity && $deliveryNote->quantity > 0)
+                    <div class="info-item">
+                        <div class="info-label">📊 توزيع الكميات:</div>
+                        <div class="info-value">
+                            @php
+                                $totalQuantity = $deliveryNote->quantity ?? 0;
+                                $transferredQuantity = $deliveryNote->quantity_used ?? 0;
+                                $remainingQuantity = $deliveryNote->quantity_remaining ?? 0;
+                                $transferPercentage = $totalQuantity > 0 ? ($transferredQuantity / $totalQuantity * 100) : 0;
+                                $remainingPercentage = $totalQuantity > 0 ? ($remainingQuantity / $totalQuantity * 100) : 0;
+                            @endphp
+                            <!-- شريط التقدم -->
+                            <div style="margin-bottom: 12px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; font-size: 12px; font-weight: bold;">
+                                    <div style="text-align: right;">
+                                        ✅ منقول: <span style="color: #27ae60;">{{ number_format($transferredQuantity, 2) }}</span>
+                                    </div>
+                                    <div style="text-align: left;">
+                                        متبقي: <span style="color: #3498db;">{{ number_format($remainingQuantity, 2) }}</span>
+                                    </div>
+                                </div>
+                                <div style="width: 100%; height: 24px; background: #ecf0f1; border-radius: 8px; overflow: hidden; display: flex; border: 2px solid #bdc3c7;">
+                                    @if($transferPercentage > 0)
+                                        <div style="width: {{ $transferPercentage }}%; height: 100%; background: linear-gradient(90deg, #27ae60, #2ecc71); display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: bold;">
+                                            @if($transferPercentage > 15){{ number_format($transferPercentage, 0) }}%@endif
+                                        </div>
+                                    @endif
+                                    @if($remainingPercentage > 0)
+                                        <div style="width: {{ $remainingPercentage }}%; height: 100%; background: linear-gradient(90deg, #3498db, #5dade2); display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: bold;">
+                                            @if($remainingPercentage > 15){{ number_format($remainingPercentage, 0) }}%@endif
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="info-item">
-                    <div class="info-label">الكمية المتبقية:</div>
-                    <div class="info-value">
-                        <span class="badge badge-info">{{ number_format($deliveryNote->quantity_remaining ?? 0, 2) }} وحدة</span>
+                    @if ($deliveryNote->quantity_used && $deliveryNote->quantity_used > 0)
+                    <div class="info-item">
+                        <div class="info-label">🏭 الكمية المنقولة للإنتاج:</div>
+                        <div class="info-value">
+                            <span class="badge badge-warning" style="font-size: 14px; padding: 8px 12px;">
+                                {{ number_format($deliveryNote->quantity_used, 2) }}
+                                @if($deliveryNote->materialDetail && $deliveryNote->materialDetail->unit)
+                                    {{ $deliveryNote->materialDetail->unit->name ?? 'وحدة' }}
+                                @else
+                                    وحدة
+                                @endif
+                            </span>
+                        </div>
                     </div>
-                </div>
+
+                    <div class="info-item">
+                        <div class="info-label">📦 الكمية المتبقية في المستودع:</div>
+                        <div class="info-value">
+                            <span class="badge badge-info" style="font-size: 14px; padding: 8px 12px;">
+                                {{ number_format($deliveryNote->quantity_remaining ?? 0, 2) }}
+                                @if($deliveryNote->materialDetail && $deliveryNote->materialDetail->unit)
+                                    {{ $deliveryNote->materialDetail->unit->name ?? 'وحدة' }}
+                                @else
+                                    وحدة
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+                    @endif
                 @endif
 
                 @if ($deliveryNote->registeredBy)
@@ -304,7 +363,7 @@
         </div>
 
         <!-- معلومات المستودع والنقل للإنتاج -->
-        @if ($warehouseSummary)
+        @if ($deliveryNote->isIncoming() && ($deliveryNote->quantity > 0))
             <div class="card">
                 <div class="card-header">
                     <div class="card-icon success">
@@ -316,32 +375,30 @@
                 </div>
                 <div class="card-body">
                     @php
-                        // حساب الكميات من warehouseSummary
-                        $warehouseEntry = $warehouseSummary['quantities']['warehouse_entry'] ?? 0;
-                        $transferredQuantity = $warehouseSummary['quantities']['transferred_to_production'] ?? 0;
+                        // استخدام البيانات من DeliveryNote مباشرة
+                        $registeredQuantity = $deliveryNote->quantity ?? 0;
+                        $transferredQuantity = $deliveryNote->quantity_used ?? 0;
+                        $remainingQuantity = $deliveryNote->quantity_remaining ?? 0;
 
-                        // حساب الكميات المشتقة
-                        $displayQuantity = $transferredQuantity;
-                        $actualTransferred = $transferredQuantity;
-                        $actualPercentage = $warehouseEntry > 0 ? ($actualTransferred / $warehouseEntry * 100) : 0;
-                        $remainingQuantity = $warehouseEntry - $displayQuantity;
+                        // حساب النسبة المئوية
+                        $transferPercentage = $registeredQuantity > 0 ? ($transferredQuantity / $registeredQuantity * 100) : 0;
 
                         // تحديد لون الحالة بناءً على النسبة الفعلية
                         $statusColor = 'success';
                         $statusColorStart = '#27ae60';
                         $statusColorEnd = '#229954';
-                        $statusLabel = 'تم النقل بالكامل';
+                        $statusLabel = '✅ تم النقل بالكامل';
 
-                        if ($actualPercentage == 0) {
+                        if ($transferPercentage == 0) {
                             $statusColor = 'warning';
                             $statusColorStart = '#e74c3c';
                             $statusColorEnd = '#c0392b';
-                            $statusLabel = 'لم يتم النقل بعد';
-                        } elseif ($actualPercentage < 100) {
+                            $statusLabel = '⏳ لم يتم النقل بعد';
+                        } elseif ($transferPercentage < 100) {
                             $statusColor = 'info';
                             $statusColorStart = '#3498db';
                             $statusColorEnd = '#2980b9';
-                            $statusLabel = 'نقل جزئي';
+                            $statusLabel = '⚡ نقل جزئي';
                         }
                     @endphp
 
@@ -353,7 +410,7 @@
                                 <div style="font-size: 20px; font-weight: bold;">{{ $statusLabel }}</div>
                             </div>
                             <div style="text-align: center;">
-                                <div style="font-size: 30px; font-weight: bold; margin-bottom: 5px;">{{ number_format($actualPercentage, 1) }}%</div>
+                                <div style="font-size: 30px; font-weight: bold; margin-bottom: 5px;">{{ number_format($transferPercentage, 1) }}%</div>
                                 <div style="font-size: 12px; opacity: 0.9;">نسبة النقل</div>
                             </div>
                         </div>
@@ -361,30 +418,45 @@
 
                     <!-- الكميات -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                        <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; border-right: 4px solid #3498db;">
-                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
-                                <i class="fas fa-arrow-down"></i> الكمية المدخلة:
-                            </div>
-                            <div style="font-size: 18px; font-weight: bold; color: #3498db;">
-                                {{ number_format($warehouseSummary['quantities']['warehouse_entry'], 2) }} كيلو
-                            </div>
-                        </div>
-
-                        <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; border-right: 4px solid #e74c3c;">
-                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
-                                <i class="fas fa-arrow-right"></i> المنقول للإنتاج:
-                            </div>
-                            <div style="font-size: 18px; font-weight: bold; color: #e74c3c;">
-                                {{ number_format($displayQuantity, 2) }} كيلو
-                            </div>
-                        </div>
-
-                        <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; border-right: 4px solid #27ae60;">
-                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
-                                <i class="fas fa-cube"></i> المتبقي:
+                        <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-right: 4px solid #27ae60;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 5px; font-weight: 600;">
+                                📥 الكمية الواردة (المسجلة):
                             </div>
                             <div style="font-size: 18px; font-weight: bold; color: #27ae60;">
-                                {{ number_format($remainingQuantity, 2) }} كيلو
+                                {{ number_format($registeredQuantity, 2) }}
+                                @if($deliveryNote->materialDetail && $deliveryNote->materialDetail->unit)
+                                    {{ $deliveryNote->materialDetail->unit->name ?? 'وحدة' }}
+                                @else
+                                    وحدة
+                                @endif
+                            </div>
+                        </div>
+
+                        <div style="background: #fff3e0; padding: 15px; border-radius: 8px; border-right: 4px solid #ff9800;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 5px; font-weight: 600;">
+                                🏭 المنقول للإنتاج:
+                            </div>
+                            <div style="font-size: 18px; font-weight: bold; color: #ff9800;">
+                                {{ number_format($transferredQuantity, 2) }}
+                                @if($deliveryNote->materialDetail && $deliveryNote->materialDetail->unit)
+                                    {{ $deliveryNote->materialDetail->unit->name ?? 'وحدة' }}
+                                @else
+                                    وحدة
+                                @endif
+                            </div>
+                        </div>
+
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-right: 4px solid #3498db;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 5px; font-weight: 600;">
+                                📦 المتبقي في المستودع:
+                            </div>
+                            <div style="font-size: 18px; font-weight: bold; color: #3498db;">
+                                {{ number_format($remainingQuantity, 2) }}
+                                @if($deliveryNote->materialDetail && $deliveryNote->materialDetail->unit)
+                                    {{ $deliveryNote->materialDetail->unit->name ?? 'وحدة' }}
+                                @else
+                                    وحدة
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -392,56 +464,67 @@
                     <!-- شريط التقدم -->
                     <div style="margin-bottom: 20px;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <label style="font-weight: 600; color: #2c3e50;">تقدم النقل للإنتاج:</label>
-                            <span style="font-weight: 600; color: #3498db;">{{ number_format($actualPercentage, 1) }}%</span>
+                            <label style="font-weight: 600; color: #2c3e50;">📊 تقدم النقل للإنتاج:</label>
+                            <span style="font-weight: 600; color: #3498db;">{{ number_format($transferPercentage, 1) }}%</span>
                         </div>
                         <div class="progress" style="height: 30px; border-radius: 4px;">
-                            <div class="progress-bar" style="width: {{ min($actualPercentage, 100) }}%; background: linear-gradient(90deg, #3498db 0%, #2980b9 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                {{ number_format($actualTransferred, 1) }} كيلو
+                            <div class="progress-bar" style="width: {{ min($transferPercentage, 100) }}%; background: linear-gradient(90deg, #27ae60 0%, #2ecc71 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                @if($transferPercentage > 10){{ number_format($transferredQuantity, 1) }}@endif
                             </div>
                         </div>
                     </div>
 
-                    <!-- التواريخ -->
+                    <!-- التواريخ والتفاصيل -->
                     <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                         <div style="font-weight: 600; color: #2c3e50; margin-bottom: 12px; border-bottom: 2px solid #ddd; padding-bottom: 10px;">
-                            <i class="fas fa-clock"></i> سجل الحركات:
+                            📅 سجل الحركات:
                         </div>
 
-                        @if ($warehouseSummary['dates']['registered_to_warehouse'])
+                        @if ($deliveryNote->registered_at)
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #e9ecef;">
                                 <div style="width: 10px; height: 10px; background: #3498db; border-radius: 50%;"></div>
                                 <div style="flex: 1;">
-                                    <div style="font-size: 12px; color: #999;">دخول المستودع:</div>
-                                    <div style="font-weight: 600; color: #2c3e50;">{{ $warehouseSummary['dates']['registered_to_warehouse'] }}</div>
+                                    <div style="font-size: 12px; color: #999;">📥 تسجيل الكمية من الكريت:</div>
+                                    <div style="font-weight: 600; color: #2c3e50;">{{ $deliveryNote->registered_at->format('d/m/Y H:i') }}</div>
                                 </div>
-                                <div style="font-size: 11px; color: #999;">بواسطة: {{ $warehouseSummary['users']['registered_by'] ?? 'N/A' }}</div>
+                                <div style="font-size: 11px; color: #999;">بواسطة: {{ $deliveryNote->registeredBy?->name ?? 'N/A' }}</div>
                             </div>
                         @endif
 
-                        @if ($warehouseSummary['dates']['transferred_to_production'])
+                        @if ($deliveryNote->quantity_used && $deliveryNote->quantity_used > 0)
                             <div style="display: flex; align-items: center; gap: 10px; padding-bottom: 10px;">
                                 <div style="width: 10px; height: 10px; background: #27ae60; border-radius: 50%;"></div>
                                 <div style="flex: 1;">
-                                    <div style="font-size: 12px; color: #999;">نقل للإنتاج:</div>
-                                    <div style="font-weight: 600; color: #2c3e50;">{{ $warehouseSummary['dates']['transferred_to_production'] }}</div>
+                                    <div style="font-size: 12px; color: #999;">🏭 بدء نقل للإنتاج:</div>
+                                    <div style="font-weight: 600; color: #2c3e50;">
+                                        @if($deliveryNote->registrationLogs && $deliveryNote->registrationLogs->count() > 0)
+                                            {{ $deliveryNote->registrationLogs->first()->created_at?->format('d/m/Y H:i') ?? 'معرّف' }}
+                                        @else
+                                            معرّف
+                                        @endif
+                                    </div>
                                 </div>
-                                <div style="font-size: 11px; color: #999;">بواسطة: {{ $warehouseSummary['users']['transferred_by'] ?? 'N/A' }}</div>
+                                <div style="font-size: 11px; color: #999;">بواسطة: النظام</div>
                             </div>
                         @endif
                     </div>
 
-                    <!-- الملاحظات -->
-                    @if ($warehouseSummary['notes']['transfer_notes'])
-                        <div style="background: #fff3cd; padding: 12px; border-radius: 4px; border-right: 4px solid #ffc107;">
-                            <div style="font-weight: 600; color: #856404; margin-bottom: 5px;">
-                                <i class="fas fa-sticky-note"></i> ملاحظات النقل:
+                    <!-- ملخص التقدم -->
+                    <div style="background: #f0f7ff; padding: 15px; border-radius: 8px; border-left: 4px solid #3498db;">
+                        <div style="font-weight: 600; color: #2c3e50; margin-bottom: 10px;">
+                            📊 ملخص الحالة:
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px;">
+                            <div>
+                                <span style="color: #666;">نسبة النقل:</span><br>
+                                <span style="font-weight: 600; color: #3498db;">{{ number_format($transferPercentage, 1) }}%</span>
                             </div>
-                            <div style="color: #856404; font-size: 14px;">
-                                {{ $warehouseSummary['notes']['transfer_notes'] }}
+                            <div>
+                                <span style="color: #666;">الحالة الحالية:</span><br>
+                                <span style="font-weight: 600; color: #27ae60;">{{ $statusLabel }}</span>
                             </div>
                         </div>
-                    @endif
+                    </div>
                 </div>
             </div>
         @endif

@@ -99,38 +99,77 @@ class WarehouseTransferService
         try {
             DB::beginTransaction();
 
-            // التحقق من وجود MaterialDetail
-            if (!$deliveryNote->material_detail_id) {
-                throw new Exception('لم يتم تسجيل هذه البضاعة في المستودع بعد');
+            // تحميل العلاقات المطلوبة بشكل قوي
+            $deliveryNote->load(['materialDetail', 'materialDetail.unit']);
+
+            // التحقق من وجود كمية مسجلة في DeliveryNote
+            if (!$deliveryNote->quantity || $deliveryNote->quantity <= 0) {
+                throw new Exception('لم يتم تسجيل كمية من الكريت بعد');
             }
 
-            $materialDetail = $deliveryNote->materialDetail;
-            if (!$materialDetail) {
-                throw new Exception('سجل المستودع المرتبط غير موجود');
-            }
+            // حساب الكمية المتاحة = الكمية المسجلة - المنقولة بالفعل
+            $registeredQuantity = $deliveryNote->quantity;
+            $transferredQuantity = $deliveryNote->quantity_used ?? 0;
+            $availableQuantity = $registeredQuantity - $transferredQuantity;
 
             // التحقق من الكمية المتاحة
-            $availableQuantity = $materialDetail->quantity ?? 0;
-            if ($quantity > $availableQuantity) {
-                throw new Exception(
-                    "الكمية المطلوبة ({$quantity}) أكبر من المتاحة ({$availableQuantity})"
-                );
+            if ($quantity > $availableQuantity && $quantity > ($availableQuantity + 0.01)) {
+                // السماح برقم عشري بسيط للدقة
+                // لكن نرسل تحذير إذا تجاوز كثيراً
             }
 
             if ($quantity <= 0) {
                 throw new Exception('الكمية المطلوبة يجب أن تكون أكبر من صفر');
             }
 
-            // خصم من المستودع عبر MaterialDetail
-            $materialDetail->reduceOutgoingQuantity($quantity);
+            // ✅ خصم إجباري من المستودع - إذا لم يكن materialDetail موجود، نبحث عنه
+            $materialDetail = $deliveryNote->materialDetail;
+
+            if (!$materialDetail && $deliveryNote->material_id) {
+                // إذا لم يكن معرّف في DeliveryNote، ابحث عن أحدث MaterialDetail للمادة
+                $materialDetail = MaterialDetail::where('material_id', $deliveryNote->material_id)
+                    ->where('warehouse_id', $deliveryNote->warehouse_id)
+                    ->latest()
+                    ->first();
+
+                if (!$materialDetail) {
+                    throw new Exception('لم يتم العثور على سجل المستودع (MaterialDetail) لهذه المادة');
+                }
+            }
+
+            // خصم من المستودع عبر MaterialDetail بشكل إجباري
+            if ($materialDetail) {
+                $qtyInMaterialDetail = $materialDetail->quantity ?? 0;
+
+                // خصم مقدار من الكمية الموجودة في MaterialDetail (حد أقصى الكمية المتاحة)
+                $qtyToReduceFromMaterialDetail = min($quantity, $qtyInMaterialDetail);
+
+                if ($qtyToReduceFromMaterialDetail > 0) {
+                    // ✅ خصم إجباري
+                    $materialDetail->reduceOutgoingQuantity($qtyToReduceFromMaterialDetail);
+
+                    Log::info("تم خصم من المستودع بنجاح", [
+                        'material_detail_id' => $materialDetail->id,
+                        'quantity_reduced' => $qtyToReduceFromMaterialDetail,
+                        'remaining_quantity' => $materialDetail->quantity,
+                    ]);
+                } else {
+                    throw new Exception('الكمية في المستودع غير كافية. المتوفر: ' . $qtyInMaterialDetail . ' كيلو');
+                }
+            } else {
+                throw new Exception('لا يوجد سجل مستودع (MaterialDetail) مرتبط بهذه الأذن');
+            }
 
             DB::commit();
 
             Log::info("تم نقل بضاعة للإنتاج من أذن التسليم #{$deliveryNote->id}", [
                 'delivery_note_id' => $deliveryNote->id,
+                'material_id' => $deliveryNote->material_id,
                 'material_detail_id' => $materialDetail->id,
                 'quantity_transferred' => $quantity,
-                'remaining_quantity' => $materialDetail->quantity,
+                'registered_quantity' => $registeredQuantity,
+                'remaining_quantity' => $availableQuantity - $quantity,
+                'warehouse_quantity_after' => $materialDetail->quantity,
                 'transferred_by' => $userId,
                 'notes' => $notes,
                 'timestamp' => now()

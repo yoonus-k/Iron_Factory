@@ -13,6 +13,7 @@ enum DeliveryNoteStatus: string
     case REJECTED = 'rejected';
     case COMPLETED = 'completed';
 
+
     public function label(): string
     {
         return match($this) {
