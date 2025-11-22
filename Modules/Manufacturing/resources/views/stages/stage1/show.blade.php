@@ -1,350 +1,380 @@
 @extends('master')
 
-@section('title', 'تفاصيل الاستاند')
+@section('title', 'تفاصيل الاستاند - المرحلة الأولى')
 
 @section('content')
-    <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
 
-    <div class="container">
-        <div class="page-header">
-            <div class="header-content">
-                <div class="header-left">
-                    <div class="course-icon">
-                        <i class="feather icon-package"></i>
-                    </div>
-                    <div class="header-info">
-                        <h1>استاند رقم ST-001</h1>
-                        <div class="badges">
-                            <span class="badge category">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                                </svg>
-                                المرحلة الأولى
-                            </span>
-                            <span class="badge active">مكتمل</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="header-actions">
-                    <a href="{{ route('manufacturing.stage1.edit', 1) }}" class="btn btn-edit">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                        تعديل
-                    </a>
-                    <a href="{{ route('manufacturing.stage1.index') }}" class="btn btn-back">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                            <polyline points="12 19 5 12 12 5"></polyline>
-                        </svg>
-                        العودة
-                    </a>
-                </div>
+<style>
+    .detail-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border-right: 4px solid #667eea;
+    }
+    
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .detail-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .info-item {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-right: 3px solid #667eea;
+    }
+    
+    .info-label {
+        font-size: 13px;
+        color: #7f8c8d;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+    
+    .info-value {
+        font-size: 18px;
+        color: #2c3e50;
+        font-weight: 700;
+    }
+    
+    .barcode-display {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .barcode-code {
+        font-size: 32px;
+        font-weight: 700;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 4px;
+        margin: 15px 0;
+    }
+    
+    .log-item {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        border-right: 3px solid #27ae60;
+    }
+    
+    .log-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    
+    .log-action {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    
+    .log-time {
+        color: #7f8c8d;
+        font-size: 13px;
+    }
+    
+    .log-details {
+        color: #555;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    
+    .empty-logs {
+        text-align: center;
+        padding: 40px;
+        color: #7f8c8d;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    
+    .status-created { background: #e3f2fd; color: #1976d2; }
+    .status-in_process { background: #fff3e0; color: #f57c00; }
+    .status-completed { background: #e8f5e9; color: #388e3c; }
+    .status-consumed { background: #f5f5f5; color: #616161; }
+</style>
+
+<div class="um-content-wrapper">
+    <!-- Header Section -->
+    <div class="um-header-section">
+        <h1 class="um-page-title">
+            <i class="feather icon-eye"></i>
+            تفاصيل الاستاند - {{ $stand->stand_number }}
+        </h1>
+        <nav class="um-breadcrumb-nav">
+            <span><i class="feather icon-home"></i> لوحة التحكم</span>
+            <i class="feather icon-chevron-left"></i>
+            <a href="{{ route('manufacturing.stage1.index') }}">المرحلة الأولى</a>
+            <i class="feather icon-chevron-left"></i>
+            <span>تفاصيل الاستاند</span>
+        </nav>
+    </div>
+
+    <!-- Barcode Display -->
+    <div class="barcode-display">
+        <div style="font-size: 18px; opacity: 0.9; margin-bottom: 10px;">باركود المرحلة الأولى</div>
+        <div class="barcode-code">{{ $stand->barcode }}</div>
+        <button onclick="printBarcode('{{ $stand->barcode }}', '{{ $stand->stand_number }}', '{{ $stand->material_name }}', {{ $stand->remaining_weight }})" 
+                style="background: rgba(255,255,255,0.2); border: 2px solid white; color: white; padding: 12px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 15px; transition: all 0.3s;">
+            <i class="feather icon-printer"></i> طباعة الباركود
+        </button>
+    </div>
+
+    <!-- معلومات الاستاند الأساسية -->
+    <div class="detail-card">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-info"></i>
+                المعلومات الأساسية
             </div>
+            @if($stand->status == 'created')
+            <span class="status-badge status-created">تم الإنشاء</span>
+            @elseif($stand->status == 'in_process')
+            <span class="status-badge status-in_process">قيد المعالجة</span>
+            @elseif($stand->status == 'completed')
+            <span class="status-badge status-completed">مكتمل</span>
+            @elseif($stand->status == 'consumed')
+            <span class="status-badge status-consumed">مستهلك</span>
+            @endif
         </div>
-
-        <div class="grid">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon primary">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">معلومات الاستاند</h3>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                            </svg>
-                            الباركود
-                        </div>
-                        <div class="info-value">ST1-001-2025</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                            المادة الخام
-                        </div>
-                        <div class="info-value">مادة خام رقم 1 - حديد مسلح</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline>
-                            </svg>
-                            رقم الاستاند
-                        </div>
-                        <div class="info-value">ST-001</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="3" y1="12" x2="21" y2="12"></line>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                            </svg>
-                            حجم السلك
-                        </div>
-                        <div class="info-value">2.5 ملم</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="1" x2="12" y2="23"></line>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                            </svg>
-                            الوزن
-                        </div>
-                        <div class="info-value">250 كيلوغرام</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <path d="M16 8l-8 8"></path>
-                            </svg>
-                            نسبة الهدر
-                        </div>
-                        <div class="info-value"><span class="text-danger">5.2%</span></div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                            وزن الهدر
-                        </div>
-                        <div class="info-value"><span class="text-danger">13 كجم</span></div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
-                            الوزن النهائي
-                        </div>
-                        <div class="info-value"><strong class="text-success">237 كجم</strong></div>
-                    </div>
-                </div>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">رقم الاستاند</div>
+                <div class="info-value">{{ $stand->stand_number }}</div>
             </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon success">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">معلومات إضافية</h3>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                            حالة الاستاند
-                        </div>
-                        <div class="info-value">
-                            <span class="status active">مكتمل</span>
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
-                            حالة التفعيل
-                        </div>
-                        <div class="info-value">
-                            <span class="status active">مفعل</span>
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                            </svg>
-                            تاريخ الإنشاء
-                        </div>
-                        <div class="info-value">2025-01-15 10:30</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                            </svg>
-                            تاريخ التحديث
-                        </div>
-                        <div class="info-value">2025-01-15 14:45</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                            &nbsp;
-                        </div>
-                        <div class="info-value">&nbsp;</div>
-                    </div>
-                </div>
+            <div class="info-item">
+                <div class="info-label">المادة الخام</div>
+                <div class="info-value">{{ $stand->material_name }}</div>
             </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon warning">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="8" y1="6" x2="21" y2="6"></line>
-                            <line x1="8" y1="12" x2="21" y2="12"></line>
-                            <line x1="8" y1="18" x2="21" y2="18"></line>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">الملاحظات</h3>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-value">تم التقسيم بنجاح. الاستاند جاهز للمرحلة التالية.</div>
-                    </div>
-                </div>
+            <div class="info-item">
+                <div class="info-label">باركود المادة الأم</div>
+                <div class="info-value" style="font-size: 14px; font-family: monospace;">{{ $stand->parent_barcode }}</div>
             </div>
-
-            <div class="card" style="margin-bottom: 20px;">
-                <div class="card-header">
-                    <div class="card-icon primary">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 11l3 3L22 4"></path>
-                            <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">سجل الأنشطة</h3>
-                </div>
-                <div class="card-body">
-                    <div class="schedule-grid">
-                        <div class="info-item">
-                            <div class="info-label">تم الإنشاء:</div>
-                            <div class="info-value">2025-01-15 10:30 - بواسطة أحمد محمد</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">تم التحديث:</div>
-                            <div class="info-value">2025-01-15 11:45 - تحديث الوزن</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">تم الإكمال:</div>
-                            <div class="info-value">2025-01-15 14:00 - انتقل للمرحلة الثانية</div>
-                        </div>
-                    </div>
-                </div>
+            <div class="info-item">
+                <div class="info-label">الوزن الإجمالي</div>
+                <div class="info-value" style="color: #3498db;">{{ number_format($stand->weight, 2) }} كجم</div>
             </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon warning">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="1"></circle>
-                        <circle cx="19" cy="12" r="1"></circle>
-                        <circle cx="5" cy="12" r="1"></circle>
-                    </svg>
-                </div>
-                <h3 class="card-title">الإجراءات المتاحة</h3>
+            <div class="info-item">
+                <div class="info-label">الوزن الصافي</div>
+                <div class="info-value" style="color: #27ae60;">{{ number_format($stand->remaining_weight, 2) }} كجم</div>
             </div>
-            <div class="card-body">
-                <div class="actions-grid">
-                    <a href="{{ route('manufacturing.stage1.edit', 1) }}" class="action-btn activate">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                            <h4>تعديل الاستاند</h4>
-                            <p>تعديل تفاصيل الاستاند</p>
-                        </div>
-                    </a>
-
-                    <a href="{{ route('manufacturing.stage2.create') }}" class="action-btn activate">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                               <h4>➡️ انتقل للمرحلة 2</h4>
-                            <p>نقل الاستاند للمعالجة</p>
-                        </div>
-                    </a>
-
-                    <button type="button" class="action-btn delete">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                            <h4>حذف الاستاند</h4>
-                            <p>حذف نهائي للاستاند من النظام</p>
-                        </div>
-                    </button>
-                </div>
+            <div class="info-item">
+                <div class="info-label">الهدر</div>
+                <div class="info-value" style="color: #e74c3c;">{{ number_format($stand->waste, 2) }} كجم</div>
             </div>
-        </div>
-
-        <!-- Navigation to Next Stage -->
-        <div class="card" style="margin-top: 20px; background: linear-gradient(135deg, #e8f5e9, #f1f8e9); border-left: 5px solid #4CAF50;">
-            <div class="card-header" >
-                <h3 class="card-title">📌 الخطوة التالية</h3>
+            <div class="info-item">
+                <div class="info-label">حجم السلك</div>
+                <div class="info-value">{{ $stand->wire_size }} مم</div>
             </div>
-            <div class="card-body">
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
-                    <div>
-                        <h4>المرحلة الثانية: المعالجة</h4>
-                        <p >اضغط الزر أدناه لنقل هذا الاستاند إلى مرحلة المعالجة</p>
-                    </div>
-                    <a href="{{ route('manufacturing.stage2.create') }}" >
-                        <span>➡️</span>
-                        <span>انتقل للمرحلة 2</span>
-                    </a>
-                </div>
+            <div class="info-item">
+                <div class="info-label">تم الإنشاء بواسطة</div>
+                <div class="info-value" style="font-size: 16px;">{{ $stand->created_by_name ?? 'غير محدد' }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">تاريخ الإنشاء</div>
+                <div class="info-value" style="font-size: 16px;">{{ \Carbon\Carbon::parse($stand->created_at)->format('Y-m-d H:i') }}</div>
             </div>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteButtons = document.querySelectorAll('.action-btn.delete');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (confirm('⚠️ هل أنت متأكد من حذف هذا الاستاند؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
-                        alert('تم حذف الاستاند بنجاح!');
-                    }
-                });
-            });
-        });
-    </script>
+    <!-- سجل استخدام الاستاند -->
+    @if($usageHistory)
+    <div class="detail-card" style="border-right-color: #27ae60;">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-activity"></i>
+                سجل استخدام الاستاند
+            </div>
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">المستخدم</div>
+                <div class="info-value" style="font-size: 16px;">{{ $usageHistory->user_name }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">الوزن الإجمالي</div>
+                <div class="info-value">{{ number_format($usageHistory->total_weight, 2) }} كجم</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">الوزن الصافي</div>
+                <div class="info-value">{{ number_format($usageHistory->net_weight, 2) }} كجم</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">وزن الاستاند الفارغ</div>
+                <div class="info-value">{{ number_format($usageHistory->stand_weight, 2) }} كجم</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">نسبة الهدر</div>
+                <div class="info-value">{{ number_format($usageHistory->waste_percentage, 2) }}%</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">وقت البدء</div>
+                <div class="info-value" style="font-size: 14px;">{{ \Carbon\Carbon::parse($usageHistory->started_at)->format('Y-m-d H:i') }}</div>
+            </div>
+        </div>
+        
+        @if($usageHistory->notes)
+        <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border-right: 3px solid #ffc107;">
+            <strong style="color: #856404;">📝 ملاحظات:</strong>
+            <p style="margin: 8px 0 0 0; color: #856404;">{{ $usageHistory->notes }}</p>
+        </div>
+        @endif
+    </div>
+    @endif
+
+    <!-- سجل التتبع -->
+    @if($trackingLogs->count() > 0)
+    <div class="detail-card" style="border-right-color: #3498db;">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-map"></i>
+                سجل التتبع ({{ $trackingLogs->count() }})
+            </div>
+        </div>
+        
+        @foreach($trackingLogs as $log)
+        <div class="log-item">
+            <div class="log-header">
+                <div class="log-action">
+                    <i class="feather icon-check-circle" style="color: #27ae60;"></i>
+                    {{ $log->action }} - {{ $log->stage }}
+                </div>
+                <div class="log-time">{{ \Carbon\Carbon::parse($log->created_at)->format('Y-m-d H:i') }}</div>
+            </div>
+            <div class="log-details">
+                <strong>العامل:</strong> {{ $log->worker_name ?? 'غير محدد' }}<br>
+                <strong>الوزن المدخل:</strong> {{ number_format($log->input_weight, 2) }} كجم | 
+                <strong>الوزن المخرج:</strong> {{ number_format($log->output_weight, 2) }} كجم<br>
+                <strong>الهدر:</strong> {{ number_format($log->waste_amount, 2) }} كجم ({{ number_format($log->waste_percentage, 2) }}%)
+                @if($log->notes)
+                <br><strong>ملاحظات:</strong> {{ $log->notes }}
+                @endif
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @endif
+
+    <!-- سجل العمليات -->
+    @if($operationLogs->count() > 0)
+    <div class="detail-card" style="border-right-color: #f39c12;">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-list"></i>
+                سجل العمليات ({{ $operationLogs->count() }})
+            </div>
+        </div>
+        
+        @foreach($operationLogs as $log)
+        <div class="log-item" style="border-right-color: #f39c12;">
+            <div class="log-header">
+                <div class="log-action">
+                    <i class="feather icon-activity" style="color: #f39c12;"></i>
+                    {{ $log->action ?? 'عملية' }}
+                </div>
+                <div class="log-time">{{ \Carbon\Carbon::parse($log->created_at)->format('Y-m-d H:i') }}</div>
+            </div>
+            <div class="log-details">
+                <strong>المستخدم:</strong> {{ $log->user_name ?? 'النظام' }}<br>
+                @if($log->description)
+                <strong>الوصف:</strong> {{ $log->description }}
+                @endif
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @else
+    <div class="detail-card">
+        <div class="empty-logs">
+            <i class="feather icon-inbox" style="font-size: 48px; opacity: 0.3;"></i>
+            <p>لا توجد عمليات مسجلة لهذا الاستاند بعد</p>
+        </div>
+    </div>
+    @endif
+
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 15px; margin-top: 25px;">
+        <a href="{{ route('manufacturing.stage1.index') }}" class="um-btn um-btn-primary" style="flex: 1;">
+            <i class="feather icon-arrow-right"></i> العودة للقائمة
+        </a>
+        <button onclick="printBarcode('{{ $stand->barcode }}', '{{ $stand->stand_number }}', '{{ $stand->material_name }}', {{ $stand->remaining_weight }})" 
+                class="um-btn um-btn-success" style="flex: 1;">
+            <i class="feather icon-printer"></i> طباعة الباركود
+        </button>
+    </div>
+</div>
+
+<!-- JsBarcode Library -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+<script>
+function printBarcode(barcode, standNumber, materialName, netWeight) {
+    const printWindow = window.open('', '', 'height=650,width=850');
+    printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - ' + standNumber + '</title>');
+    printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
+    printWindow.document.write('.barcode-container { background: white; padding: 50px; border-radius: 16px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); text-align: center; max-width: 550px; }');
+    printWindow.document.write('.title { font-size: 28px; font-weight: bold; color: #2c3e50; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 4px solid #667eea; }');
+    printWindow.document.write('.stand-number { font-size: 24px; color: #667eea; font-weight: bold; margin: 20px 0; }');
+    printWindow.document.write('.barcode-code { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 25px 0; letter-spacing: 4px; font-family: "Courier New", monospace; }');
+    printWindow.document.write('.info { margin-top: 30px; padding: 25px; background: #f8f9fa; border-radius: 10px; text-align: right; }');
+    printWindow.document.write('.info-row { margin: 12px 0; display: flex; justify-content: space-between; }');
+    printWindow.document.write('.label { color: #7f8c8d; font-size: 16px; }');
+    printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 18px; }');
+    printWindow.document.write('@media print { body { background: white; } }');
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write('<div class="barcode-container">');
+    printWindow.document.write('<div class="title">باركود المرحلة الأولى</div>');
+    printWindow.document.write('<div class="stand-number">استاند ' + standNumber + '</div>');
+    printWindow.document.write('<svg id="print-barcode"></svg>');
+    printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
+    printWindow.document.write('<div class="info">');
+    printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + materialName + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">الوزن الصافي:</span><span class="value">' + netWeight + ' كجم</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+    printWindow.document.write('</div></div>');
+    printWindow.document.write('<script>');
+    printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');
+    printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };');
+    printWindow.document.write('<\/script></body></html>');
+    printWindow.document.close();
+}
+</script>
+
 @endsection

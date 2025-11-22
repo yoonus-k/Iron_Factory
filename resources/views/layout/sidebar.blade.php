@@ -55,6 +55,11 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('manufacturing.stands.index') }}">
+                            <i class="fas fa-list"></i> قائمة الاستاندات
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ route('manufacturing.warehouse-reports.index') }}">
                             <i class="fas fa-chart-bar"></i> التقارير والإحصائيات
                         </a>
@@ -70,11 +75,7 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
-                    <li>
-                        <a href="{{ route('manufacturing.stands.index') }}">
-                            <i class="fas fa-list"></i> قائمة الاستاندات
-                        </a>
-                    </li>
+                    
                     <li>
                         <a href="{{ route('manufacturing.stage1.create') }}">
                             <i class="fas fa-plus-circle"></i> تقسيم المواد الى استاندات
@@ -331,11 +332,23 @@
                             <i class="fas fa-users"></i> {{ __('app.users.manage_users') }}
                         </a>
                     </li>
+                    @if(isAdmin())
                     <li>
-                        <a href="#">
-                            <i class="fas fa-user-shield"></i> {{ __('app.users.roles') }}
+                        <a href="{{ route('roles.index') }}">
+                            <i class="fas fa-user-shield"></i> إدارة الأدوار
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('permissions.index') }}">
+                            <i class="fas fa-key"></i> إدارة الصلاحيات
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('test-permissions') }}">
+                            <i class="fas fa-vial"></i> اختبار الصلاحيات
+                        </a>
+                    </li>
+                    @endif
                     <li>
                         <a href="#">
                             <i class="fas fa-history"></i> {{ __('app.users.activity_log') }}

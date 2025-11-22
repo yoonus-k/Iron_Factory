@@ -32,6 +32,13 @@ class User extends Authenticatable
     ];
 
     /**
+     * The relations to eager load on every query.
+     *
+     * @var array
+     */
+    protected $with = ['roleRelation'];
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>
@@ -58,9 +65,21 @@ class User extends Authenticatable
     /**
      * العلاقات
      */
-    public function role(): BelongsTo
+    public function roleRelation(): BelongsTo
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    // Accessor for role to maintain backwards compatibility
+    public function getRoleAttribute()
+    {
+        // If role_id exists, return the relationship
+        if ($this->role_id) {
+            return $this->roleRelation;
+        }
+        
+        // Otherwise return the old string value
+        return $this->attributes['role'] ?? null;
     }
 
     public function userPermissions(): HasMany
@@ -101,11 +120,50 @@ class User extends Authenticatable
     /**
      * التحقق من الصلاحيات
      */
-    public function hasPermission($permissionCode): bool
+    public function hasPermission($permissionCode, $action = 'read'): bool
     {
-        return $this->role && $this->role->permissions()
+        if (!$this->role) {
+            return false;
+        }
+
+        // Admin has all permissions
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        // Check user's exceptional permissions first
+        $userPermission = $this->userPermissions()
+            ->where('permission_name', $permissionCode)
+            ->first();
+        
+        if ($userPermission) {
+            return match($action) {
+                'create' => $userPermission->can_create,
+                'read' => $userPermission->can_read,
+                'update' => $userPermission->can_update,
+                'delete' => $userPermission->can_delete,
+                default => false,
+            };
+        }
+
+        // Check role permissions
+        $rolePermission = $this->role->permissions()
             ->where('permission_code', $permissionCode)
-            ->exists();
+            ->first();
+
+        if (!$rolePermission) {
+            return false;
+        }
+
+        return match($action) {
+            'create' => $rolePermission->pivot->can_create ?? false,
+            'read' => $rolePermission->pivot->can_read ?? false,
+            'update' => $rolePermission->pivot->can_update ?? false,
+            'delete' => $rolePermission->pivot->can_delete ?? false,
+            'approve' => $rolePermission->pivot->can_approve ?? false,
+            'export' => $rolePermission->pivot->can_export ?? false,
+            default => false,
+        };
     }
 
     public function isAdmin(): bool

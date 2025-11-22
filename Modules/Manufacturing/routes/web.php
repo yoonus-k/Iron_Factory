@@ -180,17 +180,25 @@ Route::middleware(['auth'])->group(function () {
     Route::get('stage1/barcode/scan', [Stage1Controller::class, 'barcodeScan'])->name('manufacturing.stage1.barcode-scan');
     Route::post('stage1/barcode/process', [Stage1Controller::class, 'processBarcodeAction'])->name('manufacturing.stage1.process-barcode');
     Route::get('stage1/waste/tracking', [Stage1Controller::class, 'wasteTracking'])->name('manufacturing.stage1.waste-tracking');
+    Route::post('stage1/store-single', [Stage1Controller::class, 'storeSingle'])->name('manufacturing.stage1.store-single');
     Route::get('material-batches/get-by-barcode/{barcode}', [Stage1Controller::class, 'getMaterialByBarcode'])->name('manufacturing.material-batch.get-by-barcode');
 
     // Stage 2 Additional Routes
+    Route::post('stage2/store-single', [Stage2Controller::class, 'storeSingle'])->name('manufacturing.stage2.store-single');
     Route::get('stage2/complete/processing', [Stage2Controller::class, 'completeProcessing'])->name('manufacturing.stage2.complete-processing');
     Route::put('stage2/complete', [Stage2Controller::class, 'completeAction'])->name('manufacturing.stage2.complete');
     Route::get('stage2/waste/statistics', [Stage2Controller::class, 'wasteStatistics'])->name('manufacturing.stage2.waste-statistics');
 
     // Stage 3 Additional Routes
+    Route::post('stage3/store-single', [Stage3Controller::class, 'storeSingle'])->name('manufacturing.stage3.store-single');
+    Route::get('stage3/get-stage2-by-barcode/{barcode}', [Stage3Controller::class, 'getByBarcode'])->name('manufacturing.stage3.get-stage2-by-barcode');
     Route::get('stage3/add-dye-plastic', [Stage3Controller::class, 'addDyePlastic'])->name('manufacturing.stage3.add-dye-plastic');
     Route::post('stage3/add-dye', [Stage3Controller::class, 'addDyeAction'])->name('manufacturing.stage3.add-dye');
     Route::get('stage3/completed-coils', [Stage3Controller::class, 'completedCoils'])->name('manufacturing.stage3.completed-coils');
+
+    // Stage 4 Additional Routes
+    Route::post('stage4/store-single', [Stage4Controller::class, 'storeSingle'])->name('manufacturing.stage4.store-single');
+    Route::get('stage4/get-lafaf-by-barcode/{barcode}', [Stage4Controller::class, 'getByBarcode'])->name('manufacturing.stage4.get-lafaf-by-barcode');
 
     // Quality Management Routes
     Route::get('quality', [QualityController::class, 'index'])->name('manufacturing.quality.index');

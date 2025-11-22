@@ -1,390 +1,552 @@
 @extends('master')
 
-@section('title', 'تعبئة الكراتين - المرحلة الرابعة')
+@section('title', 'المرحلة الرابعة - تعبئة الكراتين')
 
 @section('content')
 
 <style>
-    .info-tooltip {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 18px;
-        height: 18px;
-        background: #3498db;
-        color: white;
-        border-radius: 50%;
-        font-size: 12px;
-        font-weight: bold;
-        cursor: help;
-        margin-right: 5px;
-        vertical-align: middle;
+    :root{
+        --brand-1: #e67e22;
+        --brand-2: #d35400;
+        --muted: #6e7a81;
+        --surface: #f5f7fa;
+        --card: #ffffff;
+        --success: #27ae60;
+        --danger: #e74c3c;
+        --radius: 12px;
     }
 
-    .info-tooltip:hover {
-        background: #2980b9;
-    }
+    .stage-container{ max-width:1200px; margin:26px auto; padding:20px; font-family: 'Segoe UI', Tahoma, Arial; color:#24303a }
 
-    .info-tooltip .tooltip-text {
-        visibility: hidden;
-        width: 250px;
-        background-color: #2c3e50;
-        color: #fff;
-        text-align: right;
-        border-radius: 6px;
-        padding: 12px;
-        position: absolute;
-        z-index: 1000;
-        bottom: 125%;
-        right: 50%;
-        margin-right: -125px;
-        opacity: 0;
-        transition: opacity 0.3s;
-        font-size: 13px;
-        line-height: 1.6;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
+    .stage-header{ display:flex; gap:14px; align-items:center; background: linear-gradient(90deg,var(--brand-1),var(--brand-2)); color:#fff; padding:20px 22px; border-radius:10px; box-shadow:0 10px 30px rgba(230,126,34,0.12) }
+    .stage-header h1{ margin:0; font-size:20px }
+    .stage-header p{ margin:0; opacity:0.95; font-size:13px }
 
-    .info-tooltip .tooltip-text::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        right: 50%;
-        margin-right: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: #2c3e50 transparent transparent transparent;
-    }
+    .form-section{ background:var(--card); padding:18px; border-radius:var(--radius); margin-top:18px; box-shadow:0 6px 18px rgba(10,30,60,0.04); border:1px solid rgba(34,47,62,0.04) }
+    .section-title{ font-size:16px; color:var(--brand-1); font-weight:700 }
 
-    .info-tooltip:hover .tooltip-text {
-        visibility: visible;
-        opacity: 1;
-    }
+    .barcode-section{ background: linear-gradient(180deg,#fef5f1 0,#ffe8dc 100%); padding:20px; border-radius:10px; text-align:center; border:1px dashed rgba(230,126,34,0.06) }
+    .barcode-input-wrapper{ max-width:720px; margin:0 auto; position:relative }
+    .barcode-input{ width:100%; padding:16px 18px; border-radius:10px; border:2px solid rgba(230,126,34,0.12); font-size:16px; font-weight:600 }
+    .barcode-icon{ position:absolute; left:16px; top:50%; transform:translateY(-50%); font-size:18px }
 
-    .info-box-header {
-        cursor: help;
-        display: inline-block;
-    }
+    .lafaf-display{ display:none; padding:14px; border-radius:10px; background:linear-gradient(180deg,#fef9f3,#fff4e6); border-left:4px solid var(--brand-1); margin-top:12px }
+    .lafaf-display.active{ display:block }
+    .lafaf-info{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px }
+    .info-item{ background:var(--card); padding:12px; border-radius:8px; text-align:center; box-shadow:0 4px 12px rgba(10,30,60,0.03) }
+    .info-label{ font-size:13px; color:var(--muted); margin-bottom:6px; font-weight:600 }
+    .info-value{ font-size:15px; font-weight:700; color:#22303a }
+
+    .form-row{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:14px; margin-top:10px }
+    .form-group label{ font-size:13px; color:var(--muted); font-weight:700; margin-bottom:6px; display:block }
+    .form-control, .form-select{ width:100%; padding:10px 12px; border-radius:8px; border:1.5px solid #e7eef5; background:#fbfeff }
+    .form-control[readonly]{ background:#f1f6f9; font-weight:600 }
+
+    .boxes-list{ margin-top:20px }
+    .box-item{ display:flex; justify-content:space-between; align-items:start; padding:18px; border-radius:12px; background:linear-gradient(135deg, #fef9f3 0%, #ffe8dc 100%); box-shadow:0 6px 18px rgba(10,30,60,0.03); margin-bottom:15px; border-right:4px solid #27ae60 }
+    .box-info strong{ font-size:15px }
+
+    .button-group{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px }
+    .btn-primary, .btn-success, .btn-secondary, .btn-warning{ border:none; border-radius:8px; padding:10px 14px; font-weight:700; cursor:pointer }
+    .btn-primary{ background:var(--brand-1); color:white }
+    .btn-success{ background:var(--success); color:white }
+    .btn-secondary{ background:#8e9aa4; color:white }
+    .btn-warning{ background:#f39c12; color:white }
+
+    .btn-print{ background:#27ae60; color:white; padding:10px 16px; border-radius:8px; border:none; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(39,174,96,0.3) }
+
+    .empty-state{ padding:30px; text-align:center; color:#98a2a8 }
+
+    .info-box{ background:linear-gradient(135deg,#fff9e6 0,#ffeaa7 100%); border-right:4px solid #f39c12; padding:15px; border-radius:8px; margin-bottom:20px }
+    .info-box strong{ color:#e67e22; display:block; margin-bottom:8px }
+
+    .divide-section{ background:linear-gradient(135deg,#e3f2fd 0,#bbdefb 100%); border-right:4px solid #2196f3; padding:15px; border-radius:8px; margin:15px 0 }
+    .divide-section h4{ margin:0 0 12px 0; color:#1976d2; font-size:15px }
+
+    @media (max-width:900px){ .form-row{ grid-template-columns:1fr } .lafaf-info{ grid-template-columns:repeat(2,1fr) } .stage-header{ flex-direction:column; text-align:center } }
 </style>
 
 <div class="stage-container">
+    <!-- Header -->
     <div class="stage-header">
         <h1>
-            <span>📦</span>
+            <i class="fas fa-box"></i>
             المرحلة الرابعة - تعبئة الكراتين
         </h1>
-        <p><i class="fas fa-info-circle"></i> قم بمسح باركود اللفاف وتقسيمه على الكراتين (كل كرتون سيحصل على باركود خاص)</p>
+        <p>امسح باركود اللفاف وقسّم الوزن على الكراتين (يمكن أن يزيد الوزن بسبب التعبئة)</p>
     </div>
 
+    <!-- Barcode Scanner -->
     <div class="form-section barcode-section">
-        <h3 style="margin: 0 0 15px 0; color: #0066B2;"><i class="fas fa-camera"></i> مسح باركود اللفاف <span class="info-tooltip">?<span class="tooltip-text">مسح باركود اللفاف من المرحلة الثالثة</span></span></h3>
+        <h3 style="margin: 0 0 15px 0; color: #e67e22;"><i class="fas fa-camera"></i> مسح باركود اللفاف</h3>
         <div class="barcode-input-wrapper">
-            <input type="text" id="lafafBarcode" class="barcode-input"
-                placeholder="امسح أو اكتب باركود اللفاف (CO3-XXXX)" autofocus>
-            <span class="barcode-icon"><i class="fas fa-box"></i></span>
+            <input type="text" id="lafafBarcode" class="barcode-input" placeholder="امسح أو اكتب باركود اللفاف (CO3-XXX-2025)" autofocus>
+            <span class="barcode-icon">📦</span>
         </div>
-        <small style="color: #7f8c8d; display: block; margin-top: 10px;"><i class="fas fa-lightbulb"></i> <span class="info-tooltip">?<span class="tooltip-text">امسح الباركود أو اضغط Enter للبحث</span></span></small>
+        <small style="color: #7f8c8d; display: block; margin-top: 10px;"><i class="fas fa-lightbulb"></i> امسح الباركود أو اضغط Enter للبحث</small>
     </div>
 
+    <!-- Lafaf Display -->
     <div id="lafafDisplay" class="lafaf-display">
         <h4><i class="fas fa-circle-check"></i> بيانات اللفاف</h4>
         <div class="lafaf-info">
             <div class="info-item">
-                <div class="info-label">الباركود <span class="info-tooltip">?<span class="tooltip-text">الرمز الشريطي للفاف</span></span></div>
+                <div class="info-label">الباركود</div>
                 <div class="info-value" id="displayBarcode">-</div>
             </div>
             <div class="info-item">
-                <div class="info-label">اللون <span class="info-tooltip">?<span class="tooltip-text">لون اللفاف المنتج</span></span></div>
+                <div class="info-label">المادة</div>
+                <div class="info-value" id="displayMaterial">-</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">اللون</div>
                 <div class="info-value" id="displayColor">-</div>
             </div>
             <div class="info-item">
-                <div class="info-label">الوزن الكامل <span class="info-tooltip">?<span class="tooltip-text">الوزن الإجمالي للفاف</span></span></div>
+                <div class="info-label">الوزن الكلي</div>
                 <div class="info-value" id="displayWeight">-</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">نوع البلاستيك <span class="info-tooltip">?<span class="tooltip-text">نوع البلاستيك المستخدم في اللفاف</span></span></div>
-                <div class="info-value" id="displayPlastic">-</div>
             </div>
         </div>
     </div>
 
+    <!-- Box Form -->
     <div class="form-section">
         <h3 class="section-title"><i class="fas fa-boxes"></i> تقسيم الكراتين</h3>
 
         <div class="info-box">
-            <div class="info-box-header">
-                <strong><i class="fas fa-thumbtack"></i> ملاحظة هامة: <span class="info-tooltip">?<span class="tooltip-text"><strong>شروط تقسيم الكراتين:</strong><br><br>• مجموع أوزان الكراتين يجب أن يساوي وزن اللفاف تقريباً (تسامح 2%)<br><br>• كل كرتون سيحصل على باركود خاص (BOX4-XXXX)<br><br>• يمكنك تتبع كل كرتون بشكل منفصل من خلال صفحة التتبع</span></span></strong>
-            </div>
+            <strong><i class="fas fa-thumbtack"></i> ملاحظة هامة:</strong>
+            <ul style="margin:8px 0 0 20px; color:#7f8c8d; font-size:13px;">
+                <li><strong>يمكن أن يزيد الوزن</strong> في هذه المرحلة بسبب التعبئة والكراتين</li>
+                <li>يمكنك تقسيم الوزن تلقائياً على عدد معين من الكراتين</li>
+                <li>أو إضافة كل كرتون على حدة يدوياً</li>
+                <li>كل كرتون سيحصل على باركود خاص (BOX4-XXX)</li>
+            </ul>
         </div>
 
-        <div id="boxesList"></div>
-
-        <div class="button-group">
-            <button type="button" class="btn-primary" onclick="addBox()">
-                <i class="fas fa-plus"></i> إضافة كرتون
+        <!-- Auto Divide Section -->
+        <div class="divide-section">
+            <h4><i class="fas fa-calculator"></i> تقسيم تلقائي للوزن</h4>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>الوزن الإجمالي للكراتين (كجم)</label>
+                    <input type="number" id="totalBoxesWeight" class="form-control" placeholder="مثال: 110.5" step="0.001">
+                    <small style="color: #7f8c8d; display: block; margin-top: 5px;">يمكن أن يكون أكبر من وزن اللفاف</small>
+                </div>
+                <div class="form-group">
+                    <label>عدد الكراتين</label>
+                    <input type="number" id="boxesCount" class="form-control" placeholder="مثال: 5" min="1">
+                </div>
+            </div>
+            <button type="button" class="btn-warning" onclick="divideWeight()">
+                <i class="fas fa-divide"></i> تقسيم الوزن تلقائياً
             </button>
         </div>
 
-        <div id="summaryBox" class="summary-box" style="display: none;">
-            <div class="summary-row">
-                <span>عدد الكراتين: <span class="info-tooltip">?<span class="tooltip-text">عدد الكراتين المضافة</span></span></span>
-                <span id="summaryBoxCount">0</span>
+        <!-- Manual Box Entry -->
+        <div style="margin-top: 20px;">
+            <h4 style="color: #e67e22; margin-bottom: 12px;"><i class="fas fa-hand-pointer"></i> أو أضف كرتون يدوياً</h4>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>الوزن (كجم) <span style="color:#e74c3c;">*</span></label>
+                    <input type="number" id="boxWeight" class="form-control" placeholder="مثال: 22.5" step="0.001">
+                </div>
+                <div class="form-group">
+                    <label>ملاحظات</label>
+                    <input type="text" id="boxNotes" class="form-control" placeholder="ملاحظات إضافية...">
+                </div>
             </div>
-            <div class="summary-row">
-                <span>وزن اللفاف: <span class="info-tooltip">?<span class="tooltip-text">الوزن الإجمالي للفاف</span></span></span>
-                <span id="summaryLafafWeight">0 كجم</span>
-            </div>
-            <div class="summary-row">
-                <span>مجموع أوزان الكراتين: <span class="info-tooltip">?<span class="tooltip-text">مجموع أوزان جميع الكراتين</span></span></span>
-                <span id="summaryTotalWeight">0 كجم</span>
-            </div>
-            <div class="summary-row">
-                <span>الفرق: <span class="info-tooltip">?<span class="tooltip-text">الفرق بين وزن اللفاف ومجموع أوزان الكراتين</span></span></span>
-                <span id="summaryDifference">0 كجم</span>
+            <div class="button-group">
+                <button type="button" class="btn-primary" onclick="addBox()">
+                    <i class="fas fa-plus"></i> إضافة الكرتون
+                </button>
+                <button type="button" class="btn-secondary" onclick="clearForm()">
+                    <i class="fas fa-sync"></i> مسح النموذج
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="form-actions">
-        <button type="button" class="btn-success" onclick="submitBoxes()" id="submitBtn" disabled>
-            <i class="fas fa-check"></i> حفظ جميع الكراتين
+    <!-- Boxes List -->
+    <div class="form-section">
+        <h3 class="section-title"><i class="fas fa-clipboard"></i> الكراتين المضافة (<span id="boxCount">0</span>)</h3>
+        <div id="boxList" class="boxes-list">
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:48px;height:48px;opacity:0.3;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <p>لا توجد كراتين مضافة بعد</p>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div id="summaryBox" style="display:none; background:linear-gradient(135deg,#e8f5e9 0,#c8e6c9 100%); padding:15px; border-radius:10px; margin-top:15px; border-right:4px solid #27ae60;">
+            <h4 style="margin:0 0 10px 0; color:#2e7d32;"><i class="fas fa-chart-bar"></i> الملخص</h4>
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px;">
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:12px; color:#7f8c8d; margin-bottom:4px;">عدد الكراتين</div>
+                    <div style="font-size:20px; font-weight:700; color:#2e7d32;" id="summaryCount">0</div>
+                </div>
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:12px; color:#7f8c8d; margin-bottom:4px;">مجموع الأوزان</div>
+                    <div style="font-size:20px; font-weight:700; color:#e67e22;" id="summaryTotal">0</div>
+                </div>
+                <div style="background:white; padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:12px; color:#7f8c8d; margin-bottom:4px;">وزن اللفاف</div>
+                    <div style="font-size:20px; font-weight:700; color:#3498db;" id="summaryLafaf">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex; gap:15px; justify-content:center; margin-top:25px; padding-top:20px; border-top:2px solid #ecf0f1;">
+        <button type="button" class="btn-success" onclick="finishOperation()" id="submitBtn" disabled style="padding:14px 32px; font-size:16px;">
+            <i class="fas fa-check-double"></i> إنهاء العملية
         </button>
-        <button type="button" class="btn-secondary"
-            onclick="window.location.href='{{ route('manufacturing.stage4.index') }}'">
+        <button type="button" class="btn-secondary" onclick="window.location.href='{{ route('manufacturing.stage4.index') }}'">
             <i class="fas fa-times"></i> إلغاء
         </button>
     </div>
 </div>
 
+<!-- JsBarcode Library -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
 <script>
-    let currentLafaf = null;
-    let boxes = [];
-    let boxCounter = 0;
+let currentLafaf = null;
+let boxes = [];
 
-    document.getElementById('lafafBarcode').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            loadLafaf(this.value.trim());
-        }
-    });
+// Barcode scanner
+document.getElementById('lafafBarcode').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        loadLafaf(this.value.trim());
+        this.value = '';
+    }
+});
 
-    function loadLafaf(barcode) {
-        if (!barcode) {
-            showToast('⚠️ يرجى إدخال باركود اللفاف!', 'error');
-            return;
-        }
-
-        const barcodeInput = document.getElementById('lafafBarcode');
-        barcodeInput.disabled = true;
-
-        fetch(`/stage4/get-lafaf-by-barcode/${barcode}`, {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    currentLafaf = data.data;
-                    displayLafafData();
-                    showToast('✅ تم تحميل بيانات اللفاف بنجاح!', 'success');
-                } else {
-                    throw new Error(data.message || 'لم يتم العثور على الباركود');
-                }
-            })
-            .catch(error => {
-                showToast(error.message, 'error');
-                currentLafaf = null;
-                document.getElementById('lafafDisplay').classList.remove('active');
-            })
-            .finally(() => {
-                barcodeInput.disabled = false;
-            });
+function loadLafaf(barcode) {
+    if (!barcode) {
+        alert('⚠️ يرجى إدخال باركود اللفاف!');
+        return;
     }
 
-    function displayLafafData() {
-        document.getElementById('displayBarcode').textContent = currentLafaf.barcode;
-        document.getElementById('displayColor').textContent = currentLafaf.color || '-';
-        document.getElementById('displayWeight').textContent = currentLafaf.total_weight + ' كجم';
-        document.getElementById('displayPlastic').textContent = currentLafaf.plastic_type || '-';
-        document.getElementById('lafafDisplay').classList.add('active');
-        document.getElementById('submitBtn').disabled = false;
+    fetch(`{{ url('/stage4/get-lafaf-by-barcode') }}/${barcode}`)
+        .then(response => {
+            if (!response.ok) throw new Error('لم يتم العثور على البيانات');
+            return response.json();
+        })
+        .then(result => {
+            if (!result.success) throw new Error(result.message);
 
-        if (boxes.length === 0) {
-            addBox();
-        }
-    }
+            const data = result.data;
+            console.log('Lafaf data received:', data);
+            
+            currentLafaf = {
+                id: data.id,
+                barcode: data.barcode,
+                coil_number: data.coil_number || 'غير محدد',
+                total_weight: parseFloat(data.total_weight),
+                color: data.color || 'غير محدد',
+                plastic_type: data.plastic_type || 'غير محدد',
+                material_id: data.material_id,
+                material_name: data.material_name || 'غير محدد'
+            };
+            
+            console.log('currentLafaf:', currentLafaf);
 
-    function addBox() {
-        if (!currentLafaf) {
-            showToast('يرجى مسح باركود اللفاف أولاً!', 'error');
-            return;
-        }
+            // Display lafaf data
+            document.getElementById('displayBarcode').textContent = currentLafaf.barcode;
+            document.getElementById('displayMaterial').textContent = currentLafaf.material_name;
+            document.getElementById('displayColor').textContent = currentLafaf.color;
+            document.getElementById('displayWeight').textContent = currentLafaf.total_weight + ' كجم';
+            document.getElementById('lafafDisplay').classList.add('active');
 
-        boxCounter++;
-        boxes.push({
-            id: Date.now(),
-            number: boxCounter,
-            weight: '',
-            notes: ''
+            // Update summary
+            document.getElementById('summaryLafaf').textContent = currentLafaf.total_weight.toFixed(3) + ' كجم';
+
+            // Focus on box weight
+            document.getElementById('boxWeight').focus();
+
+            showToast('تم تحميل بيانات اللفاف بنجاح!', 'success');
+        })
+        .catch(error => {
+            alert('خطأ: ' + error.message);
+            document.getElementById('lafafBarcode').focus();
         });
+}
 
-        renderBoxes();
-        updateSummary();
+async function divideWeight() {
+    if (!currentLafaf) {
+        alert('⚠️ يرجى مسح باركود اللفاف أولاً!');
+        document.getElementById('lafafBarcode').focus();
+        return;
     }
 
-    function renderBoxes() {
-        const list = document.getElementById('boxesList');
+    const totalWeight = parseFloat(document.getElementById('totalBoxesWeight').value);
+    const count = parseInt(document.getElementById('boxesCount').value);
 
-        if (boxes.length === 0) {
-            list.innerHTML =
-            '<p style="text-align: center; color: #95a5a6; padding: 20px;"><i class="fas fa-inbox"></i> لم يتم إضافة كراتين بعد</p>';
-            return;
-        }
-
-        list.innerHTML = boxes.map(box => `
-        <div class="box-item" data-id="${box.id}">
-            <div class="box-header">
-                <span class="box-number"><i class="fas fa-box"></i> كرتون رقم ${box.number}</span>
-            </div>
-            <div class="box-form">
-                <div class="form-group">
-                    <label>الوزن (كجم) <span style="color: #e74c3c;"><i class="fas fa-asterisk"></i></span> <span class="info-tooltip">?<span class="tooltip-text">وزن الكرتون بالكيلوغرام</span></span></label>
-                    <input type="number" class="form-control box-weight" data-id="${box.id}"
-                           value="${box.weight}" step="0.001" placeholder="0.000"
-                           oninput="updateBoxWeight(${box.id}, this.value)">
-                </div>
-                <div class="form-group">
-                    <label>ملاحظات <span class="info-tooltip">?<span class="tooltip-text">ملاحظات إضافية عن الكرتون</span></span></label>
-                    <input type="text" class="form-control" data-id="${box.id}"
-                           value="${box.notes}" placeholder="ملاحظات إضافية..."
-                           oninput="updateBoxNotes(${box.id}, this.value)">
-                    <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-sticky-note"></i> <span class="info-tooltip">?<span class="tooltip-text">يمكنك إضافة ملاحظات إضافية هنا</span></span></small>
-                </div>
-                <button class="btn-delete" onclick="removeBox(${box.id})" type="button"><i class="fas fa-trash"></i></button>
-            </div>
-        </div>
-    `).join('');
+    if (!totalWeight || totalWeight <= 0) {
+        alert('⚠️ يرجى إدخال الوزن الإجمالي!');
+        document.getElementById('totalBoxesWeight').focus();
+        return;
     }
 
-    function updateBoxWeight(id, weight) {
-        const box = boxes.find(b => b.id === id);
-        if (box) {
-            box.weight = weight;
-            updateSummary();
-        }
+    if (!count || count <= 0) {
+        alert('⚠️ يرجى إدخال عدد الكراتين!');
+        document.getElementById('boxesCount').focus();
+        return;
     }
 
-    function updateBoxNotes(id, notes) {
-        const box = boxes.find(b => b.id === id);
-        if (box) {
-            box.notes = notes;
-        }
-    }
+    // Calculate weight per box
+    const weightPerBox = totalWeight / count;
 
-    function removeBox(id) {
-        if (boxes.length === 1) {
-            showToast('⚠️ يجب أن يكون هناك كرتون واحد على الأقل!', 'error');
-            return;
-        }
+    showToast(`جاري حفظ ${count} كرتون...`, 'info');
 
-        boxes = boxes.filter(b => b.id !== id);
-        renderBoxes();
-        updateSummary();
-        showToast('تم حذف الكرتون', 'info');
-    }
-
-    function updateSummary() {
-        if (!currentLafaf || boxes.length === 0) {
-            document.getElementById('summaryBox').style.display = 'none';
-            return;
-        }
-
-        const lafafWeight = parseFloat(currentLafaf.total_weight);
-        const totalWeight = boxes.reduce((sum, box) => sum + (parseFloat(box.weight) || 0), 0);
-        const difference = Math.abs(lafafWeight - totalWeight);
-
-        document.getElementById('summaryBoxCount').textContent = boxes.length;
-        document.getElementById('summaryLafafWeight').textContent = lafafWeight.toFixed(3) + ' كجم';
-        document.getElementById('summaryTotalWeight').textContent = totalWeight.toFixed(3) + ' كجم';
-        document.getElementById('summaryDifference').textContent = difference.toFixed(3) + ' كجم';
-        document.getElementById('summaryBox').style.display = 'block';
-
-        const tolerance = lafafWeight * 0.02;
-        const differenceSpan = document.getElementById('summaryDifference');
-        differenceSpan.style.color = difference > tolerance ? '#e74c3c' : '#27ae60';
-    }
-
-    function submitBoxes() {
-        if (!currentLafaf) {
-            showToast('يرجى مسح باركود اللفاف أولاً!', 'error');
-            return;
-        }
-
-        if (boxes.length === 0) {
-            showToast('يرجى إضافة كرتون واحد على الأقل!', 'error');
-            return;
-        }
-
-        const invalidBoxes = boxes.filter(b => !b.weight || parseFloat(b.weight) <= 0);
-        if (invalidBoxes.length > 0) {
-            showToast('يرجى إدخال وزن لجميع الكراتين!', 'error');
-            return;
-        }
-
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
-
-        const formData = {
+    // Save each box
+    for (let i = 0; i < count; i++) {
+        const data = {
             lafaf_barcode: currentLafaf.barcode,
-            boxes: boxes.map(b => ({
-                weight: parseFloat(b.weight),
-                notes: b.notes
-            })),
-            packaging_type: 'standard',
-            _token: '{{ csrf_token() }}'
+            lafaf_id: currentLafaf.id,
+            material_id: currentLafaf.material_id,
+            weight: parseFloat(weightPerBox.toFixed(3)),
+            notes: `كرتون ${i + 1} من ${count}`
         };
+        
+        console.log('Saving box', i + 1, 'with data:', data);
 
-        fetch('{{ route('manufacturing.stage4.store') }}', {
+        try {
+            const response = await fetch('{{ route("manufacturing.stage4.store-single") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
                 },
-                body: JSON.stringify(formData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('تم حفظ الكراتين بنجاح! عدد الكراتين: ' + data.data.box_count, 'success');
-                    
-                    // عرض نافذة الباركودات
-                    if (data.data.barcode_info && data.data.barcode_info.length > 0) {
-                        setTimeout(() => {
-                            showBarcodesModal(data.data.barcode_info);
-                        }, 500);
-                    } else {
-                        setTimeout(() => {
-                            window.location.href = '{{ route('manufacturing.stage4.index') }}';
-                        }, 2000);
-                    }
-                } else {
-                    throw new Error(data.message || 'حدث خطأ أثناء الحفظ');
-                }
-            })
-            .catch(error => {
-                showToast('خطأ: ' + error.message, 'error');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-check"></i> حفظ جميع الكراتين';
+                body: JSON.stringify(data)
             });
+
+            const result = await response.json();
+            console.log('Result for box', i + 1, ':', result);
+
+            if (result.success) {
+                const box = {
+                    id: result.data.box_id,
+                    barcode: result.data.barcode,
+                    box_number: result.data.box_number,
+                    material_name: result.data.material_name,
+                    weight: result.data.weight,
+                    notes: data.notes,
+                    saved: true
+                };
+                
+                console.log('Box object created:', box);
+                boxes.push(box);
+            } else {
+                throw new Error(result.message || 'حدث خطأ أثناء الحفظ');
+            }
+        } catch (error) {
+            alert('❌ خطأ في حفظ الكرتون رقم ' + (i + 1) + ': ' + error.message);
+            break;
+        }
     }
 
-    function showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.textContent = message;
-        toast.style.cssText = `
+    renderBoxes();
+    showToast(`✅ تم حفظ ${boxes.length} كرتون بنجاح! (${weightPerBox.toFixed(3)} كجم لكل كرتون)`, 'success');
+
+    // Clear divide inputs
+    document.getElementById('totalBoxesWeight').value = '';
+    document.getElementById('boxesCount').value = '';
+}
+
+function addBox() {
+    if (!currentLafaf) {
+        alert('⚠️ يرجى مسح باركود اللفاف أولاً!');
+        document.getElementById('lafafBarcode').focus();
+        return;
+    }
+
+    const weight = document.getElementById('boxWeight').value;
+    const notes = document.getElementById('boxNotes').value.trim();
+
+    if (!weight || parseFloat(weight) <= 0) {
+        alert('⚠️ يرجى إدخال وزن الكرتون!');
+        document.getElementById('boxWeight').focus();
+        return;
+    }
+
+    const data = {
+        lafaf_barcode: currentLafaf.barcode,
+        lafaf_id: currentLafaf.id,
+        material_id: currentLafaf.material_id,
+        weight: parseFloat(weight),
+        notes: notes
+    };
+
+    // حفظ فوري للكرتون
+    const addBtn = event.target;
+    addBtn.disabled = true;
+    addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
+    fetch('{{ route("manufacturing.stage4.store-single") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            const box = {
+                id: result.data.box_id,
+                barcode: result.data.barcode,
+                box_number: result.data.box_number,
+                material_name: result.data.material_name,
+                weight: result.data.weight,
+                notes: notes,
+                saved: true
+            };
+
+            boxes.push(box);
+            renderBoxes();
+            clearForm();
+            
+            showToast('✅ تم حفظ الكرتون بنجاح!', 'success');
+            
+            document.getElementById('boxWeight').focus();
+        } else {
+            throw new Error(result.message || 'حدث خطأ أثناء الحفظ');
+        }
+    })
+    .catch(error => {
+        alert('❌ خطأ: ' + error.message);
+    })
+    .finally(() => {
+        addBtn.disabled = false;
+        addBtn.innerHTML = '<i class="fas fa-plus"></i> إضافة الكرتون';
+    });
+}
+
+function renderBoxes() {
+    const list = document.getElementById('boxList');
+    document.getElementById('boxCount').textContent = boxes.length;
+    document.getElementById('submitBtn').disabled = boxes.length === 0;
+
+    if (boxes.length === 0) {
+        list.innerHTML = `
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:48px;height:48px;opacity:0.3;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <p>لا توجد كراتين مضافة بعد</p>
+            </div>
+        `;
+        document.getElementById('summaryBox').style.display = 'none';
+        return;
+    }
+
+    list.innerHTML = boxes.map((item, index) => `
+        <div class="box-item">
+            <div class="box-info" style="flex:1;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <strong style="color:#2c3e50; font-size:16px;">
+                        <i class="fas fa-box" style="color:#27ae60;"></i> ${item.box_number || 'كرتون ' + (index + 1)}
+                    </strong>
+                    <span style="background:#27ae60; color:white; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600;">✓ محفوظ</span>
+                </div>
+                <small style="display:block; line-height:1.6;">
+                    <strong>المادة:</strong> ${item.material_name || 'غير محدد'} |
+                    <strong>الباركود:</strong> <code style="background:#f8f9fa; padding:2px 6px; border-radius:4px; font-family:monospace;">${item.barcode || 'غير متوفر'}</code><br>
+                    <strong>الوزن:</strong> ${item.weight} كجم
+                    ${item.notes ? ' | 📝 <strong>ملاحظات:</strong> ' + item.notes : ''}
+                </small>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn-print" onclick="printBoxBarcode('${item.barcode}', '${item.box_number || 'كرتون'}', '${item.material_name || 'غير محدد'}', ${item.weight}, '${currentLafaf ? currentLafaf.barcode : ''}')">
+                    <i class="fas fa-print"></i> طباعة
+                </button>
+            </div>
+        </div>
+    `).join('');
+
+    // Update summary
+    updateSummary();
+}
+
+function updateSummary() {
+    if (boxes.length === 0) {
+        document.getElementById('summaryBox').style.display = 'none';
+        return;
+    }
+
+    const totalWeight = boxes.reduce((sum, box) => sum + parseFloat(box.weight), 0);
+    
+    document.getElementById('summaryCount').textContent = boxes.length;
+    document.getElementById('summaryTotal').textContent = totalWeight.toFixed(3) + ' كجم';
+    document.getElementById('summaryBox').style.display = 'block';
+}
+
+function finishOperation() {
+    if (boxes.length === 0) {
+        alert('⚠️ لا توجد كراتين محفوظة!');
+        return;
+    }
+
+    showToast('✅ تم إنهاء العملية بنجاح!', 'success');
+    setTimeout(() => {
+        window.location.href = '{{ route("manufacturing.stage4.index") }}';
+    }, 1000);
+}
+
+function clearForm() {
+    document.getElementById('boxWeight').value = '';
+    document.getElementById('boxNotes').value = '';
+}
+
+function printBoxBarcode(barcode, boxNumber, materialName, weight, lafafBarcode) {
+    const printWindow = window.open('', '', 'height=650,width=850');
+    printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - ' + boxNumber + '</title>');
+    printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
+    printWindow.document.write('.barcode-container { background: white; padding: 50px; border-radius: 16px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); text-align: center; max-width: 550px; }');
+    printWindow.document.write('.title { font-size: 28px; font-weight: bold; color: #2c3e50; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 4px solid #e67e22; }');
+    printWindow.document.write('.barcode-display { font-size: 24px; color: #e67e22; font-weight: bold; margin: 20px 0; }');
+    printWindow.document.write('.barcode-code { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 25px 0; letter-spacing: 4px; font-family: "Courier New", monospace; }');
+    printWindow.document.write('.info { margin-top: 30px; padding: 25px; background: #f8f9fa; border-radius: 10px; text-align: right; }');
+    printWindow.document.write('.info-row { margin: 12px 0; display: flex; justify-content: space-between; }');
+    printWindow.document.write('.label { color: #7f8c8d; font-size: 16px; }');
+    printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 18px; }');
+    printWindow.document.write('@media print { body { background: white; } }');
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write('<div class="barcode-container">');
+    printWindow.document.write('<div class="title">باركود المرحلة الرابعة - كرتون</div>');
+    printWindow.document.write('<div class="barcode-display">' + barcode + '</div>');
+    printWindow.document.write('<svg id="print-barcode"></svg>');
+    printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
+    printWindow.document.write('<div class="info">');
+    printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + materialName + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">الوزن:</span><span class="value">' + weight + ' كجم</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">باركود اللفاف:</span><span class="value">' + lafafBarcode + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+    printWindow.document.write('</div></div>');
+    printWindow.document.write('<script>');
+    printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');
+    printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };');
+    printWindow.document.write('<\/script></body></html>');
+    printWindow.document.close();
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
@@ -395,217 +557,14 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         z-index: 10000;
         animation: slideIn 0.3s ease-out;
-        max-width: 400px;
-        font-size: 14px;
     `;
-        document.body.appendChild(toast);
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transition = 'opacity 0.3s';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
-
-    // عرض نافذة الباركودات
-    function showBarcodesModal(barcodes) {
-        const modal = document.createElement('div');
-        modal.id = 'barcodesModal';
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            padding: 20px;
-        `;
-
-        // حساب الإجماليات
-        const totalWeight = barcodes.reduce((sum, item) => sum + parseFloat(item.weight), 0);
-        const boxesCount = barcodes.length;
-
-        let barcodesHTML = barcodes.map((item, index) => `
-            <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%); padding: 25px; border-radius: 12px; margin-bottom: 20px; border-right: 5px solid #e67e22; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                <div style="display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; margin-bottom: 20px;">
-                    <div>
-                        <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 20px; font-weight: 700;">
-                            <i class="fas fa-box" style="color: #e67e22;"></i> ${item.box_number}
-                        </h4>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px;">
-                            <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #27ae60;">
-                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">المادة</div>
-                                <div style="font-size: 14px; color: #2c3e50; font-weight: 700;">${item.material_name}</div>
-                            </div>
-                            <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #e67e22;">
-                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">الوزن</div>
-                                <div style="font-size: 18px; color: #e67e22; font-weight: 700;">${item.weight} كجم</div>
-                            </div>
-                            <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #3498db;">
-                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">نوع التعبئة</div>
-                                <div style="font-size: 14px; color: #3498db; font-weight: 700;">${item.packaging_type}</div>
-                            </div>
-                            <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #9b59b6;">
-                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">باركود اللفاف</div>
-                                <div style="font-size: 12px; color: #9b59b6; font-weight: 700;">${item.lafaf_barcode}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <button onclick="printStage4Barcode('${item.barcode}', '${item.box_number}', '${item.material_name}', ${item.weight}, '${item.lafaf_barcode}')" style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 3px 10px rgba(230, 126, 34, 0.3); transition: all 0.3s;">
-                        <i class="fas fa-print"></i> طباعة
-                    </button>
-                </div>
-                <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
-                    <svg id="barcode-stage4-${index}" style="max-width: 100%;"></svg>
-                    <div style="font-family: 'Courier New', monospace; font-size: 18px; font-weight: bold; color: #2c3e50; margin-top: 12px; letter-spacing: 3px; background: #f8f9fa; padding: 10px; border-radius: 6px;">
-                        ${item.barcode}
-                    </div>
-                </div>
-            </div>
-        `).join('');
-
-        modal.innerHTML = `
-            <div style="background: white; border-radius: 12px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-                <div style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: white; padding: 25px; border-radius: 12px 12px 0 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h2 style="margin: 0; font-size: 24px; font-weight: 700;">
-                            <i class="fas fa-check-circle"></i> تم تعبئة الكراتين بنجاح!
-                        </h2>
-                        <button onclick="closeBarcodesModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
-                            ✕
-                        </button>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; background: rgba(255,255,255,0.15); border-radius: 10px; backdrop-filter: blur(10px);">
-                        <div style="text-align: center;">
-                            <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">عدد الكراتين</div>
-                            <div style="font-size: 28px; font-weight: 700;">${boxesCount}</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">إجمالي الوزن</div>
-                            <div style="font-size: 28px; font-weight: 700;">${totalWeight.toFixed(2)} كجم</div>
-                        </div>
-                    </div>
-                </div>
-                <div style="padding: 30px;">
-                    <h3 style="margin: 0 0 20px 0; color: #2c3e50; font-size: 18px; border-bottom: 2px solid #e9ecef; padding-bottom: 12px;">
-                        <i class="fas fa-barcode"></i> الباركودات المولدة
-                    </h3>
-                    ${barcodesHTML}
-                    <div style="display: flex; gap: 15px; margin-top: 25px; padding-top: 20px; border-top: 2px solid #e9ecef;">
-                        <button onclick="printAllStage4Barcodes(${JSON.stringify(barcodes).replace(/"/g, '&quot;')})" style="flex: 1; background: #e67e22; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                            <i class="fas fa-print"></i> طباعة الكل
-                        </button>
-                        <button onclick="window.location.href='{{ route('manufacturing.stage4.index') }}'" style="flex: 1; background: #27ae60; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                            <i class="fas fa-check"></i> تم، العودة للرئيسية
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(modal);
-
-        // توليد الباركودات
-        setTimeout(() => {
-            barcodes.forEach((item, index) => {
-                JsBarcode(`#barcode-stage4-${index}`, item.barcode, {
-                    format: 'CODE128',
-                    width: 2,
-                    height: 60,
-                    displayValue: false,
-                    margin: 10
-                });
-            });
-        }, 100);
-    }
-
-    function closeBarcodesModal() {
-        const modal = document.getElementById('barcodesModal');
-        if (modal) {
-            modal.remove();
-        }
-        window.location.href = '{{ route("manufacturing.stage4.index") }}';
-    }
-
-    function printStage4Barcode(barcode, boxNumber, materialName, weight, lafafBarcode) {
-        const printWindow = window.open('', '', 'height=600,width=800');
-        printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - المرحلة الرابعة</title>');
-        printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
-        printWindow.document.write('<style>');
-        printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
-        printWindow.document.write('.barcode-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 500px; }');
-        printWindow.document.write('.title { font-size: 24px; font-weight: bold; color: #2c3e50; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 3px solid #e67e22; }');
-        printWindow.document.write('.box-number { font-size: 20px; color: #e67e22; font-weight: bold; margin: 15px 0; }');
-        printWindow.document.write('.barcode-code { font-size: 18px; font-weight: bold; color: #2c3e50; margin: 20px 0; letter-spacing: 3px; font-family: "Courier New", monospace; }');
-        printWindow.document.write('.info { margin-top: 25px; padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: right; }');
-        printWindow.document.write('.info-row { margin: 10px 0; display: flex; justify-content: space-between; }');
-        printWindow.document.write('.label { color: #7f8c8d; font-size: 14px; }');
-        printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 16px; }');
-        printWindow.document.write('@media print { body { background: white; } }');
-        printWindow.document.write('</style></head><body>');
-        printWindow.document.write('<div class="barcode-container">');
-        printWindow.document.write('<div class="title">باركود الكرتون - المرحلة الرابعة</div>');
-        printWindow.document.write('<div class="box-number">' + boxNumber + '</div>');
-        printWindow.document.write('<svg id="print-barcode"></svg>');
-        printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
-        printWindow.document.write('<div class="info">');
-        printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + materialName + '</span></div>');
-        printWindow.document.write('<div class="info-row"><span class="label">الوزن:</span><span class="value">' + weight + ' كجم</span></div>');
-        printWindow.document.write('<div class="info-row"><span class="label">باركود اللفاف:</span><span class="value">' + lafafBarcode + '</span></div>');
-        printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
-        printWindow.document.write('</div></div>');
-        printWindow.document.write('<script>');
-        printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 80, displayValue: false, margin: 10 });');
-        printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };');
-        printWindow.document.write('<\/script></body></html>');
-        printWindow.document.close();
-    }
-
-    function printAllStage4Barcodes(barcodes) {
-        const printWindow = window.open('', '', 'height=800,width=1000');
-        printWindow.document.write('<html dir="rtl"><head><title>طباعة جميع الباركودات - المرحلة الرابعة</title>');
-        printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
-        printWindow.document.write('<style>');
-        printWindow.document.write('body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }');
-        printWindow.document.write('.barcode-item { background: white; padding: 30px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); page-break-inside: avoid; }');
-        printWindow.document.write('.title { font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #e67e22; }');
-        printWindow.document.write('.barcode-code { font-size: 16px; font-weight: bold; color: #2c3e50; margin: 15px 0; text-align: center; letter-spacing: 2px; font-family: "Courier New", monospace; }');
-        printWindow.document.write('.info { margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; }');
-        printWindow.document.write('.info-row { margin: 8px 0; display: flex; justify-content: space-between; }');
-        printWindow.document.write('.label { color: #7f8c8d; font-size: 13px; }');
-        printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 14px; }');
-        printWindow.document.write('@media print { body { background: white; padding: 0; } .barcode-item { box-shadow: none; page-break-after: always; } }');
-        printWindow.document.write('</style></head><body>');
-        
-        barcodes.forEach((item, index) => {
-            printWindow.document.write('<div class="barcode-item">');
-            printWindow.document.write('<div class="title">باركود الكرتون - ' + item.box_number + '</div>');
-            printWindow.document.write('<div style="text-align: center;"><svg id="print-barcode-' + index + '"></svg></div>');
-            printWindow.document.write('<div class="barcode-code">' + item.barcode + '</div>');
-            printWindow.document.write('<div class="info">');
-            printWindow.document.write('<div class="info-row"><span class="label">الكرتون:</span><span class="value">' + item.box_number + '</span></div>');
-            printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + item.material_name + '</span></div>');
-            printWindow.document.write('<div class="info-row"><span class="label">الوزن:</span><span class="value">' + item.weight + ' كجم</span></div>');
-            printWindow.document.write('<div class="info-row"><span class="label">باركود اللفاف:</span><span class="value">' + item.lafaf_barcode + '</span></div>');
-            printWindow.document.write('<div class="info-row"><span class="label">نوع التعبئة:</span><span class="value">' + item.packaging_type + '</span></div>');
-            printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
-            printWindow.document.write('</div></div>');
-        });
-        
-        printWindow.document.write('<script>');
-        barcodes.forEach((item, index) => {
-            printWindow.document.write('JsBarcode("#print-barcode-' + index + '", "' + item.barcode + '", { format: "CODE128", width: 2, height: 70, displayValue: false, margin: 10 });');
-        });
-        printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 800); };');
-        printWindow.document.write('<\/script></body></html>');
-        printWindow.document.close();
-    }
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
 </script>
-
-<!-- JsBarcode Library -->
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
 @endsection
