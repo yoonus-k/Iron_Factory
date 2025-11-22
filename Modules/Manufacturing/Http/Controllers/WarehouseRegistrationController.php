@@ -16,9 +16,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Manufacturing\Entities\MaterialBatch;
 use App\Models\BarcodeSetting;
+use App\Traits\StoresNotifications;
 
 class WarehouseRegistrationController extends Controller
 {
+    use StoresNotifications;
+
     /**
      * Duplicate Prevention Service
      */
@@ -258,6 +261,16 @@ class WarehouseRegistrationController extends Controller
 
             DB::commit();
 
+            // ✅ تخزين الإشعار
+            $this->storeNotification(
+                'delivery_note_registered',
+                'تم تسجيل أذن تسليم',
+                'تم تسجيل أذن التسليم رقم ' . $deliveryNote->note_number . ' برقم دفعة ' . ($batch?->batch_code ?? 'N/A'),
+                'success',
+                'fas fa-check-circle',
+                route('manufacturing.warehouse.registration.show', $deliveryNote->id)
+            );
+
             $message = $deliveryNote->isIncoming()
                 ? 'تم تسجيل البضاعة بنجاح وإدخالها للمستودع!'
                 : 'تم تسجيل البضاعة بنجاح!';
@@ -464,6 +477,16 @@ class WarehouseRegistrationController extends Controller
 
             DB::commit();
 
+            // ✅ تخزين الإشعار
+            $this->storeNotification(
+                'delivery_transferred_to_production',
+                'تم نقل البضاعة للإنتاج',
+                'تم نقل ' . number_format($transferQuantity, 2) . ' من أذن التسليم رقم ' . $deliveryNote->note_number . ' للإنتاج',
+                'info',
+                'fas fa-arrow-right',
+                route('manufacturing.warehouse.registration.show', $deliveryNote->id)
+            );
+
             // إرسال إشعار بنقل البضاعة للإنتاج
             try {
                 $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
@@ -512,6 +535,16 @@ class WarehouseRegistrationController extends Controller
             // تحديث حالة التسجيل إلى "في الإنتاج"
             $deliveryNote->update(['registration_status' => 'in_production']);
 
+            // ✅ تخزين الإشعار
+            $this->storeNotification(
+                'delivery_moved_to_production',
+                'نقل فوري للإنتاج',
+                'تم نقل أذن التسليم رقم ' . $deliveryNote->note_number . ' بالكامل للإنتاج',
+                'info',
+                'fas fa-arrow-right',
+                route('manufacturing.warehouse.registration.show', $deliveryNote->id)
+            );
+
             // إرسال إشعار بنقل البضاعة للإنتاج
             try {
                 $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
@@ -549,6 +582,16 @@ class WarehouseRegistrationController extends Controller
                 'lock_reason' => $validated['lock_reason'],
             ]);
 
+            // ✅ تخزين الإشعار
+            $this->storeNotification(
+                'shipment_locked',
+                'تم تقفيل أذن التسليم',
+                'تم تقفيل أذن التسليم رقم ' . $deliveryNote->note_number . ' للسبب: ' . $validated['lock_reason'],
+                'warning',
+                'fas fa-lock',
+                route('manufacturing.warehouse.registration.show', $deliveryNote->id)
+            );
+
             // إرسال إشعار بالتقفيل
             try {
                 $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
@@ -583,6 +626,16 @@ class WarehouseRegistrationController extends Controller
                 'is_locked' => false,
                 'lock_reason' => null,
             ]);
+
+            // ✅ تخزين الإشعار
+            $this->storeNotification(
+                'shipment_unlocked',
+                'تم فتح أذن التسليم',
+                'تم فتح أذن التسليم رقم ' . $deliveryNote->note_number . ' وإزالة التقفيل',
+                'success',
+                'fas fa-unlock',
+                route('manufacturing.warehouse.registration.show', $deliveryNote->id)
+            );
 
             // إرسال إشعار بفتح الشحنة
             try {

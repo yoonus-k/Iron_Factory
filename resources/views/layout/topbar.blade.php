@@ -375,13 +375,13 @@
 
     function loadNotifications() {
         const listEl = document.getElementById('notificationList');
-        listEl.innerHTML = '<div class="notification-loading"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>';
 
         // استخدام البيانات المدرجة مباشرة في الـ blade بدلاً من الـ fetch
         const notifications = window.notificationsData || [];
 
         if (notifications && notifications.length > 0) {
-            listEl.innerHTML = notifications.slice(0, 5).map(notif => {
+            // عرض فقط أول 10 إشعارات وتحميل باقي عند الحاجة
+            listEl.innerHTML = notifications.slice(0, 10).map((notif, index) => {
                 const colorClass = notif.color === 'success' ? 'success' :
                                   notif.color === 'danger' ? 'danger' :
                                   notif.color === 'warning' ? 'warning' : 'info';
@@ -406,6 +406,17 @@
                     </div>
                 `;
             }).join('');
+
+            // إذا كان هناك أكثر من 10 إشعارات، أضف زر "تحميل المزيد"
+            if (notifications.length > 10) {
+                listEl.innerHTML += `
+                    <div style="padding: 12px 20px; text-align: center; border-top: 1px solid #e5e7eb; background: #f9fafb;">
+                        <button onclick="toggleNotificationDropdown()" style="background: none; border: none; color: #3b82f6; cursor: pointer; font-weight: 600;">
+                            <i class="fas fa-chevron-down"></i> عرض جميع الإشعارات
+                        </button>
+                    </div>
+                `;
+            }
         } else {
             listEl.innerHTML = `
                 <div class="notification-empty">

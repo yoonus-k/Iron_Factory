@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Unit;
 use App\Models\User;
 use Modules\Manufacturing\Traits\LogsOperations;
+use App\Traits\StoresNotifications;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class UnitController extends Controller
 {
-    use LogsOperations;
+    use LogsOperations, StoresNotifications;
     /**
      * Display a listing of the units with filtering and search.
      */
@@ -120,6 +121,16 @@ class UnitController extends Controller
 
             $unit = Unit::create($validated);
 
+            // ✅ تخزين الإشعار
+            $this->storeNotification(
+                'unit_created',
+                'تم إنشاء وحدة جديدة',
+                'تم إنشاء وحدة جديدة: ' . $unit->unit_name . ' (' . $unit->unit_symbol . ')',
+                'success',
+                'fas fa-cube',
+                route('manufacturing.warehouse-settings.units.index')
+            );
+
             // تسجيل العملية
             try {
                 $this->logOperation(
@@ -207,6 +218,16 @@ class UnitController extends Controller
             $unit->update($validated);
             $newValues = $unit->fresh()->toArray();
 
+            // ✅ تخزين الإشعار
+            $this->storeNotification(
+                'unit_updated',
+                'تم تحديث وحدة',
+                'تم تحديث وحدة: ' . $unit->unit_name . ' (' . $unit->unit_symbol . ')',
+                'warning',
+                'fas fa-edit',
+                route('manufacturing.warehouse-settings.units.index')
+            );
+
             // تسجيل العملية
             try {
                 $this->logOperation(
@@ -250,6 +271,16 @@ class UnitController extends Controller
                 return redirect()->route('manufacturing.warehouse-settings.units.index')
                                ->with('error', 'لا يمكن حذف هذه الوحدة لأنها مستخدمة في مواد');
             }
+
+            // ✅ تخزين الإشعار
+            $this->storeNotification(
+                'unit_deleted',
+                'تم حذف وحدة',
+                'تم حذف وحدة: ' . $unit->unit_name . ' (' . $unit->unit_symbol . ')',
+                'danger',
+                'fas fa-trash',
+                route('manufacturing.warehouse-settings.units.index')
+            );
 
             // تسجيل العملية قبل الحذف
             try {
@@ -306,6 +337,16 @@ class UnitController extends Controller
             $newStatus = !$oldStatus;
 
             $unit->update(['is_active' => $newStatus]);
+
+            // ✅ تخزين الإشعار
+            $this->storeNotification(
+                'unit_status_changed',
+                'تم تغيير حالة وحدة',
+                'تم تغيير حالة الوحدة ' . $unit->unit_name . ' من ' . ($oldStatus ? 'مفعلة' : 'معطلة') . ' إلى ' . ($newStatus ? 'مفعلة' : 'معطلة'),
+                'info',
+                'fas fa-toggle-' . ($newStatus ? 'on' : 'off'),
+                route('manufacturing.warehouse-settings.units.index')
+            );
 
             // Log the status change
             try {

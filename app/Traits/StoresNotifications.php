@@ -16,12 +16,12 @@ trait StoresNotifications
      * @param string $color Notification color (success, danger, warning, info)
      * @param string $icon Notification icon (Font Awesome class)
      * @param string|null $actionUrl URL to navigate to when notification is clicked
-     * @return Notification
+     * @return Notification|null
      */
     public function storeNotification($type, $title, $message, $color = 'info', $icon = 'fas fa-bell', $actionUrl = null)
     {
         try {
-            return Notification::create([
+            $notification = Notification::create([
                 'user_id' =>null , // عام لجميع المستخدمين
                 'type' => $type,
                 'title' => $title,
@@ -32,6 +32,15 @@ trait StoresNotifications
                 'created_by' => Auth::id() ?? 1,
                 'is_read' => false,
             ]);
+
+            // تنظيف الكاش عند إنشاء إشعار جديد
+            try {
+                \App\Helpers\NotificationHelper::flushCache();
+            } catch (\Exception $cacheError) {
+                \Illuminate\Support\Facades\Log::warning('Failed to flush notification cache: ' . $cacheError->getMessage());
+            }
+
+            return $notification;
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::warning('Failed to store notification: ' . $e->getMessage());
             return null;
