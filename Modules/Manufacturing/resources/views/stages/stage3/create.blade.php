@@ -3,6 +3,356 @@
 @section('title', 'إنشاء لفائف - المرحلة الثالثة')
 
 @section('content')
+<style>
+    /* Stage Container */
+    .stage-container {
+        max-width: 1100px;
+        margin: 20px auto;
+        padding: 0 15px;
+    }
+
+    /* Stage Header */
+    .stage-header {
+        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        color: white;
+        padding: 25px 30px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        box-shadow: 0 6px 20px rgba(155, 89, 182, 0.3);
+    }
+
+    .stage-header h1 {
+        margin: 0 0 8px 0;
+        font-size: 26px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stage-header p {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 14px;
+    }
+
+    /* Form Section */
+    .form-section {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #e8e8e8;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0 0 20px 0;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #9b59b6;
+    }
+
+    /* Form Layout */
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #34495e;
+        margin-bottom: 8px;
+    }
+
+    .required {
+        color: #e74c3c;
+        margin-right: 4px;
+    }
+
+    .form-control, .form-select {
+        padding: 12px 15px;
+        border: 1px solid #dce4ec;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s;
+        background: #f8fafb;
+    }
+
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: #9b59b6;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
+    }
+
+    .form-control:disabled, .form-control:read-only {
+        background: #ecf0f1;
+        cursor: not-allowed;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    /* Barcode Section */
+    .barcode-section {
+        background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border: 2px dashed #9b59b6;
+    }
+
+    .barcode-input-wrapper {
+        position: relative;
+    }
+
+    .barcode-input {
+        width: 100%;
+        padding: 15px 50px 15px 15px;
+        font-size: 16px;
+        border: 2px solid #9b59b6;
+        border-radius: 8px;
+        font-weight: 500;
+        background: white;
+    }
+
+    .barcode-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 24px;
+        color: #9b59b6;
+    }
+
+    /* Stage2 Display */
+    .stage2-display {
+        background: linear-gradient(135deg, #e8f8f5 0%, #d1f2eb 100%);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border-right: 4px solid #27ae60;
+        display: none;
+    }
+
+    .stage2-display.active {
+        display: block;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .stage2-display h4 {
+        color: #27ae60;
+        margin: 0 0 10px 0;
+        font-size: 16px;
+    }
+
+    .stage2-info {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-top: 10px;
+    }
+
+    .info-item {
+        background: rgba(255, 255, 255, 0.7);
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+    .info-label {
+        font-size: 12px;
+        color: #7f8c8d;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    /* Weight Calculation Display */
+    .weight-calc-display {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-right: 4px solid #f39c12;
+        display: none;
+    }
+
+    .weight-calc-display.active {
+        display: block;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .weight-calc-display h5 {
+        color: #e67e22;
+        margin: 0 0 10px 0;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .calc-formula {
+        font-family: 'Courier New', monospace;
+        background: rgba(255, 255, 255, 0.6);
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #2c3e50;
+        line-height: 1.8;
+    }
+
+    .calc-result {
+        margin-top: 10px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 6px;
+        font-weight: 600;
+        color: #27ae60;
+        font-size: 16px;
+        text-align: center;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(155, 89, 182, 0.3);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        color: white;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-success:disabled {
+        background: #95a5a6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-secondary {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-secondary:hover {
+        background: #7f8c8d;
+    }
+
+    /* Actions */
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 2px solid #ecf0f1;
+        justify-content: center;
+    }
+
+    /* Info Box */
+    .info-box {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        border-right: 4px solid #27ae60;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .info-box strong {
+        color: #27ae60;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .info-box ul {
+        margin: 8px 0 0 20px;
+        color: #555;
+        font-size: 13px;
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .stage2-info {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
 
 <div class="stage-container">
     <!-- Header -->
@@ -173,7 +523,7 @@ function displayStage2Data() {
     // Display stage2 info
     document.getElementById('displayBarcode').textContent = currentStage2.barcode;
     document.getElementById('displayProcessType').textContent = currentStage2.process_details || 'معالجة';
-
+    
     const weight = currentStage2.remaining_weight || currentStage2.output_weight || 0;
     document.getElementById('displayWeight').textContent = weight + ' كجم';
     document.getElementById('stage2Display').classList.add('active');
@@ -194,7 +544,7 @@ function calculateAddedWeight() {
 
     if (totalWeight > 0 && inputWeight > 0) {
         const addedWeight = totalWeight - inputWeight;
-
+        
         if (addedWeight < 0) {
             showToast('⚠️ الوزن الكامل يجب أن يكون أكبر من وزن الدخول!', 'error');
             document.getElementById('addedWeight').value = '';
@@ -203,7 +553,7 @@ function calculateAddedWeight() {
         }
 
         document.getElementById('addedWeight').value = addedWeight.toFixed(3);
-
+        
         // Show calculation
         document.getElementById('calcTotal').textContent = totalWeight.toFixed(3);
         document.getElementById('calcInput').textContent = inputWeight.toFixed(3);
@@ -267,25 +617,19 @@ function submitLafaf() {
     .then(data => {
         if (data.success) {
             showToast('✅ تم حفظ اللفاف بنجاح! الباركود: ' + data.data.barcode, 'success');
-
-            // عرض نافذة الباركود مثل باقي المراحل
-            if (data.data && data.data.barcode_info) {
-                showBarcodesModal([data.data.barcode_info]);
-            } else {
-                setTimeout(() => {
-                    window.location.href = '{{ route("manufacturing.stage3.index") }}';
-                }, 2000);
-            }
+            setTimeout(() => {
+                window.location.href = '{{ route("manufacturing.stage3.index") }}';
+            }, 2000);
         } else {
             throw new Error(data.message || 'حدث خطأ أثناء الحفظ');
         }
     })
     .catch(error => {
         showToast('❌ خطأ: ' + error.message, 'error');
-        szubmitBtn.disabled = false;
+        submitBtn.disabled = false;
         submitBtn.innerHTML = '✅ حفظ اللفاف';
     });
-}P=
+}
 
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
@@ -310,145 +654,6 @@ function showToast(message, type = 'info') {
         setTimeout(() => toast.remove(), 300);
     }, 4000);
 }
-
-// عرض نافذة الباركود
-function showBarcodesModal(barcodes) {
-    const modal = document.createElement('div');
-    modal.id = 'barcodesModal';
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.7);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        padding: 20px;
-    `;
-
-    let barcodesHTML = barcodes.map((item, index) => `
-        <div style="background: linear-gradient(135deg, #f8f9fa 0%, #fce4ec 100%); padding: 25px; border-radius: 12px; margin-bottom: 20px; border-right: 5px solid #9b59b6; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <div style="display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; margin-bottom: 20px;">
-                <div>
-                    <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 20px; font-weight: 700;">
-                        <i class="fas fa-circle" style="color: #9b59b6;"></i> لفاف - المرحلة 3
-                    </h4>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px;">
-                        <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #9b59b6;">
-                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">الوزن الكلي</div>
-                            <div style="font-size: 18px; color: #9b59b6; font-weight: 700;">${item.total_weight || item.weight} كجم</div>
-                        </div>
-                        <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #3498db;">
-                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">الوزن المضاف</div>
-                            <div style="font-size: 16px; color: #3498db; font-weight: 700;">${item.added_weight || 0} كجم</div>
-                        </div>
-                        <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #e67e22;">
-                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">اللون</div>
-                            <div style="font-size: 14px; color: #e67e22; font-weight: 700;">${item.color || '-'}</div>
-                        </div>
-                        <div style="background: white; padding: 12px; border-radius: 8px; border-right: 3px solid #27ae60;">
-                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">البلاستيك</div>
-                            <div style="font-size: 14px; color: #2c3e50; font-weight: 700;">${item.plastic_type || '-'}</div>
-                        </div>
-                    </div>
-                </div>
-                <button onclick="printStage3Barcode('${item.barcode}', '${item.total_weight || item.weight}', '${item.color}')" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 3px 10px rgba(155, 89, 182, 0.3); transition: all 0.3s;">
-                    <i class="fas fa-print"></i> طباعة
-                </button>
-            </div>
-            <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
-                <svg id="barcode-stage3-${index}" style="max-width: 100%;"></svg>
-                <div style="font-family: 'Courier New', monospace; font-size: 18px; font-weight: bold; color: #2c3e50; margin-top: 12px; letter-spacing: 3px; background: #f8f9fa; padding: 10px; border-radius: 6px;">
-                    ${item.barcode}
-                </div>
-            </div>
-        </div>
-    `).join('');
-
-    modal.innerHTML = `
-        <div style="background: white; border-radius: 12px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-            <div style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; padding: 25px; border-radius: 12px 12px 0 0;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; font-size: 24px; font-weight: 700;">
-                        <i class="fas fa-check-circle"></i> تم إنتاج اللفاف بنجاح!
-                    </h2>
-                    <button onclick="closeBarcodesModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
-                        ✕
-                    </button>
-                </div>
-            </div>
-            <div style="padding: 30px;">
-                <h3 style="margin: 0 0 20px 0; color: #2c3e50; font-size: 18px; border-bottom: 2px solid #e9ecef; padding-bottom: 12px;">
-                    <i class="fas fa-barcode"></i> الباركود المولد
-                </h3>
-                ${barcodesHTML}
-                <div style="display: flex; gap: 15px; margin-top: 25px; padding-top: 20px; border-top: 2px solid #e9ecef;">
-                    <button onclick="window.location.href='{{ route('manufacturing.stage3.index') }}'" style="flex: 1; background: #27ae60; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                        <i class="fas fa-check"></i> تم، العودة للرئيسية
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    // توليد الباركودات
-    setTimeout(() => {
-        barcodes.forEach((item, index) => {
-            JsBarcode(`#barcode-stage3-${index}`, item.barcode, {
-                format: 'CODE128',
-                width: 2,
-                height: 60,
-                displayValue: false,
-                margin: 10
-            });
-        });
-    }, 100);
-}
-
-function closeBarcodesModal() {
-    const modal = document.getElementById('barcodesModal');
-    if (modal) {
-        modal.remove();
-    }
-    window.location.href = '{{ route("manufacturing.stage3.index") }}';
-}
-
-function printStage3Barcode(barcode, weight, color) {
-    const printWindow = window.open('', '', 'height=600,width=800');
-    printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - المرحلة الثالثة</title>');
-    printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
-    printWindow.document.write('<style>');
-    printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
-    printWindow.document.write('.barcode-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 500px; }');
-    printWindow.document.write('.title { font-size: 24px; font-weight: bold; color: #2c3e50; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 3px solid #9b59b6; }');
-    printWindow.document.write('.barcode-code { font-size: 18px; font-weight: bold; color: #2c3e50; margin: 20px 0; letter-spacing: 3px; font-family: "Courier New", monospace; }');
-    printWindow.document.write('.info { margin-top: 25px; padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: right; }');
-    printWindow.document.write('.info-row { margin: 10px 0; display: flex; justify-content: space-between; }');
-    printWindow.document.write('.label { color: #7f8c8d; font-size: 14px; }');
-    printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 16px; }');
-    printWindow.document.write('@media print { body { background: white; } }');
-    printWindow.document.write('</style></head><body>');
-    printWindow.document.write('<div class="barcode-container">');
-    printWindow.document.write('<div class="title">باركود اللفاف - المرحلة الثالثة</div>');
-    printWindow.document.write('<svg id="print-barcode"></svg>');
-    printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
-    printWindow.document.write('<div class="info">');
-    printWindow.document.write('<div class="info-row"><span class="label">الوزن:</span><span class="value">' + weight + ' كجم</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">اللون:</span><span class="value">' + color + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
-    printWindow.document.write('</div></div>');
-    printWindow.document.write('<script>');
-    printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 80, displayValue: false, margin: 10 });');
-    printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };');
-    printWindow.document.write('<\/script></body></html>');
-    printWindow.document.close();
-}
-
 </script>
 
 @endsection
@@ -818,11 +1023,11 @@ function printStage3Barcode(barcode, weight, color) {
         .form-row {
             grid-template-columns: 1fr;
         }
-
+        
         .processed-info {
             grid-template-columns: 1fr;
         }
-
+        
         .form-actions {
             flex-direction: column;
         }
@@ -1011,7 +1216,7 @@ document.addEventListener('DOMContentLoaded', function() {
         coils = JSON.parse(saved);
         renderCoils();
     }
-
+    
     // Auto-save every 30 seconds
     setInterval(saveOffline, 30000);
 });
@@ -1084,17 +1289,17 @@ function calculateExpectedWeight() {
     const base = parseFloat(document.getElementById('baseWeight').value) || 0;
     const dye = parseFloat(document.getElementById('dyeWeight').value) || 0;
     const plastic = parseFloat(document.getElementById('plasticWeight').value) || 0;
-
+    
     const expected = base + dye + plastic;
     document.getElementById('expectedWeight').value = expected.toFixed(2);
-
+    
     calculateWaste();
 }
 
 function calculateWaste() {
     const expected = parseFloat(document.getElementById('expectedWeight').value) || 0;
     const actual = parseFloat(document.getElementById('totalWeight').value) || 0;
-
+    
     if (expected > 0 && actual > 0) {
         const wasteAmount = (expected - actual).toFixed(2);
         const wastePercent = ((expected - actual) / expected * 100).toFixed(2);
@@ -1129,7 +1334,7 @@ function addCoil() {
     }
 
     const expectedWeight = parseFloat(document.getElementById('expectedWeight').value) || 0;
-    const wastePercentage = expectedWeight > 0 ?
+    const wastePercentage = expectedWeight > 0 ? 
         ((expectedWeight - parseFloat(totalWeight)) / expectedWeight * 100).toFixed(2) : 0;
 
     const coil = {
@@ -1190,10 +1395,10 @@ function renderCoils() {
             <div class="coil-info">
                 <strong>🎯 ${coil.coil_number}</strong>
                 <small>
-                    صبغة: ${dyeColorNames[coil.dye_color]} (${coil.dye_weight} كجم) |
-                    بلاستيك: ${plasticTypeNames[coil.plastic_type]} (${coil.plastic_weight} كجم) |
-                    إجمالي: ${coil.total_weight} كجم |
-                    هدر: ${coil.waste_amount} كجم (${coil.waste_percentage}%) |
+                    صبغة: ${dyeColorNames[coil.dye_color]} (${coil.dye_weight} كجم) | 
+                    بلاستيك: ${plasticTypeNames[coil.plastic_type]} (${coil.plastic_weight} كجم) | 
+                    إجمالي: ${coil.total_weight} كجم | 
+                    هدر: ${coil.waste_amount} كجم (${coil.waste_percentage}%) | 
                     تكلفة: ${coil.cost} ريال
                     ${coil.notes ? '<br>📝 ' + coil.notes : ''}
                 </small>
@@ -1225,12 +1430,12 @@ function clearForm() {
     document.getElementById('wastePercentDisplay').textContent = '0%';
     document.getElementById('cost').value = '';
     document.getElementById('notes').value = '';
-
+    
     // Reset base weight from current processed
     if (currentProcessed) {
         document.getElementById('baseWeight').value = currentProcessed.output_weight;
     }
-
+    
     document.getElementById('coilNumber').focus();
 }
 
@@ -1262,16 +1467,16 @@ function submitAll() {
         .then(data => {
             if (data.success) {
                 completed++;
-
+                
                 // جمع بيانات الباركود
                 if (data.data && data.data.barcode_info) {
                     barcodesData.push(data.data.barcode_info);
                 }
-
+                
                 if (completed === total) {
                     showToast('✅ تم حفظ جميع اللفائف بنجاح!', 'success');
                     localStorage.removeItem('stage3_coils');
-
+                    
                     // عرض نافذة الباركودات
                     if (barcodesData.length > 0) {
                         showBarcodesModal(barcodesData);
@@ -1498,7 +1703,7 @@ function printAllStage3Barcodes(barcodes) {
     printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 14px; }');
     printWindow.document.write('@media print { body { background: white; padding: 0; } .barcode-item { box-shadow: none; page-break-after: always; } }');
     printWindow.document.write('</style></head><body>');
-
+    
     barcodes.forEach((item, index) => {
         printWindow.document.write('<div class="barcode-item">');
         printWindow.document.write('<div class="title">باركود اللفاف - ' + item.coil_number + '</div>');
@@ -1513,7 +1718,7 @@ function printAllStage3Barcodes(barcodes) {
         printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
         printWindow.document.write('</div></div>');
     });
-
+    
     printWindow.document.write('<script>');
     barcodes.forEach((item, index) => {
         printWindow.document.write('JsBarcode("#print-barcode-' + index + '", "' + item.barcode + '", { format: "CODE128", width: 2, height: 70, displayValue: false, margin: 10 });');
