@@ -6,6 +6,7 @@ use App\Models\DeliveryNote;
 use App\Models\Material;
 use App\Models\RegistrationLog;
 use App\Models\MaterialMovement;
+use App\Models\WarehouseRecord;
 use App\Models\User;
 use App\Services\DuplicatePreventionService;
 use App\Services\WarehouseTransferService;
@@ -84,12 +85,21 @@ class WarehouseRegistrationController extends Controller
             ->paginate($perPage)
             ->appends($request->query());
 
-        // بناء الاستعلام الأساسي للبضاعة الواردة المسجلة
+        // بناء الاستعلام الأساسي للبضاعة الواردة المسجلة (لم تنقل بالكامل بعد)
+        // ✅ فقط الشحنات التي تحتوي على كمية متبقية > 0
         $registeredQuery = DeliveryNote::where('type', 'incoming')
             ->where('registration_status', '!=', 'not_registered')
-            ->where('registration_status', '!=', 'in_production')
-            ->whereHas('materialDetail', function($query) {
-                $query->where('quantity', '>', 0);
+            ->where(function($query) {
+                // إما quantity_remaining > 0 أو لم تتم معالجة الكمية بعد
+                $query->where(function($q) {
+                    $q->where('quantity_remaining', '>', 0);
+                })
+                ->orWhere(function($q) {
+                    // شحنات مسجلة لم ننقل منها شيء بعد
+                    $q->where('quantity_used', '=', 0)
+                      ->where('quantity', '>', 0)
+                      ->whereNull('quantity_remaining');
+                });
             })
             ->with(['supplier', 'registeredBy', 'material', 'materialDetail']);
 
@@ -106,13 +116,16 @@ class WarehouseRegistrationController extends Controller
             ->paginate($perPage)
             ->appends($request->query());
 
-        // بناء الاستعلام الأساسي للبضاعة المنقولة للإنتاج
+        // بناء الاستعلام الأساسي للبضاعة المنقولة للإنتاج بالكامل
+        // ✅ تظهر فقط عندما يكون quantity_remaining = 0
         $productionQuery = DeliveryNote::where('type', 'incoming')
             ->where(function($query) {
+                $query->where('quantity_remaining', '<=', 0)
+                      ->whereNotNull('quantity_remaining');
+            })
+            ->orWhere(function($query) {
                 $query->where('registration_status', 'in_production')
-                      ->orWhereHas('materialDetail', function($subQuery) {
-                          $subQuery->where('quantity', '=', 0);
-                      });
+                      ->where('quantity', '>', 0);
             })
             ->with(['supplier', 'registeredBy', 'material', 'materialDetail']);
 
@@ -325,6 +338,25 @@ class WarehouseRegistrationController extends Controller
                 $deliveryNote->update($updateDataWithLog);
             }
 
+            // ✅ حفظ البيانات في جدول warehouse_records
+            WarehouseRecord::create([
+                'delivery_note_id' => $deliveryNote->id,
+                'material_id' => $validated['material_id'] ?? null,
+                'warehouse_id' => $deliveryNote->warehouse_id,
+                'supplier_id' => $deliveryNote->supplier_id,
+                'type' => $deliveryNote->type,
+                'record_number' => WarehouseRecord::generateRecordNumber(),
+                'recorded_at' => now(),
+                'quantity' => $validated['actual_weight'] ?? 0,
+                'weight' => $validated['actual_weight'] ?? 0,
+                'location' => $validated['location'] ?? null,
+                'notes' => $validated['notes'] ?? null,
+                'status' => 'completed',
+                'recorded_by' => Auth::id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
             DB::commit();
 
             // ✅ تخزين الإشعار
@@ -400,11 +432,15 @@ class WarehouseRegistrationController extends Controller
         $warehouseSummary = $this->warehouseService->getWarehouseSummary($deliveryNote);
         $movementHistory = $this->warehouseService->getMovementHistory($deliveryNote);
 
-        // التحقق من إمكانية النقل (يجب أن تكون هناك MaterialDetail مع كمية متاحة)
-        $canMoveToProduction = $deliveryNote->materialDetail
-            && $deliveryNote->materialDetail->quantity > 0
-            && $deliveryNote->isIncoming()
-            && $deliveryNote->registration_status !== 'in_production'; // ✅ إضافة التحقق من حالة التسجيل
+        // التحقق من إمكانية النقل (يجب أن تكون هناك كمية مسجلة ولم تُنقل بالكامل)
+        $registeredQuantity = $deliveryNote->quantity ?? 0;
+        $transferredQuantity = $deliveryNote->quantity_used ?? 0;
+        $availableQuantity = $registeredQuantity - $transferredQuantity;
+
+        $canMoveToProduction = $deliveryNote->isIncoming()
+            && $registeredQuantity > 0
+            && $availableQuantity > 0
+            && $deliveryNote->registration_status !== 'completed';
 
         // التحقق من إمكانية التعديل (يجب أن تكون الشحنة غير مقفلة وغير مسجلة أو الحالة سماح بالتعديل)
         $canEdit = !$deliveryNote->is_locked && $deliveryNote->registration_status !== 'completed';
@@ -427,21 +463,52 @@ class WarehouseRegistrationController extends Controller
      */
     public function showTransferForm(DeliveryNote $deliveryNote)
     {
-        // التحقق من وجود MaterialDetail
-        if (!$deliveryNote->material_detail_id || !$deliveryNote->materialDetail) {
-            return back()->with('error', 'هذه البضاعة لم تسجل في المستودع بعد');
+        // تحميل العلاقات المطلوبة بقوة
+        $deliveryNote->load(['materialDetail', 'materialDetail.unit', 'material']);
+
+        // التحقق من وجود كمية مسجلة
+        if (!$deliveryNote->quantity || $deliveryNote->quantity <= 0) {
+            return back()->with('error', 'لم يتم تسجيل كمية من الكريت بعد');
         }
 
-        $availableQuantity = $deliveryNote->materialDetail->quantity ?? 0;
+        // الكمية المتاحة = الكمية المسجلة - الكمية المنقولة بالفعل
+        $registeredQuantity = $deliveryNote->quantity;
+        $transferredQuantity = $deliveryNote->quantity_used ?? 0;
+        $availableQuantity = $registeredQuantity - $transferredQuantity;
 
         if ($availableQuantity <= 0) {
-            return back()->with('error', 'لا توجد كمية متاحة للنقل');
+            return back()->with('error', 'تم نقل كل الكمية المسجلة بالفعل للإنتاج');
+        }
+
+        // الحصول على كمية المستودع من MaterialDetail
+        $warehouseQuantity = 0;
+        $warehouseUnit = 'كيلو';
+
+        if ($deliveryNote->materialDetail) {
+            $warehouseQuantity = $deliveryNote->materialDetail->quantity ?? 0;
+            $warehouseUnit = $deliveryNote->materialDetail->unit?->unit_name ?? 'كيلو';
+        } else if ($deliveryNote->material_id) {
+            // إذا لم يكن materialDetail محدد، ابحث عن أحدث واحد للمادة
+            $materialDetail = \App\Models\MaterialDetail::where('material_id', $deliveryNote->material_id)
+                ->where('warehouse_id', $deliveryNote->warehouse_id)
+                ->with('unit')
+                ->latest()
+                ->first();
+
+            if ($materialDetail) {
+                $warehouseQuantity = $materialDetail->quantity ?? 0;
+                $warehouseUnit = $materialDetail->unit?->unit_name ?? 'كيلو';
+            }
         }
 
         // عرض نموذج نقل الكمية
         return view('manufacturing::warehouses.registration.transfer-form', compact(
             'deliveryNote',
-            'availableQuantity'
+            'availableQuantity',
+            'registeredQuantity',
+            'transferredQuantity',
+            'warehouseQuantity',
+            'warehouseUnit'
         ));
     }
 
@@ -452,12 +519,15 @@ class WarehouseRegistrationController extends Controller
      */
     public function transferToProduction(Request $request, DeliveryNote $deliveryNote)
     {
-        // التحقق من وجود MaterialDetail
-        if (!$deliveryNote->material_detail_id || !$deliveryNote->materialDetail) {
-            return back()->with('error', 'هذه البضاعة لم تسجل في المستودع بعد');
+        // التحقق من وجود كمية مسجلة
+        if (!$deliveryNote->quantity || $deliveryNote->quantity <= 0) {
+            return back()->with('error', 'لم يتم تسجيل كمية من الكريت بعد');
         }
 
-        $availableQuantity = $deliveryNote->materialDetail->quantity ?? 0;
+        // حساب الكمية المتاحة
+        $registeredQuantity = $deliveryNote->quantity;
+        $transferredQuantity = $deliveryNote->quantity_used ?? 0;
+        $availableQuantity = $registeredQuantity - $transferredQuantity;
 
         // التحقق من البيانات - السماح بنقل أكثر من 100%
         $validated = $request->validate([
@@ -573,17 +643,19 @@ class WarehouseRegistrationController extends Controller
 
     public function moveToProduction(Request $request, DeliveryNote $deliveryNote)
     {
-        // التحقق من وجود MaterialDetail
-        if (!$deliveryNote->material_detail_id || !$deliveryNote->materialDetail) {
-            return back()->with('error', 'هذه البضاعة لم تسجل في المستودع بعد');
+        // التحقق من وجود كمية مسجلة
+        if (!$deliveryNote->quantity || $deliveryNote->quantity <= 0) {
+            return back()->with('error', 'لم يتم تسجيل كمية من الكريت بعد');
         }
 
         try {
             // نقل كامل الكمية المتبقية
-            $availableQuantity = $deliveryNote->materialDetail->quantity ?? 0;
+            $registeredQuantity = $deliveryNote->quantity;
+            $transferredQuantity = $deliveryNote->quantity_used ?? 0;
+            $availableQuantity = $registeredQuantity - $transferredQuantity;
 
             if ($availableQuantity <= 0) {
-                return back()->with('error', 'لا توجد كمية متاحة للنقل');
+                return back()->with('error', 'تم نقل كل الكمية المسجلة بالفعل للإنتاج');
             }
 
             $this->warehouseService->transferToProduction(
@@ -593,8 +665,12 @@ class WarehouseRegistrationController extends Controller
                 'نقل فوري للإنتاج'
             );
 
-            // تحديث حالة التسجيل إلى "في الإنتاج"
-            $deliveryNote->update(['registration_status' => 'in_production']);
+            // تحديث كمية الأذن المنقولة والمتبقية
+            $deliveryNote->update([
+                'quantity_used' => $registeredQuantity,
+                'quantity_remaining' => 0,
+                'registration_status' => 'in_production'
+            ]);
 
             // ✅ تخزين الإشعار
             $this->storeNotification(

@@ -193,9 +193,9 @@
                 <div class="form-group">
                     <label for="quantity_incoming" class="form-label">الكمية (وحدة) <span class="required">*</span></label>
                     <div class="input-wrapper">
-                        <input type="number" name="weight_recorded" id="quantity_incoming" class="form-input" placeholder="0" step="0.01">
+                        <input type="number" name="quantity" id="quantity_incoming" class="form-input" placeholder="0" step="0.01">
                     </div>
-                    @error('weight_recorded') <small style="color: #e74c3c;">{{ $message }}</small> @enderror
+                    @error('quantity') <small style="color: #e74c3c;">{{ $message }}</small> @enderror
                 </div>
             </div>
         </div>

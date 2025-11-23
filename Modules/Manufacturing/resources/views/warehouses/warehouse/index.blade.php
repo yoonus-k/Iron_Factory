@@ -87,25 +87,19 @@
                 <table class="um-table">
                     <thead>
                         <tr>
-
                             <th>اسم المستودع</th>
                             <th>الرمز</th>
-                            <th>الموقع</th>
-                       > </thead>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                        @forelse($warehouses as $key => $warehouse)
+                        @forelse($warehouses as $warehouse)
                         <tr>
-
                             <td>
-                                <div class="um-course-info">
-                                    <h6 class="um-course-title">{{ $warehouse->warehouse_name }}</h6>
-
-
-                                </div>
+                                <strong>{{ $warehouse->name ?? $warehouse->warehouse_name }}</strong>
                             </td>
-                            <td>{{ $warehouse->warehouse_code }}</td>
-                            <td>{{ $warehouse->location ?? 'غير محدد' }}</td>
-
+                            <td>{{ $warehouse->code ?? $warehouse->warehouse_code }}</td>
                             <td>
                                 <span class="um-badge {{ $warehouse->is_active ? 'um-badge-success' : 'um-badge-danger' }}">
                                     {{ $warehouse->is_active ? 'نشط' : 'غير نشط' }}
@@ -117,10 +111,6 @@
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
-                                        <a href="{{ route('manufacturing.warehouses.show', $warehouse->id) }}" class="um-dropdown-item um-btn-view">
-                                            <i class="feather icon-eye"></i>
-                                            <span>عرض</span>
-                                        </a>
                                         <a href="{{ route('manufacturing.warehouses.edit', $warehouse->id) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
                                             <span>تعديل</span>
@@ -139,7 +129,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center" style="padding: 20px;">
+                            <td colspan="4" class="text-center" style="padding: 20px;">
                                 <p>لا توجد مستودعات حالياً</p>
                             </td>
                         </tr>
@@ -158,31 +148,13 @@
                                 <i class="feather icon-home"></i>
                             </div>
                             <div>
-                                <h6 class="um-category-name">{{ $warehouse->warehouse_name }}</h6>
-                                @if($warehouse->warehouse_name_en)
-                                    <p class="um-category-desc text-muted">{{ $warehouse->warehouse_name_en }}</p>
-                                @endif
-                                <span class="um-category-id">#{{ $warehouse->warehouse_code }}</span>
+                                <h6 class="um-category-name">{{ $warehouse->name ?? $warehouse->warehouse_name }}</h6>
+                                <span class="um-category-id">#{{ $warehouse->code ?? $warehouse->warehouse_code }}</span>
                             </div>
                         </div>
                         <span class="um-badge {{ $warehouse->is_active ? 'um-badge-success' : 'um-badge-danger' }}">
                             {{ $warehouse->is_active ? 'نشط' : 'غير نشط' }}
                         </span>
-                    </div>
-
-                    <div class="um-category-card-body">
-                        <div class="um-info-row">
-                            <span class="um-info-label">الموقع:</span>
-                            <span class="um-info-value">{{ $warehouse->location ?? 'غير محدد' }}</span>
-                        </div>
-                        <div class="um-info-row">
-                            <span class="um-info-label">المسؤول:</span>
-                            <span class="um-info-value">{{ $warehouse->manager_name ?? 'غير محدد' }}</span>
-                        </div>
-                        <div class="um-info-row">
-                            <span class="um-info-label">السعة:</span>
-                            <span class="um-info-value">{{ $warehouse->capacity ?? 'غير محدد' }}</span>
-                        </div>
                     </div>
 
                     <div class="um-category-card-footer">
@@ -191,10 +163,6 @@
                                 <i class="feather icon-more-vertical"></i>
                             </button>
                             <div class="um-dropdown-menu">
-                                <a href="{{ route('manufacturing.warehouses.show', $warehouse->id) }}" class="um-dropdown-item um-btn-view">
-                                    <i class="feather icon-eye"></i>
-                                    <span>عرض</span>
-                                </a>
                                 <a href="{{ route('manufacturing.warehouses.edit', $warehouse->id) }}" class="um-dropdown-item um-btn-edit">
                                     <i class="feather icon-edit-2"></i>
                                     <span>تعديل</span>

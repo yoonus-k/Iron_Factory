@@ -345,11 +345,15 @@
                         <!-- Regular Registered Shipments -->
                         @foreach ($incomingRegistered as $index => $shipment)
                             @php
-                                // استخدام الكمية المسجلة لهذه الأذن على حدة
-                                $availableQuantity = $shipment->quantity_remaining ?? ($shipment->quantity ?? 0);
-                                $isMovedToProduction = $availableQuantity == 0;
-                                $productionStatus = $shipment->registration_status === 'in_production' || $isMovedToProduction;
+                                // حساب الكمية المتبقية بشكل صحيح
+                                $registeredQuantity = $shipment->quantity ?? 0;
+                                $transferredQuantity = $shipment->quantity_used ?? 0;
+                                $remainingQuantity = $shipment->quantity_remaining ?? ($registeredQuantity - $transferredQuantity);
+
+                                // الشحنة "مسجلة بدون نقل" - تحتوي على كمية متبقية > 0
+                                $isPartiallyTransferred = $remainingQuantity > 0;
                             @endphp
+                            @if($isPartiallyTransferred)
                             <div class="operation-item" style="padding-bottom: 20px; border-bottom: 1px solid #e9ecef; margin-bottom: 20px;">
                                 @if($index === count($incomingRegistered) - 1 && $movedToProduction->count() == 0)
                                     <style>
@@ -364,28 +368,18 @@
                                         <div class="operation-description" style="margin-bottom: 8px;">
                                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
                                                 <!-- Badge للحالة -->
-                                                @if($productionStatus)
-                                                    <span class="badge" style="background-color: #0051E5; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                                                        </svg>
-                                                        منقولة للإنتاج
-                                                    </span>
-                                                @else
-                                                    <span class="badge" style="background-color: #3E4651; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                                        </svg>
-                                                        في المستودع
-                                                    </span>
-                                                @endif
+                                                <span class="badge" style="background-color: #3E4651; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
+                                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                                    </svg>
+                                                    🟢 مسجلة
+                                                </span>
 
                                                 <!-- معلومات محاولات التسجيل -->
                                                 @if ($shipment->registration_attempts > 0)
                                                     <span class="badge" style="background-color: #E74C3C; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                        ℹ️ {{ $shipment->registration_attempts }} محاولة
+                                                        ⚠️ محاولة {{ $shipment->registration_attempts + 1 }}
                                                     </span>
                                                 @endif
 
@@ -395,19 +389,9 @@
                                                 </strong>
 
                                                 <!-- الكمية المتبقية -->
-                                                @if($productionStatus)
-                                                    <span class="badge" style="background-color: #95a5a6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                                                        </svg>
-                                                        الكمية: 0 كجم (مكتملة)
-                                                    </span>
-                                                @else
+                                                @if($remainingQuantity > 0)
                                                     <span class="badge" style="background-color: #004B87; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                                                        </svg>
-                                                        متاح: {{ number_format($availableQuantity, 2) }} كجم
+                                                        📦 متاح: {{ number_format($remainingQuantity, 2) }}
                                                     </span>
                                                 @endif
                                             </div>
@@ -464,16 +448,11 @@
                                     </div>
                                 </div>
                             </div>
+                            @endif
                         @endforeach
 
                         <!-- Moved to Production Shipments (within Registered Shipments card) -->
                         @foreach ($movedToProduction as $index => $shipment)
-                            @php
-                                // استخدام الكمية المسجلة لهذه الأذن على حدة
-                                $availableQuantity = $shipment->quantity_remaining ?? ($shipment->quantity ?? 0);
-                                $isMovedToProduction = $availableQuantity == 0;
-                                $productionStatus = $shipment->registration_status === 'in_production' || $isMovedToProduction;
-                            @endphp
                             <div class="operation-item" style="padding-bottom: 20px; border-bottom: 1px solid #e9ecef; margin-bottom: 20px;">
                                 @if($index === count($movedToProduction) - 1)
                                     <style>
@@ -488,12 +467,11 @@
                                         <div class="operation-description" style="margin-bottom: 8px;">
                                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
                                                 <!-- Badge للحالة - Different styling for moved to production -->
-                                                <span class="badge" style="background-color: #0051E5; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
                                                     <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path>
                                                     </svg>
-                                                    منقولة للإنتاج
+                                                    ✅ منقولة بالكامل
                                                 </span>
 
                                                 <!-- معلومات محاولات التسجيل -->
@@ -508,16 +486,9 @@
                                                     #{{ $shipment->note_number ?? $shipment->id }}
                                                 </strong>
 
-                                                <!-- الكمية المتبقية -->
+                                                <!-- الكمية المتبقية (0) -->
                                                 <span class="badge" style="background-color: #95a5a6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                                                    </svg>
-                                                    @if($isMovedToProduction)
-                                                        الكمية: 0 كجم (مكتملة)
-                                                    @else
-                                                        متاح: {{ number_format($availableQuantity, 2) }} كجم
-                                                    @endif
+                                                    📦 متبقي: 0 (مكتملة)
                                                 </span>
                                             </div>
                                         </div>
@@ -574,7 +545,6 @@
                                 </div>
                             </div>
                         @endforeach
-                        </div>
 
                         <!-- Pagination -->
                         <div style="margin-top: 20px;">

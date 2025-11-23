@@ -33,6 +33,116 @@ class DeliveryNoteController extends Controller
      */
     public function index(Request $request)
     {
+        // الحصول على نطاق التاريخ من الطلب
+        $fromDate = $request->get('from_date');
+        $toDate = $request->get('to_date');
+        $sortBy = $request->get('sort_by', 'created_at'); // الحقل الافتراضي للترتيب
+        $sortOrder = $request->get('sort_order', 'desc'); // ترتيب تنازلي افتراضي
+
+        // الحصول على عدد السجلات لكل صفحة (مع قيمة افتراضية آمنة)
+        $perPage = (int) $request->get('per_page', 15);
+        $perPage = in_array($perPage, [15, 25, 50, 100]) ? $perPage : 15;
+
+        // التحقق من صحة ترتيب الترتيب
+        $sortOrder = in_array(strtolower($sortOrder), ['asc', 'desc']) ? strtolower($sortOrder) : 'desc';
+
+        // بناء الاستعلام الأساسي للبضاعة الواردة غير المسجلة
+        $unregisteredQuery = DeliveryNote::where('type', 'incoming')
+            ->where('registration_status', 'not_registered')
+            ->with(['supplier', 'recordedBy', 'material']);
+
+        // تطبيق فلتر التاريخ
+        if ($fromDate) {
+            $unregisteredQuery->whereDate('created_at', '>=', $fromDate);
+        }
+        if ($toDate) {
+            $unregisteredQuery->whereDate('created_at', '<=', $toDate);
+        }
+
+        $incomingUnregistered = $unregisteredQuery
+            ->orderBy($sortBy === 'date' ? 'created_at' : $sortBy, $sortOrder)
+            ->paginate($perPage)
+            ->appends($request->query());
+
+        // بناء الاستعلام الأساسي للبضاعة الواردة المسجلة (لم تنقل بالكامل بعد)
+        // ✅ فقط الشحنات التي تحتوي على كمية متبقية > 0
+        $registeredQuery = DeliveryNote::where('type', 'incoming')
+            ->where('registration_status', '!=', 'not_registered')
+            ->where(function($query) {
+                // إما quantity_remaining > 0 أو لم تتم معالجة الكمية بعد
+                $query->where(function($q) {
+                    $q->where('quantity_remaining', '>', 0);
+                })
+                ->orWhere(function($q) {
+                });
+            })
+            ->with(['supplier', 'registeredBy', 'material', 'materialDetail']);
+
+        // تطبيق فلتر التاريخ
+        if ($fromDate) {
+            $registeredQuery->whereDate('registered_at', '>=', $fromDate);
+        }
+        if ($toDate) {
+            $registeredQuery->whereDate('registered_at', '<=', $toDate);
+        }
+
+        $incomingRegistered = $registeredQuery
+            ->orderBy($sortBy === 'date' ? 'registered_at' : $sortBy, $sortOrder)
+            ->paginate($perPage)
+            ->appends($request->query());
+
+        // بناء الاستعلام الأساسي للبضاعة المنقولة للإنتاج بالكامل
+        // ✅ تظهر فقط عندما يكون quantity_remaining = 0
+        $productionQuery = DeliveryNote::where('type', 'incoming')
+            ->where(function($query) {
+                $query->where('quantity_remaining', '<=', 0)
+                      ->whereNotNull('quantity_remaining');
+            })
+            ->orWhere(function($query) {
+                $query->where('registration_status', 'in_production')
+                      ->where('quantity', '>', 0);
+            })
+            ->with(['supplier', 'registeredBy', 'material', 'materialDetail']);
+
+        // تطبيق فلتر التاريخ
+        if ($fromDate) {
+            $productionQuery->whereDate('registered_at', '>=', $fromDate);
+        }
+        if ($toDate) {
+            $productionQuery->whereDate('registered_at', '<=', $toDate);
+        }
+
+        $movedToProduction = $productionQuery
+            ->orderBy($sortBy === 'date' ? 'registered_at' : $sortBy, $sortOrder)
+            ->paginate($perPage)
+            ->appends($request->query());
+
+        // بناء الاستعلام الأساسي للبضاعة الخارجة (الصادرة)
+        $outgoingQuery = DeliveryNote::where('type', 'outgoing')
+            ->with(['destination', 'recordedBy', 'material']);
+
+        // تطبيق فلتر التاريخ
+        if ($fromDate) {
+            $outgoingQuery->whereDate('delivery_date', '>=', $fromDate);
+        }
+        if ($toDate) {
+            $outgoingQuery->whereDate('delivery_date', '<=', $toDate);
+        }
+
+        $outgoing = $outgoingQuery
+            ->orderBy($sortBy === 'date' ? 'delivery_date' : $sortBy, $sortOrder)
+            ->paginate($perPage)
+            ->appends($request->query());
+
+        // نقل معاملات التاريخ للـ View
+        $appliedFilters = [
+            'from_date' => $fromDate,
+            'to_date' => $toDate,
+            'sort_by' => $sortBy,
+            'sort_order' => $sortOrder,
+        ];
+
+        // جلب جميع أذون التسليم للجدول العام (مع الفلاتر الأساسية)
         $query = DeliveryNote::with(['material', 'receiver', 'supplier', 'destination']);
 
         // فلتر حسب النوع (واردة/صادرة)
@@ -64,7 +174,14 @@ class DeliveryNoteController extends Controller
             ->paginate(15)
             ->appends($request->query());
 
-        return view('manufacturing::warehouses.delivery-notes.index', compact('deliveryNotes'));
+        return view('manufacturing::warehouses.delivery-notes.index', compact(
+            'deliveryNotes',
+            'incomingUnregistered',
+            'incomingRegistered',
+            'movedToProduction',
+            'outgoing',
+            'appliedFilters'
+        ));
     }
 
     /**
@@ -160,7 +277,7 @@ class DeliveryNoteController extends Controller
                 'material_detail_id' => $type === 'outgoing' ? 'required|exists:material_details,id' : 'nullable|exists:material_details,id',
                 'warehouse_id' => $type === 'incoming' ? 'required|exists:warehouses,id' : 'nullable|exists:warehouses,id',
                 'warehouse_from_id' => $type === 'outgoing' ? 'required|exists:warehouses,id' : 'nullable|exists:warehouses,id',
-                'weight_recorded' => $type === 'incoming' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
+                'quantity' => $type === 'incoming' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
                 'delivery_quantity' => $type === 'outgoing' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
                 'actual_weight' => 'nullable|numeric|min:0',
                 'weight_from_scale' => 'nullable|numeric|min:0',
@@ -184,10 +301,10 @@ class DeliveryNoteController extends Controller
                 'material_id.exists' => 'المادة المختارة غير موجودة',
                 'material_detail_id.required' => 'يجب اختيار المادة',
                 'material_detail_id.exists' => 'المادة المختارة غير موجودة',
-                'weight_recorded.required' => 'الكمية مطلوبة للأذن الواردة',
-                'weight_recorded.numeric' => 'الكمية يجب أن تكون رقماً',
-                    'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
-                    'delivery_quantity.required' => 'الكمية مطلوبة للأذن الصادرة',
+                'quantity.required' => 'الكمية مطلوبة للأذن الواردة',
+                'quantity.numeric' => 'الكمية يجب أن تكون رقماً',
+                'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
+                'delivery_quantity.required' => 'الكمية مطلوبة للأذن الصادرة',
                 'delivery_quantity.numeric' => 'الكمية يجب أن تكون رقماً',
                 'delivery_quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
                 'actual_weight.numeric' => 'الوزن يجب أن يكون رقماً',
@@ -213,6 +330,8 @@ class DeliveryNoteController extends Controller
             // للإذن الصادر: استخدام المستودع المصدر كـ warehouse_id
             if ($type === 'outgoing' && !empty($validated['warehouse_from_id'])) {
                 $validated['warehouse_id'] = $validated['warehouse_from_id'];
+                // ✅ للإذن الصادر: استخدام delivery_quantity كـ quantity
+                $validated['quantity'] = $validated['delivery_quantity'] ?? 0;
             }
 
             // إذا كان هناك وزن فعلي، استخدمه
@@ -548,6 +667,8 @@ class DeliveryNoteController extends Controller
             // Handle warehouse_from_id for outgoing notes
             if ($type === 'outgoing' && !empty($validated['warehouse_from_id'])) {
                 $validated['warehouse_id'] = $validated['warehouse_from_id'];
+                // ✅ للإذن الصادر: استخدام delivery_quantity كـ quantity
+                $validated['quantity'] = $validated['delivery_quantity'] ?? 0;
             }
 
             // Handle material_detail_id for outgoing notes - extract material_id
@@ -604,6 +725,41 @@ class DeliveryNoteController extends Controller
                     }
                 } catch (\Exception $inventoryError) {
                     Log::error('⚠️ فشل تحديث كمية المادة: ' . $inventoryError->getMessage());
+                }
+            }
+
+            // ✅ تحديث الكمية في المستودع للأذن الصادرة عند التعديل
+            if ($type === 'outgoing') {
+                try {
+                    // الفرق بين الكمية الجديدة والقديمة
+                    $oldQuantity = $oldValues['delivery_quantity'] ?? 0;
+                    $newQuantity = $validated['delivery_quantity'] ?? 0;
+                    $quantityDifference = $newQuantity - $oldQuantity;
+
+                    // إذا كانت هناك فروقات
+                    if ($quantityDifference != 0) {
+                        $materialDetail = \App\Models\MaterialDetail::find($validated['material_detail_id']);
+                        if ($materialDetail) {
+                            // التحقق من توفر الكمية (في حالة الزيادة)
+                            if ($quantityDifference > 0 && $materialDetail->quantity < $quantityDifference) {
+                                throw new \Exception('الكمية المتوفرة غير كافية لتطبيق التعديل');
+                            }
+
+                            // تطبيق الفرق
+                            $materialDetail->quantity -= $quantityDifference;
+                            $materialDetail->save();
+
+                            Log::info('✅ تم تحديث كمية المادة الصادرة عند التعديل', [
+                                'material_detail_id' => $validated['material_detail_id'],
+                                'warehouse_id' => $validated['warehouse_id'] ?? $oldValues['warehouse_id'],
+                                'quantity_difference' => $quantityDifference,
+                                'delivery_note' => $deliveryNote->note_number,
+                            ]);
+                        }
+                    }
+                } catch (\Exception $inventoryError) {
+                    Log::error('⚠️ فشل تحديث كمية المادة الصادرة: ' . $inventoryError->getMessage());
+                    throw new \Exception('فشل تحديث المستودع: ' . $inventoryError->getMessage());
                 }
             }
 
@@ -699,6 +855,32 @@ class DeliveryNoteController extends Controller
                     }
                 } catch (\Exception $inventoryError) {
                     Log::error('⚠️ فشل استرجاع الكمية: ' . $inventoryError->getMessage());
+                    // لا نوقف الحذف، فقط نسجل الخطأ
+                }
+            }
+
+            // ✅ استرجاع الكمية إلى المستودع قبل الحذف (للأذن الصادرة فقط)
+            if ($deliveryNote->type === 'outgoing' && !empty($deliveryNote->material_detail_id)) {
+                try {
+                    $materialDetail = \App\Models\MaterialDetail::find($deliveryNote->material_detail_id);
+
+                    if ($materialDetail) {
+                        // استرجاع الكمية المسحوبة من حقل delivery_quantity
+                        $quantityToRestore = $deliveryNote->delivery_quantity ?? 0;
+                        if ($quantityToRestore > 0) {
+                            $materialDetail->quantity += $quantityToRestore;
+                            $materialDetail->save();
+
+                            Log::info('✅ تم استرجاع الكمية الصادرة من الأذن المحذوفة', [
+                                'material_detail_id' => $deliveryNote->material_detail_id,
+                                'warehouse_id' => $materialDetail->warehouse_id,
+                                'quantity_restored' => $quantityToRestore,
+                                'delivery_note' => $deliveryNote->note_number,
+                            ]);
+                        }
+                    }
+                } catch (\Exception $inventoryError) {
+                    Log::error('⚠️ فشل استرجاع الكمية الصادرة: ' . $inventoryError->getMessage());
                     // لا نوقف الحذف، فقط نسجل الخطأ
                 }
             }
