@@ -165,16 +165,18 @@
                     <div class="input-wrapper">
                         <select name="material_id" id="incoming_material" class="form-input">
                             <option value="">اختر المادة</option>
-                            @if(isset($materials) && count($materials) > 0)
-                                @foreach($materials as $material)
-                                    <option value="{{ $material->id }}" {{ old('material_id', $deliveryNote->material_id) == $material->id ? 'selected' : '' }}>{{ $material->name_ar ?? 'بدون اسم' }}</option>
-                                @endforeach
-                            @else
-                                <option disabled>لا توجد مواد متاحة</option>
-                            @endif
                         </select>
                     </div>
                     @error('material_id') <small style="color: #e74c3c;">{{ $message }}</small> @enderror
+                    <div style="margin-top: 10px; padding: 12px; background: #f8f9fa; border-radius: 6px; border-right: 3px solid #27ae60;">
+                        <small style="color: #27ae60;" id="incoming_material_display">
+                            @if($deliveryNote->type === 'incoming' && $deliveryNote->material_id)
+                                ✓ المادة المختارة حالياً
+                            @else
+                                اختر المستودع أولاً
+                            @endif
+                        </small>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -191,11 +193,11 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="invoice_weight" class="form-label">الوزن (كيلو) <span class="required">*</span></label>
+                    <label for="quantity_incoming_edit" class="form-label">الكمية (وحدة) <span class="required">*</span></label>
                     <div class="input-wrapper">
-                        <input type="number" name="invoice_weight" id="invoice_weight" class="form-input" placeholder="0" step="0.01" value="{{ old('invoice_weight', $deliveryNote->invoice_weight) }}">
+                        <input type="number" name="quantity" id="quantity_incoming_edit" class="form-input" placeholder="0" step="0.01" value="{{ old('quantity', $deliveryNote->quantity) }}">
                     </div>
-                    @error('invoice_weight') <small style="color: #e74c3c;">{{ $message }}</small> @enderror
+                    @error('quantity') <small style="color: #e74c3c;">{{ $message }}</small> @enderror
                 </div>
             </div>
         </div>
@@ -314,6 +316,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Incoming fields
             const materialIncoming = document.getElementById('incoming_material');
+            const incomingMaterialDisplay = document.getElementById('incoming_material_display');
             const warehouseIncoming = document.getElementById('incoming_warehouse');
 
             // Outgoing fields
@@ -322,8 +325,52 @@
             const quantityInput = document.getElementById('delivery_quantity_outgoing');
             const materialQuantityDisplay = document.getElementById('material_quantity_display');
 
-            // Update materials when warehouse changes (outgoing mode)
-            function updateMaterials() {
+            // Update incoming materials when warehouse changes
+            function updateIncomingMaterials() {
+                const warehouseId = warehouseIncoming.value;
+                const currentMaterialId = '{{ $deliveryNote->material_id }}';
+                materialIncoming.innerHTML = '<option value="">اختر المادة</option>';
+                incomingMaterialDisplay.innerHTML = 'جاري تحميل المواد...';
+
+                if (warehouseId && Array.isArray(materialDetails)) {
+                    const filtered = materialDetails.filter(m => m.warehouse_id == warehouseId);
+                    if (filtered.length > 0) {
+                        filtered.forEach(material => {
+                            const option = document.createElement('option');
+                            option.value = material.material_id;
+                            option.setAttribute('data-quantity', material.quantity);
+                            option.setAttribute('data-unit', material.unit_name || 'كيلو');
+                            option.text = `${material.name_ar || material.material_name} (${material.quantity} ${material.unit_name || 'كيلو'})`;
+                            if (material.material_id == currentMaterialId) {
+                                option.selected = true;
+                                incomingMaterialDisplay.innerHTML = `✓ المادة: ${material.name_ar || material.material_name}`;
+                            }
+                            materialIncoming.appendChild(option);
+                        });
+                    } else {
+                        incomingMaterialDisplay.innerHTML = '❌ لا توجد مواد في هذا المستودع';
+                    }
+                } else {
+                    incomingMaterialDisplay.innerHTML = 'اختر المستودع أولاً';
+                }
+            }
+
+            warehouseIncoming.addEventListener('change', updateIncomingMaterials);
+
+            // Update incoming material display
+            materialIncoming.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (this.value) {
+                    const quantity = selectedOption.getAttribute('data-quantity');
+                    const unit = selectedOption.getAttribute('data-unit');
+                    incomingMaterialDisplay.innerHTML = `✓ متوفر: <strong>${quantity} ${unit}</strong>`;
+                } else {
+                    incomingMaterialDisplay.innerHTML = 'اختر المادة لعرض التفاصيل';
+                }
+            });
+
+            // Update outgoing materials when warehouse changes
+            function updateOutgoingMaterials() {
                 const warehouseId = warehouseFromId.value;
                 const currentMaterialId = '{{ $deliveryNote->material_detail_id }}';
                 materialSelect.innerHTML = '<option value="">اختر المادة</option>';
@@ -336,7 +383,7 @@
                         option.setAttribute('data-material-id', material.material_id);
                         option.setAttribute('data-quantity', material.quantity);
                         option.setAttribute('data-unit', material.unit_name || 'كيلو');
-                        option.text = `${material.material_name} (${material.quantity} ${material.unit_name || 'كيلو'})`;
+                        option.text = `${material.name_ar || material.material_name} (${material.quantity} ${material.unit_name || 'كيلو'})`;
                         if (material.id == currentMaterialId) {
                             option.selected = true;
                         }
@@ -345,7 +392,7 @@
                 }
             }
 
-            warehouseFromId.addEventListener('change', updateMaterials);
+            warehouseFromId.addEventListener('change', updateOutgoingMaterials);
 
             // Update quantity display when material changes (outgoing mode)
             materialSelect.addEventListener('change', function() {

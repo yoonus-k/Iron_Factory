@@ -106,31 +106,42 @@ class DeliveryNoteController extends Controller
     private function generateDeliveryNoteNumber()
     {
         $prefix = 'DN-' . date('Y') . '-';
+        $maxAttempts = 50;
+        $attempt = 0;
 
-        // Use table locking without transaction to avoid nested transaction issues
-        DB::statement('LOCK TABLES delivery_notes WRITE');
+        // Get the highest sequential number for this year (ignoring old format numbers)
+        $baseNumber = 1;
+        $lastNote = DeliveryNote::where('note_number', 'like', $prefix . '%')
+            ->where('note_number', 'NOT LIKE', $prefix . '%-%-%-%') // Exclude old format (DN-YYYY-MM-DD-XXXX)
+            ->orderByRaw('CAST(SUBSTRING(note_number, ' . (strlen($prefix) + 1) . ') AS UNSIGNED) DESC')
+            ->first();
 
-        try {
-            $lastNote = DeliveryNote::where('note_number', 'like', $prefix . '%')
-                ->orderBy('note_number', 'desc')
-                ->first();
+        if ($lastNote) {
+            $numberPart = substr($lastNote->note_number, strlen($prefix));
+            // Extract just the numeric part (handle cases like "0001" or "0001-extra")
+            if (preg_match('/^(\d+)/', $numberPart, $matches)) {
+                $lastNumber = (int)$matches[1];
+                $baseNumber = $lastNumber + 1;
+            }
+        }
 
-            if ($lastNote) {
-                $lastNumber = (int) substr($lastNote->note_number, strlen($prefix));
-                $newNumber = $lastNumber + 1;
-            } else {
-                $newNumber = 1;
+        // Try to find a unique number
+        while ($attempt < $maxAttempts) {
+            $noteNumber = $prefix . str_pad($baseNumber + $attempt, 4, '0', STR_PAD_LEFT);
+
+            // Check if this number already exists in database
+            $exists = DeliveryNote::where('note_number', $noteNumber)->exists();
+
+            if (!$exists) {
+                return $noteNumber;
             }
 
-            $noteNumber = $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
-
-            return $noteNumber;
-        } finally {
-            DB::statement('UNLOCK TABLES');
+            $attempt++;
         }
+
+        // If we couldn't generate a unique number, throw error
+        throw new \Exception('فشل في توليد رقم أذن فريد بعد ' . $maxAttempts . ' محاولات. يرجى المحاولة لاحقاً أو اتصل بالدعم الفني.');
     }
-
-
     /**
      * Store a newly created resource in storage.
      * ✅ تم التعديل: يسمح بتسجيل الأذن بدون مادة محددة (اختيار المستودع فقط)
@@ -141,12 +152,6 @@ class DeliveryNoteController extends Controller
             // التحقق من البيانات بناءً على النوع
             $type = $request->input('type', 'incoming');
 
-            // إذا كان الرقم فارغاً، توليد رقم جديد
-            $deliveryNumber = $request->input('delivery_number');
-            if (empty($deliveryNumber)) {
-                $deliveryNumber = $this->generateDeliveryNoteNumber();
-            }
-
             // ✅ تحقق صحيح: material_id و warehouse_id للواردة، material_detail_id و warehouse_from_id للصادرة
             $validated = $request->validate([
                 'type' => 'required|in:incoming,outgoing',
@@ -155,6 +160,7 @@ class DeliveryNoteController extends Controller
                 'material_detail_id' => $type === 'outgoing' ? 'required|exists:material_details,id' : 'nullable|exists:material_details,id',
                 'warehouse_id' => $type === 'incoming' ? 'required|exists:warehouses,id' : 'nullable|exists:warehouses,id',
                 'warehouse_from_id' => $type === 'outgoing' ? 'required|exists:warehouses,id' : 'nullable|exists:warehouses,id',
+                'weight_recorded' => $type === 'incoming' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
                 'delivery_quantity' => $type === 'outgoing' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
                 'actual_weight' => 'nullable|numeric|min:0',
                 'weight_from_scale' => 'nullable|numeric|min:0',
@@ -178,7 +184,10 @@ class DeliveryNoteController extends Controller
                 'material_id.exists' => 'المادة المختارة غير موجودة',
                 'material_detail_id.required' => 'يجب اختيار المادة',
                 'material_detail_id.exists' => 'المادة المختارة غير موجودة',
-                'delivery_quantity.required' => 'الكمية مطلوبة للأذن الصادرة',
+                'weight_recorded.required' => 'الكمية مطلوبة للأذن الواردة',
+                'weight_recorded.numeric' => 'الكمية يجب أن تكون رقماً',
+                    'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
+                    'delivery_quantity.required' => 'الكمية مطلوبة للأذن الصادرة',
                 'delivery_quantity.numeric' => 'الكمية يجب أن تكون رقماً',
                 'delivery_quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
                 'actual_weight.numeric' => 'الوزن يجب أن يكون رقماً',
@@ -197,8 +206,9 @@ class DeliveryNoteController extends Controller
                 'invoice_reference_number.string' => 'رقم مرجع الفاتورة يجب أن يكون نصاً',
             ]);
 
-            // Prepare the data
-            $validated['note_number'] = $deliveryNumber;
+            // Generate a new delivery note number (always generate fresh, don't use form value)
+            $noteNumber = $this->generateDeliveryNoteNumber();
+            $validated['note_number'] = $noteNumber;
 
             // للإذن الصادر: استخدام المستودع المصدر كـ warehouse_id
             if ($type === 'outgoing' && !empty($validated['warehouse_from_id'])) {
@@ -229,16 +239,81 @@ class DeliveryNoteController extends Controller
 
             DB::beginTransaction();
 
-            // Create the delivery note
-            $deliveryNote = DeliveryNote::create($validated);
+            try {
+                // Create the delivery note
+                $deliveryNote = DeliveryNote::create($validated);
+            } catch (\Illuminate\Database\QueryException $e) {
+                // If duplicate note number, retry with a new generated number
+                if (strpos($e->getMessage(), 'Duplicate entry') !== false && strpos($e->getMessage(), 'note_number') !== false) {
+                    DB::rollBack();
 
-            // للأذن الواردة: وضع حالة التسجيل كـ "مسجلة"
+                    // Try generating a new note number (up to 5 times)
+                    for ($i = 0; $i < 5; $i++) {
+                        try {
+                            $validated['note_number'] = $this->generateDeliveryNoteNumber();
+                            DB::beginTransaction();
+                            $deliveryNote = DeliveryNote::create($validated);
+                            break;
+                        } catch (\Illuminate\Database\QueryException $retryError) {
+                            if ($i === 4) {
+                                // Last attempt failed, throw original error
+                                throw new \Exception('حدث خطأ في حفظ أذن التسليم: ' . $e->getMessage());
+                            }
+                        }
+                    }
+                } else {
+                    throw $e;
+                }
+            }
+
+            // للأذن الواردة: وضع حالة التسجيل كـ "مسجلة" و تحديث الكمية في المستودع
             if ($type === 'incoming') {
                 $deliveryNote->update([
                     'registration_status' => 'registered',
                     'registered_by' => Auth::id() ?? 1,
                     'registered_at' => now(),
                 ]);
+
+                // ✅ تحديث كمية المادة في المستودع الواردة
+                if (!empty($validated['material_id']) && !empty($validated['warehouse_id'])) {
+                    try {
+                        // البحث عن MaterialDetail موجود أو إنشاء واحد جديد
+                        $materialDetail = \App\Models\MaterialDetail::firstOrCreate(
+                            [
+                                'warehouse_id' => $validated['warehouse_id'],
+                                'material_id' => $validated['material_id'],
+                            ],
+                            [
+                                'quantity' => 0,
+                                'unit_id' => \App\Models\Material::find($validated['material_id'])->unit_id ?? 1,
+                                'created_by' => Auth::id() ?? 1,
+                            ]
+                        );
+
+                        // زيادة الكمية بالقيمة المسجلة من حقل quantity في الأذن
+                        $quantityToAdd = $validated['quantity'] ?? 0;
+                        if ($quantityToAdd > 0) {
+                            $materialDetail->addIncomingQuantity(
+                                $quantityToAdd,
+                                $quantityToAdd,
+                                $quantityToAdd
+                            );
+                        }
+
+                        Log::info('✅ تم تحديث كمية المادة بنجاح', [
+                            'material_id' => $validated['material_id'],
+                            'warehouse_id' => $validated['warehouse_id'],
+                            'quantity_added' => $quantityToAdd,
+                            'delivery_note' => $deliveryNote->note_number,
+                        ]);
+                    } catch (\Exception $inventoryError) {
+                        Log::error('⚠️ فشل تحديث كمية المادة: ' . $inventoryError->getMessage(), [
+                            'material_id' => $validated['material_id'],
+                            'warehouse_id' => $validated['warehouse_id'],
+                            'error' => $inventoryError,
+                        ]);
+                    }
+                }
             }
 
             // تسجيل الحركة في material_movements
@@ -261,7 +336,7 @@ class DeliveryNoteController extends Controller
                     'to_warehouse_id' => null,
                     'supplier_id' => null,
                     'destination' => $validated['destination_id'] ?? 'غير محدد',
-                    'description' => 'خروج بضاعة - أذن رقم ' . $deliveryNumber,
+                    'description' => 'خروج بضاعة - أذن رقم ' . $deliveryNote->note_number,
                     'notes' => $validated['notes'] ?? null,
                     'reference_number' => $validated['invoice_number'] ?? null,
                     'created_by' => Auth::id() ?? 1,
@@ -329,8 +404,8 @@ class DeliveryNoteController extends Controller
             DB::commit();
 
             $successMessage = $type === 'incoming'
-                ? 'تم إضافة أذن التسليم الواردة بنجاح - رقم الأذن: ' . $deliveryNumber
-                : 'تم إضافة أذن التسليم الصادرة بنجاح - رقم الأذن: ' . $deliveryNumber;
+                ? 'تم إضافة أذن التسليم الواردة بنجاح - رقم الأذن: ' . $deliveryNote->note_number
+                : 'تم إضافة أذن التسليم الصادرة بنجاح - رقم الأذن: ' . $deliveryNote->note_number;
 
             // For incoming delivery notes, redirect to registration page
             if ($type === 'incoming') {
@@ -422,7 +497,7 @@ class DeliveryNoteController extends Controller
                 'delivery_date' => 'required|date',
                 'material_id' => $type === 'incoming' ? 'required|exists:materials,id' : 'nullable|exists:materials,id',
                 'warehouse_id' => $type === 'incoming' ? 'required|exists:warehouses,id' : 'nullable|exists:warehouses,id',
-                'invoice_weight' => $type === 'incoming' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
+                'quantity' => $type === 'incoming' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
                 'material_detail_id' => $type === 'outgoing' ? 'required|exists:material_details,id' : 'nullable|exists:material_details,id',
                 'warehouse_from_id' => $type === 'outgoing' ? 'required|exists:warehouses,id' : 'nullable|exists:warehouses,id',
                 'delivery_quantity' => $type === 'outgoing' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
@@ -448,10 +523,12 @@ class DeliveryNoteController extends Controller
                 'material_id.exists' => 'المادة المختارة غير موجودة',
                 'material_detail_id.required' => 'يجب اختيار تفاصيل المادة',
                 'material_detail_id.exists' => 'تفاصيل المادة غير موجودة',
-                'invoice_weight.required' => 'الوزن مطلوب',
-                'invoice_weight.numeric' => 'الوزن يجب أن يكون رقماً',
-                'delivery_quantity.required' => 'الكمية مطلوبة',
+                'quantity.required' => 'الكمية مطلوبة للأذن الواردة',
+                'quantity.numeric' => 'الكمية يجب أن تكون رقماً',
+                'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
+                'delivery_quantity.required' => 'الكمية مطلوبة للأذن الصادرة',
                 'delivery_quantity.numeric' => 'الكمية يجب أن تكون رقماً',
+                'delivery_quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
                 'destination_id.required' => 'الوجهة مطلوبة',
                 'destination_id.in' => 'الوجهة المختارة غير صحيحة',
                 'driver_name.string' => 'اسم السائق يجب أن يكون نصاً',
@@ -478,6 +555,55 @@ class DeliveryNoteController extends Controller
                 $materialDetail = \App\Models\MaterialDetail::find($validated['material_detail_id']);
                 if ($materialDetail) {
                     $validated['material_id'] = $materialDetail->material_id;
+                }
+            }
+
+            // ✅ تحديث الكمية في المستودع للأذن الواردة عند التعديل
+            if ($type === 'incoming') {
+                try {
+                    // الفرق بين الكمية الجديدة والقديمة
+                    $oldQuantity = $oldValues['quantity'] ?? 0;
+                    $newQuantity = $validated['quantity'] ?? 0;
+                    $quantityDifference = $newQuantity - $oldQuantity;
+
+                    // إذا كانت هناك فروقات
+                    if ($quantityDifference != 0) {
+                        // البحث أو إنشاء MaterialDetail
+                        $materialDetail = \App\Models\MaterialDetail::firstOrCreate(
+                            [
+                                'warehouse_id' => $validated['warehouse_id'],
+                                'material_id' => $validated['material_id'],
+                            ],
+                            [
+                                'quantity' => 0,
+                                'unit_id' => \App\Models\Material::find($validated['material_id'])->unit_id ?? 1,
+                                'created_by' => Auth::id() ?? 1,
+                            ]
+                        );
+
+                        // تطبيق الفرق
+                        if ($quantityDifference > 0) {
+                            // إضافة الفرق (زيادة)
+                            $materialDetail->addIncomingQuantity(
+                                $quantityDifference,
+                                $quantityDifference,
+                                $quantityDifference
+                            );
+                        } else {
+                            // خصم الفرق (نقصان)
+                            $materialDetail->quantity += $quantityDifference; // negative فسيطرح
+                            $materialDetail->save();
+                        }
+
+                        Log::info('✅ تم تحديث كمية المادة عند التعديل', [
+                            'material_id' => $validated['material_id'],
+                            'warehouse_id' => $validated['warehouse_id'],
+                            'quantity_difference' => $quantityDifference,
+                            'delivery_note' => $deliveryNote->note_number,
+                        ]);
+                    }
+                } catch (\Exception $inventoryError) {
+                    Log::error('⚠️ فشل تحديث كمية المادة: ' . $inventoryError->getMessage());
                 }
             }
 
@@ -547,6 +673,35 @@ class DeliveryNoteController extends Controller
         try {
             $deliveryNote = DeliveryNote::findOrFail($id);
             $oldValues = $deliveryNote->toArray();
+
+            // ✅ استرجاع الكمية إلى المستودع قبل الحذف (للأذن الواردة فقط)
+            if ($deliveryNote->type === 'incoming' && !empty($deliveryNote->material_id) && !empty($deliveryNote->warehouse_id)) {
+                try {
+                    $materialDetail = \App\Models\MaterialDetail::where([
+                        'warehouse_id' => $deliveryNote->warehouse_id,
+                        'material_id' => $deliveryNote->material_id,
+                    ])->first();
+
+                    if ($materialDetail) {
+                        // استرجاع الكمية المحفوظة من حقل quantity
+                        $quantityToRemove = $deliveryNote->quantity ?? 0;
+                        if ($quantityToRemove > 0) {
+                            $materialDetail->quantity -= $quantityToRemove;
+                            $materialDetail->save();
+
+                            Log::info('✅ تم استرجاع الكمية من الأذن المحذوفة', [
+                                'material_id' => $deliveryNote->material_id,
+                                'warehouse_id' => $deliveryNote->warehouse_id,
+                                'quantity_removed' => $quantityToRemove,
+                                'delivery_note' => $deliveryNote->note_number,
+                            ]);
+                        }
+                    }
+                } catch (\Exception $inventoryError) {
+                    Log::error('⚠️ فشل استرجاع الكمية: ' . $inventoryError->getMessage());
+                    // لا نوقف الحذف، فقط نسجل الخطأ
+                }
+            }
 
             // Log the operation before deletion
             try {

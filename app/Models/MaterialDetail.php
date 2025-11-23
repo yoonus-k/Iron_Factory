@@ -40,6 +40,12 @@ class MaterialDetail extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'name_ar',
+        'material_name',
+        'unit_name',
+    ];
+
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
@@ -54,7 +60,7 @@ class MaterialDetail extends Model
     {
         return $this->belongsTo(Unit::class, 'unit_id');
     }
-    
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -67,6 +73,30 @@ class MaterialDetail extends Model
     public function getUnitName(): string
     {
         return $this->unit?->unit_name ?? 'وحدة';
+    }
+
+    /**
+     * Accessor: الحصول على اسم المادة العربي من المادة الرئيسية
+     */
+    public function getNameArAttribute(): string
+    {
+        return $this->material?->name_ar ?? '';
+    }
+
+    /**
+     * Accessor: الحصول على اسم المادة من المادة الرئيسية
+     */
+    public function getMaterialNameAttribute(): string
+    {
+        return $this->material?->name_en ?? '';
+    }
+
+    /**
+     * Accessor: الحصول على اسم الوحدة
+     */
+    public function getUnitNameAttribute(): string
+    {
+        return $this->unit?->unit_name ?? 'كيلو';
     }
 
     /**
