@@ -63,24 +63,6 @@ class WarehouseController extends Controller
             $data = $request->validated();
             $data['created_by'] = Auth::id() ?? 1;
 
-            // توليد الكود إذا لم يكن موجوداً
-            if (empty($data['warehouse_code'])) {
-                $prefix = 'WH-';
-                $date = now();
-                $year = $date->format('y');
-                $month = $date->format('m');
-                $day = $date->format('d');
-                $random = str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
-                $data['warehouse_code'] = $prefix . $year . $month . $day . '-' . $random;
-            }
-
-            // تحويل is_active إلى boolean إذا لم تكن موجودة أو تأكد من قيمتها
-            if (!isset($data['is_active']) || is_null($data['is_active'])) {
-                $data['is_active'] = 1;
-            } else {
-                $data['is_active'] = (int) $data['is_active'];
-            }
-
             $warehouse = $this->warehouseRepository->create($data);
 
             // تسجيل العملية

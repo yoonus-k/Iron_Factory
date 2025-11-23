@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'الاذونات التسليم')
+@section('title', 'إدارة تسجيل البضاعة')
 
 @section('content')
     <style>
@@ -403,80 +403,10 @@
             min-width: 180px;
         }
         
-        /* Dropdown Styles */
-        .um-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .um-btn-dropdown {
-            background: #0051E5;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.2s ease;
-        }
-
-        .um-btn-dropdown:hover {
-            background: #003FA0;
-        }
-
-        .um-dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            z-index: 1000;
-            display: none;
-            min-width: 160px;
-            padding: 5px 0;
-            margin: 2px 0 0;
-            font-size: 14px;
-            text-align: right;
-            list-style: none;
-            background-color: #fff;
-            background-clip: padding-box;
-            border: 1px solid rgba(0,0,0,.15);
-            border-radius: 4px;
-            box-shadow: 0 6px 12px rgba(0,0,0,.175);
-        }
-
-        .um-dropdown-menu.show {
-            display: block;
-        }
-
-        .um-dropdown-item {
-            display: block;
-            padding: 8px 20px;
-            clear: both;
-            font-weight: 400;
-            line-height: 1.42857143;
-            color: #333;
-            white-space: nowrap;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-
-        .um-dropdown-item:hover {
-            background-color: #f5f5f5;
-            color: #0051E5;
-            text-decoration: none;
-        }
-
-        .um-dropdown-item i {
-            margin-left: 8px;
-        }
-
-        .um-dropdown-divider {
-            height: 1px;
-            margin: 9px 0;
-            overflow: hidden;
-            background-color: #e5e5e5;
+        /* Info Alert */
+        .alert-info-custom {
+            border-right: 4px solid #3498db;
+            margin-bottom: 20px;
         }
     </style>
 
@@ -485,7 +415,7 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="fas fa-box"></i>
-                اذونات التسليم
+                إدارة تسجيل البضاعة
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
@@ -494,7 +424,7 @@
                 <i class="feather icon-chevron-left"></i>
                 <span>المستودع</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>اذونات التسليم </span>
+                <span>تسجيل البضاعة</span>
             </nav>
         </div>
 
@@ -544,6 +474,27 @@
             </div>
         @endif
 
+        <!-- Info Alert -->
+        <div class="alert alert-info alert-info-custom">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <svg style="width: 24px; height: 24px; min-width: 24px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <div>
+                    <strong>📋 نظام تسجيل البضاعة:</strong>
+                    <span style="display: block; margin-top: 5px; color: #666;">
+                        ✅ <strong>معلقة (🔴):</strong> الشحنات التي تحتاج تسجيل
+                        &nbsp;|&nbsp;
+                        ✅ <strong>مسجلة (🟢):</strong> الشحنات المسجلة جزئياً أو بالكامل
+                        &nbsp;|&nbsp;
+                        ✅ <strong>منقولة للإنتاج (🏭):</strong> الشحنات التي تم نقلها بالكامل للإنتاج
+                    </span>
+                </div>
+            </div>
+        </div>
+
         <!-- Statistics -->
         <div class="stats-row">
             <div class="stat-item pending-stat">
@@ -585,7 +536,7 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="fas fa-box"></i>
-                    إدارة تسجيل الشحنات الواردة
+                    قائمة الشحنات
                 </h4>
                 <div style="display: flex; gap: 10px;">
                     <a href="{{ route('manufacturing.warehouse.movements.index') }}" class="um-btn um-btn-primary">
@@ -605,7 +556,7 @@
 
             <!-- Filters Section -->
             <div class="um-filters-section">
-                <form method="GET" action="{{ route('manufacturing.warehouse.registration.pending') }}" class="filter-form">
+                <form method="GET" action="{{ route('manufacturing.warehouse.registration.index') }}" class="filter-form">
                     <div class="um-filter-row">
                         <!-- From Date -->
                         <div class="um-form-group">
@@ -653,7 +604,7 @@
                                 <i class="fas fa-search"></i>
                                 بحث
                             </button>
-                            <a href="{{ route('manufacturing.warehouse.registration.pending') }}" class="um-btn um-btn-outline">
+                            <a href="{{ route('manufacturing.warehouse.registration.index') }}" class="um-btn um-btn-outline">
                                 <i class="fas fa-redo"></i>
                                 إعادة تعيين
                             </a>
@@ -705,25 +656,21 @@
                                 <span class="um-badge badge-pending">
                                     <i class="fas fa-hourglass-half"></i> معلقة
                                 </span>
+                                @if ($shipment->registration_attempts > 0)
+                                    <span class="um-badge badge-warning-custom">
+                                        ⚠️ محاولة {{ $shipment->registration_attempts + 1 }}
+                                    </span>
+                                @endif
                             </td>
                             <td>-</td>
                             <td>-</td>
                             <td>-</td>
                             <td>-</td>
                             <td>
-                                <div class="um-dropdown">
-                                    <button class="um-btn-dropdown" type="button">
-                                        <i class="fas fa-ellipsis-v"></i> الإجراءات
-                                    </button>
-                                    <div class="um-dropdown-menu">
-                                        <a href="{{ route('manufacturing.warehouse.registration.create', $shipment) }}" class="um-dropdown-item">
-                                            <i class="fas fa-edit"></i> تسجيل
-                                        </a>
-                                        <a href="{{ route('manufacturing.warehouse.registration.show', $shipment) }}" class="um-dropdown-item">
-                                            <i class="fas fa-eye"></i> عرض
-                                        </a>
-                                    </div>
-                                </div>
+                                <a href="{{ route('manufacturing.warehouse.registration.create', $shipment) }}"
+                                   class="um-btn um-btn-primary" style="padding: 4px 8px; font-size: 12px;">
+                                    <i class="fas fa-edit"></i> تسجيل
+                                </a>
                             </td>
                         </tr>
                         @empty
@@ -745,6 +692,11 @@
                                     <span class="um-badge badge-registered">
                                         <i class="fas fa-check-circle"></i> مسجلة
                                     </span>
+                                    @if ($shipment->registration_attempts > 0)
+                                        <span class="um-badge badge-warning-custom">
+                                            ⚠️ محاولة {{ $shipment->registration_attempts + 1 }}
+                                        </span>
+                                    @endif
                                     @if($remainingQuantity > 0)
                                         <span class="um-badge" style="background-color: #004B87; color: white; margin-top: 5px; display: inline-block;">
                                             📦 متاح: {{ number_format($remainingQuantity, 2) }}
@@ -756,26 +708,10 @@
                                 <td>{{ $shipment->registeredBy->name ?? 'N/A' }}</td>
                                 <td>{{ $shipment->registered_at?->format('Y-m-d H:i:s') ?? 'N/A' }}</td>
                                 <td>
-                                    <div class="um-dropdown">
-                                        <button class="um-btn-dropdown" type="button">
-                                            <i class="fas fa-ellipsis-v"></i> الإجراءات
-                                        </button>
-                                        <div class="um-dropdown-menu">
-                                            <a href="{{ route('manufacturing.warehouse.registration.show', $shipment) }}" class="um-dropdown-item">
-                                                <i class="fas fa-eye"></i> عرض ونقل للانتاج
-                                            </a>
-                                            <a href="{{ route('manufacturing.warehouse.registration.edit', $shipment) }}" class="um-dropdown-item">
-                                                <i class="fas fa-edit"></i> تعديل
-                                            </a>
-                                            <form action="{{ route('manufacturing.warehouse.registration.destroy', $shipment) }}" method="POST" style="display: inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="um-dropdown-item" style="width: 100%; text-align: right; border: none; background: none;" onclick="return confirm('هل أنت متأكد من الحذف؟')">
-                                                    <i class="fas fa-trash"></i> حذف
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
+                                    <a href="{{ route('manufacturing.warehouse.registration.show', $shipment) }}"
+                                       class="um-btn um-btn-primary" style="padding: 4px 8px; font-size: 12px;">
+                                        <i class="fas fa-eye"></i> عرض
+                                    </a>
                                 </td>
                             </tr>
                         @empty
@@ -791,32 +727,21 @@
                                     <span class="um-badge badge-moved">
                                         <i class="fas fa-industry"></i> منقولة للإنتاج
                                     </span>
+                                    @if ($shipment->registration_attempts > 0)
+                                        <span class="um-badge" style="background-color: #0051E5; color: white; margin-top: 5px; display: inline-block;">
+                                            ℹ️ {{ $shipment->registration_attempts }} محاولة
+                                        </span>
+                                    @endif
                                 </td>
                                 <td>{{ number_format($shipment->quantity ?? 0, 2) }}</td>
                                 <td>0.00</td>
                                 <td>{{ $shipment->registeredBy->name ?? 'N/A' }}</td>
                                 <td>{{ $shipment->registered_at?->format('Y-m-d H:i:s') ?? 'N/A' }}</td>
                                 <td>
-                                    <div class="um-dropdown">
-                                        <button class="um-btn-dropdown" type="button">
-                                            <i class="fas fa-ellipsis-v"></i> الإجراءات
-                                        </button>
-                                        <div class="um-dropdown-menu">
-                                            <a href="{{ route('manufacturing.warehouse.registration.show', $shipment) }}" class="um-dropdown-item">
-                                                <i class="fas fa-eye"></i> عرض
-                                            </a>
-                                            <a href="{{ route('manufacturing.warehouse.registration.edit', $shipment) }}" class="um-dropdown-item">
-                                                <i class="fas fa-edit"></i> تعديل
-                                            </a>
-                                            <form action="{{ route('manufacturing.warehouse.registration.destroy', $shipment) }}" method="POST" style="display: inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="um-dropdown-item" style="width: 100%; text-align: right; border: none; background: none;" onclick="return confirm('هل أنت متأكد من الحذف؟')">
-                                                    <i class="fas fa-trash"></i> حذف
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
+                                    <a href="{{ route('manufacturing.warehouse.registration.show', $shipment) }}"
+                                       class="um-btn um-btn-primary" style="padding: 4px 8px; font-size: 12px;">
+                                        <i class="fas fa-eye"></i> عرض
+                                    </a>
                                 </td>
                             </tr>
                         @empty
@@ -863,39 +788,6 @@
                         alert.style.display = 'none';
                     }, 300);
                 }, 5000);
-            });
-
-            // Dropdown functionality
-            document.querySelectorAll('.um-btn-dropdown').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const dropdown = this.closest('.um-dropdown');
-                    const menu = dropdown.querySelector('.um-dropdown-menu');
-                    
-                    // Close all other dropdowns
-                    document.querySelectorAll('.um-dropdown-menu').forEach(d => {
-                        if (d !== menu) {
-                            d.classList.remove('show');
-                        }
-                    });
-                    
-                    // Toggle current dropdown
-                    menu.classList.toggle('show');
-                });
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function() {
-                document.querySelectorAll('.um-dropdown-menu').forEach(menu => {
-                    menu.classList.remove('show');
-                });
-            });
-
-            // Prevent closing dropdown when clicking inside
-            document.querySelectorAll('.um-dropdown-menu').forEach(menu => {
-                menu.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                });
             });
         });
     </script>

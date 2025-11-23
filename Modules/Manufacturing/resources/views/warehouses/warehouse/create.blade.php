@@ -126,21 +126,7 @@
                             <div class="error-message" id="code-error" style="display: none;"></div>
                         </div>
 
-                        <!-- Status -->
-                        <div class="form-group">
-                            <label for="is_active" class="form-label">الحالة</label>
-                            <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                </svg>
-                                <select name="is_active" id="is_active" class="form-input">
-                                    <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>نشط</option>
-                                    <option value="0" {{ old('is_active') == 0 ? 'selected' : '' }}>غير نشط</option>
-                                </select>
-                            </div>
-                            <div class="error-message" id="is_active-error" style="display: none;"></div>
-                        </div>
+
                     </div>
                 </div>
 

@@ -3,575 +3,103 @@
 @section('title', 'تسجيل البضاعة - المستودع')
 
 @section('content')
-    <div class="container-fluid">
-        <!-- Header -->
-        <div class="page-header">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h1 class="page-title">
-                        <i class="fas fa-box"></i> تسجيل البضاعة في المستودع
-                    </h1>
-                    <p class="text-muted mb-0">إدارة تسجيل الشحنات الواردة والتحكم في حركتها</p>
-                </div>
-                <div class="col-auto">
-                    <a href="{{ route('manufacturing.warehouse.movements.index') }}"
-                       class="btn btn-info btn-lg">
-                        <i class="fas fa-exchange-alt"></i> سجل الحركات
-                    </a>
-                    <a href="{{ route('manufacturing.warehouses.reconciliation.link-invoice') }}"
-                       class="btn btn-info btn-lg">
-                        <i class="fas fa-link"></i> ربط فاتورة
-                    </a>
-                    <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}"
-                       class="btn btn-info btn-lg">
-                        <i class="fas fa-balance-scale"></i> التسويات
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Alerts -->
-        @if ($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong>❌ خطأ!</strong>
-                <ul class="mb-0">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle"></i> {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        @if (session('info'))
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-                <i class="fas fa-info-circle"></i> {{ session('info') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        <!-- Statistics -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="stats-row">
-                    <div class="stat-item pending-stat">
-                        <div class="stat-icon">
-                            <i class="fas fa-hourglass-half"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-label">🔴 شحنات معلقة (بانتظار التسجيل)</span>
-                            <span class="stat-number" style="color: #0051E5;">{{ $incomingUnregistered->total() ?? 0 }}</span>
-                        </div>
-                    </div>
-
-                    <div class="stat-item registered-stat">
-                        <div class="stat-icon">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-label">🟢 شحنات مسجلة</span>
-                            <span class="stat-number" style="color: #3E4651;">{{ $incomingRegistered->total() ?? 0 }}</span>
-                        </div>
-                    </div>
-
-                    @if ($movedToProduction->count() > 0)
-                    <div class="stat-item production-stat">
-                        <div class="stat-icon">
-                            <i class="fas fa-industry"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-label">🏭 منقولة للإنتاج</span>
-                            <span class="stat-number" style="color: #0051E5;">{{ $movedToProduction->total() ?? 0 }}</span>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <!-- Filter Section -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card" style="border: 1px solid #e9ecef; box-shadow: 0 2px 6px rgba(0, 81, 229, 0.08);">
-                    <div class="card-header" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-bottom: 2px solid #dee2e6;">
-                        <div class="row align-items-center">
-                            <div class="col">
-                                <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;">
-                                    <i class="fas fa-filter" style="color: #0051E5; margin-left: 8px;"></i> فلترة متقدمة
-                                </h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <form method="GET" action="{{ route('manufacturing.warehouse.registration.pending') }}" class="filter-form">
-                            <div class="row align-items-end">
-                                <!-- From Date -->
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
-                                        <i class="fas fa-calendar-alt" style="color: #0051E5; margin-left: 5px;"></i> من التاريخ
-                                    </label>
-                                    <input type="date" name="from_date" class="form-control form-control-lg"
-                                           value="{{ $appliedFilters['from_date'] ?? '' }}"
-                                           style="border: 1px solid #dee2e6; border-radius: 6px; padding: 8px 12px;">
-                                </div>
-
-                                <!-- To Date -->
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
-                                        <i class="fas fa-calendar-check" style="color: #0051E5; margin-left: 5px;"></i> إلى التاريخ
-                                    </label>
-                                    <input type="date" name="to_date" class="form-control form-control-lg"
-                                           value="{{ $appliedFilters['to_date'] ?? '' }}"
-                                           style="border: 1px solid #dee2e6; border-radius: 6px; padding: 8px 12px;">
-                                </div>
-
-                                <!-- Sort By -->
-                                <div class="col-md-2 mb-3">
-                                    <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
-                                        <i class="fas fa-sort" style="color: #0051E5; margin-left: 5px;"></i> ترتيب حسب
-                                    </label>
-                                    <select name="sort_by" class="form-select form-control-lg"
-                                            style="border: 1px solid #dee2e6; border-radius: 6px; padding: 8px 12px;">
-                                        <option value="date" {{ ($appliedFilters['sort_by'] ?? 'date') === 'date' ? 'selected' : '' }}>التاريخ</option>
-                                        <option value="note_number" {{ ($appliedFilters['sort_by'] ?? 'date') === 'note_number' ? 'selected' : '' }}>رقم الأذن</option>
-                                    </select>
-                                </div>
-
-                                <!-- Sort Order -->
-                                <div class="col-md-2 mb-3">
-                                    <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
-                                        <i class="fas fa-arrow-up-down" style="color: #0051E5; margin-left: 5px;"></i> الترتيب
-                                    </label>
-                                    <select name="sort_order" class="form-select form-control-lg"
-                                            style="border: 1px solid #dee2e6; border-radius: 6px; padding: 8px 12px;">
-                                        <option value="desc" {{ ($appliedFilters['sort_order'] ?? 'desc') === 'desc' ? 'selected' : '' }}>الأحدث أولاً</option>
-                                        <option value="asc" {{ ($appliedFilters['sort_order'] ?? 'desc') === 'asc' ? 'selected' : '' }}>الأقدم أولاً</option>
-                                    </select>
-                                </div>
-
-                                <!-- Action Buttons -->
-                                <div class="col-md-2 mb-3">
-                                    <div style="display: flex; gap: 8px;">
-                                        <button type="submit" class="btn btn-primary btn-lg"
-                                                style="background: linear-gradient(135deg, #0051E5 0%, #003FA0 100%); border: none; padding: 8px 12px; flex: 1; border-radius: 6px; font-weight: 600;">
-                                            <i class="fas fa-search"></i> بحث
-                                        </button>
-                                        <a href="{{ route('manufacturing.warehouse.registration.pending') }}" class="btn btn-secondary btn-lg"
-                                           style="background-color: #e9ecef; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; color: #2c3e50; text-decoration: none; display: flex; align-items: center; justify-content: center;">
-                                            <i class="fas fa-redo"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Filter Info -->
-                            @if (($appliedFilters['from_date'] ?? null) || ($appliedFilters['to_date'] ?? null))
-                                <div style="margin-top: 12px; padding: 10px 12px; background-color: #e8f0ff; border-radius: 6px; border-right: 4px solid #0051E5;">
-                                    <small style="color: #0051E5; font-weight: 500;">
-                                        <i class="fas fa-info-circle"></i>
-                                        تم تطبيق الفلترة:
-                                        @if ($appliedFilters['from_date'])
-                                            من <strong>{{ date('Y-m-d', strtotime($appliedFilters['from_date'])) }}</strong>
-                                        @endif
-                                        @if ($appliedFilters['to_date'])
-                                            إلى <strong>{{ date('Y-m-d', strtotime($appliedFilters['to_date'])) }}</strong>
-                                        @endif
-                                    </small>
-                                </div>
-                            @endif
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Unregistered Shipments -->
-
-    <div class="row">
-        <!-- Unregistered Shipments Column -->
-        <div class="col-lg-6 mb-4">
-            <div class="card" style="margin-bottom: 20px;">
-                <div class="card-header" style="background: linear-gradient(135deg, #0051E5 0%, #003FA0 100%); color: white;">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h3 class="card-title mb-0" style="color: white;">🔴 شحنات معلقة (تحتاج تسجيل)</h3>
-                        </div>
-                        <div class="col-auto">
-                            <span class="badge bg-white" style="color: #0051E5; font-size: 14px; padding: 6px 12px;">{{ $incomingUnregistered->total() ?? 0 }} شحنة</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    @if ($incomingUnregistered->count() > 0)
-                        <div class="alert alert-info mb-3">
-                            <i class="fas fa-arrow-down"></i> <strong>الخطوة 1:</strong> اختر شحنة من القائمة أدناه
-                        </div>
-
-                        <div class="operations-timeline">
-                            @foreach ($incomingUnregistered as $index => $shipment)
-                                <div class="operation-item" style="padding-bottom: 20px; border-bottom: 1px solid #e9ecef; margin-bottom: 20px;">
-                                    @if($index === count($incomingUnregistered) - 1)
-                                        <style>
-                                            .operation-item:last-child { border-bottom: none; }
-                                        </style>
-                                    @endif
-
-                                    <!-- رأس العملية -->
-                                    <div class="operation-header" style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px;">
-                                        <div style="flex: 1;">
-                                            <!-- النوع والوصف -->
-                                            <div class="operation-description" style="margin-bottom: 8px;">
-                                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                                                    <!-- Badge للحالة -->
-                                    <span class="badge" style="background-color: #0051E5; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <polyline points="12 6 12 12 16 14"></polyline>
-                                        </svg>
-                                        معلقة
-                                    </span>                                                    <!-- تحذير التكرار إن وجد -->
-                                                    @if ($shipment->registration_attempts > 0)
-                                                        <span class="badge" style="background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                            ⚠️ محاولة {{ $shipment->registration_attempts + 1 }}
-                                                        </span>
-                                                    @endif
-
-                                                    <!-- رقم الشحنة -->
-                                                    <strong style="color: #2c3e50; font-size: 14px;">
-                                                        #{{ $shipment->note_number ?? $shipment->id }}
-                                                    </strong>
-                                                </div>
-                                            </div>
-
-                                            <!-- تفاصيل الشحنة -->
-                                            <div style="display: flex; gap: 15px; font-size: 12px; color: #7f8c8d; flex-wrap: wrap;">
-                                                <div style="display: flex; align-items: center; gap: 5px;">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                                        <circle cx="12" cy="7" r="4"></circle>
-                                                    </svg>
-                                                    <span><strong>{{ $shipment->supplier->name ?? 'N/A' }}</strong></span>
-                                                </div>
-
-                                                <div style="display: flex; align-items: center; gap: 5px;">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                                                        <circle cx="12" cy="12" r="10"></circle>
-                                                        <polyline points="12 6 12 12 16 14"></polyline>
-                                                    </svg>
-                                                    <span>{{ $shipment->created_at->format('Y-m-d H:i:s') }}</span>
-                                                </div>
-
-                                                <div style="display: flex; align-items: center; gap: 5px;">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                                                        <circle cx="12" cy="12" r="10"></circle>
-                                                        <polyline points="12 16 16 12 12 8"></polyline>
-                                                        <polyline points="8 12 12 16 12 8"></polyline>
-                                                    </svg>
-                                                    <span style="color: #e74c3c; font-weight: 600;">{{ $shipment->created_at->diffForHumans() }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- زر الإجراء -->
-                                        <div style="margin-right: 10px;">
-                                            <a href="{{ route('manufacturing.warehouse.registration.create', $shipment) }}"
-                                                style="background-color: #0051E5; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/>
-                                                </svg>
-                                                تسجيل الآن
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <!-- Pagination -->
-                        <div style="margin-top: 20px;">
-                            @include('manufacturing::components.advanced-pagination', ['paginator' => $incomingUnregistered])
-                        </div>
-                    @else
-                        <div style="text-align: center; padding: 40px 20px; color: #27ae60;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 15px; opacity: 0.5;">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
-                            <p style="margin: 0; font-size: 14px; font-weight: 600;">
-                                ✅ لا توجد شحنات معلقة! جميع الشحنات مسجلة بنجاح.
-                            </p>
-                            <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
-                                اذهب لقسم الشحنات المسجلة لعرض تفاصيل أو نقل للإنتاج
-                            </p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <!-- Registered Shipments Column -->
-        <div class="col-lg-6 mb-4">
-            <div class="card" style="margin-bottom: 20px;">
-                <div class="card-header" style="background: linear-gradient(135deg, #3E4651 0%, #2C3339 100%); color: white;">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h3 class="card-title mb-0" style="color: white;">🟢 الشحنات المسجلة</h3>
-                        </div>
-                        <div class="col-auto">
-                            <span class="badge bg-white" style="color: #3E4651; font-size: 14px; padding: 6px 12px;">{{ $incomingRegistered->total() ?? 0 }} شحنة</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    @if ($incomingRegistered->count() > 0 || $movedToProduction->count() > 0)
-                        <div class="alert alert-info mb-3">
-                            <i class="fas fa-arrow-right"></i> <strong>الخطوة 2:</strong> عرض التفاصيل أو نقل للإنتاج
-                        </div>
-
-                        <!-- Regular Registered Shipments -->
-                        @foreach ($incomingRegistered as $index => $shipment)
-                            @php
-                                // حساب الكمية المتبقية بشكل صحيح
-                                $registeredQuantity = $shipment->quantity ?? 0;
-                                $transferredQuantity = $shipment->quantity_used ?? 0;
-                                $remainingQuantity = $shipment->quantity_remaining ?? ($registeredQuantity - $transferredQuantity);
-
-                                // الشحنة "مسجلة بدون نقل" - تحتوي على كمية متبقية > 0
-                                $isPartiallyTransferred = $remainingQuantity > 0;
-                            @endphp
-                            @if($isPartiallyTransferred)
-                            <div class="operation-item" style="padding-bottom: 20px; border-bottom: 1px solid #e9ecef; margin-bottom: 20px;">
-                                @if($index === count($incomingRegistered) - 1 && $movedToProduction->count() == 0)
-                                    <style>
-                                        .operation-item:last-child { border-bottom: none; }
-                                    </style>
-                                @endif
-
-                                <!-- رأس العملية -->
-                                <div class="operation-header" style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px;">
-                                    <div style="flex: 1;">
-                                        <!-- النوع والوصف -->
-                                        <div class="operation-description" style="margin-bottom: 8px;">
-                                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                                                <!-- Badge للحالة -->
-                                                <span class="badge" style="background-color: #3E4651; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                                    </svg>
-                                                    🟢 مسجلة
-                                                </span>
-
-                                                <!-- معلومات محاولات التسجيل -->
-                                                @if ($shipment->registration_attempts > 0)
-                                                    <span class="badge" style="background-color: #E74C3C; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                        ⚠️ محاولة {{ $shipment->registration_attempts + 1 }}
-                                                    </span>
-                                                @endif
-
-                                                <!-- رقم الشحنة -->
-                                                <strong style="color: #2c3e50; font-size: 14px;">
-                                                    #{{ $shipment->note_number ?? $shipment->id }}
-                                                </strong>
-
-                                                <!-- الكمية المتبقية -->
-                                                @if($remainingQuantity > 0)
-                                                    <span class="badge" style="background-color: #004B87; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                        📦 متاح: {{ number_format($remainingQuantity, 2) }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <!-- تفاصيل الشحنة -->
-                                        <div style="display: flex; gap: 15px; font-size: 12px; color: #7f8c8d; flex-wrap: wrap;">
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                                    <circle cx="12" cy="7" r="4"></circle>
-                                                </svg>
-                                                <span><strong>{{ $shipment->supplier->name ?? 'N/A' }}</strong></span>
-                                            </div>
-
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                                    <circle cx="8.5" cy="7" r="4"></circle>
-                                                    <polyline points="17 11 19 13 23 9"></polyline>
-                                                </svg>
-                                                <span>{{ $shipment->registeredBy->name ?? 'N/A' }}</span>
-                                            </div>
-
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                                                    <circle cx="12" cy="12" r="10"></circle>
-                                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                                </svg>
-                                                <span>{{ $shipment->registered_at?->format('Y-m-d H:i:s') ?? 'N/A' }}</span>
-                                            </div>
-
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                                                    <circle cx="12" cy="12" r="10"></circle>
-                                                    <polyline points="12 16 16 12 12 8"></polyline>
-                                                    <polyline points="8 12 12 16 12 8"></polyline>
-                                                </svg>
-                                                <span>{{ $shipment->registered_at?->diffForHumans() ?? 'N/A' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- زر الإجراء -->
-                                    <div style="margin-right: 10px;">
-                                        <a href="{{ route('manufacturing.warehouse.registration.show', $shipment) }}"
-                                            style="background-color: #0051E5; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                                <circle cx="12" cy="12" r="3"></circle>
-                                            </svg>
-                                            عرض
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            @endif
-                        @endforeach
-
-                        <!-- Moved to Production Shipments (within Registered Shipments card) -->
-                        @foreach ($movedToProduction as $index => $shipment)
-                            <div class="operation-item" style="padding-bottom: 20px; border-bottom: 1px solid #e9ecef; margin-bottom: 20px;">
-                                @if($index === count($movedToProduction) - 1)
-                                    <style>
-                                        .operation-item:last-child { border-bottom: none; }
-                                    </style>
-                                @endif
-
-                                <!-- رأس العملية -->
-                                <div class="operation-header" style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px;">
-                                    <div style="flex: 1;">
-                                        <!-- النوع والوصف -->
-                                        <div class="operation-description" style="margin-bottom: 8px;">
-                                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                                                <!-- Badge للحالة - Different styling for moved to production -->
-                                                <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; display: inline-block; margin-left: 3px;">
-                                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path>
-                                                    </svg>
-                                                    ✅ منقولة بالكامل
-                                                </span>
-
-                                                <!-- معلومات محاولات التسجيل -->
-                                                @if ($shipment->registration_attempts > 0)
-                                                    <span class="badge" style="background-color: #0051E5; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                        ℹ️ {{ $shipment->registration_attempts }} محاولة
-                                                    </span>
-                                                @endif
-
-                                                <!-- رقم الشحنة -->
-                                                <strong style="color: #2c3e50; font-size: 14px;">
-                                                    #{{ $shipment->note_number ?? $shipment->id }}
-                                                </strong>
-
-                                                <!-- الكمية المتبقية (0) -->
-                                                <span class="badge" style="background-color: #95a5a6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                    📦 متبقي: 0 (مكتملة)
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <!-- تفاصيل الشحنة -->
-                                        <div style="display: flex; gap: 15px; font-size: 12px; color: #7f8c8d; flex-wrap: wrap;">
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                                    <circle cx="12" cy="7" r="4"></circle>
-                                                </svg>
-                                                <span><strong>{{ $shipment->supplier->name ?? 'N/A' }}</strong></span>
-                                            </div>
-
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                                    <circle cx="8.5" cy="7" r="4"></circle>
-                                                    <polyline points="17 11 19 13 23 9"></polyline>
-                                                </svg>
-                                                <span>{{ $shipment->registeredBy->name ?? 'N/A' }}</span>
-                                            </div>
-
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                                                    <circle cx="12" cy="12" r="10"></circle>
-                                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                                </svg>
-                                                <span>{{ $shipment->registered_at?->format('Y-m-d H:i:s') ?? 'N/A' }}</span>
-                                            </div>
-
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                                                    <circle cx="12" cy="12" r="10"></circle>
-                                                    <polyline points="12 16 16 12 12 8"></polyline>
-                                                    <polyline points="8 12 12 16 12 8"></polyline>
-                                                </svg>
-                                                <span>{{ $shipment->registered_at?->diffForHumans() ?? 'N/A' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- زر الإجراء -->
-                                    <div style="margin-right: 10px;">
-                                        <a href="{{ route('manufacturing.warehouse.registration.show', $shipment) }}"
-                                            style="background-color: #0051E5; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                                <circle cx="12" cy="12" r="3"></circle>
-                                            </svg>
-                                            عرض
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-
-                        <!-- Pagination -->
-                        <div style="margin-top: 20px;">
-                            @include('manufacturing::components.advanced-pagination', ['paginator' => $incomingRegistered])
-                        </div>
-                    @else
-                        <div style="text-align: center; padding: 40px 20px; color: #95a5a6;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 15px; opacity: 0.5;">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                            </svg>
-                            <p style="margin: 0; font-size: 14px;">
-                                ℹ️ لا توجد شحنات مسجلة حتى الآن. ابدأ بتسجيل الشحنات من القائمة اليسرى.
-                            </p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-
     <style>
+        /* Pagination Styling */
+        .um-pagination-section {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px 0;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .um-pagination-info {
+            margin: 0;
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Bootstrap Pagination Custom Styling */
+        .pagination {
+            margin: 0;
+            gap: 5px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .pagination .page-link {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            color: #3498db;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            background-color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 36px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .pagination .page-link:hover {
+            background-color: #f0f2f5;
+            border-color: #3498db;
+            color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.15);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-color: #2980b9;
+            color: white;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #adb5bd;
+            border-color: #dee2e6;
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .pagination .page-item.disabled .page-link:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        @media (max-width: 768px) {
+            .um-pagination-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .um-pagination-info {
+                text-align: center;
+            }
+
+            .pagination {
+                justify-content: center;
+            }
+
+            .pagination .page-link {
+                padding: 6px 10px;
+                font-size: 12px;
+                min-width: 32px;
+            }
+        }
+        
         /* Stats Row */
         .stats-row {
             display: flex;
             gap: 20px;
             flex-wrap: wrap;
+            margin-bottom: 20px;
         }
 
         .stat-item {
@@ -627,6 +155,12 @@
             line-height: 1;
         }
 
+        @media (max-width: 768px) {
+            .stat-item {
+                min-width: 200px;
+            }
+        }
+        
         /* Filter Form Styles */
         .filter-form {
             padding: 0;
@@ -842,5 +376,380 @@
                 min-width: 200px;
             }
         }
+        
+        /* Custom badge styles */
+        .badge-pending {
+            background: #0051E5;
+            color: white;
+        }
+        
+        .badge-registered {
+            background: #3E4651;
+            color: white;
+        }
+        
+        .badge-moved {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .badge-warning-custom {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        /* Status column styling */
+        .status-column {
+            min-width: 180px;
+        }
     </style>
+
+    <div class="um-content-wrapper">
+        <!-- Header Section -->
+        <div class="um-header-section">
+            <h1 class="um-page-title">
+                <i class="fas fa-box"></i>
+                تسجيل البضاعة في المستودع
+            </h1>
+            <nav class="um-breadcrumb-nav">
+                <span>
+                    <i class="feather icon-home"></i> لوحة التحكم
+                </span>
+                <i class="feather icon-chevron-left"></i>
+                <span>المستودع</span>
+                <i class="feather icon-chevron-left"></i>
+                <span>تسجيل البضاعة</span>
+            </nav>
+        </div>
+
+        <!-- Success and Error Messages -->
+        @if ($errors->any())
+            <div class="um-alert-custom um-alert-error" role="alert">
+                <i class="feather icon-x-circle"></i>
+                <strong>❌ خطأ!</strong>
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+        @endif
+
+        @if (session('success'))
+            <div class="um-alert-custom um-alert-success" role="alert">
+                <i class="feather icon-check-circle"></i>
+                {{ session('success') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+        @endif
+
+        @if (session('info'))
+            <div class="um-alert-custom um-alert-success" role="alert">
+                <i class="feather icon-info"></i>
+                {{ session('info') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="um-alert-custom um-alert-error" role="alert">
+                <i class="feather icon-x-circle"></i>
+                {{ session('error') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+        @endif
+
+        <!-- Statistics -->
+        <div class="stats-row">
+            <div class="stat-item pending-stat">
+                <div class="stat-icon">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">🔴 شحنات معلقة (بانتظار التسجيل)</span>
+                    <span class="stat-number" style="color: #0051E5;">{{ $incomingUnregistered->total() ?? 0 }}</span>
+                </div>
+            </div>
+
+            <div class="stat-item registered-stat">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">🟢 شحنات مسجلة</span>
+                    <span class="stat-number" style="color: #3E4651;">{{ $incomingRegistered->total() ?? 0 }}</span>
+                </div>
+            </div>
+
+            @if ($movedToProduction->count() > 0)
+            <div class="stat-item production-stat">
+                <div class="stat-icon">
+                    <i class="fas fa-industry"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">🏭 منقولة للإنتاج</span>
+                    <span class="stat-number" style="color: #0051E5;">{{ $movedToProduction->total() ?? 0 }}</span>
+                </div>
+            </div>
+            @endif
+        </div>
+
+        <!-- Main Card -->
+        <section class="um-main-card">
+            <!-- Card Header -->
+            <div class="um-card-header">
+                <h4 class="um-card-title">
+                    <i class="fas fa-box"></i>
+                    إدارة تسجيل الشحنات الواردة
+                </h4>
+                <div style="display: flex; gap: 10px;">
+                    <a href="{{ route('manufacturing.warehouse.movements.index') }}" class="um-btn um-btn-primary">
+                        <i class="fas fa-exchange-alt"></i>
+                        سجل الحركات
+                    </a>
+                    <a href="{{ route('manufacturing.warehouses.reconciliation.link-invoice') }}" class="um-btn um-btn-primary">
+                        <i class="fas fa-link"></i>
+                        ربط فاتورة
+                    </a>
+                    <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="um-btn um-btn-primary">
+                        <i class="fas fa-balance-scale"></i>
+                        التسويات
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="um-filters-section">
+                <form method="GET" action="{{ route('manufacturing.warehouse.registration.pending') }}" class="filter-form">
+                    <div class="um-filter-row">
+                        <!-- From Date -->
+                        <div class="um-form-group">
+                            <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
+                                <i class="fas fa-calendar-alt" style="color: #0051E5; margin-left: 5px;"></i> من التاريخ
+                            </label>
+                            <input type="date" name="from_date" class="um-form-control"
+                                   value="{{ $appliedFilters['from_date'] ?? '' }}">
+                        </div>
+
+                        <!-- To Date -->
+                        <div class="um-form-group">
+                            <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
+                                <i class="fas fa-calendar-check" style="color: #0051E5; margin-left: 5px;"></i> إلى التاريخ
+                            </label>
+                            <input type="date" name="to_date" class="um-form-control"
+                                   value="{{ $appliedFilters['to_date'] ?? '' }}">
+                        </div>
+
+                        <!-- Sort By -->
+                        <div class="um-form-group">
+                            <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
+                                <i class="fas fa-sort" style="color: #0051E5; margin-left: 5px;"></i> ترتيب حسب
+                            </label>
+                            <select name="sort_by" class="um-form-control">
+                                <option value="date" {{ ($appliedFilters['sort_by'] ?? 'date') === 'date' ? 'selected' : '' }}>التاريخ</option>
+                                <option value="note_number" {{ ($appliedFilters['sort_by'] ?? 'date') === 'note_number' ? 'selected' : '' }}>رقم الأذن</option>
+                            </select>
+                        </div>
+
+                        <!-- Sort Order -->
+                        <div class="um-form-group">
+                            <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
+                                <i class="fas fa-arrow-up-down" style="color: #0051E5; margin-left: 5px;"></i> الترتيب
+                            </label>
+                            <select name="sort_order" class="um-form-control">
+                                <option value="desc" {{ ($appliedFilters['sort_order'] ?? 'desc') === 'desc' ? 'selected' : '' }}>الأحدث أولاً</option>
+                                <option value="asc" {{ ($appliedFilters['sort_order'] ?? 'desc') === 'asc' ? 'selected' : '' }}>الأقدم أولاً</option>
+                            </select>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="um-filter-actions">
+                            <button type="submit" class="um-btn um-btn-primary">
+                                <i class="fas fa-search"></i>
+                                بحث
+                            </button>
+                            <a href="{{ route('manufacturing.warehouse.registration.pending') }}" class="um-btn um-btn-outline">
+                                <i class="fas fa-redo"></i>
+                                إعادة تعيين
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Filter Info -->
+                    @if (($appliedFilters['from_date'] ?? null) || ($appliedFilters['to_date'] ?? null))
+                        <div style="margin-top: 12px; padding: 10px 12px; background-color: #e8f0ff; border-radius: 6px; border-right: 4px solid #0051E5;">
+                            <small style="color: #0051E5; font-weight: 500;">
+                                <i class="fas fa-info-circle"></i>
+                                تم تطبيق الفلترة:
+                                @if ($appliedFilters['from_date'])
+                                    من <strong>{{ date('Y-m-d', strtotime($appliedFilters['from_date'])) }}</strong>
+                                @endif
+                                @if ($appliedFilters['to_date'])
+                                    إلى <strong>{{ date('Y-m-d', strtotime($appliedFilters['to_date'])) }}</strong>
+                                @endif
+                            </small>
+                        </div>
+                    @endif
+                </form>
+            </div>
+
+            <!-- Combined Table for All Shipments -->
+            <div class="um-table-responsive">
+                <table class="um-table">
+                    <thead>
+                        <tr>
+                            <th>رقم الأذن</th>
+                            <th>المورد</th>
+                            <th>تاريخ الإنشاء</th>
+                            <th class="status-column">الحالة</th>
+                            <th>الكمية المسجلة</th>
+                            <th>الكمية المتبقية</th>
+                            <th>مسجل بواسطة</th>
+                            <th>تاريخ التسجيل</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Unregistered Shipments -->
+                        @forelse($incomingUnregistered as $shipment)
+                        <tr>
+                            <td>{{ $shipment->note_number ?? $shipment->id }}</td>
+                            <td>{{ $shipment->supplier->name ?? 'N/A' }}</td>
+                            <td>{{ $shipment->created_at->format('Y-m-d H:i:s') }}</td>
+                            <td class="status-column">
+                                <span class="um-badge badge-pending">
+                                    <i class="fas fa-hourglass-half"></i> معلقة
+                                </span>
+                               
+                            </td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>
+                                <a href="{{ route('manufacturing.warehouse.registration.create', $shipment) }}"
+                                   class="um-btn um-btn-primary" style="padding: 4px 8px; font-size: 12px;">
+                                    <i class="fas fa-edit"></i> تسجيل
+                                </a>
+                            </td>
+                        </tr>
+                        @empty
+                        @endforelse
+
+                        <!-- Registered Shipments -->
+                        @forelse($incomingRegistered as $shipment)
+                            @php
+                                // حساب الكمية المتبقية بشكل صحيح
+                                $registeredQuantity = $shipment->quantity ?? 0;
+                                $transferredQuantity = $shipment->quantity_used ?? 0;
+                                $remainingQuantity = $shipment->quantity_remaining ?? ($registeredQuantity - $transferredQuantity);
+                            @endphp
+                            <tr>
+                                <td>{{ $shipment->note_number ?? $shipment->id }}</td>
+                                <td>{{ $shipment->supplier->name ?? 'N/A' }}</td>
+                                <td>{{ $shipment->created_at->format('Y-m-d H:i:s') }}</td>
+                                <td class="status-column">
+                                    <span class="um-badge badge-registered">
+                                        <i class="fas fa-check-circle"></i> مسجلة
+                                    </span>
+                                   
+                                    @if($remainingQuantity > 0)
+                                        <span class="um-badge" style="background-color: #004B87; color: white; margin-top: 5px; display: inline-block;">
+                                            📦 متاح: {{ number_format($remainingQuantity, 2) }}
+                                        </span>
+                                    @endif
+                                </td>
+                                <td>{{ number_format($registeredQuantity, 2) }}</td>
+                                <td>{{ number_format($remainingQuantity, 2) }}</td>
+                                <td>{{ $shipment->registeredBy->name ?? 'N/A' }}</td>
+                                <td>{{ $shipment->registered_at?->format('Y-m-d H:i:s') ?? 'N/A' }}</td>
+                                <td>
+                                    <a href="{{ route('manufacturing.warehouse.registration.show', $shipment) }}"
+                                       class="um-btn um-btn-primary" style="padding: 4px 8px; font-size: 12px;">
+                                        <i class="fas fa-eye"></i> عرض
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                        @endforelse
+
+                        <!-- Moved to Production Shipments -->
+                        @forelse($movedToProduction as $shipment)
+                            <tr>
+                                <td>{{ $shipment->note_number ?? $shipment->id }}</td>
+                                <td>{{ $shipment->supplier->name ?? 'N/A' }}</td>
+                                <td>{{ $shipment->created_at->format('Y-m-d H:i:s') }}</td>
+                                <td class="status-column">
+                                    <span class="um-badge badge-moved">
+                                        <i class="fas fa-industry"></i> منقولة للإنتاج
+                                    </span>
+                                   
+                                </td>
+                                <td>{{ number_format($shipment->quantity ?? 0, 2) }}</td>
+                                <td>0.00</td>
+                                <td>{{ $shipment->registeredBy->name ?? 'N/A' }}</td>
+                                <td>{{ $shipment->registered_at?->format('Y-m-d H:i:s') ?? 'N/A' }}</td>
+                                <td>
+                                    <a href="{{ route('manufacturing.warehouse.registration.show', $shipment) }}"
+                                       class="um-btn um-btn-primary" style="padding: 4px 8px; font-size: 12px;">
+                                        <i class="fas fa-eye"></i> عرض
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                        @endforelse
+
+                        @if($incomingUnregistered->isEmpty() && $incomingRegistered->isEmpty() && $movedToProduction->isEmpty())
+                        <tr>
+                            <td colspan="9" class="text-center">لا توجد شحنات</td>
+                        </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            @if ($incomingUnregistered->hasPages() || $incomingRegistered->hasPages())
+                <div class="um-pagination-section">
+                    <div>
+                        <p class="um-pagination-info">
+                            عرض {{ $incomingUnregistered->firstItem() ?? $incomingRegistered->firstItem() ?? 0 }} إلى {{ $incomingUnregistered->lastItem() ?? $incomingRegistered->lastItem() ?? 0 }} من أصل
+                            {{ $incomingUnregistered->total() + $incomingRegistered->total() + $movedToProduction->count() }} شحنة
+                        </p>
+                    </div>
+                    <div>
+                        @if($incomingUnregistered->hasPages())
+                            {{ $incomingUnregistered->links('pagination::bootstrap-4') }}
+                        @elseif($incomingRegistered->hasPages())
+                            {{ $incomingRegistered->links('pagination::bootstrap-4') }}
+                        @endif
+                    </div>
+                </div>
+            @endif
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.um-alert-custom');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transition = 'opacity 0.3s';
+                    setTimeout(() => {
+                        alert.style.display = 'none';
+                    }, 300);
+                }, 5000);
+            });
+        });
+    </script>
 @endsection

@@ -111,6 +111,10 @@
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
+                                        <a href="{{ route('manufacturing.warehouses.show', $warehouse->id) }}" class="um-dropdown-item um-btn-eye">
+                                            <i class="feather icon-edit-2"></i>
+                                            <span>عرض</span>
+                                        </a>
                                         <a href="{{ route('manufacturing.warehouses.edit', $warehouse->id) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
                                             <span>تعديل</span>

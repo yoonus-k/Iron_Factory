@@ -165,6 +165,15 @@
                     <div class="input-wrapper">
                         <select name="material_id" id="incoming_material" class="form-input">
                             <option value="">اختر المادة</option>
+                            @if($deliveryNote->type === 'incoming' && $deliveryNote->material_id)
+                                @foreach($materialDetails as $material)
+                                    @if($material->material_id == $deliveryNote->material_id && $material->warehouse_id == $deliveryNote->warehouse_id)
+                                        <option value="{{ $material->material_id }}" selected data-quantity="{{ $material->quantity }}" data-unit="{{ $material->unit->unit_name ?? 'كيلو' }}">
+                                            {{ $material->material->name_ar ?? $material->material->material_name }} ({{ $material->quantity }} {{ $material->unit->unit_name ?? 'كيلو' }})
+                                        </option>
+                                    @endif
+                                @endforeach
+                            @endif
                         </select>
                     </div>
                     @error('material_id') <small style="color: #e74c3c;">{{ $message }}</small> @enderror
@@ -235,28 +244,26 @@
                     <div class="input-wrapper">
                         <select name="material_detail_id" id="material_detail_id_outgoing" class="form-input">
                             <option value="">اختر المادة</option>
-                            @if($deliveryNote->material_detail_id)
-                                @php
-                                    $selected = $materialDetails->first(fn($m) => $m->id == $deliveryNote->material_detail_id);
-                                @endphp
-                                @if($selected)
-                                    <option value="{{ $selected->id }}" selected>{{ $selected->name_ar }} ({{ $selected->quantity }} {{ $selected->unit_name ?? 'كيلو' }})</option>
-                                @endif
+                            @if($deliveryNote->type === 'outgoing' && $deliveryNote->material_detail_id)
+                                @foreach($materialDetails as $material)
+                                    @if($material->id == $deliveryNote->material_detail_id)
+                                        <option value="{{ $material->id }}" selected data-material-id="{{ $material->material_id }}" data-quantity="{{ $material->quantity }}" data-unit="{{ $material->unit->unit_name ?? 'كيلو' }}">
+                                            {{ $material->material->name_ar ?? $material->material->material_name }} ({{ $material->quantity }} {{ $material->unit->unit_name ?? 'كيلو' }})
+                                        </option>
+                                    @endif
+                                @endforeach
                             @endif
                         </select>
                     </div>
                     @error('material_detail_id') <small style="color: #e74c3c;">{{ $message }}</small> @enderror
                     <div style="margin-top: 10px; padding: 12px; background: #f8f9fa; border-radius: 6px; border-right: 3px solid #27ae60;">
                         <small style="color: #27ae60;" id="material_quantity_display">
-                            @if($deliveryNote->material_detail_id)
-                                @php
-                                    $selected = $materialDetails->first(fn($m) => $m->id == $deliveryNote->material_detail_id);
-                                @endphp
-                                @if($selected)
-                                    ✓ متوفر: <strong>{{ $selected->quantity }} {{ $selected->unit_name ?? 'كيلو' }}</strong>
-                                @else
-                                    اختر المادة لعرض الكمية
-                                @endif
+                            @if($deliveryNote->type === 'outgoing' && $deliveryNote->material_detail_id)
+                                @foreach($materialDetails as $material)
+                                    @if($material->id == $deliveryNote->material_detail_id)
+                                        ✓ متوفر: <strong>{{ $material->quantity }} {{ $material->unit->unit_name ?? 'كيلو' }}</strong>
+                                    @endif
+                                @endforeach
                             @else
                                 اختر المادة لعرض الكمية
                             @endif
@@ -467,12 +474,24 @@
                 return true;
             });
 
-            // Trigger material list update if already in outgoing mode
-            if (deliveryNoteType === 'outgoing' && warehouseFromId.value) {
-                updateMaterials();
-                // Trigger material change event to update display
-                if (materialSelect.value) {
-                    materialSelect.dispatchEvent(new Event('change'));
+            // Load data on page load based on delivery note type
+            if (deliveryNoteType === 'incoming') {
+                // Load incoming materials for the selected warehouse
+                if (warehouseIncoming.value) {
+                    updateIncomingMaterials();
+                    // Trigger material change event to update display
+                    if (materialIncoming.value) {
+                        materialIncoming.dispatchEvent(new Event('change'));
+                    }
+                }
+            } else if (deliveryNoteType === 'outgoing') {
+                // Load outgoing materials for the selected warehouse
+                if (warehouseFromId.value) {
+                    updateOutgoingMaterials();
+                    // Trigger material change event to update display
+                    if (materialSelect.value) {
+                        materialSelect.dispatchEvent(new Event('change'));
+                    }
                 }
             }
         });

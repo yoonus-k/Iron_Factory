@@ -85,7 +85,7 @@ class WarehouseRepository
         $warehouse->capacity_unit = $data['capacity_unit'] ?? 'متر مكعب';
         $warehouse->manager_name = $data['manager_id'] ?? null;
         $warehouse->contact_number = $data['phone'] ?? null;
-        $warehouse->is_active = $data['status'] === 'active' ? 1 : 0;
+
         $warehouse->created_by = Auth::check() ? Auth::id() : 1;
 
         $warehouse->save();
@@ -133,9 +133,6 @@ class WarehouseRepository
         }
         if (isset($data['phone'])) {
             $warehouse->contact_number = $data['phone'];
-        }
-        if (isset($data['status'])) {
-            $warehouse->is_active = $data['status'] === 'active' ? 1 : 0;
         }
 
         $warehouse->save();
