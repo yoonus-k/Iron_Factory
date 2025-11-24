@@ -508,6 +508,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('info-date').textContent = date;
         document.getElementById('info-actual-weight').textContent = `${parseFloat(actualWeight).toFixed(2)} كجم`;
 
+        // تعيين الوزن من الأذن إلى حقل وزن الفاتورة تلقائياً
+        invoiceWeightInput.value = parseFloat(actualWeight).toFixed(2);
+
         deliveryNoteInfo.style.display = 'block';
         calculateDiscrepancy();
     }
@@ -606,9 +609,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 0);
         }
 
+        // الحصول على الوزن من أذن التسليم المختارة (إذا كانت موجودة)
+        const deliveryNoteId = deliveryNoteIdInput.value;
+        let finalWeight = weight;
+        if (deliveryNoteId) {
+            const selectedNote = deliveryNotesData.find(n => n.id == deliveryNoteId);
+            if (selectedNote) {
+                finalWeight = parseFloat(selectedNote.actual_weight) || 0;
+            }
+        }
+
         invoiceIdInput.value = id;
         invoiceSearchInput.value = `${invoiceNumber} - ${supplier}`;
-        invoiceWeightInput.value = parseFloat(weight).toFixed(2);
+        invoiceWeightInput.value = parseFloat(finalWeight).toFixed(2);
         invoiceResultsList.style.display = 'none';
 
         document.getElementById('info-invoice-number').textContent = invoiceNumber;

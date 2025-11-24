@@ -54,19 +54,75 @@
             <div class="header-content">
                 <div class="header-left">
                     <div class="course-icon">
-                        <i class="feather icon-file-text"></i>
+                        <i class="feather icon-box"></i>
                     </div>
                     <div class="header-info">
-                        <h1>أذن تسليم #{{ $deliveryNote->note_number }}</h1>
+                        <h1>📦 #{{ $deliveryNote->note_number ?? $deliveryNote->id }}</h1>
                         <div class="badges">
-                            <span class="badge badge-{{ $deliveryNote->type === 'incoming' ? 'success' : 'warning' }}">
-                                {{ $deliveryNote->type === 'incoming' ? '🔽 واردة' : '🔼 صادرة' }}
+                            <span class="badge badge-{{ $deliveryNote->registration_status === 'registered' ? 'success' : 'warning' }}">
+                                @switch($deliveryNote->registration_status)
+                                    @case('not_registered')
+                                        ⏳ معلقة
+                                        @break
+                                    @case('registered')
+                                        ✅ مسجلة
+                                        @break
+                                    @case('in_production')
+                                        🏭 في الإنتاج
+                                        @break
+                                    @case('completed')
+                                        ✔️ مكتملة
+                                        @break
+                                    @default
+                                        {{ $deliveryNote->registration_status }}
+                                @endswitch
                             </span>
-                            <span class="badge badge-info">{{ $deliveryNote->delivery_date->format('d-m-Y') }}</span>
+                            <span class="badge badge-info">{{ $deliveryNote->supplier->name ?? 'N/A' }}</span>
                         </div>
                     </div>
                 </div>
                 <div class="header-actions">
+                    <a href="{{ route('manufacturing.delivery-notes.index') }}" class="btn btn-back">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        العودة
+                    </a>
+
+                    @if($deliveryNote->type === 'incoming')
+                        <a href="{{ route('manufacturing.warehouse.registration.transfer-form', $deliveryNote) }}" class="btn btn-success">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline>
+                                <line x1="12" y1="12" x2="20" y2="7.5"></line>
+                                <line x1="12" y1="12" x2="12" y2="21"></line>
+                                <line x1="12" y1="12" x2="4" y2="7.5"></line>
+                            </svg>
+                            نقل للإنتاج
+                        </a>
+
+                        @if (!$deliveryNote->is_locked)
+                            <button class="btn" type="button" data-bs-toggle="modal" data-bs-target="#lockModal" title="تقفيل الشحنة">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                                تقفيل
+                            </button>
+                        @else
+                            <form action="{{ route('manufacturing.warehouse.registration.unlock', $deliveryNote) }}" method="POST" style="display:inline;">
+                                @csrf
+                                <button type="submit" class="btn btn-info" onclick="return confirm('هل تريد فتح القفل؟')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 9.2-1"></path>
+                                    </svg>
+                                    فتح القفل
+                                </button>
+                            </form>
+                        @endif
+                    @endif
+
                     <a href="{{ route('manufacturing.delivery-notes.edit', $deliveryNote->id) }}" class="btn btn-edit">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -105,14 +161,6 @@
                             @endforeach
                         </ul>
                     </div>
-
-                    <a href="{{ route('manufacturing.delivery-notes.index') }}" class="btn btn-back">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                            <polyline points="12 19 5 12 12 5"></polyline>
-                        </svg>
-                        العودة
-                    </a>
                 </div>
             </div>
         </div>
@@ -193,93 +241,250 @@
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon success">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                        </svg>
+
+
+          @if ($deliveryNote->isIncoming() && ($deliveryNote->quantity > 0))
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon success">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="card-title">📦 إدارة المستودع والنقل</h3>
                     </div>
-                    <h3 class="card-title">معلومات المادة والمستودع</h3>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-label">اسم المادة:</div>
-                        <div class="info-value">{{ $deliveryNote->material->name_ar ?? 'N/A' }}</div>
+                    <div class="card-body">
+                        @php
+                            // استخدام البيانات من DeliveryNote مباشرة
+                            $registeredQuantity = $deliveryNote->quantity ?? 0;
+                            $transferredQuantity = $deliveryNote->quantity_used ?? 0;
+                            $remainingQuantity = $deliveryNote->quantity_remaining ?? 0;
+
+                            // حساب النسبة المئوية
+                            $transferPercentage = $registeredQuantity > 0 ? ($transferredQuantity / $registeredQuantity * 100) : 0;
+
+                            // تحديد لون الحالة بناءً على النسبة الفعلية
+                            $statusColor = 'success';
+                            $statusColorStart = '#27ae60';
+                            $statusColorEnd = '#229954';
+                            $statusLabel = '✅ تم النقل بالكامل';
+
+                            if ($transferPercentage == 0) {
+                                $statusColor = 'warning';
+                                $statusColorStart = '#e74c3c';
+                                $statusColorEnd = '#c0392b';
+                                $statusLabel = '⏳ لم يتم النقل بعد';
+                            } elseif ($transferPercentage < 100) {
+                                $statusColor = 'info';
+                                $statusColorStart = '#3498db';
+                                $statusColorEnd = '#2980b9';
+                                $statusLabel = '⚡ نقل جزئي';
+                            }
+                        @endphp
+
+                        <!-- الحالة الإجمالية -->
+                        <div style="background: linear-gradient(135deg, {{ $statusColorStart }} 0%, {{ $statusColorEnd }} 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">حالة البضاعة:</div>
+                                    <div style="font-size: 20px; font-weight: bold;">{{ $statusLabel }}</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 30px; font-weight: bold; margin-bottom: 5px;">{{ number_format($transferPercentage, 1) }}%</div>
+                                    <div style="font-size: 12px; opacity: 0.9;">نسبة النقل</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- الكميات -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-right: 4px solid #27ae60;">
+                                <div style="font-size: 12px; color: #666; margin-bottom: 5px; font-weight: 600;">
+                                    📥 الكمية الواردة (المسجلة):
+                                </div>
+                                <div style="font-size: 18px; font-weight: bold; color: #27ae60;">
+                                    {{ number_format($registeredQuantity, 2) }}
+                                    @if($deliveryNote->material && $deliveryNote->material->materialDetails->first() && $deliveryNote->material->materialDetails->first()->unit)
+                                        {{ $deliveryNote->material->materialDetails->first()->unit->name ?? 'وحدة' }}
+                                    @else
+                                        وحدة
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; border-right: 4px solid #ff9800;">
+                                <div style="font-size: 12px; color: #666; margin-bottom: 5px; font-weight: 600;">
+                                    🏭 المنقول للإنتاج:
+                                </div>
+                                <div style="font-size: 18px; font-weight: bold; color: #ff9800;">
+                                    {{ number_format($transferredQuantity, 2) }}
+                                    @if($deliveryNote->material && $deliveryNote->material->materialDetails->first() && $deliveryNote->material->materialDetails->first()->unit)
+                                        {{ $deliveryNote->material->materialDetails->first()->unit->name ?? 'وحدة' }}
+                                    @else
+                                        وحدة
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-right: 4px solid #3498db;">
+                                <div style="font-size: 12px; color: #666; margin-bottom: 5px; font-weight: 600;">
+                                    📦 المتبقي في المستودع:
+                                </div>
+                                <div style="font-size: 18px; font-weight: bold; color: #3498db;">
+                                    {{ number_format($remainingQuantity, 2) }}
+                                    @if($deliveryNote->material && $deliveryNote->material->materialDetails->first() && $deliveryNote->material->materialDetails->first()->unit)
+                                        {{ $deliveryNote->material->materialDetails->first()->unit->name ?? 'وحدة' }}
+                                    @else
+                                        وحدة
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- شريط التقدم -->
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <label style="font-weight: 600; color: #2c3e50;">📊 تقدم النقل للإنتاج:</label>
+                                <span style="font-weight: 600; color: #3498db;">{{ number_format($transferPercentage, 1) }}%</span>
+                            </div>
+                            <div class="progress" style="height: 30px; border-radius: 4px;">
+                                <div class="progress-bar" style="width: {{ min($transferPercentage, 100) }}%; background: linear-gradient(90deg, #27ae60 0%, #2ecc71 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                    @if($transferPercentage > 10){{ number_format($transferredQuantity, 1) }}@endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- التواريخ والتفاصيل -->
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                            <div style="font-weight: 600; color: #2c3e50; margin-bottom: 12px; border-bottom: 2px solid #ddd; padding-bottom: 10px;">
+                                📅 سجل الحركات:
+                            </div>
+
+                            @if ($deliveryNote->registered_at)
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #e9ecef;">
+                                    <div style="width: 10px; height: 10px; background: #3498db; border-radius: 50%;"></div>
+                                    <div style="flex: 1;">
+                                        <div style="font-size: 12px; color: #999;">📥 تسجيل الكمية من الكريت:</div>
+                                        <div style="font-weight: 600; color: #2c3e50;">{{ $deliveryNote->registered_at->format('d/m/Y H:i') }}</div>
+                                    </div>
+                                    <div style="font-size: 11px; color: #999;">بواسطة: {{ $deliveryNote->registeredBy?->name ?? 'N/A' }}</div>
+                                </div>
+                            @endif
+
+                            @if ($deliveryNote->quantity_used && $deliveryNote->quantity_used > 0)
+                                <div style="display: flex; align-items: center; gap: 10px; padding-bottom: 10px;">
+                                    <div style="width: 10px; height: 10px; background: #27ae60; border-radius: 50%;"></div>
+                                    <div style="flex: 1;">
+                                        <div style="font-size: 12px; color: #999;">🏭 بدء نقل للإنتاج:</div>
+                                        <div style="font-weight: 600; color: #2c3e50;">
+                                            @if($deliveryNote->registrationLogs && $deliveryNote->registrationLogs->count() > 0)
+                                                {{ $deliveryNote->registrationLogs->first()->created_at?->format('d/m/Y H:i') ?? 'معرّف' }}
+                                            @else
+                                                معرّف
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div style="font-size: 11px; color: #999;">بواسطة: النظام</div>
+                                </div>
+                            @endif
+                        </div>
+
+
                     </div>
-
-                    @if($deliveryNote->materialDetail)
-                        <div class="info-item">
-                            <div class="info-label">المستودع:</div>
-                            <div class="info-value">{{ $deliveryNote->materialDetail->warehouse->warehouse_name ?? 'N/A' }}</div>
-                        </div>
-
-                        <div class="info-item">
-                            <div class="info-label">موقع التخزين:</div>
-                            <div class="info-value">{{ $deliveryNote->materialDetail->location_in_warehouse ?? 'N/A' }}</div>
-                        </div>
-
-                        <div class="info-item">
-                            <div class="info-label">الوحدة:</div>
-                            <div class="info-value">{{ $deliveryNote->materialDetail->unit->unit_name ?? 'N/A' }}</div>
-                        </div>
-
-                        <div class="info-item">
-                            <div class="info-label">الكمية الحالية بالمستودع:</div>
-                            <div class="info-value">{{ number_format($deliveryNote->materialDetail->quantity, 2) }}</div>
-                        </div>
-
-                        <div class="info-item">
-                            <div class="info-label">الوزن الحالي:</div>
-                            <div class="info-value">{{ number_format($deliveryNote->materialDetail->actual_weight ?? 0, 2) }} كجم</div>
-                        </div>
-
-                        <div class="info-item">
-                            <div class="info-label">الوزن الأصلي:</div>
-                            <div class="info-value">{{ number_format($deliveryNote->materialDetail->original_weight ?? 0, 2) }} كجم</div>
-                        </div>
-                    @endif
                 </div>
-            </div>
-
-            <div class="card">
+            @endif
+            <!-- حالة التسوية -->
+            {{-- <div class="card">
                 <div class="card-header">
                     <div class="card-icon warning">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="5" r="3"></circle>
-                            <line x1="9" y1="9" x2="9" y2="16"></line>
-                            <line x1="15" y1="9" x2="15" y2="16"></line>
-                            <path d="M9 16h6"></path>
+                            <path d="M17 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات الأوزان</h3>
+                    <h3 class="card-title">🔄 حالة التسوية</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">الوزن الفعلي (من الميزان):</div>
-                        <div class="info-value">{{ number_format($deliveryNote->actual_weight, 2) }} كجم</div>
+                        <div class="info-label">حالة التسوية:</div>
+                        <div class="info-value">
+                            <span class="-{{ $deliveryNote->reconciliation_status === 'matched' ? 'success' : ($deliveryNote->reconciliation_status === 'discrepancy' ? 'warning' : 'info') }}">
+                                {{ $deliveryNote->reconciliation_status ?? 'pending' }}
+                            </span>
+                        </div>
                     </div>
 
-                    <div class="info-item">
-                        <div class="info-label">وزن الفاتورة:</div>
-                        <div class="info-value">{{ number_format($deliveryNote->invoice_weight ?? 0, 2) }} كجم</div>
-                    </div>
+                    @if ($deliveryNote->purchase_invoice_id)
+                        <div class="info-item">
+                            <div class="info-label">الفاتورة المرتبطة:</div>
+                            <div class="info-value">
+                                <a href="{{ route('manufacturing.purchase-invoices.show', $deliveryNote->purchaseInvoice->id ?? '#') }}">
+                                    {{ $deliveryNote->purchaseInvoice->invoice_number ?? 'N/A' }}
+                                </a>
+                            </div>
+                        </div>
 
-                    <div class="info-item">
-                        <div class="info-label">الوزن المسلم:</div>
-                        <div class="info-value">{{ number_format($deliveryNote->delivered_weight, 2) }} كجم</div>
-                    </div>
+                        <div class="info-item">
+                            <div class="info-label">الوزن من الفاتورة:</div>
+                            <div class="info-value">
+                                <span class="badge badge-primary">{{ number_format($deliveryNote->invoice_weight ?? 0, 2) }} كيلو</span>
+                            </div>
+                        </div>
 
-                    <div class="info-item">
-                        <div class="info-label">الفرق (الفعلي - الفاتورة):</div>
-                        <div class="info-value" style="color: {{ $deliveryNote->weight_discrepancy > 0 ? '#27ae60' : ($deliveryNote->weight_discrepancy < 0 ? '#e74c3c' : '#95a5a6') }};">
-                            {{ $deliveryNote->weight_discrepancy ? (($deliveryNote->weight_discrepancy > 0 ? '+' : '') . number_format($deliveryNote->weight_discrepancy, 2)) : '0.00' }} كجم
+                        @if (($deliveryNote->weight_discrepancy ?? 0) != 0)
+                            <div class="info-item">
+                                <div class="info-label">الفرق:</div>
+                                <div class="info-value">
+                                    <span class="badge badge-{{ ($deliveryNote->weight_discrepancy ?? 0) > 0 ? 'danger' : 'success' }}">
+                                        {{ ($deliveryNote->weight_discrepancy ?? 0) > 0 ? '+' : '' }}{{ number_format($deliveryNote->weight_discrepancy ?? 0, 2) }} كيلو
+                                        ({{ number_format($deliveryNote->discrepancy_percentage ?? 0, 2) }}%)
+                                    </span>
+                                </div>
+                            </div>
+                        @endif
+                    @else
+                        <div class="info-item">
+                            <div class="info-label">الحالة:</div>
+                            <div class="info-value"><span class="badge badge-secondary">لم يتم ربط فاتورة بعد</span></div>
+                        </div>
+                    @endif
+                </div>
+            </div> --}}
+
+            <!-- معلومات المستودع والنقل للإنتاج -->
+
+
+
+            </div>
+
+
+
+            <!-- معلومات التسجيل والموافقة - في صفوف -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <!-- بطاقة من سجل -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon info">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <h3 class="card-title">سجل بواسطة</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-item">
+                            <div class="info-label">الاسم:</div>
+                            <div class="info-value" style="color: #000000; font-weight: 600;">{{ $deliveryNote->recordedBy->name ?? 'N/A' }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">تاريخ الإنشاء:</div>
+                            <div class="info-value" style="color: #000000; font-weight: 600;">{{ $deliveryNote->created_at->format('d-m-Y H:i:s') }}</div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            @if($deliveryNote->isIncoming())
+                <!-- بطاقة استقبل -->
                 <div class="card">
                     <div class="card-header">
                         <div class="card-icon success">
@@ -288,135 +493,45 @@
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                         </div>
-                        <h3 class="card-title">بيانات المورد</h3>
+                        <h3 class="card-title">استقبل</h3>
                     </div>
                     <div class="card-body">
                         <div class="info-item">
-                            <div class="info-label">المورد:</div>
-                            <div class="info-value">{{ $deliveryNote->supplier->name ?? 'N/A' }}</div>
+                            <div class="info-label">الاسم:</div>
+                            <div class="info-value" style="color: #000000; font-weight: 600;">{{ $deliveryNote->receiver->name ?? 'N/A' }}</div>
                         </div>
-
                         <div class="info-item">
-                            <div class="info-label">الهاتف:</div>
-                            <div class="info-value">{{ $deliveryNote->supplier->phone ?? 'N/A' }}</div>
-                        </div>
-
-                        <div class="info-item">
-                            <div class="info-label">الفاكس:</div>
-                            <div class="info-value">{{ $deliveryNote->supplier->fax ?? 'N/A' }}</div>
-                        </div>
-
-                        <div class="info-item">
-                            <div class="info-label">البريد الإلكتروني:</div>
-                            <div class="info-value">{{ $deliveryNote->supplier->email ?? 'N/A' }}</div>
-                        </div>
-
-                        <div class="info-item">
-                            <div class="info-label">اسم السائق:</div>
-                            <div class="info-value">{{ $deliveryNote->driver_name ?? 'N/A' }}</div>
-                        </div>
-
-                        <div class="info-item">
-                            <div class="info-label">رقم المركبة:</div>
-                            <div class="info-value">{{ $deliveryNote->vehicle_number ?? 'N/A' }}</div>
-                        </div>
-
-                        <div class="info-item">
-                            <div class="info-label">رقم الفاتورة المرجعي:</div>
-                            <div class="info-value">{{ $deliveryNote->invoice_reference_number ?? 'N/A' }}</div>
+                            <div class="info-label">آخر تحديث:</div>
+                            <div class="info-value" style="color: #000000; font-weight: 600;">{{ $deliveryNote->updated_at->format('d-m-Y H:i:s') }}</div>
                         </div>
                     </div>
                 </div>
-            @endif
 
-            @if($deliveryNote->isOutgoing())
-                <div class="card" style="border-right: 4px solid #e74c3c;">
-                    <div class="card-header" style="background: #fff5f5;">
-                        <div class="card-icon danger">
+                <!-- بطاقة وافق -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon warning">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 3v18M3 9h18M3 15h18"></path>
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                         </div>
-                        <h3 class="card-title">🔼 بيانات الوجهة (إذن صادر)</h3>
+                        <h3 class="card-title">وافق</h3>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-warning" style="margin-bottom: 15px; border-right: 4px solid #f39c12;">
-                            <strong>📤 إذن صادر:</strong> تم إخراج البضاعة من المستودع
-                        </div>
-
                         <div class="info-item">
-                            <div class="info-label">الوجهة / المستودع المستلم:</div>
-                            <div class="info-value">
-                                <strong>{{ $deliveryNote->destination->warehouse_name ?? 'غير محدد' }}</strong>
-                                @if($deliveryNote->destination)
-                                    <span style="color: #7f8c8d; display: block; font-size: 12px;">
-                                        رمز: {{ $deliveryNote->destination->warehouse_code ?? '-' }}
-                                    </span>
-                                @endif
-                            </div>
+                            <div class="info-label">الاسم:</div>
+                            <div class="info-value" style="color: #000000; font-weight: 600;">{{ $deliveryNote->approvedBy->name ?? 'لم يتم الموافقة' }}</div>
                         </div>
-
                         <div class="info-item">
-                            <div class="info-label">المستقبل:</div>
-                            <div class="info-value">{{ $deliveryNote->receiver->name ?? 'N/A' }}</div>
-                        </div>
-
-                        <div class="info-item">
-                            <div class="info-label">سبب الإخراج:</div>
-                            <div class="info-value">{{ $deliveryNote->notes ?? 'غير محدد' }}</div>
-                        </div>
-
-                        <div class="info-item">
-                            <div class="info-label">✅ تم التسجيل في سجل العمليات:</div>
-                            <div class="info-value">
-                                <span class="badge badge-success">نعم - تم التسجيل بنجاح</span>
-                            </div>
+                            <div class="info-label">تاريخ الموافقة:</div>
+                            <div class="info-value" style="color: #000000; font-weight: 600;">{{ $deliveryNote->approved_at ? $deliveryNote->approved_at->format('d-m-Y H:i') : 'لم يتم تعيين' }}</div>
                         </div>
                     </div>
                 </div>
-            @endif
 
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon info">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">معلومات التسجيل والموافقة</h3>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-label">سجل بواسطة:</div>
-                        <div class="info-value">{{ $deliveryNote->recordedBy->name ?? 'N/A' }}</div>
-                    </div>
+                <!-- بطاقة ملخص -->
 
-                    <div class="info-item">
-                        <div class="info-label">استقبل:</div>
-                        <div class="info-value">{{ $deliveryNote->receiver->name ?? 'N/A' }}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">وافق:</div>
-                        <div class="info-value">{{ $deliveryNote->approvedBy->name ?? 'لم يتم الموافقة' }}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">تاريخ الموافقة:</div>
-                        <div class="info-value">{{ $deliveryNote->approved_at ? $deliveryNote->approved_at->format('d-m-Y H:i') : 'N/A' }}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">تم الإنشاء:</div>
-                        <div class="info-value">{{ $deliveryNote->created_at->format('d-m-Y H:i:s') }}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">آخر تحديث:</div>
-                        <div class="info-value">{{ $deliveryNote->updated_at->format('d-m-Y H:i:s') }}</div>
-                    </div>
-                </div>
             </div>
 
             <div class="card" style="margin-bottom: 20px;">
@@ -539,50 +654,182 @@
 
     </div>
 
+    <!-- سجلات التسجيل - في صفوف -->
+    @if ($deliveryNote->registrationLogs && $deliveryNote->registrationLogs->count() > 0)
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+            @foreach ($deliveryNote->registrationLogs as $log)
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon primary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <h3 class="card-title">سجل التسجيل</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-item">
+                            <div class="info-label">الموقع:</div>
+                            <div class="info-value" style="color: #000000; font-weight: 600;">{{ $log->location ?? 'N/A' }}</div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-label">الوزن المسجل:</div>
+                            <div class="info-value">
+                                <span class="badge badge-success">{{ number_format($log->weight_recorded ?? 0, 2) }} كيلو</span>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-label">سجل بواسطة:</div>
+                            <div class="info-value" style="color: #000000; font-weight: 600;">{{ $log->registeredBy?->name ?? 'مستخدم محذوف' }}</div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-label">التاريخ والوقت:</div>
+                            <div class="info-value" style="color: #000000; font-weight: 600;">{{ $log->registered_at?->format('d/m/Y H:i:s') ?? 'N/A' }}</div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-label">قبل:</div>
+                            <div class="info-value" style="color: #000000; font-weight: 600;">{{ $log->registered_at?->diffForHumans() ?? 'N/A' }}</div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-label">IP Address:</div>
+                            <div class="info-value">
+                                <code style="background: #f0f2f5; padding: 6px 10px; border-radius: 3px; font-size: 12px; font-weight: 600; color: #000000;">
+                                    {{ $log->ip_address ?? 'N/A' }}
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
+    <!-- سجلات التسوية -->
+    @if ($deliveryNote->reconciliationLogs && $deliveryNote->reconciliationLogs->count() > 0)
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="card-header">
+                <div class="card-icon primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <h3 class="card-title">🔍 سجلات التسوية</h3>
+            </div>
+            <div class="card-body">
+                <div class="operations-timeline">
+                    @foreach ($deliveryNote->reconciliationLogs as $index => $log)
+                        <div class="operation-item" style="padding-bottom: 20px; border-bottom: 1px solid #e9ecef; margin-bottom: 20px;">
+                            @if($index === $deliveryNote->reconciliationLogs->count() - 1)
+                                <style>
+                                    .operation-item:last-child { border-bottom: none; }
+                                </style>
+                            @endif
+
+                            <div class="operation-header" style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px;">
+                                <div style="flex: 1;">
+                                    <div class="operation-description" style="margin-bottom: 8px;">
+                                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                                            @switch($log->action)
+                                                @case('accepted')
+                                                    <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                        ✅ قبول
+                                                    </span>
+                                                    @break
+                                                @case('rejected')
+                                                    <span class="badge" style="background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                        ❌ رفض
+                                                    </span>
+                                                    @break
+                                                @case('adjusted')
+                                                    <span class="badge" style="background-color: #f39c12; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                        🔧 تعديل
+                                                    </span>
+                                                    @break
+                                                @default
+                                                    <span class="badge" style="background-color: #95a5a6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                        {{ $log->action ?? 'N/A' }}
+                                                    </span>
+                                            @endswitch
+                                            <strong style="color: #2c3e50; font-size: 14px;">تسوية البضاعة</strong>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; gap: 15px; font-size: 12px; color: #7f8c8d; flex-wrap: wrap;">
+                                        <div style="display: flex; align-items: center; gap: 5px;">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                            <span><strong>{{ $log->decidedBy?->name ?? 'مستخدم محذوف' }}</strong></span>
+                                        </div>
+
+                                        <div style="display: flex; align-items: center; gap: 5px;">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <polyline points="12 6 12 12 16 14"></polyline>
+                                            </svg>
+                                            <span>{{ $log->decided_at?->format('Y-m-d H:i:s') ?? 'N/A' }}</span>
+                                        </div>
+
+                                        <div style="display: flex; align-items: center; gap: 5px;">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <polyline points="12 16 16 12 12 8"></polyline>
+                                            </svg>
+                                            <span>{{ $log->decided_at?->diffForHumans() ?? 'N/A' }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div style="margin-top: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
+                                        <small style="color: #555;">
+                                            <strong>📊 الفرق:</strong> {{ number_format($log->getDiscrepancyKg() ?? 0, 2) }} كيلو ({{ number_format($log->discrepancy_percentage ?? 0, 2) }}%)<br>
+                                            <strong>💬 السبب:</strong> {{ $log->reason ?? 'N/A' }}<br>
+                                            @if($log->comments)
+                                                <strong>📝 ملاحظات:</strong> {{ $log->comments }}
+                                            @endif
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
+
+
+    <!-- Modal للتقفيل -->
+    <div class="modal fade" id="lockModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">🔒 تقفيل الشحنة</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('manufacturing.warehouse.registration.lock', $deliveryNote) }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="form-label">السبب:</label>
+                            <textarea name="lock_reason" class="form-control" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="submit" class="btn btn-warning">تقفيل</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Delete confirmation
-            const deleteButtons = document.querySelectorAll('.action-btn.delete');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const form = this.closest('form');
-
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            title: 'تأكيد الحذف',
-                            text: 'هل أنت متأكد من حذف هذه الأذن؟ هذا الإجراء لا يمكن التراجع عنه!',
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonText: 'نعم، احذف',
-                            cancelButtonText: 'إلغاء',
-                            confirmButtonColor: '#e74c3c',
-                            cancelButtonColor: '#95a5a6',
-                            reverseButtons: true
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                form.submit();
-                            }
-                        });
-                    } else {
-                        if (confirm('هل أنت متأكد من حذف هذه الأذن؟ هذا الإجراء لا يمكن التراجع عنه!')) {
-                            form.submit();
-                        }
-                    }
-                });
-            });
-
-            // Auto-dismiss alerts after 5 seconds
-            const alerts = document.querySelectorAll('.um-alert-custom');
-            alerts.forEach(alert => {
-                setTimeout(() => {
-                    alert.style.opacity = '0';
-                    alert.style.transition = 'opacity 0.5s ease';
-                    setTimeout(() => {
-                        alert.remove();
-                    }, 500);
-                }, 5000);
-            });
-        });
-    </script>
 @endsection

@@ -991,7 +991,7 @@ class ReconciliationController extends Controller
                 'note_number' => $note->note_number,
                 'supplier' => ['id' => $note->supplier?->id, 'name' => $note->supplier?->name],
                 'delivery_date' => $note->delivery_date?->format('Y-m-d'),
-                'actual_weight' => $note->actual_weight,
+                'actual_weight' => $note->quantity,
                 'created_at' => $note->created_at?->format('Y-m-d'),
                 'has_invoice' => $note->purchase_invoice_id ? true : false,
                 'reconciliation_status' => $note->reconciliation_status,

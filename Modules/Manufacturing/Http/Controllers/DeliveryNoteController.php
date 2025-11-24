@@ -33,153 +33,93 @@ class DeliveryNoteController extends Controller
      */
     public function index(Request $request)
     {
-        // الحصول على نطاق التاريخ من الطلب
-        $fromDate = $request->get('from_date');
-        $toDate = $request->get('to_date');
-        $sortBy = $request->get('sort_by', 'created_at'); // الحقل الافتراضي للترتيب
-        $sortOrder = $request->get('sort_order', 'desc'); // ترتيب تنازلي افتراضي
-
-        // الحصول على عدد السجلات لكل صفحة (مع قيمة افتراضية آمنة)
-        $perPage = (int) $request->get('per_page', 15);
-        $perPage = in_array($perPage, [15, 25, 50, 100]) ? $perPage : 15;
-
-        // التحقق من صحة ترتيب الترتيب
-        $sortOrder = in_array(strtolower($sortOrder), ['asc', 'desc']) ? strtolower($sortOrder) : 'desc';
-
-        // بناء الاستعلام الأساسي للبضاعة الواردة غير المسجلة
-        $unregisteredQuery = DeliveryNote::where('type', 'incoming')
-            ->where('registration_status', 'not_registered')
-            ->with(['supplier', 'recordedBy', 'material']);
+        // جمع جميع الأذن (واردة وصادرة) في جدول واحد
+        $allDeliveryNotes = DeliveryNote::with(['material', 'supplier', 'destination', 'recordedBy', 'registeredBy'])
+            ->orderBy('created_at', 'desc');
 
         // تطبيق فلتر التاريخ
-        if ($fromDate) {
-            $unregisteredQuery->whereDate('created_at', '>=', $fromDate);
+        if ($request->filled('from_date')) {
+            $allDeliveryNotes->whereDate('created_at', '>=', $request->from_date);
         }
-        if ($toDate) {
-            $unregisteredQuery->whereDate('created_at', '<=', $toDate);
-        }
-
-        $incomingUnregistered = $unregisteredQuery
-            ->orderBy($sortBy === 'date' ? 'created_at' : $sortBy, $sortOrder)
-            ->paginate($perPage)
-            ->appends($request->query());
-
-        // بناء الاستعلام الأساسي للبضاعة الواردة المسجلة (لم تنقل بالكامل بعد)
-        // ✅ فقط الشحنات التي تحتوي على كمية متبقية > 0
-        $registeredQuery = DeliveryNote::where('type', 'incoming')
-            ->where('registration_status', '!=', 'not_registered')
-            ->where(function($query) {
-                // إما quantity_remaining > 0 أو لم تتم معالجة الكمية بعد
-                $query->where(function($q) {
-                    $q->where('quantity_remaining', '>', 0);
-                })
-                ->orWhere(function($q) {
-                });
-            })
-            ->with(['supplier', 'registeredBy', 'material', 'materialDetail']);
-
-        // تطبيق فلتر التاريخ
-        if ($fromDate) {
-            $registeredQuery->whereDate('registered_at', '>=', $fromDate);
-        }
-        if ($toDate) {
-            $registeredQuery->whereDate('registered_at', '<=', $toDate);
+        if ($request->filled('to_date')) {
+            $allDeliveryNotes->whereDate('created_at', '<=', $request->to_date);
         }
 
-        $incomingRegistered = $registeredQuery
-            ->orderBy($sortBy === 'date' ? 'registered_at' : $sortBy, $sortOrder)
-            ->paginate($perPage)
-            ->appends($request->query());
+        // فلتر حسب النوع (إن وجد)
+        if ($request->filled('type')) {
+            $allDeliveryNotes->where('type', $request->type);
+        }
 
-        // بناء الاستعلام الأساسي للبضاعة المنقولة للإنتاج بالكامل
-        // ✅ تظهر فقط عندما يكون quantity_remaining = 0
-        $productionQuery = DeliveryNote::where('type', 'incoming')
+        // بحث عام
+        if ($request->filled('search')) {
+            $allDeliveryNotes->where(function($q) use ($request) {
+                $q->where('note_number', 'like', '%' . $request->search . '%')
+                  ->orWhere('notes', 'like', '%' . $request->search . '%')
+                  ->orWhereHas('material', function($mq) use ($request) {
+                      $mq->where('name_ar', 'like', '%' . $request->search . '%')
+                         ->orWhere('name_en', 'like', '%' . $request->search . '%');
+                  })
+                  ->orWhereHas('supplier', function($sq) use ($request) {
+                      $sq->where('name', 'like', '%' . $request->search . '%');
+                  });
+            });
+        }
+
+        // جلب جميع البيانات مع الباجنيشن (بدون تقليل البيانات)
+        $deliveryNotes = $allDeliveryNotes->paginate(15)->appends($request->query());
+
+        // نقل معاملات الفلتر للـ View
+        $appliedFilters = [
+            'from_date' => $request->from_date,
+            'to_date' => $request->to_date,
+        ];
+
+        // الإحصائيات (للعرض أعلى الصفحة) - معتمدة على جميع الأذن بدون pagination
+        $incomingUnregistered = DeliveryNote::where('type', 'incoming')
+            ->where('registration_status', 'not_registered');
+
+        // تطبيق نفس الفلاتر على الإحصائيات
+        if ($request->filled('from_date')) {
+            $incomingUnregistered->whereDate('created_at', '>=', $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $incomingUnregistered->whereDate('created_at', '<=', $request->to_date);
+        }
+        $incomingUnregistered = $incomingUnregistered->count();
+
+        $incomingRegistered = DeliveryNote::where('type', 'incoming')
+            ->where('registration_status', '!=', 'not_registered');
+
+        if ($request->filled('from_date')) {
+            $incomingRegistered->whereDate('created_at', '>=', $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $incomingRegistered->whereDate('created_at', '<=', $request->to_date);
+        }
+        $incomingRegistered = $incomingRegistered->count();
+
+        $movedToProduction = DeliveryNote::where('type', 'incoming')
             ->where(function($query) {
                 $query->where('quantity_remaining', '<=', 0)
                       ->whereNotNull('quantity_remaining');
             })
             ->orWhere(function($query) {
-                $query->where('registration_status', 'in_production')
-                      ->where('quantity', '>', 0);
-            })
-            ->with(['supplier', 'registeredBy', 'material', 'materialDetail']);
-
-        // تطبيق فلتر التاريخ
-        if ($fromDate) {
-            $productionQuery->whereDate('registered_at', '>=', $fromDate);
-        }
-        if ($toDate) {
-            $productionQuery->whereDate('registered_at', '<=', $toDate);
-        }
-
-        $movedToProduction = $productionQuery
-            ->orderBy($sortBy === 'date' ? 'registered_at' : $sortBy, $sortOrder)
-            ->paginate($perPage)
-            ->appends($request->query());
-
-        // بناء الاستعلام الأساسي للبضاعة الخارجة (الصادرة)
-        $outgoingQuery = DeliveryNote::where('type', 'outgoing')
-            ->with(['destination', 'recordedBy', 'material']);
-
-        // تطبيق فلتر التاريخ
-        if ($fromDate) {
-            $outgoingQuery->whereDate('delivery_date', '>=', $fromDate);
-        }
-        if ($toDate) {
-            $outgoingQuery->whereDate('delivery_date', '<=', $toDate);
-        }
-
-        $outgoing = $outgoingQuery
-            ->orderBy($sortBy === 'date' ? 'delivery_date' : $sortBy, $sortOrder)
-            ->paginate($perPage)
-            ->appends($request->query());
-
-        // نقل معاملات التاريخ للـ View
-        $appliedFilters = [
-            'from_date' => $fromDate,
-            'to_date' => $toDate,
-            'sort_by' => $sortBy,
-            'sort_order' => $sortOrder,
-        ];
-
-        // جلب جميع أذون التسليم للجدول العام (مع الفلاتر الأساسية)
-        $query = DeliveryNote::with(['material', 'receiver', 'supplier', 'destination']);
-
-        // فلتر حسب النوع (واردة/صادرة)
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
-        }
-
-        // فلتر حسب الحالة
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // فلتر حسب رقم الأذن
-        if ($request->filled('delivery_number')) {
-            $query->where('note_number', 'like', '%' . $request->delivery_number . '%');
-        }
-
-        // بحث عام
-        if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
-                $q->where('note_number', 'like', '%' . $request->search . '%')
-                  ->orWhere('notes', 'like', '%' . $request->search . '%')
-                  ->orWhere('driver_name', 'like', '%' . $request->search . '%');
+                $query->where('registration_status', 'in_production');
             });
-        }
 
-        // ترتيب البيانات حسب الأحدث أولاً مع الباجنيشن
-        $deliveryNotes = $query->orderBy('created_at', 'desc')
-            ->paginate(15)
-            ->appends($request->query());
+        if ($request->filled('from_date')) {
+            $movedToProduction->whereDate('created_at', '>=', $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $movedToProduction->whereDate('created_at', '<=', $request->to_date);
+        }
+        $movedToProduction = $movedToProduction->count();
 
         return view('manufacturing::warehouses.delivery-notes.index', compact(
             'deliveryNotes',
             'incomingUnregistered',
             'incomingRegistered',
             'movedToProduction',
-            'outgoing',
             'appliedFilters'
         ));
     }
@@ -554,11 +494,20 @@ class DeliveryNoteController extends Controller
     {
         $deliveryNote = DeliveryNote::with([
             'material',
+            'material.materialDetails',
+            'material.materialDetails.warehouse',
+            'material.materialDetails.unit',
             'receiver',
             'recordedBy',
             'approvedBy',
             'supplier',
-            'destination'
+            'destination',
+            'registeredBy',
+            'registrationLogs',
+            'registrationLogs.registeredBy',
+            'reconciliationLogs',
+            'reconciliationLogs.decidedBy',
+            'purchaseInvoice'
         ])->findOrFail($id);
 
         // Load operation logs

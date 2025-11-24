@@ -97,7 +97,7 @@
 
                     <!-- Transfer Input Section -->
                     <div style="background: #f0fdf4; padding: 20px; border-radius: 10px; margin-bottom: 30px; border: 2px solid #10b981;">
-                        <h5 style="color: #10b981; margin: 0 0 20px 0; font-weight: 700; font-size: 14px;">✅ أدخل الكمية المراد نقلها</h5>
+                        <h5 style="color: #10b981; margin: 0 0 20px 0; font-weight: 700; font-size: 14px;">✅ أدخل الكمية المراد نقلها (من {{ number_format($availableQuantity, 2) }} كيلو المتاح)</h5>
 
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; color: #2c3e50; font-weight: 600; margin-bottom: 10px;">الكمية (كيلو) <span style="color: #e74c3c; font-weight: 700;">*</span></label>
@@ -118,7 +118,7 @@
                                 </button>
                             </div>
                             @error('quantity')
-                                <div style="color: #e74c3c; font-size: 12px; margin-top: 8px;">{{ $message }}</div>
+                                <div style="color: #e74c3c; font-size: 13px; margin-top: 8px; font-weight: 600;">❌ {{ $message }}</div>
                             @enderror
                         </div>
 

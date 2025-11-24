@@ -529,21 +529,21 @@ class WarehouseRegistrationController extends Controller
         $transferredQuantity = $deliveryNote->quantity_used ?? 0;
         $availableQuantity = $registeredQuantity - $transferredQuantity;
 
-        // التحقق من البيانات - السماح بنقل أكثر من 100%
+        // التحقق من البيانات - ✅ مع قيد max للكمية المتاحة فقط
         $validated = $request->validate([
-            'quantity' => 'required|numeric|min:0.01', // ✅ تم إزالة قيد max للسماح بأكثر من 100%
+            'quantity' => 'required|numeric|min:0.01|max:' . $availableQuantity, // ✅ لا يمكن نقل أكثر من المتاح
             'notes' => 'nullable|string|max:500',
         ], [
             'quantity.required' => 'الكمية مطلوبة',
             'quantity.numeric' => 'الكمية يجب أن تكون رقم',
             'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
+            'quantity.max' => 'الكمية المدخلة تتجاوز الكمية المتاحة (' . $availableQuantity . ' كيلو)! لا يمكن نقل أكثر من الكمية المسجلة في أذن التسليم.',
         ]);
 
         $transferQuantity = (float)$validated['quantity'];
         $isFullTransfer = abs($transferQuantity - $availableQuantity) < 0.001;
-        $exceedsQuantity = $transferQuantity > $availableQuantity; // ✅ تحذير إذا تجاوز الكمية
 
-
+        try {
             DB::beginTransaction();
 
             // نقل البضاعة للإنتاج
@@ -570,7 +570,7 @@ class WarehouseRegistrationController extends Controller
                 'quantity' => $transferQuantity,
                 'from_warehouse_id' => $deliveryNote->warehouse_id,
                 'destination' => 'الإنتاج',
-                'description' => 'نقل بضاعة للإنتاج - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id) . ($isFullTransfer ? ' (نقل كامل)' : ($exceedsQuantity ? ' (نقل يتجاوز الكمية)' : ' (نقل جزئي)')),
+                'description' => 'نقل بضاعة للإنتاج - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id) . ($isFullTransfer ? ' (نقل كامل)' : ' (نقل جزئي)'),
                 'notes' => $validated['notes'] ?? null,
                 'created_by' => Auth::id(),
                 'movement_date' => now(),
@@ -596,19 +596,16 @@ class WarehouseRegistrationController extends Controller
                 'quantity_remaining' => max(0, $deliveryNote->quantity - $newQuantityUsed)
             ]);
 
-            // ✅ تحديث حالة التسجيل فقط إذا كان النقل كاملاً أو أكثر
-            if ($isFullTransfer || $exceedsQuantity) {
+            // ✅ تحديث حالة التسجيل فقط إذا كان النقل كاملاً
+            if ($isFullTransfer) {
                 $deliveryNote->update(['registration_status' => 'in_production']);
             }
 
-            // ✅ رسالة نجاح مع تنبيه إذا تجاوز
-            if ($exceedsQuantity) {
-                $percentage = ($transferQuantity / $availableQuantity) * 100;
-                $successMessage = '⚠️ تم نقل ' . number_format($transferQuantity, 2) . ' كيلو للإنتاج (بنسبة ' . number_format($percentage, 2) . '% من المتاح)!';
-            } elseif ($isFullTransfer) {
-                $successMessage = 'تم نقل البضاعة بالكامل للإنتاج بنجاح!';
+            // ✅ رسالة نجاح
+            if ($isFullTransfer) {
+                $successMessage = '✅ تم نقل البضاعة بالكامل للإنتاج بنجاح!';
             } else {
-                $successMessage = 'تم نقل ' . number_format($transferQuantity, 2) . ' كيلو للإنتاج! المتبقي: ' . number_format($availableQuantity - $transferQuantity, 2) . ' كيلو';
+                $successMessage = '✅ تم نقل ' . number_format($transferQuantity, 2) . ' كيلو للإنتاج! المتبقي: ' . number_format($availableQuantity - $transferQuantity, 2) . ' كيلو';
             }
 
             DB::commit();
@@ -624,21 +621,23 @@ class WarehouseRegistrationController extends Controller
             );
 
             // إرسال إشعار بنقل البضاعة للإنتاج
-
-                $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
-                foreach ($managers as $manager) {
-                    $this->notificationService->notifyMoveToProduction(
-                        $manager,
-                        $deliveryNote->fresh(),
-                        $transferQuantity,
-                        Auth::user()
-                    );
-                }
-
+            $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
+            foreach ($managers as $manager) {
+                $this->notificationService->notifyMoveToProduction(
+                    $manager,
+                    $deliveryNote->fresh(),
+                    $transferQuantity,
+                    Auth::user()
+                );
+            }
 
             return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
                 ->with('success', $successMessage);
 
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'حدث خطأ أثناء النقل: ' . $e->getMessage());
+        }
     }
 
     public function moveToProduction(Request $request, DeliveryNote $deliveryNote)

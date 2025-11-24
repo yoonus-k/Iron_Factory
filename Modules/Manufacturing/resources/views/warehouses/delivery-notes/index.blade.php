@@ -93,7 +93,7 @@
                 min-width: 32px;
             }
         }
-        
+
         /* Stats Row */
         .stats-row {
             display: flex;
@@ -160,7 +160,7 @@
                 min-width: 200px;
             }
         }
-        
+
         /* Filter Form Styles */
         .filter-form {
             padding: 0;
@@ -376,108 +376,38 @@
                 min-width: 200px;
             }
         }
-        
+
         /* Custom badge styles */
         .badge-pending {
             background: #0051E5;
             color: white;
         }
-        
+
         .badge-registered {
             background: #3E4651;
             color: white;
         }
-        
+
         .badge-moved {
             background: #27ae60;
             color: white;
         }
-        
+
         .badge-warning-custom {
             background-color: #e74c3c;
             color: white;
         }
-        
+
         /* Status column styling */
         .status-column {
             min-width: 180px;
         }
-        
+
         /* Dropdown Styles */
-        .um-dropdown {
-            position: relative;
-            display: inline-block;
-        }
 
-        .um-btn-dropdown {
-            background: #0051E5;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.2s ease;
-        }
 
-        .um-btn-dropdown:hover {
-            background: #003FA0;
-        }
 
-        .um-dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            z-index: 1000;
-            display: none;
-            min-width: 160px;
-            padding: 5px 0;
-            margin: 2px 0 0;
-            font-size: 14px;
-            text-align: right;
-            list-style: none;
-            background-color: #fff;
-            background-clip: padding-box;
-            border: 1px solid rgba(0,0,0,.15);
-            border-radius: 4px;
-            box-shadow: 0 6px 12px rgba(0,0,0,.175);
-        }
 
-        .um-dropdown-menu.show {
-            display: block;
-        }
-
-        .um-dropdown-item {
-            display: block;
-            padding: 8px 20px;
-            clear: both;
-            font-weight: 400;
-            line-height: 1.42857143;
-            color: #333;
-            white-space: nowrap;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-
-        .um-dropdown-item:hover {
-            background-color: #f5f5f5;
-            color: #0051E5;
-            text-decoration: none;
-        }
-
-        .um-dropdown-item i {
-            margin-left: 8px;
-        }
-
-        .um-dropdown-divider {
-            height: 1px;
-            margin: 9px 0;
-            overflow: hidden;
-            background-color: #e5e5e5;
-        }
     </style>
 
     <div class="um-content-wrapper">
@@ -552,7 +482,7 @@
                 </div>
                 <div class="stat-info">
                     <span class="stat-label">🔴 شحنات معلقة (بانتظار التسجيل)</span>
-                    <span class="stat-number" style="color: #0051E5;">{{ $incomingUnregistered->total() ?? 0 }}</span>
+                    <span class="stat-number" style="color: #0051E5;">{{ $incomingUnregistered ?? 0 }}</span>
                 </div>
             </div>
 
@@ -562,18 +492,18 @@
                 </div>
                 <div class="stat-info">
                     <span class="stat-label">🟢 شحنات مسجلة</span>
-                    <span class="stat-number" style="color: #3E4651;">{{ $incomingRegistered->total() ?? 0 }}</span>
+                    <span class="stat-number" style="color: #3E4651;">{{ $incomingRegistered ?? 0 }}</span>
                 </div>
             </div>
 
-            @if ($movedToProduction->count() > 0)
+            @if ($movedToProduction > 0)
             <div class="stat-item production-stat">
                 <div class="stat-icon">
                     <i class="fas fa-industry"></i>
                 </div>
                 <div class="stat-info">
                     <span class="stat-label">🏭 منقولة للإنتاج</span>
-                    <span class="stat-number" style="color: #0051E5;">{{ $movedToProduction->total() ?? 0 }}</span>
+                    <span class="stat-number" style="color: #0051E5;">{{ $movedToProduction ?? 0 }}</span>
                 </div>
             </div>
             @endif
@@ -600,81 +530,56 @@
                         <i class="fas fa-balance-scale"></i>
                         التسويات
                     </a>
+                     <a href="{{ route('manufacturing.delivery-notes.create') }}" class="um-btn um-btn-primary">
+                        <i class="fas fa-balance-scale"></i>
+                        اضافة اذن تسليم
+                    </a>
                 </div>
             </div>
 
             <!-- Filters Section -->
             <div class="um-filters-section">
-                <form method="GET" action="{{ route('manufacturing.warehouse.registration.pending') }}" class="filter-form">
+                <form method="GET" action="{{ route('manufacturing.delivery-notes.index') }}" class="filter-form">
                     <div class="um-filter-row">
+                        <!-- Search Input -->
+                        <div class="um-form-group">
+                            <input type="text" name="search" class="um-form-control" placeholder="ابحث عن أذن التسليم..."
+                                value="{{ request('search') }}">
+                        </div>
+
+                        <!-- Type Filter -->
+                        <div class="um-form-group">
+                            <select name="type" class="um-form-control">
+                                <option value="">-- اختر النوع --</option>
+                                <option value="incoming" {{ request('type') == 'incoming' ? 'selected' : '' }}>وارد</option>
+                                <option value="outgoing" {{ request('type') == 'outgoing' ? 'selected' : '' }}>صادر</option>
+                            </select>
+                        </div>
+
                         <!-- From Date -->
                         <div class="um-form-group">
-                            <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
-                                <i class="fas fa-calendar-alt" style="color: #0051E5; margin-left: 5px;"></i> من التاريخ
-                            </label>
                             <input type="date" name="from_date" class="um-form-control"
-                                   value="{{ $appliedFilters['from_date'] ?? '' }}">
+                                   value="{{ request('from_date') }}">
                         </div>
 
                         <!-- To Date -->
                         <div class="um-form-group">
-                            <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
-                                <i class="fas fa-calendar-check" style="color: #0051E5; margin-left: 5px;"></i> إلى التاريخ
-                            </label>
                             <input type="date" name="to_date" class="um-form-control"
-                                   value="{{ $appliedFilters['to_date'] ?? '' }}">
-                        </div>
-
-                        <!-- Sort By -->
-                        <div class="um-form-group">
-                            <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
-                                <i class="fas fa-sort" style="color: #0051E5; margin-left: 5px;"></i> ترتيب حسب
-                            </label>
-                            <select name="sort_by" class="um-form-control">
-                                <option value="date" {{ ($appliedFilters['sort_by'] ?? 'date') === 'date' ? 'selected' : '' }}>التاريخ</option>
-                                <option value="note_number" {{ ($appliedFilters['sort_by'] ?? 'date') === 'note_number' ? 'selected' : '' }}>رقم الأذن</option>
-                            </select>
-                        </div>
-
-                        <!-- Sort Order -->
-                        <div class="um-form-group">
-                            <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
-                                <i class="fas fa-arrow-up-down" style="color: #0051E5; margin-left: 5px;"></i> الترتيب
-                            </label>
-                            <select name="sort_order" class="um-form-control">
-                                <option value="desc" {{ ($appliedFilters['sort_order'] ?? 'desc') === 'desc' ? 'selected' : '' }}>الأحدث أولاً</option>
-                                <option value="asc" {{ ($appliedFilters['sort_order'] ?? 'desc') === 'asc' ? 'selected' : '' }}>الأقدم أولاً</option>
-                            </select>
+                                   value="{{ request('to_date') }}">
                         </div>
 
                         <!-- Action Buttons -->
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
-                                <i class="fas fa-search"></i>
+                                <i class="feather icon-search"></i>
                                 بحث
                             </button>
-                            <a href="{{ route('manufacturing.warehouse.registration.pending') }}" class="um-btn um-btn-outline">
-                                <i class="fas fa-redo"></i>
+                            <a href="{{ route('manufacturing.delivery-notes.index') }}" class="um-btn um-btn-outline">
+                                <i class="feather icon-refresh-cw"></i>
                                 إعادة تعيين
                             </a>
                         </div>
                     </div>
-
-                    <!-- Filter Info -->
-                    @if (($appliedFilters['from_date'] ?? null) || ($appliedFilters['to_date'] ?? null))
-                        <div style="margin-top: 12px; padding: 10px 12px; background-color: #e8f0ff; border-radius: 6px; border-right: 4px solid #0051E5;">
-                            <small style="color: #0051E5; font-weight: 500;">
-                                <i class="fas fa-info-circle"></i>
-                                تم تطبيق الفلترة:
-                                @if ($appliedFilters['from_date'])
-                                    من <strong>{{ date('Y-m-d', strtotime($appliedFilters['from_date'])) }}</strong>
-                                @endif
-                                @if ($appliedFilters['to_date'])
-                                    إلى <strong>{{ date('Y-m-d', strtotime($appliedFilters['to_date'])) }}</strong>
-                                @endif
-                            </small>
-                        </div>
-                    @endif
                 </form>
             </div>
 
@@ -683,136 +588,127 @@
                 <table class="um-table">
                     <thead>
                         <tr>
+                            <th>النوع</th>
                             <th>رقم الأذن</th>
-                            <th>المورد</th>
+                            <th>المادة / الوجهة</th>
+                            <th>المورد / المصدر</th>
+                            <th>الكمية</th>
                             <th>تاريخ الإنشاء</th>
                             <th class="status-column">الحالة</th>
-                            <th>الكمية المسجلة</th>
-                            <th>الكمية المتبقية</th>
-                            <th>مسجل بواسطة</th>
-                            <th>تاريخ التسجيل</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Unregistered Shipments -->
-                        @forelse($incomingUnregistered as $shipment)
-                        <tr>
-                            <td>{{ $shipment->note_number ?? $shipment->id }}</td>
-                            <td>{{ $shipment->supplier->name ?? 'N/A' }}</td>
-                            <td>{{ $shipment->created_at->format('Y-m-d H:i:s') }}</td>
-                            <td class="status-column">
-                                <span class="um-badge badge-pending">
-                                    <i class="fas fa-hourglass-half"></i> معلقة
-                                </span>
-                            </td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>
-                                <div class="um-dropdown">
-                                    <button class="um-btn-dropdown" type="button">
-                                        <i class="fas fa-ellipsis-v"></i> الإجراءات
-                                    </button>
-                                    <div class="um-dropdown-menu">
-                                        <a href="{{ route('manufacturing.warehouse.registration.create', $shipment) }}" class="um-dropdown-item">
-                                            <i class="fas fa-edit"></i> تسجيل
-                                        </a>
-                                        <a href="{{ route('manufacturing.warehouse.registration.show', $shipment) }}" class="um-dropdown-item">
-                                            <i class="fas fa-eye"></i> عرض
-                                        </a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        @endforelse
-
-                        <!-- Registered Shipments -->
-                        @forelse($incomingRegistered as $shipment)
-                            @php
-                                // حساب الكمية المتبقية بشكل صحيح
-                                $registeredQuantity = $shipment->quantity ?? 0;
-                                $transferredQuantity = $shipment->quantity_used ?? 0;
-                                $remainingQuantity = $shipment->quantity_remaining ?? ($registeredQuantity - $transferredQuantity);
-                            @endphp
+                        @forelse($deliveryNotes as $note)
                             <tr>
-                                <td>{{ $shipment->note_number ?? $shipment->id }}</td>
-                                <td>{{ $shipment->supplier->name ?? 'N/A' }}</td>
-                                <td>{{ $shipment->created_at->format('Y-m-d H:i:s') }}</td>
-                                <td class="status-column">
-                                    <span class="um-badge badge-registered">
-                                        <i class="fas fa-check-circle"></i> مسجلة
-                                    </span>
-                                    @if($remainingQuantity > 0)
-                                        <span class="um-badge" style="background-color: #004B87; color: white; margin-top: 5px; display: inline-block;">
-                                            📦 متاح: {{ number_format($remainingQuantity, 2) }}
+                                <!-- النوع -->
+                                <td>
+                                    @if($note->type === 'incoming')
+                                        <span class="badge" style="background-color: #0051E5; color: white;">
+                                            <i class="fas fa-arrow-down"></i> وارد
+                                        </span>
+                                    @else
+                                        <span class="badge" style="background-color: #3E4651; color: white;">
+                                            <i class="fas fa-arrow-up"></i> صادر
                                         </span>
                                     @endif
                                 </td>
-                                <td>{{ number_format($registeredQuantity, 2) }}</td>
-                                <td>{{ number_format($remainingQuantity, 2) }}</td>
-                                <td>{{ $shipment->registeredBy->name ?? 'N/A' }}</td>
-                                <td>{{ $shipment->registered_at?->format('Y-m-d H:i:s') ?? 'N/A' }}</td>
-                                <td>
-                                    <div class="um-dropdown">
-                                        <button class="um-btn-dropdown" type="button">
-                                            <i class="fas fa-ellipsis-v"></i> الإجراءات
-                                        </button>
-                                        <div class="um-dropdown-menu">
-                                            <a href="{{ route('manufacturing.warehouse.registration.show', $shipment) }}" class="um-dropdown-item">
-                                                <i class="fas fa-eye"></i> عرض ونقل للانتاج
-                                            </a>
-                                            <a href="{{ route('manufacturing.warehouse.registration.edit', $shipment) }}" class="um-dropdown-item">
-                                                <i class="fas fa-edit"></i> تعديل
-                                            </a>
-                                            <form action="{{ route('manufacturing.warehouse.registration.destroy', $shipment) }}" method="POST" style="display: inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="um-dropdown-item" style="width: 100%; text-align: right; border: none; background: none;" onclick="return confirm('هل أنت متأكد من الحذف؟')">
-                                                    <i class="fas fa-trash"></i> حذف
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                        @endforelse
 
-                        <!-- Moved to Production Shipments -->
-                        @forelse($movedToProduction as $shipment)
-                            <tr>
-                                <td>{{ $shipment->note_number ?? $shipment->id }}</td>
-                                <td>{{ $shipment->supplier->name ?? 'N/A' }}</td>
-                                <td>{{ $shipment->created_at->format('Y-m-d H:i:s') }}</td>
+                                <!-- رقم الأذن -->
+                                <td>
+                                    <strong>{{ $note->note_number ?? $note->id }}</strong>
+                                </td>
+
+                                <!-- المادة / الوجهة -->
+                                <td>
+                                    @if($note->type === 'incoming' && $note->material)
+                                        <strong>{{ $note->material->name_ar }}</strong><br>
+                                        @if($note->material->name_en)
+                                            <small class="text-muted">{{ $note->material->name_en }}</small>
+                                        @endif
+                                    @elseif($note->type === 'outgoing' && $note->destination)
+                                        <strong>{{ $note->destination->name ?? 'N/A' }}</strong>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+
+                                <!-- المورد / المصدر -->
+                                <td>
+                                    @if($note->type === 'incoming' && $note->supplier)
+                                        {{ $note->supplier->name }}
+                                    @elseif($note->type === 'outgoing')
+                                        <span class="text-muted">المستودع</span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+
+                                <!-- الكمية -->
+                                <td>
+                                    @if($note->type === 'incoming')
+                                        {{ number_format($note->quantity, 2) }}
+                                        @if($note->material && $note->material->materialDetails->first())
+                                            {{ $note->material->materialDetails->first()->unit->unit_name ?? '' }}
+                                        @endif
+                                    @else
+                                        {{ number_format($note->delivery_quantity, 2) }}
+                                        @if($note->material && $note->material->materialDetails->first())
+                                            {{ $note->material->materialDetails->first()->unit->unit_name ?? '' }}
+                                        @endif
+                                    @endif
+                                </td>
+
+                                <!-- التاريخ -->
+                                <td>
+                                    <small>{{ $note->created_at->format('Y-m-d H:i') }}</small>
+                                </td>
+
+                                <!-- الحالة -->
                                 <td class="status-column">
-                                    <span class="um-badge badge-moved">
-                                        <i class="fas fa-industry"></i> منقولة للإنتاج
-                                    </span>
+                                    @if($note->type === 'incoming')
+                                        @if($note->registration_status === 'not_registered')
+                                            <span class="um-badge badge-pending">
+                                                <i class="fas fa-hourglass-half"></i> معلقة
+                                            </span>
+                                        @elseif($note->registration_status === 'in_production' || $note->quantity_remaining <= 0)
+                                            <span class="um-badge badge-moved">
+                                                <i class="fas fa-industry"></i> منقولة
+                                            </span>
+                                        @else
+                                            <span class="um-badge badge-registered">
+                                                <i class="fas fa-check-circle"></i> مسجلة
+                                            </span>
+                                        @endif
+                                    @else
+                                        <span class="um-badge badge-registered">
+                                            <i class="fas fa-check-circle"></i> صادر
+                                        </span>
+                                    @endif
                                 </td>
-                                <td>{{ number_format($shipment->quantity ?? 0, 2) }}</td>
-                                <td>0.00</td>
-                                <td>{{ $shipment->registeredBy->name ?? 'N/A' }}</td>
-                                <td>{{ $shipment->registered_at?->format('Y-m-d H:i:s') ?? 'N/A' }}</td>
+
+                                <!-- الإجراءات -->
                                 <td>
                                     <div class="um-dropdown">
                                         <button class="um-btn-dropdown" type="button">
-                                            <i class="fas fa-ellipsis-v"></i> الإجراءات
+                                            <i class="feather icon-more-vertical"></i>
                                         </button>
                                         <div class="um-dropdown-menu">
-                                            <a href="{{ route('manufacturing.warehouse.registration.show', $shipment) }}" class="um-dropdown-item">
-                                                <i class="fas fa-eye"></i> عرض
+                                            <a href="{{ route('manufacturing.delivery-notes.show', $note->id) }}" class="um-dropdown-item um-btn-view">
+                                                <i class="feather icon-eye"></i>
+                                                <span>عرض</span>
                                             </a>
-                                            <a href="{{ route('manufacturing.warehouse.registration.edit', $shipment) }}" class="um-dropdown-item">
-                                                <i class="fas fa-edit"></i> تعديل
+
+                                            <a href="{{ route('manufacturing.delivery-notes.edit', $note->id) }}" class="um-dropdown-item um-btn-edit">
+                                                <i class="feather icon-edit-2"></i>
+                                                <span>تعديل</span>
                                             </a>
-                                            <form action="{{ route('manufacturing.warehouse.registration.destroy', $shipment) }}" method="POST" style="display: inline;">
+                                            <form method="POST" action="{{ route('manufacturing.delivery-notes.destroy', $note->id) }}" style="display: inline;" class="delete-form">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="um-dropdown-item" style="width: 100%; text-align: right; border: none; background: none;" onclick="return confirm('هل أنت متأكد من الحذف؟')">
-                                                    <i class="fas fa-trash"></i> حذف
+                                                <button type="submit" class="um-dropdown-item um-btn-delete" style="width: 100%; text-align: right; border: none; background: none; cursor: pointer;">
+                                                    <i class="feather icon-trash-2"></i>
+                                                    <span>حذف</span>
                                                 </button>
                                             </form>
                                         </div>
@@ -820,32 +716,27 @@
                                 </td>
                             </tr>
                         @empty
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">
+                                    <i class="feather icon-inbox"></i> لا توجد أذن تسليم
+                                </td>
+                            </tr>
                         @endforelse
-
-                        @if($incomingUnregistered->isEmpty() && $incomingRegistered->isEmpty() && $movedToProduction->isEmpty())
-                        <tr>
-                            <td colspan="9" class="text-center">لا توجد شحنات</td>
-                        </tr>
-                        @endif
                     </tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
-            @if ($incomingUnregistered->hasPages() || $incomingRegistered->hasPages())
+            @if ($deliveryNotes->hasPages())
                 <div class="um-pagination-section">
                     <div>
                         <p class="um-pagination-info">
-                            عرض {{ $incomingUnregistered->firstItem() ?? $incomingRegistered->firstItem() ?? 0 }} إلى {{ $incomingUnregistered->lastItem() ?? $incomingRegistered->lastItem() ?? 0 }} من أصل
-                            {{ $incomingUnregistered->total() + $incomingRegistered->total() + $movedToProduction->count() }} شحنة
+                            عرض {{ $deliveryNotes->firstItem() }} إلى {{ $deliveryNotes->lastItem() }} من أصل
+                            {{ $deliveryNotes->total() }} أذن تسليم
                         </p>
                     </div>
                     <div>
-                        @if($incomingUnregistered->hasPages())
-                            {{ $incomingUnregistered->links('pagination::bootstrap-4') }}
-                        @elseif($incomingRegistered->hasPages())
-                            {{ $incomingRegistered->links('pagination::bootstrap-4') }}
-                        @endif
+                        {{ $deliveryNotes->links('pagination::bootstrap-4') }}
                     </div>
                 </div>
             @endif
@@ -865,20 +756,42 @@
                 }, 5000);
             });
 
+            // Delete confirmation
+            const deleteForms = document.querySelectorAll('.delete-form');
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    Swal.fire({
+                        title: 'تأكيد الحذف',
+                        text: 'هل أنت متأكد من حذف هذه الأذن؟ هذا الإجراء لا يمكن التراجع عنه!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'نعم، احذف',
+                        cancelButtonText: 'إلغاء',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+
             // Dropdown functionality
             document.querySelectorAll('.um-btn-dropdown').forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const dropdown = this.closest('.um-dropdown');
                     const menu = dropdown.querySelector('.um-dropdown-menu');
-                    
+
                     // Close all other dropdowns
                     document.querySelectorAll('.um-dropdown-menu').forEach(d => {
                         if (d !== menu) {
                             d.classList.remove('show');
                         }
                     });
-                    
+
                     // Toggle current dropdown
                     menu.classList.toggle('show');
                 });
