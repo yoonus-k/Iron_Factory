@@ -46,6 +46,7 @@ class DeliveryNote extends Model
         'material_id',
         'material_detail_id', // ربط مع تفاصيل المادة بالمستودع (لتجنب التكرار)
         'batch_id', // ✅ رقم الدفعة
+        'production_barcode', // ✅ باركود الإنتاج المولد عند النقل
         'warehouse_id', // ✅ المستودع - يكون إجباري عند عدم وجود material_detail_id
         'delivery_quantity', // كمية الأذن المسلمة
         'delivered_weight',

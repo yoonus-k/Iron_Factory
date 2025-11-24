@@ -16,6 +16,7 @@ class MaterialBatch extends Model
         'material_id',
         'unit_id',
         'batch_code',
+        'latest_production_barcode', // ✅ آخر باركود إنتاج
         'initial_quantity',
         'available_quantity',
         'batch_date',

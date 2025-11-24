@@ -16,6 +16,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Manufacturing\Entities\MaterialBatch;
+use App\Models\ProductTracking;
 use App\Models\BarcodeSetting;
 use App\Traits\StoresNotifications;
 
@@ -183,7 +184,7 @@ class WarehouseRegistrationController extends Controller
     {
         // تحقق من أن التسليمة لم تُسجل بعد
         if ($deliveryNote->registration_status !== 'not_registered') {
-            return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
+            return redirect()->route('manufacturing.warehouse.registration.show', ['deliveryNote' => $deliveryNote->id])
                 ->with('info', 'هذه التسليمة مسجلة بالفعل. إذا أردت التعديل، اضغط على زر التعديل');
         }
         $materials = Material::all();
@@ -394,7 +395,7 @@ class WarehouseRegistrationController extends Controller
                 \Illuminate\Support\Facades\Log::warning('Failed to send registration notifications: ' . $notifError->getMessage());
             }
 
-            return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
+            return redirect()->route('manufacturing.warehouse.registration.show', ['deliveryNote' => $deliveryNote->id])
                 ->with('success', $message);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -463,12 +464,15 @@ class WarehouseRegistrationController extends Controller
      */
     public function showTransferForm(DeliveryNote $deliveryNote)
     {
+        \Log::info('showTransferForm called', ['id' => $deliveryNote->id]);
+        
         // تحميل العلاقات المطلوبة بقوة
-        $deliveryNote->load(['materialDetail', 'materialDetail.unit', 'material']);
+        $deliveryNote->load(['materialDetail', 'materialDetail.unit', 'material', 'supplier', 'materialBatch']);
 
         // التحقق من وجود كمية مسجلة
         if (!$deliveryNote->quantity || $deliveryNote->quantity <= 0) {
-            return back()->with('error', 'لم يتم تسجيل كمية من الكريت بعد');
+            return redirect()->route('manufacturing.warehouse.registration.show', ['deliveryNote' => $deliveryNote->id])
+                ->with('error', 'لم يتم تسجيل كمية من الكريت بعد');
         }
 
         // الكمية المتاحة = الكمية المسجلة - الكمية المنقولة بالفعل
@@ -477,7 +481,8 @@ class WarehouseRegistrationController extends Controller
         $availableQuantity = $registeredQuantity - $transferredQuantity;
 
         if ($availableQuantity <= 0) {
-            return back()->with('error', 'تم نقل كل الكمية المسجلة بالفعل للإنتاج');
+            return redirect()->route('manufacturing.warehouse.registration.show', ['deliveryNote' => $deliveryNote->id])
+                ->with('error', 'تم نقل كل الكمية المسجلة بالفعل للإنتاج');
         }
 
         // الحصول على كمية المستودع من MaterialDetail
@@ -519,6 +524,9 @@ class WarehouseRegistrationController extends Controller
      */
     public function transferToProduction(Request $request, DeliveryNote $deliveryNote)
     {
+        // تحميل العلاقات المطلوبة
+        $deliveryNote->load(['materialDetail', 'materialDetail.unit', 'material', 'supplier']);
+
         // التحقق من وجود كمية مسجلة
         if (!$deliveryNote->quantity || $deliveryNote->quantity <= 0) {
             return back()->with('error', 'لم يتم تسجيل كمية من الكريت بعد');
@@ -579,21 +587,57 @@ class WarehouseRegistrationController extends Controller
                 'status' => 'completed',
             ]);
 
-            // ✅ تحديث الكمية المتبقية في الدفعة
+            // ✅ إنشاء باركود فريد للإنتاج
+            $barcodeSetting = BarcodeSetting::where('type', 'production')->first();
+            $productionBarcode = null;
+            
+            if ($barcodeSetting) {
+                $nextNumber = $barcodeSetting->getNextNumber();
+                $productionBarcode = $barcodeSetting->generateBarcode($nextNumber);
+            }
+
+            // ✅ تحديث الكمية المتبقية في الدفعة وحفظ باركود الإنتاج
             if ($batchId) {
                 $batch = MaterialBatch::find($batchId);
                 if ($batch) {
                     $newAvailableQty = max(0, $batch->available_quantity - $transferQuantity);
                     $batch->available_quantity = $newAvailableQty;
+                    $batch->status = $newAvailableQty <= 0 ? 'consumed' : 'in_production';
+                    $batch->latest_production_barcode = $productionBarcode; // ✅ حفظ آخر باركود إنتاج
                     $batch->save();
+
+                    // ✅ تسجيل النقل للإنتاج في product_tracking مع الباركود الجديد
+                    ProductTracking::create([
+                        'barcode' => $productionBarcode ?? $batch->batch_code, // ✅ باركود الإنتاج الجديد
+                        'stage' => 'warehouse',
+                        'action' => 'transferred_to_production',
+                        'input_barcode' => $batch->batch_code, // الباركود الأصلي من المستودع
+                        'output_barcode' => $productionBarcode, // ✅ الباركود الجديد للإنتاج
+                        'input_weight' => $transferQuantity,
+                        'output_weight' => $transferQuantity,
+                        'waste_amount' => 0,
+                        'waste_percentage' => 0,
+                        'worker_id' => Auth::id(),
+                        'notes' => 'نقل للإنتاج - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id) . ($isFullTransfer ? ' (نقل كامل)' : ' (نقل جزئي)') . ($productionBarcode ? ' - باركود: ' . $productionBarcode : ''),
+                        'metadata' => json_encode([
+                            'delivery_note_id' => $deliveryNote->id,
+                            'batch_id' => $batchId,
+                            'material_id' => $deliveryNote->material_id,
+                            'is_full_transfer' => $isFullTransfer,
+                            'remaining_quantity' => $newAvailableQty,
+                            'production_barcode' => $productionBarcode, // ✅ حفظ الباركود الجديد
+                            'original_barcode' => $batch->batch_code,
+                        ]),
+                    ]);
                 }
             }
 
-            // ✅ تحديث كمية الأذن المنقولة
+            // ✅ تحديث كمية الأذن المنقولة وحفظ باركود الإنتاج
             $newQuantityUsed = ($deliveryNote->quantity_used ?? 0) + $transferQuantity;
             $deliveryNote->update([
                 'quantity_used' => $newQuantityUsed,
-                'quantity_remaining' => max(0, $deliveryNote->quantity - $newQuantityUsed)
+                'quantity_remaining' => max(0, $deliveryNote->quantity - $newQuantityUsed),
+                'production_barcode' => $productionBarcode // ✅ حفظ باركود الإنتاج في الجدول
             ]);
 
             // ✅ تحديث حالة التسجيل فقط إذا كان النقل كاملاً
@@ -631,12 +675,17 @@ class WarehouseRegistrationController extends Controller
                 );
             }
 
-            return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
-                ->with('success', $successMessage);
+            return redirect()->route('manufacturing.warehouse.registration.show', ['deliveryNote' => $deliveryNote->id])
+                ->with('success', $successMessage)
+                ->with('production_barcode', $productionBarcode); // ✅ إرسال باركود الإنتاج
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'حدث خطأ أثناء النقل: ' . $e->getMessage());
+            \Log::error('Transfer to production failed: ' . $e->getMessage(), [
+                'delivery_note_id' => $deliveryNote->id,
+                'trace' => $e->getTraceAsString()
+            ]);
+            return back()->withInput()->with('error', 'حدث خطأ أثناء النقل: ' . $e->getMessage());
         }
     }
 
@@ -696,7 +745,7 @@ class WarehouseRegistrationController extends Controller
                 \Illuminate\Support\Facades\Log::warning('Failed to send move to production notifications: ' . $notifError->getMessage());
             }
 
-            return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote)
+            return redirect()->route('manufacturing.warehouse.registration.show', ['deliveryNote' => $deliveryNote->id])
                 ->with('success', 'تم نقل البضاعة إلى الإنتاج بنجاح');
         } catch (\Exception $e) {
             return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
@@ -795,6 +844,22 @@ class WarehouseRegistrationController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * عرض صفحة باركود الإنتاج
+     */
+    public function showProductionBarcode(DeliveryNote $deliveryNote)
+    {
+        // التحقق من وجود باركود إنتاج
+        if (!$deliveryNote->production_barcode) {
+            return redirect()->route('manufacturing.warehouse.registration.show', $deliveryNote->id)
+                ->with('error', 'لم يتم إنشاء باركود إنتاج لهذه الشحنة بعد');
+        }
+
+        $deliveryNote->load(['material', 'supplier', 'materialBatch']);
+
+        return view('manufacturing::warehouses.registration.production-barcode', compact('deliveryNote'));
     }
 
     /**

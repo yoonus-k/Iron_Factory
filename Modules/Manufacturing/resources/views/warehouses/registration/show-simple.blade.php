@@ -228,58 +228,22 @@
         </div>
     </div>
 
-    <!-- بطاقات الباركود بتصميم موحد -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 30px;">
-        
-        <!-- باركود دخول المستودع -->
-        @if($deliveryNote->materialBatch && $deliveryNote->materialBatch->batch_code)
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
-            <div style="text-align: center; margin-bottom: 15px;">
-                <div style="font-size: 15px; opacity: 0.9; margin-bottom: 5px;">المستودع</div>
-                <div style="font-size: 20px; font-weight: bold;">📦 دخول المستودع</div>
-            </div>
-            <div style="background: rgba(255,255,255,0.15); padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
-                <div style="font-size: 18px; font-weight: bold; font-family: 'Courier New', monospace; letter-spacing: 2px;">
-                    {{ $deliveryNote->materialBatch->batch_code }}
-                </div>
-            </div>
-            <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; text-align: center;">
-                <div>📊 {{ number_format($deliveryNote->materialBatch->initial_quantity, 2) }} كجم</div>
+    <!-- بطاقة الباركود -->
+    @if($deliveryNote->materialBatch && $deliveryNote->materialBatch->batch_code)
+        <div class="barcode-card">
+            <div style="font-size: 22px; font-weight: bold; margin-bottom: 15px;">🏷️ باركود الدفعة</div>
+            <svg id="warehouse-barcode" style="background: white; padding: 20px; border-radius: 12px; margin: 20px auto; display: block;"></svg>
+            <div class="barcode-number">{{ $deliveryNote->materialBatch->batch_code }}</div>
+            <div style="margin-top: 20px; opacity: 0.9;">
+                <div style="margin-bottom: 5px;">📊 الكمية: {{ number_format($deliveryNote->materialBatch->initial_quantity, 2) }} كجم</div>
+                <div>📅 تاريخ التوليد: {{ $deliveryNote->materialBatch->created_at->format('Y-m-d H:i') }}</div>
             </div>
             <button onclick="printWarehouseBarcode('{{ $deliveryNote->materialBatch->batch_code }}', '{{ $deliveryNote->note_number }}', '{{ $deliveryNote->material->name_ar ?? 'غير محدد' }}', {{ $deliveryNote->materialBatch->initial_quantity }}, '{{ $deliveryNote->supplier->name ?? 'غير محدد' }}')" 
-                    style="width: 100%; background: white; color: #667eea; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s;"
-                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)';"
-                    onmouseout="this.style.transform=''; this.style.boxShadow='';">
-                <i class="feather icon-printer"></i> طباعة
+                    style="background: white; color: #667eea; padding: 15px 30px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; display: inline-flex; align-items: center; gap: 10px;">
+                <i class="feather icon-printer"></i> طباعة الباركود
             </button>
         </div>
-        @endif
-
-        <!-- باركود الإنتاج -->
-        @if($deliveryNote->production_barcode)
-        <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);">
-            <div style="text-align: center; margin-bottom: 15px;">
-                <div style="font-size: 15px; opacity: 0.9; margin-bottom: 5px;">الإنتاج</div>
-                <div style="font-size: 20px; font-weight: bold;">🏭 باركود الإنتاج</div>
-            </div>
-            <div style="background: rgba(255,255,255,0.15); padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
-                <div style="font-size: 18px; font-weight: bold; font-family: 'Courier New', monospace; letter-spacing: 2px;">
-                    {{ $deliveryNote->production_barcode }}
-                </div>
-            </div>
-            <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; text-align: center;">
-                <div>✅ تم النقل للإنتاج</div>
-            </div>
-            <button onclick="printProductionBarcode('{{ $deliveryNote->production_barcode }}', '{{ $deliveryNote->note_number }}', '{{ $deliveryNote->material->name_ar ?? 'غير محدد' }}')"
-                    style="width: 100%; background: white; color: #11998e; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s;"
-                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)';"
-                    onmouseout="this.style.transform=''; this.style.boxShadow='';">
-                <i class="feather icon-printer"></i> طباعة
-            </button>
-        </div>
-        @endif
-        
-    </div>
+    @endif
 
     <!-- الكميات والحالة -->
     @if($deliveryNote->quantity && $deliveryNote->quantity > 0)
@@ -350,78 +314,46 @@
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
 <script>
-// طباعة باركود دخول المستودع
-function printWarehouseBarcode(barcode, noteNumber, materialName, quantity, supplierName) {
-    const printWindow = window.open('', '', 'height=700,width=900');
-    printWindow.document.write('<html dir="rtl"><head><title>طباعة باركود دخول المستودع</title>');
-    printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
-    printWindow.document.write('<style>');
-    printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
-    printWindow.document.write('.print-container { background: white; padding: 60px; border-radius: 20px; box-shadow: 0 5px 30px rgba(0,0,0,0.1); text-align: center; max-width: 600px; }');
-    printWindow.document.write('.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 15px; margin-bottom: 30px; }');
-    printWindow.document.write('.title { font-size: 32px; font-weight: bold; margin-bottom: 10px; }');
-    printWindow.document.write('.subtitle { font-size: 18px; opacity: 0.95; }');
-    printWindow.document.write('.barcode-wrapper { background: #f8f9fa; padding: 30px; border-radius: 15px; margin: 25px 0; border: 3px solid #667eea; }');
-    printWindow.document.write('.barcode-number { font-size: 28px; font-weight: bold; color: #2c3e50; margin-top: 20px; letter-spacing: 4px; font-family: "Courier New", monospace; padding: 15px; background: white; border-radius: 10px; }');
-    printWindow.document.write('.info-section { background: #f8f9fa; padding: 25px; border-radius: 12px; margin-top: 20px; text-align: right; }');
-    printWindow.document.write('.info-row { margin: 15px 0; display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding-bottom: 10px; }');
-    printWindow.document.write('.label { color: #7f8c8d; font-size: 16px; font-weight: 600; }');
-    printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 18px; }');
-    printWindow.document.write('.badge { background: #667eea; color: white; padding: 12px 25px; border-radius: 25px; display: inline-block; margin: 15px 0; font-weight: bold; }');
-    printWindow.document.write('@media print { body { background: white; } }');
-    printWindow.document.write('</style></head><body>');
-    printWindow.document.write('<div class="print-container">');
-    printWindow.document.write('<div class="header">');
-    printWindow.document.write('<div class="title">📦 دخول المستودع</div>');
-    printWindow.document.write('<div class="subtitle">أذن تسليم ' + noteNumber + '</div>');
-    printWindow.document.write('</div>');
-    printWindow.document.write('<div class="badge">مخزن</div>');
-    printWindow.document.write('<div class="barcode-wrapper">');
-    printWindow.document.write('<svg id="print-barcode"></svg>');
-    printWindow.document.write('<div class="barcode-number">' + barcode + '</div>');
-    printWindow.document.write('</div>');
-    printWindow.document.write('<div class="info-section">');
-    printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + materialName + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">الكمية:</span><span class="value">' + quantity + ' كجم</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">المورد:</span><span class="value">' + supplierName + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
-    printWindow.document.write('</div></div>');
-    printWindow.document.write('<script>');
-    printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2.5, height: 100, displayValue: false, margin: 15 });');
-    printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 600); };');
-    printWindow.document.write('<\/script></body></html>');
-    printWindow.document.close();
-}
+// رسم الباركود
+@if($deliveryNote->materialBatch && $deliveryNote->materialBatch->batch_code)
+document.addEventListener('DOMContentLoaded', function() {
+    JsBarcode("#warehouse-barcode", "{{ $deliveryNote->materialBatch->batch_code }}", {
+        format: "CODE128",
+        width: 3,
+        height: 100,
+        displayValue: false,
+        margin: 15
+    });
+});
+@endif
 
-// طباعة باركود الإنتاج
-function printProductionBarcode(barcode, noteNumber, materialName) {
+// طباعة الباركود
+function printWarehouseBarcode(barcode, noteNumber, materialName, quantity, supplierName) {
     const printWindow = window.open('', '', 'height=650,width=850');
-    printWindow.document.write('<html dir="rtl"><head><title>طباعة باركود الإنتاج - ' + noteNumber + '</title>');
+    printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - ' + noteNumber + '</title>');
     printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
     printWindow.document.write('<style>');
     printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
     printWindow.document.write('.barcode-container { background: white; padding: 50px; border-radius: 16px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); text-align: center; max-width: 550px; }');
-    printWindow.document.write('.title { font-size: 28px; font-weight: bold; color: #11998e; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 4px solid #11998e; }');
-    printWindow.document.write('.note-number { font-size: 24px; color: #11998e; font-weight: bold; margin: 20px 0; }');
+    printWindow.document.write('.title { font-size: 28px; font-weight: bold; color: #2c3e50; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 4px solid #667eea; }');
+    printWindow.document.write('.note-number { font-size: 24px; color: #667eea; font-weight: bold; margin: 20px 0; }');
     printWindow.document.write('.barcode-code { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 25px 0; letter-spacing: 4px; font-family: "Courier New", monospace; }');
-    printWindow.document.write('.info { margin-top: 30px; padding: 25px; background: #e8f5f3; border-radius: 10px; text-align: right; border: 2px solid #11998e; }');
+    printWindow.document.write('.info { margin-top: 30px; padding: 25px; background: #f8f9fa; border-radius: 10px; text-align: right; }');
     printWindow.document.write('.info-row { margin: 12px 0; display: flex; justify-content: space-between; }');
     printWindow.document.write('.label { color: #7f8c8d; font-size: 16px; }');
     printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 18px; }');
-    printWindow.document.write('.production-badge { background: #11998e; color: white; padding: 10px 20px; border-radius: 25px; display: inline-block; margin: 15px 0; font-weight: bold; }');
     printWindow.document.write('@media print { body { background: white; } }');
     printWindow.document.write('</style></head><body>');
     printWindow.document.write('<div class="barcode-container">');
-    printWindow.document.write('<div class="title">🏭 باركود الإنتاج</div>');
-    printWindow.document.write('<div class="production-badge">✓ تم النقل للإنتاج</div>');
+    printWindow.document.write('<div class="title">باركود المستودع</div>');
     printWindow.document.write('<div class="note-number">أذن تسليم ' + noteNumber + '</div>');
     printWindow.document.write('<svg id="print-barcode"></svg>');
     printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
     printWindow.document.write('<div class="info">');
     printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + materialName + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">باركود الإنتاج:</span><span class="value">' + barcode + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">الكمية:</span><span class="value">' + quantity + ' كجم</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">المورد:</span><span class="value">' + supplierName + '</span></div>');
     printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">الوقت:</span><span class="value">' + new Date().toLocaleTimeString('ar-EG') + '</span></div>');
     printWindow.document.write('</div></div>');
     printWindow.document.write('<script>');
     printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');

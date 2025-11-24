@@ -211,7 +211,7 @@
         </div>
     @endif
 
-    <!-- بطاقة الباركود
+    <!-- بطاقة الباركود -->
     @if($deliveryNote->materialBatch && $deliveryNote->materialBatch->batch_code)
         <div class="barcode-card">
             <div style="font-size: 18px; margin-bottom: 10px;">🏷️ باركود الدفعة</div>
@@ -222,7 +222,7 @@
                 🖨️ طباعة الباركود
             </button>
         </div>
-    @endif -->
+    @endif
 
     <!-- معلومات الشحنة -->
     <div class="info-card">
@@ -263,7 +263,7 @@
     </div>
 
     <!-- نموذج النقل -->
-    <form id="transferForm" action="{{ route('manufacturing.warehouse.registration.transfer-to-production', $deliveryNote) }}" method="POST" onsubmit="console.log('Form submitted'); return true;">
+    <form action="{{ route('manufacturing.warehouse.registration.transfer-to-production', $deliveryNote) }}" method="POST">
         @csrf
         
         <div class="info-card">
@@ -278,7 +278,7 @@
                        step="0.01" 
                        min="0.01" 
                        max="{{ $availableQuantity }}"
-                       value="{{ old('quantity', $availableQuantity) }}"
+                       value="{{ $availableQuantity }}"
                        placeholder="أدخل الكمية" 
                        required>
                 

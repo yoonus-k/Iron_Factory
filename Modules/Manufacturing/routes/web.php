@@ -88,6 +88,9 @@ Route::middleware(['auth'])->group(function () {
         // النقل للإنتاج مع اختيار الكمية
         Route::get('transfer/{deliveryNote}', [WarehouseRegistrationController::class, 'showTransferForm'])->name('manufacturing.warehouse.registration.transfer-form');
         Route::post('transfer-to-production/{deliveryNote}', [WarehouseRegistrationController::class, 'transferToProduction'])->name('manufacturing.warehouse.registration.transfer-to-production');
+        
+        // صفحة باركود الإنتاج
+        Route::get('production-barcode/{deliveryNote}', [WarehouseRegistrationController::class, 'showProductionBarcode'])->name('manufacturing.warehouse.registration.production-barcode');
 
         // النقل الفوري (لاحتفاظ الرجعية)
         Route::post('move-production/{deliveryNote}', [WarehouseRegistrationController::class, 'moveToProduction'])->name('manufacturing.warehouse.registration.move-production');

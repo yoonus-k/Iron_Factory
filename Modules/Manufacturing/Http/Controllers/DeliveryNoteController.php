@@ -16,6 +16,9 @@ use Modules\Manufacturing\Traits\LogsOperations;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\ProductTracking;
+use Modules\Manufacturing\Entities\MaterialBatch;
+use App\Models\BarcodeSetting;
 
 class DeliveryNoteController extends Controller
 {
@@ -365,6 +368,69 @@ class DeliveryNoteController extends Controller
                             'quantity_added' => $quantityToAdd,
                             'delivery_note' => $deliveryNote->note_number,
                         ]);
+
+                        // ✅ توليد باركود للدفعة وإنشاء سجل في material_batches
+                        try {
+                            $barcodeSetting = BarcodeSetting::where('type', 'raw_material')->first();
+                            if ($barcodeSetting) {
+                                $year = date('Y');
+                                $nextNumber = $barcodeSetting->current_number + 1;
+                                $numberStr = str_pad($nextNumber, $barcodeSetting->padding, '0', STR_PAD_LEFT);
+                                $batchCode = str_replace(
+                                    ['{prefix}', '{year}', '{number}'],
+                                    [$barcodeSetting->prefix, $year, $numberStr],
+                                    $barcodeSetting->format
+                                );
+                                $barcodeSetting->current_number = $nextNumber;
+                                $barcodeSetting->save();
+
+                                // إنشاء سجل الدفعة
+                                $batch = MaterialBatch::create([
+                                    'material_id' => $validated['material_id'],
+                                    'unit_id' => $materialDetail->unit_id,
+                                    'batch_code' => $batchCode,
+                                    'initial_quantity' => $quantityToAdd,
+                                    'available_quantity' => $quantityToAdd,
+                                    'batch_date' => now()->toDateString(),
+                                    'warehouse_id' => $validated['warehouse_id'],
+                                    'status' => 'available',
+                                    'notes' => 'استلام مواد خام - أذن رقم ' . $deliveryNote->note_number,
+                                ]);
+
+                                // تحديث delivery_note مع batch_id
+                                $deliveryNote->update(['batch_id' => $batch->id]);
+
+                                // ✅ تسجيل استلام المواد في product_tracking
+                                ProductTracking::create([
+                                    'barcode' => $batchCode,
+                                    'stage' => 'warehouse',
+                                    'action' => 'received',
+                                    'input_barcode' => null,
+                                    'output_barcode' => $batchCode,
+                                    'input_weight' => $quantityToAdd,
+                                    'output_weight' => $quantityToAdd,
+                                    'waste_amount' => 0,
+                                    'waste_percentage' => 0,
+                                    'worker_id' => Auth::id(),
+                                    'notes' => 'استلام مواد خام من مورد - أذن رقم ' . $deliveryNote->note_number,
+                                    'metadata' => json_encode([
+                                        'delivery_note_id' => $deliveryNote->id,
+                                        'batch_id' => $batch->id,
+                                        'supplier_id' => $deliveryNote->supplier_id ?? null,
+                                        'material_id' => $validated['material_id'],
+                                        'warehouse_id' => $validated['warehouse_id'],
+                                    ]),
+                                ]);
+
+                                Log::info('✅ تم تسجيل الباركود والتتبع للدفعة', [
+                                    'batch_code' => $batchCode,
+                                    'batch_id' => $batch->id,
+                                    'delivery_note' => $deliveryNote->note_number,
+                                ]);
+                            }
+                        } catch (\Exception $batchError) {
+                            Log::error('⚠️ فشل إنشاء باركود الدفعة: ' . $batchError->getMessage());
+                        }
                     } catch (\Exception $inventoryError) {
                         Log::error('⚠️ فشل تحديث كمية المادة: ' . $inventoryError->getMessage(), [
                             'material_id' => $validated['material_id'],
