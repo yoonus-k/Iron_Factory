@@ -140,10 +140,12 @@
                 <div class="info-label">نوع المادة</div>
                 <div class="info-value" id="displayMaterialType">-</div>
             </div>
+             @if(canRead('STAGE1_VIEW_WEIGHT'))
             <div class="info-item">
                 <div class="info-label">الوزن المنقول للإنتاج</div>
                 <div class="info-value" id="displayWeight">-</div>
             </div>
+           @endif
         </div>
     </div>
 
@@ -177,13 +179,16 @@
                     <div class="info-label">رقم الاستاند</div>
                     <div class="info-value" id="selectedStandNumber" style="color: #27ae60; font-weight: 700;">-</div>
                 </div>
+                @if(canRead('STAGE1_VIEW_WEIGHT'))
                 <div class="info-item">
                     <div class="info-label">وزن الاستاند الفارغ</div>
                     <div class="info-value" id="selectedStandWeight" style="color: #e67e22; font-weight: 700;">-</div>
                 </div>
+                @endif
             </div>
         </div>
 
+         @if(canRead('STAGE1_VIEW_WEIGHT'))
          <div class="form-row">
             <div class="form-group">
                 <label for="wasteWeight"><i class="fas fa-trash-alt"></i> وزن الهدر (كجم)</label>
@@ -196,6 +201,7 @@
                 <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-percent"></i> يُحسب تلقائياً من وزن الهدر</small>
             </div>
         </div>
+        @endif
 
         <div class="form-row">
             <div class="form-group">
@@ -204,13 +210,16 @@
                 <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-balance-scale"></i> الوزن الكلي شامل وزن الاستاند</small>
             </div>
 
+            @if(canRead('STAGE1_VIEW_WEIGHT'))
             <div class="form-group">
                 <label for="standWeight"><i class="fas fa-box-open"></i> وزن الاستاند الفارغ (كجم)</label>
                 <input type="number" id="standWeight" class="form-control" placeholder="سيتم جلبه تلقائياً" step="0.01" readonly style="background: #ecf0f1; font-weight: 600;">
                 <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-sync"></i> يتم جلبه تلقائياً من بيانات الاستاند</small>
             </div>
+            @endif
         </div>
 
+        @if(canRead('STAGE1_VIEW_WEIGHT'))
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
                 <label for="netWeight"><i class="fas fa-check"></i> الوزن الصافي (كجم) <span class="required">*</span></label>
@@ -218,6 +227,7 @@
                 <small style="color: #27ae60; display: block; margin-top: 10px; font-weight: 600; font-size: 16px;"><i class="fas fa-calculator"></i> يُحسب تلقائياً: الوزن الإجمالي - وزن الاستاند الفارغ</small>
             </div>
         </div>
+        @endif
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
@@ -254,10 +264,10 @@
 
     <!-- Actions -->
     <div class="form-actions">
-        <button type="button" class="btn-success" onclick="submitAll()" id="submitBtn" disabled>
-            <i class="fas fa-save"></i> حفظ جميع الاستاندات
+        <button type="button" class="btn-success" onclick="finishOperation()" id="finishBtn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 18px; padding: 16px 32px;">
+            <i class="fas fa-check-double"></i> إنهاء العملية والعودة للرئيسية
         </button>
-        <button type="button" class="btn-secondary" onclick="window.location.href='{{ route('manufacturing.stage1.index') }}'">
+        <button type="button" class="btn-secondary" onclick="if(confirm('هل أنت متأكد من الخروج؟ جميع البيانات محفوظة.')) window.location.href='{{ route('manufacturing.stage1.index') }}'">
             <i class="fas fa-times"></i> إلغاء
         </button>
     </div>
@@ -335,7 +345,13 @@ function loadMaterialByBarcode(barcode) {
 function displayMaterialInfo(material) {
     document.getElementById('displayBarcode').textContent = material.barcode;
     document.getElementById('displayMaterialType').textContent = material.material_name || material.material_type || 'غير محدد';
-    document.getElementById('displayWeight').textContent = (material.transferred_to_production || material.production_weight || 0) + ' ' + (material.unit_symbol || 'كجم');
+    
+    // فقط إذا كان العنصر موجود (بناءً على الصلاحية)
+    const weightElement = document.getElementById('displayWeight');
+    if (weightElement) {
+        weightElement.textContent = (material.transferred_to_production || material.production_weight || 0) + ' ' + (material.unit_symbol || 'كجم');
+    }
+    
     document.getElementById('materialDisplay').classList.add('active');
 }
 
@@ -396,8 +412,17 @@ function loadStand() {
 
     if (!selectedOption.value) {
         document.getElementById('standDetails').style.display = 'none';
-        document.getElementById('standWeight').value = '';
-        document.getElementById('netWeight').value = '';
+        
+        const standWeightElement = document.getElementById('standWeight');
+        if (standWeightElement) {
+            standWeightElement.value = '';
+        }
+        
+        const netWeightElement = document.getElementById('netWeight');
+        if (netWeightElement) {
+            netWeightElement.value = '';
+        }
+        
         selectedStand = null;
         return;
     }
@@ -405,8 +430,17 @@ function loadStand() {
     selectedStand = JSON.parse(selectedOption.dataset.stand);
 
     document.getElementById('selectedStandNumber').textContent = selectedStand.stand_number;
-    document.getElementById('selectedStandWeight').textContent = selectedStand.weight + ' كجم';
-    document.getElementById('standWeight').value = selectedStand.weight;
+    
+    const standWeightElement = document.getElementById('selectedStandWeight');
+    if (standWeightElement) {
+        standWeightElement.textContent = selectedStand.weight + ' كجم';
+    }
+    
+    const standWeightInputElement = document.getElementById('standWeight');
+    if (standWeightInputElement) {
+        standWeightInputElement.value = selectedStand.weight;
+    }
+    
     document.getElementById('standDetails').style.display = 'block';
 
     calculateNetWeight();
@@ -420,18 +454,35 @@ function calculateNetWeight() {
 
     if (total > 0 && standWeight > 0) {
         const net = total - standWeight;
-        document.getElementById('netWeight').value = net.toFixed(2);
+        const netWeightElement = document.getElementById('netWeight');
+        if (netWeightElement) {
+            netWeightElement.value = net.toFixed(2);
+        }
 
         // حساب وزن الهدر تلقائياً (الفرق بين الإجمالي والصافي والاستاند)
         const waste = total - standWeight - net;
         if (waste >= 0) {
-            document.getElementById('wasteWeight').value = waste.toFixed(2);
-            calculateWastePercentage();
+            const wasteWeightElement = document.getElementById('wasteWeight');
+            if (wasteWeightElement) {
+                wasteWeightElement.value = waste.toFixed(2);
+                calculateWastePercentage();
+            }
         }
     } else {
-        document.getElementById('netWeight').value = '';
-        document.getElementById('wasteWeight').value = '';
-        document.getElementById('wastePercentage').value = '';
+        const netWeightElement = document.getElementById('netWeight');
+        if (netWeightElement) {
+            netWeightElement.value = '';
+        }
+        
+        const wasteWeightElement = document.getElementById('wasteWeight');
+        if (wasteWeightElement) {
+            wasteWeightElement.value = '';
+        }
+        
+        const wastePercentageElement = document.getElementById('wastePercentage');
+        if (wastePercentageElement) {
+            wastePercentageElement.value = '';
+        }
     }
 }
 
@@ -440,11 +491,14 @@ function calculateWastePercentage() {
     const wasteWeight = parseFloat(document.getElementById('wasteWeight').value) || 0;
     const totalWeight = parseFloat(document.getElementById('totalWeight').value) || 0;
 
-    if (totalWeight > 0 && wasteWeight >= 0) {
-        const percentage = (wasteWeight / totalWeight) * 100;
-        document.getElementById('wastePercentage').value = percentage.toFixed(2);
-    } else {
-        document.getElementById('wastePercentage').value = '0';
+    const wastePercentageElement = document.getElementById('wastePercentage');
+    if (wastePercentageElement) {
+        if (totalWeight > 0 && wasteWeight >= 0) {
+            const percentage = (wasteWeight / totalWeight) * 100;
+            wastePercentageElement.value = percentage.toFixed(2);
+        } else {
+            wastePercentageElement.value = '0';
+        }
     }
 }
 
@@ -459,46 +513,103 @@ function addProcessedStand() {
         return;
     }
 
-    const totalWeight = document.getElementById('totalWeight').value;
-    const netWeight = document.getElementById('netWeight').value;
-    const wasteWeight = document.getElementById('wasteWeight').value || 0;
-    const wastePercentage = document.getElementById('wastePercentage').value || 0;
-    const notes = document.getElementById('notes').value.trim();
-
-    if (!totalWeight || !netWeight) {
-        alert('⚠️ يرجى ملء جميع الحقول المطلوبة!');
+    const totalWeight = parseFloat(document.getElementById('totalWeight').value) || 0;
+    
+    if (!totalWeight) {
+        alert('⚠️ يرجى إدخال الوزن الإجمالي!');
         return;
     }
 
-    const processedData = {
-        id: Date.now(),
-        material_id: currentMaterial.id,
+    // حساب الوزن الصافي من البيانات المتاحة (حتى لو كانت الحقول مخفية)
+    const standWeight = selectedStand.weight || 0;
+    const netWeight = totalWeight - standWeight;
+    
+    // التحقق من وجود العناصر قبل قراءة قيمها (للحقول الاختيارية)
+    const wasteWeightElement = document.getElementById('wasteWeight');
+    const wasteWeight = wasteWeightElement ? (parseFloat(wasteWeightElement.value) || 0) : 0;
+    
+    const wastePercentageElement = document.getElementById('wastePercentage');
+    const wastePercentage = wastePercentageElement ? (parseFloat(wastePercentageElement.value) || 0) : 0;
+    
+    const notes = document.getElementById('notes').value.trim();
+
+    // تعطيل زر الإضافة مؤقتاً
+    const addBtn = event.target;
+    addBtn.disabled = true;
+    addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
+    // إرسال للخادم فوراً
+    const formData = {
+        material_id: currentMaterial.id || currentMaterial.material_id,
         material_barcode: currentMaterial.barcode,
-        material_type: currentMaterial.material_type,
         stand_id: selectedStand.id,
-        stand_number: selectedStand.stand_number,
-        stand_weight: parseFloat(document.getElementById('standWeight').value),
         wire_size: 0,
-        total_weight: parseFloat(totalWeight),
-        net_weight: parseFloat(netWeight),
-        waste_weight: parseFloat(wasteWeight),
-        waste_percentage: parseFloat(wastePercentage),
+        total_weight: totalWeight,
+        net_weight: netWeight,
+        stand_weight: standWeight,
+        waste_weight: wasteWeight,
+        waste_percentage: wastePercentage,
         cost: 0,
-        notes: notes
+        notes: notes,
+        _token: '{{ csrf_token() }}'
     };
 
-    processedStands.push(processedData);
-    renderStands();
-    clearForm();
-    saveOffline();
+    fetch('{{ route("manufacturing.stage1.store-single") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // إضافة البيانات المحفوظة مع الباركود الحقيقي
+            const processedData = {
+                id: data.data.stand_id,
+                material_id: currentMaterial.id,
+                material_barcode: currentMaterial.barcode,
+                material_type: data.data.material_name,
+                material_name: data.data.material_name,
+                stand_id: selectedStand.id,
+                stand_number: data.data.stand_number,
+                stand_weight: standWeight,
+                wire_size: 0,
+                total_weight: totalWeight,
+                net_weight: data.data.net_weight,
+                waste_weight: wasteWeight,
+                waste_percentage: wastePercentage,
+                cost: 0,
+                notes: notes,
+                barcode: data.data.barcode, // الباركود الحقيقي من الخادم
+                saved: true // علامة أنه محفوظ
+            };
 
-    showToast('✅ تم إضافة البيانات بنجاح!', 'success');
+            processedStands.push(processedData);
+            renderStands();
+            clearForm();
+            saveOffline();
+            loadStandsList(); // إعادة تحميل قائمة الاستاندات المتاحة
+
+            showToast('✅ تم حفظ الاستاند بنجاح! يمكنك طباعة الباركود الآن', 'success');
+        } else {
+            throw new Error(data.message || 'حدث خطأ أثناء الحفظ');
+        }
+    })
+    .catch(error => {
+        console.error('خطأ:', error);
+        alert('❌ خطأ: ' + error.message);
+    })
+    .finally(() => {
+        addBtn.disabled = false;
+        addBtn.innerHTML = '<i class="fas fa-plus"></i> إضافة للقائمة';
+    });
 }
 
 function renderStands() {
     const list = document.getElementById('standsList');
     document.getElementById('standsCount').textContent = processedStands.length;
-    document.getElementById('submitBtn').disabled = processedStands.length === 0;
 
     if (processedStands.length === 0) {
         list.innerHTML = `
@@ -515,32 +626,47 @@ function renderStands() {
     }
 
     list.innerHTML = processedStands.map(item => `
-        <div class="stand-item">
+        <div class="stand-item" style="border-right: 4px solid #27ae60;">
             <div class="stand-info">
-                <strong><i class="fas fa-wrench"></i> ${item.stand_number}</strong>
-                <small>
-                    مادة: ${item.material_type} |
-                    إجمالي: ${item.total_weight} كجم |
-                    صافي: ${item.net_weight} كجم |
-                    وزن الاستاند: ${item.stand_weight} كجم |
-                    هدر: ${item.waste_weight || 0} كجم (${item.waste_percentage || 0}%)
-                    ${item.notes ? '<br>📝 ' + item.notes : ''}
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <strong style="font-size: 18px;"><i class="fas fa-check-circle" style="color: #27ae60;"></i> ${item.stand_number}</strong>
+                    <span style="background: #27ae60; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">✓ محفوظ</span>
+                </div>
+                <small style="display: block; line-height: 1.6;">
+                    <strong>المادة:</strong> ${item.material_name || item.material_type} |
+                    <strong>الباركود:</strong> <code style="background: #f8f9fa; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${item.barcode}</code><br>
+                    <strong>إجمالي:</strong> ${item.total_weight} كجم |
+                    <strong>صافي:</strong> ${item.net_weight} كجم |
+                    <strong>وزن الاستاند:</strong> ${item.stand_weight} كجم |
+                    <strong>هدر:</strong> ${item.waste_weight || 0} كجم (${item.waste_percentage || 0}%)
+                    ${item.notes ? '<br>📝 <strong>ملاحظات:</strong> ' + item.notes : ''}
                 </small>
             </div>
-            <div class="stand-actions">
-                <button class="btn-print" onclick="printBarcode(${item.id})"><i class="fas fa-print"></i> طباعة</button>
-                <button class="btn-delete" onclick="removeStand(${item.id})"><i class="fas fa-trash"></i> حذف</button>
+            <div class="stand-actions" style="display: flex; gap: 8px;">
+                <button class="btn-print" onclick='printStandBarcode(${JSON.stringify(item).replace(/'/g, "\\'")})' style="background: #27ae60;">
+                    <i class="fas fa-print"></i> طباعة الباركود
+                </button>
             </div>
         </div>
     `).join('');
 }
 
-function removeStand(id) {
-    if (confirm('هل أنت متأكد من حذف هذه البيانات؟')) {
-        processedStands = processedStands.filter(s => s.id !== id);
-        renderStands();
-        saveOffline();
-        showToast('تم حذف البيانات', 'info');
+function finishOperation() {
+    if (processedStands.length === 0) {
+        if (confirm('لم تتم إضافة أي استاندات. هل تريد المتابعة للخروج؟')) {
+            localStorage.removeItem('stage1_processed');
+            window.location.href = '{{ route("manufacturing.stage1.index") }}';
+        }
+        return;
+    }
+
+    const message = `تم حفظ ${processedStands.length} استاند بنجاح!\n\nهل تريد العودة للصفحة الرئيسية؟`;
+    if (confirm(message)) {
+        localStorage.removeItem('stage1_processed');
+        showToast('✅ تمت العملية بنجاح!', 'success');
+        setTimeout(() => {
+            window.location.href = '{{ route("manufacturing.stage1.index") }}';
+        }, 1000);
     }
 }
 
@@ -548,10 +674,27 @@ function clearForm() {
     document.getElementById('standSelect').value = '';
     document.getElementById('standDetails').style.display = 'none';
     document.getElementById('totalWeight').value = '';
-    document.getElementById('standWeight').value = '';
-    document.getElementById('netWeight').value = '';
-    document.getElementById('wasteWeight').value = '';
-    document.getElementById('wastePercentage').value = '';
+    
+    const standWeightElement = document.getElementById('standWeight');
+    if (standWeightElement) {
+        standWeightElement.value = '';
+    }
+    
+    const netWeightElement = document.getElementById('netWeight');
+    if (netWeightElement) {
+        netWeightElement.value = '';
+    }
+    
+    const wasteWeightElement = document.getElementById('wasteWeight');
+    if (wasteWeightElement) {
+        wasteWeightElement.value = '';
+    }
+    
+    const wastePercentageElement = document.getElementById('wastePercentage');
+    if (wastePercentageElement) {
+        wastePercentageElement.value = '';
+    }
+    
     document.getElementById('notes').value = '';
     selectedStand = null;
 
@@ -566,64 +709,11 @@ function saveOffline() {
     }));
 }
 
-function submitAll() {
-    if (processedStands.length === 0) {
-        alert('⚠️ يرجى إضافة استاند واحد معالج على الأقل!');
-        return;
-    }
+// دالة submitAll تم إزالتها لأن الحفظ أصبح فوري لكل استاند
+// دالة showBarcodesModal تم إزالتها لأن الطباعة أصبحت فورية لكل استاند
 
-    if (!currentMaterial) {
-        alert('⚠️ بيانات المادة الخام مفقودة!');
-        return;
-    }
-
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
-
-    const formData = {
-        material_id: currentMaterial.id || currentMaterial.material_id,
-        material_barcode: currentMaterial.barcode,
-        processed_stands: processedStands,
-        _token: '{{ csrf_token() }}'
-    };
-
-    // Submit via AJAX
-    fetch('{{ route("manufacturing.stage1.store") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showToast('<i class="fas fa-check-circle"></i> تم حفظ جميع الاستاندات بنجاح!', 'success');
-            localStorage.removeItem('stage1_processed');
-
-            // عرض قائمة الباركودات
-            if (data.data && data.data.barcodes) {
-                showBarcodesModal(data.data.barcodes);
-            } else {
-                setTimeout(() => {
-                    window.location.href = '{{ route("manufacturing.stage1.index") }}';
-                }, 1500);
-            }
-        } else {
-            throw new Error(data.message || 'حدث خطأ أثناء الحفظ');
-        }
-    })
-    .catch(error => {
-        alert('❌ خطأ: ' + error.message);
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-save"></i> حفظ جميع الاستاندات';
-    });
-}
-
-// عرض نافذة الباركودات
-function showBarcodesModal(barcodes) {
+// (deleted unused modal functions)
+function _unused_showBarcodesModal(barcodes) {
     const modal = document.createElement('div');
     modal.id = 'barcodesModal';
     modal.style.cssText = `
@@ -730,7 +820,7 @@ function showBarcodesModal(barcodes) {
     }, 100);
 }
 
-function closeBarcodesModal() {
+function _unused_closeBarcodesModal() {
     const modal = document.getElementById('barcodesModal');
     if (modal) {
         modal.remove();
@@ -738,7 +828,7 @@ function closeBarcodesModal() {
     window.location.href = '{{ route("manufacturing.stage1.index") }}';
 }
 
-function printSingleBarcode(barcode, standNumber, materialName, netWeight) {
+function _unused_printSingleBarcode(barcode, standNumber, materialName, netWeight) {
     const printWindow = window.open('', '', 'height=650,width=850');
     printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - ' + standNumber + '</title>');
     printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
@@ -771,7 +861,7 @@ function printSingleBarcode(barcode, standNumber, materialName, netWeight) {
     printWindow.document.close();
 }
 
-function printAllBarcodes(barcodes) {
+function _unused_printAllBarcodes(barcodes) {
     const printWindow = window.open('', '', 'height=900,width=1100');
     printWindow.document.write('<html dir="rtl"><head><title>طباعة جميع الباركودات</title>');
     printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
@@ -809,57 +899,42 @@ function printAllBarcodes(barcodes) {
     printWindow.document.close();
 }
 
-// Print barcode for a processed stand
-function printBarcode(id) {
-    const stand = processedStands.find(s => s.id === id);
-    if (!stand) {
-        alert('❌ لم يتم العثور على بيانات الاستاند!');
+// Print barcode for a saved stand
+function printStandBarcode(stand) {
+    if (!stand || !stand.barcode) {
+        alert('❌ لم يتم العثور على باركود الاستاند!');
         return;
     }
 
-    // Create barcode content
-    const barcodeContent = `
-        <div style="text-align: center; padding: 25px; font-family: Arial, sans-serif;">
-            <h2 style="margin: 0 0 15px 0;">استاند مُعالج - ${stand.stand_number}</h2>
-            <div style="margin: 20px 0;">
-                <div style="font-size: 20px; font-weight: bold;">${stand.material_type}</div>
-                <div style="font-size: 18px; margin: 8px 0;">الوزن الصافي: ${stand.net_weight} كجم</div>
-                <div style="font-size: 16px; color: #666;">الباركود: ${stand.material_barcode}</div>
-            </div>
-            <div style="margin: 25px 0;">
-                <img src="https://barcode.tec-it.com/barcode.ashx?data=${stand.material_barcode}&code=Code128&translate-esc=on" alt="Barcode">
-            </div>
-            <div style="font-size: 14px; color: #888;">
-                تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}
-            </div>
-        </div>
-    `;
-
-    // Create print window
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-        <html>
-        <head>
-            <title>طباعة الباركود - ${stand.stand_number}</title>
-            <style>
-                body { margin: 0; padding: 25px; font-family: Arial, sans-serif; }
-                @media print {
-                    body { padding: 0; }
-                }
-            </style>
-        </head>
-        <body>
-            ${barcodeContent}
-            <script>
-                window.onload = function() {
-                    window.print();
-                    // Close after printing (optional)
-                    // window.close();
-                }
-            <\/script>
-        </body>
-        </html>
-    `);
+    const printWindow = window.open('', '', 'height=650,width=850');
+    printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - ' + stand.stand_number + '</title>');
+    printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
+    printWindow.document.write('.barcode-container { background: white; padding: 50px; border-radius: 16px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); text-align: center; max-width: 550px; }');
+    printWindow.document.write('.title { font-size: 28px; font-weight: bold; color: #2c3e50; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 4px solid #667eea; }');
+    printWindow.document.write('.stand-number { font-size: 24px; color: #667eea; font-weight: bold; margin: 20px 0; }');
+    printWindow.document.write('.barcode-code { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 25px 0; letter-spacing: 4px; font-family: "Courier New", monospace; }');
+    printWindow.document.write('.info { margin-top: 30px; padding: 25px; background: #f8f9fa; border-radius: 10px; text-align: right; }');
+    printWindow.document.write('.info-row { margin: 12px 0; display: flex; justify-content: space-between; }');
+    printWindow.document.write('.label { color: #7f8c8d; font-size: 16px; }');
+    printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 18px; }');
+    printWindow.document.write('@media print { body { background: white; } }');
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write('<div class="barcode-container">');
+    printWindow.document.write('<div class="title">باركود المرحلة الأولى</div>');
+    printWindow.document.write('<div class="stand-number">استاند ' + stand.stand_number + '</div>');
+    printWindow.document.write('<svg id="print-barcode"></svg>');
+    printWindow.document.write('<div class="barcode-code">' + stand.barcode + '</div>');
+    printWindow.document.write('<div class="info">');
+    printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + (stand.material_name || stand.material_type) + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">الوزن الصافي:</span><span class="value">' + stand.net_weight + ' كجم</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+    printWindow.document.write('</div></div>');
+    printWindow.document.write('<script>');
+    printWindow.document.write('JsBarcode("#print-barcode", "' + stand.barcode + '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');
+    printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };');
+    printWindow.document.write('<\/script></body></html>');
     printWindow.document.close();
 }
 

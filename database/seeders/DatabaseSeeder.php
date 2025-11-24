@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         // Call the AdminUserSeeder to create admin and test users
         $this->call([
             AdminUserSeeder::class,
+            PermissionsSeeder::class,
             BarcodeSettingsSeeder::class,
         ]);
     }

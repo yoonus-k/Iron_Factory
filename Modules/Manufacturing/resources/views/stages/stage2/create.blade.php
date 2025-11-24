@@ -106,10 +106,12 @@
                 <div class="info-label">مقاس السلك <span class="info-tooltip">?<span class="tooltip-text">قياس قطر السلك بالملليمتر</span></span></div>
                 <div class="info-value" id="displayWireSize">-</div>
             </div>
+            @if(canRead('STAGE2_VIEW_WEIGHT'))
             <div class="info-item">
                 <div class="info-label">الوزن <span class="info-tooltip">?<span class="tooltip-text">الوزن الإجمالي للاستند بالكيلوغرام</span></span></div>
                 <div class="info-value" id="displayWeight">-</div>
             </div>
+            @endif
         </div>
     </div>
 
@@ -137,13 +139,16 @@
                 </select>
             </div>
 
+            @if(canRead('STAGE2_VIEW_WEIGHT'))
             <div class="form-group">
                 <label>وزن الدخول (كجم) <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">الوزن الإجمالي للاستند قبل المعالجة</span></span></label>
                 <input type="number" id="inputWeight" class="form-control" step="0.01" readonly style="background: #e8f4f8; font-weight: 600;">
                 <small style="color: #27ae60; display: block; margin-top: 5px;"><i class="fas fa-chart-bar"></i> <span class="info-tooltip">?<span class="tooltip-text">وزن الدخول يتم ملأه تلقائياً من بيانات الاستاند المممسوح</span></span></small>
             </div>
+            @endif
         </div>
 
+        @if(canRead('STAGE2_VIEW_WEIGHT'))
         <div class="form-row">
             <div class="form-group">
                 <label>وزن الخروج (كجم) <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">الوزن بعد تطبيق المعالجة</span></span></label>
@@ -157,6 +162,7 @@
                 <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-percent"></i> نسبة الهدر: <span id="wastePercentDisplay">0%</span> <span class="info-tooltip">?<span class="tooltip-text">النسبة المئوية للهدر من وزن الدخول</span></span></small>
             </div>
         </div>
+        @endif
 
         <div class="form-row">
             <div class="form-group">
@@ -199,8 +205,8 @@
 
     <!-- Actions -->
     <div class="form-actions">
-        <button type="button" class="btn-success" onclick="submitAll()" id="submitBtn" disabled>
-            <i class="fas fa-check"></i> حفظ جميع المعالجات
+        <button type="button" class="btn-success" onclick="finishOperation()" id="submitBtn" disabled>
+            <i class="fas fa-check-double"></i> إنهاء العملية
         </button>
         <button type="button" class="btn-secondary" onclick="window.location.href='{{ route('manufacturing.stage2.index') }}'">
             <i class="fas fa-times"></i> إلغاء
@@ -212,22 +218,7 @@
 let processedItems = [];
 let currentStand = null;
 
-// Load from localStorage on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const saved = localStorage.getItem('stage2_processed');
-    if (saved) {
-        const data = JSON.parse(saved);
-        if (confirm('تم العثور على بيانات محفوظة. هل تريد استعادتها؟')) {
-            processedItems = data.items;
-            renderProcessed();
-        } else {
-            localStorage.removeItem('stage2_processed');
-        }
-    }
-
-    // Auto-save every 30 seconds
-    setInterval(saveOffline, 30000);
-});
+// تم إزالة الحفظ المحلي لأن النظام يحفظ مباشرة في قاعدة البيانات
 
 // Barcode scanner
 document.getElementById('standBarcode').addEventListener('keypress', function(e) {
@@ -267,16 +258,28 @@ function loadStand(barcode) {
             // Display stand data
             document.getElementById('displayBarcode').textContent = currentStand.barcode;
             document.getElementById('displayWireSize').textContent = currentStand.wire_size + ' مم';
-            document.getElementById('displayWeight').textContent = currentStand.weight + ' كجم';
+            
+            const displayWeightElement = document.getElementById('displayWeight');
+            if (displayWeightElement) {
+                displayWeightElement.textContent = currentStand.weight + ' كجم';
+            }
+            
             document.getElementById('standDisplay').classList.add('active');
 
             // Fill input weight automatically
-            document.getElementById('inputWeight').value = currentStand.weight;
+            const inputWeightElement = document.getElementById('inputWeight');
+            if (inputWeightElement) {
+                inputWeightElement.value = currentStand.weight;
+            }
 
             // Calculate expected output weight (default 3% waste)
             const expectedWaste = currentStand.weight * 0.03;
             const expectedOutput = currentStand.weight - expectedWaste;
-            document.getElementById('outputWeight').value = '';
+            
+            const outputWeightElement = document.getElementById('outputWeight');
+            if (outputWeightElement) {
+                outputWeightElement.value = '';
+            }
 
             // Calculate initial waste
             calculateWaste();
@@ -294,17 +297,31 @@ function loadStand(barcode) {
 }
 
 function calculateWaste() {
-    const inputWeight = parseFloat(document.getElementById('inputWeight').value) || 0;
-    const outputWeight = parseFloat(document.getElementById('outputWeight').value) || 0;
+    const inputWeightElement = document.getElementById('inputWeight');
+    const outputWeightElement = document.getElementById('outputWeight');
+    const wasteAmountElement = document.getElementById('wasteAmount');
+    const wastePercentElement = document.getElementById('wastePercentDisplay');
+    
+    const inputWeight = inputWeightElement ? (parseFloat(inputWeightElement.value) || 0) : 0;
+    const outputWeight = outputWeightElement ? (parseFloat(outputWeightElement.value) || 0) : 0;
 
     if (inputWeight > 0 && outputWeight > 0) {
         const wasteAmount = (inputWeight - outputWeight).toFixed(2);
         const wastePercent = ((inputWeight - outputWeight) / inputWeight * 100).toFixed(2);
-        document.getElementById('wasteAmount').value = wasteAmount;
-        document.getElementById('wastePercentDisplay').textContent = wastePercent + '%';
+        
+        if (wasteAmountElement) {
+            wasteAmountElement.value = wasteAmount;
+        }
+        if (wastePercentElement) {
+            wastePercentElement.textContent = wastePercent + '%';
+        }
     } else {
-        document.getElementById('wasteAmount').value = '0';
-        document.getElementById('wastePercentDisplay').textContent = '0%';
+        if (wasteAmountElement) {
+            wasteAmountElement.value = '0';
+        }
+        if (wastePercentElement) {
+            wastePercentElement.textContent = '0%';
+        }
     }
 }
 
@@ -316,23 +333,24 @@ function addProcessed() {
     }
 
     const processType = document.getElementById('processType').value;
-    const inputWeight = document.getElementById('inputWeight').value;
-    const outputWeight = document.getElementById('outputWeight').value;
-    const wasteAmount = document.getElementById('wasteAmount').value || 0;
     const processDetails = document.getElementById('processDetails').value.trim();
     const notes = document.getElementById('notes').value.trim();
+    
+    // حساب الأوزان من العناصر أو من currentStand إذا كانت مخفية
+    const inputWeightElement = document.getElementById('inputWeight');
+    const outputWeightElement = document.getElementById('outputWeight');
+    const wasteAmountElement = document.getElementById('wasteAmount');
+    
+    const inputWeight = inputWeightElement ? inputWeightElement.value : currentStand.weight;
+    const outputWeight = outputWeightElement ? outputWeightElement.value : (currentStand.weight * 0.97); // افتراض 3% هدر
+    const wasteAmount = wasteAmountElement ? (wasteAmountElement.value || 0) : (currentStand.weight * 0.03);
 
     if (!processType || !inputWeight || !outputWeight) {
         alert('⚠️ يرجى ملء جميع الحقول المطلوبة!');
         return;
     }
 
-    const wastePercentage = parseFloat(inputWeight) > 0 ?
-        ((parseFloat(inputWeight) - parseFloat(outputWeight)) / parseFloat(inputWeight) * 100).toFixed(2) : 0;
-
-    const processed = {
-        id: Date.now(),
-        stand_barcode: currentStand.barcode,
+    const data = {
         stage1_id: currentStand.id,
         stage1_barcode: currentStand.barcode,
         process_type: processType,
@@ -343,15 +361,58 @@ function addProcessed() {
         notes: notes
     };
 
-    processedItems.push(processed);
-    renderProcessed();
-    clearForm();
-    saveOffline();
+    // حفظ فوري للمعالجة
+    const addBtn = event.target;
+    addBtn.disabled = true;
+    addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
 
-    // Focus on barcode for next scan
-    document.getElementById('standBarcode').focus();
+    fetch('{{ route("manufacturing.stage2.store-single") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            // إضافة إلى القائمة المحلية مع الباركود الحقيقي
+            const processed = {
+                id: result.data.stage2_id,
+                stand_number: result.data.stand_number,
+                barcode: result.data.stage2_barcode,
+                stage1_barcode: currentStand.barcode,
+                process_type: processType,
+                total_weight: parseFloat(outputWeight),
+                waste_weight: parseFloat(wasteAmount),
+                net_weight: result.data.net_weight,
+                material_name: result.data.material_name,
+                process_details: processDetails,
+                notes: notes,
+                saved: true // علامة أنه محفوظ
+            };
 
-    showToast('تم إضافة المعالجة بنجاح!', 'success');
+            processedItems.push(processed);
+            renderProcessed();
+            clearForm();
+            
+            showToast('✅ تم حفظ المعالجة بنجاح!', 'success');
+            
+            // Focus on barcode for next scan
+            document.getElementById('standBarcode').focus();
+        } else {
+            throw new Error(result.message || 'حدث خطأ أثناء الحفظ');
+        }
+    })
+    .catch(error => {
+        alert('❌ خطأ: ' + error.message);
+    })
+    .finally(() => {
+        addBtn.disabled = false;
+        addBtn.innerHTML = '<i class="fas fa-plus"></i> إضافة المعالجة';
+    });
 }
 
 function renderProcessed() {
@@ -383,114 +444,79 @@ function renderProcessed() {
     };
 
     list.innerHTML = processedItems.map(item => `
-        <div class="processed-item">
-            <div class="processed-info">
-                <strong>⚙️ ${item.stand_barcode} → ${processTypeNames[item.process_type]}</strong>
-                <small>
-                    وزن إجمالي: ${item.total_weight} كجم |
-                    وزن صافي: ${item.net_weight} كجم |
-                    هدر: ${item.waste_weight} كجم
-                    ${item.process_details ? '<br>📝 ' + item.process_details : ''}
-                    ${item.notes ? '<br>💬 ' + item.notes : ''}
+        <div class="processed-item" style="border-right: 4px solid #27ae60; background: linear-gradient(135deg, #f8fcff 0%, #e8f8f5 100%); display: flex; justify-content: space-between; align-items: start; padding: 18px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(39, 174, 96, 0.1);">
+            <div class="processed-info" style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <strong style="color: #2c3e50; font-size: 16px;">
+                        <i class="fas fa-cog" style="color: #27ae60;"></i> ${item.stand_number} → ${processTypeNames[item.process_type]}
+                    </strong>
+                    <span style="background: #27ae60; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">✓ محفوظ</span>
+                </div>
+                <small style="display: block; line-height: 1.6;">
+                    <strong>المادة:</strong> ${item.material_name} |
+                    <strong>الباركود:</strong> <code style="background: #f8f9fa; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${item.barcode}</code><br>
+                    <strong>وزن إجمالي:</strong> ${item.total_weight} كجم |
+                    <strong>صافي:</strong> ${item.net_weight} كجم |
+                    <strong>هدر:</strong> ${item.waste_weight} كجم
+                    ${item.process_details ? '<br>📝 <strong>تفاصيل:</strong> ' + item.process_details : ''}
+                    ${item.notes ? '<br>💬 <strong>ملاحظات:</strong> ' + item.notes : ''}
                 </small>
             </div>
-            <button class="btn-delete" onclick="removeProcessed(${item.id})">🗑️ حذف</button>
+            <div class="stand-actions" style="display: flex; gap: 8px;">
+                <button class="btn-print" onclick="printStage2Barcode('${item.barcode}', '${item.stand_number}', '${item.material_name}', ${item.net_weight})" style="background: #27ae60; color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);">
+                    <i class="fas fa-print"></i> طباعة الباركود
+                </button>
+            </div>
         </div>
     `).join('');
 }
 
-function removeProcessed(id) {
-    if (confirm('هل أنت متأكد من حذف هذه المعالجة؟')) {
-        processedItems = processedItems.filter(p => p.id !== id);
-        renderProcessed();
-        saveOffline();
-        showToast('تم حذف المعالجة', 'info');
-    }
-}
+// تم إزالة وظيفة الحذف لأن المعالجات محفوظة مباشرة في قاعدة البيانات
 
 function clearForm() {
     // Keep current stand data
     document.getElementById('processType').value = '';
-    document.getElementById('inputWeight').value = '';
-    document.getElementById('outputWeight').value = '';
-    document.getElementById('wasteAmount').value = '';
-    document.getElementById('wastePercentDisplay').textContent = '0%';
     document.getElementById('processDetails').value = '';
     document.getElementById('notes').value = '';
+    
+    const inputWeightElement = document.getElementById('inputWeight');
+    const outputWeightElement = document.getElementById('outputWeight');
+    const wasteAmountElement = document.getElementById('wasteAmount');
+    const wastePercentElement = document.getElementById('wastePercentDisplay');
+    
+    if (inputWeightElement) {
+        inputWeightElement.value = '';
+    }
+    if (outputWeightElement) {
+        outputWeightElement.value = '';
+    }
+    if (wasteAmountElement) {
+        wasteAmountElement.value = '';
+    }
+    if (wastePercentElement) {
+        wastePercentElement.textContent = '0%';
+    }
 
     // Reset input weight from current stand
-    if (currentStand) {
-        document.getElementById('inputWeight').value = currentStand.weight;
+    if (currentStand && inputWeightElement) {
+        inputWeightElement.value = currentStand.weight;
     }
 }
 
-function submitAll() {
+function finishOperation() {
     if (processedItems.length === 0) {
-        alert('⚠️ يرجى إضافة معالجة واحدة على الأقل!');
+        alert('⚠️ لا توجد معالجات محفوظة!');
         return;
     }
 
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '⏳ جاري الحفظ...';
-
-    // Send each item individually
-    let completed = 0;
-    const total = processedItems.length;
-    const barcodesData = [];
-
-    processedItems.forEach((item, index) => {
-
-        fetch('{{ route("manufacturing.stage2.store") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(item)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                completed++;
-                
-                // جمع بيانات الباركود
-                if (data.data && data.data.barcode_info) {
-                    barcodesData.push(data.data.barcode_info);
-                }
-                
-                if (completed === total) {
-                    showToast('✅ تم حفظ جميع المعالجات بنجاح!', 'success');
-                    localStorage.removeItem('stage2_processed');
-                    
-                    // عرض نافذة الباركودات
-                    if (barcodesData.length > 0) {
-                        showBarcodesModal(barcodesData);
-                    } else {
-                        setTimeout(() => {
-                            window.location.href = '{{ route("manufacturing.stage2.index") }}';
-                        }, 1500);
-                    }
-                }
-            } else {
-                throw new Error(data.message || 'حدث خطأ أثناء الحفظ');
-            }
-        })
-        .catch(error => {
-            alert('❌ خطأ في المعالجة ' + (index + 1) + ': ' + error.message);
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '✅ حفظ جميع المعالجات';
-        });
-    });
+    // جميع العناصر محفوظة مسبقاً، فقط انتقل للصفحة الرئيسية
+    showToast('✅ تم إنهاء العملية بنجاح!', 'success');
+    setTimeout(() => {
+        window.location.href = '{{ route("manufacturing.stage2.index") }}';
+    }, 1000);
 }
 
-function saveOffline() {
-    localStorage.setItem('stage2_processed', JSON.stringify({
-        items: processedItems,
-        timestamp: new Date().toISOString()
-    }));
-}
+// تم إزالة وظيفة الحفظ المحلي
 
 function showToast(message, type = 'info') {
     // Simple toast notification
@@ -515,8 +541,10 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// عرض نافذة الباركودات
-function showBarcodesModal(barcodes) {
+// تم إزالة نافذة الباركودات الجماعية لأن الطباعة تتم فورياً لكل معالجة
+
+// عرض نافذة الباركودات (غير مستخدمة)
+function old_showBarcodesModal(barcodes) {
     const modal = document.createElement('div');
     modal.id = 'barcodesModal';
     modal.style.cssText = `

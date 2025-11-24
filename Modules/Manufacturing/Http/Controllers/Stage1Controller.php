@@ -16,7 +16,19 @@ class Stage1Controller extends Controller
      */
     public function index()
     {
-        return view('manufacturing::stages.stage1.index');
+        // جلب جميع الاستاندات من المرحلة الأولى مع البيانات المرتبطة
+        $stands = DB::table('stage1_stands')
+            ->join('materials', 'stage1_stands.material_id', '=', 'materials.id')
+            ->leftJoin('users', 'stage1_stands.created_by', '=', 'users.id')
+            ->select(
+                'stage1_stands.*',
+                'materials.name_ar as material_name',
+                'users.name as created_by_name'
+            )
+            ->orderBy('stage1_stands.created_at', 'desc')
+            ->paginate(20);
+
+        return view('manufacturing::stages.stage1.index', compact('stands'));
     }
 
     /**
@@ -25,6 +37,173 @@ class Stage1Controller extends Controller
     public function create()
     {
         return view('manufacturing::stages.stage1.create');
+    }
+
+    /**
+     * Store a single stand immediately (instant save)
+     */
+    public function storeSingle(Request $request)
+    {
+        $validated = $request->validate([
+            'material_id' => 'required|integer',
+            'material_barcode' => 'required|string',
+            'stand_id' => 'required|exists:stands,id',
+            'wire_size' => 'nullable|numeric|min:0',
+            'total_weight' => 'required|numeric|min:0',
+            'net_weight' => 'nullable|numeric|min:0',
+            'stand_weight' => 'nullable|numeric|min:0',
+            'waste_weight' => 'nullable|numeric|min:0',
+            'waste_percentage' => 'nullable|numeric|min:0',
+            'cost' => 'nullable|numeric|min:0',
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $userId = Auth::id();
+            $materialId = $validated['material_id'];
+            
+            // جلب بيانات الاستاند لحساب الوزن الصافي إذا لم يُرسل
+            $stand = Stand::findOrFail($validated['stand_id']);
+            
+            // حساب stand_weight و net_weight إذا لم يتم إرسالهما (بسبب الصلاحيات)
+            $standWeight = $validated['stand_weight'] ?? $stand->weight;
+            $netWeight = $validated['net_weight'] ?? ($validated['total_weight'] - $standWeight);
+            
+            // البحث عن الباركود في جدول barcodes
+            $barcodeRecord = DB::table('barcodes')
+                ->where('barcode', $validated['material_barcode'])
+                ->where('reference_table', 'material_batches')
+                ->first();
+
+            if (!$barcodeRecord) {
+                $materialBatch = DB::table('material_batches')
+                    ->join('materials', 'material_batches.material_id', '=', 'materials.id')
+                    ->where('material_batches.batch_code', $validated['material_barcode'])
+                    ->select('material_batches.*', 'materials.name_ar as material_name')
+                    ->first();
+            } else {
+                $materialBatch = DB::table('material_batches')
+                    ->join('materials', 'material_batches.material_id', '=', 'materials.id')
+                    ->where('material_batches.id', $barcodeRecord->reference_id)
+                    ->select('material_batches.*', 'materials.name_ar as material_name')
+                    ->first();
+            }
+
+            if (!$materialBatch) {
+                throw new \Exception('لم يتم العثور على المادة بهذا الباركود');
+            }
+
+            // حساب الكمية المنقولة للإنتاج
+            $transferredToProduction = DB::table('material_movements')
+                ->where('batch_id', $materialBatch->id)
+                ->where('movement_type', 'to_production')
+                ->sum('quantity');
+
+            // حساب الكمية المستخدمة سابقاً
+            $usedInStage1 = DB::table('stage1_stands')
+                ->where('parent_barcode', $validated['material_barcode'])
+                ->sum('remaining_weight');
+
+            $availableWeight = $transferredToProduction - $usedInStage1;
+            
+            if ($availableWeight < $netWeight) {
+                throw new \Exception("الكمية المتوفرة للإنتاج ({$availableWeight} كجم) غير كافية للكمية المطلوبة ({$netWeight} كجم)");
+            }
+
+            // تحديث حالة الاستاند
+            $stand->update([
+                'status' => 'stage1',
+                'usage_count' => $stand->usage_count + 1,
+            ]);
+
+            // تسجيل في stand_usage_history
+            $usageHistory = StandUsageHistory::create([
+                'stand_id' => $stand->id,
+                'user_id' => $userId,
+                'material_id' => $materialId,
+                'material_barcode' => $validated['material_barcode'],
+                'material_type' => $materialBatch->material_name ?? 'غير محدد',
+                'wire_size' => $validated['wire_size'] ?? 0,
+                'total_weight' => $validated['total_weight'],
+                'net_weight' => $netWeight,
+                'stand_weight' => $standWeight,
+                'waste_percentage' => $validated['waste_percentage'] ?? 0,
+                'cost' => $validated['cost'] ?? 0,
+                'notes' => $validated['notes'],
+                'status' => StandUsageHistory::STATUS_IN_USE,
+                'started_at' => now(),
+            ]);
+
+            // حفظ في جدول stage1_stands
+            $stage1Barcode = $this->generateStageBarcode('stage1');
+            
+            $stage1StandId = DB::table('stage1_stands')->insertGetId([
+                'barcode' => $stage1Barcode,
+                'parent_barcode' => $validated['material_barcode'],
+                'material_id' => $materialId,
+                'stand_number' => $stand->stand_number,
+                'wire_size' => $validated['wire_size'] ?? '0',
+                'weight' => $validated['total_weight'],
+                'waste' => $validated['waste_weight'] ?? 0,
+                'remaining_weight' => $netWeight,
+                'status' => 'created',
+                'created_by' => $userId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // تسجيل التتبع
+            DB::table('product_tracking')->insert([
+                'barcode' => $stage1Barcode,
+                'stage' => 'stage1',
+                'action' => 'created',
+                'input_barcode' => $validated['material_barcode'],
+                'output_barcode' => $stage1Barcode,
+                'input_weight' => $validated['total_weight'],
+                'output_weight' => $netWeight,
+                'waste_amount' => $validated['waste_weight'] ?? 0,
+                'waste_percentage' => $validated['waste_percentage'] ?? 0,
+                'worker_id' => $userId,
+                'shift_id' => null,
+                'notes' => $validated['notes'],
+                'metadata' => json_encode([
+                    'stand_id' => $stand->id,
+                    'stand_number' => $stand->stand_number,
+                    'material_id' => $materialId,
+                    'batch_id' => $materialBatch->id,
+                    'batch_code' => $materialBatch->batch_code,
+                    'wire_size' => $validated['wire_size'] ?? 0,
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حفظ الاستاند بنجاح!',
+                'data' => [
+                    'stand_id' => $stage1StandId,
+                    'stand_number' => $stand->stand_number,
+                    'barcode' => $stage1Barcode,
+                    'net_weight' => $netWeight,
+                    'material_name' => $materialBatch->material_name ?? 'غير محدد',
+                    'usage_history_id' => $usageHistory->id,
+                    'available_weight' => $availableWeight - $netWeight,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 400);
+        }
     }
 
     /**
@@ -286,7 +465,66 @@ class Stage1Controller extends Controller
      */
     public function show($id)
     {
-        return view('manufacturing::stages.stage1.show');
+        // جلب بيانات الاستاند مع العلاقات
+        $stand = DB::table('stage1_stands')
+            ->join('materials', 'stage1_stands.material_id', '=', 'materials.id')
+            ->leftJoin('users as creator', 'stage1_stands.created_by', '=', 'creator.id')
+            ->where('stage1_stands.id', $id)
+            ->select(
+                'stage1_stands.*',
+                'materials.name_ar as material_name',
+                'creator.name as created_by_name'
+            )
+            ->first();
+
+        if (!$stand) {
+            abort(404, 'الاستاند غير موجود');
+        }
+
+        // جلب سجل العمليات من operation_logs
+        $operationLogs = DB::table('operation_logs')
+            ->leftJoin('users', 'operation_logs.user_id', '=', 'users.id')
+            ->where(function($query) use ($id, $stand) {
+                $query->where('operation_logs.table_name', 'stage1_stands')
+                      ->where('operation_logs.record_id', $id);
+            })
+            ->orWhere('operation_logs.description', 'LIKE', '%' . $stand->barcode . '%')
+            ->select(
+                'operation_logs.*',
+                'users.name as user_name'
+            )
+            ->orderBy('operation_logs.created_at', 'desc')
+            ->limit(50)
+            ->get();
+
+        // جلب سجل تتبع المنتج من product_tracking
+        $trackingLogs = DB::table('product_tracking')
+            ->leftJoin('users as worker', 'product_tracking.worker_id', '=', 'worker.id')
+            ->where('product_tracking.barcode', $stand->barcode)
+            ->orWhere('product_tracking.input_barcode', $stand->parent_barcode)
+            ->orWhere('product_tracking.output_barcode', $stand->barcode)
+            ->select(
+                'product_tracking.*',
+                'worker.name as worker_name'
+            )
+            ->orderBy('product_tracking.created_at', 'desc')
+            ->get();
+
+        // جلب سجل استخدام الاستاند من stand_usage_history
+        $usageHistory = DB::table('stand_usage_history')
+            ->leftJoin('users', 'stand_usage_history.user_id', '=', 'users.id')
+            ->leftJoin('stands', 'stand_usage_history.stand_id', '=', 'stands.id')
+            ->where('stand_usage_history.material_barcode', $stand->parent_barcode)
+            ->where('stands.stand_number', $stand->stand_number)
+            ->select(
+                'stand_usage_history.*',
+                'users.name as user_name',
+                'stands.stand_number'
+            )
+            ->orderBy('stand_usage_history.created_at', 'desc')
+            ->first();
+
+        return view('manufacturing::stages.stage1.show', compact('stand', 'operationLogs', 'trackingLogs', 'usageHistory'));
     }
 
     /**

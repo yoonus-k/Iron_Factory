@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PermissionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -30,6 +32,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}', 'show')->name('show');
         Route::delete('/{id}', 'destroy')->name('destroy');
         Route::delete('/', 'destroyAll')->name('destroy-all');
+    });
+
+    // Test Permissions Page
+    Route::get('/test-permissions', function () {
+        return view('test-permissions');
+    })->name('test-permissions');
+
+    // Roles & Permissions Routes (Admin Only)
+    Route::middleware(['role:ADMIN'])->group(function () {
+        Route::resource('roles', RoleController::class);
+        Route::resource('permissions', PermissionController::class);
     });
 });
 

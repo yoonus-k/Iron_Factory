@@ -18,17 +18,18 @@ class Stage3Controller extends Controller
         $lafafs = DB::table('stage3_coils')
             ->leftJoin('stage2_processed', 'stage3_coils.stage2_id', '=', 'stage2_processed.id')
             ->leftJoin('stage1_stands', 'stage3_coils.stage1_id', '=', 'stage1_stands.id')
-            ->leftJoin('material_details', 'stage3_coils.material_id', '=', 'material_details.id')
-            ->leftJoin('materials', 'material_details.material_id', '=', 'materials.id')
+            ->leftJoin('materials', 'stage3_coils.material_id', '=', 'materials.id')
+            ->leftJoin('users', 'stage3_coils.created_by', '=', 'users.id')
             ->select(
                 'stage3_coils.*',
                 'stage2_processed.barcode as stage2_barcode',
                 'stage1_stands.barcode as stage1_barcode',
-                'materials.name_ar as material_name_ar',
-                'materials.name_en as material_name_en'
+                'stage1_stands.stand_number',
+                'materials.name_ar as material_name',
+                'users.name as created_by_name'
             )
             ->orderBy('stage3_coils.created_at', 'desc')
-            ->get();
+            ->paginate(20);
 
         return view('manufacturing::stages.stage3.index', compact('lafafs'));
     }
@@ -48,16 +49,14 @@ class Stage3Controller extends Controller
     {
         $stage2 = DB::table('stage2_processed')
             ->leftJoin('stage1_stands', 'stage2_processed.stage1_id', '=', 'stage1_stands.id')
-            ->leftJoin('material_details', 'stage2_processed.material_id', '=', 'material_details.id')
-            ->leftJoin('materials', 'material_details.material_id', '=', 'materials.id')
+            ->leftJoin('materials', 'stage2_processed.material_id', '=', 'materials.id')
             ->where('stage2_processed.barcode', $barcode)
             ->select(
                 'stage2_processed.*',
                 'stage1_stands.barcode as stage1_barcode',
                 'stage1_stands.stand_number',
-                'materials.name_ar as material_name_ar',
-                'materials.name_en as material_name_en',
-                'material_details.unit_id'
+                'materials.name_ar as material_name',
+                'materials.name_en as material_name_en'
             )
             ->first();
 
@@ -80,6 +79,140 @@ class Stage3Controller extends Controller
             'success' => true,
             'data' => $stage2
         ]);
+    }
+
+    /**
+     * حفظ لفاف واحد فوراً (instant save)
+     */
+    public function storeSingle(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'stage2_barcode' => 'required|string',
+            'stage2_id' => 'required|integer',
+            'total_weight' => 'required|numeric|min:0.001',
+            'color' => 'required|string|max:100',
+            'plastic_type' => 'nullable|string|max:100',
+            'notes' => 'nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'بيانات غير صحيحة',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $stage2 = DB::table('stage2_processed')
+                ->where('id', $request->stage2_id)
+                ->first();
+
+            if (!$stage2) {
+                throw new \Exception('باركود المرحلة الثانية غير موجود');
+            }
+
+            $inputWeight = $stage2->remaining_weight ?? $stage2->output_weight;
+            $totalWeight = $request->total_weight;
+
+            if ($totalWeight <= $inputWeight) {
+                throw new \Exception('الوزن الكامل يجب أن يكون أكبر من وزن الدخول');
+            }
+
+            $addedWeight = $totalWeight - $inputWeight;
+            $barcode = $this->generateStageBarcode('stage3');
+            $lafafCount = DB::table('stage3_coils')->count() + 1;
+
+            $lafafId = DB::table('stage3_coils')->insertGetId([
+                'barcode' => $barcode,
+                'parent_barcode' => $request->stage2_barcode,
+                'stage2_id' => $stage2->id,
+                'material_id' => $stage2->material_id,
+                'stage1_id' => $stage2->stage1_id,
+                'coil_number' => 'LF-' . date('Ymd') . '-' . str_pad($lafafCount, 4, '0', STR_PAD_LEFT),
+                'wire_size' => $stage2->wire_size,
+                'input_weight' => $inputWeight,
+                'base_weight' => $inputWeight,
+                'total_weight' => $totalWeight,
+                'dye_weight' => $addedWeight * 0.3,
+                'plastic_weight' => $addedWeight * 0.7,
+                'color' => $request->color,
+                'dye_type' => $request->dye_type ?? null,
+                'plastic_type' => $request->plastic_type,
+                'waste' => 0,
+                'status' => 'completed',
+                'notes' => $request->notes,
+                'created_by' => auth()->id() ?? 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            DB::table('stage2_processed')
+                ->where('id', $stage2->id)
+                ->update([
+                    'status' => 'completed',
+                    'updated_at' => now()
+                ]);
+
+            DB::table('product_tracking')->insert([
+                'barcode' => $barcode,
+                'stage' => 'stage3',
+                'action' => 'processed',
+                'input_barcode' => $request->stage2_barcode,
+                'output_barcode' => $barcode,
+                'input_weight' => $inputWeight,
+                'output_weight' => $totalWeight,
+                'waste_amount' => 0,
+                'waste_percentage' => 0,
+                'worker_id' => auth()->id() ?? 1,
+                'shift_id' => null,
+                'notes' => $request->notes,
+                'metadata' => json_encode([
+                    'stage2_id' => $stage2->id,
+                    'stage2_barcode' => $request->stage2_barcode,
+                    'stage1_id' => $stage2->stage1_id,
+                    'material_id' => $stage2->material_id,
+                    'wire_size' => $stage2->wire_size,
+                    'added_weight' => $addedWeight,
+                    'color' => $request->color,
+                    'plastic_type' => $request->plastic_type
+                ]),
+                'created_at' => now()
+            ]);
+
+            DB::commit();
+
+            $materialName = 'غير محدد';
+            if ($stage2->material_id) {
+                $material = DB::table('materials')->where('id', $stage2->material_id)->first();
+                $materialName = $material->name_ar ?? 'غير محدد';
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حفظ اللفاف بنجاح',
+                'data' => [
+                    'lafaf_id' => $lafafId,
+                    'barcode' => $barcode,
+                    'coil_number' => 'LF-' . date('Ymd') . '-' . str_pad($lafafCount, 4, '0', STR_PAD_LEFT),
+                    'material_name' => $materialName,
+                    'total_weight' => $totalWeight,
+                    'input_weight' => $inputWeight,
+                    'added_weight' => $addedWeight,
+                    'color' => $request->color,
+                    'plastic_type' => $request->plastic_type ?? 'غير محدد'
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

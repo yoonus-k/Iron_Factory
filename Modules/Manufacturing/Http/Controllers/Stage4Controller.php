@@ -17,13 +17,14 @@ class Stage4Controller extends Controller
         $boxes = DB::table('stage4_boxes')
             ->leftJoin('material_details', 'stage4_boxes.material_id', '=', 'material_details.id')
             ->leftJoin('materials', 'material_details.material_id', '=', 'materials.id')
+            ->leftJoin('users', 'stage4_boxes.created_by', '=', 'users.id')
             ->select(
                 'stage4_boxes.*',
-                'materials.name_ar as material_name_ar',
-                'materials.name_en as material_name_en'
+                'materials.name_ar as material_name',
+                'users.name as created_by_name'
             )
             ->orderBy('stage4_boxes.created_at', 'desc')
-            ->get();
+            ->paginate(20);
 
         return view('manufacturing::stages.stage4.index', compact('boxes'));
     }
@@ -44,15 +45,13 @@ class Stage4Controller extends Controller
         $lafaf = DB::table('stage3_coils')
             ->leftJoin('stage2_processed', 'stage3_coils.stage2_id', '=', 'stage2_processed.id')
             ->leftJoin('stage1_stands', 'stage3_coils.stage1_id', '=', 'stage1_stands.id')
-            ->leftJoin('material_details', 'stage3_coils.material_id', '=', 'material_details.id')
-            ->leftJoin('materials', 'material_details.material_id', '=', 'materials.id')
+            ->leftJoin('materials', 'stage3_coils.material_id', '=', 'materials.id')
             ->where('stage3_coils.barcode', $barcode)
             ->select(
                 'stage3_coils.*',
                 'stage2_processed.barcode as stage2_barcode',
                 'stage1_stands.barcode as stage1_barcode',
-                'materials.name_ar as material_name_ar',
-                'materials.name_en as material_name_en'
+                'materials.name_ar as material_name'
             )
             ->first();
 
@@ -63,11 +62,11 @@ class Stage4Controller extends Controller
             ], 404);
         }
 
-        // التحقق من أن اللفاف في حالة نشطة
-        if ($lafaf->status !== 'completed') {
+        // التحقق من أن اللفاف ليس معبأ بالفعل
+        if ($lafaf->status === 'packed') {
             return response()->json([
                 'success' => false,
-                'message' => 'حالة اللفاف غير صالحة للتعبئة'
+                'message' => 'هذا اللفاف تم تعبئته بالفعل'
             ], 400);
         }
 
@@ -242,6 +241,99 @@ class Stage4Controller extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ أثناء الحفظ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * حفظ كرتون واحد (حفظ فوري)
+     */
+    public function storeSingle(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'lafaf_barcode' => 'required|string',
+            'lafaf_id' => 'required|integer',
+            'material_id' => 'required|integer',
+            'weight' => 'required|numeric|min:0.001',
+            'notes' => 'nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'بيانات غير صحيحة',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // توليد الباركود
+            $barcode = $this->generateStageBarcode('stage4');
+
+            // حساب رقم الكرتون
+            $existingBoxesCount = DB::table('stage4_boxes')
+                ->where('parent_barcode', $request->lafaf_barcode)
+                ->count();
+            $boxNumber = 'BOX-' . ($existingBoxesCount + 1);
+
+            // إدراج الكرتون
+            $boxId = DB::table('stage4_boxes')->insertGetId([
+                'barcode' => $barcode,
+                'parent_barcode' => $request->lafaf_barcode,
+                'material_id' => $request->material_id,
+                'packaging_type' => 'standard',
+                'coils_count' => 1,
+                'total_weight' => $request->weight,
+                'waste' => 0,
+                'status' => 'packed',
+                'notes' => $request->notes,
+                'created_by' => auth()->id() ?? 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            // إدراج في جدول barcodes
+            DB::table('barcodes')->insert([
+                'barcode' => $barcode,
+                'type' => 'stage4',
+                'reference_id' => $boxId,
+                'reference_table' => 'stage4_boxes',
+                'status' => 'active',
+                'scan_count' => 0,
+                'metadata' => json_encode([
+                    'weight' => $request->weight,
+                    'box_number' => $boxNumber
+                ]),
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            // جلب اسم المادة
+            $materialName = DB::table('materials')
+                ->where('materials.id', $request->material_id)
+                ->value('name_ar');
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حفظ الكرتون بنجاح',
+                'data' => [
+                    'box_id' => $boxId,
+                    'barcode' => $barcode,
+                    'box_number' => $boxNumber,
+                    'material_name' => $materialName ?? 'غير محدد',
+                    'weight' => $request->weight
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
             ], 500);
         }
     }

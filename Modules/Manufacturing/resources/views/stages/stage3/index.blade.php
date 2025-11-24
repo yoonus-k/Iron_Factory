@@ -2,6 +2,10 @@
 
 @section('title', 'المرحلة الثالثة: تصنيع الكويلات')
 
+@section('head')
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+@endsection
+
 @section('content')
 
     <div class="um-content-wrapper">
@@ -39,7 +43,7 @@
                 </h4>
                 <a href="{{ route('manufacturing.stage3.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>
-                    إنشاء كويل جديد
+                    إنشاء لفاف جديد
                 </a>
             </div>
 
@@ -81,7 +85,7 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>رقم الكويل</th>
+                            <th>رقم الفاف</th>
                             <th>الوزن</th>
                             <th>اللون</th>
                             <th>نوع البلاستيك</th>
@@ -91,54 +95,44 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @forelse($lafafs as $item)
                         <tr>
-                            <td>1</td>
-                            <td><span class="badge badge-info">COIL-001</span></td>
-                            <td>245 كجم</td>
-                            <td>أحمر</td>
-                            <td>بولي إيثيلين</td>
+                            <td>{{ $loop->iteration + ($lafafs->currentPage() - 1) * $lafafs->perPage() }}</td>
+                            <td><span class="badge badge-info">{{ $item->coil_number }}</span></td>
+                            <td>{{ number_format($item->total_weight, 2) }} كجم</td>
+                            <td>{{ $item->color }}</td>
+                            <td>{{ $item->plastic_type }}</td>
                             <td>
-                                <span class="um-badge um-badge-success">جاهز</span>
+                                @if($item->status === 'completed')
+                                <span class="um-badge um-badge-success">مكتمل</span>
+                                @elseif($item->status === 'in_progress')
+                                <span class="um-badge um-badge-warning">قيد التنفيذ</span>
+                                @else
+                                <span class="um-badge um-badge-secondary">{{ $item->status }}</span>
+                                @endif
                             </td>
-                            <td>2025-01-15</td>
+                            <td>{{ is_string($item->created_at) ? date('Y-m-d', strtotime($item->created_at)) : $item->created_at->format('Y-m-d') }}</td>
                             <td>
-                                <div class="um-dropdown">
-                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
-                                        <i class="feather icon-more-vertical"></i>
-                                    </button>
-                                    <div class="um-dropdown-menu">
-                                        <a href="{{ route('manufacturing.stage3.show', 1) }}" class="um-dropdown-item um-btn-view">
-                                            <i class="feather icon-eye"></i>
-                                            <span>عرض</span>
-                                        </a>
-                                        <a href="{{ route('manufacturing.stage3.edit', 1) }}" class="um-dropdown-item um-btn-edit">
-                                            <i class="feather icon-edit-2"></i>
-                                            <span>تعديل</span>
-                                        </a>
-                                        <button type="button" class="um-dropdown-item um-btn-feature">
-                                            <i class="feather icon-star"></i>
-                                            <span>تمييز</span>
-                                        </button>
-                                        <button type="button" class="um-dropdown-item um-btn-toggle">
-                                            <i class="feather icon-pause-circle"></i>
-                                            <span>تبديل الحالة</span>
-                                        </button>
-                                        <form method="POST" action="#" style="display: inline;" class="delete-form">
-                                            <button type="submit" class="um-dropdown-item um-btn-delete">
-                                                <i class="feather icon-trash-2"></i>
-                                                <span>حذف</span>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
+                                <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->material_name ?? 'غير محدد' }}', {{ $item->total_weight }}, '{{ $item->color }}')" class="um-btn um-btn-success um-btn-sm" title="طباعة الباركود">
+                                    <i class="feather icon-printer"></i>
+                                </button>
                             </td>
                         </tr>
+                        @empty
+                        <tr>
+                            <td colspan="8" class="text-center" style="padding: 50px;">
+                                <i class="feather icon-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                                <p class="mt-2" style="color: #999;">لا توجد لفائف مسجلة</p>
+                            </td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
 
             <!-- Cards - Mobile View -->
             <div class="um-mobile-view">
+                @forelse($lafafs as $item)
                 <div class="um-category-card">
                     <div class="um-category-card-header">
                         <div class="um-category-info">
@@ -146,38 +140,51 @@
                                 <i class="feather icon-package"></i>
                             </div>
                             <div>
-                                <h6 class="um-category-name">COIL-001</h6>
-                                <span class="um-category-id">#1</span>
+                                <h6 class="um-category-name">{{ $item->coil_number }}</h6>
+                                <span class="um-category-id">#{{ $loop->iteration }}</span>
                             </div>
                         </div>
-                        <span class="um-badge um-badge-success">جاهز</span>
+                        @if($item->status === 'completed')
+                        <span class="um-badge um-badge-success">مكتمل</span>
+                        @elseif($item->status === 'in_progress')
+                        <span class="um-badge um-badge-warning">قيد التنفيذ</span>
+                        @else
+                        <span class="um-badge um-badge-secondary">{{ $item->status }}</span>
+                        @endif
                     </div>
 
                     <div class="um-category-card-body">
                         <div class="um-info-row">
                             <span class="um-info-label">الوزن:</span>
-                            <span class="um-info-value">245 كجم</span>
+                            <span class="um-info-value">{{ number_format($item->total_weight, 2) }} كجم</span>
                         </div>
                         <div class="um-info-row">
                             <span class="um-info-label">اللون:</span>
-                            <span class="um-info-value">أحمر</span>
+                            <span class="um-info-value">{{ $item->color }}</span>
                         </div>
                         <div class="um-info-row">
                             <span class="um-info-label">نوع البلاستيك:</span>
-                            <span class="um-info-value">بولي إيثيلين</span>
+                            <span class="um-info-value">{{ $item->plastic_type }}</span>
                         </div>
                         <div class="um-info-row">
                             <span class="um-info-label">التاريخ:</span>
-                            <span class="um-info-value">2025-01-15</span>
+                            <span class="um-info-value">{{ is_string($item->created_at) ? date('Y-m-d', strtotime($item->created_at)) : $item->created_at->format('Y-m-d') }}</span>
                         </div>
                     </div>
 
                     <div class="um-category-card-footer">
-                        <div class="um-dropdown">
-                            <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
-                                <i class="feather icon-more-vertical"></i>
-                            </button>
-                            <div class="um-dropdown-menu">
+                        <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->material_name ?? 'غير محدد' }}', {{ $item->total_weight }}, '{{ $item->color }}')" class="um-btn um-btn-success um-btn-sm">
+                            <i class="feather icon-printer"></i>
+                            طباعة الباركود
+                        </button>
+                    </div>
+                </div>
+                @empty
+                <div class="text-center" style="padding: 50px;">
+                    <i class="feather icon-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                    <p class="mt-2" style="color: #999;">لا توجد لفائف مسجلة</p>
+                </div>
+                @endforelse
                                 <a href="{{ route('manufacturing.stage3.show', 1) }}" class="um-dropdown-item um-btn-view">
                                     <i class="feather icon-eye"></i>
                                     <span>عرض</span>
@@ -207,20 +214,57 @@
             </div>
 
             <!-- Pagination -->
+            @if($lafafs->hasPages())
             <div class="um-pagination-section">
                 <div>
                     <p class="um-pagination-info">
-                        عرض 1 إلى 1 من أصل 1 كويل
+                        عرض {{ $lafafs->firstItem() ?? 0 }} إلى {{ $lafafs->lastItem() ?? 0 }} من أصل {{ $lafafs->total() }} كويل
                     </p>
                 </div>
                 <div>
-                    <!-- يمكن إضافة pagination links هنا -->
+                    {{ $lafafs->links() }}
                 </div>
             </div>
+            @endif
         </section>
     </div>
 
     <script>
+        // Print barcode function
+        function printBarcode(barcode, materialName, totalWeight, color) {
+            const printWindow = window.open('', '', 'height=650,width=850');
+            printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - ' + barcode + '</title>');
+            printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
+            printWindow.document.write('<style>');
+            printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
+            printWindow.document.write('.barcode-container { background: white; padding: 50px; border-radius: 16px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); text-align: center; max-width: 550px; }');
+            printWindow.document.write('.title { font-size: 28px; font-weight: bold; color: #2c3e50; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 4px solid #9b59b6; }');
+            printWindow.document.write('.barcode-display { font-size: 24px; color: #9b59b6; font-weight: bold; margin: 20px 0; }');
+            printWindow.document.write('.barcode-code { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 25px 0; letter-spacing: 4px; font-family: "Courier New", monospace; }');
+            printWindow.document.write('.info { margin-top: 30px; padding: 25px; background: #f8f9fa; border-radius: 10px; text-align: right; }');
+            printWindow.document.write('.info-row { margin: 12px 0; display: flex; justify-content: space-between; }');
+            printWindow.document.write('.label { color: #7f8c8d; font-size: 16px; }');
+            printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 18px; }');
+            printWindow.document.write('@media print { body { background: white; } }');
+            printWindow.document.write('</style></head><body>');
+            printWindow.document.write('<div class="barcode-container">');
+            printWindow.document.write('<div class="title">باركود المرحلة الثالثة - لفاف</div>');
+            printWindow.document.write('<div class="barcode-display">' + barcode + '</div>');
+            printWindow.document.write('<svg id="print-barcode"></svg>');
+            printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
+            printWindow.document.write('<div class="info">');
+            printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + materialName + '</span></div>');
+            printWindow.document.write('<div class="info-row"><span class="label">الوزن الكلي:</span><span class="value">' + totalWeight + ' كجم</span></div>');
+            printWindow.document.write('<div class="info-row"><span class="label">اللون:</span><span class="value">' + color + '</span></div>');
+            printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+            printWindow.document.write('</div></div>');
+            printWindow.document.write('<script>');
+            printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');
+            printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };');
+            printWindow.document.write('<\/script></body></html>');
+            printWindow.document.close();
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // تأكيد الحذف
             const deleteForms = document.querySelectorAll('.delete-form');
