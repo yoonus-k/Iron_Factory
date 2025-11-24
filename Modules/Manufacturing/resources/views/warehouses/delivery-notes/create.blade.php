@@ -275,25 +275,8 @@
             </div>
         </div>
 
-        <!-- البيانات الأساسية -->
-        <div class="simple-card">
-            <div class="card-title">
-                📋 البيانات الأساسية
-            </div>
-            
-            <div class="form-group-simple">
-                <label class="label-simple">📌 رقم الأذن</label>
-                <input type="text" class="input-simple" value="سيتم توليده تلقائياً" disabled>
-                <div class="helper-text">
-                    ✓ لا تقلق، سيتم توليد رقم فريد تلقائياً عند الحفظ
-                </div>
-            </div>
-            
-            <div class="form-group-simple">
-                <label class="label-simple">📅 التاريخ <span class="required-mark">*</span></label>
-                <input type="date" name="delivery_date" class="input-simple" value="{{ date('Y-m-d') }}" required>
-            </div>
-        </div>
+        <!-- البيانات الأساسية - مخفي -->
+        <input type="hidden" name="delivery_date" value="{{ date('Y-m-d') }}">
 
         <!-- بيانات الشحنة الواردة -->
         <div class="simple-card" id="incomingCard">
@@ -302,13 +285,21 @@
             </div>
             
             <div class="form-group-simple">
-                <label class="label-simple">🏢 المستودع <span class="required-mark">*</span></label>
+                <label class="label-simple">🏭 المستودع <span class="required-mark">*</span></label>
                 <select name="warehouse_id" id="warehouseSelect" class="input-simple" required>
                     <option value="">اختر المستودع</option>
                     @foreach($warehouses ?? [] as $warehouse)
                         <option value="{{ $warehouse->id }}">{{ $warehouse->warehouse_name }}</option>
                     @endforeach
                 </select>
+            </div>
+            
+            <div class="form-group-simple">
+                <label class="label-simple">🎲 رقم الكويل (اختياري)</label>
+                <input type="text" name="coil_number" class="input-simple" placeholder="أدخل رقم الكويل إن وُجد">
+                <div class="helper-text">
+                    ✓ يمكنك إدخال رقم الكويل لتسهيل التتبع
+                </div>
             </div>
             
             <div class="form-group-simple">

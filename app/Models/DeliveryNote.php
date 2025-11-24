@@ -87,6 +87,18 @@ class DeliveryNote extends Model
         'deduplicate_key',
         'registration_attempts',
         'last_registration_log_id',
+        // ========== حقول المراحل والتأكيد ==========
+        'production_stage',
+        'production_stage_name',
+        'coil_number', // ✅ رقم الكويل (اختياري)
+        'assigned_to',
+        'transfer_status',
+        'confirmed_by',
+        'confirmed_at',
+        'rejected_by',
+        'rejected_at',
+        'rejection_reason',
+        'actual_received_quantity',
     ];
 
     protected $casts = [
@@ -110,6 +122,10 @@ class DeliveryNote extends Model
         'invoice_date' => 'date',
         'reconciled_at' => 'datetime',
         'is_locked' => 'boolean',
+        // ========== حقول المراحل والتأكيد ==========
+        'confirmed_at' => 'datetime',
+        'rejected_at' => 'datetime',
+        'actual_received_quantity' => 'decimal:2',
     ];
 
     /**
@@ -198,6 +214,38 @@ class DeliveryNote extends Model
     public function transferredBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'transferred_by');
+    }
+
+    /**
+     * العلاقة مع الموظف المكلف بالاستلام
+     */
+    public function assignedUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    /**
+     * العلاقة مع الموظف الذي أكد الاستلام
+     */
+    public function confirmedByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'confirmed_by');
+    }
+
+    /**
+     * العلاقة مع الموظف الذي رفض الاستلام
+     */
+    public function rejectedByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
+    }
+
+    /**
+     * العلاقة مع سجل التأكيد
+     */
+    public function productionConfirmation()
+    {
+        return $this->hasOne(ProductionConfirmation::class);
     }
 
     /**

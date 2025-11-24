@@ -143,9 +143,16 @@ class MaterialMovementController extends Controller
                 'created_by_name' => $movement->createdBy?->name,
                 'status' => $movement->status,
                 'status_name' => $movement->status_name,
-                'batch_code' => $movement->materialBatch?->batch_code,
+                // Determine which barcode to show
+                'batch_code' => $movement->movement_type === 'to_production' && $movement->materialBatch?->latest_production_barcode
+                    ? $movement->materialBatch->latest_production_barcode
+                    : $movement->materialBatch?->batch_code,
+                'warehouse_batch_code' => $movement->materialBatch?->batch_code, // Always show original
+                'production_barcode' => $movement->materialBatch?->latest_production_barcode, // Always show production if exists
+                'coil_number' => $movement->materialBatch?->coil_number, // ✅ رقم الكويل
                 'batch_initial_quantity' => $movement->materialBatch ? number_format((float)$movement->materialBatch->initial_quantity, 2) : null,
                 'batch_available_quantity' => $movement->materialBatch ? number_format((float)$movement->materialBatch->available_quantity, 2) : null,
+                'is_production_barcode' => $movement->movement_type === 'to_production' && $movement->materialBatch?->latest_production_barcode !== null,
             ]
         ]);
     }

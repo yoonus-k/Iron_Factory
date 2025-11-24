@@ -220,6 +220,7 @@ class DeliveryNoteController extends Controller
                 'material_detail_id' => $type === 'outgoing' ? 'required|exists:material_details,id' : 'nullable|exists:material_details,id',
                 'warehouse_id' => $type === 'incoming' ? 'required|exists:warehouses,id' : 'nullable|exists:warehouses,id',
                 'warehouse_from_id' => $type === 'outgoing' ? 'required|exists:warehouses,id' : 'nullable|exists:warehouses,id',
+                'coil_number' => 'nullable|string|max:100', // ✅ رقم الكويل (اختياري)
                 'quantity' => $type === 'incoming' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
                 'delivery_quantity' => $type === 'outgoing' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
                 'actual_weight' => 'nullable|numeric|min:0',

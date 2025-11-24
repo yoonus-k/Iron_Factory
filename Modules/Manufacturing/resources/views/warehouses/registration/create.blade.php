@@ -248,6 +248,26 @@
                             </div>
 
                             <div class="form-group mb-3">
+                                <label class="form-label"><strong>رقم الكويل (Coil Number) <span class="text-muted">(اختياري)</span></strong></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="feather icon-package"></i>
+                                    </span>
+                                    <input type="text" name="coil_number"
+                                        class="form-control @error('coil_number') is-invalid @enderror"
+                                        placeholder="مثال: C-2025-001 أو رقم الكويل من المورد"
+                                        value="{{ old('coil_number') }}"
+                                        autocomplete="off">
+                                </div>
+                                <small class="text-muted d-block mt-1">
+                                    ℹ️ رقم الكويل (اللفة) من المورد - يساعد في تتبع المادة الخام
+                                </small>
+                                @error('coil_number')
+                                    <small class="text-danger d-block mt-1">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                            <div class="form-group mb-3">
                                 <label class="form-label"><strong>الوزن الفعلي من الميزان (كيلو) <span
                                             class="text-danger">*</span></strong></label>
                                 <div class="input-group">

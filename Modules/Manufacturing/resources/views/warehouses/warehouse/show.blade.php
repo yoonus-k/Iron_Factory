@@ -773,6 +773,13 @@
                 .then(response => response.json())
                 .then(data => {
                     const movement = data.movement;
+                    
+                    // Debug: Log movement data
+                    console.log('Movement Data:', movement);
+                    console.log('Movement Type:', movement.movement_type);
+                    console.log('Batch Code:', movement.batch_code);
+                    console.log('Production Barcode:', movement.production_barcode);
+                    console.log('Is Production Barcode:', movement.is_production_barcode);
 
                     const typeColors = {
                         'incoming': '#27ae60',
@@ -832,7 +839,7 @@
                         </div>
 
                         ${movement.batch_code ? `
-                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                        <div style="background: linear-gradient(135deg, ${movement.is_production_barcode ? '#11998e 0%, #38ef7d' : '#667eea 0%, #764ba2'} 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 15px rgba(${movement.is_production_barcode ? '17, 153, 142' : '102, 126, 234'}, 0.3);">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                 <h4 style="margin: 0; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
@@ -842,7 +849,7 @@
                                         <line x1="15" y1="8" x2="15" y2="16"></line>
                                         <line x1="17" y1="8" x2="17" y2="16"></line>
                                     </svg>
-                                    معلومات الباركود
+                                    ${movement.is_production_barcode ? 'باركود الإنتاج' : 'باركود دخول المستودع'}
                                 </h4>
                                 <button onclick="printModalBarcode('${movement.batch_code}', '${movement.material_name}', ${movement.quantity}, '${movement.unit_symbol || ''}')" style="background: rgba(255,255,255,0.25); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; display: flex; align-items: center; gap: 6px; transition: all 0.3s;">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
@@ -862,6 +869,13 @@
                                     ${movement.batch_code}
                                 </div>
                             </div>
+                            
+                            ${movement.coil_number ? `
+                            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 12px; border-radius: 6px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.2);">
+                                <div style="font-size: 11px; opacity: 0.9; margin-bottom: 5px; text-align: center;">رقم الكويل (Coil Number)</div>
+                                <div style="font-size: 18px; font-weight: 700; text-align: center; letter-spacing: 1px;">${movement.coil_number}</div>
+                            </div>
+                            ` : ''}
                             
                             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px;">
                                 <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 12px; border-radius: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">

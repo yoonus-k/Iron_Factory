@@ -41,7 +41,7 @@
                 </h4>
                 <a href="{{ route('manufacturing.stage1.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>
-                    إضافة استاند جديد
+                    الانتقال للمرحله الاولى
                 </a>
             </div>
 
