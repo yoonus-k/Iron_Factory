@@ -18,7 +18,6 @@
     <link rel="stylesheet" href="{{ asset('assets/css/stages-common.css') }}">
 
 
-
     {{-- <link rel="stylesheet" href="{{ asset('assets/css/reports-theme.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/manufacturing-reports.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/shift-dashboard.css') }}"> --}}
@@ -98,6 +97,12 @@
 
     <!-- Custom CSS -->
     @stack('styles')
+
+    <!-- Pass user permissions to JavaScript -->
+    <script>
+        window.userPermissions = @json(auth()->user() ? auth()->user()->role->permissions->pluck('pivot', 'permission_code') : []);
+        window.userRole = '{{ auth()->user() && auth()->user()->role ? auth()->user()->role->role_code : '' }}';
+    </script>
 </head>
 
 <body class="lang-{{ app()->getLocale() }}">
@@ -106,7 +111,9 @@
 
     <div class="dashboard-container">
         <!-- Sidebar -->
-        @include('layout.sidebar')
+        <div id="sidebar-app">
+            @include('layout.sidebar')
+        </div>
 
         <!-- Main Content -->
         <div class="main-content" id="mainContent">
@@ -128,6 +135,9 @@
 
     <!-- Language Switcher JS -->
     <script src="{{ asset('assets/js/language-switcher.js') }}"></script>
+
+    <!-- Vue.js and our Sidebar component -->
+    <script type="module" src="{{ asset('js/app.js') }}"></script>
 
     <!-- Dashboard JS -->
     <script>

@@ -6,14 +6,17 @@
     <nav class="sidebar-menu">
         <ul>
             <!-- الرئيسية / لوحة التحكم -->
+            @if(canRead('MENU_DASHBOARD'))
             <li>
                 <a href="/dashboard" class="active" data-tooltip="{{ __('app.menu.dashboard') }}">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>{{ __('app.menu.dashboard') }}</span>
                 </a>
             </li>
+            @endif
 
             <!-- المستودع -->
+            @if(canRead('MENU_WAREHOUSE'))
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.warehouse') }}">
                     <i class="fas fa-warehouse"></i>
@@ -21,47 +24,67 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @if(canRead('MENU_WAREHOUSE_MATERIALS'))
                     <li>
                         <a href="{{ route('manufacturing.warehouse-products.index') }}">
                             <i class="fas fa-box"></i> {{ __('app.warehouse.raw_materials') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(canRead('MENU_WAREHOUSE_STORES'))
                     <li>
                         <a href="{{ route('manufacturing.warehouses.index') }}">
-                            <i class="fas fa-box"></i> {{ __('app.warehouse.stores') }}
+                            <i class="fas fa-warehouse"></i> {{ __('app.warehouse.stores') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(canRead('MENU_WAREHOUSE_DELIVERY_NOTES'))
                     <li>
                         <a href="{{ route('manufacturing.delivery-notes.index') }}">
                             <i class="fas fa-receipt"></i> {{ __('app.warehouse.delivery_notes') }}
                         </a>
                     </li>
+                    @endif
 
+                    @if(canRead('MENU_WAREHOUSE_PURCHASE_INVOICES'))
                     <li>
                         <a href="{{ route('manufacturing.purchase-invoices.index') }}">
                             <i class="fas fa-file-invoice-dollar"></i> {{ __('app.warehouse.purchase_invoices') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(canRead('MENU_WAREHOUSE_SUPPLIERS'))
                     <li>
                         <a href="{{ route('manufacturing.suppliers.index') }}">
                             <i class="fas fa-truck"></i> {{ __('app.warehouse.suppliers') }}
                         </a>
                     </li>
+                    @endif
 
+                    @if(canRead('MENU_WAREHOUSE_SETTINGS'))
                     <li>
                         <a href="{{ route('manufacturing.warehouse-settings.index') }}">
                             <i class="fas fa-cog"></i> {{ __('app.menu.settings') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(canRead('MENU_WAREHOUSE_REPORTS'))
                     <li>
                         <a href="{{ route('manufacturing.warehouse-reports.index') }}">
                             <i class="fas fa-chart-bar"></i> التقارير والإحصائيات
                         </a>
                     </li>
+                    @endif
                 </ul>
             </li>
+            @endif
 
             <!-- المرحلة الأولى: التقسيم والاستاندات -->
+            @if(canRead('MENU_STAGE1_STANDS'))
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage1.title') }}">
                     <i class="fas fa-cut"></i>
@@ -74,12 +97,14 @@
                             <i class="fas fa-list"></i> قائمة الاستاندات
                         </a>
                     </li>
+                    @if(canCreate('STAGE1_STANDS'))
                     <li>
                         <a href="{{ route('manufacturing.stage1.create') }}">
                             <i class="fas fa-plus-circle"></i> تقسيم المواد الى استاندات
                         </a>
                     </li>
-                     <li>
+                    @endif
+                    <li>
                         <a href="{{ route('manufacturing.stage1.barcode-scan') }}">
                             <i class="fas fa-barcode"></i> {{ __('app.production.barcode_scan') }}
                         </a>
@@ -91,8 +116,10 @@
                     </li>
                 </ul>
             </li>
+            @endif
 
             <!-- المرحلة الثانية: المعالجة -->
+            @if(canRead('MENU_STAGE2_PROCESSING'))
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage2.title') }}">
                     <i class="fas fa-cogs"></i>
@@ -105,12 +132,14 @@
                             <i class="fas fa-list"></i> {{ __('app.production.stage2.list') }}
                         </a>
                     </li>
+                    @if(canCreate('STAGE2_PROCESSING'))
                     <li>
                         <a href="{{ route('manufacturing.stage2.create') }}">
                             <i class="fas fa-play-circle"></i> {{ __('app.production.stage2.start_new') }}
                         </a>
                     </li>
-                     <li>
+                    @endif
+                    <li>
                         <a href="{{ route('manufacturing.stage2.complete-processing') }}">
                             <i class="fas fa-check-circle"></i> {{ __('app.production.stage2.complete') }}
                         </a>
@@ -122,39 +151,30 @@
                     </li>
                 </ul>
             </li>
+            @endif
 
             <!-- المرحلة الثالثة: تصنيع الكويلات -->
+            @if(canRead('MENU_STAGE3_COILS'))
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage3.title') }}">
                     <i class="fas fa-codiepie"></i>
-                    <span>المرحلة الثالثة: الفافات</span>
+                    <span>المرحلة الثالثة: اللفائف</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
-                    <!-- <li>
-                        <a href="{{ route('manufacturing.stage3.index') }}">
-                            <i class="fas fa-list"></i> {{ __('app.production.stage3.list') }}
-                        </a>
-                    </li> -->
+                    @if(canCreate('STAGE3_COILS'))
                     <li>
                         <a href="{{ route('manufacturing.stage3.create') }}">
                             <i class="fas fa-plus-circle"></i> انشاء لفافة جديدة
                         </a>
                     </li>
-                      <!-- <li>
-                        <a href="{{ route('manufacturing.stage3.add-dye-plastic') }}">
-                            <i class="fas fa-palette"></i> {{ __('app.production.stage3.add_additives') }}
-                        </a>
-                    </li> -->
-                    <!-- <li>
-                        <a href="{{ route('manufacturing.stage3.completed-coils') }}">
-                            <i class="fas fa-check-circle"></i> {{ __('app.production.stage3.completed') }}
-                        </a>
-                    </li> -->
+                    @endif
                 </ul>
             </li>
+            @endif
 
             <!-- المرحلة الرابعة: التعبئة والتغليف -->
+            @if(canRead('MENU_STAGE4_PACKAGING'))
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage4.title') }}">
                     <i class="fas fa-box-open"></i>
@@ -167,16 +187,22 @@
                             <i class="fas fa-list"></i> {{ __('app.production.stage4.list') }}
                         </a>
                     </li>
+                    @if(canCreate('STAGE4_PACKAGING'))
                     <li>
                         <a href="{{ route('manufacturing.stage4.create') }}">
                             <i class="fas fa-plus-circle"></i> {{ __('app.production.stage4.create_new') }}
                         </a>
                     </li>
+                    @endif
                 </ul>
             </li>
-               <li class="has-submenu">
+            @endif
+
+            <!-- تتبع الإنتاج -->
+            @if(canRead('MENU_PRODUCTION_TRACKING'))
+            <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.production_tracking') }}">
-                    <i class="fas fa-box-open"></i>
+                    <i class="fas fa-route"></i>
                     <span>{{ __('app.menu.production_tracking') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
@@ -193,8 +219,10 @@
                     </li>
                 </ul>
             </li>
+            @endif
 
             <!-- الورديات والعمال -->
+            @if(canRead('MENU_SHIFTS_WORKERS'))
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.shifts') }}">
                     <i class="fas fa-users"></i>
@@ -234,8 +262,10 @@
                     </li>
                 </ul>
             </li>
+            @endif
 
             <!-- الهدر والجودة -->
+            @if(canRead('MENU_QUALITY_WASTE'))
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.quality') }}">
                     <i class="fas fa-shield-alt"></i>
@@ -265,8 +295,10 @@
                     </li>
                 </ul>
             </li>
+            @endif
 
             <!-- التقارير والإحصائيات -->
+            @if(canRead('MENU_PRODUCTION_REPORTS'))
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="التقارير الإنتاجية">
                     <i class="fas fa-chart-line"></i>
@@ -303,18 +335,12 @@
                             <i class="fas fa-user-chart"></i> أداء العمال
                         </a>
                     </li>
-
-                    <!-- تقارير عامة -->
-                    <li class="submenu-header" style="margin-top: 10px;">
-                        <span>تقارير عامة</span>
-                    </li>
-
-                    <li>
-
                 </ul>
             </li>
+            @endif
 
             <!-- الإدارة والموارد البشرية -->
+            @if(canRead('MENU_MANAGEMENT'))
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.management') }}">
                     <i class="fas fa-users-cog"></i>
@@ -322,28 +348,38 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @if(canRead('MENU_MANAGE_USERS'))
                     <li>
                         <a href="{{ route('users.index') }}">
                             <i class="fas fa-users"></i> {{ __('app.users.manage_users') }}
                         </a>
                     </li>
-                    @if(isAdmin())
-                    <li>
-                        <a href="{{ route('roles.index') }}">
-                            <i class="fas fa-user-shield"></i> إدارة الأدوار
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('permissions.index') }}">
-                            <i class="fas fa-key"></i> إدارة الصلاحيات
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/test-permissions">
-                            <i class="fas fa-vial"></i> اختبار الصلاحيات
-                        </a>
-                    </li>
                     @endif
+
+                    @if(isAdmin())
+                        @if(canRead('MENU_MANAGE_ROLES'))
+                        <li>
+                            <a href="{{ route('roles.index') }}">
+                                <i class="fas fa-user-shield"></i> إدارة الأدوار
+                            </a>
+                        </li>
+                        @endif
+
+                        @if(canRead('MENU_MANAGE_PERMISSIONS'))
+                        <li>
+                            <a href="{{ route('permissions.index') }}">
+                                <i class="fas fa-key"></i> إدارة الصلاحيات
+                            </a>
+                        </li>
+                        @endif
+
+                        <li>
+                            <a href="/test-permissions">
+                                <i class="fas fa-vial"></i> اختبار الصلاحيات
+                            </a>
+                        </li>
+                    @endif
+
                     <li>
                         <a href="#">
                             <i class="fas fa-history"></i> {{ __('app.users.activity_log') }}
@@ -351,9 +387,10 @@
                     </li>
                 </ul>
             </li>
+            @endif
 
             <!-- الإعدادات -->
-            @if(isAdmin())
+            @if(canRead('MENU_SETTINGS') && isAdmin())
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.settings') }}">
                     <i class="fas fa-cog"></i>
@@ -410,6 +447,87 @@
         color: #6b7280;
         border-bottom-color: #374151;
     }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 280px;
+        height: 100vh;
+        background: #fff;
+        box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        overflow-y: auto;
+        z-index: 1000;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        text-align: center;
+    }
+
+    .sidebar-header .logo {
+        max-width: 150px;
+        height: auto;
+    }
+
+    .sidebar-menu ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar-menu > ul > li {
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #374151;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+
+
+    .sidebar-menu a i {
+        margin-left: 12px;
+        width: 20px;
+        text-align: center;
+    }
+
+    .sidebar-menu a .arrow {
+        margin-right: auto;
+        margin-left: 12px;
+        transition: transform 0.3s ease;
+    }
+
+    .has-submenu.active > a .arrow {
+        transform: rotate(180deg);
+    }
+
+    .submenu {
+        display: none;
+        background: #f9fafb;
+        padding: 0;
+    }
+
+    .has-submenu.active .submenu {
+        display: block;
+    }
+
+    .submenu li a {
+        padding: 10px 20px 10px 52px;
+        font-size: 0.9rem;
+    }
+
+    .submenu li a:hover {
+        background: #e5e7eb;
+    }
 </style>
 
 <script>
@@ -433,5 +551,15 @@
                 parent.classList.toggle('active');
             });
         });
+
+        // Keep active menu item's parent open
+        const activeLink = document.querySelector('.submenu a[href="' + window.location.pathname + '"]');
+        if (activeLink) {
+            activeLink.classList.add('active');
+            const parentSubmenu = activeLink.closest('.has-submenu');
+            if (parentSubmenu) {
+                parentSubmenu.classList.add('active');
+            }
+        }
     });
 </script>

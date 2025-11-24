@@ -16,13 +16,22 @@ class CheckRole
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $user = auth()->user();
-        
+
         if (!$user) {
             return redirect()->route('login')->with('error', 'يجب تسجيل الدخول أولاً');
         }
 
         // Check if user has one of the required roles
-        if (!$user->role || !in_array($user->role->role_code, $roles)) {
+        // Support both role relationship and string role attribute
+        $userRoleCode = null;
+
+        if ($user->roleRelation) {
+            $userRoleCode = $user->roleRelation->role_code;
+        } elseif (is_string($user->role)) {
+            $userRoleCode = $user->role;
+        }
+
+        if (!$userRoleCode || !in_array($userRoleCode, $roles)) {
             abort(403, 'ليس لديك صلاحية للوصول إلى هذه الصفحة');
         }
 

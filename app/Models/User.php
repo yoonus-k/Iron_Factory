@@ -77,9 +77,9 @@ class User extends Authenticatable
         if ($this->role_id) {
             return $this->roleRelation;
         }
-        
-        // Otherwise return the old string value
-        return $this->attributes['role'] ?? null;
+
+        // Otherwise return the old string value if it exists
+        return isset($this->attributes['role']) ? $this->attributes['role'] : null;
     }
 
     public function userPermissions(): HasMany
@@ -135,7 +135,7 @@ class User extends Authenticatable
         $userPermission = $this->userPermissions()
             ->where('permission_name', $permissionCode)
             ->first();
-        
+
         if ($userPermission) {
             return match($action) {
                 'create' => $userPermission->can_create,
