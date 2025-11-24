@@ -21,7 +21,7 @@
 
     <form action="{{ route('roles.store') }}" method="POST">
         @csrf
-        
+
         <div class="card mb-3">
             <div class="card-header">
                 <h5 class="mb-0">المعلومات الأساسية</h5>
@@ -85,7 +85,7 @@
                                     $viewWeightPermissions = ['STAGE1_VIEW_WEIGHT', 'STAGE2_VIEW_WEIGHT', 'STAGE3_VIEW_WEIGHT', 'STAGE4_VIEW_WEIGHT'];
                                     $editWeightPermissions = ['STAGE1_EDIT_WEIGHT', 'STAGE2_EDIT_WEIGHT', 'STAGE3_EDIT_WEIGHT', 'STAGE4_EDIT_WEIGHT'];
                                     $viewWorkerPermissions = ['STAGE1_VIEW_WORKER', 'STAGE2_VIEW_WORKER', 'STAGE3_VIEW_WORKER', 'STAGE4_VIEW_WORKER'];
-                                    
+
                                     $isViewOnly = in_array($permission->permission_code, $viewOnlyPermissions) || in_array($permission->permission_code, $viewWeightPermissions) || in_array($permission->permission_code, $viewWorkerPermissions);
                                     $isManageOnly = in_array($permission->permission_code, $manageOnlyPermissions) || in_array($permission->permission_code, $editWeightPermissions) || $permission->permission_code == 'EDIT_PRICES';
                                     $isPrintOnly = in_array($permission->permission_code, $printOnlyPermissions);
