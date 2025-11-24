@@ -48,8 +48,7 @@ class RoleController extends Controller
                 'role_code' => strtoupper($request->role_code),
                 'description' => $request->description,
                 'level' => $request->level,
-                'is_system' => false,
-                'is_active' => true,
+
                 'created_by' => auth()->id(),
             ]);
 
@@ -89,7 +88,7 @@ class RoleController extends Controller
             'role_name_en' => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'level' => 'required|integer|min:0|max:100',
-            'is_active' => 'nullable|boolean',
+            // 'is_active' => 'nullable|boolean',
             'permissions' => 'nullable|array',
         ]);
 
@@ -100,7 +99,7 @@ class RoleController extends Controller
                 'role_name_en' => $request->role_name_en,
                 'description' => $request->description,
                 'level' => $request->level,
-                'is_active' => $request->has('is_active'),
+                // 'is_active' => $request->has('is_active'),
             ]);
 
             // Sync permissions
@@ -153,7 +152,7 @@ class RoleController extends Controller
         ]);
 
         User::whereIn('id', $request->user_ids ?? [])->update(['role_id' => $role->id]);
-        
+
         return redirect()->route('roles.index')->with('success', 'تم تحديث المستخدمين بنجاح');
     }
 }

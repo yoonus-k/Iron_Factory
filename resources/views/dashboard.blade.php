@@ -260,49 +260,7 @@
     </div>
 
     <!-- الأنشطة الأخيرة والإشعارات -->
-    <div class="recent-activities">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3 class="section-title" style="margin-bottom: 0;">جميع الإشعارات والأنشطة</h3>
-            <a href="{{ route('notifications.index') }}" class="btn btn-sm btn-primary">
-                <i class="fas fa-bell"></i> إدارة الإشعارات
-                @if($unreadCount > 0)
-                    <span class="badge bg-danger ms-2">{{ $unreadCount }} غير مقروءة</span>
-                @endif
-            </a>
-        </div>
 
-        @if($notifications->count() > 0)
-            <div class="notifications-list">
-                @foreach($notifications as $notification)
-                    <div class="notification-item" style="padding: 12px; background: #f9f9f9; border-radius: 6px; margin-bottom: 10px; border-right: 3px solid {{ $notification->color === 'success' ? '#10b981' : ($notification->color === 'danger' ? '#ef4444' : ($notification->color === 'warning' ? '#f59e0b' : '#3b82f6')) }};">
-                        <div style="display: flex; gap: 12px;">
-                            @if($notification->icon)
-                                <i class="{{ $notification->icon }}" style="font-size: 16px; color: {{ $notification->color === 'success' ? '#10b981' : ($notification->color === 'danger' ? '#ef4444' : ($notification->color === 'warning' ? '#f59e0b' : '#3b82f6')) }}; flex-shrink: 0;"></i>
-                            @endif
-                            <div style="flex: 1;">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 4px;">
-                                    <h6 style="margin: 0; font-size: 13px; font-weight: 600; color: #1a1a1a;">{{ $notification->title }}</h6>
-                                    @if(!$notification->is_read)
-                                        <span class="badge bg-primary" style="font-size: 10px;">جديد</span>
-                                    @endif
-                                </div>
-                                <p style="margin: 0; font-size: 12px; color: #666; margin-bottom: 4px;">{{ $notification->message }}</p>
-                                <small style="color: #999; font-size: 11px;">
-                                    <i class="fas fa-user"></i> {{ $notification->creator?->name ?? 'النظام' }}
-                                    • <i class="fas fa-clock"></i> {{ $notification->created_at->diffForHumans() }}
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        @else
-            <div style="text-align: center; padding: 30px; color: #999;">
-                <i class="fas fa-bell" style="font-size: 32px; color: #ddd; margin-bottom: 10px; display: block;"></i>
-                <p>لا توجد إشعارات جديدة</p>
-            </div>
-        @endif
-    </div>
 </div>
 
 <style>

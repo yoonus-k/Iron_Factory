@@ -6,15 +6,18 @@
     <nav class="sidebar-menu">
         <ul>
             <!-- الرئيسية / لوحة التحكم -->
+            @canView('VIEW_MAIN_DASHBOARD')
             <li>
                 <a href="/dashboard" class="active" data-tooltip="{{ __('app.menu.dashboard') }}">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>{{ __('app.menu.dashboard') }}</span>
                 </a>
             </li>
+            @endcanView
 
 
             <!-- المستودع -->
+            @canView('MANAGE_WAREHOUSES')
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.warehouse') }}">
                     <i class="fas fa-warehouse"></i>
@@ -66,8 +69,10 @@
                     </li>
                 </ul>
             </li>
+            @endcanView
 
             <!-- المرحلة الأولى: التقسيم والاستاندات -->
+            @canView('STAGE1_STANDS')
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage1.title') }}">
                     <i class="fas fa-cut"></i>
@@ -75,7 +80,7 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
-                    
+
                     <li>
                         <a href="{{ route('manufacturing.stage1.create') }}">
                             <i class="fas fa-plus-circle"></i> تقسيم المواد الى استاندات
@@ -93,8 +98,10 @@
                     </li>
                 </ul>
             </li>
+            @endcanView
 
             <!-- المرحلة الثانية: المعالجة -->
+            @canView('STAGE2_PROCESSING')
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage2.title') }}">
                     <i class="fas fa-cogs"></i>
@@ -124,8 +131,10 @@
                     </li>
                 </ul>
             </li>
+            @endcanView
 
             <!-- المرحلة الثالثة: تصنيع الكويلات -->
+            @canView('STAGE3_COILS')
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage3.title') }}">
                     <i class="fas fa-codiepie"></i>
@@ -155,8 +164,10 @@
                     </li> -->
                 </ul>
             </li>
+            @endcanView
 
             <!-- المرحلة الرابعة: التعبئة والتغليف -->
+            @canView('STAGE4_PACKAGING')
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.production.stage4.title') }}">
                     <i class="fas fa-box-open"></i>
@@ -176,7 +187,11 @@
                     </li>
                 </ul>
             </li>
-               <li class="has-submenu">
+            @endcanView
+
+            <!-- تتبع الإنتاج -->
+            @canView('MANAGE_MOVEMENTS')
+            <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.production_tracking') }}">
                     <i class="fas fa-box-open"></i>
                     <span>{{ __('app.menu.production_tracking') }}</span>
@@ -195,9 +210,11 @@
                     </li>
                 </ul>
             </li>
+            @endcanView
 
 
             <!-- الورديات والعمال -->
+            @canView('MANAGE_MOVEMENTS')
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.shifts') }}">
                     <i class="fas fa-users"></i>
@@ -237,8 +254,10 @@
                     </li>
                 </ul>
             </li>
+            @endcanView
 
             <!-- الهدر والجودة -->
+            @canView('VIEW_COSTS')
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.quality') }}">
                     <i class="fas fa-shield-alt"></i>
@@ -268,8 +287,10 @@
                     </li>
                 </ul>
             </li>
+            @endcanView
 
             <!-- التقارير والإحصائيات -->
+            @canView('VIEW_REPORTS')
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="التقارير الإنتاجية">
                     <i class="fas fa-chart-line"></i>
@@ -318,8 +339,10 @@
 
                 </ul>
             </li>
+            @endcanView
 
             <!-- الإدارة والموارد البشرية -->
+            @canView('MANAGE_USERS')
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.management') }}">
                     <i class="fas fa-users-cog"></i>
@@ -328,7 +351,7 @@
                 </a>
                 <ul class="submenu">
                     <li>
-                        <a href="#">
+                        <a href="{{ route('users.index') }}">
                             <i class="fas fa-users"></i> {{ __('app.users.manage_users') }}
                         </a>
                     </li>
@@ -356,8 +379,10 @@
                     </li>
                 </ul>
             </li>
+            @endcanView
 
             <!-- الإعدادات -->
+            @if(isAdmin())
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.settings') }}">
                     <i class="fas fa-cog"></i>
@@ -387,6 +412,7 @@
                     </li>
                 </ul>
             </li>
+            @endif
         </ul>
     </nav>
 </div>

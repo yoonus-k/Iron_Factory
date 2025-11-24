@@ -7,7 +7,13 @@ if (!function_exists('hasPermission')) {
     function hasPermission($permissionCode, $action = 'read')
     {
         $user = auth()->user();
-        if (!$user || !$user->role) {
+        if (!$user) {
+            return false;
+        }
+
+        // Get the role - use roleRelation if available, otherwise use role accessor
+        $role = $user->roleRelation ?? $user->role;
+        if (!$role) {
             return false;
         }
 
@@ -20,7 +26,7 @@ if (!function_exists('hasPermission')) {
         $userPermission = $user->userPermissions()
             ->where('permission_name', $permissionCode)
             ->first();
-        
+
         if ($userPermission) {
             return match($action) {
                 'create' => $userPermission->can_create,
@@ -32,7 +38,7 @@ if (!function_exists('hasPermission')) {
         }
 
         // Check role permissions
-        $rolePermission = $user->role->permissions()
+        $rolePermission = $role->permissions()
             ->where('permission_code', $permissionCode)
             ->first();
 
@@ -101,14 +107,14 @@ if (!function_exists('hasRole')) {
         if (!$user) {
             return false;
         }
-        
-        // Check if user has role relationship (new system)
-        if ($user->role_id && $user->role) {
-            return $user->role->role_code === $roleCode;
+
+        // Get the role - use roleRelation if available, otherwise use role accessor
+        $role = $user->roleRelation ?? $user->role;
+        if (!$role) {
+            return false;
         }
-        
-        // Fallback to old system (role as string)
-        return false;
+
+        return $role->role_code === $roleCode;
     }
 }
 
@@ -119,32 +125,30 @@ if (!function_exists('hasAnyRole')) {
         if (!$user) {
             return false;
         }
-        
-        // Check if user has role relationship (new system)
-        if ($user->role_id && $user->role) {
-            return in_array($user->role->role_code, $roleCodes);
-        }
-        
-        // Fallback to old system (role as string)
-        return false;
-    }
-}
 
-if (!function_exists('isAdmin')) {
+        // Get the role - use roleRelation if available, otherwise use role accessor
+        $role = $user->roleRelation ?? $user->role;
+        if (!$role) {
+            return false;
+        }
+
+        return in_array($role->role_code, $roleCodes);
+    }
+}if (!function_exists('isAdmin')) {
     function isAdmin()
     {
         $user = auth()->user();
         if (!$user) {
             return false;
         }
-        
-        // Check if user has role relationship (new system)
-        if ($user->role_id && $user->role) {
-            return $user->role->role_code === 'ADMIN';
+
+        // Get the role - use roleRelation if available, otherwise use role accessor
+        $role = $user->roleRelation ?? $user->role;
+        if (!$role) {
+            return false;
         }
-        
-        // Fallback: check if username is admin (temporary solution)
-        return $user->username === 'admin';
+
+        return $role->role_code === 'ADMIN';
     }
 }
 
@@ -176,12 +180,12 @@ if (!function_exists('canManageUser')) {
         if (!$targetUser || !$targetUser->roleRelation) {
             return false;
         }
-        
+
         // Admin can manage everyone
         if (isAdmin()) {
             return true;
         }
-        
+
         $currentLevel = getRoleLevel();
         return $currentLevel > $targetUser->roleRelation->level;
     }
@@ -197,12 +201,12 @@ if (!function_exists('canAssignRole')) {
         if (!$role) {
             return false;
         }
-        
+
         // Admin can assign any role
         if (isAdmin()) {
             return true;
         }
-        
+
         // User can only assign roles lower than their level
         return getRoleLevel() > $role->level;
     }

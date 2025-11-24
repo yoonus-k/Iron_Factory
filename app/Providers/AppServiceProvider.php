@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Notification;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Blade;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,6 +35,9 @@ class AppServiceProvider extends ServiceProvider
 
         // استدعاء خدمة اللغة في كل طلب
         $this->app->make('setLanguage');
+
+        // تسجيل Blade directives للصلاحيات
+        $this->registerPermissionDirectives();
 
         // مشاركة الإشعارات مع جميع views - محسّنة للأداء
         View::composer(['layout.topbar', 'master'], function ($view) {
@@ -86,6 +90,52 @@ class AppServiceProvider extends ServiceProvider
                 // في حالة الخطأ، تمرير array فارغ
                 $view->with('notifications', []);
             }
+        });
+    }
+
+    /**
+     * Register Blade directives for permissions
+     */
+    private function registerPermissionDirectives()
+    {
+        // @canView('PERMISSION_CODE')
+        Blade::if('canView', function ($permissionCode) {
+            return canRead($permissionCode);
+        });
+
+        // @canCreate('PERMISSION_CODE')
+        Blade::if('canCreate', function ($permissionCode) {
+            return canCreate($permissionCode);
+        });
+
+        // @canUpdate('PERMISSION_CODE')
+        Blade::if('canUpdate', function ($permissionCode) {
+            return canUpdate($permissionCode);
+        });
+
+        // @canDelete('PERMISSION_CODE')
+        Blade::if('canDelete', function ($permissionCode) {
+            return canDelete($permissionCode);
+        });
+
+        // @canApprove('PERMISSION_CODE')
+        Blade::if('canApprove', function ($permissionCode) {
+            return canApprove($permissionCode);
+        });
+
+        // @canExport('PERMISSION_CODE')
+        Blade::if('canExport', function ($permissionCode) {
+            return canExport($permissionCode);
+        });
+
+        // @hasRole('ROLE_CODE')
+        Blade::if('hasRole', function ($roleCode) {
+            return hasRole($roleCode);
+        });
+
+        // @isAdmin()
+        Blade::if('isAdmin', function () {
+            return isAdmin();
         });
     }
 }

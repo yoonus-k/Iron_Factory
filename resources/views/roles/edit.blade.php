@@ -22,7 +22,7 @@
     <form action="{{ route('roles.update', $role) }}" method="POST">
         @csrf
         @method('PUT')
-        
+
         <div class="card mb-3">
             <div class="card-header">
                 <h5 class="mb-0">المعلومات الأساسية</h5>
@@ -44,7 +44,7 @@
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">المستوى (0-100) <span class="text-danger">*</span></label>
-                        <input type="number" name="level" class="form-control" min="0" max="100" 
+                        <input type="number" name="level" class="form-control" min="0" max="100"
                                value="{{ old('level', $role->level) }}" required>
                     </div>
                     <div class="col-12 mb-3">
@@ -53,7 +53,7 @@
                     </div>
                     <div class="col-12 mb-3">
                         <div class="form-check form-switch">
-                            <input type="checkbox" name="is_active" class="form-check-input" id="is_active" 
+                            <input type="checkbox" name="is_active" class="form-check-input" id="is_active"
                                    {{ $role->is_active ? 'checked' : '' }}>
                             <label class="form-check-label" for="is_active">نشط</label>
                         </div>
@@ -87,7 +87,7 @@
                                 @foreach($modulePermissions as $permission)
                                 @php
                                     $rolePermission = $role->permissions->find($permission->id);
-                                    
+
                                     // تحديد الصلاحيات التي لا تحتاج إلى إنشاء/تعديل/حذف
                                     $viewOnlyPermissions = ['VIEW_MAIN_DASHBOARD', 'VIEW_DAILY_REPORTS', 'VIEW_WASTE_REPORTS', 'VIEW_SHIFT_REPORTS', 'VIEW_NOTIFICATIONS', 'VIEW_ACTIVITY_LOG', 'VIEW_PRICES', 'VIEW_COSTS'];
                                     $manageOnlyPermissions = ['MANAGE_SYSTEM_SETTINGS', 'MANAGE_BARCODE_SETTINGS', 'MANAGE_BACKUP'];
@@ -95,7 +95,7 @@
                                     $viewWeightPermissions = ['STAGE1_VIEW_WEIGHT', 'STAGE2_VIEW_WEIGHT', 'STAGE3_VIEW_WEIGHT', 'STAGE4_VIEW_WEIGHT'];
                                     $editWeightPermissions = ['STAGE1_EDIT_WEIGHT', 'STAGE2_EDIT_WEIGHT', 'STAGE3_EDIT_WEIGHT', 'STAGE4_EDIT_WEIGHT'];
                                     $viewWorkerPermissions = ['STAGE1_VIEW_WORKER', 'STAGE2_VIEW_WORKER', 'STAGE3_VIEW_WORKER', 'STAGE4_VIEW_WORKER'];
-                                    
+
                                     $isViewOnly = in_array($permission->permission_code, $viewOnlyPermissions) || in_array($permission->permission_code, $viewWeightPermissions) || in_array($permission->permission_code, $viewWorkerPermissions);
                                     $isManageOnly = in_array($permission->permission_code, $manageOnlyPermissions) || in_array($permission->permission_code, $editWeightPermissions) || $permission->permission_code == 'EDIT_PRICES';
                                     $isPrintOnly = in_array($permission->permission_code, $printOnlyPermissions);
