@@ -263,12 +263,12 @@
             <!-- Material Information Section -->
             <div class="form-section">
                 <div class="section-header">
-                    <h3 class="section-title">💡 معلومات المادة (3 حقول فقط)</h3>
+                    <h3 class="section-title">💡 معلومات المادة</h3>
                 </div>
 
                 <div class="form-grid">
                     <!-- Field 1: Material Name (Arabic) -->
-                    <div class="form-group full-width">
+                    <div class="form-group">
                         <label for="name_ar" class="form-label">
                             اسم المادة <span class="required">*</span>
                         </label>
@@ -302,17 +302,30 @@
                         @enderror
                     </div>
 
-                    <!-- Field 3: Barcode (Auto) -->
+                    <!-- Field 3: Unit -->
                     <div class="form-group">
-                        <label for="barcode" class="form-label">الرمز (تلقائي)</label>
-                        <input type="text" name="barcode" id="barcode"
-                               class="form-input"
-                               placeholder="يُولّد تلقائياً..."
-                               readonly
-                               style="background-color: #f5f5f5; cursor: not-allowed;">
-                        <small style="color: #666; margin-top: 5px; display: block;">✓ الرمز يظهر تلقائياً</small>
+                        <label for="unit_id" class="form-label">
+                            وحدة القياس <span class="required">*</span>
+                        </label>
+                        <select name="unit_id" id="unit_id"
+                                class="form-input @error('unit_id') input-error @enderror"
+                                required>
+                            <option value="">-- اختر الوحدة --</option>
+                            @foreach ($units as $unit)
+                                <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
+                                    {{ $unit->unit_name }} ({{ $unit->unit_symbol }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('unit_id')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                        <small style="color: #666; margin-top: 5px; display: block;">💡 ستُستخدم دائماً لهذا المنتج</small>
                     </div>
                 </div>
+
+                <!-- Hidden Barcode Field -->
+                <input type="hidden" name="barcode" id="barcode">
             </div>
 
             <!-- Form Actions -->

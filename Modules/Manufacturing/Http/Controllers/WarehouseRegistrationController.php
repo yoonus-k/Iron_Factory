@@ -7,6 +7,10 @@ use App\Models\Material;
 use App\Models\RegistrationLog;
 use App\Models\MaterialMovement;
 use App\Models\WarehouseRecord;
+use App\Models\ProductionStage;
+use App\Models\ProductionConfirmation;
+use App\Models\Notification;
+
 use App\Models\User;
 use App\Services\DuplicatePreventionService;
 use App\Services\WarehouseTransferService;
@@ -217,6 +221,7 @@ class WarehouseRegistrationController extends Controller
             'unit_id' => 'nullable|exists:units,id',
             'location' => 'nullable|string|max:100',
             'notes' => 'nullable|string|max:1000',
+            'coil_number' => 'nullable|string|max:100', // ✅ رقم الكويل
             'use_existing' => 'nullable|boolean',
             'warehouse_id' => 'nullable|exists:warehouses,id',
         ], [
@@ -298,6 +303,7 @@ class WarehouseRegistrationController extends Controller
                     'material_id' => $validated['material_id'],
                     'unit_id' => $validated['unit_id'],
                     'batch_code' => $batchCode,
+                    'coil_number' => $validated['coil_number'] ?? null, // ✅ رقم الكويل
                     'initial_quantity' => $validated['actual_weight'],
                     'available_quantity' => $validated['actual_weight'],
                     'batch_date' => now()->toDateString(),
@@ -540,12 +546,18 @@ class WarehouseRegistrationController extends Controller
         // التحقق من البيانات - ✅ مع قيد max للكمية المتاحة فقط
         $validated = $request->validate([
             'quantity' => 'required|numeric|min:0.01|max:' . $availableQuantity, // ✅ لا يمكن نقل أكثر من المتاح
+            'production_stage' => 'required|string|exists:production_stages,stage_code', // ✅ المرحلة الإنتاجية
+            'assigned_to' => 'required|exists:users,id', // ✅ الموظف المستلم
             'notes' => 'nullable|string|max:500',
         ], [
             'quantity.required' => 'الكمية مطلوبة',
             'quantity.numeric' => 'الكمية يجب أن تكون رقم',
             'quantity.min' => 'الكمية يجب أن تكون أكبر من صفر',
             'quantity.max' => 'الكمية المدخلة تتجاوز الكمية المتاحة (' . $availableQuantity . ' كيلو)! لا يمكن نقل أكثر من الكمية المسجلة في أذن التسليم.',
+            'production_stage.required' => 'يجب اختيار المرحلة الإنتاجية',
+            'production_stage.exists' => 'المرحلة المحددة غير موجودة',
+            'assigned_to.required' => 'يجب اختيار الموظف المستلم',
+            'assigned_to.exists' => 'الموظف المحدد غير موجود',
         ]);
 
         $transferQuantity = (float)$validated['quantity'];
@@ -632,12 +644,54 @@ class WarehouseRegistrationController extends Controller
                 }
             }
 
-            // ✅ تحديث كمية الأذن المنقولة وحفظ باركود الإنتاج
+            // ✅ الحصول على معلومات المرحلة
+            $stage = ProductionStage::getByCode($validated['production_stage']);
+            
+            // ✅ تحديث كمية الأذن المنقولة وحفظ باركود الإنتاج والمرحلة
             $newQuantityUsed = ($deliveryNote->quantity_used ?? 0) + $transferQuantity;
             $deliveryNote->update([
                 'quantity_used' => $newQuantityUsed,
                 'quantity_remaining' => max(0, $deliveryNote->quantity - $newQuantityUsed),
-                'production_barcode' => $productionBarcode // ✅ حفظ باركود الإنتاج في الجدول
+                'production_barcode' => $productionBarcode, // ✅ حفظ باركود الإنتاج في الجدول
+                'production_stage' => $validated['production_stage'], // ✅ المرحلة
+                'production_stage_name' => $stage?->stage_name, // ✅ اسم المرحلة
+                'assigned_to' => $validated['assigned_to'], // ✅ الموظف المستلم
+                'transfer_status' => 'pending', // ✅ في انتظار التأكيد
+                'transferred_by' => Auth::id(),
+            ]);
+
+            // ✅ إنشاء سجل تأكيد الإنتاج
+            $confirmation = ProductionConfirmation::create([
+                'delivery_note_id' => $deliveryNote->id,
+                'batch_id' => $batchId,
+                'stage_code' => $validated['production_stage'],
+                'assigned_to' => $validated['assigned_to'],
+                'status' => 'pending',
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+
+            // ✅ إنشاء إشعار للموظف المستلم
+            $assignedUser = User::find($validated['assigned_to']);
+            Notification::create([
+                'user_id' => $validated['assigned_to'],
+                'type' => 'production_transfer',
+                'title' => '🔔 طلب استلام دفعة جديدة',
+                'message' => "تم نقل دفعة {$batch->batch_code} بكمية {$transferQuantity} كجم إلى {$stage?->stage_name}. يرجى تأكيد الاستلام من صفحة التأكيدات المعلقة.",
+                'icon' => 'fas fa-box',
+                'color' => 'warning',
+                'action_type' => 'transfer',
+                'model_type' => 'ProductionConfirmation',
+                'model_id' => $confirmation->id,
+                'created_by' => Auth::id(),
+                'action_url' => route('manufacturing.production.confirmations.pending'),
+                'metadata' => json_encode([
+                    'batch_code' => $batch->batch_code,
+                    'quantity' => $transferQuantity,
+                    'stage' => $stage?->stage_name,
+                    'material_name' => $batch->material?->name_ar,
+                    'confirmation_id' => $confirmation->id,
+                ]),
             ]);
 
             // ✅ تحديث حالة التسجيل فقط إذا كان النقل كاملاً

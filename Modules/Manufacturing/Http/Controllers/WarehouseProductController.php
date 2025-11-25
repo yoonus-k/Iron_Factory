@@ -106,7 +106,7 @@ class WarehouseProductController extends Controller
                     'quantity' => $validated['original_weight'],
                     'original_weight' => $validated['original_weight'],    // ✅ جديد
                     'remaining_weight' => $validated['original_weight'],   // ✅ جديد
-                    'unit_id' => $validated['unit_id'] ?? null,           // ✅ جديد
+                    'unit_id' => $material->unit_id,           // ✅ استخدام وحدة المنتج
                     'min_quantity' => $validated['min_quantity'] ?? 0,
                     'max_quantity' => $validated['max_quantity'] ?? 999999,
                     'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,

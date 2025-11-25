@@ -24,9 +24,8 @@ class StoreMaterialRequest extends FormRequest
             'batch_number' => 'nullable|string',
             'name_ar' => 'required|string|min:2|max:255',
             'name_en' => 'nullable|string|min:2|max:255',
-
-
-
+            'material_type_id' => 'required|exists:material_types,id',
+            'unit_id' => 'required|exists:units,id',
 
             'delivery_note_number' => 'nullable|string|max:255',
           
@@ -50,9 +49,11 @@ class StoreMaterialRequest extends FormRequest
         return [
             'barcode.required' => 'رمز المادة مطلوب',
             'barcode.unique' => 'رمز المادة موجود بالفعل',
-
-
-         
+            'name_ar.required' => 'اسم المادة مطلوب',
+            'material_type_id.required' => 'نوع المادة مطلوب',
+            'material_type_id.exists' => 'نوع المادة المختار غير موجود',
+            'unit_id.required' => 'وحدة القياس مطلوبة',
+            'unit_id.exists' => 'وحدة القياس المختارة غير موجودة',
         ];
     }
 }

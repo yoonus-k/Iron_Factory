@@ -116,4 +116,50 @@ class ProductTracking extends Model
             'current_status' => $history->last()?->action,
         ];
     }
+
+    /**
+     * الحصول على جميع بيانات الإنتاج من دفعة معينة
+     */
+    public static function getByBatchId(int $batchId)
+    {
+        return self::whereJsonContains('metadata->batch_id', $batchId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    /**
+     * الحصول على المصدر الأصلي (باركود المستودع) من باركود إنتاج
+     */
+    public static function getOriginalWarehouseBarcode(string $productionBarcode): ?string
+    {
+        $chain = self::traceBack($productionBarcode);
+        return !empty($chain) ? $chain[0]['input'] : null;
+    }
+
+    /**
+     * الحصول على جميع بيانات الإنتاج المرتبطة بباركود مستودع
+     */
+    public static function getAllProductionFromWarehouse(string $warehouseBarcode): array
+    {
+        $records = self::where('input_barcode', $warehouseBarcode)
+            ->orWhereJsonContains('metadata->original_barcode', $warehouseBarcode)
+            ->orderBy('created_at')
+            ->get();
+
+        return [
+            'warehouse_barcode' => $warehouseBarcode,
+            'total_productions' => $records->count(),
+            'production_barcodes' => $records->pluck('output_barcode')->unique()->values(),
+            'total_transferred_weight' => $records->sum('input_weight'),
+            'productions' => $records->map(function ($item) {
+                return [
+                    'production_barcode' => $item->output_barcode,
+                    'date' => $item->created_at->format('Y-m-d H:i'),
+                    'weight' => $item->input_weight,
+                    'stage' => $item->stage,
+                    'metadata' => $item->metadata,
+                ];
+            }),
+        ];
+    }
 }

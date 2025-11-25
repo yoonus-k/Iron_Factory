@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('unit_name')->comment('اسم الوحدة');
             $table->string('unit_name_en')->comment('اسم الوحدة بالإنجليزية');
             $table->string('unit_symbol', 10)->comment('رمز الوحدة المختصر');
-            $table->enum('unit_type', ['weight', 'length', 'volume', 'count', 'area'])->comment('نوع الوحدة');
+            $table->enum('unit_type', ['weight', 'quantity'])->comment('نوع الوحدة');
             $table->decimal('conversion_factor', 12, 6)->default(1)->nullable()->comment('معامل التحويل للوحدة الأساسية');
             $table->string('base_unit', 20)->nullable()->comment('الوحدة الأساسية للتحويل');
             $table->text('description')->nullable()->comment('وصف الوحدة');

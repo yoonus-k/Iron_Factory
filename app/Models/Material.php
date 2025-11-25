@@ -11,6 +11,7 @@ class Material extends Model
     protected $fillable = [
         'warehouse_id',
         'material_type_id',
+        'unit_id',
         'barcode',
         'batch_number',
         'name_ar',

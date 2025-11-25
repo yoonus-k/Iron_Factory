@@ -224,21 +224,7 @@
         </div>
     @endif -->
 
-    <!-- معلومات الشحنة -->
-    <div class="info-card">
-        <div class="card-title">📦 معلومات الشحنة</div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-            <div>
-                <div style="color: #7f8c8d; font-size: 14px; margin-bottom: 5px;">المورد</div>
-                <div style="font-size: 18px; font-weight: bold;">{{ $deliveryNote->supplier->name ?? 'غير محدد' }}</div>
-            </div>
-            <div>
-                <div style="color: #7f8c8d; font-size: 14px; margin-bottom: 5px;">المادة</div>
-                <div style="font-size: 18px; font-weight: bold;">{{ $deliveryNote->material->name_ar ?? 'غير محدد' }}</div>
-            </div>
-        </div>
-    </div>
+    <!-- معلومات الشحنة - مخفي -->
 
     <!-- الكميات -->
     <div class="info-card">
@@ -267,7 +253,53 @@
         @csrf
         
         <div class="info-card">
-            <div class="card-title">✏️ كم تريد نقله؟</div>
+            <div class="card-title">✏️ تفاصيل النقل للإنتاج</div>
+            
+            <!-- المادة -->
+            <div class="input-group-simple">
+                <label class="label-simple">📦 المادة</label>
+                <div class="input-simple" style="background: #f8f9fa; color: #2c3e50; cursor: default;">
+                    {{ $deliveryNote->material->name_ar ?? 'غير محدد' }}
+                </div>
+            </div>
+            
+            <!-- اختيار المرحلة الإنتاجية -->
+            <div class="input-group-simple">
+                <label class="label-simple">🏭 المرحلة الإنتاجية <span style="color: #e74c3c;">*</span></label>
+                <select name="production_stage" id="productionStage" class="input-simple" required style="cursor: pointer;">
+                    @php
+                        $productionStages = \App\Models\ProductionStage::getActiveStages();
+                    @endphp
+                    @foreach($productionStages as $stage)
+                        <option value="{{ $stage->stage_code }}" {{ $stage->stage_code == 'stage_1' ? 'selected' : '' }}>
+                            {{ $stage->stage_name }} 
+                           
+                        </option>
+                    @endforeach
+                </select>
+                <small style="color: #7f8c8d; font-size: 13px; margin-top: 5px; display: block;">
+                    المرحلة الأولى محددة افتراضياً
+                </small>
+            </div>
+            
+            <!-- اختيار الموظف المستلم -->
+            <div class="input-group-simple">
+                <label class="label-simple">👤 الموظف المستلم <span style="color: #e74c3c;">*</span></label>
+                <select name="assigned_to" id="assignedTo" class="input-simple" required style="cursor: pointer;">
+                    <option value="">-- اختر الموظف المستلم --</option>
+                    @php
+                        $workers = \App\Models\User::where('is_active', 1)
+                            ->orderBy('name')
+                            ->get();
+                    @endphp
+                    @foreach($workers as $worker)
+                        <option value="{{ $worker->id }}">{{ $worker->name }}</option>
+                    @endforeach
+                </select>
+                <small style="color: #7f8c8d; font-size: 13px; margin-top: 5px; display: block;">
+                    سيتم إرسال إشعار للموظف لتأكيد الاستلام
+                </small>
+            </div>
             
             <div class="input-group-simple">
                 <label class="label-simple">⚖️ الكمية (كجم) <span style="color: #e74c3c;">*</span></label>
@@ -303,7 +335,7 @@
                 
                 <div class="preview-item">
                     <span style="color: #7f8c8d;">حالة الشحنة:</span>
-                    <span id="statusBadge" style="background: #27ae60; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">🏭 في الإنتاج</span>
+                    <span id="statusBadge" style="background: #f39c12; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">⏳ بانتظار التأكيد</span>
                 </div>
             </div>
             
@@ -337,9 +369,10 @@
                 <div style="font-weight: bold; color: #2c3e50; margin-bottom: 10px;">نصائح سريعة:</div>
                 <ul style="margin: 0; padding-right: 20px; color: #555; line-height: 1.8;">
                     <li>يمكنك نقل الكمية كاملة أو جزء منها</li>
-                    <li>عند النقل الكامل، تنتقل الشحنة لحالة "في الإنتاج"</li>
-                    <li>عند النقل الجزئي، يمكنك نقل الباقي لاحقاً</li>
-                    <li>الباركود سيستخدم في المرحلة الأولى من الإنتاج</li>
+                    <li>المرحلة الأولى محددة افتراضياً، يمكنك تغييرها حسب الحاجة</li>
+                    <li>سيتم إرسال إشعار للموظف المستلم لتأكيد الاستلام</li>
+                    <li>الدفعة تنتقل للإنتاج بعد تأكيد الموظف المستلم</li>
+                    <li>في حالة الرفض، ستعود الكمية للمستودع تلقائياً</li>
                 </ul>
             </div>
         </div>

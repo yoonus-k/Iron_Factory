@@ -123,13 +123,7 @@
                             <select name="unit_type" id="unit_type" class="form-input @error('unit_type') error @enderror" required>
                                 <option value="">-- اختر النوع --</option>
                                 <option value="weight" {{ old('unit_type') == 'weight' ? 'selected' : '' }}>الوزن</option>
-                                <option value="length" {{ old('unit_type') == 'length' ? 'selected' : '' }}>الطول</option>
-                                <option value="volume" {{ old('unit_type') == 'volume' ? 'selected' : '' }}>الحجم</option>
-                                <option value="area" {{ old('unit_type') == 'area' ? 'selected' : '' }}>المساحة</option>
                                 <option value="quantity" {{ old('unit_type') == 'quantity' ? 'selected' : '' }}>الكمية</option>
-                                <option value="time" {{ old('unit_type') == 'time' ? 'selected' : '' }}>الوقت</option>
-                                <option value="temperature" {{ old('unit_type') == 'temperature' ? 'selected' : '' }}>درجة الحرارة</option>
-                                <option value="other" {{ old('unit_type') == 'other' ? 'selected' : '' }}>أخرى</option>
                             </select>
                         </div>
                         @error('unit_type')

@@ -10,6 +10,7 @@ use App\Models\Supplier;
 use App\Models\Warehouse;
 use App\Models\User;
 use App\Models\MaterialMovement;
+use App\Models\RegistrationLog;
 use App\Services\NotificationService;
 use App\Traits\StoresNotifications;
 use Modules\Manufacturing\Traits\LogsOperations;
@@ -220,6 +221,7 @@ class DeliveryNoteController extends Controller
                 'material_detail_id' => $type === 'outgoing' ? 'required|exists:material_details,id' : 'nullable|exists:material_details,id',
                 'warehouse_id' => $type === 'incoming' ? 'required|exists:warehouses,id' : 'nullable|exists:warehouses,id',
                 'warehouse_from_id' => $type === 'outgoing' ? 'required|exists:warehouses,id' : 'nullable|exists:warehouses,id',
+                'coil_number' => 'nullable|string|max:100', // ✅ رقم الكويل (اختياري)
                 'quantity' => $type === 'incoming' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
                 'delivery_quantity' => $type === 'outgoing' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
                 'actual_weight' => 'nullable|numeric|min:0',
@@ -334,6 +336,24 @@ class DeliveryNoteController extends Controller
                     'registration_status' => 'registered',
                     'registered_by' => Auth::id() ?? 1,
                     'registered_at' => now(),
+                    'delivery_quantity' => $validated['quantity'], // ✅ حفظ الكمية
+                    'delivered_weight' => $validated['actual_weight'] ?? $validated['quantity'], // ✅ الوزن
+                    'quantity_remaining' => $validated['quantity'], // ✅ الكمية المتبقية
+                    'quantity_used' => 0, // ✅ لم تُستخدم بعد
+                ]);
+
+                // ✅ إنشاء سجل التسجيل في RegistrationLog
+                RegistrationLog::create([
+                    'delivery_note_id' => $deliveryNote->id,
+                    'weight_recorded' => $validated['actual_weight'] ?? $validated['quantity'],
+                    'supplier_id' => $deliveryNote->supplier_id,
+                    'material_id' => $validated['material_id'],
+                    'unit_id' => null, // سيتم تعبئته من MaterialDetail
+                    'location' => null,
+                    'registered_by' => Auth::id() ?? 1,
+                    'registered_at' => now(),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
                 ]);
 
                 // ✅ تحديث كمية المادة في المستودع الواردة
@@ -389,10 +409,13 @@ class DeliveryNoteController extends Controller
                                     'material_id' => $validated['material_id'],
                                     'unit_id' => $materialDetail->unit_id,
                                     'batch_code' => $batchCode,
+                                    'coil_number' => $validated['coil_number'] ?? null, // ✅ رقم الكويل
                                     'initial_quantity' => $quantityToAdd,
                                     'available_quantity' => $quantityToAdd,
                                     'batch_date' => now()->toDateString(),
                                     'warehouse_id' => $validated['warehouse_id'],
+                                    'unit_price' => null,
+                                    'total_value' => null,
                                     'status' => 'available',
                                     'notes' => 'استلام مواد خام - أذن رقم ' . $deliveryNote->note_number,
                                 ]);
@@ -439,9 +462,33 @@ class DeliveryNoteController extends Controller
                         ]);
                     }
                 }
+
+                // ✅ تسجيل الحركة في material_movements للأذن الواردة مع batch_id
+                if (isset($batch)) {
+                    MaterialMovement::create([
+                        'movement_number' => MaterialMovement::generateMovementNumber(),
+                        'movement_type' => 'incoming',
+                        'source' => 'registration',
+                        'delivery_note_id' => $deliveryNote->id,
+                        'material_detail_id' => $deliveryNote->material_detail_id,
+                        'material_id' => $validated['material_id'],
+                        'batch_id' => $batch->id, // ✅ إضافة batch_id
+                        'unit_id' => $batch->unit_id,
+                        'quantity' => $validated['quantity'],
+                        'to_warehouse_id' => $deliveryNote->warehouse_id,
+                        'supplier_id' => $deliveryNote->supplier_id,
+                        'description' => 'تسجيل بضاعة واردة - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id),
+                        'notes' => null,
+                        'created_by' => Auth::id() ?? 1,
+                        'movement_date' => now(),
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent(),
+                        'status' => 'completed',
+                    ]);
+                }
             }
 
-            // تسجيل الحركة في material_movements
+            // تسجيل الحركة في material_movements للأذن الصادرة
             if ($type === 'outgoing' && !empty($validated['delivery_quantity']) && $validated['delivery_quantity'] > 0) {
                 $materialDetail = null;
                 if (!empty($validated['material_detail_id'])) {

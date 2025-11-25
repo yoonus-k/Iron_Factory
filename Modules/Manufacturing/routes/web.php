@@ -20,6 +20,7 @@ use Modules\Manufacturing\Http\Controllers\WarehouseRegistrationController;
 use Modules\Manufacturing\Http\Controllers\ReconciliationController;
 use Modules\Manufacturing\Http\Controllers\MaterialMovementController;
 use Modules\Manufacturing\Http\Controllers\WarehouseReportsController;
+use Modules\Manufacturing\Http\Controllers\ProductionConfirmationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -155,6 +156,16 @@ Route::middleware(['auth'])->group(function () {
 
     // API endpoint for movement details
     Route::get('material-movements/{id}', [MaterialMovementController::class, 'getDetails'])->name('manufacturing.material-movements.details');
+
+    // ========== تأكيدات الإنتاج ==========
+    Route::prefix('manufacturing/production/confirmations')->name('manufacturing.production.confirmations.')->group(function () {
+        Route::get('pending', [ProductionConfirmationController::class, 'pendingConfirmations'])->name('pending');
+        Route::get('/', [ProductionConfirmationController::class, 'index'])->name('index');
+        Route::get('{id}', [ProductionConfirmationController::class, 'show'])->name('show');
+        Route::post('{id}/confirm', [ProductionConfirmationController::class, 'confirm'])->name('confirm');
+        Route::post('{id}/reject', [ProductionConfirmationController::class, 'reject'])->name('reject');
+        Route::get('{id}/details', [ProductionConfirmationController::class, 'getDetails'])->name('details');
+    });
 
     // ========== تقارير وإحصائيات المستودع ==========
     Route::prefix('warehouse/reports')->group(function () {

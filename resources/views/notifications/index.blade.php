@@ -101,6 +101,9 @@
                                 <option value="delivery_note_registered" {{ request('type') === 'delivery_note_registered' ? 'selected' : '' }}>أذن توصيل</option>
                                 <option value="weight_discrepancy" {{ request('type') === 'weight_discrepancy' ? 'selected' : '' }}>فرق وزن</option>
                                 <option value="moved_to_production" {{ request('type') === 'moved_to_production' ? 'selected' : '' }}>نقل للإنتاج</option>
+                                <option value="production_transfer" {{ request('type') === 'production_transfer' ? 'selected' : '' }}>طلب استلام دفعة</option>
+                                <option value="production_confirmed" {{ request('type') === 'production_confirmed' ? 'selected' : '' }}>تأكيد استلام</option>
+                                <option value="production_rejected" {{ request('type') === 'production_rejected' ? 'selected' : '' }}>رفض استلام</option>
                                 <option value="custom" {{ request('type') === 'custom' ? 'selected' : '' }}>مخصص</option>
                             </select>
                         </div>
