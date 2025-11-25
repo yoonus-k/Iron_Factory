@@ -24,6 +24,25 @@ class ReconciliationController extends Controller
     public function __construct(NotificationService $notificationService)
     {
         $this->notificationService = $notificationService;
+
+        // ✅ حماية عمليات التسوية والربط بالصلاحيات
+        $this->middleware('permission:WAREHOUSE_RECONCILIATION_UPDATE', [
+            'only' => ['link', 'decide', 'editDeliveryNote', 'editInvoice', 'editReconciliation',
+                      'updateDeliveryNote', 'updateInvoice', 'updateReconciliation']
+        ]);
+
+        $this->middleware('permission:WAREHOUSE_RECONCILIATION_DELETE', [
+            'only' => ['deleteDeliveryNote', 'deleteInvoice', 'deleteReconciliation', 'deleteMovement']
+        ]);
+
+        $this->middleware('permission:WAREHOUSE_RECONCILIATION_LINK_INVOICE', [
+            'only' => ['showLinkInvoice', 'storeLinkInvoice', 'editLinkInvoice',
+                      'updateLinkInvoice', 'deleteLinkInvoice']
+        ]);
+
+        $this->middleware('permission:WAREHOUSE_RECONCILIATION_MANAGEMENT', [
+            'only' => ['showManagement']
+        ]);
     }
 
     /**

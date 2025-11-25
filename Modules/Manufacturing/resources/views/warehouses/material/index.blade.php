@@ -141,10 +141,13 @@
                     <i class="feather icon-list"></i>
                     قائمة المواد
                 </h4>
-                <a href="{{ route('manufacturing.warehouse-products.create') }}" class="um-btn um-btn-primary">
-                    <i class="feather icon-plus"></i>
-                    إضافة مادة جديدة
-                </a>
+                {{-- ✅ التحقق من صلاحية الإضافة --}}
+                @if (auth()->user()->hasPermission('WAREHOUSE_MATERIALS_CREATE'))
+                    <a href="{{ route('manufacturing.warehouse-products.create') }}" class="um-btn um-btn-primary">
+                        <i class="feather icon-plus"></i>
+                        إضافة مادة جديدة
+                    </a>
+                @endif
             </div>
 
             <!-- Filters Section -->
@@ -278,35 +281,49 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div class="um-dropdown">
-                                        <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
-                                            <i class="feather icon-more-vertical"></i>
-                                        </button>
-                                        <div class="um-dropdown-menu">
-                                            <a href="{{ route('manufacturing.warehouse-products.show', $material->id) }}"
-                                                class="um-dropdown-item um-btn-view">
-                                                <i class="feather icon-eye"></i>
-                                                <span>عرض</span>
-                                            </a>
+                                    {{-- ✅ التحقق من الصلاحيات قبل عرض الأزرار --}}
+                                    @if (auth()->user()->hasPermission('WAREHOUSE_MATERIALS_READ') || auth()->user()->hasPermission('WAREHOUSE_MATERIALS_UPDATE') || auth()->user()->hasPermission('WAREHOUSE_MATERIALS_DELETE'))
+                                        <div class="um-dropdown">
+                                            <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                                <i class="feather icon-more-vertical"></i>
+                                            </button>
+                                            <div class="um-dropdown-menu">
+                                                {{-- عرض المادة --}}
+                                                @if (auth()->user()->hasPermission('WAREHOUSE_MATERIALS_READ'))
+                                                    <a href="{{ route('manufacturing.warehouse-products.show', $material->id) }}"
+                                                        class="um-dropdown-item um-btn-view">
+                                                        <i class="feather icon-eye"></i>
+                                                        <span>عرض</span>
+                                                    </a>
+                                                @endif
 
-                                            <a href="{{ route('manufacturing.warehouse-products.edit', $material->id) }}"
-                                                class="um-dropdown-item um-btn-edit">
-                                                <i class="feather icon-edit-2"></i>
-                                                <span>تعديل</span>
-                                            </a>
+                                                {{-- تعديل المادة --}}
+                                                @if (auth()->user()->hasPermission('WAREHOUSE_MATERIALS_UPDATE'))
+                                                    <a href="{{ route('manufacturing.warehouse-products.edit', $material->id) }}"
+                                                        class="um-dropdown-item um-btn-edit">
+                                                        <i class="feather icon-edit-2"></i>
+                                                        <span>تعديل</span>
+                                                    </a>
+                                                @endif
 
-                                            <form method="POST"
-                                                action="{{ route('manufacturing.warehouse-products.destroy', $material->id) }}"
-                                                style="display: inline;" class="delete-form">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="um-dropdown-item um-btn-delete">
-                                                    <i class="feather icon-trash-2"></i>
-                                                    <span>حذف</span>
-                                                </button>
-                                            </form>
+                                                {{-- حذف المادة --}}
+                                                @if (auth()->user()->hasPermission('WAREHOUSE_MATERIALS_DELETE'))
+                                                    <form method="POST"
+                                                        action="{{ route('manufacturing.warehouse-products.destroy', $material->id) }}"
+                                                        style="display: inline;" class="delete-form">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="um-dropdown-item um-btn-delete">
+                                                            <i class="feather icon-trash-2"></i>
+                                                            <span>حذف</span>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
                                         </div>
-                                    </div>
+                                    @else
+                                        <span class="text-muted small">بدون صلاحيات</span>
+                                    @endif
                                 </td>
 
                             </tr>

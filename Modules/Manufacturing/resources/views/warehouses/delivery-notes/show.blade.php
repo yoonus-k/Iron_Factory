@@ -91,76 +91,86 @@
                     </a>
 
                     @if($deliveryNote->type === 'incoming')
-                        <a href="{{ route('manufacturing.warehouse.registration.transfer-form', $deliveryNote) }}" class="btn btn-success">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline>
-                                <line x1="12" y1="12" x2="20" y2="7.5"></line>
-                                <line x1="12" y1="12" x2="12" y2="21"></line>
-                                <line x1="12" y1="12" x2="4" y2="7.5"></line>
-                            </svg>
-                            نقل للإنتاج
-                        </a>
+                        @if (auth()->user()->hasPermission('WAREHOUSE_REGISTRATION_TRANSFER'))
+                            <a href="{{ route('manufacturing.warehouse.registration.transfer-form', $deliveryNote) }}" class="btn btn-success">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline>
+                                    <line x1="12" y1="12" x2="20" y2="7.5"></line>
+                                    <line x1="12" y1="12" x2="12" y2="21"></line>
+                                    <line x1="12" y1="12" x2="4" y2="7.5"></line>
+                                </svg>
+                                نقل للإنتاج
+                            </a>
+                        @endif
 
                         @if (!$deliveryNote->is_locked)
-                            <button class="btn" type="button" data-bs-toggle="modal" data-bs-target="#lockModal" title="تقفيل الشحنة">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                                </svg>
-                                تقفيل
-                            </button>
-                        @else
-                            <form action="{{ route('manufacturing.warehouse.registration.unlock', $deliveryNote) }}" method="POST" style="display:inline;">
-                                @csrf
-                                <button type="submit" class="btn btn-info" onclick="return confirm('هل تريد فتح القفل؟')">
+                            @if (auth()->user()->hasPermission('WAREHOUSE_REGISTRATION_LOCK'))
+                                <button class="btn" type="button" data-bs-toggle="modal" data-bs-target="#lockModal" title="تقفيل الشحنة">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                        <path d="M7 11V7a5 5 0 0 1 9.2-1"></path>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                                     </svg>
-                                    فتح القفل
+                                    تقفيل
                                 </button>
-                            </form>
+                            @endif
+                        @else
+                            @if (auth()->user()->hasPermission('WAREHOUSE_REGISTRATION_UNLOCK'))
+                                <form action="{{ route('manufacturing.warehouse.registration.unlock', $deliveryNote) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-info" onclick="return confirm('هل تريد فتح القفل؟')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                            <path d="M7 11V7a5 5 0 0 1 9.2-1"></path>
+                                        </svg>
+                                        فتح القفل
+                                    </button>
+                                </form>
+                            @endif
                         @endif
                     @endif
 
-                    <a href="{{ route('manufacturing.delivery-notes.edit', $deliveryNote->id) }}" class="btn btn-edit">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                        تعديل
-                    </a>
+                    @if (auth()->user()->hasPermission('WAREHOUSE_DELIVERY_NOTES_UPDATE'))
+                        <a href="{{ route('manufacturing.delivery-notes.edit', $deliveryNote->id) }}" class="btn btn-edit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            تعديل
+                        </a>
+                    @endif
 
                     <!-- تغيير الحالة (Status) في الـ Header -->
-                    <div class="dropdown">
-                        <button class="btn" type="button" data-bs-toggle="dropdown" title="تغيير حالة الأذن">
-                            @php
-                                $statusColor = $deliveryNote->status->color();
-                                $colorCode = $statusColor === 'yellow' ? '#f39c12' : ($statusColor === 'green' ? '#27ae60' : ($statusColor === 'red' ? '#e74c3c' : '#3498db'));
-                            @endphp
-                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: {{ $colorCode }}; margin-left: 6px;"></span>
-                            {{ $deliveryNote->status->label() }}
-                        </button>
-                        <ul class="dropdown-menu">
-                            @foreach(\App\Models\DeliveryNoteStatus::cases() as $status)
+                    @if (auth()->user()->hasPermission('WAREHOUSE_DELIVERY_NOTES_UPDATE'))
+                        <div class="dropdown">
+                            <button class="btn" type="button" data-bs-toggle="dropdown" title="تغيير حالة الأذن">
                                 @php
-                                    $btnColor = $status->color();
-                                    $btnColorCode = $btnColor === 'yellow' ? '#f39c12' : ($btnColor === 'green' ? '#27ae60' : ($btnColor === 'red' ? '#e74c3c' : '#3498db'));
+                                    $statusColor = $deliveryNote->status->color();
+                                    $colorCode = $statusColor === 'yellow' ? '#f39c12' : ($statusColor === 'green' ? '#27ae60' : ($statusColor === 'red' ? '#e74c3c' : '#3498db'));
                                 @endphp
-                                <li>
-                                    <form method="POST" action="{{ route('manufacturing.delivery-notes.update-status', $deliveryNote->id) }}" style="display: inline;">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="status" value="{{ $status->value }}">
-                                        <button type="submit" class="dropdown-item {{ $deliveryNote->status === $status ? 'active' : '' }}" style="padding: 10px 15px;">
-                                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: {{ $btnColorCode }}; margin-left: 8px;"></span>
-                                            {{ $status->label() }}
-                                        </button>
-                                    </form>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
+                                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: {{ $colorCode }}; margin-left: 6px;"></span>
+                                {{ $deliveryNote->status->label() }}
+                            </button>
+                            <ul class="dropdown-menu">
+                                @foreach(\App\Models\DeliveryNoteStatus::cases() as $status)
+                                    @php
+                                        $btnColor = $status->color();
+                                        $btnColorCode = $btnColor === 'yellow' ? '#f39c12' : ($btnColor === 'green' ? '#27ae60' : ($btnColor === 'red' ? '#e74c3c' : '#3498db'));
+                                    @endphp
+                                    <li>
+                                        <form method="POST" action="{{ route('manufacturing.delivery-notes.update-status', $deliveryNote->id) }}" style="display: inline;">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="{{ $status->value }}">
+                                            <button type="submit" class="dropdown-item {{ $deliveryNote->status === $status ? 'active' : '' }}" style="padding: 10px 15px;">
+                                                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: {{ $btnColorCode }}; margin-left: 8px;"></span>
+                                                {{ $status->label() }}
+                                            </button>
+                                        </form>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

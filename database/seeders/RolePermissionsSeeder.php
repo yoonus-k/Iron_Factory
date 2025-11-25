@@ -27,16 +27,9 @@ class RolePermissionsSeeder extends Seeder
                 $this->command->info('⚙️  ربط صلاحيات Admin...');
                 $allPermissions = Permission::all();
                 $admin->permissions()->detach(); // مسح القديم
-                
+
                 foreach ($allPermissions as $permission) {
-                    $admin->permissions()->attach($permission->id, [
-                        'can_create' => true,
-                        'can_read' => true,
-                        'can_update' => true,
-                        'can_delete' => true,
-                        'can_approve' => true,
-                        'can_export' => true,
-                    ]);
+                    $admin->permissions()->attach($permission->id);
                 }
             }
 
@@ -44,23 +37,23 @@ class RolePermissionsSeeder extends Seeder
             if ($manager) {
                 $this->command->info('⚙️  ربط صلاحيات Manager...');
                 $manager->permissions()->detach();
-                
-                $managerPermissions = Permission::whereIn('permission_code', [
+
+                $managerPermissions = Permission::whereIn('name', [
                     'MANAGE_USERS', 'MANAGE_MATERIALS', 'MANAGE_SUPPLIERS', 'MANAGE_WAREHOUSES',
                     'WAREHOUSE_TRANSFERS', 'STAGE1_STANDS', 'STAGE2_PROCESSING', 'STAGE3_COILS',
                     'STAGE4_PACKAGING', 'PURCHASE_INVOICES', 'SALES_INVOICES', 'MANAGE_MOVEMENTS',
-                    'VIEW_REPORTS', 'PRODUCTION_REPORTS', 'INVENTORY_REPORTS', 'VIEW_DASHBOARD'
+                    'VIEW_REPORTS', 'PRODUCTION_REPORTS', 'INVENTORY_REPORTS', 'VIEW_DASHBOARD',
+                    'MENU_WAREHOUSE_REGISTRATION', 'WAREHOUSE_REGISTRATION_READ', 'WAREHOUSE_REGISTRATION_CREATE',
+                    'WAREHOUSE_REGISTRATION_UPDATE', 'WAREHOUSE_REGISTRATION_LOCK', 'WAREHOUSE_REGISTRATION_UNLOCK', 'WAREHOUSE_REGISTRATION_TRANSFER',
+                    'MENU_WAREHOUSE_RECONCILIATION', 'WAREHOUSE_RECONCILIATION_READ', 'WAREHOUSE_RECONCILIATION_CREATE',
+                    'WAREHOUSE_RECONCILIATION_UPDATE', 'WAREHOUSE_RECONCILIATION_MANAGEMENT', 'WAREHOUSE_RECONCILIATION_LINK_INVOICE',
+                    'MENU_WAREHOUSE_MOVEMENTS', 'WAREHOUSE_MOVEMENTS_READ', 'WAREHOUSE_MOVEMENTS_DETAILS',
+                    'MENU_WAREHOUSE_PURCHASE_INVOICES', 'WAREHOUSE_PURCHASE_INVOICES_READ', 'WAREHOUSE_PURCHASE_INVOICES_CREATE',
+                    'WAREHOUSE_PURCHASE_INVOICES_UPDATE', 'WAREHOUSE_PURCHASE_INVOICES_DELETE'
                 ])->get();
-                
+
                 foreach ($managerPermissions as $permission) {
-                    $manager->permissions()->attach($permission->id, [
-                        'can_create' => true,
-                        'can_read' => true,
-                        'can_update' => true,
-                        'can_delete' => false,
-                        'can_approve' => true,
-                        'can_export' => true,
-                    ]);
+                    $manager->permissions()->attach($permission->id);
                 }
             }
 
@@ -68,21 +61,15 @@ class RolePermissionsSeeder extends Seeder
             if ($supervisor) {
                 $this->command->info('⚙️  ربط صلاحيات Supervisor...');
                 $supervisor->permissions()->detach();
-                
-                $supervisorPermissions = Permission::whereIn('permission_code', [
+
+                $supervisorPermissions = Permission::whereIn('name', [
                     'STAGE1_STANDS', 'STAGE2_PROCESSING', 'STAGE3_COILS', 'STAGE4_PACKAGING',
-                    'MANAGE_MOVEMENTS', 'VIEW_REPORTS', 'PRODUCTION_REPORTS', 'VIEW_DASHBOARD'
+                    'MANAGE_MOVEMENTS', 'VIEW_REPORTS', 'PRODUCTION_REPORTS', 'VIEW_DASHBOARD',
+                    'WAREHOUSE_REGISTRATION_READ', 'WAREHOUSE_RECONCILIATION_READ', 'WAREHOUSE_MOVEMENTS_READ'
                 ])->get();
-                
+
                 foreach ($supervisorPermissions as $permission) {
-                    $supervisor->permissions()->attach($permission->id, [
-                        'can_create' => true,
-                        'can_read' => true,
-                        'can_update' => true,
-                        'can_delete' => false,
-                        'can_approve' => false,
-                        'can_export' => false,
-                    ]);
+                    $supervisor->permissions()->attach($permission->id);
                 }
             }
 
@@ -90,42 +77,33 @@ class RolePermissionsSeeder extends Seeder
             if ($accountant) {
                 $this->command->info('⚙️  ربط صلاحيات Accountant...');
                 $accountant->permissions()->detach();
-                
-                $accountantPermissions = Permission::whereIn('permission_code', [
-                    'PURCHASE_INVOICES', 'SALES_INVOICES', 'VIEW_REPORTS', 'INVENTORY_REPORTS', 'VIEW_DASHBOARD'
-                ])->get();
-                
-                foreach ($accountantPermissions as $permission) {
-                    $accountant->permissions()->attach($permission->id, [
-                        'can_create' => true,
-                        'can_read' => true,
-                        'can_update' => true,
-                        'can_delete' => false,
-                        'can_approve' => true,
-                        'can_export' => true,
-                    ]);
-                }
-            }
 
-            // Warehouse Keeper - صلاحيات المخازن
+                $accountantPermissions = Permission::whereIn('name', [
+                    'PURCHASE_INVOICES', 'SALES_INVOICES', 'VIEW_REPORTS', 'INVENTORY_REPORTS', 'VIEW_DASHBOARD',
+                    'MENU_WAREHOUSE_PURCHASE_INVOICES', 'WAREHOUSE_PURCHASE_INVOICES_READ', 'WAREHOUSE_PURCHASE_INVOICES_CREATE',
+                    'WAREHOUSE_PURCHASE_INVOICES_UPDATE', 'WAREHOUSE_PURCHASE_INVOICES_DELETE'
+                ])->get();
+
+                foreach ($accountantPermissions as $permission) {
+                    $accountant->permissions()->attach($permission->id);
+                }
+            }            // Warehouse Keeper - صلاحيات المخازن
             if ($warehouseKeeper) {
                 $this->command->info('⚙️  ربط صلاحيات Warehouse Keeper...');
                 $warehouseKeeper->permissions()->detach();
-                
-                $warehousePermissions = Permission::whereIn('permission_code', [
-                    'MANAGE_WAREHOUSES', 'WAREHOUSE_TRANSFERS', 'MANAGE_MOVEMENTS', 
-                    'VIEW_REPORTS', 'INVENTORY_REPORTS', 'VIEW_DASHBOARD'
+
+                $warehousePermissions = Permission::whereIn('name', [
+                    'MANAGE_WAREHOUSES', 'WAREHOUSE_TRANSFERS', 'MANAGE_MOVEMENTS',
+                    'VIEW_REPORTS', 'INVENTORY_REPORTS', 'VIEW_DASHBOARD',
+                    'MENU_WAREHOUSE_REGISTRATION', 'WAREHOUSE_REGISTRATION_READ', 'WAREHOUSE_REGISTRATION_CREATE',
+                    'WAREHOUSE_REGISTRATION_UPDATE', 'WAREHOUSE_REGISTRATION_LOCK', 'WAREHOUSE_REGISTRATION_UNLOCK', 'WAREHOUSE_REGISTRATION_TRANSFER',
+                    'MENU_WAREHOUSE_RECONCILIATION', 'WAREHOUSE_RECONCILIATION_READ', 'WAREHOUSE_RECONCILIATION_CREATE',
+                    'WAREHOUSE_RECONCILIATION_UPDATE', 'WAREHOUSE_RECONCILIATION_LINK_INVOICE',
+                    'MENU_WAREHOUSE_MOVEMENTS', 'WAREHOUSE_MOVEMENTS_READ', 'WAREHOUSE_MOVEMENTS_DETAILS'
                 ])->get();
-                
+
                 foreach ($warehousePermissions as $permission) {
-                    $warehouseKeeper->permissions()->attach($permission->id, [
-                        'can_create' => true,
-                        'can_read' => true,
-                        'can_update' => true,
-                        'can_delete' => false,
-                        'can_approve' => false,
-                        'can_export' => false,
-                    ]);
+                    $warehouseKeeper->permissions()->attach($permission->id);
                 }
             }
 
@@ -133,20 +111,13 @@ class RolePermissionsSeeder extends Seeder
             if ($worker) {
                 $this->command->info('⚙️  ربط صلاحيات Worker...');
                 $worker->permissions()->detach();
-                
-                $workerPermissions = Permission::whereIn('permission_code', [
+
+                $workerPermissions = Permission::whereIn('name', [
                     'STAGE1_STANDS', 'STAGE2_PROCESSING', 'STAGE3_COILS', 'STAGE4_PACKAGING', 'VIEW_DASHBOARD'
                 ])->get();
-                
+
                 foreach ($workerPermissions as $permission) {
-                    $worker->permissions()->attach($permission->id, [
-                        'can_create' => true,
-                        'can_read' => true,
-                        'can_update' => false,
-                        'can_delete' => false,
-                        'can_approve' => false,
-                        'can_export' => false,
-                    ]);
+                    $worker->permissions()->attach($permission->id);
                 }
             }
 

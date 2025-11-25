@@ -10,6 +10,14 @@ use Illuminate\Routing\Controller;
 
 class MaterialMovementController extends Controller
 {
+    public function __construct()
+    {
+        // ✅ حماية عرض تفاصيل الحركات بالصلاحيات
+        $this->middleware('permission:WAREHOUSE_MOVEMENTS_DETAILS', [
+            'only' => ['show', 'getDetails']
+        ]);
+    }
+
     /**
      * Display all material movements
      */
@@ -153,10 +161,10 @@ class MaterialMovementController extends Controller
                 // Determine barcode display type and title
                 'is_production_barcode' => $movement->movement_type === 'to_production',
                 'is_warehouse_update' => $movement->movement_type === 'adjustment' && $movement->source === 'production',
-                'barcode_title' => $movement->movement_type === 'to_production' 
-                    ? 'باركود الإنتاج' 
-                    : ($movement->movement_type === 'adjustment' && $movement->source === 'production' 
-                        ? 'الباركود المحدث للمستودع' 
+                'barcode_title' => $movement->movement_type === 'to_production'
+                    ? 'باركود الإنتاج'
+                    : ($movement->movement_type === 'adjustment' && $movement->source === 'production'
+                        ? 'الباركود المحدث للمستودع'
                         : 'باركود دخول المستودع')
             ]
         ]);

@@ -51,10 +51,12 @@
                     <i class="feather icon-list"></i>
                     قائمة فواتير الشراء
                 </h4>
-                <a href="{{ route('manufacturing.purchase-invoices.create') }}" class="um-btn um-btn-primary">
-                    <i class="feather icon-plus"></i>
-                    إضافة فاتورة شراء جديدة
-                </a>
+                @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_CREATE'))
+                    <a href="{{ route('manufacturing.purchase-invoices.create') }}" class="um-btn um-btn-primary">
+                        <i class="feather icon-plus"></i>
+                        إضافة فاتورة شراء جديدة
+                    </a>
+                @endif
             </div>
 
             <!-- Filters Section -->
@@ -147,22 +149,28 @@
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
-                                        <a href="{{ route('manufacturing.purchase-invoices.show', $invoice->id) }}" class="um-dropdown-item um-btn-view">
-                                            <i class="feather icon-eye"></i>
-                                            <span>عرض</span>
-                                        </a>
-                                        <a href="{{ route('manufacturing.purchase-invoices.edit', $invoice->id) }}" class="um-dropdown-item um-btn-edit">
-                                            <i class="feather icon-edit-2"></i>
-                                            <span>تعديل</span>
-                                        </a>
-                                        <form action="{{ route('manufacturing.purchase-invoices.destroy', $invoice->id) }}" method="POST" style="display: inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="um-dropdown-item um-btn-delete" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟')">
-                                                <i class="feather icon-trash-2"></i>
-                                                <span>حذف</span>
-                                            </button>
-                                        </form>
+                                        @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_READ'))
+                                            <a href="{{ route('manufacturing.purchase-invoices.show', $invoice->id) }}" class="um-dropdown-item um-btn-view">
+                                                <i class="feather icon-eye"></i>
+                                                <span>عرض</span>
+                                            </a>
+                                        @endif
+                                        @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_UPDATE'))
+                                            <a href="{{ route('manufacturing.purchase-invoices.edit', $invoice->id) }}" class="um-dropdown-item um-btn-edit">
+                                                <i class="feather icon-edit-2"></i>
+                                                <span>تعديل</span>
+                                            </a>
+                                        @endif
+                                        @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_DELETE'))
+                                            <form action="{{ route('manufacturing.purchase-invoices.destroy', $invoice->id) }}" method="POST" style="display: inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="um-dropdown-item um-btn-delete" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+                                                    <i class="feather icon-trash-2"></i>
+                                                    <span>حذف</span>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </div>
                             </td>
@@ -228,22 +236,28 @@
                                 <i class="feather icon-more-vertical"></i>
                             </button>
                             <div class="um-dropdown-menu">
-                                <a href="{{ route('manufacturing.purchase-invoices.show', $invoice->id) }}" class="um-dropdown-item um-btn-view">
-                                    <i class="feather icon-eye"></i>
-                                    <span>عرض</span>
-                                </a>
-                                <a href="{{ route('manufacturing.purchase-invoices.edit', $invoice->id) }}" class="um-dropdown-item um-btn-edit">
-                                    <i class="feather icon-edit-2"></i>
-                                    <span>تعديل</span>
-                                </a>
-                                <form action="{{ route('manufacturing.purchase-invoices.destroy', $invoice->id) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="um-dropdown-item um-btn-delete" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟')">
-                                        <i class="feather icon-trash-2"></i>
-                                        <span>حذف</span>
-                                    </button>
-                                </form>
+                                @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_READ'))
+                                    <a href="{{ route('manufacturing.purchase-invoices.show', $invoice->id) }}" class="um-dropdown-item um-btn-view">
+                                        <i class="feather icon-eye"></i>
+                                        <span>عرض</span>
+                                    </a>
+                                @endif
+                                @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_UPDATE'))
+                                    <a href="{{ route('manufacturing.purchase-invoices.edit', $invoice->id) }}" class="um-dropdown-item um-btn-edit">
+                                        <i class="feather icon-edit-2"></i>
+                                        <span>تعديل</span>
+                                    </a>
+                                @endif
+                                @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_DELETE'))
+                                    <form action="{{ route('manufacturing.purchase-invoices.destroy', $invoice->id) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="um-dropdown-item um-btn-delete" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+                                            <i class="feather icon-trash-2"></i>
+                                            <span>حذف</span>
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </div>
                     </div>

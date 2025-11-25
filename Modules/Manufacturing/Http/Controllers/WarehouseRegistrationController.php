@@ -51,6 +51,15 @@ class WarehouseRegistrationController extends Controller
         $this->duplicateService = $duplicateService;
         $this->warehouseService = $warehouseService;
         $this->notificationService = $notificationService;
+
+        // ✅ حماية عمليات النقل والتحويل بالصلاحيات
+        $this->middleware('permission:WAREHOUSE_REGISTRATION_TRANSFER', [
+            'only' => ['showTransferForm', 'transferToProduction', 'moveToProduction', 'showProductionBarcode']
+        ]);
+
+        $this->middleware('permission:WAREHOUSE_REGISTRATION_LOCK', [
+            'only' => ['lock', 'unlock']
+        ]);
     }
 
     /**
@@ -471,7 +480,7 @@ class WarehouseRegistrationController extends Controller
     public function showTransferForm(DeliveryNote $deliveryNote)
     {
         \Log::info('showTransferForm called', ['id' => $deliveryNote->id]);
-        
+
         // تحميل العلاقات المطلوبة بقوة
         $deliveryNote->load(['materialDetail', 'materialDetail.unit', 'material', 'supplier', 'materialBatch']);
 
@@ -581,29 +590,29 @@ class WarehouseRegistrationController extends Controller
             $barcodeSetting = BarcodeSetting::where('type', 'raw_material')->first();
             $productionBarcode = null;
             $remainingBarcode = null;
-            
+
             if ($batchId) {
                 $batch = MaterialBatch::find($batchId);
                 if ($batch && $barcodeSetting) {
                     $originalBarcode = $batch->batch_code;
                     $newAvailableQty = max(0, $batch->available_quantity - $transferQuantity);
-                    
+
                     // 🔹 السيناريو 1: نقل كامل (استخدام نفس الباركود)
                     if ($isFullTransfer) {
                         $productionBarcode = $originalBarcode; // نفس الباركود ينتقل للإنتاج
-                        
+
                         // تحديث حالة الدفعة الأصلية
                         $batch->available_quantity = 0;
                         $batch->status = 'consumed'; // استُهلكت بالكامل
                         $batch->latest_production_barcode = $productionBarcode;
                         $batch->save();
-                        
+
                         Log::info('✅ نقل كامل - نفس الباركود', [
                             'original_barcode' => $originalBarcode,
                             'production_barcode' => $productionBarcode,
                             'quantity' => $transferQuantity,
                         ]);
-                        
+
                         // 🔹 نقل كامل: حركة واحدة فقط
                         MaterialMovement::create([
                             'movement_number' => MaterialMovement::generateMovementNumber(),
@@ -625,7 +634,7 @@ class WarehouseRegistrationController extends Controller
                             'user_agent' => request()->userAgent(),
                             'status' => 'completed',
                         ]);
-                        
+
                         // تسجيل التتبع للنقل الكامل
                         ProductTracking::create([
                             'barcode' => $originalBarcode,
@@ -647,17 +656,17 @@ class WarehouseRegistrationController extends Controller
                                 'delivery_note_id' => $deliveryNote->id,
                             ]),
                         ]);
-                    } 
+                    }
                     // 🔹 السيناريو 2: نقل جزئي (تقسيم الباركود)
                     else {
                         // 1️⃣ إنشاء باركود جديد للكمية المنقولة للإنتاج
                         $nextNumber1 = $barcodeSetting->getNextNumber();
                         $productionBarcode = $barcodeSetting->generateBarcode($nextNumber1);
-                        
+
                         // 2️⃣ إنشاء باركود جديد للكمية المتبقية في المستودع
                         $nextNumber2 = $barcodeSetting->getNextNumber();
                         $remainingBarcode = $barcodeSetting->generateBarcode($nextNumber2);
-                        
+
                         // 3️⃣ تحديث الدفعة الأصلية - تقليل الكمية فقط (الباركود يبقى كما هو)
                         $originalInitialQuantity = $batch->initial_quantity;
                         $batch->available_quantity = 0; // تم استهلاك كل الكمية (جزء للإنتاج وجزء للباركود الجديد)
@@ -665,7 +674,7 @@ class WarehouseRegistrationController extends Controller
                         $batch->latest_production_barcode = $productionBarcode;
                         $batch->notes = ($batch->notes ?? '') . ' | تم التقسيم: ' . $transferQuantity . ' كجم للإنتاج (' . $productionBarcode . ') + ' . $newAvailableQty . ' كجم للمستودع (' . $remainingBarcode . ')';
                         $batch->save();
-                        
+
                         // 4️⃣ إنشاء دفعة جديدة للكمية المتبقية في المستودع
                         $remainingBatch = MaterialBatch::create([
                             'material_id' => $batch->material_id,
@@ -681,7 +690,7 @@ class WarehouseRegistrationController extends Controller
                             'status' => 'available',
                             'notes' => 'تم تقسيمه من الباركود الأصلي: ' . $originalBarcode . ' - كمية متبقية في المستودع',
                         ]);
-                        
+
                         // 5️⃣ إنشاء دفعة جديدة للكمية المنقولة للإنتاج
                         $productionBatch = MaterialBatch::create([
                             'material_id' => $batch->material_id,
@@ -697,7 +706,7 @@ class WarehouseRegistrationController extends Controller
                             'status' => 'in_production',
                             'notes' => 'تم تقسيمه من الباركود الأصلي: ' . $originalBarcode . ' - كمية منقولة للإنتاج',
                         ]);
-                        
+
                         // 6️⃣ تسجيل التقسيم الأصلي في product_tracking
                         ProductTracking::create([
                             'barcode' => $originalBarcode,
@@ -724,7 +733,7 @@ class WarehouseRegistrationController extends Controller
                                 'delivery_note_id' => $deliveryNote->id,
                             ]),
                         ]);
-                        
+
                         // 7️⃣ تسجيل التتبع للباركود المتبقي في المستودع
                         ProductTracking::create([
                             'barcode' => $remainingBarcode,
@@ -749,7 +758,7 @@ class WarehouseRegistrationController extends Controller
                                 'delivery_note_id' => $deliveryNote->id,
                             ]),
                         ]);
-                        
+
                         // 8️⃣ تسجيل التتبع للباركود المنقول للإنتاج
                         ProductTracking::create([
                             'barcode' => $productionBarcode,
@@ -774,7 +783,7 @@ class WarehouseRegistrationController extends Controller
                                 'delivery_note_id' => $deliveryNote->id,
                             ]),
                         ]);
-                        
+
                         Log::info('✅ نقل جزئي - تقسيم الباركود', [
                             'original_barcode' => $originalBarcode,
                             'original_batch_id' => $batch->id,
@@ -785,7 +794,7 @@ class WarehouseRegistrationController extends Controller
                             'remaining_quantity' => $newAvailableQty,
                             'remaining_batch_id' => $remainingBatch->id,
                         ]);
-                        
+
                         // 🔹 1️⃣ حركة تحديث الكمية - إنشاء باركود جديد للكمية المتبقية في المستودع
                         MaterialMovement::create([
                             'movement_number' => MaterialMovement::generateMovementNumber(),
@@ -807,7 +816,7 @@ class WarehouseRegistrationController extends Controller
                             'user_agent' => request()->userAgent(),
                             'status' => 'completed',
                         ]);
-                        
+
                         // 🔹 2️⃣ حركة النقل للإنتاج
                         MaterialMovement::create([
                             'movement_number' => MaterialMovement::generateMovementNumber(),
@@ -838,7 +847,7 @@ class WarehouseRegistrationController extends Controller
 
             // ✅ الحصول على معلومات المرحلة
             $stage = ProductionStage::getByCode($validated['production_stage']);
-            
+
             // ✅ تحديث كمية الأذن المنقولة وحفظ باركود الإنتاج والمرحلة
             $newQuantityUsed = ($deliveryNote->quantity_used ?? 0) + $transferQuantity;
             $deliveryNote->update([

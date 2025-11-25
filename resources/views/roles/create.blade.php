@@ -240,27 +240,93 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // جمع أسماء المجموعات الحقيقية من الـ HTML
+        const groupsMap = {};
+        document.querySelectorAll('.check-all').forEach(function(checkbox) {
+            const groupKey = checkbox.getAttribute('data-group');
+            groupsMap[groupKey] = groupKey;
+        });
+
+        console.log('مجموعات الصلاحيات:', groupsMap);
+
+        // البنية الهرمية: كل مجموعة فرعية تشير إلى آبائها
+        const hierarchy = {
+            // المستودع الرئيسي
+            'almawad-alkhama': ['almstw'],
+            'almkhazin': ['almstw'],
+            'mdhakrat-altaslim': ['almstw'],
+            'fawatir-alshira': ['almstw'],
+            'almurudin': ['almstw'],
+
+            // الإعدادات الفرعية
+            'anwa-almawad': ['alaeadadt', 'almstw'],
+            'whudat-alqias': ['alaeadadt', 'almstw'],
+            'tsjil-albad': ['alaeadadt', 'almstw'],
+            'tswiya-almstw': ['alaeadadt', 'almstw'],
+            'hrkdt-almawad': ['alaeadadt', 'almstw'],
+            'alaeadadt': ['almstw']
+        };
+
         function updateGroupState(groupKey) {
             const groupItems = document.querySelectorAll('.perm-checkbox[data-group="' + groupKey + '"]');
             const checkAll = document.getElementById('check_all_' + groupKey);
             if (!checkAll) return;
-            const allChecked = Array.from(groupItems).every(cb => cb.checked);
-            const anyChecked = Array.from(groupItems).some(cb => cb.checked);
-            checkAll.indeterminate = !allChecked && anyChecked;
-            checkAll.checked = allChecked;
+
+            const checkedCount = Array.from(groupItems).filter(cb => cb.checked).length;
+
+            // إذا كان هناك أي عنصر محدد، حدد "تحديد الكل"
+            if (checkedCount > 0) {
+                checkAll.checked = true;
+                checkAll.indeterminate = false;
+            } else {
+                // إذا لم يكن هناك أي عنصر محدد، ألغ "تحديد الكل"
+                checkAll.checked = false;
+                checkAll.indeterminate = false;
+            }
+
+            // تحديث الآباء تلقائياً
+            if (hierarchy[groupKey]) {
+                hierarchy[groupKey].forEach(function(parentKey) {
+                    updateGroupState(parentKey);
+                });
+            }
         }
 
+        // تفعيل زر "تحديد الكل" عند الضغط عليه
         document.querySelectorAll('.check-all').forEach(function(toggle) {
             toggle.addEventListener('change', function() {
                 const groupKey = this.getAttribute('data-group');
+                const isChecked = this.checked;
+
                 document.querySelectorAll('.perm-checkbox[data-group="' + groupKey + '"]').forEach(function(cb) {
-                    cb.checked = toggle.checked;
+                    cb.checked = isChecked;
                 });
+
                 updateGroupState(groupKey);
+
+                // إذا كان الآب مفعل، فعل جميع الأطفال
+                if (isChecked) {
+                    Object.keys(hierarchy).forEach(function(childKey) {
+                        if (hierarchy[childKey] && hierarchy[childKey].includes(groupKey)) {
+                            const childCheckAll = document.getElementById('check_all_' + childKey);
+                            if (childCheckAll) {
+                                childCheckAll.checked = true;
+                                childCheckAll.indeterminate = false;
+                            }
+                            document.querySelectorAll('.perm-checkbox[data-group="' + childKey + '"]').forEach(function(cb) {
+                                cb.checked = true;
+                            });
+                            updateGroupState(childKey);
+                        }
+                    });
+                }
             });
+
+            // تحديث الحالة الأولية لكل مجموعة
             updateGroupState(toggle.getAttribute('data-group'));
         });
 
+        // تحديث "تحديد الكل" تلقائياً عند تحديد/إلغاء تحديد أي صلاحية
         document.querySelectorAll('.perm-checkbox').forEach(function(cb) {
             cb.addEventListener('change', function() {
                 const groupKey = this.getAttribute('data-group');

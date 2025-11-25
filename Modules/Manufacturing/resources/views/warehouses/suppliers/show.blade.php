@@ -308,24 +308,28 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('manufacturing.suppliers.edit', $supplier->id) }}" class="btn btn-edit">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                        تعديل
-                    </a>
-                    <form method="POST" action="{{ route('manufacturing.suppliers.toggle-status', $supplier->id) }}" style="display: inline;">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="btn" style="background-color: {{ $supplier->is_active ? '#e74c3c' : '#27ae60' }}; color: white; border: none;">
+                    @if (auth()->user()->hasPermission('WAREHOUSE_SUPPLIERS_UPDATE'))
+                        <a href="{{ route('manufacturing.suppliers.edit', $supplier->id) }}" class="btn btn-edit">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
-                            {{ $supplier->is_active ? 'تعطيل' : 'تفعيل' }}
-                        </button>
-                    </form>
+                            تعديل
+                        </a>
+                    @endif
+                    @if (auth()->user()->hasPermission('WAREHOUSE_SUPPLIERS_UPDATE'))
+                        <form method="POST" action="{{ route('manufacturing.suppliers.toggle-status', $supplier->id) }}" style="display: inline;">
+                            @csrf
+                            @method('PUT')
+                            <button type="submit" class="btn" style="background-color: {{ $supplier->is_active ? '#e74c3c' : '#27ae60' }}; color: white; border: none;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                {{ $supplier->is_active ? 'تعطيل' : 'تفعيل' }}
+                            </button>
+                        </form>
+                    @endif
                     <a href="{{ route('manufacturing.suppliers.index') }}" class="btn btn-back">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -748,14 +752,16 @@
                         </div>
                     </button>
 
-                    <button type="button" class="action-btn delete" onclick="deleteSupplier({{ $supplier->id }})">
-                        <div class="action-icon">
-                            <i class="feather icon-trash-2"></i>
-                        </div>
-                        <div class="action-text">
-                            <span>حذف</span>
-                        </div>
-                    </button>
+                    @if (auth()->user()->hasPermission('WAREHOUSE_SUPPLIERS_DELETE'))
+                        <button type="button" class="action-btn delete" onclick="deleteSupplier({{ $supplier->id }})">
+                            <div class="action-icon">
+                                <i class="feather icon-trash-2"></i>
+                            </div>
+                            <div class="action-text">
+                                <span>حذف</span>
+                            </div>
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>

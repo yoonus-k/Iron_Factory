@@ -9,7 +9,7 @@
         margin: 0 auto;
         padding: 20px;
     }
-    
+
     .step-indicator {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -21,7 +21,7 @@
         gap: 20px;
         box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
     }
-    
+
     .step-number {
         background: rgba(255,255,255,0.3);
         width: 50px;
@@ -34,7 +34,7 @@
         font-weight: bold;
         border: 3px solid white;
     }
-    
+
     .simple-card {
         background: white;
         border-radius: 15px;
@@ -42,7 +42,7 @@
         box-shadow: 0 2px 10px rgba(0,0,0,0.08);
         margin-bottom: 20px;
     }
-    
+
     .card-title {
         font-size: 20px;
         font-weight: bold;
@@ -54,11 +54,11 @@
         align-items: center;
         gap: 10px;
     }
-    
+
     .form-group-simple {
         margin-bottom: 25px;
     }
-    
+
     .label-simple {
         display: block;
         font-size: 16px;
@@ -66,12 +66,12 @@
         color: #2c3e50;
         margin-bottom: 8px;
     }
-    
+
     .required-mark {
         color: #e74c3c;
         font-size: 18px;
     }
-    
+
     .input-simple {
         width: 100%;
         padding: 15px;
@@ -80,25 +80,25 @@
         font-size: 16px;
         transition: all 0.3s;
     }
-    
+
     .input-simple:focus {
         border-color: #667eea;
         outline: none;
         box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
     }
-    
+
     .input-simple:disabled {
         background-color: #f5f5f5;
         cursor: not-allowed;
     }
-    
+
     .type-selector {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 15px;
         margin-bottom: 25px;
     }
-    
+
     .type-option {
         padding: 20px;
         border: 3px solid #e0e0e0;
@@ -108,33 +108,33 @@
         text-align: center;
         position: relative;
     }
-    
+
     .type-option input[type="radio"] {
         position: absolute;
         opacity: 0;
     }
-    
+
     .type-option input[type="radio"]:checked + .type-content {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
     }
-    
+
     .type-content {
         padding: 15px;
         border-radius: 8px;
         transition: all 0.3s;
     }
-    
+
     .type-icon {
         font-size: 36px;
         margin-bottom: 10px;
     }
-    
+
     .type-text {
         font-size: 18px;
         font-weight: bold;
     }
-    
+
     .btn-submit-simple {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -151,12 +151,12 @@
         justify-content: center;
         gap: 10px;
     }
-    
+
     .btn-submit-simple:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
     }
-    
+
     .btn-cancel-simple {
         background: #95a5a6;
         color: white;
@@ -173,11 +173,11 @@
         text-decoration: none;
         transition: all 0.3s;
     }
-    
+
     .btn-cancel-simple:hover {
         background: #7f8c8d;
     }
-    
+
     .helper-text {
         background: #e8f5e9;
         border-right: 4px solid #4caf50;
@@ -187,20 +187,20 @@
         font-size: 14px;
         color: #2e7d32;
     }
-    
+
     .alert-simple {
         padding: 20px;
         border-radius: 12px;
         margin-bottom: 20px;
         font-size: 16px;
     }
-    
+
     .alert-success {
         background: #d4edda;
         border: 2px solid #c3e6cb;
         color: #155724;
     }
-    
+
     .alert-error {
         background: #f8d7da;
         border: 2px solid #f5c6cb;
@@ -248,12 +248,20 @@
     <form method="POST" action="{{ route('manufacturing.delivery-notes.store') }}" id="deliveryForm">
         @csrf
 
-        <!-- نوع الأذن -->
+        {{-- ✅ التحقق من صلاحية الإنشاء --}}
+        @if (!auth()->user()->hasPermission('WAREHOUSE_DELIVERY_NOTES_CREATE'))
+            <div class="alert-simple alert-error" style="margin-bottom: 20px;">
+                ❌ ليس لديك صلاحية لإنشاء أذن تسليم جديدة
+            </div>
+            <a href="{{ route('manufacturing.delivery-notes.index') }}" class="btn-cancel-simple">
+                ← العودة
+            </a>
+        @else
         <div class="simple-card">
             <div class="card-title">
                 🔄 نوع الأذن
             </div>
-            
+
             <div class="type-selector">
                 <label class="type-option">
                     <input type="radio" name="type" value="incoming" checked>
@@ -263,7 +271,7 @@
                         <small>من المورد</small>
                     </div>
                 </label>
-                
+
                 <label class="type-option">
                     <input type="radio" name="type" value="outgoing">
                     <div class="type-content">
@@ -283,7 +291,7 @@
             <div class="card-title">
                 📥 بيانات الشحنة الواردة
             </div>
-            
+
             <div class="form-group-simple">
                 <label class="label-simple">🏭 المستودع <span class="required-mark">*</span></label>
                 <select name="warehouse_id" id="warehouseSelect" class="input-simple" required>
@@ -293,7 +301,7 @@
                     @endforeach
                 </select>
             </div>
-            
+
             <div class="form-group-simple">
                 <label class="label-simple">🎲 رقم الكويل (اختياري)</label>
                 <input type="text" name="coil_number" class="input-simple" placeholder="أدخل رقم الكويل إن وُجد">
@@ -301,7 +309,7 @@
                     ✓ يمكنك إدخال رقم الكويل لتسهيل التتبع
                 </div>
             </div>
-            
+
             <div class="form-group-simple">
                 <label class="label-simple">📦 المادة <span class="required-mark">*</span></label>
                 <select name="material_id" id="materialSelect" class="input-simple" required>
@@ -311,7 +319,7 @@
                     @endforeach
                 </select>
             </div>
-            
+
             <div class="form-group-simple">
                 <label class="label-simple">⚖️ الكمية <span class="required-mark">*</span></label>
                 <input type="number" name="quantity" class="input-simple" placeholder="أدخل الكمية" step="0.01" min="0.01" required>
@@ -326,7 +334,7 @@
             <div class="card-title">
                 📤 بيانات الشحنة الصادرة
             </div>
-            
+
             <div class="form-group-simple">
                 <label class="label-simple">🏢 المستودع المصدر <span class="required-mark">*</span></label>
                 <select name="warehouse_from_id" id="warehouseFromSelect" class="input-simple">
@@ -336,19 +344,19 @@
                     @endforeach
                 </select>
             </div>
-            
+
             <div class="form-group-simple">
                 <label class="label-simple">📦 المادة <span class="required-mark">*</span></label>
                 <select name="material_detail_id" id="materialDetailSelect" class="input-simple">
                     <option value="">اختر المادة</option>
                 </select>
             </div>
-            
+
             <div class="form-group-simple">
                 <label class="label-simple">⚖️ الكمية <span class="required-mark">*</span></label>
                 <input type="number" name="delivery_quantity" class="input-simple" placeholder="أدخل الكمية" step="0.01" min="0.01">
             </div>
-            
+
             <div class="form-group-simple">
                 <label class="label-simple">🎯 الوجهة <span class="required-mark">*</span></label>
                 <select name="destination_id" class="input-simple">
@@ -369,6 +377,7 @@
                 ✕ إلغاء
             </a>
         </div>
+        @endif
     </form>
 </div>
 
@@ -377,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const typeRadios = document.querySelectorAll('input[name="type"]');
     const incomingCard = document.getElementById('incomingCard');
     const outgoingCard = document.getElementById('outgoingCard');
-    
+
     typeRadios.forEach(radio => {
         radio.addEventListener('change', function() {
             if (this.value === 'incoming') {
@@ -407,15 +416,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // تحميل المواد للصادرة بناءً على المستودع
     const warehouseFromSelect = document.getElementById('warehouseFromSelect');
     const materialDetailSelect = document.getElementById('materialDetailSelect');
-    
+
     warehouseFromSelect.addEventListener('change', function() {
         const warehouseId = this.value;
         materialDetailSelect.innerHTML = '<option value="">جاري التحميل...</option>';
-        
+
         if (warehouseId) {
             fetch(`/manufacturing/warehouses/${warehouseId}/materials`)
                 .then(response => response.json())

@@ -143,10 +143,12 @@
                     <i class="feather icon-list"></i>
                     قائمة الموردين
                 </h4>
-                <a href="{{ route('manufacturing.suppliers.create') }}" class="um-btn um-btn-primary">
-                    <i class="feather icon-plus"></i>
-                    إضافة مورد جديد
-                </a>
+                @if (auth()->user()->hasPermission('WAREHOUSE_SUPPLIERS_CREATE'))
+                    <a href="{{ route('manufacturing.suppliers.create') }}" class="um-btn um-btn-primary">
+                        <i class="feather icon-plus"></i>
+                        إضافة مورد جديد
+                    </a>
+                @endif
             </div>
 
             <!-- Filters Section -->
@@ -217,29 +219,37 @@
 
         <div class="um-dropdown-menu">
 
-            <a href="{{ route('manufacturing.suppliers.show', $supplier->id) }}"
-               class="um-dropdown-item um-btn-view">
-                <i class="feather icon-eye"></i>
-                <span>عرض</span>
-            </a>
+            @if (auth()->user()->hasPermission('WAREHOUSE_SUPPLIERS_READ'))
+                <a href="{{ route('manufacturing.suppliers.show', $supplier->id) }}"
+                   class="um-dropdown-item um-btn-view">
+                    <i class="feather icon-eye"></i>
+                    <span>عرض</span>
+                </a>
+            @endif
 
-            <a href="{{ route('manufacturing.suppliers.edit', $supplier->id) }}"
-               class="um-dropdown-item um-btn-edit">
-                <i class="feather icon-edit-2"></i>
-                <span>تعديل</span>
-            </a>
+            @if (auth()->user()->hasPermission('WAREHOUSE_SUPPLIERS_UPDATE'))
+                <a href="{{ route('manufacturing.suppliers.edit', $supplier->id) }}"
+                   class="um-dropdown-item um-btn-edit">
+                    <i class="feather icon-edit-2"></i>
+                    <span>تعديل</span>
+                </a>
+            @endif
 
-            <button class="um-dropdown-item um-btn-delete"
-                    onclick="deleteSupplier({{ $supplier->id }})">
-                <i class="feather icon-trash-2"></i>
-                <span>حذف</span>
-            </button>
+            @if (auth()->user()->hasPermission('WAREHOUSE_SUPPLIERS_DELETE'))
+                <button class="um-dropdown-item um-btn-delete"
+                        onclick="deleteSupplier({{ $supplier->id }})">
+                    <i class="feather icon-trash-2"></i>
+                    <span>حذف</span>
+                </button>
+            @endif
 
-            <button class="um-dropdown-item um-btn-status"
-                    onclick="toggleStatus({{ $supplier->id }})">
-                <i class="feather {{ $supplier->is_active ? 'icon-toggle-right' : 'icon-toggle-left' }}"></i>
-                <span>{{ $supplier->is_active ? 'تعطيل' : 'تفعيل' }}</span>
-            </button>
+            @if (auth()->user()->hasPermission('WAREHOUSE_SUPPLIERS_UPDATE'))
+                <button class="um-dropdown-item um-btn-status"
+                        onclick="toggleStatus({{ $supplier->id }})">
+                    <i class="feather {{ $supplier->is_active ? 'icon-toggle-right' : 'icon-toggle-left' }}"></i>
+                    <span>{{ $supplier->is_active ? 'تعطيل' : 'تفعيل' }}</span>
+                </button>
+            @endif
 
         </div>
     </div>

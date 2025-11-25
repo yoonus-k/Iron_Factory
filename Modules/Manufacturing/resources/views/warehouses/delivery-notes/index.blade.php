@@ -518,22 +518,30 @@
                     إدارة تسجيل الشحنات الواردة
                 </h4>
                 <div style="display: flex; gap: 10px;">
-                    <a href="{{ route('manufacturing.warehouse.movements.index') }}" class="um-btn um-btn-primary">
-                        <i class="fas fa-exchange-alt"></i>
-                        سجل الحركات
-                    </a>
-                    <a href="{{ route('manufacturing.warehouses.reconciliation.link-invoice') }}" class="um-btn um-btn-primary">
-                        <i class="fas fa-link"></i>
-                        ربط فاتورة
-                    </a>
-                    <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="um-btn um-btn-primary">
-                        <i class="fas fa-balance-scale"></i>
-                        التسويات
-                    </a>
-                     <a href="{{ route('manufacturing.delivery-notes.create') }}" class="um-btn um-btn-primary">
-                        <i class="fas fa-balance-scale"></i>
-                        اضافة اذن تسليم
-                    </a>
+                    @if (auth()->user()->hasPermission('WAREHOUSE_MOVEMENTS_DETAILS'))
+                        <a href="{{ route('manufacturing.warehouse.movements.index') }}" class="um-btn um-btn-primary">
+                            <i class="fas fa-exchange-alt"></i>
+                            سجل الحركات
+                        </a>
+                    @endif
+                    @if (auth()->user()->hasPermission('WAREHOUSE_RECONCILIATION_LINK_INVOICE'))
+                        <a href="{{ route('manufacturing.warehouses.reconciliation.link-invoice') }}" class="um-btn um-btn-primary">
+                            <i class="fas fa-link"></i>
+                            ربط فاتورة
+                        </a>
+                    @endif
+                    @if (auth()->user()->hasPermission('WAREHOUSE_RECONCILIATION_READ'))
+                        <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="um-btn um-btn-primary">
+                            <i class="fas fa-balance-scale"></i>
+                            التسويات
+                        </a>
+                    @endif
+                    @if (auth()->user()->hasPermission('WAREHOUSE_DELIVERY_NOTES_CREATE'))
+                        <a href="{{ route('manufacturing.delivery-notes.create') }}" class="um-btn um-btn-primary">
+                            <i class="fas fa-balance-scale"></i>
+                            اضافة اذن تسليم
+                        </a>
+                    @endif
                 </div>
             </div>
 
@@ -694,23 +702,29 @@
                                             <i class="feather icon-more-vertical"></i>
                                         </button>
                                         <div class="um-dropdown-menu">
-                                            <a href="{{ route('manufacturing.delivery-notes.show', $note->id) }}" class="um-dropdown-item um-btn-view">
-                                                <i class="feather icon-eye"></i>
-                                                <span>عرض</span>
-                                            </a>
+                                            @if (auth()->user()->hasPermission('WAREHOUSE_DELIVERY_NOTES_READ'))
+                                                <a href="{{ route('manufacturing.delivery-notes.show', $note->id) }}" class="um-dropdown-item um-btn-view">
+                                                    <i class="feather icon-eye"></i>
+                                                    <span>عرض</span>
+                                                </a>
+                                            @endif
 
-                                            <a href="{{ route('manufacturing.delivery-notes.edit', $note->id) }}" class="um-dropdown-item um-btn-edit">
-                                                <i class="feather icon-edit-2"></i>
-                                                <span>تعديل</span>
-                                            </a>
-                                            <form method="POST" action="{{ route('manufacturing.delivery-notes.destroy', $note->id) }}" style="display: inline;" class="delete-form">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="um-dropdown-item um-btn-delete" style="width: 100%; text-align: right; border: none; background: none; cursor: pointer;">
-                                                    <i class="feather icon-trash-2"></i>
-                                                    <span>حذف</span>
-                                                </button>
-                                            </form>
+                                            @if (auth()->user()->hasPermission('WAREHOUSE_DELIVERY_NOTES_UPDATE'))
+                                                <a href="{{ route('manufacturing.delivery-notes.edit', $note->id) }}" class="um-dropdown-item um-btn-edit">
+                                                    <i class="feather icon-edit-2"></i>
+                                                    <span>تعديل</span>
+                                                </a>
+                                            @endif
+                                            @if (auth()->user()->hasPermission('WAREHOUSE_DELIVERY_NOTES_DELETE'))
+                                                <form method="POST" action="{{ route('manufacturing.delivery-notes.destroy', $note->id) }}" style="display: inline;" class="delete-form">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="um-dropdown-item um-btn-delete" style="width: 100%; text-align: right; border: none; background: none; cursor: pointer;">
+                                                        <i class="feather icon-trash-2"></i>
+                                                        <span>حذف</span>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     </div>
                                 </td>

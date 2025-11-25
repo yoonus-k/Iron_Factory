@@ -77,44 +77,48 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('manufacturing.purchase-invoices.edit', $invoice->id) }}" class="btn btn-edit">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                        تعديل
-                    </a>
+                    @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_UPDATE'))
+                        <a href="{{ route('manufacturing.purchase-invoices.edit', $invoice->id) }}" class="btn btn-edit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            تعديل
+                        </a>
+                    @endif
 
                     <!-- تغيير الحالة (Status) في الـ Header -->
-                    <div class="dropdown">
-                        <button class="btn" type="button" data-bs-toggle="dropdown" title="تغيير حالة الفاتورة">
-                            @php
-                                $statusColor = $invoice->status->color();
-                                $colorCode = $statusColor === 'yellow' ? '#f39c12' : ($statusColor === 'green' ? '#27ae60' : ($statusColor === 'red' ? '#e74c3c' : '#3498db'));
-                            @endphp
-                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: {{ $colorCode }}; margin-left: 6px;"></span>
-                            {{ $invoice->status->label() }}
-                        </button>
-                        <ul class="dropdown-menu">
-                            @foreach(\App\Models\InvoiceStatus::cases() as $status)
+                    @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_UPDATE'))
+                        <div class="dropdown">
+                            <button class="btn" type="button" data-bs-toggle="dropdown" title="تغيير حالة الفاتورة">
                                 @php
-                                    $btnColor = $status->color();
-                                    $btnColorCode = $btnColor === 'yellow' ? '#f39c12' : ($btnColor === 'green' ? '#27ae60' : ($btnColor === 'red' ? '#e74c3c' : '#3498db'));
+                                    $statusColor = $invoice->status->color();
+                                    $colorCode = $statusColor === 'yellow' ? '#f39c12' : ($statusColor === 'green' ? '#27ae60' : ($statusColor === 'red' ? '#e74c3c' : '#3498db'));
                                 @endphp
-                                <li>
-                                    <form method="POST" action="{{ route('manufacturing.purchase-invoices.update-status', $invoice->id) }}" style="display: inline;">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="status" value="{{ $status->value }}">
-                                        <button type="submit" class="dropdown-item {{ $invoice->status === $status ? 'active' : '' }}" style="padding: 10px 15px;">
-                                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: {{ $btnColorCode }}; margin-left: 8px;"></span>
-                                            {{ $status->label() }}
-                                        </button>
-                                    </form>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
+                                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: {{ $colorCode }}; margin-left: 6px;"></span>
+                                {{ $invoice->status->label() }}
+                            </button>
+                            <ul class="dropdown-menu">
+                                @foreach(\App\Models\InvoiceStatus::cases() as $status)
+                                    @php
+                                        $btnColor = $status->color();
+                                        $btnColorCode = $btnColor === 'yellow' ? '#f39c12' : ($btnColor === 'green' ? '#27ae60' : ($btnColor === 'red' ? '#e74c3c' : '#3498db'));
+                                    @endphp
+                                    <li>
+                                        <form method="POST" action="{{ route('manufacturing.purchase-invoices.update-status', $invoice->id) }}" style="display: inline;">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="{{ $status->value }}">
+                                            <button type="submit" class="dropdown-item {{ $invoice->status === $status ? 'active' : '' }}" style="padding: 10px 15px;">
+                                                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: {{ $btnColorCode }}; margin-left: 8px;"></span>
+                                                {{ $status->label() }}
+                                            </button>
+                                        </form>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
 
                     <a href="{{ route('manufacturing.purchase-invoices.index') }}" class="btn btn-back">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -29,6 +29,25 @@
             <span>تعديل الدور</span>
         </nav>
     </div>
+    @if(session('success'))
+        <div class="um-alert-custom um-alert-success" role="alert">
+            <i class="feather icon-check-circle"></i>
+            {{ session('success') }}
+            <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                <i class="feather icon-x"></i>
+            </button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="um-alert-custom um-alert-error" role="alert">
+            <i class="feather icon-x-circle"></i>
+            {{ session('error') }}
+            <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                <i class="feather icon-x"></i>
+            </button>
+        </div>
+    @endif
 
     <!-- Form Card -->
     <div class="form-card">
@@ -39,7 +58,7 @@
             <!-- Role Info Section -->
             <div class="form-section">
                 <div class="section-header">
-                    <div class="section-icon personal">
+                    <div class="section-icon">
                         <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="8" r="7"></circle>
                             <path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.11"></path>
@@ -135,7 +154,7 @@
             <!-- Permissions Section -->
             <div class="form-section">
                 <div class="section-header">
-                    <div class="section-icon personal">
+                    <div class="section-icon">
                         <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                             <path d="M7 9h10M7 13h7"></path>
@@ -221,27 +240,93 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // جمع أسماء المجموعات الحقيقية من الـ HTML
+        const groupsMap = {};
+        document.querySelectorAll('.check-all').forEach(function(checkbox) {
+            const groupKey = checkbox.getAttribute('data-group');
+            groupsMap[groupKey] = groupKey;
+        });
+
+        console.log('مجموعات الصلاحيات:', groupsMap);
+
+        // البنية الهرمية: كل مجموعة فرعية تشير إلى آبائها
+        const hierarchy = {
+            // المستودع الرئيسي
+            'almawad-alkhama': ['almstw'],
+            'almkhazin': ['almstw'],
+            'mdhakrat-altaslim': ['almstw'],
+            'fawatir-alshira': ['almstw'],
+            'almurudin': ['almstw'],
+
+            // الإعدادات الفرعية
+            'anwa-almawad': ['alaeadadt', 'almstw'],
+            'whudat-alqias': ['alaeadadt', 'almstw'],
+            'tsjil-albad': ['alaeadadt', 'almstw'],
+            'tswiya-almstw': ['alaeadadt', 'almstw'],
+            'hrkdt-almawad': ['alaeadadt', 'almstw'],
+            'alaeadadt': ['almstw']
+        };
+
         function updateGroupState(groupKey) {
             const groupItems = document.querySelectorAll('.perm-checkbox[data-group="' + groupKey + '"]');
             const checkAll = document.getElementById('check_all_' + groupKey);
             if (!checkAll) return;
-            const allChecked = Array.from(groupItems).every(cb => cb.checked);
-            const anyChecked = Array.from(groupItems).some(cb => cb.checked);
-            checkAll.indeterminate = !allChecked && anyChecked;
-            checkAll.checked = allChecked;
+
+            const checkedCount = Array.from(groupItems).filter(cb => cb.checked).length;
+
+            // إذا كان هناك أي عنصر محدد، حدد "تحديد الكل"
+            if (checkedCount > 0) {
+                checkAll.checked = true;
+                checkAll.indeterminate = false;
+            } else {
+                // إذا لم يكن هناك أي عنصر محدد، ألغ "تحديد الكل"
+                checkAll.checked = false;
+                checkAll.indeterminate = false;
+            }
+
+            // تحديث الآباء تلقائياً
+            if (hierarchy[groupKey]) {
+                hierarchy[groupKey].forEach(function(parentKey) {
+                    updateGroupState(parentKey);
+                });
+            }
         }
 
+        // تفعيل زر "تحديد الكل" عند الضغط عليه
         document.querySelectorAll('.check-all').forEach(function(toggle) {
             toggle.addEventListener('change', function() {
                 const groupKey = this.getAttribute('data-group');
+                const isChecked = this.checked;
+
                 document.querySelectorAll('.perm-checkbox[data-group="' + groupKey + '"]').forEach(function(cb) {
-                    cb.checked = toggle.checked;
+                    cb.checked = isChecked;
                 });
+
                 updateGroupState(groupKey);
+
+                // إذا كان الآب مفعل، فعل جميع الأطفال
+                if (isChecked) {
+                    Object.keys(hierarchy).forEach(function(childKey) {
+                        if (hierarchy[childKey] && hierarchy[childKey].includes(groupKey)) {
+                            const childCheckAll = document.getElementById('check_all_' + childKey);
+                            if (childCheckAll) {
+                                childCheckAll.checked = true;
+                                childCheckAll.indeterminate = false;
+                            }
+                            document.querySelectorAll('.perm-checkbox[data-group="' + childKey + '"]').forEach(function(cb) {
+                                cb.checked = true;
+                            });
+                            updateGroupState(childKey);
+                        }
+                    });
+                }
             });
+
+            // تحديث الحالة الأولية لكل مجموعة
             updateGroupState(toggle.getAttribute('data-group'));
         });
 
+        // تحديث "تحديد الكل" تلقائياً عند تحديد/إلغاء تحديد أي صلاحية
         document.querySelectorAll('.perm-checkbox').forEach(function(cb) {
             cb.addEventListener('change', function() {
                 const groupKey = this.getAttribute('data-group');
