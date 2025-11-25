@@ -54,13 +54,7 @@ class UnitController extends Controller
     {
         $unitTypes = [
             'weight' => 'الوزن',
-            'length' => 'الطول',
-            'volume' => 'الحجم',
-            'area' => 'المساحة',
             'quantity' => 'الكمية',
-            'time' => 'الوقت',
-            'temperature' => 'درجة الحرارة',
-            'other' => 'أخرى',
         ];
 
         // توليد الرمز تلقائياً
