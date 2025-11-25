@@ -63,102 +63,184 @@
         </div>
 
         <div class="card mb-3">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">الصلاحيات</h5>
+                <small class="text-muted">
+                    <i class="fas fa-info-circle"></i> صلاحيات القوائم تحتاج فقط إلى "قراءة" لإظهار القائمة
+                </small>
             </div>
             <div class="card-body">
-                @foreach($permissions as $module => $modulePermissions)
-                <div class="mb-4">
-                    <h6 class="border-bottom pb-2 mb-3">{{ $module }}</h6>
-                    <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th width="30%">الصلاحية</th>
-                                    <th class="text-center">إنشاء</th>
-                                    <th class="text-center">قراءة</th>
-                                    <th class="text-center">تعديل</th>
-                                    <th class="text-center">حذف</th>
-                                    <th class="text-center">موافقة</th>
-                                    <th class="text-center">تصدير</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($modulePermissions as $permission)
-                                @php
-                                    $rolePermission = $role->permissions->find($permission->id);
+                <div class="row">
+                    <!-- Sidebar with module list -->
+                    <div class="col-md-3">
+                        <div class="list-group sticky-top" role="tablist" style="top: 20px;">
+                            @forelse($permissions as $module => $modulePermissions)
+                            <button class="list-group-item list-group-item-action module-tab-btn @if($loop->first) active @endif"
+                                    id="module-{{ $loop->index }}-tab"
+                                    data-bs-toggle="list"
+                                    href="#module-{{ $loop->index }}"
+                                    role="tab"
+                                    data-module-index="{{ $loop->index }}">
+                                <i class="fas fa-folder-open ms-2"></i>{{ $module }}
+                                <span class="badge bg-secondary ms-auto module-count-{{ $loop->index }}">
+                                    {{ $role->permissions->whereIn('id', $modulePermissions->pluck('id'))->count() }}
+                                </span>
+                            </button>
+                            @empty
+                            <p class="text-muted">لا توجد صلاحيات</p>
+                            @endforelse
+                        </div>
+                    </div>
 
-                                    // تحديد الصلاحيات التي لا تحتاج إلى إنشاء/تعديل/حذف
-                                    $viewOnlyPermissions = ['VIEW_MAIN_DASHBOARD', 'VIEW_DAILY_REPORTS', 'VIEW_WASTE_REPORTS', 'VIEW_SHIFT_REPORTS', 'VIEW_NOTIFICATIONS', 'VIEW_ACTIVITY_LOG', 'VIEW_PRICES', 'VIEW_COSTS'];
-                                    $manageOnlyPermissions = ['MANAGE_SYSTEM_SETTINGS', 'MANAGE_BARCODE_SETTINGS', 'MANAGE_BACKUP'];
-                                    $printOnlyPermissions = ['PRINT_BARCODE'];
-                                    $viewWeightPermissions = ['STAGE1_VIEW_WEIGHT', 'STAGE2_VIEW_WEIGHT', 'STAGE3_VIEW_WEIGHT', 'STAGE4_VIEW_WEIGHT'];
-                                    $editWeightPermissions = ['STAGE1_EDIT_WEIGHT', 'STAGE2_EDIT_WEIGHT', 'STAGE3_EDIT_WEIGHT', 'STAGE4_EDIT_WEIGHT'];
-                                    $viewWorkerPermissions = ['STAGE1_VIEW_WORKER', 'STAGE2_VIEW_WORKER', 'STAGE3_VIEW_WORKER', 'STAGE4_VIEW_WORKER'];
+                    <!-- Content area showing selected module's permissions -->
+                    <div class="col-md-9">
+                        <div class="tab-content">
+                            @foreach($permissions as $module => $modulePermissions)
+                            <div class="tab-pane fade @if($loop->first) show active @endif"
+                                 id="module-{{ $loop->index }}"
+                                 role="tabpanel"
+                                 data-module-index="{{ $loop->index }}">
+                                <div class="mb-3">
+                                    <h6 class="mb-3">
+                                        <i class="fas fa-lock ms-2"></i>صلاحيات {{ $module }}
+                                    </h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th width="35%">الصلاحية</th>
+                                                    <th class="text-center" width="11%">
+                                                        <i class="fas fa-plus-circle" title="إنشاء"></i>
+                                                    </th>
+                                                    <th class="text-center" width="11%">
+                                                        <i class="fas fa-eye" title="قراءة"></i>
+                                                    </th>
+                                                    <th class="text-center" width="11%">
+                                                        <i class="fas fa-edit" title="تعديل"></i>
+                                                    </th>
+                                                    <th class="text-center" width="11%">
+                                                        <i class="fas fa-trash" title="حذف"></i>
+                                                    </th>
+                                                    <th class="text-center" width="11%">
+                                                        <i class="fas fa-check-circle" title="موافقة"></i>
+                                                    </th>
+                                                    <th class="text-center" width="10%">
+                                                        <i class="fas fa-download" title="تصدير"></i>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($modulePermissions as $permission)
+                                                @php
+                                                    $rolePermission = $role->permissions->find($permission->id);
 
-                                    $isViewOnly = in_array($permission->permission_code, $viewOnlyPermissions) || in_array($permission->permission_code, $viewWeightPermissions) || in_array($permission->permission_code, $viewWorkerPermissions);
-                                    $isManageOnly = in_array($permission->permission_code, $manageOnlyPermissions) || in_array($permission->permission_code, $editWeightPermissions) || $permission->permission_code == 'EDIT_PRICES';
-                                    $isPrintOnly = in_array($permission->permission_code, $printOnlyPermissions);
-                                    $isDeleteRecords = $permission->permission_code == 'DELETE_RECORDS';
-                                @endphp
-                                <tr>
-                                    <td>{{ $permission->permission_name }}</td>
-                                    <td class="text-center">
-                                        @if(!$isViewOnly && !$isManageOnly && !$isPrintOnly && !$isDeleteRecords)
-                                        <input type="checkbox" name="permissions[{{ $permission->id }}][can_create]" value="1"
-                                               {{ $rolePermission && $rolePermission->pivot->can_create ? 'checked' : '' }}>
-                                        @else
-                                        <span class="text-muted">-</span>
-                                        @endif
-                                        <input type="hidden" name="permissions[{{ $permission->id }}][permission_id]" value="{{ $permission->id }}">
-                                    </td>
-                                    <td class="text-center">
-                                        @if(!$isManageOnly && !$isPrintOnly && !$isDeleteRecords)
-                                        <input type="checkbox" name="permissions[{{ $permission->id }}][can_read]" value="1"
-                                               {{ $rolePermission && $rolePermission->pivot->can_read ? 'checked' : '' }}>
-                                        @else
-                                        <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if(!$isViewOnly && !$isPrintOnly && !$isDeleteRecords)
-                                        <input type="checkbox" name="permissions[{{ $permission->id }}][can_update]" value="1"
-                                               {{ $rolePermission && $rolePermission->pivot->can_update ? 'checked' : '' }}>
-                                        @else
-                                        <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if(!$isViewOnly && !$isManageOnly && !$isPrintOnly)
-                                        <input type="checkbox" name="permissions[{{ $permission->id }}][can_delete]" value="1"
-                                               {{ $rolePermission && $rolePermission->pivot->can_delete ? 'checked' : '' }}>
-                                        @else
-                                        <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if(!$isViewOnly && !$isManageOnly && !$isPrintOnly && !$isDeleteRecords)
-                                        <input type="checkbox" name="permissions[{{ $permission->id }}][can_approve]" value="1"
-                                               {{ $rolePermission && $rolePermission->pivot->can_approve ? 'checked' : '' }}>
-                                        @else
-                                        <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if(!$isDeleteRecords)
-                                        <input type="checkbox" name="permissions[{{ $permission->id }}][can_export]" value="1"
-                                               {{ $rolePermission && $rolePermission->pivot->can_export ? 'checked' : '' }}>
-                                        @else
-                                        <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                                    // صلاحيات القوائم تحتاج فقط القراءة
+                                                    $isMenuPermission = str_starts_with($permission->permission_code, 'MENU_');
+
+                                                    $viewOnlyPermissions = ['VIEW_MAIN_DASHBOARD', 'VIEW_DAILY_REPORTS', 'VIEW_WASTE_REPORTS', 'VIEW_SHIFT_REPORTS', 'VIEW_NOTIFICATIONS', 'VIEW_ACTIVITY_LOG', 'VIEW_PRICES', 'VIEW_COSTS', 'VIEW_DASHBOARD', 'VIEW_REPORTS'];
+                                                    $manageOnlyPermissions = ['MANAGE_SYSTEM_SETTINGS', 'MANAGE_BARCODE_SETTINGS', 'MANAGE_BACKUP'];
+                                                    $printOnlyPermissions = ['PRINT_BARCODE'];
+                                                    $viewWeightPermissions = ['STAGE1_VIEW_WEIGHT', 'STAGE2_VIEW_WEIGHT', 'STAGE3_VIEW_WEIGHT', 'STAGE4_VIEW_WEIGHT'];
+                                                    $editWeightPermissions = ['STAGE1_EDIT_WEIGHT', 'STAGE2_EDIT_WEIGHT', 'STAGE3_EDIT_WEIGHT', 'STAGE4_EDIT_WEIGHT'];
+                                                    $viewWorkerPermissions = ['STAGE1_VIEW_WORKER', 'STAGE2_VIEW_WORKER', 'STAGE3_VIEW_WORKER', 'STAGE4_VIEW_WORKER'];
+
+                                                    $isViewOnly = $isMenuPermission || in_array($permission->permission_code, $viewOnlyPermissions) || in_array($permission->permission_code, $viewWeightPermissions) || in_array($permission->permission_code, $viewWorkerPermissions);
+                                                    $isManageOnly = in_array($permission->permission_code, $manageOnlyPermissions) || in_array($permission->permission_code, $editWeightPermissions) || $permission->permission_code == 'EDIT_PRICES';
+                                                    $isPrintOnly = in_array($permission->permission_code, $printOnlyPermissions);
+                                                    $isDeleteRecords = $permission->permission_code == 'DELETE_RECORDS';
+                                                @endphp
+                                                <tr>
+                                                    <td class="align-middle">
+                                                        <small>{{ $permission->permission_name }}</small>
+                                                        @if($isMenuPermission)
+                                                        <br><small class="badge bg-info">صلاحية قائمة</small>
+                                                        @endif
+                                                        <input type="hidden" name="permissions[{{ $permission->id }}][permission_id]" value="{{ $permission->id }}">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if(!$isViewOnly && !$isManageOnly && !$isPrintOnly && !$isDeleteRecords)
+                                                        <input type="checkbox"
+                                                               name="permissions[{{ $permission->id }}][can_create]"
+                                                               value="1"
+                                                               class="form-check-input permission-checkbox"
+                                                               data-module="{{ $loop->parent->index }}"
+                                                               {{ $rolePermission && $rolePermission->pivot->can_create ? 'checked' : '' }}>
+                                                        @else
+                                                        <span class="text-muted">-</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if(!$isManageOnly && !$isPrintOnly && !$isDeleteRecords)
+                                                        <input type="checkbox"
+                                                               name="permissions[{{ $permission->id }}][can_read]"
+                                                               value="1"
+                                                               class="form-check-input permission-checkbox"
+                                                               data-module="{{ $loop->parent->index }}"
+                                                               @if($isMenuPermission) title="مطلوب لإظهار القائمة" @endif
+                                                               {{ $rolePermission && $rolePermission->pivot->can_read ? 'checked' : '' }}>
+                                                        @else
+                                                        <span class="text-muted">-</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if(!$isViewOnly && !$isPrintOnly && !$isDeleteRecords)
+                                                        <input type="checkbox"
+                                                               name="permissions[{{ $permission->id }}][can_update]"
+                                                               value="1"
+                                                               class="form-check-input permission-checkbox"
+                                                               data-module="{{ $loop->parent->index }}"
+                                                               {{ $rolePermission && $rolePermission->pivot->can_update ? 'checked' : '' }}>
+                                                        @else
+                                                        <span class="text-muted">-</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if(!$isViewOnly && !$isManageOnly && !$isPrintOnly)
+                                                        <input type="checkbox"
+                                                               name="permissions[{{ $permission->id }}][can_delete]"
+                                                               value="1"
+                                                               class="form-check-input permission-checkbox"
+                                                               data-module="{{ $loop->parent->index }}"
+                                                               {{ $rolePermission && $rolePermission->pivot->can_delete ? 'checked' : '' }}>
+                                                        @else
+                                                        <span class="text-muted">-</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if(!$isViewOnly && !$isManageOnly && !$isPrintOnly && !$isDeleteRecords)
+                                                        <input type="checkbox"
+                                                               name="permissions[{{ $permission->id }}][can_approve]"
+                                                               value="1"
+                                                               class="form-check-input permission-checkbox"
+                                                               data-module="{{ $loop->parent->index }}"
+                                                               {{ $rolePermission && $rolePermission->pivot->can_approve ? 'checked' : '' }}>
+                                                        @else
+                                                        <span class="text-muted">-</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if(!$isDeleteRecords)
+                                                        <input type="checkbox"
+                                                               name="permissions[{{ $permission->id }}][can_export]"
+                                                               value="1"
+                                                               class="form-check-input permission-checkbox"
+                                                               data-module="{{ $loop->parent->index }}"
+                                                               {{ $rolePermission && $rolePermission->pivot->can_export ? 'checked' : '' }}>
+                                                        @else
+                                                        <span class="text-muted">-</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
-                @endforeach
             </div>
         </div>
 
@@ -172,10 +254,92 @@
 </div>
 
 <style>
-    .table input[type="checkbox"] {
+    .module-tab-btn {
+        text-align: right;
+        border-radius: 0.375rem;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .module-tab-btn:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+    }
+
+    .module-tab-btn.active {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+    }
+
+    .module-tab-btn .badge {
+        font-size: 0.75rem;
+    }
+
+    .form-check-input {
         width: 20px;
         height: 20px;
         cursor: pointer;
+        margin-top: 0.25rem;
+    }
+
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    @media (max-width: 768px) {
+        .sticky-top {
+            position: static !important;
+            margin-bottom: 1.5rem;
+        }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // تحديث العدادات عند تحميل الصفحة
+        updateAllModuleCounts();
+
+        // تحديث العدادات عند تغيير الـ checkboxes
+        const checkboxes = document.querySelectorAll('.permission-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const moduleIndex = this.getAttribute('data-module');
+                updateModuleCount(moduleIndex);
+            });
+        });
+
+        function updateModuleCount(moduleIndex) {
+            const modulePane = document.querySelector(`[data-module-index="${moduleIndex}"]`);
+            if (!modulePane) return;
+
+            const checkedCount = modulePane.querySelectorAll('.permission-checkbox:checked').length;
+            const badgeElement = document.querySelector(`.module-count-${moduleIndex}`);
+
+            if (badgeElement) {
+                badgeElement.textContent = checkedCount;
+                if (checkedCount > 0) {
+                    badgeElement.classList.remove('bg-secondary');
+                    badgeElement.classList.add('bg-success');
+                } else {
+                    badgeElement.classList.remove('bg-success');
+                    badgeElement.classList.add('bg-secondary');
+                }
+            }
+        }
+
+        function updateAllModuleCounts() {
+            const modulePanes = document.querySelectorAll('[data-module-index]');
+            modulePanes.forEach(pane => {
+                const moduleIndex = pane.getAttribute('data-module-index');
+                updateModuleCount(moduleIndex);
+            });
+        }
+    });
+</script>
 @endsection

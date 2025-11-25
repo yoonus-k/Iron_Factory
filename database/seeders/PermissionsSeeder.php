@@ -15,7 +15,163 @@ class PermissionsSeeder extends Seeder
         try {
             // إنشاء الصلاحيات الأساسية
             $permissions = [
-                // إدارة المستخدمين
+                // ====== صلاحيات القوائم (Menus) ======
+                [
+                    'permission_name' => 'قائمة لوحة التحكم',
+                    'permission_name_en' => 'Dashboard Menu',
+                    'permission_code' => 'MENU_DASHBOARD',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة لوحة التحكم',
+                ],
+                [
+                    'permission_name' => 'قائمة المستودع',
+                    'permission_name_en' => 'Warehouse Menu',
+                    'permission_code' => 'MENU_WAREHOUSE',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة المستودع الرئيسية',
+                ],
+                [
+                    'permission_name' => 'المواد الخام - قائمة',
+                    'permission_name_en' => 'Materials Menu',
+                    'permission_code' => 'MENU_WAREHOUSE_MATERIALS',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة المواد الخام',
+                ],
+                [
+                    'permission_name' => 'المخازن - قائمة',
+                    'permission_name_en' => 'Stores Menu',
+                    'permission_code' => 'MENU_WAREHOUSE_STORES',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة المخازن',
+                ],
+                [
+                    'permission_name' => 'مذكرات التسليم - قائمة',
+                    'permission_name_en' => 'Delivery Notes Menu',
+                    'permission_code' => 'MENU_WAREHOUSE_DELIVERY_NOTES',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة مذكرات التسليم',
+                ],
+                [
+                    'permission_name' => 'فواتير الشراء - قائمة',
+                    'permission_name_en' => 'Purchase Invoices Menu',
+                    'permission_code' => 'MENU_WAREHOUSE_PURCHASE_INVOICES',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة فواتير الشراء',
+                ],
+                [
+                    'permission_name' => 'الموردين - قائمة',
+                    'permission_name_en' => 'Suppliers Menu',
+                    'permission_code' => 'MENU_WAREHOUSE_SUPPLIERS',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة الموردين',
+                ],
+                [
+                    'permission_name' => 'إعدادات المستودع - قائمة',
+                    'permission_name_en' => 'Warehouse Settings Menu',
+                    'permission_code' => 'MENU_WAREHOUSE_SETTINGS',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة إعدادات المستودع',
+                ],
+                [
+                    'permission_name' => 'تقارير المستودع - قائمة',
+                    'permission_name_en' => 'Warehouse Reports Menu',
+                    'permission_code' => 'MENU_WAREHOUSE_REPORTS',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة تقارير المستودع',
+                ],
+                [
+                    'permission_name' => 'قائمة المرحلة الأولى',
+                    'permission_name_en' => 'Stage 1 Menu',
+                    'permission_code' => 'MENU_STAGE1_STANDS',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة المرحلة الأولى - الاستاندات',
+                ],
+                [
+                    'permission_name' => 'قائمة المرحلة الثانية',
+                    'permission_name_en' => 'Stage 2 Menu',
+                    'permission_code' => 'MENU_STAGE2_PROCESSING',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة المرحلة الثانية - المعالجة',
+                ],
+                [
+                    'permission_name' => 'قائمة المرحلة الثالثة',
+                    'permission_name_en' => 'Stage 3 Menu',
+                    'permission_code' => 'MENU_STAGE3_COILS',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة المرحلة الثالثة - اللفائف',
+                ],
+                [
+                    'permission_name' => 'قائمة المرحلة الرابعة',
+                    'permission_name_en' => 'Stage 4 Menu',
+                    'permission_code' => 'MENU_STAGE4_PACKAGING',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة المرحلة الرابعة - التعبئة',
+                ],
+                [
+                    'permission_name' => 'قائمة تتبع الإنتاج',
+                    'permission_name_en' => 'Production Tracking Menu',
+                    'permission_code' => 'MENU_PRODUCTION_TRACKING',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة تتبع الإنتاج',
+                ],
+                [
+                    'permission_name' => 'قائمة الورديات والعمال',
+                    'permission_name_en' => 'Shifts & Workers Menu',
+                    'permission_code' => 'MENU_SHIFTS_WORKERS',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة الورديات والعمال',
+                ],
+                [
+                    'permission_name' => 'قائمة الجودة والهدر',
+                    'permission_name_en' => 'Quality & Waste Menu',
+                    'permission_code' => 'MENU_QUALITY_WASTE',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة الجودة والهدر',
+                ],
+                [
+                    'permission_name' => 'قائمة التقارير الإنتاجية',
+                    'permission_name_en' => 'Production Reports Menu',
+                    'permission_code' => 'MENU_PRODUCTION_REPORTS',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة التقارير الإنتاجية',
+                ],
+                [
+                    'permission_name' => 'قائمة الإدارة',
+                    'permission_name_en' => 'Management Menu',
+                    'permission_code' => 'MENU_MANAGEMENT',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة الإدارة',
+                ],
+                [
+                    'permission_name' => 'إدارة المستخدمين - قائمة',
+                    'permission_name_en' => 'Manage Users Menu',
+                    'permission_code' => 'MENU_MANAGE_USERS',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة إدارة المستخدمين',
+                ],
+                [
+                    'permission_name' => 'إدارة الأدوار - قائمة',
+                    'permission_name_en' => 'Manage Roles Menu',
+                    'permission_code' => 'MENU_MANAGE_ROLES',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة إدارة الأدوار',
+                ],
+                [
+                    'permission_name' => 'إدارة الصلاحيات - قائمة',
+                    'permission_name_en' => 'Manage Permissions Menu',
+                    'permission_code' => 'MENU_MANAGE_PERMISSIONS',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة إدارة الصلاحيات',
+                ],
+                [
+                    'permission_name' => 'قائمة الإعدادات',
+                    'permission_name_en' => 'Settings Menu',
+                    'permission_code' => 'MENU_SETTINGS',
+                    'module' => 'Menus',
+                    'description' => 'إظهار قائمة الإعدادات',
+                ],
+
+                // ====== إدارة المستخدمين ======
                 [
                     'permission_name' => 'إدارة المستخدمين',
                     'permission_name_en' => 'Manage Users',
@@ -23,8 +179,8 @@ class PermissionsSeeder extends Seeder
                     'module' => 'Users',
                     'description' => 'إدارة المستخدمين والموظفين',
                 ],
-                
-                // إدارة الأدوار والصلاحيات
+
+                // ====== إدارة الأدوار والصلاحيات ======
                 [
                     'permission_name' => 'إدارة الأدوار',
                     'permission_name_en' => 'Manage Roles',
@@ -40,7 +196,7 @@ class PermissionsSeeder extends Seeder
                     'description' => 'إدارة صلاحيات النظام',
                 ],
 
-                // إدارة المواد الخام
+                // ====== إدارة المواد الخام ======
                 [
                     'permission_name' => 'إدارة المواد الخام',
                     'permission_name_en' => 'Manage Materials',
@@ -49,7 +205,7 @@ class PermissionsSeeder extends Seeder
                     'description' => 'إدارة المواد الخام والمخزون',
                 ],
 
-                // إدارة الموردين
+                // ====== إدارة الموردين ======
                 [
                     'permission_name' => 'إدارة الموردين',
                     'permission_name_en' => 'Manage Suppliers',
@@ -58,7 +214,7 @@ class PermissionsSeeder extends Seeder
                     'description' => 'إدارة الموردين والموزعين',
                 ],
 
-                // إدارة المخازن
+                // ====== إدارة المخازن ======
                 [
                     'permission_name' => 'إدارة المخازن',
                     'permission_name_en' => 'Manage Warehouses',
@@ -74,9 +230,9 @@ class PermissionsSeeder extends Seeder
                     'description' => 'إدارة تحويلات المخازن',
                 ],
 
-                // إدارة الإنتاج
+                // ====== إدارة الإنتاج ======
                 [
-                    'permission_name' => 'المرحلة الأولى - الأستندات',
+                    'permission_name' => 'المرحلة الأولى - الاستاندات',
                     'permission_name_en' => 'Stage 1 - Stands',
                     'permission_code' => 'STAGE1_STANDS',
                     'module' => 'Manufacturing',
@@ -104,7 +260,7 @@ class PermissionsSeeder extends Seeder
                     'description' => 'إدارة المرحلة الرابعة من الإنتاج',
                 ],
 
-                // إدارة الفواتير
+                // ====== إدارة الفواتير ======
                 [
                     'permission_name' => 'فواتير الشراء',
                     'permission_name_en' => 'Purchase Invoices',
@@ -120,7 +276,7 @@ class PermissionsSeeder extends Seeder
                     'description' => 'إدارة فواتير المبيعات',
                 ],
 
-                // إدارة الحركات
+                // ====== إدارة الحركات ======
                 [
                     'permission_name' => 'إدارة الحركات',
                     'permission_name_en' => 'Manage Movements',
@@ -129,7 +285,7 @@ class PermissionsSeeder extends Seeder
                     'description' => 'إدارة حركات المخزون',
                 ],
 
-                // التقارير
+                // ====== التقارير ======
                 [
                     'permission_name' => 'التقارير',
                     'permission_name_en' => 'Reports',
@@ -152,7 +308,7 @@ class PermissionsSeeder extends Seeder
                     'description' => 'تقارير المخزون والحركات',
                 ],
 
-                // لوحة التحكم
+                // ====== لوحة التحكم ======
                 [
                     'permission_name' => 'لوحة التحكم',
                     'permission_name_en' => 'Dashboard',
@@ -193,7 +349,7 @@ class PermissionsSeeder extends Seeder
         $warehouseKeeper = Role::where('role_code', 'WAREHOUSE_KEEPER')->first();
         $worker = Role::where('role_code', 'WORKER')->first();
 
-        // Admin - كل الصلاحيات
+        // ====== Admin - كل الصلاحيات ======
         if ($admin) {
             $allPermissions = Permission::all();
             foreach ($allPermissions as $permission) {
@@ -210,15 +366,34 @@ class PermissionsSeeder extends Seeder
             }
         }
 
-        // Manager - معظم الصلاحيات
+        // ====== Manager - معظم الصلاحيات ======
         if ($manager) {
+            // صلاحيات القوائم للمدير
+            $managerMenus = Permission::where('module', 'Menus')
+                ->whereNotIn('permission_code', ['MENU_MANAGE_PERMISSIONS', 'MENU_SETTINGS'])
+                ->get();
+
+            foreach ($managerMenus as $menu) {
+                $manager->permissions()->syncWithoutDetaching([
+                    $menu->id => [
+                        'can_create' => false,
+                        'can_read' => true,
+                        'can_update' => false,
+                        'can_delete' => false,
+                        'can_approve' => false,
+                        'can_export' => false,
+                    ]
+                ]);
+            }
+
+            // صلاحيات العمليات للمدير
             $managerPermissions = Permission::whereIn('permission_code', [
                 'MANAGE_USERS', 'MANAGE_MATERIALS', 'MANAGE_SUPPLIERS', 'MANAGE_WAREHOUSES',
                 'WAREHOUSE_TRANSFERS', 'STAGE1_STANDS', 'STAGE2_PROCESSING', 'STAGE3_COILS',
                 'STAGE4_PACKAGING', 'PURCHASE_INVOICES', 'SALES_INVOICES', 'MANAGE_MOVEMENTS',
                 'VIEW_REPORTS', 'PRODUCTION_REPORTS', 'INVENTORY_REPORTS', 'VIEW_DASHBOARD'
             ])->get();
-            
+
             foreach ($managerPermissions as $permission) {
                 $manager->permissions()->syncWithoutDetaching([
                     $permission->id => [
@@ -233,13 +408,34 @@ class PermissionsSeeder extends Seeder
             }
         }
 
-        // Supervisor - صلاحيات الإشراف
+        // ====== Supervisor - صلاحيات الإشراف ======
         if ($supervisor) {
+            // صلاحيات القوائم للمشرف
+            $supervisorMenus = Permission::whereIn('permission_code', [
+                'MENU_DASHBOARD', 'MENU_STAGE1_STANDS', 'MENU_STAGE2_PROCESSING',
+                'MENU_STAGE3_COILS', 'MENU_STAGE4_PACKAGING', 'MENU_PRODUCTION_TRACKING',
+                'MENU_QUALITY_WASTE', 'MENU_PRODUCTION_REPORTS'
+            ])->get();
+
+            foreach ($supervisorMenus as $menu) {
+                $supervisor->permissions()->syncWithoutDetaching([
+                    $menu->id => [
+                        'can_create' => false,
+                        'can_read' => true,
+                        'can_update' => false,
+                        'can_delete' => false,
+                        'can_approve' => false,
+                        'can_export' => false,
+                    ]
+                ]);
+            }
+
+            // صلاحيات العمليات للمشرف
             $supervisorPermissions = Permission::whereIn('permission_code', [
                 'STAGE1_STANDS', 'STAGE2_PROCESSING', 'STAGE3_COILS', 'STAGE4_PACKAGING',
                 'MANAGE_MOVEMENTS', 'VIEW_REPORTS', 'PRODUCTION_REPORTS', 'VIEW_DASHBOARD'
             ])->get();
-            
+
             foreach ($supervisorPermissions as $permission) {
                 $supervisor->permissions()->syncWithoutDetaching([
                     $permission->id => [
@@ -254,12 +450,32 @@ class PermissionsSeeder extends Seeder
             }
         }
 
-        // Accountant - صلاحيات المحاسبة
+        // ====== Accountant - صلاحيات المحاسبة ======
         if ($accountant) {
+            // صلاحيات القوائم للمحاسب
+            $accountantMenus = Permission::whereIn('permission_code', [
+                'MENU_DASHBOARD', 'MENU_WAREHOUSE', 'MENU_WAREHOUSE_PURCHASE_INVOICES',
+                'MENU_WAREHOUSE_SUPPLIERS', 'MENU_WAREHOUSE_REPORTS', 'MENU_PRODUCTION_REPORTS'
+            ])->get();
+
+            foreach ($accountantMenus as $menu) {
+                $accountant->permissions()->syncWithoutDetaching([
+                    $menu->id => [
+                        'can_create' => false,
+                        'can_read' => true,
+                        'can_update' => false,
+                        'can_delete' => false,
+                        'can_approve' => false,
+                        'can_export' => false,
+                    ]
+                ]);
+            }
+
+            // صلاحيات العمليات للمحاسب
             $accountantPermissions = Permission::whereIn('permission_code', [
                 'PURCHASE_INVOICES', 'SALES_INVOICES', 'VIEW_REPORTS', 'INVENTORY_REPORTS', 'VIEW_DASHBOARD'
             ])->get();
-            
+
             foreach ($accountantPermissions as $permission) {
                 $accountant->permissions()->syncWithoutDetaching([
                     $permission->id => [
@@ -274,13 +490,34 @@ class PermissionsSeeder extends Seeder
             }
         }
 
-        // Warehouse Keeper - صلاحيات المخازن
+        // ====== Warehouse Keeper - صلاحيات المخازن ======
         if ($warehouseKeeper) {
+            // صلاحيات القوائم لأمين المخزن
+            $warehouseMenus = Permission::whereIn('permission_code', [
+                'MENU_DASHBOARD', 'MENU_WAREHOUSE', 'MENU_WAREHOUSE_MATERIALS',
+                'MENU_WAREHOUSE_STORES', 'MENU_WAREHOUSE_DELIVERY_NOTES',
+                'MENU_WAREHOUSE_SUPPLIERS', 'MENU_WAREHOUSE_REPORTS'
+            ])->get();
+
+            foreach ($warehouseMenus as $menu) {
+                $warehouseKeeper->permissions()->syncWithoutDetaching([
+                    $menu->id => [
+                        'can_create' => false,
+                        'can_read' => true,
+                        'can_update' => false,
+                        'can_delete' => false,
+                        'can_approve' => false,
+                        'can_export' => false,
+                    ]
+                ]);
+            }
+
+            // صلاحيات العمليات لأمين المخزن
             $warehousePermissions = Permission::whereIn('permission_code', [
-                'MANAGE_WAREHOUSES', 'WAREHOUSE_TRANSFERS', 'MANAGE_MOVEMENTS', 
+                'MANAGE_WAREHOUSES', 'WAREHOUSE_TRANSFERS', 'MANAGE_MOVEMENTS',
                 'VIEW_REPORTS', 'INVENTORY_REPORTS', 'VIEW_DASHBOARD'
             ])->get();
-            
+
             foreach ($warehousePermissions as $permission) {
                 $warehouseKeeper->permissions()->syncWithoutDetaching([
                     $permission->id => [
@@ -295,12 +532,32 @@ class PermissionsSeeder extends Seeder
             }
         }
 
-        // Worker - صلاحيات محدودة
+        // ====== Worker - صلاحيات محدودة ======
         if ($worker) {
+            // صلاحيات القوائم للعامل
+            $workerMenus = Permission::whereIn('permission_code', [
+                'MENU_DASHBOARD', 'MENU_STAGE1_STANDS', 'MENU_STAGE2_PROCESSING',
+                'MENU_STAGE3_COILS', 'MENU_STAGE4_PACKAGING'
+            ])->get();
+
+            foreach ($workerMenus as $menu) {
+                $worker->permissions()->syncWithoutDetaching([
+                    $menu->id => [
+                        'can_create' => false,
+                        'can_read' => true,
+                        'can_update' => false,
+                        'can_delete' => false,
+                        'can_approve' => false,
+                        'can_export' => false,
+                    ]
+                ]);
+            }
+
+            // صلاحيات العمليات للعامل
             $workerPermissions = Permission::whereIn('permission_code', [
                 'STAGE1_STANDS', 'STAGE2_PROCESSING', 'STAGE3_COILS', 'STAGE4_PACKAGING', 'VIEW_DASHBOARD'
             ])->get();
-            
+
             foreach ($workerPermissions as $permission) {
                 $worker->permissions()->syncWithoutDetaching([
                     $permission->id => [
