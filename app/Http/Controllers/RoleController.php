@@ -10,6 +10,100 @@ use Illuminate\Support\Facades\DB;
 
 class RoleController extends Controller
 {
+    /**
+     * Get hierarchy structure dynamically from database
+     */
+    private function getHierarchyStructure()
+    {
+        // Fetch all menu permissions and their operations from database
+        $menuPermissions = Permission::where('name', 'like', 'MENU_%')
+            ->orderBy('name')
+            ->get();
+
+        $hierarchy = [];
+
+        foreach ($menuPermissions as $menu) {
+            $menuCode = $menu->name;
+
+            // Get parent menu (MENU_WAREHOUSE) and its children (MENU_WAREHOUSE_MATERIALS, etc)
+            if ($this->isParentMenu($menuCode)) {
+                $hierarchy[$menuCode] = [
+                    'label' => $menu->display_name,
+                    'icon' => $this->getMenuIcon($menuCode),
+                    'items' => $this->getMenuItems($menuCode)
+                ];
+            }
+        }
+
+        return $hierarchy;
+    }
+
+    /**
+     * Check if menu is a parent menu (like MENU_WAREHOUSE, not MENU_WAREHOUSE_MATERIALS)
+     */
+    private function isParentMenu($menuCode): bool
+    {
+        // Parent menus have exactly 2 parts: MENU_NAME
+        $parts = explode('_', $menuCode);
+        return count($parts) == 2;
+    }
+
+    /**
+     * Get child items for a parent menu
+     */
+    private function getMenuItems($parentMenuCode): array
+    {
+        $items = [];
+
+        // Get all child menu items
+        $childMenus = Permission::where('name', 'like', $parentMenuCode . '_%')
+            ->where('name', '!=', $parentMenuCode)
+            ->orderBy('name')
+            ->get();
+
+        foreach ($childMenus as $childMenu) {
+            $childCode = $childMenu->name;
+
+            // Get operations for this child menu
+            $operations = Permission::where('name', 'like', str_replace('MENU_', '', $childCode) . '_%')
+                ->where('name', 'not like', 'MENU_%')
+                ->orderBy('name')
+                ->pluck('name')
+                ->toArray();
+
+            $items[] = [
+                'code' => $childCode,
+                'label' => $childMenu->display_name,
+                'operations' => $operations
+            ];
+        }
+
+        return $items;
+    }
+
+    /**
+     * Get icon for menu based on its code
+     */
+    private function getMenuIcon($menuCode): string
+    {
+        $icons = [
+            'MENU_DASHBOARD' => 'fa-tachometer-alt',
+            'MENU_WAREHOUSE' => 'fa-warehouse',
+            'MENU_STAGE1_STANDS' => 'fa-industry',
+            'MENU_STAGE2_PROCESSING' => 'fa-cogs',
+            'MENU_STAGE3_COILS' => 'fa-circle-notch',
+            'MENU_STAGE4_PACKAGING' => 'fa-box',
+            'MENU_PRODUCTION_TRACKING' => 'fa-chart-line',
+            'MENU_SHIFTS_WORKERS' => 'fa-users',
+            'MENU_QUALITY_WASTE' => 'fa-check-circle',
+            'MENU_PRODUCTION_REPORTS' => 'fa-file-chart-line',
+            'MENU_MANAGEMENT' => 'fa-sliders-h',
+            'MENU_SETTINGS' => 'fa-cog',
+        ];
+
+        return $icons[$menuCode] ?? 'fa-folder';
+    }
+
     public function index()
     {
         $roles = Role::with('permissions')->paginate(20);
@@ -18,52 +112,36 @@ class RoleController extends Controller
 
     public function create()
     {
-        $permissions = Permission::where('is_active', true)->get()->groupBy('module');
+        $permissions = Permission::orderBy('group_name')->orderBy('display_name')->get();
         return view('roles.create', compact('permissions'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'role_name' => 'required|string|max:100',
-            'role_name_en' => 'nullable|string|max:100',
-            'role_code' => 'required|string|max:50|unique:roles,role_code',
-            'description' => 'nullable|string',
-            'level' => 'required|integer|min:0|max:100',
-            'permissions' => 'nullable|array',
-            'permissions.*.permission_id' => 'required|exists:permissions,id',
-            'permissions.*.can_create' => 'nullable|boolean',
-            'permissions.*.can_read' => 'nullable|boolean',
-            'permissions.*.can_update' => 'nullable|boolean',
-            'permissions.*.can_delete' => 'nullable|boolean',
-            'permissions.*.can_approve' => 'nullable|boolean',
-            'permissions.*.can_export' => 'nullable|boolean',
+        $data = $request->validate([
+            'display_name' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:50', 'unique:roles,role_code'],
+            'description' => ['nullable', 'string'],
+            'level' => ['required', 'integer', 'min:0', 'max:100'],
+            'is_active' => ['nullable', 'boolean'],
+            'permission_ids' => ['nullable', 'array'],
+            'permission_ids.*' => ['integer', 'exists:permissions,id'],
         ]);
 
         DB::beginTransaction();
         try {
             $role = Role::create([
-                'role_name' => $request->role_name,
-                'role_name_en' => $request->role_name_en,
-                'role_code' => strtoupper($request->role_code),
-                'description' => $request->description,
-                'level' => $request->level,
-
-                'created_by' => auth()->id(),
+                'role_name' => $data['display_name'],
+                'role_code' => strtoupper($data['name']),
+                'description' => $data['description'] ?? null,
+                'level' => $data['level'],
+                'is_active' => $data['is_active'] ?? true,
+                'created_by' => 1,
             ]);
 
             // Attach permissions
-            if ($request->has('permissions')) {
-                foreach ($request->permissions as $permission) {
-                    $role->permissions()->attach($permission['permission_id'], [
-                        'can_create' => $permission['can_create'] ?? false,
-                        'can_read' => $permission['can_read'] ?? false,
-                        'can_update' => $permission['can_update'] ?? false,
-                        'can_delete' => $permission['can_delete'] ?? false,
-                        'can_approve' => $permission['can_approve'] ?? false,
-                        'can_export' => $permission['can_export'] ?? false,
-                    ]);
-                }
+            if (!empty($data['permission_ids'])) {
+                $role->permissions()->sync($data['permission_ids']);
             }
 
             DB::commit();
@@ -76,45 +154,38 @@ class RoleController extends Controller
 
     public function edit(Role $role)
     {
-        $permissions = Permission::where('is_active', true)->get()->groupBy('module');
+        $permissions = Permission::orderBy('group_name')->orderBy('display_name')->get();
         $role->load('permissions');
-        return view('roles.edit', compact('role', 'permissions'));
+        $assigned = $role->permissions->pluck('id')->toArray();
+        return view('roles.edit', compact('role', 'permissions', 'assigned'));
     }
 
     public function update(Request $request, Role $role)
     {
-        $request->validate([
-            'role_name' => 'required|string|max:100',
-            'role_name_en' => 'nullable|string|max:100',
-            'description' => 'nullable|string',
-            'level' => 'required|integer|min:0|max:100',
-            // 'is_active' => 'nullable|boolean',
-            'permissions' => 'nullable|array',
+        $data = $request->validate([
+            'display_name' => ['required', 'string', 'max:100'],
+            'name' => ['nullable', 'string', 'max:50'],
+            'description' => ['nullable', 'string'],
+            'level' => ['required', 'integer', 'min:0', 'max:100'],
+            'is_active' => ['nullable', 'boolean'],
+            'permission_ids' => ['nullable', 'array'],
+            'permission_ids.*' => ['integer', 'exists:permissions,id'],
         ]);
 
         DB::beginTransaction();
         try {
             $role->update([
-                'role_name' => $request->role_name,
-                'role_name_en' => $request->role_name_en,
-                'description' => $request->description,
-                'level' => $request->level,
-                // 'is_active' => $request->has('is_active'),
+                'role_name' => $data['display_name'],
+                'description' => $data['description'] ?? null,
+                'level' => $data['level'],
+                'is_active' => $data['is_active'] ?? true,
             ]);
 
             // Sync permissions
-            $role->permissions()->detach();
-            if ($request->has('permissions')) {
-                foreach ($request->permissions as $permission) {
-                    $role->permissions()->attach($permission['permission_id'], [
-                        'can_create' => $permission['can_create'] ?? false,
-                        'can_read' => $permission['can_read'] ?? false,
-                        'can_update' => $permission['can_update'] ?? false,
-                        'can_delete' => $permission['can_delete'] ?? false,
-                        'can_approve' => $permission['can_approve'] ?? false,
-                        'can_export' => $permission['can_export'] ?? false,
-                    ]);
-                }
+            if (!empty($data['permission_ids'])) {
+                $role->permissions()->sync($data['permission_ids']);
+            } else {
+                $role->permissions()->detach();
             }
 
             DB::commit();

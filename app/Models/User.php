@@ -82,11 +82,6 @@ class User extends Authenticatable
         return isset($this->attributes['role']) ? $this->attributes['role'] : null;
     }
 
-    public function userPermissions(): HasMany
-    {
-        return $this->hasMany(UserPermission::class);
-    }
-
     public function shiftAssignments(): HasMany
     {
         return $this->hasMany(ShiftAssignment::class);
@@ -118,9 +113,9 @@ class User extends Authenticatable
     }
 
     /**
-     * التحقق من الصلاحيات
+     * التحقق من الصلاحيات - البحث عن صلاحية معينة في دور المستخدم
      */
-    public function hasPermission($permissionCode, $action = 'read'): bool
+    public function hasPermission($permissionName): bool
     {
         if (!$this->role) {
             return false;
@@ -131,39 +126,10 @@ class User extends Authenticatable
             return true;
         }
 
-        // Check user's exceptional permissions first
-        $userPermission = $this->userPermissions()
-            ->where('permission_name', $permissionCode)
-            ->first();
-
-        if ($userPermission) {
-            return match($action) {
-                'create' => $userPermission->can_create,
-                'read' => $userPermission->can_read,
-                'update' => $userPermission->can_update,
-                'delete' => $userPermission->can_delete,
-                default => false,
-            };
-        }
-
-        // Check role permissions
-        $rolePermission = $this->role->permissions()
-            ->where('permission_code', $permissionCode)
-            ->first();
-
-        if (!$rolePermission) {
-            return false;
-        }
-
-        return match($action) {
-            'create' => $rolePermission->pivot->can_create ?? false,
-            'read' => $rolePermission->pivot->can_read ?? false,
-            'update' => $rolePermission->pivot->can_update ?? false,
-            'delete' => $rolePermission->pivot->can_delete ?? false,
-            'approve' => $rolePermission->pivot->can_approve ?? false,
-            'export' => $rolePermission->pivot->can_export ?? false,
-            default => false,
-        };
+        // Check if user's role has this permission
+        return $this->role->permissions()
+            ->where('name', $permissionName)
+            ->exists();
     }
 
     public function isAdmin(): bool

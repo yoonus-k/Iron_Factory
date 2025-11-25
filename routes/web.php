@@ -13,8 +13,10 @@ Route::get('/', function () {
 
 // Protected Routes - Require Authentication
 Route::middleware(['auth'])->group(function () {
-    // Dashboard Route
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Dashboard Route - with permission check
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->middleware('permission:MENU_DASHBOARD')
+        ->name('dashboard');
 
     Route::get('/manager', [DashboardController::class, 'index'])->name('manager');
 
@@ -51,7 +53,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('users/{user}/impersonate', [UserController::class, 'impersonate'])->name('users.impersonate');
         Route::post('exit-impersonation', [UserController::class, 'exitImpersonation'])->name('exit-impersonation');
     });
-});
+});;
 
 // Language switching route
 Route::get('/locale/{lang}', function ($lang) {
