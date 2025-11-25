@@ -239,7 +239,7 @@
 
 
 
-                                <td>{{ $material->materialDetails->first()->unit->unit_name ?? 'N/A' }}</td>
+                                <td>{{ $material->unit->unit_name ?? 'N/A' }}</td>
 
                                 <td>
 
