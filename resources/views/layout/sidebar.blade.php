@@ -6,13 +6,14 @@
     <nav class="sidebar-menu">
         <ul>
             <!-- لوحة التحكم -->
-
+            @if(auth()->user()->hasPermission('MENU_DASHBOARD'))
             <li>
                 <a href="" data-tooltip="{{ __('app.menu.dashboard') }}">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>{{ __('app.menu.dashboard') }}</span>
                 </a>
             </li>
+            @endif
 
 
             <!-- المستودع -->
@@ -92,11 +93,14 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @if(auth()->user()->hasPermission('STAGE1_STANDS_READ'))
                     <li>
                         <a href="{{ route('manufacturing.stands.index') }}">
                             <i class="fas fa-list"></i> {{ __('app.production.stage1.list') }}
                         </a>
                     </li>
+                    @endif
+
                     @if(auth()->user()->hasPermission('STAGE1_STANDS_CREATE'))
                     <li>
                         <a href="{{ route('manufacturing.stage1.create') }}">
@@ -104,16 +108,22 @@
                         </a>
                     </li>
                     @endif
+
+                    @if(auth()->user()->hasPermission('STAGE1_BARCODE_SCAN'))
                     <li>
                         <a href="{{ route('manufacturing.stage1.barcode-scan') }}">
                             <i class="fas fa-barcode"></i> {{ __('app.production.barcode_scan') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('STAGE1_WASTE_TRACKING'))
                     <li>
                         <a href="{{ route('manufacturing.stage1.waste-tracking') }}">
                             <i class="fas fa-trash-alt"></i> {{ __('app.production.waste_tracking') }}
                         </a>
                     </li>
+                    @endif
                 </ul>
             </li>
             @endif
@@ -127,11 +137,14 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @if(auth()->user()->hasPermission('STAGE2_PROCESSING_READ'))
                     <li>
                         <a href="{{ route('manufacturing.stage2.index') }}">
                             <i class="fas fa-list"></i> {{ __('app.production.stage2.list') }}
                         </a>
                     </li>
+                    @endif
+
                     @if(auth()->user()->hasPermission('STAGE2_PROCESSING_CREATE'))
                     <li>
                         <a href="{{ route('manufacturing.stage2.create') }}">
@@ -139,16 +152,22 @@
                         </a>
                     </li>
                     @endif
+
+                    @if(auth()->user()->hasPermission('STAGE2_COMPLETE_PROCESSING'))
                     <li>
                         <a href="{{ route('manufacturing.stage2.complete-processing') }}">
                             <i class="fas fa-check-circle"></i> {{ __('app.production.stage2.complete') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('STAGE2_WASTE_STATISTICS'))
                     <li>
                         <a href="{{ route('manufacturing.stage2.waste-statistics') }}">
                             <i class="fas fa-chart-pie"></i> {{ __('app.production.waste_statistics') }}
                         </a>
                     </li>
+                    @endif
                 </ul>
             </li>
             @endif
@@ -162,6 +181,14 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @if(auth()->user()->hasPermission('STAGE3_COILS_READ'))
+                    <li>
+                        <a href="{{ route('manufacturing.stage3.index') }}">
+                            <i class="fas fa-list"></i> {{ __('app.production.stage3.list') }}
+                        </a>
+                    </li>
+                    @endif
+
                     @if(auth()->user()->hasPermission('STAGE3_COILS_CREATE'))
                     <li>
                         <a href="{{ route('manufacturing.stage3.create') }}">
@@ -182,11 +209,14 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @if(auth()->user()->hasPermission('STAGE4_PACKAGING_READ'))
                     <li>
                         <a href="{{ route('manufacturing.stage4.index') }}">
                             <i class="fas fa-list"></i> {{ __('app.production.stage4.list') }}
                         </a>
                     </li>
+                    @endif
+
                     @if(auth()->user()->hasPermission('STAGE4_PACKAGING_CREATE'))
                     <li>
                         <a href="{{ route('manufacturing.stage4.create') }}">
@@ -207,16 +237,21 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @if(auth()->user()->hasPermission('PRODUCTION_TRACKING_SCAN'))
                     <li>
                         <a href="{{ route('manufacturing.production-tracking.scan') }}">
                             <i class="fas fa-barcode"></i> {{ __('app.production.barcode_scan') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('PRODUCTION_IRON_JOURNEY'))
                     <li>
                         <a href="{{ route('manufacturing.iron-journey') }}">
                             <i class="fas fa-route"></i> {{ __('app.production.iron_journey') }}
                         </a>
                     </li>
+                    @endif
                 </ul>
             </li>
             @endif
@@ -230,36 +265,53 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @if(auth()->user()->hasPermission('SHIFTS_READ'))
                     <li>
                         <a href="{{ route('manufacturing.shifts-workers.index') }}">
                             <i class="fas fa-list"></i> {{ __('app.users.shifts_list') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('SHIFTS_CREATE'))
                     <li>
                         <a href="{{ route('manufacturing.shifts-workers.create') }}">
                             <i class="fas fa-plus-circle"></i> {{ __('app.users.add_shift') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('SHIFTS_CURRENT'))
                     <li>
                         <a href="{{ route('manufacturing.shifts-workers.current') }}">
                             <i class="fas fa-clock"></i> {{ __('app.users.current_shifts') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('SHIFTS_ATTENDANCE'))
                     <li>
                         <a href="{{ route('manufacturing.shifts-workers.attendance') }}">
                             <i class="fas fa-user-check"></i> {{ __('app.users.attendance') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('WORKERS_READ'))
                     <li>
                         <a href="{{ route('manufacturing.workers.index') }}">
                             <i class="fas fa-user-tie"></i> إدارة العمال
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('WORKER_TEAMS_READ'))
                     <li>
                         <a href="{{ route('manufacturing.worker-teams.index') }}">
                             <i class="fas fa-users-cog"></i> مجموعات العمال
                         </a>
                     </li>
+                    @endif
                 </ul>
             </li>
             @endif
@@ -273,26 +325,37 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @if(auth()->user()->hasPermission('QUALITY_WASTE_REPORT'))
                     <li>
                         <a href="/manufacturing/quality/waste-report">
                             <i class="fas fa-trash"></i> {{ __('app.reports.waste_report') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('QUALITY_MONITORING'))
                     <li>
                         <a href="/manufacturing/quality/quality-monitoring">
                             <i class="fas fa-check-square"></i> {{ __('app.production.quality_monitoring') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('QUALITY_DOWNTIME_TRACKING'))
                     <li>
                         <a href="/manufacturing/quality/downtime-tracking">
                             <i class="fas fa-exclamation-circle"></i> {{ __('app.production.downtime_tracking') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('QUALITY_WASTE_LIMITS'))
                     <li>
                         <a href="/manufacturing/quality/waste-limits">
                             <i class="fas fa-cog"></i> {{ __('app.production.waste_limits') }}
                         </a>
                     </li>
+                    @endif
                 </ul>
             </li>
             @endif
@@ -307,27 +370,40 @@
                 </a>
                 <ul class="submenu">
                     <li class="submenu-header"><span>{{ __('app.reports.production_report') }}</span></li>
+
+                    @if(auth()->user()->hasPermission('REPORTS_WIP'))
                     <li>
                         <a href="{{ route('manufacturing.reports.wip') }}">
                             <i class="fas fa-hourglass-half"></i> الأعمال غير المنتهية
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('REPORTS_SHIFT_DASHBOARD'))
                     <li>
                         <a href="{{ route('manufacturing.reports.shift-dashboard') }}">
                             <i class="fas fa-clock"></i> ملخص الوردية
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('REPORTS_STANDS_USAGE'))
                     <li>
                         <a href="{{ route('manufacturing.stands.usage-history') }}">
                             <i class="fas fa-history"></i> تاريخ استخدام الستاندات
                         </a>
                     </li>
+                    @endif
+
                     <li class="submenu-header" style="margin-top: 10px;"><span>{{ __('app.reports.efficiency_report') }}</span></li>
+
+                    @if(auth()->user()->hasPermission('REPORTS_WORKER_PERFORMANCE'))
                     <li>
                         <a href="{{ route('manufacturing.reports.worker-performance') }}">
                             <i class="fas fa-user-chart"></i> أداء العمال
                         </a>
                     </li>
+                    @endif
                 </ul>
             </li>
             @endif
@@ -341,7 +417,7 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
-                    @if(auth()->user()->hasPermission('MENU_MANAGE_USERS'))
+                    @if(auth()->user()->hasPermission('MENU_MANAGE_USERS') || auth()->user()->hasPermission('MANAGE_USERS_READ'))
                     <li>
                         <a href="{{ route('users.index') }}">
                             <i class="fas fa-users"></i> {{ __('app.users.manage_users') }}
@@ -349,7 +425,7 @@
                     </li>
                     @endif
 
-                    @if(auth()->user()->hasPermission('MENU_MANAGE_ROLES'))
+                    @if(auth()->user()->hasPermission('MENU_MANAGE_ROLES') || auth()->user()->hasPermission('MANAGE_ROLES_READ'))
                     <li>
                         <a href="{{ route('roles.index') }}">
                             <i class="fas fa-user-shield"></i> {{ __('app.users.roles') }}
@@ -357,7 +433,7 @@
                     </li>
                     @endif
 
-                    @if(auth()->user()->hasPermission('MENU_MANAGE_PERMISSIONS'))
+                    @if(auth()->user()->hasPermission('MENU_MANAGE_PERMISSIONS') || auth()->user()->hasPermission('MANAGE_PERMISSIONS_READ'))
                     <li>
                         <a href="{{ route('permissions.index') }}">
                             <i class="fas fa-key"></i> إدارة الصلاحيات
@@ -388,26 +464,37 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
+                    @if(auth()->user()->hasPermission('SETTINGS_GENERAL'))
                     <li>
                         <a href="#">
                             <i class="fas fa-sliders-h"></i> {{ __('app.settings.general') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('SETTINGS_CALCULATIONS'))
                     <li>
                         <a href="#">
                             <i class="fas fa-calculator"></i> {{ __('app.settings.calculations') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('SETTINGS_BARCODE'))
                     <li>
                         <a href="{{ route('manufacturing.barcode.index') }}">
                             <i class="fas fa-barcode"></i> {{ __('app.settings.barcode_settings') }}
                         </a>
                     </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('SETTINGS_NOTIFICATIONS'))
                     <li>
                         <a href="#">
                             <i class="fas fa-bell"></i> {{ __('app.settings.notifications') }}
                         </a>
                     </li>
+                    @endif
                 </ul>
             </li>
             @endif
@@ -482,7 +569,15 @@
         position: relative;
     }
 
+    .sidebar-menu a:hover {
+        background: #f3f4f6;
+        color: #1f2937;
+    }
 
+    .sidebar-menu a.active {
+        background: #3b82f6;
+        color: #fff;
+    }
 
     .sidebar-menu a i {
         margin-left: 12px;

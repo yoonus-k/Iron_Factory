@@ -66,6 +66,8 @@ class PermissionsSeeder extends Seeder
             ['name' => 'STAGE1_STANDS_CREATE', 'display_name' => 'إضافة استاند', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'إنشاء استاند جديد'],
             ['name' => 'STAGE1_STANDS_UPDATE', 'display_name' => 'تعديل الاستاند', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'تعديل الاستاندات'],
             ['name' => 'STAGE1_STANDS_DELETE', 'display_name' => 'حذف الاستاند', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'حذف الاستاندات'],
+            ['name' => 'STAGE1_BARCODE_SCAN', 'display_name' => 'مسح الباركود - المرحلة الأولى', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'الوصول لصفحة مسح الباركود'],
+            ['name' => 'STAGE1_WASTE_TRACKING', 'display_name' => 'تتبع الهدر - المرحلة الأولى', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'تتبع الهدر في المرحلة الأولى'],
 
             // Production Stage 2 - المعالجة
             ['name' => 'MENU_STAGE2_PROCESSING', 'display_name' => 'المرحلة الثانية - المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'إظهار قائمة المرحلة الثانية'],
@@ -73,6 +75,8 @@ class PermissionsSeeder extends Seeder
             ['name' => 'STAGE2_PROCESSING_CREATE', 'display_name' => 'إضافة معالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'إنشاء عملية معالجة جديدة'],
             ['name' => 'STAGE2_PROCESSING_UPDATE', 'display_name' => 'تعديل المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'تعديل عمليات المعالجة'],
             ['name' => 'STAGE2_PROCESSING_DELETE', 'display_name' => 'حذف المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'حذف عمليات المعالجة'],
+            ['name' => 'STAGE2_COMPLETE_PROCESSING', 'display_name' => 'إتمام المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'إتمام عمليات المعالجة'],
+            ['name' => 'STAGE2_WASTE_STATISTICS', 'display_name' => 'إحصائيات الهدر - المرحلة الثانية', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'عرض إحصائيات الهدر'],
 
             // Production Stage 3 - اللفائف
             ['name' => 'MENU_STAGE3_COILS', 'display_name' => 'المرحلة الثالثة - اللفائف', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'إظهار قائمة المرحلة الثالثة'],
@@ -88,11 +92,41 @@ class PermissionsSeeder extends Seeder
             ['name' => 'STAGE4_PACKAGING_UPDATE', 'display_name' => 'تعديل التعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'تعديل عمليات التعبئة'],
             ['name' => 'STAGE4_PACKAGING_DELETE', 'display_name' => 'حذف التعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'حذف عمليات التعبئة'],
 
-            // Production & Quality
+            // Production Tracking
             ['name' => 'MENU_PRODUCTION_TRACKING', 'display_name' => 'تتبع الإنتاج', 'group_name' => 'تتبع الإنتاج والمراقبة', 'description' => 'إظهار قائمة تتبع الإنتاج'],
+            ['name' => 'PRODUCTION_TRACKING_SCAN', 'display_name' => 'مسح الباركود - تتبع الإنتاج', 'group_name' => 'تتبع الإنتاج والمراقبة', 'description' => 'الوصول لصفحة مسح الباركود في تتبع الإنتاج'],
+            ['name' => 'PRODUCTION_IRON_JOURNEY', 'display_name' => 'رحلة الحديد', 'group_name' => 'تتبع الإنتاج والمراقبة', 'description' => 'الوصول لصفحة رحلة الحديد'],
+
+            // Shifts & Workers
             ['name' => 'MENU_SHIFTS_WORKERS', 'display_name' => 'الورديات والعمال', 'group_name' => 'الورديات والعمال', 'description' => 'إظهار قائمة الورديات والعمال'],
+            ['name' => 'SHIFTS_READ', 'display_name' => 'عرض الورديات', 'group_name' => 'الورديات والعمال', 'description' => 'عرض قائمة الورديات'],
+            ['name' => 'SHIFTS_CREATE', 'display_name' => 'إضافة وردية', 'group_name' => 'الورديات والعمال', 'description' => 'إضافة وردية جديدة'],
+            ['name' => 'SHIFTS_UPDATE', 'display_name' => 'تعديل الوردية', 'group_name' => 'الورديات والعمال', 'description' => 'تعديل بيانات الوردية'],
+            ['name' => 'SHIFTS_DELETE', 'display_name' => 'حذف الوردية', 'group_name' => 'الورديات والعمال', 'description' => 'حذف الوردية'],
+            ['name' => 'SHIFTS_CURRENT', 'display_name' => 'الورديات الحالية', 'group_name' => 'الورديات والعمال', 'description' => 'عرض الورديات الحالية'],
+            ['name' => 'SHIFTS_ATTENDANCE', 'display_name' => 'الحضور والغياب', 'group_name' => 'الورديات والعمال', 'description' => 'إدارة حضور وغياب العمال'],
+            ['name' => 'WORKERS_READ', 'display_name' => 'عرض العمال', 'group_name' => 'الورديات والعمال', 'description' => 'عرض قائمة العمال'],
+            ['name' => 'WORKERS_CREATE', 'display_name' => 'إضافة عامل', 'group_name' => 'الورديات والعمال', 'description' => 'إضافة عامل جديد'],
+            ['name' => 'WORKERS_UPDATE', 'display_name' => 'تعديل بيانات العامل', 'group_name' => 'الورديات والعمال', 'description' => 'تعديل بيانات العامل'],
+            ['name' => 'WORKERS_DELETE', 'display_name' => 'حذف العامل', 'group_name' => 'الورديات والعمال', 'description' => 'حذف العامل'],
+            ['name' => 'WORKER_TEAMS_READ', 'display_name' => 'عرض مجموعات العمال', 'group_name' => 'الورديات والعمال', 'description' => 'عرض مجموعات العمال'],
+            ['name' => 'WORKER_TEAMS_CREATE', 'display_name' => 'إضافة مجموعة عمال', 'group_name' => 'الورديات والعمال', 'description' => 'إضافة مجموعة عمال جديدة'],
+            ['name' => 'WORKER_TEAMS_UPDATE', 'display_name' => 'تعديل مجموعة العمال', 'group_name' => 'الورديات والعمال', 'description' => 'تعديل مجموعة العمال'],
+            ['name' => 'WORKER_TEAMS_DELETE', 'display_name' => 'حذف مجموعة العمال', 'group_name' => 'الورديات والعمال', 'description' => 'حذف مجموعة العمال'],
+
+            // Quality & Waste
             ['name' => 'MENU_QUALITY_WASTE', 'display_name' => 'الجودة والهدر', 'group_name' => 'الجودة والهدر', 'description' => 'إظهار قائمة الجودة والهدر'],
+            ['name' => 'QUALITY_WASTE_REPORT', 'display_name' => 'تقرير الهدر', 'group_name' => 'الجودة والهدر', 'description' => 'عرض تقرير الهدر'],
+            ['name' => 'QUALITY_MONITORING', 'display_name' => 'مراقبة الجودة', 'group_name' => 'الجودة والهدر', 'description' => 'الوصول لصفحة مراقبة الجودة'],
+            ['name' => 'QUALITY_DOWNTIME_TRACKING', 'display_name' => 'تتبع التوقفات', 'group_name' => 'الجودة والهدر', 'description' => 'تتبع توقفات الإنتاج'],
+            ['name' => 'QUALITY_WASTE_LIMITS', 'display_name' => 'حدود الهدر', 'group_name' => 'الجودة والهدر', 'description' => 'إدارة حدود الهدر المسموح'],
+
+            // Production Reports
             ['name' => 'MENU_PRODUCTION_REPORTS', 'display_name' => 'التقارير الإنتاجية', 'group_name' => 'التقارير الإنتاجية', 'description' => 'إظهار قائمة التقارير الإنتاجية'],
+            ['name' => 'REPORTS_WIP', 'display_name' => 'تقرير الأعمال غير المنتهية', 'group_name' => 'التقارير الإنتاجية', 'description' => 'عرض تقرير الأعمال غير المنتهية'],
+            ['name' => 'REPORTS_SHIFT_DASHBOARD', 'display_name' => 'ملخص الوردية', 'group_name' => 'التقارير الإنتاجية', 'description' => 'عرض ملخص الوردية'],
+            ['name' => 'REPORTS_STANDS_USAGE', 'display_name' => 'تاريخ استخدام الستاندات', 'group_name' => 'التقارير الإنتاجية', 'description' => 'عرض تاريخ استخدام الستاندات'],
+            ['name' => 'REPORTS_WORKER_PERFORMANCE', 'display_name' => 'تقرير أداء العمال', 'group_name' => 'التقارير الإنتاجية', 'description' => 'عرض تقرير أداء العمال'],
 
             // Management & Settings
             ['name' => 'MENU_MANAGEMENT', 'display_name' => 'الإدارة', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إظهار قائمة الإدارة'],
@@ -106,6 +140,22 @@ class PermissionsSeeder extends Seeder
             ['name' => 'MANAGE_USERS_CREATE', 'display_name' => 'إضافة مستخدم', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إضافة مستخدم جديد'],
             ['name' => 'MANAGE_USERS_UPDATE', 'display_name' => 'تعديل المستخدم', 'group_name' => 'الإدارة والإعدادات', 'description' => 'تعديل بيانات المستخدم'],
             ['name' => 'MANAGE_USERS_DELETE', 'display_name' => 'حذف المستخدم', 'group_name' => 'الإدارة والإعدادات', 'description' => 'حذف المستخدم'],
+
+            ['name' => 'MANAGE_ROLES_READ', 'display_name' => 'عرض الأدوار', 'group_name' => 'الإدارة والإعدادات', 'description' => 'عرض الأدوار'],
+            ['name' => 'MANAGE_ROLES_CREATE', 'display_name' => 'إضافة دور', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إضافة دور جديد'],
+            ['name' => 'MANAGE_ROLES_UPDATE', 'display_name' => 'تعديل الدور', 'group_name' => 'الإدارة والإعدادات', 'description' => 'تعديل الدور'],
+            ['name' => 'MANAGE_ROLES_DELETE', 'display_name' => 'حذف الدور', 'group_name' => 'الإدارة والإعدادات', 'description' => 'حذف الدور'],
+
+            ['name' => 'MANAGE_PERMISSIONS_READ', 'display_name' => 'عرض الصلاحيات', 'group_name' => 'الإدارة والإعدادات', 'description' => 'عرض الصلاحيات'],
+            ['name' => 'MANAGE_PERMISSIONS_CREATE', 'display_name' => 'إضافة صلاحية', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إضافة صلاحية جديدة'],
+            ['name' => 'MANAGE_PERMISSIONS_UPDATE', 'display_name' => 'تعديل الصلاحية', 'group_name' => 'الإدارة والإعدادات', 'description' => 'تعديل الصلاحية'],
+            ['name' => 'MANAGE_PERMISSIONS_DELETE', 'display_name' => 'حذف الصلاحية', 'group_name' => 'الإدارة والإعدادات', 'description' => 'حذف الصلاحية'],
+
+            // Settings
+            ['name' => 'SETTINGS_GENERAL', 'display_name' => 'الإعدادات العامة', 'group_name' => 'الإدارة والإعدادات', 'description' => 'الوصول للإعدادات العامة'],
+            ['name' => 'SETTINGS_CALCULATIONS', 'display_name' => 'إعدادات الحسابات', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إعدادات الحسابات والمعادلات'],
+            ['name' => 'SETTINGS_BARCODE', 'display_name' => 'إعدادات الباركود', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إعدادات الباركود'],
+            ['name' => 'SETTINGS_NOTIFICATIONS', 'display_name' => 'إعدادات الإشعارات', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إعدادات الإشعارات'],
 
             // Old permissions (backward compatibility)
             ['name' => 'MANAGE_USERS', 'display_name' => 'إدارة المستخدمين', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إدارة المستخدمين والموظفين'],
