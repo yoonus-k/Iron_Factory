@@ -629,12 +629,15 @@ class ReconciliationController extends Controller
                     $status = $note->reconciliation_status === 'matched' ? ' (مطابق)' : ' (مرتبط بفاتورة)';
                 }
 
+                // استخدام أي حقل وزن متاح
+                $weight = $note->actual_weight ?? $note->weight_from_scale ?? $note->delivered_weight ?? 0;
+
                 return [
                     'id' => $note->id,
-                    'text' => "أذن #{$note->note_number} - {$note->supplier->name} - الوزن: {$note->actual_weight} كيلو{$status}",
+                    'text' => "أذن #{$note->note_number} - {$note->supplier->name} - الوزن: {$weight} كيلو{$status}",
                     'note_number' => $note->note_number,
                     'supplier_name' => $note->supplier->name,
-                    'actual_weight' => $note->actual_weight,
+                    'actual_weight' => $weight,
                     'delivery_date' => $note->delivery_date?->format('Y-m-d'),
                     'has_invoice' => $note->purchase_invoice_id ? true : false,
                     'reconciliation_status' => $note->reconciliation_status,
@@ -986,12 +989,15 @@ class ReconciliationController extends Controller
                 $status = $note->reconciliation_status === 'matched' ? ' (مطابق)' : ' (مرتبط بفاتورة)';
             }
 
+            // استخدام أي حقل وزن متاح: actual_weight أولاً، ثم weight_from_scale، ثم delivered_weight، وأخيراً quantity
+            $weight = $note->actual_weight ?? $note->weight_from_scale ?? $note->delivered_weight ?? $note->quantity ?? 0;
+
             return [
                 'id' => $note->id,
                 'note_number' => $note->note_number,
                 'supplier' => ['id' => $note->supplier?->id, 'name' => $note->supplier?->name],
                 'delivery_date' => $note->delivery_date?->format('Y-m-d'),
-                'actual_weight' => $note->quantity,
+                'actual_weight' => $weight,
                 'created_at' => $note->created_at?->format('Y-m-d'),
                 'has_invoice' => $note->purchase_invoice_id ? true : false,
                 'reconciliation_status' => $note->reconciliation_status,
@@ -1037,6 +1043,7 @@ class ReconciliationController extends Controller
 
     return view('manufacturing::warehouses.reconciliation.link-invoice', compact('deliveryNotes', 'invoices'));
 }
+
 
     /**
      * ✅ API: إنشاء أذن تسليم من الفاتورة

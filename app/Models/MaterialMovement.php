@@ -57,7 +57,13 @@ class MaterialMovement extends Model
     {
         $prefix = 'MV';
         $date = now()->format('Ymd');
-        $lastMovement = self::whereDate('created_at', now())->latest()->first();
+        
+        // استخدام database lock لضمان عدم التكرار عند التسجيل المتزامن
+        $lastMovement = self::whereDate('created_at', now())
+            ->lockForUpdate()
+            ->latest('id')
+            ->first();
+            
         $sequence = $lastMovement ? (intval(substr($lastMovement->movement_number, -4)) + 1) : 1;
 
         return $prefix . $date . str_pad($sequence, 4, '0', STR_PAD_LEFT);
@@ -167,6 +173,11 @@ class MaterialMovement extends Model
      */
     public function getMovementTypeNameAttribute(): string
     {
+        // تخصيص الاسم بناءً على المصدر والنوع
+        if ($this->movement_type === 'adjustment' && $this->source === 'production' && $this->reference_number) {
+            return 'تحديث كمية المستودع';
+        }
+        
         $types = [
             'incoming' => 'دخول بضاعة',
             'outgoing' => 'خروج بضاعة',

@@ -15,7 +15,7 @@
                     <i class="feather icon-user"></i>
                     المورد:
                 </span>
-                <strong class="um-info-value">{{ $item->supplier->name }}</strong>
+                <strong class="um-info-value">{{ $item->supplier->name ?? "---" }}</strong>
             </div>
         </div>
         <div class="col-md-2">

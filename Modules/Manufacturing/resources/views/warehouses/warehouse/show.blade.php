@@ -839,7 +839,7 @@
                         </div>
 
                         ${movement.batch_code ? `
-                        <div style="background: linear-gradient(135deg, ${movement.is_production_barcode ? '#11998e 0%, #38ef7d' : '#667eea 0%, #764ba2'} 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 15px rgba(${movement.is_production_barcode ? '17, 153, 142' : '102, 126, 234'}, 0.3);">
+                        <div style="background: linear-gradient(135deg, ${movement.is_production_barcode ? '#11998e 0%, #38ef7d' : (movement.is_warehouse_update ? '#f39c12 0%, #e67e22' : '#667eea 0%, #764ba2')} 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 15px rgba(${movement.is_production_barcode ? '17, 153, 142' : (movement.is_warehouse_update ? '243, 156, 18' : '102, 126, 234')}, 0.3);">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                 <h4 style="margin: 0; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
@@ -849,7 +849,7 @@
                                         <line x1="15" y1="8" x2="15" y2="16"></line>
                                         <line x1="17" y1="8" x2="17" y2="16"></line>
                                     </svg>
-                                    ${movement.is_production_barcode ? 'باركود الإنتاج' : 'باركود دخول المستودع'}
+                                    ${movement.barcode_title || (movement.is_production_barcode ? 'باركود الإنتاج' : 'باركود دخول المستودع')}
                                 </h4>
                                 <button onclick="printModalBarcode('${movement.batch_code}', '${movement.material_name}', ${movement.quantity}, '${movement.unit_symbol || ''}')" style="background: rgba(255,255,255,0.25); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; display: flex; align-items: center; gap: 6px; transition: all 0.3s;">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">

@@ -159,6 +159,143 @@
             </div>
         </div>
 
+        <!-- Barcode Split History (NEW) -->
+        @php
+            $splitEvents = collect($trackingData['journey'] ?? [])->filter(function($stage) {
+                return ($stage['action'] ?? '') === 'split';
+            });
+        @endphp
+        
+        @if($splitEvents->count() > 0)
+        <section class="um-main-card" style="margin-bottom: 30px; border: 2px solid #f59e0b; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);">
+            <div class="um-card-header" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white;">
+                <h4 class="um-card-title" style="color: white; display: flex; align-items: center; gap: 10px;">
+                    <i class="feather icon-git-branch" style="font-size: 24px;"></i>
+                    <span>تاريخ تقسيم الباركود</span>
+                    <span class="um-badge" style="background: rgba(255,255,255,0.3); color: white;">{{ $splitEvents->count() }} عملية</span>
+                </h4>
+            </div>
+            <div style="padding: 25px;">
+                @foreach($splitEvents as $split)
+                @php
+                    $metadata = is_string($split['metadata'] ?? null) ? json_decode($split['metadata'], true) : ($split['metadata'] ?? []);
+                    $outputBarcodes = explode(',', $split['output_barcode'] ?? '');
+                @endphp
+                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 16px; padding: 25px; margin-bottom: 20px; border: 2px solid #fbbf24; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);">
+                    <!-- Header -->
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px dashed #f59e0b;">
+                        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);">
+                            <i class="feather icon-scissors" style="font-size: 24px;"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <h5 style="margin: 0 0 5px 0; color: #78350f; font-size: 18px; font-weight: 700;">
+                                🔄 عملية تقسيم الدفعة
+                            </h5>
+                            <p style="margin: 0; color: #92400e; font-size: 13px;">
+                                <i class="feather icon-calendar"></i> {{ $split['formatted_time'] ?? 'غير محدد' }}
+                                <span style="margin-right: 15px;">
+                                    <i class="feather icon-clock"></i> {{ $split['time_ago'] ?? '' }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Split Diagram -->
+                    <div style="display: grid; grid-template-columns: 1fr auto 2fr; gap: 20px; align-items: center; margin: 20px 0;">
+                        <!-- Original Barcode -->
+                        <div style="background: white; border: 3px solid #d97706; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 3px 10px rgba(217, 119, 6, 0.2);">
+                            <div style="color: #92400e; font-size: 12px; font-weight: 600; margin-bottom: 8px;">الباركود الأصلي</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #78350f; font-family: monospace; margin-bottom: 8px;">
+                                {{ $split['input_barcode'] ?? 'N/A' }}
+                            </div>
+                            <div style="background: #fef3c7; padding: 8px; border-radius: 8px; margin-top: 10px;">
+                                <div style="font-size: 11px; color: #92400e; margin-bottom: 3px;">الكمية الأصلية</div>
+                                <div style="font-size: 16px; font-weight: 700; color: #d97706;">
+                                    {{ number_format($split['input_weight'] ?? 0, 2) }} كجم
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Arrow -->
+                        <div style="text-align: center;">
+                            <i class="feather icon-arrow-left" style="font-size: 36px; color: #f59e0b;"></i>
+                        </div>
+
+                        <!-- Split Results -->
+                        <div style="display: grid; gap: 15px;">
+                            @if(isset($metadata['production_barcode']))
+                            <!-- Production Barcode -->
+                            <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 3px solid #3b82f6; border-radius: 12px; padding: 15px; box-shadow: 0 3px 10px rgba(59, 130, 246, 0.2);">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="background: #3b82f6; color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="feather icon-box" style="font-size: 20px;"></i>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div style="font-size: 11px; color: #1e40af; font-weight: 600; margin-bottom: 4px;">
+                                            🏭 للإنتاج
+                                        </div>
+                                        <div style="font-size: 16px; font-weight: 700; color: #1e3a8a; font-family: monospace; margin-bottom: 4px;">
+                                            {{ $metadata['production_barcode'] }}
+                                        </div>
+                                        <div style="font-size: 13px; font-weight: 600; color: #3b82f6;">
+                                            {{ number_format($metadata['production_quantity'] ?? 0, 2) }} كجم
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+
+                            @if(isset($metadata['remaining_barcode']))
+                            <!-- Warehouse Barcode -->
+                            <div style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border: 3px solid #10b981; border-radius: 12px; padding: 15px; box-shadow: 0 3px 10px rgba(16, 185, 129, 0.2);">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="background: #10b981; color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="feather icon-package" style="font-size: 20px;"></i>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div style="font-size: 11px; color: #065f46; font-weight: 600; margin-bottom: 4px;">
+                                            📦 في المستودع
+                                        </div>
+                                        <div style="font-size: 16px; font-weight: 700; color: #064e3b; font-family: monospace; margin-bottom: 4px;">
+                                            {{ $metadata['remaining_barcode'] }}
+                                        </div>
+                                        <div style="font-size: 13px; font-weight: 600; color: #10b981;">
+                                            {{ number_format($metadata['remaining_quantity'] ?? 0, 2) }} كجم
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Additional Info -->
+                    @if($split['notes'] ?? false)
+                    <div style="background: white; border-right: 4px solid #f59e0b; border-radius: 8px; padding: 12px; margin-top: 15px;">
+                        <div style="color: #92400e; font-size: 12px; font-weight: 600; margin-bottom: 5px;">
+                            <i class="feather icon-message-square"></i> ملاحظات:
+                        </div>
+                        <div style="color: #78350f; font-size: 13px;">
+                            {{ $split['notes'] }}
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Worker Info -->
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 2px dashed #f59e0b;">
+                        <div style="background: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #f59e0b;">
+                            <i class="feather icon-user" style="color: #d97706; font-size: 16px;"></i>
+                        </div>
+                        <div style="color: #78350f; font-size: 13px;">
+                            <strong>العامل:</strong> {{ $split['worker_name'] ?? 'غير محدد' }}
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </section>
+        @endif
+
         <!-- Production Journey Timeline -->
         <section class="um-main-card" style="margin-bottom: 30px;">
             <div class="um-card-header">
@@ -209,103 +346,148 @@
                             </div>
                             
                             <div style="font-size: 14px; color: #334155;">
+                                <!-- Barcode Card -->
+                                <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #3b82f6;">
+                                    <div style="text-align: center;">
+                                        <div style="color: #1e40af; font-size: 11px; font-weight: 600; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">
+                                            الباركود
+                                        </div>
+                                        <div style="font-family: 'Courier New', monospace; font-size: 20px; font-weight: 700; color: #1e3a8a; letter-spacing: 2px;">
+                                            {{ $stage['barcode'] }}
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 @if(isset($stage['items_count']) && $stage['items_count'] > 1)
-                                    <div class="um-info-row" style="background: #dbeafe; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
-                                        <span class="um-info-label" style="color: #1d4ed8; font-weight: 600;">
-                                            <i class="feather icon-layers"></i> إجمالي المرحلة:
-                                        </span>
-                                        <span class="um-info-value" style="color: #1d4ed8; font-weight: 600;">
-                                            {{ $stage['items_count'] }} عنصر
-                                        </span>
+                                <div style="background: #fef3c7; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; border: 2px solid #fbbf24;">
+                                    <span style="color: #78350f; font-weight: 600; font-size: 13px;">
+                                        <i class="feather icon-layers"></i> {{ $stage['items_count'] }} عملية في هذه المرحلة
+                                    </span>
+                                </div>
+                                @endif
+                                
+                                <!-- Worker and Notes -->
+                                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                                    <div style="background: #e0e7ff; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="feather icon-user" style="color: #4f46e5; font-size: 16px;"></i>
                                     </div>
-                                @else
-                                    <div class="um-info-row">
-                                        <span class="um-info-label">الباركود:</span>
-                                        <span class="um-info-value">{{ $stage['barcode'] }}</span>
+                                    <div>
+                                        <div style="font-size: 10px; color: #64748b; margin-bottom: 2px;">العامل المسؤول</div>
+                                        <div style="font-size: 13px; color: #1e293b; font-weight: 600;">{{ $stage['worker_name'] }}</div>
                                     </div>
-                                @endif
-                                
-                                @if($stage['input_barcode'])
-                                <div class="um-info-row">
-                                    <span class="um-info-label">مصدر المادة:</span>
-                                    <span class="um-info-value">{{ $stage['input_barcode'] }}</span>
                                 </div>
-                                @endif
                                 
-                                @if($stage['output_barcode'] && $stage['output_barcode'] != $stage['barcode'])
-                                <div class="um-info-row">
-                                    <span class="um-info-label">الباركود الناتج:</span>
-                                    <span class="um-info-value">{{ $stage['output_barcode'] }}</span>
-                                </div>
-                                @endif
-                                
-                                @if($stage['input_weight'] > 0)
-                                <div class="um-info-row">
-                                    <span class="um-info-label">وزن الدخول:</span>
-                                    <span class="um-info-value">{{ number_format($stage['input_weight'], 2) }} كجم</span>
-                                </div>
-                                @endif
-                                
-                                @if($stage['output_weight'] > 0)
-                                <div class="um-info-row">
-                                    <span class="um-info-label">وزن الخروج:</span>
-                                    <span class="um-info-value">{{ number_format($stage['output_weight'], 2) }} كجم</span>
+                                @if($stage['notes'])
+                                <div style="background: #fffbeb; border-right: 3px solid #f59e0b; padding: 10px 12px; border-radius: 6px; margin-bottom: 10px;">
+                                    <div style="font-size: 10px; color: #92400e; margin-bottom: 4px; font-weight: 600;">
+                                        <i class="feather icon-message-square"></i> ملاحظات
+                                    </div>
+                                    <div style="font-size: 12px; color: #78350f;">{{ $stage['notes'] }}</div>
                                 </div>
                                 @endif
                                 
                                 @if($stage['waste_amount'] > 0)
-                                <div class="um-info-row">
-                                    <span class="um-info-label">الهدر:</span>
-                                    <span class="um-info-value">{{ number_format($stage['waste_amount'], 2) }} كجم ({{ number_format($stage['waste_percentage'], 2) }}%)</span>
-                                </div>
-                                @endif
-                                
-                                <div class="um-info-row">
-                                    <span class="um-info-label">العامل:</span>
-                                    <span class="um-info-value">{{ $stage['worker_name'] }}</span>
-                                </div>
-                                
-                                @if($stage['notes'])
-                                <div class="um-info-row">
-                                    <span class="um-info-label">ملاحظات:</span>
-                                    <span class="um-info-value">{{ $stage['notes'] }}</span>
+                                <div style="background: #fef2f2; border: 2px solid #fca5a5; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <span style="color: #991b1b; font-size: 12px; font-weight: 600;">
+                                            <i class="feather icon-trash-2"></i> الهدر
+                                        </span>
+                                        <span style="color: #dc2626; font-size: 16px; font-weight: 700;">
+                                            {{ number_format($stage['waste_amount'], 2) }} كجم ({{ number_format($stage['waste_percentage'], 2) }}%)
+                                        </span>
+                                    </div>
                                 </div>
                                 @endif
                                 
                                 @if(isset($stage['additional_info']) && !empty($stage['additional_info']))
-                                    @if(isset($stage['additional_info']['items_details']) && count($stage['additional_info']['items_details']) > 1)
+                                    @if(isset($stage['additional_info']['items_details']) && count($stage['additional_info']['items_details']) >= 1)
                                     <div style="margin-top: 15px; padding: 15px; background: #f8fafc; border-radius: 8px; border-right: 4px solid #3b82f6;">
                                         <h6 style="margin: 0 0 12px 0; color: #0f172a; font-size: 14px; font-weight: 600;">
-                                            <i class="feather icon-list"></i> تفاصيل العناصر ({{ count($stage['additional_info']['items_details']) }} عنصر):
+                                            <i class="feather icon-list"></i> تفاصيل العمليات ({{ count($stage['additional_info']['items_details']) }} عملية):
                                         </h6>
                                         <div style="display: grid; gap: 10px;">
                                             @foreach($stage['additional_info']['items_details'] as $index => $item)
-                                            <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                                    <span style="font-weight: 600; color: #334155; font-size: 13px;">
-                                                        <i class="feather icon-barcode"></i> {{ $item['barcode'] ?? $item['output_barcode'] }}
-                                                    </span>
-                                                    <span style="background: #dbeafe; color: #1d4ed8; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600;">
-                                                        #{{ $index + 1 }}
+                                            <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                                <!-- Header -->
+                                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px dashed #e2e8f0;">
+                                                    <div style="flex: 1;">
+                                                        <div style="font-size: 10px; color: #64748b; margin-bottom: 4px; font-weight: 600;">
+                                                            العملية #{{ $index + 1 }}
+                                                        </div>
+                                                        <div style="font-weight: 700; color: #1e40af; font-size: 14px; font-family: monospace; background: #eff6ff; padding: 6px 10px; border-radius: 6px; display: inline-block;">
+                                                            <i class="feather icon-hash" style="font-size: 12px;"></i> {{ $item['barcode'] }}
+                                                        </div>
+                                                    </div>
+                                                    @if($item['formatted_time'] ?? false)
+                                                    <div style="text-align: left; font-size: 11px; color: #64748b;">
+                                                        <i class="feather icon-clock"></i> {{ $item['formatted_time'] }}
+                                                    </div>
+                                                    @endif
+                                                </div>
+                                                
+                                                <!-- Source and Output -->
+                                                @if($item['input_barcode'] ?? false)
+                                                <div style="background: #fef3c7; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; border-right: 3px solid #f59e0b;">
+                                                    <div style="font-size: 10px; color: #78350f; margin-bottom: 3px; font-weight: 600;">
+                                                        <i class="feather icon-arrow-down"></i> مصدر المادة
+                                                    </div>
+                                                    <div style="color: #92400e; font-weight: 600; font-size: 12px; font-family: monospace;">
+                                                        {{ $item['input_barcode'] }}
+                                                    </div>
+                                                </div>
+                                                @endif
+                                                
+                                                @if(($item['output_barcode'] ?? false) && $item['output_barcode'] != $item['barcode'])
+                                                <div style="background: #d1fae5; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; border-right: 3px solid #10b981;">
+                                                    <div style="font-size: 10px; color: #065f46; margin-bottom: 3px; font-weight: 600;">
+                                                        <i class="feather icon-arrow-up"></i> الباركود الناتج
+                                                    </div>
+                                                    <div style="color: #047857; font-weight: 600; font-size: 12px; font-family: monospace;">
+                                                        {{ $item['output_barcode'] }}
+                                                    </div>
+                                                </div>
+                                                @endif
+                                                
+                                                <!-- Action Type -->
+                                                @if($item['action'] ?? false)
+                                                <div style="background: #e0e7ff; padding: 6px 12px; border-radius: 6px; margin-bottom: 10px; display: inline-block;">
+                                                    <span style="color: #3730a3; font-size: 11px; font-weight: 600;">
+                                                        <i class="feather icon-activity"></i> 
+                                                        @switch($item['action'])
+                                                            @case('split') تقسيم @break
+                                                            @case('transferred_to_production') نقل للإنتاج @break
+                                                            @case('warehouse_remaining') متبقي في المستودع @break
+                                                            @default {{ $item['action'] }}
+                                                        @endswitch
                                                     </span>
                                                 </div>
-                                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; font-size: 12px;">
+                                                @endif
+                                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 12px; margin-top: 8px;">
                                                     @if($item['input_weight'] > 0)
-                                                    <div>
-                                                        <span style="color: #64748b;">دخول:</span>
-                                                        <span style="color: #16a34a; font-weight: 600;">{{ number_format($item['input_weight'], 2) }} كجم</span>
+                                                    <div style="background: #f0fdf4; padding: 8px; border-radius: 6px; text-align: center; border: 1px solid #bbf7d0;">
+                                                        <div style="color: #15803d; font-size: 10px; margin-bottom: 3px;">
+                                                            <i class="feather icon-arrow-down"></i> دخول
+                                                        </div>
+                                                        <div style="color: #16a34a; font-weight: 700; font-size: 14px;">{{ number_format($item['input_weight'], 2) }}</div>
+                                                        <div style="color: #4ade80; font-size: 9px;">كجم</div>
                                                     </div>
                                                     @endif
                                                     @if($item['output_weight'] > 0)
-                                                    <div>
-                                                        <span style="color: #64748b;">خروج:</span>
-                                                        <span style="color: #2563eb; font-weight: 600;">{{ number_format($item['output_weight'], 2) }} كجم</span>
+                                                    <div style="background: #eff6ff; padding: 8px; border-radius: 6px; text-align: center; border: 1px solid #bfdbfe;">
+                                                        <div style="color: #1e40af; font-size: 10px; margin-bottom: 3px;">
+                                                            <i class="feather icon-arrow-up"></i> خروج
+                                                        </div>
+                                                        <div style="color: #2563eb; font-weight: 700; font-size: 14px;">{{ number_format($item['output_weight'], 2) }}</div>
+                                                        <div style="color: #60a5fa; font-size: 9px;">كجم</div>
                                                     </div>
                                                     @endif
                                                     @if($item['waste_amount'] > 0)
-                                                    <div>
-                                                        <span style="color: #64748b;">هدر:</span>
-                                                        <span style="color: #dc2626; font-weight: 600;">{{ number_format($item['waste_amount'], 2) }} كجم ({{ number_format($item['waste_percentage'], 1) }}%)</span>
+                                                    <div style="background: #fef2f2; padding: 8px; border-radius: 6px; text-align: center; border: 1px solid #fecaca;">
+                                                        <div style="color: #991b1b; font-size: 10px; margin-bottom: 3px;">
+                                                            <i class="feather icon-trash-2"></i> هدر
+                                                        </div>
+                                                        <div style="color: #dc2626; font-weight: 700; font-size: 14px;">{{ number_format($item['waste_amount'], 2) }}</div>
+                                                        <div style="color: #f87171; font-size: 9px;">كجم ({{ number_format($item['waste_percentage'], 1) }}%)</div>
                                                     </div>
                                                     @endif
                                                 </div>

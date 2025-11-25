@@ -228,37 +228,56 @@ class ProductTrackingController extends Controller
             'shipped' => 'شحن',
         ];
 
-        // حساب المجاميع
-        $totalInputWeight = 0;
-        $totalOutputWeight = 0;
-        $totalWaste = 0;
         $itemsCount = count($records);
-        $barcodes = [];
         $firstRecord = $records[0];
-        $lastRecord = $records[count($records) - 1];
-
-        // تفاصيل كل عنصر في المرحلة
+        
+        // تفاصيل كل عنصر - نعرض كل عملية بشكل منفصل
         $itemsDetails = [];
         
         foreach ($records as $record) {
-            $totalInputWeight += $record->input_weight ?? 0;
-            $totalOutputWeight += $record->output_weight ?? 0;
-            $totalWaste += $record->waste_amount ?? 0;
-            if ($record->barcode && !in_array($record->barcode, $barcodes)) {
-                $barcodes[] = $record->barcode;
+            // تحديد الأوزان الصحيحة حسب نوع العملية
+            $displayInputWeight = 0;
+            $displayOutputWeight = 0;
+            
+            // تحليل نوع العملية
+            switch ($record->action) {
+                case 'split':
+                    // التقسيم: الدخول = الخروج (لا يوجد فقد)
+                    $displayInputWeight = $record->input_weight ?? 0;
+                    $displayOutputWeight = $record->output_weight ?? 0;
+                    break;
+                    
+                case 'warehouse_remaining':
+                case 'transferred_to_production':
+                    // الناتج من التقسيم: نعرض فقط وزن الخروج (الوزن الفعلي للباركود)
+                    $displayInputWeight = 0; // لا نعرض وزن دخول لأنه ناتج من تقسيم
+                    $displayOutputWeight = $record->output_weight ?? 0;
+                    break;
+                    
+                default:
+                    // باقي العمليات: نعرض الدخول والخروج
+                    $displayInputWeight = $record->input_weight ?? 0;
+                    $displayOutputWeight = $record->output_weight ?? 0;
             }
             
-            // إضافة تفاصيل كل عنصر
             $itemsDetails[] = [
                 'barcode' => $record->barcode,
+                'input_barcode' => $record->input_barcode,
                 'output_barcode' => $record->output_barcode,
-                'input_weight' => $record->input_weight ?? 0,
-                'output_weight' => $record->output_weight ?? 0,
+                'action' => $record->action,
+                'input_weight' => $displayInputWeight,
+                'output_weight' => $displayOutputWeight,
                 'waste_amount' => $record->waste_amount ?? 0,
                 'waste_percentage' => $record->waste_percentage ?? 0,
                 'notes' => $record->notes,
+                'formatted_time' => date('Y-m-d H:i:s', strtotime($record->created_at)),
             ];
         }
+        
+        // للعرض الرئيسي: نستخدم بيانات أول سجل فقط (الأهم)
+        $totalInputWeight = $firstRecord->input_weight ?? 0;
+        $totalOutputWeight = $firstRecord->output_weight ?? 0;
+        $totalWaste = $firstRecord->waste_amount ?? 0;
 
         // جلب اسم الموظف - نحاول من created_by أولاً، ثم worker_id
         $workerId = $firstRecord->created_by ?? $firstRecord->worker_id ?? null;
@@ -310,7 +329,6 @@ class ProductTrackingController extends Controller
             'color' => $stageColors[$stageName] ?? 'secondary',
             'additional_info' => $additionalInfo,
             'items_count' => $itemsCount,
-            'barcodes' => $barcodes,
         ];
     }
 

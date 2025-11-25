@@ -2,154 +2,178 @@
 
 @section('title', 'لوحة التسوية')
 
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/warehouses/reconciliation.css') }}">
-@endpush
-
 @section('content')
-<div class="um-content-wrapper">
+<div class="container-fluid px-4 py-4">
     <!-- Header Section -->
-    <div class="um-header-section">
+    <div class="page-header-card mb-4">
         <div class="row align-items-center">
             <div class="col">
-                <h1 class="um-page-title">
-                    <i class="feather icon-git-merge"></i>
-                    لوحة تسوية البضاعة والفواتير
-                </h1>
-                <nav class="um-breadcrumb-nav">
-                    <span>
-                        <i class="feather icon-home"></i> لوحة التحكم
-                    </span>
-                    <i class="feather icon-chevron-left"></i>
-                    <span>المستودع</span>
-                    <i class="feather icon-chevron-left"></i>
-                    <span>التسوية</span>
-                </nav>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="header-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title mb-0">لوحة تسوية البضاعة والفواتير</h1>
+                        <p class="text-white-50 mb-0 mt-1">مقارنة الأوزان الفعلية مع أوزان الفواتير</p>
+                    </div>
+                </div>
             </div>
             <div class="col-auto">
-                <a href="{{ route('manufacturing.warehouses.reconciliation.history') }}" class="um-btn um-btn-outline">
-                    <i class="feather icon-clock"></i>
-                    السجل
-                </a>
-                <a href="{{ route('manufacturing.warehouses.reconciliation.supplier-report') }}" class="um-btn um-btn-primary">
-                    <i class="feather icon-bar-chart-2"></i>
-                    تقرير الموردين
-                </a>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('manufacturing.warehouses.reconciliation.link-invoice') }}" class="btn-action-primary">
+                        <i class="fas fa-link"></i>
+                        ربط فاتورة جديدة
+                    </a>
+                    @if(Route::has('manufacturing.warehouses.reconciliation.history'))
+                    <a href="{{ route('manufacturing.warehouses.reconciliation.history') }}" class="btn-action-secondary">
+                        <i class="fas fa-history"></i>
+                        السجل
+                    </a>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Success and Error Messages -->
     @if (session('success'))
-        <div class="um-alert-custom um-alert-success" role="alert">
-            <i class="feather icon-check-circle"></i>
-            {{ session('success') }}
-            <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
-                <i class="feather icon-x"></i>
-            </button>
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong>تم!</strong> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
     @if (session('error'))
-        <div class="um-alert-custom um-alert-error" role="alert">
-            <i class="feather icon-x-circle"></i>
-            {{ session('error') }}
-            <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
-                <i class="feather icon-x"></i>
-            </button>
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <strong>خطأ!</strong> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
+    <!-- إحصائيات سريعة -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="stats-card stats-pending">
+                <div class="stats-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stats-content">
+                    <h3>{{ $stats['total_pending'] + $stats['total_discrepancy'] }}</h3>
+                    <p>معلقة (تحتاج مراجعة)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card stats-discrepancy">
+                <div class="stats-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stats-content">
+                    <h3>{{ $pending->count() }}</h3>
+                    <p>في القائمة أدناه</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card stats-matched">
+                <div class="stats-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stats-content">
+                    <h3>{{ $stats['total_matched'] }}</h3>
+                    <p>متطابقة</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card stats-adjusted">
+                <div class="stats-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div class="stats-content">
+                    <h3>{{ $stats['total_adjusted'] }}</h3>
+                    <p>مسوّاة</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Filters Section -->
-    <div class="um-filters-section">
+    <div class="filter-card mb-4">
         <form method="GET" class="row g-3">
             <div class="col-md-3">
                 <label class="form-label">المورد:</label>
-                <div class="input-wrapper">
-                    <select name="supplier_id" class="um-form-control">
-                        <option value="">-- جميع الموردين --</option>
-                        @foreach (\App\Models\Supplier::where('is_active', true)->get() as $supplier)
-                            <option value="{{ $supplier->id }}" @selected(request('supplier_id') == $supplier->id)>
-                                {{ $supplier->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                <select name="supplier_id" class="form-select">
+                    <option value="">-- جميع الموردين --</option>
+                    @foreach (\App\Models\Supplier::where('is_active', true)->get() as $supplier)
+                        <option value="{{ $supplier->id }}" @selected(request('supplier_id') == $supplier->id)>
+                            {{ $supplier->name }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
             <div class="col-md-2">
                 <label class="form-label">من التاريخ:</label>
-                <div class="input-wrapper">
-                    <input type="date" name="from_date" class="um-form-control" value="{{ request('from_date') }}">
-                </div>
+                <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">
             </div>
             <div class="col-md-2">
                 <label class="form-label">إلى التاريخ:</label>
-                <div class="input-wrapper">
-                    <input type="date" name="to_date" class="um-form-control" value="{{ request('to_date') }}">
-                </div>
+                <input type="date" name="to_date" class="form-control" value="{{ request('to_date') }}">
             </div>
             <div class="col-md-2">
                 <label class="form-label">&nbsp;</label>
-                <button type="submit" class="um-btn um-btn-primary w-100">
-                    <i class="feather icon-search"></i>
-                    بحث
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> بحث
                 </button>
             </div>
             <div class="col-md-3">
                 <label class="form-label">&nbsp;</label>
-                <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="um-btn um-btn-outline w-100">
-                    <i class="feather icon-rotate-ccw"></i>
-                    إعادة تعيين
+                <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-redo"></i> إعادة تعيين
                 </a>
             </div>
         </form>
     </div>
 
     <!-- علامات التبويب للتسويات -->
-    <div class="um-main-card">
-        <div class="um-card-header">
-            <h4 class="um-card-title">
-                <i class="feather icon-git-merge"></i>
+    <div class="main-card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-list"></i>
                 جميع التسويات
-            </h4>
+            </h5>
         </div>
         <div class="card-body">
             <!-- Navigation Tabs -->
-            <ul class="nav nav-tabs mb-4" role="tablist" style="border-bottom: 2px solid #E2E8F0;">
+            <ul class="nav nav-tabs mb-4" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
-                        <i class="feather icon-clock"></i>
+                        <i class="fas fa-clock"></i>
                         معلقة
-                        <span class="badge bg-secondary ms-2"></span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="discrepancy-tab" data-bs-toggle="tab" data-bs-target="#discrepancy" type="button" role="tab">
-                        <i class="feather icon-alert-triangle"></i>
-                        فروقات
-                        <span class="badge bg-warning ms-2">{{ $stats['total_discrepancy'] }}</span>
+                        <span class="badge rounded-pill bg-secondary ms-2">{{ $stats['total_pending'] + $stats['total_discrepancy'] }}</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="matched-tab" data-bs-toggle="tab" data-bs-target="#matched" type="button" role="tab">
-                        <i class="feather icon-check-circle"></i>
+                        <i class="fas fa-check-circle"></i>
                         متطابقة
-                        <span class="badge bg-success ms-2">{{ $stats['total_matched'] }}</span>
+                        <span class="badge rounded-pill bg-success ms-2">{{ $stats['total_matched'] }}</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="adjusted-tab" data-bs-toggle="tab" data-bs-target="#adjusted" type="button" role="tab">
-                        <i class="feather icon-tool"></i>
-                        مسوية
-                        <span class="badge bg-info ms-2">{{ $stats['total_adjusted'] }}</span>
+                        <i class="fas fa-tools"></i>
+                        مسوّاة
+                        <span class="badge rounded-pill bg-info ms-2">{{ $stats['total_adjusted'] }}</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab">
-                        <i class="feather icon-x-circle"></i>
+                        <i class="fas fa-times-circle"></i>
                         مرفوضة
-                        <span class="badge bg-danger ms-2">{{ $stats['total_rejected'] }}</span>
+                        <span class="badge rounded-pill bg-danger ms-2">{{ $stats['total_rejected'] }}</span>
                     </button>
                 </li>
             </ul>
@@ -158,80 +182,95 @@
             <div class="tab-content">
                 <!-- Tab: المعلقة -->
                 <div class="tab-pane fade show active" id="pending" role="tabpanel">
-                    @if ($pending->count() > 0)
-                        <div class="um-reconciliation-table-wrapper">
-                            <table class="um-main-table">
-                                <thead>
+                    @if ($stats['total_pending'] + $stats['total_discrepancy'] > 0 && $pending->count() === 0)
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-filter me-2"></i>
+                            <strong>توجد {{ $stats['total_pending'] + $stats['total_discrepancy'] }} تسوية معلقة</strong> ولكن لا تطابق الفلاتر الحالية.
+                            <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="btn btn-sm btn-outline-primary ms-2">
+                                <i class="fas fa-redo"></i> إعادة تعيين الفلاتر
+                            </a>
+                        </div>
+                    @elseif ($pending->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
                                     <tr>
-                                        <th>الشحنة</th>
+                                        <th>رقم الأذن</th>
                                         <th>المورد</th>
-                                        <th>الفاتورة</th>
-                                        <th>الحالة</th>
-                                        <th class="text-end">الفعلي (الميزان)</th>
-                                        <th class="text-end">الفاتورة</th>
-                                        <th class="text-end">الفرق</th>
-                                        <th class="text-end">النسبة</th>
+                                        <th>رقم الفاتورة</th>
+                                        <th>التاريخ</th>
+                                        <th class="text-center">الوزن الفعلي</th>
+                                        <th class="text-center">وزن الفاتورة</th>
+                                        <th class="text-center">الفرق</th>
+                                        <th class="text-center">النسبة %</th>
+                                        <th class="text-center">الحالة</th>
                                         <th class="text-center">الإجراءات</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($pending as $item)
-                                        <tr class="um-table-row {{ $item->reconciliation_status === 'discrepancy' ? 'row-discrepancy' : 'row-pending' }}">
+                                        @php
+                                            // أولاً: نجرب الحقول المباشرة
+                                            $actualWeight = $item->actual_weight ?? $item->weight_from_scale ?? $item->delivered_weight ?? $item->quantity ?? 0;
+                                            
+                                            // إذا كانت كلها صفر، نجرب من العلاقات
+                                            if ($actualWeight == 0 && isset($item->items) && $item->items->count() > 0) {
+                                                $actualWeight = $item->items->sum('actual_weight') ?: $item->items->sum('quantity');
+                                            }
+                                            
+                                            $invoiceWeight = $item->invoice_weight ?? 0;
+                                            $discrepancy = $actualWeight - $invoiceWeight;
+                                            $discrepancyPercentage = $invoiceWeight > 0 ? (($discrepancy / $invoiceWeight) * 100) : 0;
+                                            $isInOurFavor = $discrepancy < 0;
+                                            
+                                            // رسالة تنبيه للديباج
+                                            $weightSource = 'غير محدد';
+                                            if ($item->actual_weight > 0) $weightSource = 'actual_weight';
+                                            elseif ($item->weight_from_scale > 0) $weightSource = 'weight_from_scale';
+                                            elseif ($item->delivered_weight > 0) $weightSource = 'delivered_weight';
+                                            elseif ($item->quantity > 0) $weightSource = 'quantity';
+                                        @endphp
+                                        <tr>
                                             <td><strong>#{{ $item->note_number ?? $item->id }}</strong></td>
-                                            <td>{{ $item->supplier->name }}</td>
-                                            <td>{{ $item->purchaseInvoice->invoice_number }}</td>
-                                            <td>
-                                                <span class="um-badge {{ $item->reconciliation_status === 'discrepancy' ? 'um-badge-warning' : 'um-badge-info' }}">
-                                                    {{ $item->reconciliation_status }}
-                                                </span>
-                                            </td>
-                                            <td class="text-end">
-                                                @if ($item->actual_weight)
-                                                    <span class="um-badge um-badge-info">{{ number_format($item->actual_weight, 2) }}</span>
+                                            <td>{{ $item->supplier->name ?? 'غير محدد' }}</td>
+                                            <td>{{ $item->purchaseInvoice->invoice_number ?? '-' }}</td>
+                                            <td>{{ $item->created_at ? $item->created_at->format('Y-m-d') : '-' }}</td>
+                                            <td class="text-center">
+                                                @if ($actualWeight > 0)
+                                                    <span class="badge bg-success">{{ number_format($actualWeight, 2) }} كجم</span>
+                                                    <small class="d-block text-muted" style="font-size: 0.7rem;">{{ $weightSource }}</small>
                                                 @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
-                                            <td class="text-end">
-                                                @if ($item->invoice_weight)
-                                                    <span class="um-badge um-badge-secondary">{{ number_format($item->invoice_weight, 2) }}</span>
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
-                                            <td class="text-end">
-                                                @if ($item->weight_discrepancy)
-                                                    <span class="um-badge {{ $item->weight_discrepancy > 0 ? 'um-badge-danger' : 'um-badge-success' }}">
-                                                        {{ $item->weight_discrepancy > 0 ? '+' : '' }}{{ number_format($item->weight_discrepancy, 2) }}
-                                                    </span>
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
-                                            <td class="text-end">
-                                                @if (isset($item->discrepancy_percentage))
-                                                    <span class="um-badge {{ abs($item->discrepancy_percentage) > 5 ? 'um-badge-danger' : 'um-badge-warning' }}">
-                                                        {{ number_format($item->discrepancy_percentage, 2) }}%
-                                                    </span>
-                                                @else
-                                                    <span class="text-muted">-</span>
+                                                    <span class="badge bg-warning text-dark">لا يوجد وزن</span>
+                                                    <small class="d-block text-danger" style="font-size: 0.7rem;">⚠ الحقول فارغة</small>
                                                 @endif
                                             </td>
                                             <td class="text-center">
-                                                <div class="um-actions">
-                                                    <a href="{{ route('manufacturing.warehouses.reconciliation.show', $item) }}" class="um-btn-action um-btn-view" title="عرض التفاصيل">
-                                                        <i class="feather icon-eye"></i>
+                                                <span class="badge bg-primary">{{ number_format($invoiceWeight, 2) }} كجم</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-{{ $isInOurFavor ? 'success' : 'danger' }}">
+                                                    {{ $discrepancy >= 0 ? '+' : '' }}{{ number_format($discrepancy, 2) }} كجم
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-{{ abs($discrepancyPercentage) > 5 ? 'danger' : (abs($discrepancyPercentage) > 1 ? 'warning' : 'success') }}">
+                                                    {{ $discrepancy >= 0 ? '+' : '' }}{{ number_format($discrepancyPercentage, 2) }}%
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                @if (abs($discrepancyPercentage) > 5)
+                                                    <span class="badge bg-danger">فرق كبير</span>
+                                                @elseif (abs($discrepancyPercentage) > 1)
+                                                    <span class="badge bg-warning">فرق مقبول</span>
+                                                @else
+                                                    <span class="badge bg-secondary">معلق</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group" role="group">
+                                                    <a href="{{ route('manufacturing.warehouses.reconciliation.show', $item) }}" class="btn btn-sm btn-outline-primary" title="عرض التفاصيل">
+                                                        <i class="fas fa-eye"></i>
                                                     </a>
-                                                    <a href="{{ route('manufacturing.warehouses.reconciliation.link-invoice.edit', $item->id) }}" class="um-btn-action um-btn-edit" title="تعديل">
-                                                        <i class="feather icon-edit-2"></i>
-                                                    </a>
-                                                    <form action="{{ route('manufacturing.warehouses.reconciliation.link-invoice.delete', $item->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('هل تريد حذف هذه التسوية؟');">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
-                                                            <i class="feather icon-trash-2"></i>
-                                                        </button>
-                                                    </form>
                                                 </div>
                                             </td>
                                         </tr>
@@ -240,33 +279,13 @@
                             </table>
                         </div>
 
-                <div class="um-pagination-section">
-                    {{ $pending->links() }}
-                </div>
+                        <div class="d-flex justify-content-center mt-3">
+                            {{ $pending->links() }}
                         </div>
                     @else
-                        <div class="um-alert-custom um-alert-info">
-                            <i class="feather icon-info"></i>
-                            لا توجد تسويات معلقة
-                        </div>
-                    @endif
-                </div>
-
-                <!-- Tab: الفروقات -->
-                <div class="tab-pane fade" id="discrepancy" role="tabpanel">
-                    @php
-                        $discrepancyItems = $pending->filter(fn($item) => $item->reconciliation_status === 'discrepancy');
-                    @endphp
-                    @if ($discrepancyItems->count() > 0)
-                        <div class="um-reconciliation-list">
-                            @foreach ($discrepancyItems as $item)
-                                @include('manufacturing::warehouses.reconciliation.partials.reconciliation-item', ['item' => $item])
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="um-alert-custom um-alert-success">
-                            <i class="feather icon-check-circle"></i>
-                            لا توجد فروقات بحاجة إلى مراجعة
+                        <div class="alert alert-success text-center">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>ممتاز!</strong> لا توجد تسويات معلقة تحتاج مراجعة.
                         </div>
                     @endif
                 </div>
@@ -282,14 +301,56 @@
                             ->get();
                     @endphp
                     @if ($matchedItems->count() > 0)
-                        <div class="um-reconciliation-list">
-                            @foreach ($matchedItems as $item)
-                                @include('manufacturing::warehouses.reconciliation.partials.reconciliation-item', ['item' => $item])
-                            @endforeach
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>رقم الأذن</th>
+                                        <th>المورد</th>
+                                        <th>رقم الفاتورة</th>
+                                        <th>التاريخ</th>
+                                        <th class="text-center">الوزن الفعلي</th>
+                                        <th class="text-center">وزن الفاتورة</th>
+                                        <th class="text-center">الفرق</th>
+                                        <th class="text-center">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($matchedItems as $item)
+                                        @php
+                                            $actualWeight = $item->actual_weight ?? $item->weight_from_scale ?? $item->delivered_weight ?? 0;
+                                            $invoiceWeight = $item->invoice_weight ?? 0;
+                                            $discrepancy = $actualWeight - $invoiceWeight;
+                                        @endphp
+                                        <tr>
+                                            <td><strong>#{{ $item->note_number ?? $item->id }}</strong></td>
+                                            <td>{{ $item->supplier->name ?? 'غير محدد' }}</td>
+                                            <td>{{ $item->purchaseInvoice->invoice_number ?? '-' }}</td>
+                                            <td>{{ $item->created_at ? $item->created_at->format('Y-m-d') : '-' }}</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-success">{{ number_format($actualWeight, 2) }} كجم</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-primary">{{ number_format($invoiceWeight, 2) }} كجم</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check"></i> متطابق
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="{{ route('manufacturing.warehouses.reconciliation.show', $item) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> عرض
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     @else
-                        <div class="um-alert-custom um-alert-info">
-                            <i class="feather icon-info"></i>
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle me-2"></i>
                             لا توجد تسويات متطابقة
                         </div>
                     @endif
@@ -303,18 +364,48 @@
                             ->where('reconciliation_status', 'adjusted')
                             ->with(['supplier', 'purchaseInvoice'])
                             ->orderBy('created_at', 'desc')
+                            ->limit(50)
                             ->get();
                     @endphp
                     @if ($adjustedItems->count() > 0)
-                        <div class="um-reconciliation-list">
-                            @foreach ($adjustedItems as $item)
-                                @include('manufacturing::warehouses.reconciliation.partials.reconciliation-item', ['item' => $item])
-                            @endforeach
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>رقم الأذن</th>
+                                        <th>المورد</th>
+                                        <th>رقم الفاتورة</th>
+                                        <th>التاريخ</th>
+                                        <th class="text-center">الحالة</th>
+                                        <th class="text-center">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($adjustedItems as $item)
+                                        <tr>
+                                            <td><strong>#{{ $item->note_number ?? $item->id }}</strong></td>
+                                            <td>{{ $item->supplier->name ?? 'غير محدد' }}</td>
+                                            <td>{{ $item->purchaseInvoice->invoice_number ?? '-' }}</td>
+                                            <td>{{ $item->created_at ? $item->created_at->format('Y-m-d') : '-' }}</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-tools"></i> مسوّاة
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="{{ route('manufacturing.warehouses.reconciliation.show', $item) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> عرض
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     @else
-                        <div class="um-alert-custom um-alert-info">
-                            <i class="feather icon-info"></i>
-                            لا توجد تسويات مسوية
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle me-2"></i>
+                            لا توجد تسويات مسوّاة
                         </div>
                     @endif
                 </div>
@@ -327,39 +418,319 @@
                             ->where('reconciliation_status', 'rejected')
                             ->with(['supplier', 'purchaseInvoice'])
                             ->orderBy('created_at', 'desc')
+                            ->limit(50)
                             ->get();
                     @endphp
                     @if ($rejectedItems->count() > 0)
-                        <div class="um-reconciliation-list">
-                            @foreach ($rejectedItems as $item)
-                                @include('manufacturing::warehouses.reconciliation.partials.reconciliation-item', ['item' => $item])
-                            @endforeach
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>رقم الأذن</th>
+                                        <th>المورد</th>
+                                        <th>رقم الفاتورة</th>
+                                        <th>التاريخ</th>
+                                        <th class="text-center">الحالة</th>
+                                        <th class="text-center">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($rejectedItems as $item)
+                                        <tr>
+                                            <td><strong>#{{ $item->note_number ?? $item->id }}</strong></td>
+                                            <td>{{ $item->supplier->name ?? 'غير محدد' }}</td>
+                                            <td>{{ $item->purchaseInvoice->invoice_number ?? '-' }}</td>
+                                            <td>{{ $item->created_at ? $item->created_at->format('Y-m-d') : '-' }}</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-times-circle"></i> مرفوضة
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="{{ route('manufacturing.warehouses.reconciliation.show', $item) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> عرض
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     @else
-                        <div class="um-alert-custom um-alert-info">
-                            <i class="feather icon-info"></i>
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle me-2"></i>
                             لا توجد تسويات مرفوضة
                         </div>
                     @endif
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Auto-dismiss alerts after 5 seconds
-        const alerts = document.querySelectorAll('.um-alert-custom');
-        alerts.forEach(alert => {
-            setTimeout(() => {
-                alert.style.opacity = '0';
-                alert.style.transition = 'opacity 0.3s';
-                setTimeout(() => {
-                    alert.style.display = 'none';
-                }, 300);
-            }, 5000);
-        });
-    });
-</script>
 @endsection
+
+@push('styles')
+<style>
+    /* ألوان المشروع */
+    :root {
+        --primary-blue: #0066B3;
+        --secondary-gray: #4A5568;
+        --light-gray: #E2E8F0;
+        --success-green: #27ae60;
+        --warning-orange: #f39c12;
+        --danger-red: #e74c3c;
+    }
+
+    /* Page Header */
+    .page-header-card {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, #0052a3 100%);
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 102, 179, 0.15);
+        color: white;
+    }
+
+    .page-title {
+        color: white;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+
+    .header-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+    }
+
+    /* Action Buttons */
+    .btn-action-primary {
+        background: white;
+        color: var(--primary-blue);
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-action-primary:hover {
+        background: var(--light-gray);
+        color: var(--primary-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-action-secondary {
+        background: transparent;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        border: 2px solid white;
+    }
+
+    .btn-action-secondary:hover {
+        background: white;
+        color: var(--primary-blue);
+    }
+
+    /* Stats Cards */
+    .stats-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid var(--light-gray);
+    }
+
+    .stats-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    .stats-pending .stats-icon {
+        background: rgba(74, 85, 104, 0.1);
+        color: var(--secondary-gray);
+    }
+
+    .stats-discrepancy .stats-icon {
+        background: rgba(243, 156, 18, 0.1);
+        color: var(--warning-orange);
+    }
+
+    .stats-matched .stats-icon {
+        background: rgba(39, 174, 96, 0.1);
+        color: var(--success-green);
+    }
+
+    .stats-adjusted .stats-icon {
+        background: rgba(0, 102, 179, 0.1);
+        color: var(--primary-blue);
+    }
+
+    .stats-content h3 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--secondary-gray);
+    }
+
+    .stats-content p {
+        margin: 0;
+        color: #718096;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    /* Filter Card */
+    .filter-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--light-gray);
+    }
+
+    /* Main Card */
+    .main-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--light-gray);
+        overflow: hidden;
+    }
+
+    .main-card .card-header {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, #0052a3 100%);
+        color: white;
+        padding: 1.25rem 1.5rem;
+        border-bottom: none;
+    }
+
+    .main-card .card-header h5 {
+        margin: 0;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Nav Tabs */
+    .nav-tabs {
+        border-bottom: 2px solid var(--light-gray);
+    }
+
+    .nav-tabs .nav-link {
+        color: var(--secondary-gray);
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .nav-tabs .nav-link:hover {
+        border-bottom-color: var(--primary-blue);
+        color: var(--primary-blue);
+    }
+
+    .nav-tabs .nav-link.active {
+        color: var(--primary-blue);
+        border-bottom-color: var(--primary-blue);
+        background: transparent;
+    }
+
+    .nav-tabs .nav-link .badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    /* Table Styles */
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        background: #F7FAFC;
+        color: var(--secondary-gray);
+        font-weight: 700;
+        font-size: 0.875rem;
+        padding: 1rem;
+        border-bottom: 2px solid var(--light-gray);
+    }
+
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        color: var(--secondary-gray);
+        border-bottom: 1px solid var(--light-gray);
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Badge Styles */
+    .badge {
+        font-weight: 600;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-header-card {
+            padding: 1.5rem;
+        }
+
+        .header-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+        }
+
+        .page-title {
+            font-size: 1.25rem;
+        }
+
+        .stats-card {
+            margin-bottom: 1rem;
+        }
+
+        .btn-action-primary,
+        .btn-action-secondary {
+            width: 100%;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+@endpush

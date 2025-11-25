@@ -3,13 +3,49 @@
 @section('title', 'لوحة التسوية التفصيلية')
 
 @section('content')
+@php
+    // تعريف المتغيرات في أعلى الصفحة لاستخدامها في كل الأماكن
+    // محاولة الحصول على الوزن من عدة مصادر
+    $actualWeight = $deliveryNote->actual_weight 
+        ?? $deliveryNote->weight_from_scale 
+        ?? $deliveryNote->delivered_weight 
+        ?? $deliveryNote->quantity 
+        ?? 0;
+    
+    // إذا كان صفر، جرب من العلاقات (items)
+    if ($actualWeight == 0 && $deliveryNote->items && $deliveryNote->items->count() > 0) {
+        $actualWeight = $deliveryNote->items->sum('actual_weight') ?: $deliveryNote->items->sum('quantity');
+    }
+    
+    $invoiceWeight = $deliveryNote->invoice_weight ?? 0;
+    $discrepancy = $actualWeight - $invoiceWeight;
+    $discrepancyPercentage = $invoiceWeight > 0 ? (($discrepancy / $invoiceWeight) * 100) : 0;
+    $isInOurFavor = $discrepancy < 0; // الفاتورة كاتبة أكثر من الفعلي = في صالحنا
+    
+    // معلومات debugging
+    $debugInfo = [
+        'actual_weight' => $deliveryNote->actual_weight,
+        'weight_from_scale' => $deliveryNote->weight_from_scale,
+        'delivered_weight' => $deliveryNote->delivered_weight,
+        'quantity' => $deliveryNote->quantity,
+        'items_count' => $deliveryNote->items ? $deliveryNote->items->count() : 0,
+        'items_sum' => $deliveryNote->items ? $deliveryNote->items->sum('actual_weight') : 0,
+        'final_weight' => $actualWeight
+    ];
+@endphp
+
 <div class="container-fluid px-4 py-4">
     <div class="page-header-card mb-4">
         <div class="row align-items-center">
             <div class="col-auto">
-                <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="btn-back">
-                    <i class="fas fa-arrow-left"></i> رجوع
-                </a>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> رجوع
+                    </a>
+                    <button onclick="window.print()" class="btn-back" style="background: white; color: var(--secondary-gray);">
+                        <i class="fas fa-print"></i> طباعة
+                    </button>
+                </div>
             </div>
             <div class="col">
                 <div class="d-flex align-items-center gap-3">
@@ -17,8 +53,8 @@
                         <i class="fas fa-balance-scale"></i>
                     </div>
                     <div>
-                        <h1 class="page-title mb-0">تسوية التسليمة #{{ $deliveryNote->note_number ?? $deliveryNote->id }}</h1>
-                        <p class="text-white-50 mb-0 mt-1">مقارنة الوزن الفعلي مع الفاتورة</p>
+                        <h1 class="page-title mb-0">تسوية الأذن #{{ $deliveryNote->note_number ?? $deliveryNote->id }}</h1>
+                        <p class="text-white-50 mb-0 mt-1">مقارنة الوزن الفعلي مع وزن الفاتورة</p>
                     </div>
                 </div>
             </div>
@@ -26,9 +62,20 @@
     </div>
 
     @if (session('success'))
-        <div class="alert-success-custom mb-4">
+        <div class="alert-success-custom mb-4" style="animation: slideInDown 0.5s ease;">
             <i class="fas fa-check-circle"></i>
-            {{ session('success') }}
+            <div>
+                <strong>{{ session('success') }}</strong>
+                <br>
+                <small>تم حساب الفرق تلقائياً: {{ $discrepancy >= 0 ? '+' : '' }}{{ number_format($discrepancy, 2) }} كجم ({{ number_format(abs($discrepancyPercentage), 2) }}%)</small>
+            </div>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger mb-4" style="animation: slideInDown 0.5s ease;">
+            <i class="fas fa-exclamation-triangle"></i>
+            {{ session('error') }}
         </div>
     @endif
 
@@ -37,27 +84,66 @@
         <div class="col-lg-4">
             <div class="info-card">
                 <div class="info-card-header">
-                    <i class="fas fa-box"></i>
-                    <h5 class="mb-0">معلومات الشحنة</h5>
+                    <i class="fas fa-truck-loading"></i>
+                    <h5 class="mb-0">معلومات أذن التسليم</h5>
                 </div>
                 <div class="info-card-body">
                     <div class="info-item">
-                        <label>الرقم:</label>
+                        <label>رقم الأذن:</label>
                         <p><strong>#{{ $deliveryNote->note_number ?? $deliveryNote->id }}</strong></p>
                     </div>
 
                     <div class="info-item">
                         <label>المورد:</label>
-                        <p><strong>{{ $deliveryNote->supplier->name }}</strong></p>
+                        <p><strong>{{ $deliveryNote->supplier->name ?? 'غير محدد' }}</strong></p>
                     </div>
 
                     <div class="info-item">
-                        <label>الوزن الفعلي:</label>
+                        <label>الوزن الفعلي (من الميزان):</label>
                         <p>
-                            <span class="badge-success-custom">
-                                {{ number_format($deliveryNote->actual_weight, 2) }} كيلو
-                            </span>
+                            @if ($actualWeight > 0)
+                                <span class="badge-success-custom">
+                                    {{ number_format($actualWeight, 2) }} كجم
+                                </span>
+                            @else
+                                <span class="badge bg-warning text-dark">
+                                    0.00 كجم - لا يوجد وزن!
+                                </span>
+                            @endif
                         </p>
+                        
+                        {{-- معلومات debugging مفصلة --}}
+                        @if ($actualWeight == 0)
+                            <div class="alert alert-danger p-2 mt-2" style="font-size: 0.85rem;">
+                                <strong>⚠️ جميع حقول الوزن فارغة:</strong><br>
+                                <small>
+                                    • actual_weight: {{ $debugInfo['actual_weight'] ?? 'null' }}<br>
+                                    • weight_from_scale: {{ $debugInfo['weight_from_scale'] ?? 'null' }}<br>
+                                    • delivered_weight: {{ $debugInfo['delivered_weight'] ?? 'null' }}<br>
+                                    • quantity: {{ $debugInfo['quantity'] ?? 'null' }}<br>
+                                    • عدد العناصر: {{ $debugInfo['items_count'] }}<br>
+                                    • مجموع أوزان العناصر: {{ $debugInfo['items_sum'] }}
+                                </small>
+                            </div>
+                            <small class="text-info d-block mt-1">
+                                💡 <strong>الحل:</strong> ارجع لصفحة تسجيل الأذن وأدخل الوزن الفعلي من الميزان
+                            </small>
+                        @else
+                            <small class="text-success d-block mt-1">
+                                ✓ الوزن مأخوذ من: 
+                                @if($deliveryNote->actual_weight > 0)
+                                    actual_weight
+                                @elseif($deliveryNote->weight_from_scale > 0)
+                                    weight_from_scale
+                                @elseif($deliveryNote->delivered_weight > 0)
+                                    delivered_weight
+                                @elseif($deliveryNote->quantity > 0)
+                                    quantity
+                                @else
+                                    items ({{ $debugInfo['items_count'] }} عنصر)
+                                @endif
+                            </small>
+                        @endif
                     </div>
 
                     <div class="info-item">
@@ -77,27 +163,27 @@
         <div class="col-lg-4">
             <div class="info-card">
                 <div class="info-card-header">
-                    <i class="fas fa-file-invoice"></i>
+                    <i class="fas fa-file-invoice-dollar"></i>
                     <h5 class="mb-0">معلومات الفاتورة</h5>
                 </div>
                 <div class="info-card-body">
                     <div class="info-item">
                         <label>رقم الفاتورة:</label>
                         <p>
-                            <strong>{{ $deliveryNote->purchaseInvoice->invoice_number }}</strong>
+                            <strong>#{{ $deliveryNote->purchaseInvoice->invoice_number ?? 'غير محدد' }}</strong>
                         </p>
                     </div>
 
                     <div class="info-item">
-                        <label>المورد:</label>
-                        <p>{{ $deliveryNote->purchaseInvoice->supplier->name }}</p>
+                        <label>مورد الفاتورة:</label>
+                        <p>{{ $deliveryNote->purchaseInvoice->supplier->name ?? 'غير محدد' }}</p>
                     </div>
 
                     <div class="info-item">
-                        <label>الوزن المكتوب:</label>
+                        <label>الوزن في الفاتورة:</label>
                         <p>
                             <span class="badge-primary-custom">
-                                {{ number_format($deliveryNote->invoice_weight, 2) }} كيلو
+                                {{ number_format($deliveryNote->invoice_weight ?? 0, 2) }} كجم
                             </span>
                         </p>
                     </div>
@@ -120,50 +206,52 @@
 
         <!-- المقارنة والفرق -->
         <div class="col-lg-4">
-            <div class="comparison-card {{ $deliveryNote->weight_discrepancy > 0 ? 'danger-border' : 'success-border' }}">
-                <div class="comparison-card-header {{ $deliveryNote->weight_discrepancy > 0 ? 'danger-bg' : 'success-bg' }}">
+            <div class="comparison-card {{ $isInOurFavor ? 'success-border' : 'danger-border' }}">
+                <div class="comparison-card-header {{ $isInOurFavor ? 'success-bg' : 'danger-bg' }}">
                     <i class="fas fa-balance-scale-right"></i>
                     <h5 class="mb-0">المقارنة والفرق</h5>
                 </div>
                 <div class="comparison-card-body">
                     <div class="comparison-item">
-                        <label>الفرق (كيلو):</label>
-                        <div class="comparison-value {{ $deliveryNote->weight_discrepancy > 0 ? 'danger' : 'success' }}">
-                            {{ $deliveryNote->weight_discrepancy > 0 ? '+ ' : '- ' }}
-                            {{ number_format(abs($deliveryNote->weight_discrepancy), 2) }} كيلو
+                        <label>الفرق (كجم):</label>
+                        <div class="comparison-value {{ $isInOurFavor ? 'success' : 'danger' }}">
+                            {{ $discrepancy >= 0 ? '+ ' : '- ' }}
+                            {{ number_format(abs($discrepancy), 2) }} كجم
                         </div>
                     </div>
 
                     <div class="comparison-item">
                         <label>النسبة المئوية:</label>
-                        <div class="comparison-value {{ abs($deliveryNote->discrepancy_percentage) > 5 ? 'danger' : 'warning' }}">
-                            {{ $deliveryNote->discrepancy_percentage > 0 ? '+ ' : '- ' }}
-                            {{ number_format(min(abs($deliveryNote->discrepancy_percentage), 100), 2) }}%
+                        <div class="comparison-value {{ abs($discrepancyPercentage) > 5 ? 'danger' : 'warning' }}">
+                            {{ $discrepancy >= 0 ? '+ ' : '- ' }}
+                            {{ number_format(abs($discrepancyPercentage), 2) }}%
                         </div>
                     </div>
 
-                    @if ($deliveryNote->weight_discrepancy > 0)
-                        <div class="alert-custom alert-danger-custom">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <div>
-                                <strong>المورد كاتب أكثر!</strong>
-                                <small>المورد كتب {{ number_format($deliveryNote->weight_discrepancy, 2) }} كيلو زيادة</small>
-                            </div>
-                        </div>
-                    @elseif ($deliveryNote->weight_discrepancy < 0)
-                        <div class="alert-custom alert-success-custom-2">
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>في صالحنا!</strong>
-                                <small>المورد كتب {{ number_format(abs($deliveryNote->weight_discrepancy), 2) }} كيلو أقل</small>
-                            </div>
-                        </div>
-                    @else
+                    @if (abs($discrepancy) < 0.01)
                         <div class="alert-custom alert-success-custom-2">
                             <i class="fas fa-check-double"></i>
                             <div>
-                                <strong>متطابق تماماً!</strong>
-                                <small>لا فروقات</small>
+                                <strong>✓ الأوزان متطابقة تماماً!</strong>
+                                <small>لا يوجد أي فرق في الوزن</small>
+                            </div>
+                        </div>
+                    @elseif ($isInOurFavor)
+                        <div class="alert-custom alert-success-custom-2">
+                            <i class="fas fa-arrow-down"></i>
+                            <div>
+                                <strong>✓ في صالحنا - الفاتورة أكثر!</strong>
+                                <small>الفاتورة: {{ number_format($invoiceWeight, 2) }} كجم | الفعلي: {{ number_format($actualWeight, 2) }} كجم<br>
+                                المورد كتب زيادة {{ number_format(abs($discrepancy), 2) }} كجم</small>
+                            </div>
+                        </div>
+                    @else
+                        <div class="alert-custom alert-danger-custom">
+                            <i class="fas fa-arrow-up"></i>
+                            <div>
+                                <strong>⚠ عجز - الفعلي أكثر من الفاتورة!</strong>
+                                <small>الفاتورة: {{ number_format($invoiceWeight, 2) }} كجم | الفعلي: {{ number_format($actualWeight, 2) }} كجم<br>
+                                المورد كتب أقل بـ {{ number_format($discrepancy, 2) }} كجم</small>
                             </div>
                         </div>
                     @endif
@@ -175,7 +263,7 @@
     <!-- جدول المقارنة -->
     <div class="data-card mb-4">
         <div class="data-card-header">
-            <i class="fas fa-table"></i>
+            <i class="fas fa-calculator"></i>
             <h5 class="mb-0">جدول المقارنة التفصيلي</h5>
         </div>
         <div class="data-card-body p-4">
@@ -183,37 +271,74 @@
                 <table class="table custom-table table-bordered">
                     <thead class="table-light">
                         <tr>
-                            <th>البيان</th>
-                            <th class="text-center" style="background-color: #e7f3ff;">الفعلي (الميزان)</th>
-                            <th class="text-center" style="background-color: #fff3e7;">الفاتورة (المورد)</th>
-                            <th class="text-center" style="background-color: #ffe7e7;">الفرق</th>
-                            <th class="text-center">النسبة %</th>
+                            <th style="width: 20%;">البيان</th>
+                            <th class="text-center" style="background-color: #e7f3ff; width: 20%;">الوزن الفعلي (الميزان)</th>
+                            <th class="text-center" style="background-color: #fff3e7; width: 20%;">وزن الفاتورة (المورد)</th>
+                            <th class="text-center" style="background-color: #ffe7e7; width: 20%;">الفرق</th>
+                            <th class="text-center" style="width: 20%;">النسبة %</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>الوزن (كيلو)</strong></td>
-                            <td class="text-center text-success">
-                                <strong>{{ number_format($deliveryNote->actual_weight, 2) }}</strong>
-                            </td>
-                            <td class="text-center text-primary">
-                                <strong>{{ number_format($deliveryNote->invoice_weight, 2) }}</strong>
+                            <td><strong>الوزن (كجم)</strong></td>
+                            <td class="text-center">
+                                <span class="badge bg-success" style="font-size: 1.1rem; padding: 0.5rem 1rem;">
+                                    {{ number_format($actualWeight, 2) }} كجم
+                                </span>
                             </td>
                             <td class="text-center">
-                                <strong class="text-{{ $deliveryNote->weight_discrepancy > 0 ? 'danger' : 'success' }}">
-                                    {{ $deliveryNote->weight_discrepancy > 0 ? '+ ' : '- ' }}
-                                    {{ number_format(abs($deliveryNote->weight_discrepancy), 2) }}
+                                <span class="badge bg-primary" style="font-size: 1.1rem; padding: 0.5rem 1rem;">
+                                    {{ number_format($invoiceWeight, 2) }} كجم
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <strong class="text-{{ $isInOurFavor ? 'success' : 'danger' }}" style="font-size: 1.2rem;">
+                                    {{ $discrepancy >= 0 ? '+ ' : '- ' }}
+                                    {{ number_format(abs($discrepancy), 2) }} كجم
                                 </strong>
                             </td>
                             <td class="text-center">
-                                <strong class="text-{{ abs($deliveryNote->discrepancy_percentage) > 5 ? 'danger' : 'warning' }}">
-                                    {{ $deliveryNote->discrepancy_percentage > 0 ? '+ ' : '- ' }}
-                                    {{ number_format(min(abs($deliveryNote->discrepancy_percentage), 100), 2) }}%
+                                <strong class="text-{{ abs($discrepancyPercentage) > 5 ? 'danger' : (abs($discrepancyPercentage) > 1 ? 'warning' : 'success') }}" style="font-size: 1.2rem;">
+                                    {{ $discrepancy >= 0 ? '+ ' : '- ' }}
+                                    {{ number_format(abs($discrepancyPercentage), 2) }}%
                                 </strong>
+                            </td>
+                        </tr>
+                        <tr style="background-color: #f8f9fa;">
+                            <td colspan="5" class="text-center">
+                                <small class="text-muted">
+                                    <strong>المعادلة:</strong> الفرق = الوزن الفعلي - وزن الفاتورة = 
+                                    {{ number_format($actualWeight, 2) }} - {{ number_format($invoiceWeight, 2) }} = 
+                                    <span class="text-{{ $isInOurFavor ? 'success' : 'danger' }}">{{ number_format($discrepancy, 2) }} كجم</span>
+                                </small>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ملخص سريع -->
+    <div class="alert" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-right: 5px solid {{ $isInOurFavor ? '#27ae60' : '#e74c3c' }}; padding: 1.5rem; margin-bottom: 2rem; border-radius: 12px;">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h5 class="mb-2"><i class="fas fa-info-circle" style="color: {{ $isInOurFavor ? '#27ae60' : '#e74c3c' }};"></i> <strong>ملخص سريع:</strong></h5>
+                <p class="mb-0" style="font-size: 1.1rem; color: #2D3748;">
+                    @if (abs($discrepancy) < 0.01)
+                        ✓ الأوزان متطابقة تماماً - لا يوجد أي فرق
+                    @elseif ($isInOurFavor)
+                        ✓ الفاتورة كاتبة <strong style="color: #27ae60;">{{ number_format(abs($discrepancy), 2) }} كجم زيادة</strong> - في صالحنا
+                    @else
+                        ⚠ يوجد عجز <strong style="color: #e74c3c;">{{ number_format($discrepancy, 2) }} كجم</strong> - الفعلي أكثر من الفاتورة
+                    @endif
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div style="font-size: 2.5rem; font-weight: 700; color: {{ $isInOurFavor ? '#27ae60' : '#e74c3c' }};">
+                    {{ $discrepancy >= 0 ? '+' : '' }}{{ number_format($discrepancy, 2) }}
+                    <small style="font-size: 1rem; display: block; color: #718096;">كيلوجرام</small>
+                </div>
             </div>
         </div>
     </div>
@@ -899,6 +1024,93 @@ document.querySelectorAll('input[name="action"]').forEach(radio => {
         font-size: 0.875rem;
     }
 
+    /* Badge Enhancements */
+    .badge {
+        font-weight: 600 !important;
+        letter-spacing: 0.3px;
+    }
+
+    /* Table Enhancements */
+    .custom-table tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: all 0.2s ease;
+    }
+
+    .custom-table strong {
+        font-weight: 700;
+    }
+
+    /* Icon Animations */
+    .alert-custom i {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.1);
+        }
+    }
+
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert-success-custom {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .alert-success-custom strong {
+        display: block;
+        font-size: 1.1rem;
+    }
+
+    .alert-success-custom small {
+        opacity: 0.9;
+    }
+
+    /* Tooltip Enhancement */
+    [title] {
+        cursor: help;
+    }
+
+    /* Smooth Transitions */
+    .comparison-card,
+    .info-card,
+    .data-card,
+    .decision-card {
+        transition: all 0.3s ease;
+    }
+
+    .comparison-card:hover,
+    .info-card:hover,
+    .data-card:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+
+    /* Success/Danger Border Enhancements */
+    .success-border {
+        border-color: var(--success-green) !important;
+        box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+    }
+
+    .danger-border {
+        border-color: var(--danger-red) !important;
+        box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
         .page-header-card {
@@ -931,6 +1143,28 @@ document.querySelectorAll('input[name="action"]').forEach(radio => {
         .btn-cancel-custom {
             width: 100%;
             justify-content: center;
+        }
+
+        .alert [class*="col-md"] {
+            text-align: center !important;
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* Print Styles */
+    @media print {
+        .btn-back,
+        .decision-card,
+        .page-header-card {
+            display: none;
+        }
+
+        .info-card,
+        .comparison-card,
+        .data-card {
+            page-break-inside: avoid;
+            box-shadow: none;
+            border: 2px solid #333;
         }
     }
 </style>

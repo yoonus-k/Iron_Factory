@@ -10,7 +10,6 @@ use App\Models\WarehouseRecord;
 use App\Models\ProductionStage;
 use App\Models\ProductionConfirmation;
 use App\Models\Notification;
-
 use App\Models\User;
 use App\Services\DuplicatePreventionService;
 use App\Services\WarehouseTransferService;
@@ -19,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Modules\Manufacturing\Entities\MaterialBatch;
 use App\Models\ProductTracking;
 use App\Models\BarcodeSetting;
@@ -577,70 +577,262 @@ class WarehouseRegistrationController extends Controller
             // جلب batch_id من DeliveryNote
             $batchId = $deliveryNote->batch_id;
 
-            // ✅ تسجيل حركة النقل للإنتاج مع batch_id
-            MaterialMovement::create([
-                'movement_number' => MaterialMovement::generateMovementNumber(),
-                'movement_type' => 'to_production',
-                'source' => 'production',
-                'delivery_note_id' => $deliveryNote->id,
-                'material_detail_id' => $deliveryNote->material_detail_id,
-                'material_id' => $deliveryNote->material_id,
-                'batch_id' => $batchId,
-                'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
-                'quantity' => $transferQuantity,
-                'from_warehouse_id' => $deliveryNote->warehouse_id,
-                'destination' => 'الإنتاج',
-                'description' => 'نقل بضاعة للإنتاج - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id) . ($isFullTransfer ? ' (نقل كامل)' : ' (نقل جزئي)'),
-                'notes' => $validated['notes'] ?? null,
-                'created_by' => Auth::id(),
-                'movement_date' => now(),
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-                'status' => 'completed',
-            ]);
-
-            // ✅ إنشاء باركود فريد للإنتاج
-            $barcodeSetting = BarcodeSetting::where('type', 'production')->first();
+            // ✅✅ نظام تقسيم الباركود الذكي (Barcode Splitting System)
+            $barcodeSetting = BarcodeSetting::where('type', 'raw_material')->first();
             $productionBarcode = null;
+            $remainingBarcode = null;
             
-            if ($barcodeSetting) {
-                $nextNumber = $barcodeSetting->getNextNumber();
-                $productionBarcode = $barcodeSetting->generateBarcode($nextNumber);
-            }
-
-            // ✅ تحديث الكمية المتبقية في الدفعة وحفظ باركود الإنتاج
             if ($batchId) {
                 $batch = MaterialBatch::find($batchId);
-                if ($batch) {
+                if ($batch && $barcodeSetting) {
+                    $originalBarcode = $batch->batch_code;
                     $newAvailableQty = max(0, $batch->available_quantity - $transferQuantity);
-                    $batch->available_quantity = $newAvailableQty;
-                    $batch->status = $newAvailableQty <= 0 ? 'consumed' : 'in_production';
-                    $batch->latest_production_barcode = $productionBarcode; // ✅ حفظ آخر باركود إنتاج
-                    $batch->save();
-
-                    // ✅ تسجيل النقل للإنتاج في product_tracking مع الباركود الجديد
-                    ProductTracking::create([
-                        'barcode' => $productionBarcode ?? $batch->batch_code, // ✅ باركود الإنتاج الجديد
-                        'stage' => 'warehouse',
-                        'action' => 'transferred_to_production',
-                        'input_barcode' => $batch->batch_code, // الباركود الأصلي من المستودع
-                        'output_barcode' => $productionBarcode, // ✅ الباركود الجديد للإنتاج
-                        'input_weight' => $transferQuantity,
-                        'output_weight' => $transferQuantity,
-                        'waste_amount' => 0,
-                        'waste_percentage' => 0,
-                        'worker_id' => Auth::id(),
-                        'notes' => 'نقل للإنتاج - أذن رقم ' . ($deliveryNote->note_number ?? $deliveryNote->id) . ($isFullTransfer ? ' (نقل كامل)' : ' (نقل جزئي)') . ($productionBarcode ? ' - باركود: ' . $productionBarcode : ''),
-                        'metadata' => json_encode([
+                    
+                    // 🔹 السيناريو 1: نقل كامل (استخدام نفس الباركود)
+                    if ($isFullTransfer) {
+                        $productionBarcode = $originalBarcode; // نفس الباركود ينتقل للإنتاج
+                        
+                        // تحديث حالة الدفعة الأصلية
+                        $batch->available_quantity = 0;
+                        $batch->status = 'consumed'; // استُهلكت بالكامل
+                        $batch->latest_production_barcode = $productionBarcode;
+                        $batch->save();
+                        
+                        Log::info('✅ نقل كامل - نفس الباركود', [
+                            'original_barcode' => $originalBarcode,
+                            'production_barcode' => $productionBarcode,
+                            'quantity' => $transferQuantity,
+                        ]);
+                        
+                        // 🔹 نقل كامل: حركة واحدة فقط
+                        MaterialMovement::create([
+                            'movement_number' => MaterialMovement::generateMovementNumber(),
+                            'movement_type' => 'to_production',
+                            'source' => 'production',
                             'delivery_note_id' => $deliveryNote->id,
-                            'batch_id' => $batchId,
+                            'material_detail_id' => $deliveryNote->material_detail_id,
                             'material_id' => $deliveryNote->material_id,
-                            'is_full_transfer' => $isFullTransfer,
+                            'batch_id' => $batchId,
+                            'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
+                            'quantity' => $transferQuantity,
+                            'from_warehouse_id' => $deliveryNote->warehouse_id,
+                            'destination' => 'الإنتاج',
+                            'description' => '✅ نقل كامل للإنتاج - باركود: ' . $originalBarcode,
+                            'notes' => 'نقل كامل الدفعة للإنتاج بنفس الباركود',
+                            'created_by' => Auth::id(),
+                            'movement_date' => now(),
+                            'ip_address' => request()->ip(),
+                            'user_agent' => request()->userAgent(),
+                            'status' => 'completed',
+                        ]);
+                        
+                        // تسجيل التتبع للنقل الكامل
+                        ProductTracking::create([
+                            'barcode' => $originalBarcode,
+                            'stage' => 'warehouse',
+                            'action' => 'transferred_to_production',
+                            'input_barcode' => $originalBarcode,
+                            'output_barcode' => $productionBarcode,
+                            'input_weight' => $transferQuantity,
+                            'output_weight' => $transferQuantity,
+                            'waste_amount' => 0,
+                            'waste_percentage' => 0,
+                            'worker_id' => Auth::id(),
+                            'notes' => '🏭 نقل كامل للإنتاج بنفس الباركود: ' . $originalBarcode . ' (' . $transferQuantity . ' كجم)',
+                            'metadata' => json_encode([
+                                'action_type' => 'full_transfer_to_production',
+                                'barcode' => $originalBarcode,
+                                'batch_id' => $batchId,
+                                'transferred_quantity' => $transferQuantity,
+                                'delivery_note_id' => $deliveryNote->id,
+                            ]),
+                        ]);
+                    } 
+                    // 🔹 السيناريو 2: نقل جزئي (تقسيم الباركود)
+                    else {
+                        // 1️⃣ إنشاء باركود جديد للكمية المنقولة للإنتاج
+                        $nextNumber1 = $barcodeSetting->getNextNumber();
+                        $productionBarcode = $barcodeSetting->generateBarcode($nextNumber1);
+                        
+                        // 2️⃣ إنشاء باركود جديد للكمية المتبقية في المستودع
+                        $nextNumber2 = $barcodeSetting->getNextNumber();
+                        $remainingBarcode = $barcodeSetting->generateBarcode($nextNumber2);
+                        
+                        // 3️⃣ تحديث الدفعة الأصلية - تقليل الكمية فقط (الباركود يبقى كما هو)
+                        $originalInitialQuantity = $batch->initial_quantity;
+                        $batch->available_quantity = 0; // تم استهلاك كل الكمية (جزء للإنتاج وجزء للباركود الجديد)
+                        $batch->status = 'consumed'; // مستهلك بالكامل
+                        $batch->latest_production_barcode = $productionBarcode;
+                        $batch->notes = ($batch->notes ?? '') . ' | تم التقسيم: ' . $transferQuantity . ' كجم للإنتاج (' . $productionBarcode . ') + ' . $newAvailableQty . ' كجم للمستودع (' . $remainingBarcode . ')';
+                        $batch->save();
+                        
+                        // 4️⃣ إنشاء دفعة جديدة للكمية المتبقية في المستودع
+                        $remainingBatch = MaterialBatch::create([
+                            'material_id' => $batch->material_id,
+                            'unit_id' => $batch->unit_id,
+                            'batch_code' => $remainingBarcode, // الباركود الجديد للكمية المتبقية
+                            'coil_number' => $batch->coil_number,
+                            'initial_quantity' => $newAvailableQty,
+                            'available_quantity' => $newAvailableQty,
+                            'batch_date' => now()->toDateString(),
+                            'warehouse_id' => $batch->warehouse_id,
+                            'unit_price' => $batch->unit_price,
+                            'total_value' => $batch->unit_price ? ($batch->unit_price * $newAvailableQty) : null,
+                            'status' => 'available',
+                            'notes' => 'تم تقسيمه من الباركود الأصلي: ' . $originalBarcode . ' - كمية متبقية في المستودع',
+                        ]);
+                        
+                        // 5️⃣ إنشاء دفعة جديدة للكمية المنقولة للإنتاج
+                        $productionBatch = MaterialBatch::create([
+                            'material_id' => $batch->material_id,
+                            'unit_id' => $batch->unit_id,
+                            'batch_code' => $productionBarcode, // الباركود الجديد للإنتاج
+                            'coil_number' => $batch->coil_number,
+                            'initial_quantity' => $transferQuantity,
+                            'available_quantity' => $transferQuantity,
+                            'batch_date' => now()->toDateString(),
+                            'warehouse_id' => null, // في الإنتاج الآن
+                            'unit_price' => $batch->unit_price,
+                            'total_value' => $batch->unit_price ? ($batch->unit_price * $transferQuantity) : null,
+                            'status' => 'in_production',
+                            'notes' => 'تم تقسيمه من الباركود الأصلي: ' . $originalBarcode . ' - كمية منقولة للإنتاج',
+                        ]);
+                        
+                        // 6️⃣ تسجيل التقسيم الأصلي في product_tracking
+                        ProductTracking::create([
+                            'barcode' => $originalBarcode,
+                            'stage' => 'warehouse',
+                            'action' => 'split',
+                            'input_barcode' => $originalBarcode,
+                            'output_barcode' => $productionBarcode . ',' . $remainingBarcode,
+                            'input_weight' => $originalInitialQuantity,
+                            'output_weight' => $originalInitialQuantity, // نفس الوزن لأنه تقسيم (لا يوجد فقد)
+                            'waste_amount' => 0,
+                            'waste_percentage' => 0,
+                            'worker_id' => Auth::id(),
+                            'notes' => '🔄 تقسيم الدفعة: ' . $originalBarcode . ' ← إنتاج: ' . $productionBarcode . ' (' . $transferQuantity . ' كجم) + مستودع: ' . $remainingBarcode . ' (' . $newAvailableQty . ' كجم)',
+                            'metadata' => json_encode([
+                                'split_type' => 'partial_transfer',
+                                'original_barcode' => $originalBarcode,
+                                'original_batch_id' => $batch->id,
+                                'production_barcode' => $productionBarcode,
+                                'production_batch_id' => $productionBatch->id,
+                                'remaining_barcode' => $remainingBarcode,
+                                'remaining_batch_id' => $remainingBatch->id,
+                                'production_quantity' => $transferQuantity,
+                                'remaining_quantity' => $newAvailableQty,
+                                'delivery_note_id' => $deliveryNote->id,
+                            ]),
+                        ]);
+                        
+                        // 7️⃣ تسجيل التتبع للباركود المتبقي في المستودع
+                        ProductTracking::create([
+                            'barcode' => $remainingBarcode,
+                            'stage' => 'warehouse',
+                            'action' => 'warehouse_remaining',
+                            'input_barcode' => $originalBarcode,
+                            'output_barcode' => $remainingBarcode,
+                            'input_weight' => $originalInitialQuantity,
+                            'output_weight' => $newAvailableQty, // الكمية المتبقية فقط
+                            'waste_amount' => 0,
+                            'waste_percentage' => 0,
+                            'worker_id' => Auth::id(),
+                            'notes' => '📦 باركود جديد للكمية المتبقية في المستودع: ' . $remainingBarcode . ' (' . $newAvailableQty . ' كجم) - مقسم من: ' . $originalBarcode,
+                            'metadata' => json_encode([
+                                'action_type' => 'warehouse_remaining_after_split',
+                                'original_barcode' => $originalBarcode,
+                                'original_batch_id' => $batch->id,
+                                'new_barcode' => $remainingBarcode,
+                                'new_batch_id' => $remainingBatch->id,
+                                'remaining_quantity' => $newAvailableQty,
+                                'transferred_to_production' => $transferQuantity,
+                                'delivery_note_id' => $deliveryNote->id,
+                            ]),
+                        ]);
+                        
+                        // 8️⃣ تسجيل التتبع للباركود المنقول للإنتاج
+                        ProductTracking::create([
+                            'barcode' => $productionBarcode,
+                            'stage' => 'warehouse',
+                            'action' => 'transferred_to_production',
+                            'input_barcode' => $originalBarcode,
+                            'output_barcode' => $productionBarcode,
+                            'input_weight' => $originalInitialQuantity,
+                            'output_weight' => $transferQuantity, // الكمية المنقولة للإنتاج فقط
+                            'waste_amount' => 0,
+                            'waste_percentage' => 0,
+                            'worker_id' => Auth::id(),
+                            'notes' => '🏭 نقل للإنتاج: ' . $productionBarcode . ' (' . $transferQuantity . ' كجم) - مقسم من: ' . $originalBarcode,
+                            'metadata' => json_encode([
+                                'action_type' => 'production_transfer_after_split',
+                                'original_barcode' => $originalBarcode,
+                                'original_batch_id' => $batch->id,
+                                'production_barcode' => $productionBarcode,
+                                'production_batch_id' => $productionBatch->id,
+                                'transferred_quantity' => $transferQuantity,
+                                'remaining_in_warehouse' => $newAvailableQty,
+                                'delivery_note_id' => $deliveryNote->id,
+                            ]),
+                        ]);
+                        
+                        Log::info('✅ نقل جزئي - تقسيم الباركود', [
+                            'original_barcode' => $originalBarcode,
+                            'original_batch_id' => $batch->id,
+                            'production_barcode' => $productionBarcode,
+                            'production_quantity' => $transferQuantity,
+                            'production_batch_id' => $productionBatch->id,
+                            'remaining_barcode' => $remainingBarcode,
                             'remaining_quantity' => $newAvailableQty,
-                            'production_barcode' => $productionBarcode, // ✅ حفظ الباركود الجديد
-                            'original_barcode' => $batch->batch_code,
-                        ]),
-                    ]);
+                            'remaining_batch_id' => $remainingBatch->id,
+                        ]);
+                        
+                        // 🔹 1️⃣ حركة تحديث الكمية - إنشاء باركود جديد للكمية المتبقية في المستودع
+                        MaterialMovement::create([
+                            'movement_number' => MaterialMovement::generateMovementNumber(),
+                            'movement_type' => 'adjustment',
+                            'source' => 'production',
+                            'delivery_note_id' => $deliveryNote->id,
+                            'material_detail_id' => $deliveryNote->material_detail_id,
+                            'material_id' => $deliveryNote->material_id,
+                            'batch_id' => $remainingBatch->id, // الدفعة الجديدة للكمية المتبقية
+                            'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
+                            'quantity' => $newAvailableQty,
+                            'to_warehouse_id' => $deliveryNote->warehouse_id,
+                            'description' => '📦 تحديث الكمية - إنشاء باركود جديد',
+                            'notes' => 'إنشاء باركود جديد للكمية المتبقية بعد النقل الجزئي: ' . $originalBarcode . ' → ' . $remainingBarcode . ' | الكمية: ' . $newAvailableQty . ' كجم (تم نقل ' . $transferQuantity . ' كجم للإنتاج)',
+                            'reference_number' => $originalBarcode,
+                            'created_by' => Auth::id(),
+                            'movement_date' => now(),
+                            'ip_address' => request()->ip(),
+                            'user_agent' => request()->userAgent(),
+                            'status' => 'completed',
+                        ]);
+                        
+                        // 🔹 2️⃣ حركة النقل للإنتاج
+                        MaterialMovement::create([
+                            'movement_number' => MaterialMovement::generateMovementNumber(),
+                            'movement_type' => 'to_production',
+                            'source' => 'production',
+                            'delivery_note_id' => $deliveryNote->id,
+                            'material_detail_id' => $deliveryNote->material_detail_id,
+                            'material_id' => $deliveryNote->material_id,
+                            'batch_id' => $productionBatch->id, // الدفعة الجديدة للإنتاج
+                            'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
+                            'quantity' => $transferQuantity,
+                            'from_warehouse_id' => $deliveryNote->warehouse_id,
+                            'destination' => 'الإنتاج',
+                            'description' => '🏭 نقل للإنتاج',
+                            'notes' => 'نقل جزئي من الباركود الأصلي: ' . $originalBarcode . ' | باركود الإنتاج: ' . $productionBarcode . ' | الكمية: ' . $transferQuantity . ' كجم',
+                            'reference_number' => $originalBarcode,
+                            'created_by' => Auth::id(),
+                            'movement_date' => now(),
+                            'ip_address' => request()->ip(),
+                            'user_agent' => request()->userAgent(),
+                            'status' => 'completed',
+                        ]);
+                    }
+
+                    // ملاحظة: تم تسجيل التتبع داخل كل حالة (نقل كامل أو جزئي) بشكل منفصل ودقيق
                 }
             }
 

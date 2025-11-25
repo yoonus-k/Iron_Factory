@@ -143,16 +143,21 @@ class MaterialMovementController extends Controller
                 'created_by_name' => $movement->createdBy?->name,
                 'status' => $movement->status,
                 'status_name' => $movement->status_name,
-                // Determine which barcode to show
-                'batch_code' => $movement->movement_type === 'to_production' && $movement->materialBatch?->latest_production_barcode
-                    ? $movement->materialBatch->latest_production_barcode
-                    : $movement->materialBatch?->batch_code,
-                'warehouse_batch_code' => $movement->materialBatch?->batch_code, // Always show original
-                'production_barcode' => $movement->materialBatch?->latest_production_barcode, // Always show production if exists
-                'coil_number' => $movement->materialBatch?->coil_number, // ✅ رقم الكويل
+                // Barcode display logic based on movement type
+                'batch_code' => $movement->materialBatch?->batch_code,
+                'warehouse_batch_code' => $movement->materialBatch?->batch_code,
+                'production_barcode' => $movement->materialBatch?->batch_code,
+                'coil_number' => $movement->materialBatch?->coil_number,
                 'batch_initial_quantity' => $movement->materialBatch ? number_format((float)$movement->materialBatch->initial_quantity, 2) : null,
                 'batch_available_quantity' => $movement->materialBatch ? number_format((float)$movement->materialBatch->available_quantity, 2) : null,
-                'is_production_barcode' => $movement->movement_type === 'to_production' && $movement->materialBatch?->latest_production_barcode !== null,
+                // Determine barcode display type and title
+                'is_production_barcode' => $movement->movement_type === 'to_production',
+                'is_warehouse_update' => $movement->movement_type === 'adjustment' && $movement->source === 'production',
+                'barcode_title' => $movement->movement_type === 'to_production' 
+                    ? 'باركود الإنتاج' 
+                    : ($movement->movement_type === 'adjustment' && $movement->source === 'production' 
+                        ? 'الباركود المحدث للمستودع' 
+                        : 'باركود دخول المستودع')
             ]
         ]);
     }

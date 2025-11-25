@@ -470,6 +470,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const hasInvoice = element.dataset.hasInvoice === 'true';
         const reconciliationStatus = element.dataset.reconciliationStatus;
 
+        console.log('📦 أذن التسليم المختار:', {
+            id,
+            noteNumber,
+            supplier,
+            actualWeight: actualWeight,
+            actualWeightParsed: parseFloat(actualWeight)
+        });
+
         // إذا كانت الأذن مرتبطة بفاتورة، نعرض تحذير
         if (hasInvoice) {
             let message = `هذه الأذن (#${noteNumber}) مرتبطة بفاتورة بالفعل.`;
@@ -507,9 +515,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('info-supplier').textContent = supplier;
         document.getElementById('info-date').textContent = date;
         document.getElementById('info-actual-weight').textContent = `${parseFloat(actualWeight).toFixed(2)} كجم`;
-
-        // تعيين الوزن من الأذن إلى حقل وزن الفاتورة تلقائياً
-        invoiceWeightInput.value = parseFloat(actualWeight).toFixed(2);
 
         deliveryNoteInfo.style.display = 'block';
         calculateDiscrepancy();
@@ -609,19 +614,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 0);
         }
 
-        // الحصول على الوزن من أذن التسليم المختارة (إذا كانت موجودة)
-        const deliveryNoteId = deliveryNoteIdInput.value;
-        let finalWeight = weight;
-        if (deliveryNoteId) {
-            const selectedNote = deliveryNotesData.find(n => n.id == deliveryNoteId);
-            if (selectedNote) {
-                finalWeight = parseFloat(selectedNote.actual_weight) || 0;
-            }
-        }
-
+        // حفظ وزن الفاتورة الفعلي (لا نستخدم وزن الأذن هنا)
         invoiceIdInput.value = id;
         invoiceSearchInput.value = `${invoiceNumber} - ${supplier}`;
-        invoiceWeightInput.value = parseFloat(finalWeight).toFixed(2);
+        invoiceWeightInput.value = parseFloat(weight).toFixed(2);
         invoiceResultsList.style.display = 'none';
 
         document.getElementById('info-invoice-number').textContent = invoiceNumber;
@@ -646,59 +642,66 @@ document.addEventListener('DOMContentLoaded', function() {
         const createDeliveryNoteCard = document.getElementById('createDeliveryNoteCard');
 
         if (!invoice.items || invoice.items.length === 0) {
-            invoiceItemsInfo.style.display = 'none';
-            createDeliveryNoteCard.style.display = 'none';
+            if (invoiceItemsInfo) invoiceItemsInfo.style.display = 'none';
+            if (createDeliveryNoteCard) createDeliveryNoteCard.style.display = 'none';
             return;
         }
 
         // عرض جدول المنتجات
-        invoiceItemsBody.innerHTML = invoice.items.map((item, index) => {
-            // الحصول على اسم المنتج من item_name (الذي يأتي من Material الآن)
-            const itemName = item.item_name || 'منتج بدون اسم';
-            const weight = item.weight ? parseFloat(item.weight).toFixed(2) : '0.00';
-            const unit = item.unit || 'قطعة';
+        if (invoiceItemsBody) {
+            invoiceItemsBody.innerHTML = invoice.items.map((item, index) => {
+                // الحصول على اسم المنتج من item_name (الذي يأتي من Material الآن)
+                const itemName = item.item_name || 'منتج بدون اسم';
+                const weight = item.weight ? parseFloat(item.weight).toFixed(2) : '0.00';
+                const unit = item.unit || 'قطعة';
 
-            return `
-                <tr>
-                    <td style="text-align: right;">
-                        <strong>${itemName}</strong>
-                    </td>
-                    <td>${parseFloat(item.quantity || 0).toFixed(2)}</td>
-                    <td>${unit}</td>
+                return `
+                    <tr>
+                        <td style="text-align: right;">
+                            <strong>${itemName}</strong>
+                        </td>
+                        <td>${parseFloat(item.quantity || 0).toFixed(2)}</td>
+                        <td>${unit}</td>
 
-                </tr>
-            `;
-        }).join('');
+                    </tr>
+                `;
+            }).join('');
+        }
 
-        invoiceItemsInfo.style.display = 'block';
+        if (invoiceItemsInfo) invoiceItemsInfo.style.display = 'block';
 
-        // عرض قائمة المنتجات للاختيار
-        productsChecklistContainer.innerHTML = invoice.items.map((item, index) => {
-            // الحصول على اسم المنتج من item_name (الذي يأتي من Material الآن)
-            const itemName = item.item_name || 'منتج بدون اسم';
-            const quantity = parseFloat(item.quantity || 0).toFixed(2);
-            const unit = item.unit || 'قطعة';
-            const weight = item.weight ? parseFloat(item.weight).toFixed(2) : '0.00';
+        // عرض قائمة المنتجات للاختيار (إذا كان العنصر موجوداً)
+        if (productsChecklistContainer) {
+            productsChecklistContainer.innerHTML = invoice.items.map((item, index) => {
+                // الحصول على اسم المنتج من item_name (الذي يأتي من Material الآن)
+                const itemName = item.item_name || 'منتج بدون اسم';
+                const quantity = parseFloat(item.quantity || 0).toFixed(2);
+                const unit = item.unit || 'قطعة';
+                const weight = item.weight ? parseFloat(item.weight).toFixed(2) : '0.00';
 
-            return `
-                <div class="form-check" style="margin-bottom: 12px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
-                    <input class="form-check-input product-checkbox" type="checkbox" id="product_${index}"
-                           data-index="${index}" data-item-id="${item.id}" data-name="${itemName}"
-                           data-quantity="${quantity}" data-unit="${unit}" data-weight="${weight}">
-                    <label class="form-check-label" for="product_${index}" style="cursor: pointer; margin-bottom: 0;">
-                        <strong>${itemName}</strong>
-                        <br>
-                        <small class="text-muted">الكمية: ${quantity} ${unit}</small>
-                        <br><small class="text-muted">الوزن: ${weight} ${item.weight_unit || 'كجم'}</small>
-                    </label>
-                </div>
-            `;
-        }).join('');
+                return `
+                    <div class="form-check" style="margin-bottom: 12px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                        <input class="form-check-input product-checkbox" type="checkbox" id="product_${index}"
+                               data-index="${index}" data-item-id="${item.id}" data-name="${itemName}"
+                               data-quantity="${quantity}" data-unit="${unit}" data-weight="${weight}">
+                        <label class="form-check-label" for="product_${index}" style="cursor: pointer; margin-bottom: 0;">
+                            <strong>${itemName}</strong>
+                            <br>
+                            <small class="text-muted">الكمية: ${quantity} ${unit}</small>
+                            <br><small class="text-muted">الوزن: ${weight} ${item.weight_unit || 'كجم'}</small>
+                        </label>
+                    </div>
+                `;
+            }).join('');
+        }
 
-        createDeliveryNoteCard.style.display = 'block';
+        if (createDeliveryNoteCard) createDeliveryNoteCard.style.display = 'block';
 
-        // إضافة مستمع لزر إنشاء أذن التسليم
-        document.getElementById('createDeliveryNoteBtn').addEventListener('click', createDeliveryNoteFromInvoice);
+        // إضافة مستمع لزر إنشاء أذن التسليم (إذا كان موجوداً)
+        const createBtn = document.getElementById('createDeliveryNoteBtn');
+        if (createBtn) {
+            createBtn.addEventListener('click', createDeliveryNoteFromInvoice);
+        }
 
         // إضافة مستمعين لتحديث ملخص الاختيار
         document.querySelectorAll('.product-checkbox').forEach(checkbox => {
@@ -706,7 +709,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // تحديث الملخص الأولي
-        updateSelectionSummary();
+        if (productsChecklistContainer) {
+            updateSelectionSummary();
+        }
     }
 
     function updateSelectionSummary() {
@@ -820,8 +825,13 @@ ${data.is_matched ? '✓ الأوزان متطابقة - تم المطابقة �
         invoiceSearchInput.value = '';
         invoiceWeightInput.value = '';
         invoiceInfo.style.display = 'none';
-        document.getElementById('invoiceItemsInfo').style.display = 'none';
-        document.getElementById('createDeliveryNoteCard').style.display = 'none';
+        
+        const invoiceItemsInfo = document.getElementById('invoiceItemsInfo');
+        const createDeliveryNoteCard = document.getElementById('createDeliveryNoteCard');
+        
+        if (invoiceItemsInfo) invoiceItemsInfo.style.display = 'none';
+        if (createDeliveryNoteCard) createDeliveryNoteCard.style.display = 'none';
+        
         invoiceResultsList.style.display = 'none';
         discrepancyCard.style.display = 'none';
     });
@@ -839,22 +849,41 @@ ${data.is_matched ? '✓ الأوزان متطابقة - تم المطابقة �
     // ===== حساب الفرق =====
     function calculateDiscrepancy() {
         const deliveryNoteId = deliveryNoteIdInput.value;
+        const invoiceId = invoiceIdInput.value;
         const invoiceWeight = parseFloat(invoiceWeightInput.value) || 0;
 
-        if (!deliveryNoteId || !invoiceWeight) {
+        console.log('🔍 حساب الفرق:', {
+            deliveryNoteId: deliveryNoteId,
+            invoiceId: invoiceId,
+            invoiceWeight: invoiceWeight,
+            invoiceWeightInputValue: invoiceWeightInput.value
+        });
+
+        // يجب أن يكون هناك أذن وفاتورة مختارة
+        if (!deliveryNoteId || !invoiceId) {
+            console.log('❌ أذن أو فاتورة غير مختارة');
             discrepancyCard.style.display = 'none';
             return;
         }
 
         const selectedNote = deliveryNotesData.find(n => n.id == deliveryNoteId);
         if (!selectedNote) {
+            console.log('❌ لم يتم العثور على الأذن');
             discrepancyCard.style.display = 'none';
             return;
         }
 
-        const actualWeight = parseFloat(selectedNote.actual_weight) ;
+        // السماح بحساب الفرق حتى لو كان الوزن صفر (قد يكون هناك فرق كبير)
+        const actualWeight = parseFloat(selectedNote.actual_weight) || 0;
         const discrepancy = actualWeight - invoiceWeight;
         const percentage = invoiceWeight > 0 ? ((discrepancy / invoiceWeight) * 100) : 0;
+
+        console.log('✅ حساب الفرق:', {
+            actualWeight: actualWeight,
+            invoiceWeight: invoiceWeight,
+            discrepancy: discrepancy,
+            percentage: percentage
+        });
 
         document.getElementById('display-actual-weight').textContent = actualWeight.toFixed(2) + ' كجم';
         document.getElementById('display-invoice-weight').textContent = invoiceWeight.toFixed(2) + ' كجم';

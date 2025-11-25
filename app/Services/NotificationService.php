@@ -129,7 +129,7 @@ class NotificationService
             $deliveryNote->id,
             'success',
             'feather icon-check-circle',
-            route('manufacturing.warehouse-registration.show', $deliveryNote->id),
+            route('manufacturing.warehouse.registration.show', $deliveryNote->id),
             [
                 'note_number' => $deliveryNote->note_number,
                 'type' => $type,
@@ -158,7 +158,7 @@ class NotificationService
             $deliveryNote->id,
             'warning',
             'feather icon-arrow-right',
-            route('manufacturing.warehouse-registration.show', $deliveryNote->id),
+            route('manufacturing.warehouse.registration.show', $deliveryNote->id),
             [
                 'quantity' => $quantity,
                 'material_name' => $materialName,
@@ -218,7 +218,7 @@ class NotificationService
             $deliveryNote->id,
             'danger',
             'feather icon-alert-triangle',
-            route('manufacturing.warehouse-registration.show', $deliveryNote->id),
+            route('manufacturing.warehouse.registration.show', $deliveryNote->id),
             [
                 'note_number' => $deliveryNote->note_number,
                 'difference' => $difference,
@@ -245,7 +245,7 @@ class NotificationService
             $deliveryNote->id,
             'warning',
             'feather icon-alert-circle',
-            route('manufacturing.warehouse-registration.show', $deliveryNote->id),
+            route('manufacturing.warehouse.registration.show', $deliveryNote->id),
             [
                 'note_number' => $deliveryNote->note_number,
                 'attempt_count' => $attemptCount,
@@ -271,7 +271,7 @@ class NotificationService
             $deliveryNote->id,
             'danger',
             'feather icon-x-circle',
-            route('manufacturing.warehouse-registration.show', $deliveryNote->id),
+            route('manufacturing.warehouse.registration.show', $deliveryNote->id),
             [
                 'note_number' => $deliveryNote->note_number,
             ]

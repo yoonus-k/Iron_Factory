@@ -228,7 +228,23 @@
         </div>
     </div>
 
-    <!-- بطاقات الباركود بتصميم موحد -->
+    @php
+        // البحث عن عملية التقسيم في product_tracking
+        $splitTracking = \App\Models\ProductTracking::where('action', 'split')
+            ->where('input_barcode', $deliveryNote->materialBatch?->batch_code ?? '')
+            ->orWhere(function($q) use ($deliveryNote) {
+                $q->where('output_barcode', 'like', '%' . ($deliveryNote->production_barcode ?? '') . '%');
+            })
+            ->first();
+        
+        $metadata = $splitTracking ? (is_string($splitTracking->metadata) ? json_decode($splitTracking->metadata, true) : $splitTracking->metadata) : null;
+        
+        // تحديد إذا كان هناك تقسيم جزئي
+        $hasPartialSplit = $splitTracking && $metadata && isset($metadata['split_type']) && $metadata['split_type'] === 'partial_transfer';
+    @endphp
+
+    <!-- بطاقات الباركود بتصميم موحد (تظهر فقط إذا لم يكن هناك تقسيم جزئي) -->
+    @if(!$hasPartialSplit)
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 30px;">
         
         <!-- باركود دخول المستودع -->
@@ -236,7 +252,7 @@
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
             <div style="text-align: center; margin-bottom: 15px;">
                 <div style="font-size: 15px; opacity: 0.9; margin-bottom: 5px;">المستودع</div>
-                <div style="font-size: 20px; font-weight: bold;">📦 دخول المستودع</div>
+                <div style="font-size: 20px; font-weight: bold;">📦 باركود دخول المستودع</div>
             </div>
             <div style="background: rgba(255,255,255,0.15); padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
                 <div style="font-size: 18px; font-weight: bold; font-family: 'Courier New', monospace; letter-spacing: 2px;">
@@ -250,12 +266,12 @@
                     style="width: 100%; background: white; color: #667eea; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s;"
                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)';"
                     onmouseout="this.style.transform=''; this.style.boxShadow='';">
-                <i class="feather icon-printer"></i> طباعة
+                <i class="feather icon-printer"></i> طباعة باركود المستودع
             </button>
         </div>
         @endif
 
-        <!-- باركود الإنتاج -->
+        <!-- باركود الإنتاج (يظهر فقط للنقل الكامل) -->
         @if($deliveryNote->production_barcode)
         <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);">
             <div style="text-align: center; margin-bottom: 15px;">
@@ -274,12 +290,127 @@
                     style="width: 100%; background: white; color: #11998e; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s;"
                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)';"
                     onmouseout="this.style.transform=''; this.style.boxShadow='';">
-                <i class="feather icon-printer"></i> طباعة
+                <i class="feather icon-printer"></i> طباعة باركود الإنتاج
             </button>
         </div>
         @endif
         
     </div>
+    @endif
+
+    <!-- ✨ كارد تقسيم الباركود (FULL WIDTH - md-12) - يظهر فقط للنقل الجزئي -->
+    @if($hasPartialSplit)
+
+    <div class="info-card" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; margin-bottom: 30px; box-shadow: 0 5px 20px rgba(245, 158, 11, 0.3);">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="font-size: 18px; opacity: 0.95; margin-bottom: 8px;">🔄 عملية تقسيم الدفعة</div>
+            <div style="font-size: 28px; font-weight: bold;">تم تقسيم الباركود إلى باركودين</div>
+            <div style="font-size: 14px; margin-top: 10px; opacity: 0.9;">
+                <i class="feather icon-info"></i> النظام قام بإنشاء باركودين منفصلين لتتبع دقيق للكميات
+            </div>
+        </div>
+
+        <!-- الباركود الأصلي -->
+        <div style="background: rgba(0,0,0,0.15); padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 2px dashed rgba(255,255,255,0.4);">
+            <div style="text-align: center; margin-bottom: 12px;">
+                <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">📋 الباركود الأصلي قبل التقسيم</div>
+                <div style="background: rgba(255,255,255,0.2); padding: 15px 25px; border-radius: 10px; display: inline-block;">
+                    <div style="font-size: 24px; font-weight: bold; font-family: 'Courier New', monospace; letter-spacing: 3px;">
+                        {{ $metadata['original_barcode'] ?? 'N/A' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- السهم للأسفل -->
+        <div style="text-align: center; margin: 25px 0;">
+            <div style="background: rgba(255,255,255,0.2); width: 60px; height: 60px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                <i class="feather icon-arrow-down" style="font-size: 32px;"></i>
+            </div>
+        </div>
+
+        <!-- البيانات المقسمة في صفين -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            
+            @if(isset($metadata['production_barcode']))
+            <!-- باركود الإنتاج -->
+            <div style="background: rgba(59, 130, 246, 0.95); border: 3px solid white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.2);">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="background: rgba(255,255,255,0.2); width: 60px; height: 60px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                        <i class="feather icon-box" style="font-size: 28px;"></i>
+                    </div>
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">🏭 باركود الإنتاج</div>
+                    <div style="font-size: 13px; opacity: 0.9;">الكمية المنقولة للإنتاج</div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.25); padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center;">
+                    <div style="font-size: 20px; font-weight: bold; font-family: 'Courier New', monospace; letter-spacing: 2px; word-break: break-all;">
+                        {{ $metadata['production_barcode'] }}
+                    </div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px;">
+                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">الكمية</div>
+                    <div style="font-size: 24px; font-weight: bold;">{{ number_format($metadata['production_quantity'] ?? 0, 2) }} <span style="font-size: 16px;">كجم</span></div>
+                </div>
+                
+                <button onclick="printProductionBarcode('{{ $metadata['production_barcode'] }}', '{{ $deliveryNote->note_number }}', '{{ $deliveryNote->material->name_ar ?? 'غير محدد' }}')"
+                        style="width: 100%; background: white; color: #3b82f6; padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; box-shadow: 0 3px 10px rgba(0,0,0,0.15);"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.25)';"
+                        onmouseout="this.style.transform=''; this.style.boxShadow='0 3px 10px rgba(0,0,0,0.15)';">
+                    <i class="feather icon-printer" style="font-size: 20px;"></i>
+                    <span>طباعة باركود الإنتاج</span>
+                </button>
+            </div>
+            @endif
+
+            @if(isset($metadata['remaining_barcode']))
+            <!-- باركود المستودع المتبقي -->
+            <div style="background: rgba(16, 185, 129, 0.95); border: 3px solid white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.2);">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="background: rgba(255,255,255,0.2); width: 60px; height: 60px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                        <i class="feather icon-package" style="font-size: 28px;"></i>
+                    </div>
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">📦 باركود المستودع</div>
+                    <div style="font-size: 13px; opacity: 0.9;">الكمية المتبقية في المخزن</div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.25); padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center;">
+                    <div style="font-size: 20px; font-weight: bold; font-family: 'Courier New', monospace; letter-spacing: 2px; word-break: break-all;">
+                        {{ $metadata['remaining_barcode'] }}
+                    </div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px;">
+                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">الكمية</div>
+                    <div style="font-size: 24px; font-weight: bold;">{{ number_format($metadata['remaining_quantity'] ?? 0, 2) }} <span style="font-size: 16px;">كجم</span></div>
+                </div>
+                
+                <button onclick="printWarehouseBarcode('{{ $metadata['remaining_barcode'] }}', '{{ $deliveryNote->note_number }}', '{{ $deliveryNote->material->name_ar ?? 'غير محدد' }}', {{ $metadata['remaining_quantity'] ?? 0 }}, '{{ $deliveryNote->supplier->name ?? 'غير محدد' }}')"
+                        style="width: 100%; background: white; color: #10b981; padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; box-shadow: 0 3px 10px rgba(0,0,0,0.15);"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.25)';"
+                        onmouseout="this.style.transform=''; this.style.boxShadow='0 3px 10px rgba(0,0,0,0.15)';">
+                    <i class="feather icon-printer" style="font-size: 20px;"></i>
+                    <span>طباعة باركود المستودع</span>
+                </button>
+            </div>
+            @endif
+        </div>
+
+        <!-- ملاحظة توضيحية -->
+        <div style="background: rgba(0,0,0,0.15); padding: 20px; border-radius: 10px; text-align: center; border: 2px solid rgba(255,255,255,0.3);">
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                <i class="feather icon-alert-circle"></i> ملاحظة مهمة
+            </div>
+            <div style="font-size: 14px; line-height: 1.8; opacity: 0.95;">
+                تم تقسيم الباركود الأصلي لضمان التتبع الدقيق:<br>
+                • <strong>الباركود الأزرق</strong> للكمية المنقولة للإنتاج<br>
+                • <strong>الباركود الأخضر</strong> للكمية المتبقية في المستودع<br>
+                يُرجى طباعة كل باركود ولصقه في المكان المناسب
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- الكميات والحالة -->
     @if($deliveryNote->quantity && $deliveryNote->quantity > 0)
