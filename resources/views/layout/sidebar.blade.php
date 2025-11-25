@@ -6,14 +6,14 @@
     <nav class="sidebar-menu">
         <ul>
             <!-- لوحة التحكم -->
-            @if(auth()->user()->hasPermission('MENU_DASHBOARD'))
+
             <li>
                 <a href="" data-tooltip="{{ __('app.menu.dashboard') }}">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>{{ __('app.menu.dashboard') }}</span>
                 </a>
             </li>
-            @endif
+
 
             <!-- المستودع -->
             @if(auth()->user()->hasPermission('MENU_WAREHOUSE'))
@@ -65,31 +65,10 @@
                     @endif
 
                     @if(auth()->user()->hasPermission('MENU_WAREHOUSE_SETTINGS'))
-                    <li class="has-submenu">
-                        <a href="javascript:void(0)" class="submenu-toggle">
-                            <i class="fas fa-cog"></i>
-                            <span>{{ __('app.settings.general') }}</span>
-                            <i class="fas fa-chevron-down arrow"></i>
+                    <li>
+                        <a href="{{ route('manufacturing.warehouse-settings.index') }}">
+                            <i class="fas fa-cog"></i> {{ __('app.settings.general') }}
                         </a>
-                        <ul class="submenu">
-                            @if(auth()->user()->hasPermission('WAREHOUSE_MATERIAL_TYPES_READ'))
-                            <li>
-                                <a href="{{ route('manufacturing.warehouse-settings.material-types.index') }}">
-                                    <i class="fas fa-list"></i>
-                                    <span>أنواع المواد</span>
-                                </a>
-                            </li>
-                            @endif
-
-                            @if(auth()->user()->hasPermission('WAREHOUSE_UNITS_READ'))
-                            <li>
-                                <a href="{{ route('manufacturing.warehouse-settings.units.index') }}">
-                                    <i class="fas fa-ruler"></i>
-                                    <span>الوحدات</span>
-                                </a>
-                            </li>
-                            @endif
-                        </ul>
                     </li>
                     @endif
 

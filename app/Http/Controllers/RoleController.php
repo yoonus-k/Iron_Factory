@@ -130,13 +130,19 @@ class RoleController extends Controller
 
         DB::beginTransaction();
         try {
+            $userId = 1;
+            if (auth('web')->check()) {
+                $userId = auth('web')->id();
+            }
+
             $role = Role::create([
                 'role_name' => $data['display_name'],
+                'role_name_en' => $data['name'] ?? $data['display_name'],
                 'role_code' => strtoupper($data['name']),
                 'description' => $data['description'] ?? null,
                 'level' => $data['level'],
                 'is_active' => $data['is_active'] ?? true,
-                'created_by' => 1,
+                'created_by' => $userId,
             ]);
 
             // Attach permissions
@@ -176,6 +182,7 @@ class RoleController extends Controller
         try {
             $role->update([
                 'role_name' => $data['display_name'],
+                'role_name_en' => $data['name'] ?? $data['display_name'],
                 'description' => $data['description'] ?? null,
                 'level' => $data['level'],
                 'is_active' => $data['is_active'] ?? true,

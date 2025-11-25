@@ -14,9 +14,7 @@ Route::get('/', function () {
 // Protected Routes - Require Authentication
 Route::middleware(['auth'])->group(function () {
     // Dashboard Route - with permission check
-    Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->middleware('permission:MENU_DASHBOARD')
-        ->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/manager', [DashboardController::class, 'index'])->name('manager');
 

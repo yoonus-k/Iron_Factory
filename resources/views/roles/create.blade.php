@@ -29,6 +29,26 @@
             <span>إضافة دور</span>
         </nav>
     </div>
+    @if(session('success'))
+            <div class="um-alert-custom um-alert-success" role="alert">
+                <i class="feather icon-check-circle"></i>
+                {{ session('success') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="um-alert-custom um-alert-error" role="alert">
+                <i class="feather icon-x-circle"></i>
+                {{ session('error') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+        @endif
+
 
     <!-- Form Card -->
     <div class="form-card">

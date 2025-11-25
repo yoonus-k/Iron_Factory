@@ -60,38 +60,39 @@ class PermissionsSeeder extends Seeder
             ['name' => 'WAREHOUSE_UNITS_UPDATE', 'display_name' => 'تعديل الوحدة', 'group_name' => 'المستودع', 'description' => 'تعديل وحدات القياس'],
             ['name' => 'WAREHOUSE_UNITS_DELETE', 'display_name' => 'حذف الوحدة', 'group_name' => 'المستودع', 'description' => 'حذف وحدات القياس'],
 
-            // Production Stages
-            ['name' => 'MENU_STAGE1_STANDS', 'display_name' => 'المرحلة الأولى - الاستاندات', 'group_name' => 'الإنتاج', 'description' => 'إظهار قائمة المرحلة الأولى'],
-            ['name' => 'MENU_STAGE2_PROCESSING', 'display_name' => 'المرحلة الثانية - المعالجة', 'group_name' => 'الإنتاج', 'description' => 'إظهار قائمة المرحلة الثانية'],
-            ['name' => 'MENU_STAGE3_COILS', 'display_name' => 'المرحلة الثالثة - اللفائف', 'group_name' => 'الإنتاج', 'description' => 'إظهار قائمة المرحلة الثالثة'],
-            ['name' => 'MENU_STAGE4_PACKAGING', 'display_name' => 'المرحلة الرابعة - التعبئة', 'group_name' => 'الإنتاج', 'description' => 'إظهار قائمة المرحلة الرابعة'],
+            // Production Stage 1 - الاستاندات
+            ['name' => 'MENU_STAGE1_STANDS', 'display_name' => 'المرحلة الأولى - الاستاندات', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'إظهار قائمة المرحلة الأولى'],
+            ['name' => 'STAGE1_STANDS_READ', 'display_name' => 'عرض الاستاندات', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'عرض الاستاندات'],
+            ['name' => 'STAGE1_STANDS_CREATE', 'display_name' => 'إضافة استاند', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'إنشاء استاند جديد'],
+            ['name' => 'STAGE1_STANDS_UPDATE', 'display_name' => 'تعديل الاستاند', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'تعديل الاستاندات'],
+            ['name' => 'STAGE1_STANDS_DELETE', 'display_name' => 'حذف الاستاند', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'حذف الاستاندات'],
 
-            // Production Details
-            ['name' => 'STAGE1_STANDS_READ', 'display_name' => 'عرض الاستاندات', 'group_name' => 'الإنتاج', 'description' => 'عرض الاستاندات'],
-            ['name' => 'STAGE1_STANDS_CREATE', 'display_name' => 'إضافة استاند', 'group_name' => 'الإنتاج', 'description' => 'إنشاء استاند جديد'],
-            ['name' => 'STAGE1_STANDS_UPDATE', 'display_name' => 'تعديل الاستاند', 'group_name' => 'الإنتاج', 'description' => 'تعديل الاستاندات'],
-            ['name' => 'STAGE1_STANDS_DELETE', 'display_name' => 'حذف الاستاند', 'group_name' => 'الإنتاج', 'description' => 'حذف الاستاندات'],
+            // Production Stage 2 - المعالجة
+            ['name' => 'MENU_STAGE2_PROCESSING', 'display_name' => 'المرحلة الثانية - المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'إظهار قائمة المرحلة الثانية'],
+            ['name' => 'STAGE2_PROCESSING_READ', 'display_name' => 'عرض المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'عرض عمليات المعالجة'],
+            ['name' => 'STAGE2_PROCESSING_CREATE', 'display_name' => 'إضافة معالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'إنشاء عملية معالجة جديدة'],
+            ['name' => 'STAGE2_PROCESSING_UPDATE', 'display_name' => 'تعديل المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'تعديل عمليات المعالجة'],
+            ['name' => 'STAGE2_PROCESSING_DELETE', 'display_name' => 'حذف المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'حذف عمليات المعالجة'],
 
-            ['name' => 'STAGE2_PROCESSING_READ', 'display_name' => 'عرض المعالجة', 'group_name' => 'الإنتاج', 'description' => 'عرض عمليات المعالجة'],
-            ['name' => 'STAGE2_PROCESSING_CREATE', 'display_name' => 'إضافة معالجة', 'group_name' => 'الإنتاج', 'description' => 'إنشاء عملية معالجة جديدة'],
-            ['name' => 'STAGE2_PROCESSING_UPDATE', 'display_name' => 'تعديل المعالجة', 'group_name' => 'الإنتاج', 'description' => 'تعديل عمليات المعالجة'],
-            ['name' => 'STAGE2_PROCESSING_DELETE', 'display_name' => 'حذف المعالجة', 'group_name' => 'الإنتاج', 'description' => 'حذف عمليات المعالجة'],
+            // Production Stage 3 - اللفائف
+            ['name' => 'MENU_STAGE3_COILS', 'display_name' => 'المرحلة الثالثة - اللفائف', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'إظهار قائمة المرحلة الثالثة'],
+            ['name' => 'STAGE3_COILS_READ', 'display_name' => 'عرض اللفائف', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'عرض اللفائف'],
+            ['name' => 'STAGE3_COILS_CREATE', 'display_name' => 'إضافة لفافة', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'إنشاء لفافة جديدة'],
+            ['name' => 'STAGE3_COILS_UPDATE', 'display_name' => 'تعديل اللفافة', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'تعديل اللفائف'],
+            ['name' => 'STAGE3_COILS_DELETE', 'display_name' => 'حذف اللفافة', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'حذف اللفائف'],
 
-            ['name' => 'STAGE3_COILS_READ', 'display_name' => 'عرض اللفائف', 'group_name' => 'الإنتاج', 'description' => 'عرض اللفائف'],
-            ['name' => 'STAGE3_COILS_CREATE', 'display_name' => 'إضافة لفافة', 'group_name' => 'الإنتاج', 'description' => 'إنشاء لفافة جديدة'],
-            ['name' => 'STAGE3_COILS_UPDATE', 'display_name' => 'تعديل اللفافة', 'group_name' => 'الإنتاج', 'description' => 'تعديل اللفائف'],
-            ['name' => 'STAGE3_COILS_DELETE', 'display_name' => 'حذف اللفافة', 'group_name' => 'الإنتاج', 'description' => 'حذف اللفائف'],
-
-            ['name' => 'STAGE4_PACKAGING_READ', 'display_name' => 'عرض التعبئة', 'group_name' => 'الإنتاج', 'description' => 'عرض عمليات التعبئة'],
-            ['name' => 'STAGE4_PACKAGING_CREATE', 'display_name' => 'إضافة تعبئة', 'group_name' => 'الإنتاج', 'description' => 'إنشاء عملية تعبئة جديدة'],
-            ['name' => 'STAGE4_PACKAGING_UPDATE', 'display_name' => 'تعديل التعبئة', 'group_name' => 'الإنتاج', 'description' => 'تعديل عمليات التعبئة'],
-            ['name' => 'STAGE4_PACKAGING_DELETE', 'display_name' => 'حذف التعبئة', 'group_name' => 'الإنتاج', 'description' => 'حذف عمليات التعبئة'],
+            // Production Stage 4 - التعبئة
+            ['name' => 'MENU_STAGE4_PACKAGING', 'display_name' => 'المرحلة الرابعة - التعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'إظهار قائمة المرحلة الرابعة'],
+            ['name' => 'STAGE4_PACKAGING_READ', 'display_name' => 'عرض التعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'عرض عمليات التعبئة'],
+            ['name' => 'STAGE4_PACKAGING_CREATE', 'display_name' => 'إضافة تعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'إنشاء عملية تعبئة جديدة'],
+            ['name' => 'STAGE4_PACKAGING_UPDATE', 'display_name' => 'تعديل التعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'تعديل عمليات التعبئة'],
+            ['name' => 'STAGE4_PACKAGING_DELETE', 'display_name' => 'حذف التعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'حذف عمليات التعبئة'],
 
             // Production & Quality
-            ['name' => 'MENU_PRODUCTION_TRACKING', 'display_name' => 'تتبع الإنتاج', 'group_name' => 'الإنتاج', 'description' => 'إظهار قائمة تتبع الإنتاج'],
-            ['name' => 'MENU_SHIFTS_WORKERS', 'display_name' => 'الورديات والعمال', 'group_name' => 'الإنتاج', 'description' => 'إظهار قائمة الورديات والعمال'],
-            ['name' => 'MENU_QUALITY_WASTE', 'display_name' => 'الجودة والهدر', 'group_name' => 'الإنتاج', 'description' => 'إظهار قائمة الجودة والهدر'],
-            ['name' => 'MENU_PRODUCTION_REPORTS', 'display_name' => 'التقارير الإنتاجية', 'group_name' => 'الإنتاج', 'description' => 'إظهار قائمة التقارير الإنتاجية'],
+            ['name' => 'MENU_PRODUCTION_TRACKING', 'display_name' => 'تتبع الإنتاج', 'group_name' => 'تتبع الإنتاج والمراقبة', 'description' => 'إظهار قائمة تتبع الإنتاج'],
+            ['name' => 'MENU_SHIFTS_WORKERS', 'display_name' => 'الورديات والعمال', 'group_name' => 'الورديات والعمال', 'description' => 'إظهار قائمة الورديات والعمال'],
+            ['name' => 'MENU_QUALITY_WASTE', 'display_name' => 'الجودة والهدر', 'group_name' => 'الجودة والهدر', 'description' => 'إظهار قائمة الجودة والهدر'],
+            ['name' => 'MENU_PRODUCTION_REPORTS', 'display_name' => 'التقارير الإنتاجية', 'group_name' => 'التقارير الإنتاجية', 'description' => 'إظهار قائمة التقارير الإنتاجية'],
 
             // Management & Settings
             ['name' => 'MENU_MANAGEMENT', 'display_name' => 'الإدارة', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إظهار قائمة الإدارة'],

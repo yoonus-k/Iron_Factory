@@ -206,17 +206,6 @@
                             لم يتم تعيين دور لهذا المستخدم
                         </div>
                         @endif
-
-                        @if($user->userPermissions->count() > 0)
-                        <div class="info-item">
-                            <div class="info-label">صلاحيات استثنائية:</div>
-                            <div class="info-value">
-                                @foreach($user->userPermissions as $permission)
-                                <span class="badge badge-warning">{{ $permission->permission_name }}</span>
-                                @endforeach
-                            </div>
-                        </div>
-                        @endif
                     </div>
                 </div>
             </div>

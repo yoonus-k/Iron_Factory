@@ -136,4 +136,24 @@ class User extends Authenticatable
     {
         return $this->role && $this->role->role_code === 'ADMIN';
     }
+
+    /**
+     * الحصول على قائمة صلاحيات المستخدم من خلال دوره
+     */
+    public function userPermissions(): array
+    {
+        if (!$this->role) {
+            return [];
+        }
+
+        // Admin has all permissions
+        if ($this->isAdmin()) {
+            return Permission::where('is_active', true)->pluck('name')->toArray();
+        }
+
+        return $this->role->permissions()
+            ->where('is_active', true)
+            ->pluck('name')
+            ->toArray();
+    }
 }
