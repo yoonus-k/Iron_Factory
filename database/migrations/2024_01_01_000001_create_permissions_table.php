@@ -13,19 +13,14 @@ return new class extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
-            $table->string('permission_name')->unique()->comment('اسم الصلاحية');
-            $table->string('permission_name_en')->unique()->comment('اسم الصلاحية بالإنجليزية');
-            $table->string('permission_code', 100)->unique()->comment('رمز الصلاحية');
-            $table->string('module', 100)->comment('القسم/الوحدة');
-            $table->text('description')->nullable()->comment('وصف الصلاحية');
-            $table->boolean('is_system')->default(false)->comment('صلاحية نظام');
-            $table->boolean('is_active')->default(true)->comment('حالة الصلاحية');
+            $table->string('name', 100)->unique();
+            $table->string('display_name', 150);
+            $table->string('group_name', 50);
+            $table->text('description')->nullable();
             $table->bigInteger('created_by')->unsigned()->nullable()->comment('من أنشأ الصلاحية');
             $table->timestamps();
 
-            $table->index('permission_code');
-            $table->index('module');
-            $table->index('is_active');
+            $table->index(['group_name', 'name']);
         });
     }
 

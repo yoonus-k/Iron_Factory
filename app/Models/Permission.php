@@ -8,19 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Permission extends Model
 {
     protected $fillable = [
-        'permission_name',
-        'permission_name_en',
-        'permission_code',
-        'module',
+        'name',
+        'display_name',
+        'group_name',
         'description',
-        'is_system',
-        'is_active',
         'created_by',
     ];
 
     protected $casts = [
-        'is_system' => 'boolean',
-        'is_active' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -30,7 +25,7 @@ class Permission extends Model
      */
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Role::class, 'role_permissions')->withPivot('can_create', 'can_read', 'can_update', 'can_delete', 'can_approve', 'can_export');
+        return $this->belongsToMany(Role::class, 'role_permissions');
     }
 
     public function creator()
@@ -41,9 +36,8 @@ class Permission extends Model
     /**
      * الترجمة والتصفية
      */
-    public function getName($locale = null)
+    public function getDisplayName($locale = null)
     {
-        $locale = $locale ?? app()->getLocale();
-        return $locale === 'ar' ? $this->permission_name : $this->permission_name_en ?? $this->permission_name;
+        return $this->display_name;
     }
 }

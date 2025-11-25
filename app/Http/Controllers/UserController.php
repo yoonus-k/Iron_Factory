@@ -99,7 +99,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        $user->load('roleRelation', 'userPermissions');
+        $user->load('roleRelation');
         $operationLogs = $user->operationLogs()->orderBy('created_at', 'desc')->get();
         return view('users.show', compact('user', 'operationLogs'));
     }

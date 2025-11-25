@@ -3,573 +3,190 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Permission;
-use App\Models\Role;
 use Illuminate\Support\Facades\DB;
 
 class PermissionsSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::beginTransaction();
-        try {
-            // إنشاء الصلاحيات الأساسية
-            $permissions = [
-                // ====== صلاحيات القوائم (Menus) ======
-                [
-                    'permission_name' => 'قائمة لوحة التحكم',
-                    'permission_name_en' => 'Dashboard Menu',
-                    'permission_code' => 'MENU_DASHBOARD',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة لوحة التحكم',
-                ],
-                [
-                    'permission_name' => 'قائمة المستودع',
-                    'permission_name_en' => 'Warehouse Menu',
-                    'permission_code' => 'MENU_WAREHOUSE',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة المستودع الرئيسية',
-                ],
-                [
-                    'permission_name' => 'المواد الخام - قائمة',
-                    'permission_name_en' => 'Materials Menu',
-                    'permission_code' => 'MENU_WAREHOUSE_MATERIALS',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة المواد الخام',
-                ],
-                [
-                    'permission_name' => 'المخازن - قائمة',
-                    'permission_name_en' => 'Stores Menu',
-                    'permission_code' => 'MENU_WAREHOUSE_STORES',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة المخازن',
-                ],
-                [
-                    'permission_name' => 'مذكرات التسليم - قائمة',
-                    'permission_name_en' => 'Delivery Notes Menu',
-                    'permission_code' => 'MENU_WAREHOUSE_DELIVERY_NOTES',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة مذكرات التسليم',
-                ],
-                [
-                    'permission_name' => 'فواتير الشراء - قائمة',
-                    'permission_name_en' => 'Purchase Invoices Menu',
-                    'permission_code' => 'MENU_WAREHOUSE_PURCHASE_INVOICES',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة فواتير الشراء',
-                ],
-                [
-                    'permission_name' => 'الموردين - قائمة',
-                    'permission_name_en' => 'Suppliers Menu',
-                    'permission_code' => 'MENU_WAREHOUSE_SUPPLIERS',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة الموردين',
-                ],
-                [
-                    'permission_name' => 'إعدادات المستودع - قائمة',
-                    'permission_name_en' => 'Warehouse Settings Menu',
-                    'permission_code' => 'MENU_WAREHOUSE_SETTINGS',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة إعدادات المستودع',
-                ],
-                [
-                    'permission_name' => 'تقارير المستودع - قائمة',
-                    'permission_name_en' => 'Warehouse Reports Menu',
-                    'permission_code' => 'MENU_WAREHOUSE_REPORTS',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة تقارير المستودع',
-                ],
-                [
-                    'permission_name' => 'قائمة المرحلة الأولى',
-                    'permission_name_en' => 'Stage 1 Menu',
-                    'permission_code' => 'MENU_STAGE1_STANDS',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة المرحلة الأولى - الاستاندات',
-                ],
-                [
-                    'permission_name' => 'قائمة المرحلة الثانية',
-                    'permission_name_en' => 'Stage 2 Menu',
-                    'permission_code' => 'MENU_STAGE2_PROCESSING',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة المرحلة الثانية - المعالجة',
-                ],
-                [
-                    'permission_name' => 'قائمة المرحلة الثالثة',
-                    'permission_name_en' => 'Stage 3 Menu',
-                    'permission_code' => 'MENU_STAGE3_COILS',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة المرحلة الثالثة - اللفائف',
-                ],
-                [
-                    'permission_name' => 'قائمة المرحلة الرابعة',
-                    'permission_name_en' => 'Stage 4 Menu',
-                    'permission_code' => 'MENU_STAGE4_PACKAGING',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة المرحلة الرابعة - التعبئة',
-                ],
-                [
-                    'permission_name' => 'قائمة تتبع الإنتاج',
-                    'permission_name_en' => 'Production Tracking Menu',
-                    'permission_code' => 'MENU_PRODUCTION_TRACKING',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة تتبع الإنتاج',
-                ],
-                [
-                    'permission_name' => 'قائمة الورديات والعمال',
-                    'permission_name_en' => 'Shifts & Workers Menu',
-                    'permission_code' => 'MENU_SHIFTS_WORKERS',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة الورديات والعمال',
-                ],
-                [
-                    'permission_name' => 'قائمة الجودة والهدر',
-                    'permission_name_en' => 'Quality & Waste Menu',
-                    'permission_code' => 'MENU_QUALITY_WASTE',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة الجودة والهدر',
-                ],
-                [
-                    'permission_name' => 'قائمة التقارير الإنتاجية',
-                    'permission_name_en' => 'Production Reports Menu',
-                    'permission_code' => 'MENU_PRODUCTION_REPORTS',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة التقارير الإنتاجية',
-                ],
-                [
-                    'permission_name' => 'قائمة الإدارة',
-                    'permission_name_en' => 'Management Menu',
-                    'permission_code' => 'MENU_MANAGEMENT',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة الإدارة',
-                ],
-                [
-                    'permission_name' => 'إدارة المستخدمين - قائمة',
-                    'permission_name_en' => 'Manage Users Menu',
-                    'permission_code' => 'MENU_MANAGE_USERS',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة إدارة المستخدمين',
-                ],
-                [
-                    'permission_name' => 'إدارة الأدوار - قائمة',
-                    'permission_name_en' => 'Manage Roles Menu',
-                    'permission_code' => 'MENU_MANAGE_ROLES',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة إدارة الأدوار',
-                ],
-                [
-                    'permission_name' => 'إدارة الصلاحيات - قائمة',
-                    'permission_name_en' => 'Manage Permissions Menu',
-                    'permission_code' => 'MENU_MANAGE_PERMISSIONS',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة إدارة الصلاحيات',
-                ],
-                [
-                    'permission_name' => 'قائمة الإعدادات',
-                    'permission_name_en' => 'Settings Menu',
-                    'permission_code' => 'MENU_SETTINGS',
-                    'module' => 'Menus',
-                    'description' => 'إظهار قائمة الإعدادات',
-                ],
+        $permissions = [
+            // Dashboard
+            ['name' => 'MENU_DASHBOARD', 'display_name' => 'لوحة التحكم', 'group_name' => 'لوحة التحكم', 'description' => 'إظهار قائمة لوحة التحكم'],
 
-                // ====== إدارة المستخدمين ======
-                [
-                    'permission_name' => 'إدارة المستخدمين',
-                    'permission_name_en' => 'Manage Users',
-                    'permission_code' => 'MANAGE_USERS',
-                    'module' => 'Users',
-                    'description' => 'إدارة المستخدمين والموظفين',
-                ],
+            // Warehouse Menu & Operations
+            ['name' => 'MENU_WAREHOUSE', 'display_name' => 'المستودع', 'group_name' => 'المستودع', 'description' => 'إظهار قائمة المستودع الرئيسية'],
+            ['name' => 'MENU_WAREHOUSE_MATERIALS', 'display_name' => 'المواد الخام', 'group_name' => 'المستودع', 'description' => 'إظهار قائمة المواد الخام'],
+            ['name' => 'MENU_WAREHOUSE_STORES', 'display_name' => 'المخازن', 'group_name' => 'المستودع', 'description' => 'إظهار قائمة المخازن'],
+            ['name' => 'MENU_WAREHOUSE_DELIVERY_NOTES', 'display_name' => 'مذكرات التسليم', 'group_name' => 'المستودع', 'description' => 'إظهار قائمة مذكرات التسليم'],
+            ['name' => 'MENU_WAREHOUSE_PURCHASE_INVOICES', 'display_name' => 'فواتير الشراء', 'group_name' => 'المستودع', 'description' => 'إظهار قائمة فواتير الشراء'],
+            ['name' => 'MENU_WAREHOUSE_SUPPLIERS', 'display_name' => 'الموردين', 'group_name' => 'المستودع', 'description' => 'إظهار قائمة الموردين'],
+            ['name' => 'MENU_WAREHOUSE_SETTINGS', 'display_name' => 'إعدادات المستودع', 'group_name' => 'المستودع', 'description' => 'إظهار قائمة إعدادات المستودع'],
+            ['name' => 'MENU_WAREHOUSE_REPORTS', 'display_name' => 'تقارير المستودع', 'group_name' => 'المستودع', 'description' => 'إظهار قائمة تقارير المستودع'],
 
-                // ====== إدارة الأدوار والصلاحيات ======
-                [
-                    'permission_name' => 'إدارة الأدوار',
-                    'permission_name_en' => 'Manage Roles',
-                    'permission_code' => 'MANAGE_ROLES',
-                    'module' => 'Roles',
-                    'description' => 'إدارة أدوار المستخدمين',
-                ],
-                [
-                    'permission_name' => 'إدارة الصلاحيات',
-                    'permission_name_en' => 'Manage Permissions',
-                    'permission_code' => 'MANAGE_PERMISSIONS',
-                    'module' => 'Permissions',
-                    'description' => 'إدارة صلاحيات النظام',
-                ],
+            // Warehouse Operations
+            ['name' => 'WAREHOUSE_MATERIALS_READ', 'display_name' => 'عرض المواد الخام', 'group_name' => 'المستودع', 'description' => 'عرض المواد الخام'],
+            ['name' => 'WAREHOUSE_MATERIALS_CREATE', 'display_name' => 'إضافة مواد خام', 'group_name' => 'المستودع', 'description' => 'إضافة مواد خام جديدة'],
+            ['name' => 'WAREHOUSE_MATERIALS_UPDATE', 'display_name' => 'تعديل المواد الخام', 'group_name' => 'المستودع', 'description' => 'تعديل المواد الخام'],
+            ['name' => 'WAREHOUSE_MATERIALS_DELETE', 'display_name' => 'حذف المواد الخام', 'group_name' => 'المستودع', 'description' => 'حذف المواد الخام'],
 
-                // ====== إدارة المواد الخام ======
-                [
-                    'permission_name' => 'إدارة المواد الخام',
-                    'permission_name_en' => 'Manage Materials',
-                    'permission_code' => 'MANAGE_MATERIALS',
-                    'module' => 'Materials',
-                    'description' => 'إدارة المواد الخام والمخزون',
-                ],
+            ['name' => 'WAREHOUSE_STORES_READ', 'display_name' => 'عرض المخازن', 'group_name' => 'المستودع', 'description' => 'عرض المخازن'],
+            ['name' => 'WAREHOUSE_STORES_CREATE', 'display_name' => 'إضافة مخزن', 'group_name' => 'المستودع', 'description' => 'إضافة مخزن جديد'],
+            ['name' => 'WAREHOUSE_STORES_UPDATE', 'display_name' => 'تعديل المخزن', 'group_name' => 'المستودع', 'description' => 'تعديل بيانات المخزن'],
+            ['name' => 'WAREHOUSE_STORES_DELETE', 'display_name' => 'حذف المخزن', 'group_name' => 'المستودع', 'description' => 'حذف المخزن'],
 
-                // ====== إدارة الموردين ======
-                [
-                    'permission_name' => 'إدارة الموردين',
-                    'permission_name_en' => 'Manage Suppliers',
-                    'permission_code' => 'MANAGE_SUPPLIERS',
-                    'module' => 'Suppliers',
-                    'description' => 'إدارة الموردين والموزعين',
-                ],
+            ['name' => 'WAREHOUSE_DELIVERY_NOTES_READ', 'display_name' => 'عرض مذكرات التسليم', 'group_name' => 'المستودع', 'description' => 'عرض مذكرات التسليم'],
+            ['name' => 'WAREHOUSE_DELIVERY_NOTES_CREATE', 'display_name' => 'إنشاء مذكرة تسليم', 'group_name' => 'المستودع', 'description' => 'إنشاء مذكرة تسليم جديدة'],
+            ['name' => 'WAREHOUSE_DELIVERY_NOTES_UPDATE', 'display_name' => 'تعديل مذكرة التسليم', 'group_name' => 'المستودع', 'description' => 'تعديل مذكرات التسليم'],
+            ['name' => 'WAREHOUSE_DELIVERY_NOTES_DELETE', 'display_name' => 'حذف مذكرة التسليم', 'group_name' => 'المستودع', 'description' => 'حذف مذكرات التسليم'],
 
-                // ====== إدارة المخازن ======
-                [
-                    'permission_name' => 'إدارة المخازن',
-                    'permission_name_en' => 'Manage Warehouses',
-                    'permission_code' => 'MANAGE_WAREHOUSES',
-                    'module' => 'Warehouses',
-                    'description' => 'إدارة المخازن والمواقع',
-                ],
-                [
-                    'permission_name' => 'تحويلات المخازن',
-                    'permission_name_en' => 'Warehouse Transfers',
-                    'permission_code' => 'WAREHOUSE_TRANSFERS',
-                    'module' => 'Warehouses',
-                    'description' => 'إدارة تحويلات المخازن',
-                ],
+            ['name' => 'WAREHOUSE_PURCHASE_INVOICES_READ', 'display_name' => 'عرض فواتير الشراء', 'group_name' => 'المستودع', 'description' => 'عرض فواتير الشراء'],
+            ['name' => 'WAREHOUSE_PURCHASE_INVOICES_CREATE', 'display_name' => 'إنشاء فاتورة شراء', 'group_name' => 'المستودع', 'description' => 'إنشاء فاتورة شراء جديدة'],
+            ['name' => 'WAREHOUSE_PURCHASE_INVOICES_UPDATE', 'display_name' => 'تعديل فاتورة الشراء', 'group_name' => 'المستودع', 'description' => 'تعديل فواتير الشراء'],
+            ['name' => 'WAREHOUSE_PURCHASE_INVOICES_DELETE', 'display_name' => 'حذف فاتورة الشراء', 'group_name' => 'المستودع', 'description' => 'حذف فواتير الشراء'],
 
-                // ====== إدارة الإنتاج ======
-                [
-                    'permission_name' => 'المرحلة الأولى - الاستاندات',
-                    'permission_name_en' => 'Stage 1 - Stands',
-                    'permission_code' => 'STAGE1_STANDS',
-                    'module' => 'Manufacturing',
-                    'description' => 'إدارة المرحلة الأولى من الإنتاج',
-                ],
-                [
-                    'permission_name' => 'المرحلة الثانية - المعالجة',
-                    'permission_name_en' => 'Stage 2 - Processing',
-                    'permission_code' => 'STAGE2_PROCESSING',
-                    'module' => 'Manufacturing',
-                    'description' => 'إدارة المرحلة الثانية من الإنتاج',
-                ],
-                [
-                    'permission_name' => 'المرحلة الثالثة - اللفائف',
-                    'permission_name_en' => 'Stage 3 - Coils',
-                    'permission_code' => 'STAGE3_COILS',
-                    'module' => 'Manufacturing',
-                    'description' => 'إدارة المرحلة الثالثة من الإنتاج',
-                ],
-                [
-                    'permission_name' => 'المرحلة الرابعة - التعبئة',
-                    'permission_name_en' => 'Stage 4 - Packaging',
-                    'permission_code' => 'STAGE4_PACKAGING',
-                    'module' => 'Manufacturing',
-                    'description' => 'إدارة المرحلة الرابعة من الإنتاج',
-                ],
+            ['name' => 'WAREHOUSE_SUPPLIERS_READ', 'display_name' => 'عرض الموردين', 'group_name' => 'المستودع', 'description' => 'عرض الموردين'],
+            ['name' => 'WAREHOUSE_SUPPLIERS_CREATE', 'display_name' => 'إضافة مورد', 'group_name' => 'المستودع', 'description' => 'إضافة مورد جديد'],
+            ['name' => 'WAREHOUSE_SUPPLIERS_UPDATE', 'display_name' => 'تعديل بيانات المورد', 'group_name' => 'المستودع', 'description' => 'تعديل بيانات المورد'],
+            ['name' => 'WAREHOUSE_SUPPLIERS_DELETE', 'display_name' => 'حذف المورد', 'group_name' => 'المستودع', 'description' => 'حذف المورد'],
 
-                // ====== إدارة الفواتير ======
-                [
-                    'permission_name' => 'فواتير الشراء',
-                    'permission_name_en' => 'Purchase Invoices',
-                    'permission_code' => 'PURCHASE_INVOICES',
-                    'module' => 'Invoices',
-                    'description' => 'إدارة فواتير الشراء',
-                ],
-                [
-                    'permission_name' => 'فواتير المبيعات',
-                    'permission_name_en' => 'Sales Invoices',
-                    'permission_code' => 'SALES_INVOICES',
-                    'module' => 'Invoices',
-                    'description' => 'إدارة فواتير المبيعات',
-                ],
+            // Material Types & Units
+            ['name' => 'WAREHOUSE_MATERIAL_TYPES_READ', 'display_name' => 'عرض أنواع المواد', 'group_name' => 'المستودع', 'description' => 'عرض أنواع المواد'],
+            ['name' => 'WAREHOUSE_MATERIAL_TYPES_CREATE', 'display_name' => 'إضافة نوع مادة', 'group_name' => 'المستودع', 'description' => 'إضافة نوع مادة جديد'],
+            ['name' => 'WAREHOUSE_MATERIAL_TYPES_UPDATE', 'display_name' => 'تعديل نوع المادة', 'group_name' => 'المستودع', 'description' => 'تعديل أنواع المواد'],
+            ['name' => 'WAREHOUSE_MATERIAL_TYPES_DELETE', 'display_name' => 'حذف نوع المادة', 'group_name' => 'المستودع', 'description' => 'حذف أنواع المواد'],
 
-                // ====== إدارة الحركات ======
-                [
-                    'permission_name' => 'إدارة الحركات',
-                    'permission_name_en' => 'Manage Movements',
-                    'permission_code' => 'MANAGE_MOVEMENTS',
-                    'module' => 'Movements',
-                    'description' => 'إدارة حركات المخزون',
-                ],
+            ['name' => 'WAREHOUSE_UNITS_READ', 'display_name' => 'عرض الوحدات', 'group_name' => 'المستودع', 'description' => 'عرض وحدات القياس'],
+            ['name' => 'WAREHOUSE_UNITS_CREATE', 'display_name' => 'إضافة وحدة', 'group_name' => 'المستودع', 'description' => 'إضافة وحدة قياس جديدة'],
+            ['name' => 'WAREHOUSE_UNITS_UPDATE', 'display_name' => 'تعديل الوحدة', 'group_name' => 'المستودع', 'description' => 'تعديل وحدات القياس'],
+            ['name' => 'WAREHOUSE_UNITS_DELETE', 'display_name' => 'حذف الوحدة', 'group_name' => 'المستودع', 'description' => 'حذف وحدات القياس'],
 
-                // ====== التقارير ======
-                [
-                    'permission_name' => 'التقارير',
-                    'permission_name_en' => 'Reports',
-                    'permission_code' => 'VIEW_REPORTS',
-                    'module' => 'Reports',
-                    'description' => 'عرض التقارير والإحصائيات',
-                ],
-                [
-                    'permission_name' => 'تقارير الإنتاج',
-                    'permission_name_en' => 'Production Reports',
-                    'permission_code' => 'PRODUCTION_REPORTS',
-                    'module' => 'Reports',
-                    'description' => 'تقارير الإنتاج التفصيلية',
-                ],
-                [
-                    'permission_name' => 'تقارير المخزون',
-                    'permission_name_en' => 'Inventory Reports',
-                    'permission_code' => 'INVENTORY_REPORTS',
-                    'module' => 'Reports',
-                    'description' => 'تقارير المخزون والحركات',
-                ],
+            // Production Stage 1 - الاستاندات
+            ['name' => 'MENU_STAGE1_STANDS', 'display_name' => 'المرحلة الأولى - الاستاندات', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'إظهار قائمة المرحلة الأولى'],
+            ['name' => 'STAGE1_STANDS_READ', 'display_name' => 'عرض الاستاندات', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'عرض الاستاندات'],
+            ['name' => 'STAGE1_STANDS_CREATE', 'display_name' => 'إضافة استاند', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'إنشاء استاند جديد'],
+            ['name' => 'STAGE1_STANDS_UPDATE', 'display_name' => 'تعديل الاستاند', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'تعديل الاستاندات'],
+            ['name' => 'STAGE1_STANDS_DELETE', 'display_name' => 'حذف الاستاند', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'حذف الاستاندات'],
+            ['name' => 'STAGE1_BARCODE_SCAN', 'display_name' => 'مسح الباركود - المرحلة الأولى', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'الوصول لصفحة مسح الباركود'],
+            ['name' => 'STAGE1_WASTE_TRACKING', 'display_name' => 'تتبع الهدر - المرحلة الأولى', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'تتبع الهدر في المرحلة الأولى'],
 
-                // ====== لوحة التحكم ======
-                [
-                    'permission_name' => 'لوحة التحكم',
-                    'permission_name_en' => 'Dashboard',
-                    'permission_code' => 'VIEW_DASHBOARD',
-                    'module' => 'Dashboard',
-                    'description' => 'عرض لوحة التحكم الرئيسية',
-                ],
-            ];
+            // Production Stage 2 - المعالجة
+            ['name' => 'MENU_STAGE2_PROCESSING', 'display_name' => 'المرحلة الثانية - المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'إظهار قائمة المرحلة الثانية'],
+            ['name' => 'STAGE2_PROCESSING_READ', 'display_name' => 'عرض المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'عرض عمليات المعالجة'],
+            ['name' => 'STAGE2_PROCESSING_CREATE', 'display_name' => 'إضافة معالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'إنشاء عملية معالجة جديدة'],
+            ['name' => 'STAGE2_PROCESSING_UPDATE', 'display_name' => 'تعديل المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'تعديل عمليات المعالجة'],
+            ['name' => 'STAGE2_PROCESSING_DELETE', 'display_name' => 'حذف المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'حذف عمليات المعالجة'],
+            ['name' => 'STAGE2_COMPLETE_PROCESSING', 'display_name' => 'إتمام المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'إتمام عمليات المعالجة'],
+            ['name' => 'STAGE2_WASTE_STATISTICS', 'display_name' => 'إحصائيات الهدر - المرحلة الثانية', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'عرض إحصائيات الهدر'],
 
-            foreach ($permissions as $permission) {
-                Permission::firstOrCreate(
-                    ['permission_code' => $permission['permission_code']],
-                    array_merge($permission, [
-                        'is_system' => true,
-                        'is_active' => true,
-                        'created_by' => 1,
-                    ])
-                );
-            }
+            // Production Stage 3 - اللفائف
+            ['name' => 'MENU_STAGE3_COILS', 'display_name' => 'المرحلة الثالثة - اللفائف', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'إظهار قائمة المرحلة الثالثة'],
+            ['name' => 'STAGE3_COILS_READ', 'display_name' => 'عرض اللفائف', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'عرض اللفائف'],
+            ['name' => 'STAGE3_COILS_CREATE', 'display_name' => 'إضافة لفافة', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'إنشاء لفافة جديدة'],
+            ['name' => 'STAGE3_COILS_UPDATE', 'display_name' => 'تعديل اللفافة', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'تعديل اللفائف'],
+            ['name' => 'STAGE3_COILS_DELETE', 'display_name' => 'حذف اللفافة', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'حذف اللفائف'],
 
-            // ربط الصلاحيات بالأدوار
-            $this->assignPermissionsToRoles();
+            // Production Stage 4 - التعبئة
+            ['name' => 'MENU_STAGE4_PACKAGING', 'display_name' => 'المرحلة الرابعة - التعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'إظهار قائمة المرحلة الرابعة'],
+            ['name' => 'STAGE4_PACKAGING_READ', 'display_name' => 'عرض التعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'عرض عمليات التعبئة'],
+            ['name' => 'STAGE4_PACKAGING_CREATE', 'display_name' => 'إضافة تعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'إنشاء عملية تعبئة جديدة'],
+            ['name' => 'STAGE4_PACKAGING_UPDATE', 'display_name' => 'تعديل التعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'تعديل عمليات التعبئة'],
+            ['name' => 'STAGE4_PACKAGING_DELETE', 'display_name' => 'حذف التعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'حذف عمليات التعبئة'],
 
-            DB::commit();
-            $this->command->info('✅ تم إنشاء الصلاحيات بنجاح');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            $this->command->error('❌ خطأ: ' . $e->getMessage());
-        }
-    }
+            // Production Tracking
+            ['name' => 'MENU_PRODUCTION_TRACKING', 'display_name' => 'تتبع الإنتاج', 'group_name' => 'تتبع الإنتاج والمراقبة', 'description' => 'إظهار قائمة تتبع الإنتاج'],
+            ['name' => 'PRODUCTION_TRACKING_SCAN', 'display_name' => 'مسح الباركود - تتبع الإنتاج', 'group_name' => 'تتبع الإنتاج والمراقبة', 'description' => 'الوصول لصفحة مسح الباركود في تتبع الإنتاج'],
+            ['name' => 'PRODUCTION_IRON_JOURNEY', 'display_name' => 'رحلة الحديد', 'group_name' => 'تتبع الإنتاج والمراقبة', 'description' => 'الوصول لصفحة رحلة الحديد'],
 
-    private function assignPermissionsToRoles()
-    {
-        $admin = Role::where('role_code', 'ADMIN')->first();
-        $manager = Role::where('role_code', 'MANAGER')->first();
-        $supervisor = Role::where('role_code', 'SUPERVISOR')->first();
-        $accountant = Role::where('role_code', 'ACCOUNTANT')->first();
-        $warehouseKeeper = Role::where('role_code', 'WAREHOUSE_KEEPER')->first();
-        $worker = Role::where('role_code', 'WORKER')->first();
+            // Shifts & Workers
+            ['name' => 'MENU_SHIFTS_WORKERS', 'display_name' => 'الورديات والعمال', 'group_name' => 'الورديات والعمال', 'description' => 'إظهار قائمة الورديات والعمال'],
+            ['name' => 'SHIFTS_READ', 'display_name' => 'عرض الورديات', 'group_name' => 'الورديات والعمال', 'description' => 'عرض قائمة الورديات'],
+            ['name' => 'SHIFTS_CREATE', 'display_name' => 'إضافة وردية', 'group_name' => 'الورديات والعمال', 'description' => 'إضافة وردية جديدة'],
+            ['name' => 'SHIFTS_UPDATE', 'display_name' => 'تعديل الوردية', 'group_name' => 'الورديات والعمال', 'description' => 'تعديل بيانات الوردية'],
+            ['name' => 'SHIFTS_DELETE', 'display_name' => 'حذف الوردية', 'group_name' => 'الورديات والعمال', 'description' => 'حذف الوردية'],
+            ['name' => 'SHIFTS_CURRENT', 'display_name' => 'الورديات الحالية', 'group_name' => 'الورديات والعمال', 'description' => 'عرض الورديات الحالية'],
+            ['name' => 'SHIFTS_ATTENDANCE', 'display_name' => 'الحضور والغياب', 'group_name' => 'الورديات والعمال', 'description' => 'إدارة حضور وغياب العمال'],
+            ['name' => 'WORKERS_READ', 'display_name' => 'عرض العمال', 'group_name' => 'الورديات والعمال', 'description' => 'عرض قائمة العمال'],
+            ['name' => 'WORKERS_CREATE', 'display_name' => 'إضافة عامل', 'group_name' => 'الورديات والعمال', 'description' => 'إضافة عامل جديد'],
+            ['name' => 'WORKERS_UPDATE', 'display_name' => 'تعديل بيانات العامل', 'group_name' => 'الورديات والعمال', 'description' => 'تعديل بيانات العامل'],
+            ['name' => 'WORKERS_DELETE', 'display_name' => 'حذف العامل', 'group_name' => 'الورديات والعمال', 'description' => 'حذف العامل'],
+            ['name' => 'WORKER_TEAMS_READ', 'display_name' => 'عرض مجموعات العمال', 'group_name' => 'الورديات والعمال', 'description' => 'عرض مجموعات العمال'],
+            ['name' => 'WORKER_TEAMS_CREATE', 'display_name' => 'إضافة مجموعة عمال', 'group_name' => 'الورديات والعمال', 'description' => 'إضافة مجموعة عمال جديدة'],
+            ['name' => 'WORKER_TEAMS_UPDATE', 'display_name' => 'تعديل مجموعة العمال', 'group_name' => 'الورديات والعمال', 'description' => 'تعديل مجموعة العمال'],
+            ['name' => 'WORKER_TEAMS_DELETE', 'display_name' => 'حذف مجموعة العمال', 'group_name' => 'الورديات والعمال', 'description' => 'حذف مجموعة العمال'],
 
-        // ====== Admin - كل الصلاحيات ======
-        if ($admin) {
-            $allPermissions = Permission::all();
-            foreach ($allPermissions as $permission) {
-                $admin->permissions()->syncWithoutDetaching([
-                    $permission->id => [
-                        'can_create' => true,
-                        'can_read' => true,
-                        'can_update' => true,
-                        'can_delete' => true,
-                        'can_approve' => true,
-                        'can_export' => true,
-                    ]
-                ]);
-            }
+            // Quality & Waste
+            ['name' => 'MENU_QUALITY_WASTE', 'display_name' => 'الجودة والهدر', 'group_name' => 'الجودة والهدر', 'description' => 'إظهار قائمة الجودة والهدر'],
+            ['name' => 'QUALITY_WASTE_REPORT', 'display_name' => 'تقرير الهدر', 'group_name' => 'الجودة والهدر', 'description' => 'عرض تقرير الهدر'],
+            ['name' => 'QUALITY_MONITORING', 'display_name' => 'مراقبة الجودة', 'group_name' => 'الجودة والهدر', 'description' => 'الوصول لصفحة مراقبة الجودة'],
+            ['name' => 'QUALITY_DOWNTIME_TRACKING', 'display_name' => 'تتبع التوقفات', 'group_name' => 'الجودة والهدر', 'description' => 'تتبع توقفات الإنتاج'],
+            ['name' => 'QUALITY_WASTE_LIMITS', 'display_name' => 'حدود الهدر', 'group_name' => 'الجودة والهدر', 'description' => 'إدارة حدود الهدر المسموح'],
+
+            // Production Reports
+            ['name' => 'MENU_PRODUCTION_REPORTS', 'display_name' => 'التقارير الإنتاجية', 'group_name' => 'التقارير الإنتاجية', 'description' => 'إظهار قائمة التقارير الإنتاجية'],
+            ['name' => 'REPORTS_WIP', 'display_name' => 'تقرير الأعمال غير المنتهية', 'group_name' => 'التقارير الإنتاجية', 'description' => 'عرض تقرير الأعمال غير المنتهية'],
+            ['name' => 'REPORTS_SHIFT_DASHBOARD', 'display_name' => 'ملخص الوردية', 'group_name' => 'التقارير الإنتاجية', 'description' => 'عرض ملخص الوردية'],
+            ['name' => 'REPORTS_STANDS_USAGE', 'display_name' => 'تاريخ استخدام الستاندات', 'group_name' => 'التقارير الإنتاجية', 'description' => 'عرض تاريخ استخدام الستاندات'],
+            ['name' => 'REPORTS_WORKER_PERFORMANCE', 'display_name' => 'تقرير أداء العمال', 'group_name' => 'التقارير الإنتاجية', 'description' => 'عرض تقرير أداء العمال'],
+
+            // Management & Settings
+            ['name' => 'MENU_MANAGEMENT', 'display_name' => 'الإدارة', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إظهار قائمة الإدارة'],
+            ['name' => 'MENU_MANAGE_USERS', 'display_name' => 'إدارة المستخدمين', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إظهار قائمة إدارة المستخدمين'],
+            ['name' => 'MENU_MANAGE_ROLES', 'display_name' => 'إدارة الأدوار', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إظهار قائمة إدارة الأدوار'],
+            ['name' => 'MENU_MANAGE_PERMISSIONS', 'display_name' => 'إدارة الصلاحيات', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إظهار قائمة إدارة الصلاحيات'],
+            ['name' => 'MENU_SETTINGS', 'display_name' => 'الإعدادات', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إظهار قائمة الإعدادات'],
+
+            // Management operations
+            ['name' => 'MANAGE_USERS_READ', 'display_name' => 'عرض المستخدمين', 'group_name' => 'الإدارة والإعدادات', 'description' => 'عرض المستخدمين'],
+            ['name' => 'MANAGE_USERS_CREATE', 'display_name' => 'إضافة مستخدم', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إضافة مستخدم جديد'],
+            ['name' => 'MANAGE_USERS_UPDATE', 'display_name' => 'تعديل المستخدم', 'group_name' => 'الإدارة والإعدادات', 'description' => 'تعديل بيانات المستخدم'],
+            ['name' => 'MANAGE_USERS_DELETE', 'display_name' => 'حذف المستخدم', 'group_name' => 'الإدارة والإعدادات', 'description' => 'حذف المستخدم'],
+
+            ['name' => 'MANAGE_ROLES_READ', 'display_name' => 'عرض الأدوار', 'group_name' => 'الإدارة والإعدادات', 'description' => 'عرض الأدوار'],
+            ['name' => 'MANAGE_ROLES_CREATE', 'display_name' => 'إضافة دور', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إضافة دور جديد'],
+            ['name' => 'MANAGE_ROLES_UPDATE', 'display_name' => 'تعديل الدور', 'group_name' => 'الإدارة والإعدادات', 'description' => 'تعديل الدور'],
+            ['name' => 'MANAGE_ROLES_DELETE', 'display_name' => 'حذف الدور', 'group_name' => 'الإدارة والإعدادات', 'description' => 'حذف الدور'],
+
+            ['name' => 'MANAGE_PERMISSIONS_READ', 'display_name' => 'عرض الصلاحيات', 'group_name' => 'الإدارة والإعدادات', 'description' => 'عرض الصلاحيات'],
+            ['name' => 'MANAGE_PERMISSIONS_CREATE', 'display_name' => 'إضافة صلاحية', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إضافة صلاحية جديدة'],
+            ['name' => 'MANAGE_PERMISSIONS_UPDATE', 'display_name' => 'تعديل الصلاحية', 'group_name' => 'الإدارة والإعدادات', 'description' => 'تعديل الصلاحية'],
+            ['name' => 'MANAGE_PERMISSIONS_DELETE', 'display_name' => 'حذف الصلاحية', 'group_name' => 'الإدارة والإعدادات', 'description' => 'حذف الصلاحية'],
+
+            // Settings
+            ['name' => 'SETTINGS_GENERAL', 'display_name' => 'الإعدادات العامة', 'group_name' => 'الإدارة والإعدادات', 'description' => 'الوصول للإعدادات العامة'],
+            ['name' => 'SETTINGS_CALCULATIONS', 'display_name' => 'إعدادات الحسابات', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إعدادات الحسابات والمعادلات'],
+            ['name' => 'SETTINGS_BARCODE', 'display_name' => 'إعدادات الباركود', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إعدادات الباركود'],
+            ['name' => 'SETTINGS_NOTIFICATIONS', 'display_name' => 'إعدادات الإشعارات', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إعدادات الإشعارات'],
+
+            // Old permissions (backward compatibility)
+            ['name' => 'MANAGE_USERS', 'display_name' => 'إدارة المستخدمين', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إدارة المستخدمين والموظفين'],
+            ['name' => 'MANAGE_ROLES', 'display_name' => 'إدارة الأدوار', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إدارة أدوار المستخدمين'],
+            ['name' => 'MANAGE_PERMISSIONS', 'display_name' => 'إدارة الصلاحيات', 'group_name' => 'الإدارة والإعدادات', 'description' => 'إدارة صلاحيات النظام'],
+            ['name' => 'MANAGE_MATERIALS', 'display_name' => 'إدارة المواد الخام', 'group_name' => 'المستودع', 'description' => 'إدارة المواد الخام والمخزون'],
+            ['name' => 'MANAGE_SUPPLIERS', 'display_name' => 'إدارة الموردين', 'group_name' => 'المستودع', 'description' => 'إدارة الموردين والموزعين'],
+            ['name' => 'MANAGE_WAREHOUSES', 'display_name' => 'إدارة المخازن', 'group_name' => 'المستودع', 'description' => 'إدارة المخازن والمواقع'],
+            ['name' => 'WAREHOUSE_TRANSFERS', 'display_name' => 'تحويلات المخازن', 'group_name' => 'المستودع', 'description' => 'إدارة تحويلات المخازن'],
+            ['name' => 'STAGE1_STANDS', 'display_name' => 'المرحلة الأولى - الاستاندات', 'group_name' => 'الإنتاج', 'description' => 'إدارة المرحلة الأولى من الإنتاج'],
+            ['name' => 'STAGE2_PROCESSING', 'display_name' => 'المرحلة الثانية - المعالجة', 'group_name' => 'الإنتاج', 'description' => 'إدارة المرحلة الثانية من الإنتاج'],
+            ['name' => 'STAGE3_COILS', 'display_name' => 'المرحلة الثالثة - اللفائف', 'group_name' => 'الإنتاج', 'description' => 'إدارة المرحلة الثالثة من الإنتاج'],
+            ['name' => 'STAGE4_PACKAGING', 'display_name' => 'المرحلة الرابعة - التعبئة', 'group_name' => 'الإنتاج', 'description' => 'إدارة المرحلة الرابعة من الإنتاج'],
+            ['name' => 'PURCHASE_INVOICES', 'display_name' => 'فواتير الشراء', 'group_name' => 'المستودع', 'description' => 'إدارة فواتير الشراء'],
+            ['name' => 'SALES_INVOICES', 'display_name' => 'فواتير المبيعات', 'group_name' => 'المستودع', 'description' => 'إدارة فواتير المبيعات'],
+            ['name' => 'MANAGE_MOVEMENTS', 'display_name' => 'إدارة الحركات', 'group_name' => 'المستودع', 'description' => 'إدارة حركات المخزون'],
+
+            // Reports
+            ['name' => 'VIEW_REPORTS', 'display_name' => 'التقارير والإحصائيات', 'group_name' => 'التقارير', 'description' => 'عرض التقارير والإحصائيات'],
+            ['name' => 'PRODUCTION_REPORTS', 'display_name' => 'تقارير الإنتاج', 'group_name' => 'التقارير', 'description' => 'تقارير الإنتاج التفصيلية'],
+            ['name' => 'INVENTORY_REPORTS', 'display_name' => 'تقارير المخزون', 'group_name' => 'التقارير', 'description' => 'تقارير المخزون والحركات'],
+
+            // Dashboard
+            ['name' => 'VIEW_DASHBOARD', 'display_name' => 'لوحة التحكم', 'group_name' => 'لوحة التحكم', 'description' => 'عرض لوحة التحكم الرئيسية'],
+        ];
+
+        foreach ($permissions as &$permission) {
+            $permission['created_at'] = now();
+            $permission['updated_at'] = now();
         }
 
-        // ====== Manager - معظم الصلاحيات ======
-        if ($manager) {
-            // صلاحيات القوائم للمدير
-            $managerMenus = Permission::where('module', 'Menus')
-                ->whereNotIn('permission_code', ['MENU_MANAGE_PERMISSIONS', 'MENU_SETTINGS'])
-                ->get();
-
-            foreach ($managerMenus as $menu) {
-                $manager->permissions()->syncWithoutDetaching([
-                    $menu->id => [
-                        'can_create' => false,
-                        'can_read' => true,
-                        'can_update' => false,
-                        'can_delete' => false,
-                        'can_approve' => false,
-                        'can_export' => false,
-                    ]
-                ]);
-            }
-
-            // صلاحيات العمليات للمدير
-            $managerPermissions = Permission::whereIn('permission_code', [
-                'MANAGE_USERS', 'MANAGE_MATERIALS', 'MANAGE_SUPPLIERS', 'MANAGE_WAREHOUSES',
-                'WAREHOUSE_TRANSFERS', 'STAGE1_STANDS', 'STAGE2_PROCESSING', 'STAGE3_COILS',
-                'STAGE4_PACKAGING', 'PURCHASE_INVOICES', 'SALES_INVOICES', 'MANAGE_MOVEMENTS',
-                'VIEW_REPORTS', 'PRODUCTION_REPORTS', 'INVENTORY_REPORTS', 'VIEW_DASHBOARD'
-            ])->get();
-
-            foreach ($managerPermissions as $permission) {
-                $manager->permissions()->syncWithoutDetaching([
-                    $permission->id => [
-                        'can_create' => true,
-                        'can_read' => true,
-                        'can_update' => true,
-                        'can_delete' => false,
-                        'can_approve' => true,
-                        'can_export' => true,
-                    ]
-                ]);
-            }
-        }
-
-        // ====== Supervisor - صلاحيات الإشراف ======
-        if ($supervisor) {
-            // صلاحيات القوائم للمشرف
-            $supervisorMenus = Permission::whereIn('permission_code', [
-                'MENU_DASHBOARD', 'MENU_STAGE1_STANDS', 'MENU_STAGE2_PROCESSING',
-                'MENU_STAGE3_COILS', 'MENU_STAGE4_PACKAGING', 'MENU_PRODUCTION_TRACKING',
-                'MENU_QUALITY_WASTE', 'MENU_PRODUCTION_REPORTS'
-            ])->get();
-
-            foreach ($supervisorMenus as $menu) {
-                $supervisor->permissions()->syncWithoutDetaching([
-                    $menu->id => [
-                        'can_create' => false,
-                        'can_read' => true,
-                        'can_update' => false,
-                        'can_delete' => false,
-                        'can_approve' => false,
-                        'can_export' => false,
-                    ]
-                ]);
-            }
-
-            // صلاحيات العمليات للمشرف
-            $supervisorPermissions = Permission::whereIn('permission_code', [
-                'STAGE1_STANDS', 'STAGE2_PROCESSING', 'STAGE3_COILS', 'STAGE4_PACKAGING',
-                'MANAGE_MOVEMENTS', 'VIEW_REPORTS', 'PRODUCTION_REPORTS', 'VIEW_DASHBOARD'
-            ])->get();
-
-            foreach ($supervisorPermissions as $permission) {
-                $supervisor->permissions()->syncWithoutDetaching([
-                    $permission->id => [
-                        'can_create' => true,
-                        'can_read' => true,
-                        'can_update' => true,
-                        'can_delete' => false,
-                        'can_approve' => false,
-                        'can_export' => false,
-                    ]
-                ]);
-            }
-        }
-
-        // ====== Accountant - صلاحيات المحاسبة ======
-        if ($accountant) {
-            // صلاحيات القوائم للمحاسب
-            $accountantMenus = Permission::whereIn('permission_code', [
-                'MENU_DASHBOARD', 'MENU_WAREHOUSE', 'MENU_WAREHOUSE_PURCHASE_INVOICES',
-                'MENU_WAREHOUSE_SUPPLIERS', 'MENU_WAREHOUSE_REPORTS', 'MENU_PRODUCTION_REPORTS'
-            ])->get();
-
-            foreach ($accountantMenus as $menu) {
-                $accountant->permissions()->syncWithoutDetaching([
-                    $menu->id => [
-                        'can_create' => false,
-                        'can_read' => true,
-                        'can_update' => false,
-                        'can_delete' => false,
-                        'can_approve' => false,
-                        'can_export' => false,
-                    ]
-                ]);
-            }
-
-            // صلاحيات العمليات للمحاسب
-            $accountantPermissions = Permission::whereIn('permission_code', [
-                'PURCHASE_INVOICES', 'SALES_INVOICES', 'VIEW_REPORTS', 'INVENTORY_REPORTS', 'VIEW_DASHBOARD'
-            ])->get();
-
-            foreach ($accountantPermissions as $permission) {
-                $accountant->permissions()->syncWithoutDetaching([
-                    $permission->id => [
-                        'can_create' => true,
-                        'can_read' => true,
-                        'can_update' => true,
-                        'can_delete' => false,
-                        'can_approve' => true,
-                        'can_export' => true,
-                    ]
-                ]);
-            }
-        }
-
-        // ====== Warehouse Keeper - صلاحيات المخازن ======
-        if ($warehouseKeeper) {
-            // صلاحيات القوائم لأمين المخزن
-            $warehouseMenus = Permission::whereIn('permission_code', [
-                'MENU_DASHBOARD', 'MENU_WAREHOUSE', 'MENU_WAREHOUSE_MATERIALS',
-                'MENU_WAREHOUSE_STORES', 'MENU_WAREHOUSE_DELIVERY_NOTES',
-                'MENU_WAREHOUSE_SUPPLIERS', 'MENU_WAREHOUSE_REPORTS'
-            ])->get();
-
-            foreach ($warehouseMenus as $menu) {
-                $warehouseKeeper->permissions()->syncWithoutDetaching([
-                    $menu->id => [
-                        'can_create' => false,
-                        'can_read' => true,
-                        'can_update' => false,
-                        'can_delete' => false,
-                        'can_approve' => false,
-                        'can_export' => false,
-                    ]
-                ]);
-            }
-
-            // صلاحيات العمليات لأمين المخزن
-            $warehousePermissions = Permission::whereIn('permission_code', [
-                'MANAGE_WAREHOUSES', 'WAREHOUSE_TRANSFERS', 'MANAGE_MOVEMENTS',
-                'VIEW_REPORTS', 'INVENTORY_REPORTS', 'VIEW_DASHBOARD'
-            ])->get();
-
-            foreach ($warehousePermissions as $permission) {
-                $warehouseKeeper->permissions()->syncWithoutDetaching([
-                    $permission->id => [
-                        'can_create' => true,
-                        'can_read' => true,
-                        'can_update' => true,
-                        'can_delete' => false,
-                        'can_approve' => false,
-                        'can_export' => false,
-                    ]
-                ]);
-            }
-        }
-
-        // ====== Worker - صلاحيات محدودة ======
-        if ($worker) {
-            // صلاحيات القوائم للعامل
-            $workerMenus = Permission::whereIn('permission_code', [
-                'MENU_DASHBOARD', 'MENU_STAGE1_STANDS', 'MENU_STAGE2_PROCESSING',
-                'MENU_STAGE3_COILS', 'MENU_STAGE4_PACKAGING'
-            ])->get();
-
-            foreach ($workerMenus as $menu) {
-                $worker->permissions()->syncWithoutDetaching([
-                    $menu->id => [
-                        'can_create' => false,
-                        'can_read' => true,
-                        'can_update' => false,
-                        'can_delete' => false,
-                        'can_approve' => false,
-                        'can_export' => false,
-                    ]
-                ]);
-            }
-
-            // صلاحيات العمليات للعامل
-            $workerPermissions = Permission::whereIn('permission_code', [
-                'STAGE1_STANDS', 'STAGE2_PROCESSING', 'STAGE3_COILS', 'STAGE4_PACKAGING', 'VIEW_DASHBOARD'
-            ])->get();
-
-            foreach ($workerPermissions as $permission) {
-                $worker->permissions()->syncWithoutDetaching([
-                    $permission->id => [
-                        'can_create' => true,
-                        'can_read' => true,
-                        'can_update' => false,
-                        'can_delete' => false,
-                        'can_approve' => false,
-                        'can_export' => false,
-                    ]
-                ]);
-            }
-        }
+        DB::table('permissions')->insert($permissions);
     }
 }

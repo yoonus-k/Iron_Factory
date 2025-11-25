@@ -22,6 +22,7 @@
         <!-- Settings Cards -->
         <div class="um-grid">
 
+            @if(auth()->user()->hasPermission('WAREHOUSE_UNITS_READ'))
             <div class="um-category-card">
                 <div class="um-category-card-header">
                     <div class="um-category-info">
@@ -47,7 +48,9 @@
                     </a>
                 </div>
             </div>
+            @endif
 
+            @if(auth()->user()->hasPermission('WAREHOUSE_MATERIAL_TYPES_READ'))
             <div class="um-category-card">
                 <div class="um-category-card-header">
                     <div class="um-category-info">
@@ -73,6 +76,7 @@
                     </a>
                 </div>
             </div>
+            @endif
         </div>
     </div>
 
