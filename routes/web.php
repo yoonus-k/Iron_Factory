@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\StageWorkerDashboardController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -39,6 +40,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/test-permissions', function () {
         return view('test-permissions');
     })->name('test-permissions');
+
+    // Stage Worker Dashboard Routes (Stage Workers Only)
+    Route::prefix('stage-worker')->name('stage-worker.')->group(function () {
+        Route::get('/dashboard', [StageWorkerDashboardController::class, 'index'])->name('dashboard.index');
+        Route::get('/dashboard/updates', [StageWorkerDashboardController::class, 'getUpdates'])->name('dashboard.updates');
+        Route::post('/confirmations/{id}/quick-confirm', [StageWorkerDashboardController::class, 'quickConfirm'])->name('confirmations.quick-confirm');
+        Route::post('/confirmations/{id}/quick-reject', [StageWorkerDashboardController::class, 'quickReject'])->name('confirmations.quick-reject');
+    });
 
     // Roles & Permissions Routes (Admin Only)
     Route::middleware(['role:ADMIN'])->group(function () {

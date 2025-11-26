@@ -123,6 +123,15 @@ class PermissionsSeeder extends Seeder
             ['name' => 'MENU_WAREHOUSE_REPORTS', 'display_name' => 'تقارير المستودع', 'group_name' => 'تقارير المستودع', 'description' => 'إظهار قائمة تقارير المستودع'],
 
             // ============================================
+            // تأكيدات التسليم - Production Confirmations
+            // ============================================
+            ['name' => 'MENU_PRODUCTION_CONFIRMATIONS', 'display_name' => 'تأكيدات التسليم', 'group_name' => 'تأكيدات التسليم', 'description' => 'إظهار قائمة تأكيدات التسليم'],
+            ['name' => 'PRODUCTION_CONFIRMATIONS_READ', 'display_name' => 'عرض تأكيدات التسليم', 'group_name' => 'تأكيدات التسليم', 'description' => 'عرض جميع تأكيدات التسليم'],
+            ['name' => 'PRODUCTION_CONFIRMATIONS_CONFIRM', 'display_name' => 'تأكيد الاستلام', 'group_name' => 'تأكيدات التسليم', 'description' => 'تأكيد استلام الدفعة'],
+            ['name' => 'PRODUCTION_CONFIRMATIONS_REJECT', 'display_name' => 'رفض الاستلام', 'group_name' => 'تأكيدات التسليم', 'description' => 'رفض استلام الدفعة'],
+            ['name' => 'PRODUCTION_CONFIRMATIONS_VIEW_DETAILS', 'display_name' => 'عرض تفاصيل التأكيد', 'group_name' => 'تأكيدات التسليم', 'description' => 'عرض تفاصيل تأكيد التسليم'],
+
+            // ============================================
             // المرحلة الأولى - الاستاندات - Stage 1: Stands
             // ============================================
             ['name' => 'MENU_STAGE1_STANDS', 'display_name' => 'المرحلة الأولى - الاستاندات', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'إظهار قائمة المرحلة الأولى'],
@@ -217,6 +226,7 @@ class PermissionsSeeder extends Seeder
             // لوحة التحكم - Dashboard (Additional)
             // ============================================
             ['name' => 'VIEW_DASHBOARD', 'display_name' => 'لوحة التحكم', 'group_name' => 'لوحة التحكم', 'description' => 'عرض لوحة التحكم الرئيسية'],
+            ['name' => 'STAGE_WORKER_DASHBOARD', 'display_name' => 'لوحة تحكم عمال المراحل', 'group_name' => 'لوحة التحكم', 'description' => 'الوصول للوحة التحكم الخاصة بعمال المراحل'],
 
             // ============================================
             // الإدارة - Management

@@ -36,14 +36,57 @@
         </div>
     </div>
 
-    <!-- زر العودة -->
-    <div style="margin-bottom: 20px;">
+    <!-- زر العودة والأزرار -->
+    <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
         <a href="{{ route('manufacturing.production.confirmations.index') }}" 
            style="background: #95a5a6; color: white; text-decoration: none; padding: 12px 25px; border-radius: 10px; font-weight: bold; display: inline-block; transition: all 0.3s;"
            onmouseover="this.style.background='#7f8c8d'"
            onmouseout="this.style.background='#95a5a6'">
             ← العودة للقائمة
         </a>
+        
+        @if($confirmation->status == 'pending' && $confirmation->assigned_to == auth()->id())
+            <form action="{{ route('manufacturing.production.confirmations.confirm', $confirmation->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('هل أنت متأكد من تأكيد الاستلام؟')">
+                @csrf
+                <button type="submit" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); color: white; border: none; padding: 12px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: all 0.3s;"
+                        onmouseover="this.style.background='linear-gradient(135deg, #1e7e34 0%, #155724 100%)'"
+                        onmouseout="this.style.background='linear-gradient(135deg, #28a745 0%, #1e7e34 100%)'">
+                    ✓ تأكيد الاستلام
+                </button>
+            </form>
+            
+            <button type="button" data-bs-toggle="modal" data-bs-target="#rejectModal"
+                    style="background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%); color: white; border: none; padding: 12px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: all 0.3s;"
+                    onmouseover="this.style.background='linear-gradient(135deg, #bd2130 0%, #a71d2a 100%)'"
+                    onmouseout="this.style.background='linear-gradient(135deg, #dc3545 0%, #bd2130 100%)'">
+                ✕ رفض الاستلام
+            </button>
+        @endif
+    </div>
+    
+    <!-- Modal للرفض -->
+    <div class="modal fade" id="rejectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content" style="direction: rtl;">
+                <div class="modal-header">
+                    <h5 class="modal-title">رفض الاستلام</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('manufacturing.production.confirmations.reject', $confirmation->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">سبب الرفض <span class="text-danger">*</span></label>
+                            <textarea name="rejection_reason" class="form-control" rows="4" required placeholder="الرجاء إدخال سبب الرفض..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
@@ -59,20 +102,67 @@
                 
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 4px solid #9b59b6;">
-                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">رمز الدفعة</div>
-                        <div style="font-weight: bold; color: #2c3e50; font-size: 20px;">{{ $confirmation->batch->batch_code }}</div>
+                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">باركود الإنتاج</div>
+                        <div style="font-weight: bold; color: #2c3e50; font-size: 18px;">
+                            @php
+                                $barcode = $confirmation->deliveryNote->production_barcode 
+                                    ?? $confirmation->deliveryNote->materialBatch?->batch_code 
+                                    ?? $confirmation->batch?->batch_code 
+                                    ?? 'غير محدد';
+                            @endphp
+                            {{ $barcode }}
+                        </div>
                     </div>
                     
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 4px solid #3498db;">
                         <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">المادة</div>
-                        <div style="font-weight: bold; color: #2c3e50; font-size: 18px;">{{ $confirmation->batch->material->name }}</div>
-                        <div style="color: #95a5a6; font-size: 13px; margin-top: 3px;">{{ $confirmation->batch->material->category }}</div>
+                        <div style="font-weight: bold; color: #2c3e50; font-size: 18px;">
+                            @php
+                                $materialName = $confirmation->deliveryNote?->material?->name_ar 
+                                    ?? $confirmation->deliveryNote?->material?->name 
+                                    ?? $confirmation->batch?->material?->name_ar 
+                                    ?? $confirmation->batch?->material?->name 
+                                    ?? 'غير محدد';
+                            @endphp
+                            {{ $materialName }}
+                        </div>
+                        <div style="color: #95a5a6; font-size: 13px; margin-top: 3px;">
+                            {{ $confirmation->deliveryNote?->material?->category ?? $confirmation->batch?->material?->category ?? '' }}
+                        </div>
                     </div>
                     
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 4px solid #27ae60;">
-                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">الكمية المنقولة</div>
+                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">الوزن النهائي</div>
                         <div style="font-weight: bold; color: #27ae60; font-size: 20px;">
-                            {{ number_format($confirmation->deliveryNote->quantity, 2) }} <span style="font-size: 14px;">كجم</span>
+                            @php
+                                $weight = null;
+                                
+                                // أولاً: الكمية المنقولة من DeliveryNote
+                                if ($confirmation->deliveryNote && isset($confirmation->deliveryNote->quantity_used) && $confirmation->deliveryNote->quantity_used > 0) {
+                                    $weight = $confirmation->deliveryNote->quantity_used;
+                                }
+                                
+                                // ثانياً: من MaterialBatch
+                                if (!$weight && $confirmation->deliveryNote->materialBatch) {
+                                    $weight = $confirmation->deliveryNote->materialBatch->initial_quantity 
+                                        ?? $confirmation->deliveryNote->materialBatch->available_quantity;
+                                }
+                                
+                                // ثالثاً: من Batch المرتبط بالتأكيد
+                                if (!$weight && $confirmation->batch) {
+                                    $weight = $confirmation->batch->initial_quantity 
+                                        ?? $confirmation->batch->available_quantity;
+                                }
+                                
+                                // رابعاً: من DeliveryNote
+                                if (!$weight && $confirmation->deliveryNote) {
+                                    $weight = $confirmation->deliveryNote->quantity 
+                                        ?? $confirmation->deliveryNote->actual_weight;
+                                }
+                                
+                                $weight = $weight ?? 0;
+                            @endphp
+                            {{ number_format($weight, 2) }} <span style="font-size: 14px;">كجم</span>
                         </div>
                     </div>
                     

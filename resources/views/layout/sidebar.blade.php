@@ -15,6 +15,16 @@
             </li>
             @endif
 
+            <!-- لوحة تحكم عمال المراحل -->
+            @if(auth()->user()->hasPermission('STAGE_WORKER_DASHBOARD'))
+            <li>
+                <a href="{{ route('stage-worker.dashboard.index') }}" data-tooltip="لوحة تحكمي">
+                    <i class="fas fa-hard-hat"></i>
+                    <span>لوحة تحكمي</span>
+                </a>
+            </li>
+            @endif
+
 
             <!-- المستودع -->
             @if(auth()->user()->hasPermission('MENU_WAREHOUSE'))
@@ -80,6 +90,15 @@
                         </a>
                     </li>
                     @endif
+                   
+                    @if(auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS'))
+                    <li>
+                        <a href="{{ route('manufacturing.production.confirmations.index') }}">
+                            <i class="fas fa-check-circle"></i> تأكيدات التسليم
+                        </a>
+                    </li>
+                    @endif
+                   
                 </ul>
             </li>
             @endif

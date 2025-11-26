@@ -24,7 +24,9 @@ class ProductionConfirmationController extends Controller
         $pendingConfirmations = ProductionConfirmation::with([
             'deliveryNote.material',
             'deliveryNote.warehouse',
-            'batch',
+            'deliveryNote.materialBatch',
+            'deliveryNote.productTracking',
+            'batch.material',
             'assignedUser'
         ])
         ->pending()
@@ -42,7 +44,9 @@ class ProductionConfirmationController extends Controller
     {
         $query = ProductionConfirmation::with([
             'deliveryNote.material',
-            'batch',
+            'deliveryNote.materialBatch',
+            'deliveryNote.productTracking',
+            'batch.material',
             'assignedUser',
             'confirmedByUser',
             'rejectedByUser'
@@ -89,14 +93,16 @@ class ProductionConfirmationController extends Controller
     }
 
     /**
-     * عرض تفاصيل تأكيد معين
+     * عرض تفاصيل تأكيد الاستلام
      */
     public function show($id)
     {
         $confirmation = ProductionConfirmation::with([
             'deliveryNote.material',
             'deliveryNote.warehouse',
-            'batch',
+            'deliveryNote.materialBatch',
+            'deliveryNote.productTracking',
+            'batch.material',
             'assignedUser',
             'confirmedByUser',
             'rejectedByUser'
@@ -110,6 +116,8 @@ class ProductionConfirmationController extends Controller
      */
     public function confirm(Request $request, $id)
     {
+        Log::info('Confirm request received', ['id' => $id, 'user' => Auth::id()]);
+        
         $validated = $request->validate([
             'actual_quantity' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string|max:1000',
@@ -119,14 +127,17 @@ class ProductionConfirmationController extends Controller
             DB::beginTransaction();
 
             $confirmation = ProductionConfirmation::findOrFail($id);
-
-            // التحقق من أن المستخدم هو المكلف بالاستلام
-            if ($confirmation->assigned_to != Auth::id()) {
-                return response()->json(['success' => false, 'message' => 'ليس لديك صلاحية تأكيد هذا الطلب'], 403);
-            }
+            
+            Log::info('Confirmation found', [
+                'confirmation_id' => $confirmation->id,
+                'status' => $confirmation->status,
+                'assigned_to' => $confirmation->assigned_to,
+                'current_user' => Auth::id()
+            ]);
 
             // التحقق من أن الحالة pending
             if ($confirmation->status !== 'pending') {
+                Log::warning('Confirmation already processed', ['status' => $confirmation->status]);
                 return response()->json(['success' => false, 'message' => 'هذا الطلب تم معالجته بالفعل'], 400);
             }
 
@@ -149,6 +160,8 @@ class ProductionConfirmationController extends Controller
             ]);
 
             DB::commit();
+            
+            Log::info('Confirmation successful', ['id' => $id]);
 
             return response()->json([
                 'success' => true,
@@ -157,7 +170,10 @@ class ProductionConfirmationController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error confirming production receipt: ' . $e->getMessage());
+            Log::error('Error confirming production receipt', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ أثناء تأكيد الاستلام: ' . $e->getMessage()
@@ -180,11 +196,6 @@ class ProductionConfirmationController extends Controller
             DB::beginTransaction();
 
             $confirmation = ProductionConfirmation::findOrFail($id);
-
-            // التحقق من أن المستخدم هو المكلف بالاستلام
-            if ($confirmation->assigned_to != Auth::id()) {
-                return response()->json(['success' => false, 'message' => 'ليس لديك صلاحية رفض هذا الطلب'], 403);
-            }
 
             // التحقق من أن الحالة pending
             if ($confirmation->status !== 'pending') {

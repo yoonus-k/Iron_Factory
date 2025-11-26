@@ -377,11 +377,11 @@ document.getElementById('confirmForm').addEventListener('submit', function(e) {
     const actualQuantity = document.getElementById('actualQuantity').value;
     const notes = document.getElementById('confirmNotes').value;
     
-    fetch(`{{ url('/manufacturing/production/confirmations') }}/${confirmId}/confirm`, {
+    fetch(`{{ url('manufacturing/production/confirmations') }}/${confirmId}/confirm`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({
             actual_quantity: actualQuantity,
@@ -422,11 +422,11 @@ document.getElementById('rejectForm').addEventListener('submit', function(e) {
     const rejectId = document.getElementById('rejectId').value;
     const reason = document.getElementById('rejectReason').value;
     
-    fetch(`{{ url('/manufacturing/production/confirmations') }}/${rejectId}/reject`, {
+    fetch(`{{ url('manufacturing/production/confirmations') }}/${rejectId}/reject`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({
             rejection_reason: reason
