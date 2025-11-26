@@ -140,12 +140,12 @@
                 <div class="info-label">نوع المادة</div>
                 <div class="info-value" id="displayMaterialType">-</div>
             </div>
-             @if(canRead('STAGE1_VIEW_WEIGHT'))
+             
             <div class="info-item">
                 <div class="info-label">الوزن المنقول للإنتاج</div>
                 <div class="info-value" id="displayWeight">-</div>
             </div>
-           @endif
+        
         </div>
     </div>
 
@@ -179,16 +179,16 @@
                     <div class="info-label">رقم الاستاند</div>
                     <div class="info-value" id="selectedStandNumber" style="color: #27ae60; font-weight: 700;">-</div>
                 </div>
-                @if(canRead('STAGE1_VIEW_WEIGHT'))
+                
                 <div class="info-item">
                     <div class="info-label">وزن الاستاند الفارغ</div>
                     <div class="info-value" id="selectedStandWeight" style="color: #e67e22; font-weight: 700;">-</div>
                 </div>
-                @endif
+            
             </div>
         </div>
 
-         @if(canRead('STAGE1_VIEW_WEIGHT'))
+         
          <div class="form-row">
             <div class="form-group">
                 <label for="wasteWeight"><i class="fas fa-trash-alt"></i> وزن الهدر (كجم)</label>
@@ -201,7 +201,7 @@
                 <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-percent"></i> يُحسب تلقائياً من وزن الهدر</small>
             </div>
         </div>
-        @endif
+    
 
         <div class="form-row">
             <div class="form-group">
@@ -210,16 +210,15 @@
                 <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-balance-scale"></i> الوزن الكلي شامل وزن الاستاند</small>
             </div>
 
-            @if(canRead('STAGE1_VIEW_WEIGHT'))
+            
             <div class="form-group">
                 <label for="standWeight"><i class="fas fa-box-open"></i> وزن الاستاند الفارغ (كجم)</label>
                 <input type="number" id="standWeight" class="form-control" placeholder="سيتم جلبه تلقائياً" step="0.01" readonly style="background: #ecf0f1; font-weight: 600;">
                 <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-sync"></i> يتم جلبه تلقائياً من بيانات الاستاند</small>
             </div>
-            @endif
+            
         </div>
 
-        @if(canRead('STAGE1_VIEW_WEIGHT'))
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
                 <label for="netWeight"><i class="fas fa-check"></i> الوزن الصافي (كجم) <span class="required">*</span></label>
@@ -227,7 +226,6 @@
                 <small style="color: #27ae60; display: block; margin-top: 10px; font-weight: 600; font-size: 16px;"><i class="fas fa-calculator"></i> يُحسب تلقائياً: الوزن الإجمالي - وزن الاستاند الفارغ</small>
             </div>
         </div>
-        @endif
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">

@@ -11,11 +11,15 @@ class Stage2Controller extends Controller
 {
     /**
      * Display a listing of the resource.
+     * Worker sees only their operations
+     * Admin/Supervisor sees all operations
      */
     public function index()
     {
-        // جلب جميع المعالجات من المرحلة الثانية مع البيانات المرتبطة
-        $processed = DB::table('stage2_processed')
+        $user = Auth::user();
+        
+        // Query base
+        $query = DB::table('stage2_processed')
             ->leftJoin('stage1_stands', 'stage2_processed.stage1_id', '=', 'stage1_stands.id')
             ->leftJoin('materials', 'stage2_processed.material_id', '=', 'materials.id')
             ->leftJoin('users', 'stage2_processed.created_by', '=', 'users.id')
@@ -25,11 +29,19 @@ class Stage2Controller extends Controller
                 'stage1_stands.barcode as stage1_barcode',
                 'materials.name_ar as material_name',
                 'users.name as created_by_name'
-            )
-            ->orderBy('stage2_processed.created_at', 'desc')
+            );
+
+        // إذا لم يكن لديه صلاحية رؤية جميع العمليات، يعرض فقط عملياته
+        $viewingAll = $user->hasPermission('VIEW_ALL_STAGE2_OPERATIONS');
+        
+        if (!$viewingAll) {
+            $query->where('stage2_processed.created_by', $user->id);
+        }
+
+        $processed = $query->orderBy('stage2_processed.created_at', 'desc')
             ->paginate(20);
 
-        return view('manufacturing::stages.stage2.index', compact('processed'));
+        return view('manufacturing::stages.stage2.index', compact('processed', 'viewingAll'));
     }
 
     /**
@@ -41,26 +53,60 @@ class Stage2Controller extends Controller
     }
 
     /**
-     * Get Stage1 data by barcode
+     * Get data by barcode - accepts two sources:
+     * 1. Stage1 barcode (ST1-XXX)
+     * 2. Direct production barcode from warehouse (for Stage2)
      */
     public function getByBarcode($barcode)
     {
         try {
+            // 🔍 خطوة 1: البحث في stage1_stands أولاً
             $stage1Data = DB::table('stage1_stands')
                 ->where('barcode', $barcode)
                 ->first();
 
-            if (!$stage1Data) {
+            if ($stage1Data) {
+                // ✅ وُجد في المرحلة الأولى
                 return response()->json([
-                    'success' => false,
-                    'message' => 'لم يتم العثور على بيانات بهذا الباركود'
-                ], 404);
+                    'success' => true,
+                    'data' => $stage1Data,
+                    'source' => 'stage1'
+                ]);
             }
 
+            // 🔍 خطوة 2: البحث في delivery_notes (باركودات مرسلة مباشرة للمرحلة الثانية)
+            $confirmation = DB::table('production_confirmations')
+                ->join('delivery_notes', 'production_confirmations.delivery_note_id', '=', 'delivery_notes.id')
+                ->join('material_batches', 'production_confirmations.batch_id', '=', 'material_batches.id')
+                ->join('materials', 'material_batches.material_id', '=', 'materials.id')
+                ->where('delivery_notes.production_barcode', $barcode)
+                ->where('production_confirmations.stage_code', 'stage_2')
+                ->where('production_confirmations.status', 'confirmed')
+                ->select(
+                    'production_confirmations.id',
+                    'delivery_notes.production_barcode as barcode',
+                    DB::raw('COALESCE(production_confirmations.actual_received_quantity, delivery_notes.quantity, 0) as remaining_weight'),
+                    'material_batches.material_id',
+                    'materials.name_ar as material_name',
+                    DB::raw('0 as wire_size')
+                )
+                ->first();
+
+            if ($confirmation) {
+                // ✅ وُجد كباركود مرسل مباشرة للمرحلة الثانية
+                return response()->json([
+                    'success' => true,
+                    'data' => $confirmation,
+                    'source' => 'warehouse_direct'
+                ]);
+            }
+
+            // ❌ لم يُعثر على الباركود في أي مصدر
             return response()->json([
-                'success' => true,
-                'data' => $stage1Data
-            ]);
+                'success' => false,
+                'message' => '❌ لم يتم العثور على هذا الباركود في المرحلة الأولى أو في الباركودات المرسلة مباشرة للمرحلة الثانية'
+            ], 404);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -75,8 +121,11 @@ class Stage2Controller extends Controller
     public function storeSingle(Request $request)
     {
         $validated = $request->validate([
-            'stage1_id' => 'required|integer',
+            'stage1_id' => 'nullable|integer', // nullable لأن قد يكون المصدر warehouse_direct
             'stage1_barcode' => 'required|string',
+            'source' => 'nullable|string', // stage1 or warehouse_direct
+            'material_id' => 'nullable|integer',
+            'input_weight' => 'nullable|numeric|min:0',
             'total_weight' => 'nullable|numeric|min:0',
             'waste_weight' => 'nullable|numeric|min:0',
             'net_weight' => 'nullable|numeric|min:0',
@@ -89,18 +138,34 @@ class Stage2Controller extends Controller
             DB::beginTransaction();
 
             $userId = Auth::id();
+            $source = $validated['source'] ?? 'stage1';
             
-            // جلب بيانات المرحلة الأولى
-            $stage1Data = DB::table('stage1_stands')
-                ->where('id', $validated['stage1_id'])
-                ->first();
+            // جلب البيانات حسب المصدر
+            if ($source === 'warehouse_direct') {
+                // المصدر من المخزن مباشرة - استخدام البيانات المرسلة
+                $inputWeight = $validated['input_weight'] ?? 0;
+                $materialId = $validated['material_id'] ?? null;
+                $wireSize = 0; // لا يوجد wire_size من المخزن
+                $standNumber = $validated['stage1_barcode']; // استخدام الباركود كرقم
+                $stage1Id = null; // لا يوجد stage1_id
+            } else {
+                // المصدر من المرحلة الأولى
+                $stage1Data = DB::table('stage1_stands')
+                    ->where('id', $validated['stage1_id'])
+                    ->first();
 
-            if (!$stage1Data) {
-                throw new \Exception('لم يتم العثور على بيانات المرحلة الأولى');
+                if (!$stage1Data) {
+                    throw new \Exception('لم يتم العثور على بيانات المرحلة الأولى');
+                }
+                
+                $inputWeight = $stage1Data->remaining_weight;
+                $materialId = $stage1Data->material_id ?? null;
+                $wireSize = $stage1Data->wire_size ?? null;
+                $standNumber = $stage1Data->stand_number ?? 'غير محدد';
+                $stage1Id = $validated['stage1_id'];
             }
             
-            // حساب الأوزان إذا لم يتم إرسالها (بسبب الصلاحيات)
-            $inputWeight = $stage1Data->remaining_weight;
+            // حساب الأوزان
             $wasteWeight = $validated['waste_weight'] ?? ($inputWeight * 0.03); // افتراض 3% هدر
             $outputWeight = $validated['total_weight'] ?? ($inputWeight - $wasteWeight);
             $netWeight = $validated['net_weight'] ?? $outputWeight;
@@ -112,9 +177,9 @@ class Stage2Controller extends Controller
             $stage2Id = DB::table('stage2_processed')->insertGetId([
                 'barcode' => $stage2Barcode,
                 'parent_barcode' => $validated['stage1_barcode'],
-                'stage1_id' => $validated['stage1_id'],
-                'material_id' => $stage1Data->material_id ?? null,
-                'wire_size' => $stage1Data->wire_size ?? null,
+                'stage1_id' => $stage1Id, // null إذا كان warehouse_direct
+                'material_id' => $materialId,
+                'wire_size' => $wireSize,
                 'input_weight' => $inputWeight,
                 'output_weight' => $outputWeight,
                 'waste' => $wasteWeight,
@@ -127,13 +192,15 @@ class Stage2Controller extends Controller
                 'updated_at' => now(),
             ]);
 
-            // تحديث حالة المرحلة الأولى
-            DB::table('stage1_stands')
-                ->where('id', $validated['stage1_id'])
-                ->update([
-                    'status' => 'in_process',
-                    'updated_at' => now(),
-                ]);
+            // تحديث حالة المرحلة الأولى (فقط إذا كان المصدر stage1)
+            if ($stage1Id) {
+                DB::table('stage1_stands')
+                    ->where('id', $stage1Id)
+                    ->update([
+                        'status' => 'in_process',
+                        'updated_at' => now(),
+                    ]);
+            }
 
             // تسجيل التتبع في product_tracking
             DB::table('product_tracking')->insert([
@@ -151,10 +218,11 @@ class Stage2Controller extends Controller
                 'shift_id' => null,
                 'notes' => $validated['notes'],
                 'metadata' => json_encode([
-                    'stage1_id' => $validated['stage1_id'],
+                    'source' => $source,
+                    'stage1_id' => $stage1Id,
                     'stage1_barcode' => $validated['stage1_barcode'],
-                    'material_id' => $stage1Data->material_id,
-                    'wire_size' => $stage1Data->wire_size,
+                    'material_id' => $materialId,
+                    'wire_size' => $wireSize,
                     'process_type' => $validated['process_type'] ?? null,
                 ]),
                 'created_at' => now(),
@@ -165,8 +233,8 @@ class Stage2Controller extends Controller
 
             // الحصول على اسم المادة
             $materialName = 'غير محدد';
-            if ($stage1Data->material_id) {
-                $material = DB::table('materials')->where('id', $stage1Data->material_id)->first();
+            if ($materialId) {
+                $material = DB::table('materials')->where('id', $materialId)->first();
                 $materialName = $material->name_ar ?? 'غير محدد';
             }
 
@@ -176,10 +244,11 @@ class Stage2Controller extends Controller
                 'data' => [
                     'stage2_id' => $stage2Id,
                     'stage2_barcode' => $stage2Barcode,
-                    'stand_number' => $stage1Data->stand_number ?? 'غير محدد',
+                    'stand_number' => $standNumber,
                     'net_weight' => $netWeight,
                     'material_name' => $materialName,
-                    'waste_weight' => $validated['waste_weight'] ?? 0,
+                    'waste_weight' => $wasteWeight,
+                    'source' => $source,
                 ]
             ]);
 

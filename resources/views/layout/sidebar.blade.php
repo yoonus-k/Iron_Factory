@@ -128,6 +128,14 @@
                     </li>
                     @endif
 
+                    @if(auth()->user()->hasPermission('STAGE1_STANDS_READ') || auth()->user()->hasPermission('VIEW_ALL_STAGE1_OPERATIONS'))
+                    <li>
+                        <a href="{{ route('manufacturing.stage1.index') }}">
+                            <i class="fas fa-history"></i> سجل المرحلة
+                        </a>
+                    </li>
+                    @endif
+
                     @if(auth()->user()->hasPermission('STAGE1_BARCODE_SCAN'))
                     <li>
                         <a href="{{ route('manufacturing.stage1.barcode-scan') }}">
@@ -168,6 +176,14 @@
                     <li>
                         <a href="{{ route('manufacturing.stage2.create') }}">
                             <i class="fas fa-play-circle"></i> {{ __('app.production.stage2.start_new') }}
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('STAGE2_PROCESSING_READ') || auth()->user()->hasPermission('VIEW_ALL_STAGE2_OPERATIONS'))
+                    <li>
+                        <a href="{{ route('manufacturing.stage2.index') }}">
+                            <i class="fas fa-history"></i> سجل المرحلة
                         </a>
                     </li>
                     @endif
@@ -215,6 +231,14 @@
                         </a>
                     </li>
                     @endif
+
+                    @if(auth()->user()->hasPermission('STAGE3_COILS_READ') || auth()->user()->hasPermission('VIEW_ALL_STAGE3_OPERATIONS'))
+                    <li>
+                        <a href="{{ route('manufacturing.stage3.index') }}">
+                            <i class="fas fa-history"></i> سجل المرحلة
+                        </a>
+                    </li>
+                    @endif
                 </ul>
             </li>
             @endif
@@ -240,6 +264,14 @@
                     <li>
                         <a href="{{ route('manufacturing.stage4.create') }}">
                             <i class="fas fa-plus-circle"></i> {{ __('app.production.stage4.create_new') }}
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('STAGE4_PACKAGING_READ') || auth()->user()->hasPermission('VIEW_ALL_STAGE4_OPERATIONS'))
+                    <li>
+                        <a href="{{ route('manufacturing.stage4.index') }}">
+                            <i class="fas fa-history"></i> سجل المرحلة
                         </a>
                     </li>
                     @endif

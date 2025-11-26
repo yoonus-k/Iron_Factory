@@ -40,6 +40,15 @@
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
                     قائمة الكويلات
+                    @if(isset($viewingAll) && $viewingAll)
+                        <span style="background: #3b82f6; color: white; padding: 4px 12px; border-radius: 12px; font-size: 13px; margin-right: 10px; display: inline-flex; align-items: center; gap: 5px;">
+                            <i class="feather icon-eye"></i> جميع العمليات
+                        </span>
+                    @else
+                        <span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 13px; margin-right: 10px; display: inline-flex; align-items: center; gap: 5px;">
+                            <i class="feather icon-user"></i> عملياتي فقط
+                        </span>
+                    @endif
                 </h4>
                 <a href="{{ route('manufacturing.stage3.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>

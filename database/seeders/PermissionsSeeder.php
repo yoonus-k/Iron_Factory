@@ -141,6 +141,7 @@ class PermissionsSeeder extends Seeder
             ['name' => 'STAGE1_STANDS_DELETE', 'display_name' => 'حذف الاستاند', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'حذف الاستاندات'],
             ['name' => 'STAGE1_BARCODE_SCAN', 'display_name' => 'مسح الباركود - المرحلة الأولى', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'الوصول لصفحة مسح الباركود'],
             ['name' => 'STAGE1_WASTE_TRACKING', 'display_name' => 'تتبع الهدر - المرحلة الأولى', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'تتبع الهدر في المرحلة الأولى'],
+            ['name' => 'VIEW_ALL_STAGE1_OPERATIONS', 'display_name' => 'عرض جميع عمليات المرحلة الأولى', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'السماح بعرض جميع عمليات المرحلة الأولى لجميع العمال'],
 
             // ============================================
             // المرحلة الثانية - المعالجة - Stage 2: Processing
@@ -152,6 +153,7 @@ class PermissionsSeeder extends Seeder
             ['name' => 'STAGE2_PROCESSING_DELETE', 'display_name' => 'حذف المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'حذف عمليات المعالجة'],
             ['name' => 'STAGE2_COMPLETE_PROCESSING', 'display_name' => 'إتمام المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'إتمام عمليات المعالجة'],
             ['name' => 'STAGE2_WASTE_STATISTICS', 'display_name' => 'إحصائيات الهدر - المرحلة الثانية', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'عرض إحصائيات الهدر'],
+            ['name' => 'VIEW_ALL_STAGE2_OPERATIONS', 'display_name' => 'عرض جميع عمليات المرحلة الثانية', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'السماح بعرض جميع عمليات المرحلة الثانية لجميع العمال'],
 
             // ============================================
             // المرحلة الثالثة - اللفائف - Stage 3: Coils
@@ -161,6 +163,7 @@ class PermissionsSeeder extends Seeder
             ['name' => 'STAGE3_COILS_CREATE', 'display_name' => 'إضافة لفافة', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'إنشاء لفافة جديدة'],
             ['name' => 'STAGE3_COILS_UPDATE', 'display_name' => 'تعديل اللفافة', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'تعديل اللفائف'],
             ['name' => 'STAGE3_COILS_DELETE', 'display_name' => 'حذف اللفافة', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'حذف اللفائف'],
+            ['name' => 'VIEW_ALL_STAGE3_OPERATIONS', 'display_name' => 'عرض جميع عمليات المرحلة الثالثة', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'السماح بعرض جميع عمليات المرحلة الثالثة لجميع العمال'],
 
             // ============================================
             // المرحلة الرابعة - التعبئة - Stage 4: Packaging
@@ -170,6 +173,7 @@ class PermissionsSeeder extends Seeder
             ['name' => 'STAGE4_PACKAGING_CREATE', 'display_name' => 'إضافة تعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'إنشاء عملية تعبئة جديدة'],
             ['name' => 'STAGE4_PACKAGING_UPDATE', 'display_name' => 'تعديل التعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'تعديل عمليات التعبئة'],
             ['name' => 'STAGE4_PACKAGING_DELETE', 'display_name' => 'حذف التعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'حذف عمليات التعبئة'],
+            ['name' => 'VIEW_ALL_STAGE4_OPERATIONS', 'display_name' => 'عرض جميع عمليات المرحلة الرابعة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'السماح بعرض جميع عمليات المرحلة الرابعة لجميع العمال'],
 
             // ============================================
             // تتبع الإنتاج - Production Tracking
@@ -293,6 +297,12 @@ class PermissionsSeeder extends Seeder
             $permission['updated_at'] = now();
         }
 
-        DB::table('permissions')->insert($permissions);
+        // Insert permissions using updateOrInsert to avoid duplicates
+        foreach ($permissions as $permission) {
+            DB::table('permissions')->updateOrInsert(
+                ['name' => $permission['name']],
+                $permission
+            );
+        }
     }
 }
