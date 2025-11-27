@@ -18,36 +18,107 @@ Route::middleware(['auth'])->group(function () {
 
     // Shifts Management
     // Generate code routes MUST be before resource routes
-    Route::get('shifts-workers/generate-code', [ShiftsWorkersController::class, 'generateShiftCode'])->name('manufacturing.shifts-workers.generate-code');
-    Route::get('shifts-workers/current/view', [ShiftsWorkersController::class, 'current'])->name('manufacturing.shifts-workers.current');
-    Route::get('shifts-workers/attendance/log', [ShiftsWorkersController::class, 'attendance'])->name('manufacturing.shifts-workers.attendance');
-    Route::get('shifts-workers/{id}/details', [ShiftsWorkersController::class, 'getShiftDetails'])->name('manufacturing.shifts-workers.details');
-    Route::patch('shifts-workers/{id}/activate', [ShiftsWorkersController::class, 'activate'])->name('manufacturing.shifts-workers.activate');
-    Route::patch('shifts-workers/{id}/complete', [ShiftsWorkersController::class, 'complete'])->name('manufacturing.shifts-workers.complete');
-    Route::patch('shifts-workers/{id}/suspend', [ShiftsWorkersController::class, 'suspend'])->name('manufacturing.shifts-workers.suspend');
-    Route::patch('shifts-workers/{id}/resume', [ShiftsWorkersController::class, 'resume'])->name('manufacturing.shifts-workers.resume');
-    Route::resource('shifts-workers', ShiftsWorkersController::class)->names('manufacturing.shifts-workers');
+    Route::get('shifts-workers/generate-code', [ShiftsWorkersController::class, 'generateShiftCode'])
+        ->middleware('permission:SHIFTS_READ')
+        ->name('manufacturing.shifts-workers.generate-code');
+
+    Route::get('shifts-workers/current/view', [ShiftsWorkersController::class, 'current'])
+        ->middleware('permission:SHIFTS_CURRENT')
+        ->name('manufacturing.shifts-workers.current');
+
+    Route::get('shifts-workers/attendance/log', [ShiftsWorkersController::class, 'attendance'])
+        ->middleware('permission:SHIFTS_ATTENDANCE')
+        ->name('manufacturing.shifts-workers.attendance');
+
+    Route::get('shifts-workers/{id}/details', [ShiftsWorkersController::class, 'getShiftDetails'])
+        ->middleware('permission:SHIFT_WORKERS_VIEW')
+        ->name('manufacturing.shifts-workers.details');
+
+    Route::patch('shifts-workers/{id}/activate', [ShiftsWorkersController::class, 'activate'])
+        ->middleware('permission:SHIFTS_UPDATE')
+        ->name('manufacturing.shifts-workers.activate');
+
+    Route::patch('shifts-workers/{id}/complete', [ShiftsWorkersController::class, 'complete'])
+        ->middleware('permission:SHIFTS_UPDATE')
+        ->name('manufacturing.shifts-workers.complete');
+
+    Route::patch('shifts-workers/{id}/suspend', [ShiftsWorkersController::class, 'suspend'])
+        ->middleware('permission:SHIFTS_UPDATE')
+        ->name('manufacturing.shifts-workers.suspend');
+
+    Route::patch('shifts-workers/{id}/resume', [ShiftsWorkersController::class, 'resume'])
+        ->middleware('permission:SHIFTS_UPDATE')
+        ->name('manufacturing.shifts-workers.resume');
+
+    Route::resource('shifts-workers', ShiftsWorkersController::class)
+        ->middleware('permission:SHIFT_WORKERS_READ')
+        ->names('manufacturing.shifts-workers');
 
     // Workers Management
-    Route::get('workers/generate-code', [WorkersController::class, 'generateWorkerCode'])->name('manufacturing.workers.generate-code');
-    Route::get('workers/available/list', [WorkersController::class, 'getAvailableWorkers'])->name('manufacturing.workers.available');
-    Route::get('workers/permissions/by-role', [WorkersController::class, 'getDefaultPermissions'])->name('manufacturing.workers.permissions-by-role');
-    Route::patch('workers/{id}/toggle-status', [WorkersController::class, 'toggleStatus'])->name('manufacturing.workers.toggle-status');
-    Route::resource('workers', WorkersController::class)->names('manufacturing.workers');
+    Route::get('workers/generate-code', [WorkersController::class, 'generateWorkerCode'])
+        ->middleware('permission:SHIFT_WORKERS_READ')
+        ->name('manufacturing.workers.generate-code');
+
+    Route::get('workers/available/list', [WorkersController::class, 'getAvailableWorkers'])
+        ->middleware('permission:SHIFT_WORKERS_READ')
+        ->name('manufacturing.workers.available');
+
+    Route::get('workers/permissions/by-role', [WorkersController::class, 'getDefaultPermissions'])
+        ->middleware('permission:SHIFT_WORKERS_READ')
+        ->name('manufacturing.workers.permissions-by-role');
+
+    Route::patch('workers/{id}/toggle-status', [WorkersController::class, 'toggleStatus'])
+        ->middleware('permission:SHIFT_WORKERS_UPDATE')
+        ->name('manufacturing.workers.toggle-status');
+
+    Route::resource('workers', WorkersController::class)
+        ->middleware('permission:SHIFT_WORKERS_READ')
+        ->names('manufacturing.workers');
 
     // Worker Teams Management
-    Route::get('worker-teams/generate-code', [WorkerTeamsController::class, 'generateTeamCode'])->name('manufacturing.worker-teams.generate-code');
-    Route::get('worker-teams/{id}/workers', [WorkerTeamsController::class, 'getTeamWorkers'])->name('manufacturing.worker-teams.workers');
-    Route::patch('worker-teams/{id}/toggle-status', [WorkerTeamsController::class, 'toggleStatus'])->name('manufacturing.worker-teams.toggle-status');
-    Route::resource('worker-teams', WorkerTeamsController::class)->names('manufacturing.worker-teams');
+    Route::get('worker-teams/generate-code', [WorkerTeamsController::class, 'generateTeamCode'])
+        ->middleware('permission:SHIFT_WORKERS_READ')
+        ->name('manufacturing.worker-teams.generate-code');
+
+    Route::get('worker-teams/{id}/workers', [WorkerTeamsController::class, 'getTeamWorkers'])
+        ->middleware('permission:SHIFT_WORKERS_VIEW')
+        ->name('manufacturing.worker-teams.workers');
+
+    Route::patch('worker-teams/{id}/toggle-status', [WorkerTeamsController::class, 'toggleStatus'])
+        ->middleware('permission:SHIFT_WORKERS_UPDATE')
+        ->name('manufacturing.worker-teams.toggle-status');
+
+    Route::resource('worker-teams', WorkerTeamsController::class)
+        ->middleware('permission:SHIFT_WORKERS_READ')
+        ->names('manufacturing.worker-teams');
 
     // Shift Handover Management
-    Route::get('shift-handovers/generate-code', [ShiftHandoverController::class, 'generateHandoverCode'])->name('manufacturing.shift-handovers.generate-code');
-    Route::post('shift-handovers/{id}/approve', [ShiftHandoverController::class, 'approve'])->name('manufacturing.shift-handovers.approve');
-    Route::post('shift-handovers/{id}/reject', [ShiftHandoverController::class, 'reject'])->name('manufacturing.shift-handovers.reject');
-    Route::get('shift-handovers/api/user-shifts', [ShiftHandoverController::class, 'getUserActiveShifts'])->name('manufacturing.shift-handovers.api.user-shifts');
-    Route::get('shift-handovers/api/available-workers', [ShiftHandoverController::class, 'getAvailableWorkers'])->name('manufacturing.shift-handovers.api.available-workers');
-    Route::get('shift-handovers/api/history', [ShiftHandoverController::class, 'getHandoverHistory'])->name('manufacturing.shift-handovers.api.history');
-    Route::resource('shift-handovers', ShiftHandoverController::class)->names('manufacturing.shift-handovers');
+    Route::get('shift-handovers/generate-code', [ShiftHandoverController::class, 'generateHandoverCode'])
+        ->middleware('permission:SHIFT_HANDOVERS_READ')
+        ->name('manufacturing.shift-handovers.generate-code');
+
+    Route::post('shift-handovers/{id}/approve', [ShiftHandoverController::class, 'approve'])
+        ->middleware('permission:SHIFT_HANDOVERS_APPROVE')
+        ->name('manufacturing.shift-handovers.approve');
+
+    Route::post('shift-handovers/{id}/reject', [ShiftHandoverController::class, 'reject'])
+        ->middleware('permission:SHIFT_HANDOVERS_REJECT')
+        ->name('manufacturing.shift-handovers.reject');
+
+    Route::get('shift-handovers/api/user-shifts', [ShiftHandoverController::class, 'getUserActiveShifts'])
+        ->middleware('permission:SHIFT_HANDOVERS_READ')
+        ->name('manufacturing.shift-handovers.api.user-shifts');
+
+    Route::get('shift-handovers/api/available-workers', [ShiftHandoverController::class, 'getAvailableWorkers'])
+        ->middleware('permission:SHIFT_HANDOVERS_READ')
+        ->name('manufacturing.shift-handovers.api.available-workers');
+
+    Route::get('shift-handovers/api/history', [ShiftHandoverController::class, 'getHandoverHistory'])
+        ->middleware('permission:SHIFT_HANDOVERS_READ')
+        ->name('manufacturing.shift-handovers.api.history');
+
+    Route::resource('shift-handovers', ShiftHandoverController::class)
+        ->middleware('permission:SHIFT_HANDOVERS_READ')
+        ->names('manufacturing.shift-handovers');
 
 });
