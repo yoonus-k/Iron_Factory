@@ -348,7 +348,7 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:STAGE2_PROCESSING_READ')
         ->names('manufacturing.stage2');
     Route::resource('stage3', Stage3Controller::class)
-        ->middleware('permission:STAGE3_COATING_READ')
+        ->middleware('permission:STAGE3_COILS_READ')
         ->names('manufacturing.stage3');
     Route::resource('stage4', Stage4Controller::class)
         ->middleware('permission:STAGE4_PACKAGING_READ')
@@ -387,27 +387,27 @@ Route::middleware(['auth'])->group(function () {
 
     // Stage 3 Additional Routes
     Route::post('stage3/store-single', [Stage3Controller::class, 'storeSingle'])
-        ->middleware('permission:STAGE3_COATING_CREATE')
+        ->middleware('permission:STAGE3_COILS_CREATE')
         ->name('manufacturing.stage3.store-single');
     Route::get('stage3/get-stage2-by-barcode/{barcode}', [Stage3Controller::class, 'getByBarcode'])
-        ->middleware('permission:STAGE3_COATING_READ')
+        ->middleware('permission:STAGE3_COILS_READ')
         ->name('manufacturing.stage3.get-stage2-by-barcode');
     Route::get('stage3/add-dye-plastic', [Stage3Controller::class, 'addDyePlastic'])
-        ->middleware('permission:STAGE3_COATING_READ')
+        ->middleware('permission:STAGE3_COILS_READ')
         ->name('manufacturing.stage3.add-dye-plastic');
     Route::post('stage3/add-dye', [Stage3Controller::class, 'addDyeAction'])
-        ->middleware('permission:STAGE3_COATING_UPDATE')
+        ->middleware('permission:STAGE3_COILS_UPDATE')
         ->name('manufacturing.stage3.add-dye');
     Route::get('stage3/completed-coils', [Stage3Controller::class, 'completedCoils'])
-        ->middleware('permission:STAGE3_COATING_READ')
+        ->middleware('permission:STAGE3_COILS_READ')
         ->name('manufacturing.stage3.completed-coils');
 
     // Stage 4 Additional Routes
     Route::post('stage4/store-single', [Stage4Controller::class, 'storeSingle'])
-        ->middleware('permission:STAGE4_LAFAF_CREATE')
+        ->middleware('permission:STAGE4_PACKAGING_CREATE')
         ->name('manufacturing.stage4.store-single');
     Route::get('stage4/get-lafaf-by-barcode/{barcode}', [Stage4Controller::class, 'getByBarcode'])
-        ->middleware('permission:STAGE4_LAFAF_READ')
+        ->middleware('permission:STAGE4_PACKAGING_READ')
         ->name('manufacturing.stage4.get-lafaf-by-barcode');
 
     // Shift Handover Routes
