@@ -67,11 +67,6 @@ class ShiftHandoverController extends Controller
      */
     public function store(Request $request)
     {
-        // التحقق من الصلاحية
-        if (!ShiftHandoverPermissionsCheck::canCreateHandover()) {
-            abort(403, 'ليس لديك صلاحية لإنشاء نقل وردية');
-        }
-
         $rules = [
             'to_user_id' => 'required|exists:users,id',
             'notes' => 'nullable|string|max:1000',
@@ -198,11 +193,6 @@ class ShiftHandoverController extends Controller
      */
     public function approve(Request $request, $id)
     {
-        // التحقق من الصلاحية
-        if (!ShiftHandoverPermissionsCheck::canApproveHandover()) {
-            abort(403, 'ليس لديك صلاحية للموافقة على نقل الوردية');
-        }
-
         try {
             $handover = ShiftHandover::findOrFail($id);
 
@@ -239,11 +229,6 @@ class ShiftHandoverController extends Controller
      */
     public function reject(Request $request, $id)
     {
-        // التحقق من الصلاحية
-        if (!ShiftHandoverPermissionsCheck::canRejectHandover()) {
-            abort(403, 'ليس لديك صلاحية لرفض نقل الوردية');
-        }
-
         $validator = Validator::make($request->all(), [
             'rejection_reason' => 'required|string|max:500',
         ]);

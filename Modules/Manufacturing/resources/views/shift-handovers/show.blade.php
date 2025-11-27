@@ -248,7 +248,7 @@
             </div>
             <div class="card-body">
                 <div class="actions-grid">
-                    @if(auth()->user()->hasPermission('SHIFT_HANDOVERS_APPROVE')
+                    @can('SHIFT_HANDOVERS_APPROVE')
                     <form action="{{ route('manufacturing.shift-handovers.approve', $handover->id) }}" method="POST" style="display: inline-block; width: 48%;">
                         @csrf
                         <button type="submit" class="action-btn activate" style="width: 100%; text-align: right;" onclick="return confirm('هل أنت متأكد من الموافقة على هذا النقل؟');">
@@ -263,9 +263,9 @@
                             </div>
                         </button>
                     </form>
-                    @endif
+                    @endcan
 
-                    @if(auth()->user()->hasPermission('SHIFT_HANDOVERS_REJECT')
+                    @can('SHIFT_HANDOVERS_REJECT')
                     <button type="button" class="action-btn delete" onclick="openRejectModal()" style="width: 48%; text-align: right;">
                         <div class="action-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -279,7 +279,7 @@
                             <p>رفض النقل مع توضيح السبب</p>
                         </div>
                     </button>
-                    @endif
+                    @endcan
                 </div>
             </div>
         </div>
@@ -503,4 +503,3 @@
     </script>
 
 @endsection
-
