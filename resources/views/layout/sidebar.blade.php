@@ -18,7 +18,7 @@
             <!-- لوحة تحكم عمال المراحل -->
             @if(auth()->user()->hasPermission('STAGE_WORKER_DASHBOARD'))
             <li>
-                <a href="{{ route('stage-worker.dashboard.index') }}" data-tooltip="لوحة تحكمي">
+                <a href="{{ route('dashboard') }}" data-tooltip="لوحة تحكمي">
                     <i class="fas fa-hard-hat"></i>
                     <span>لوحة تحكمي</span>
                 </a>
