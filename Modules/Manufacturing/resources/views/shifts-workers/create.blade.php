@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إضافة وردية جديدة')
+@section('title', __('shifts-workers.add_new_shift'))
 
 @section('content')
 
@@ -46,16 +46,16 @@
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
-                إضافة وردية جديدة
+                {{ __('shifts-workers.add_new_shift') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('shifts-workers.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>الورديات والعمال</span>
+                <span>{{ __('shifts-workers.shifts_and_workers') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>إضافة وردية جديدة</span>
+                <span>{{ __('shifts-workers.add_new_shift') }}</span>
             </nav>
         </div>
 
@@ -74,15 +74,15 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">معلومات الوردية</h3>
-                            <p class="section-subtitle">أدخل البيانات الأساسية للوردية</p>
+                            <h3 class="section-title">{{ __('shifts-workers.shift_information') }}</h3>
+                            <p class="section-subtitle">{{ __('shifts-workers.basic_data') }}</p>
                         </div>
                     </div>
 
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="shift_code" class="form-label">
-                                رقم الوردية
+                                {{ __('shifts-workers.shift_code') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-group-with-button">
@@ -96,7 +96,7 @@
                                     </svg>
                                     <input type="text" name="shift_code" id="shift_code"
                                         class="form-input"
-                                        value="{{ old('shift_code') }}" placeholder="سيتم التوليد تلقائياً" required readonly>
+                                        value="{{ old('shift_code') }}" placeholder="{{ __('shifts-workers.auto_generate') }}" required readonly>
                                 </div>
                                 <button type="button" class="btn-generate" onclick="generateShiftCode()" id="generateShiftBtn">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -104,14 +104,14 @@
                                         <polyline points="1 20 1 14 7 14"></polyline>
                                         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                                     </svg>
-                                    توليد 
+                                    {{ __('shifts-workers.generate_code') }}
                                 </button>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="shift_date" class="form-label">
-                                تاريخ الوردية
+                                {{ __('shifts-workers.shift_date') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -130,7 +130,7 @@
 
                         <div class="form-group">
                             <label for="shift_type" class="form-label">
-                                فترة العمل
+                                {{ __('shifts-workers.work_period') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -141,17 +141,17 @@
                                 </svg>
                                 <select name="shift_type" id="shift_type"
                                     class="form-input" required onchange="updateShiftCode(); updateShiftTimes()">
-                                    <option value="">اختر فترة العمل</option>
-                                    <option value="morning" {{ old('shift_type') == 'morning' ? 'selected' : '' }}>الفترة الأولى (6 صباحاً - 6 مساءً)</option>
-                                    <option value="evening" {{ old('shift_type') == 'evening' ? 'selected' : '' }}>الفترة الثانية (6 مساءً - 6 صباحاً)</option>
+                                    <option value="">{{ __('shifts-workers.select_shift_type') }}</option>
+                                    <option value="morning" {{ old('shift_type') == 'morning' ? 'selected' : '' }}>{{ __('shifts-workers.morning_shift') }}</option>
+                                    <option value="evening" {{ old('shift_type') == 'evening' ? 'selected' : '' }}>{{ __('shifts-workers.evening_shift') }}</option>
                                 </select>
                             </div>
-                            <small class="text-muted">كل فترة 12 ساعة لتغطية العمل على مدار 24 ساعة</small>
+                            <small class="text-muted">{{ __('shifts-workers.shift_coverage_info') }}</small>
                         </div>
 
                         <div class="form-group">
                             <label for="supervisor_id" class="form-label">
-                                المسؤول عن الوردية
+                                {{ __('shifts-workers.shift_supervisor') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -164,7 +164,7 @@
                                 </svg>
                                 <select name="supervisor_id" id="supervisor_id"
                                     class="form-input" required>
-                                    <option value="">اختر المسؤول</option>
+                                    <option value="">{{ __('shifts-workers.select_supervisor') }}</option>
                                     @foreach($supervisors as $supervisor)
                                     <option value="{{ $supervisor->id }}" {{ old('supervisor_id') == $supervisor->id ? 'selected' : '' }}>
                                         {{ $supervisor->name }}
@@ -179,7 +179,7 @@
 
                         <div class="form-group">
                             <label for="start_time" class="form-label">
-                                وقت البدء
+                                {{ __('shifts-workers.start_time') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -196,7 +196,7 @@
 
                         <div class="form-group">
                             <label for="end_time" class="form-label">
-                                وقت الانتهاء
+                                {{ __('shifts-workers.end_time') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -212,7 +212,7 @@
                         </div>
 
                         <div class="form-group full-width">
-                            <label for="notes" class="form-label">ملاحظات</label>
+                            <label for="notes" class="form-label">{{ __('shifts-workers.notes') }}</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2">
@@ -224,7 +224,7 @@
                                     <line x1="3" y1="18" x2="3.01" y2="18"></line>
                                 </svg>
                                 <textarea name="notes" id="notes" rows="4"
-                                    class="form-input" placeholder="أدخل ملاحظات للوردية">{{ old('notes') }}</textarea>
+                                    class="form-input" placeholder="{{ __('shifts-workers.enter_shift_notes') }}">{{ old('notes') }}</textarea>
                             </div>
                         </div>
 
@@ -238,7 +238,7 @@
                                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                                         </svg>
-                                        تفعيل الوردية
+                                        {{ __('shifts-workers.enable_shift') }}
                                     </span>
                                 </label>
                             </div>
@@ -256,8 +256,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">تعيين العمال</h3>
-                            <p class="section-subtitle">حدد مجموعة عمال أو اختر العمال بشكل فردي</p>
+                            <h3 class="section-title">{{ __('shifts-workers.workers_assignment') }}</h3>
+                            <p class="section-subtitle">{{ __('shifts-workers.select_workers') }}</p>
                         </div>
                     </div>
 
@@ -265,7 +265,7 @@
                         <!-- اختيار المجموعة -->
                         <div class="form-group full-width">
                             <label for="team_id" class="form-label">
-                                اختر مجموعة عمال (اختياري)
+                                {{ __('shifts-workers.select_worker_team') }}
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -275,9 +275,9 @@
                                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                                 </svg>
                                 <select name="team_id" id="team_id" class="form-input" onchange="loadTeamWorkers()">
-                                    <option value="">اختر مجموعة (أو اختر العمال يدوياً)</option>
+                                    <option value="">{{ __('shifts-workers.select_team_or_manual') }}</option>
                                     @foreach($teams as $team)
-                                    <option value="{{ $team->id }}" 
+                                    <option value="{{ $team->id }}"
                                             data-workers-count="{{ $team->workers_count }}"
                                             {{ old('team_id') == $team->id ? 'selected' : '' }}>
                                         {{ $team->name }} ({{ $team->workers_count }} عامل)
@@ -287,26 +287,26 @@
                             </div>
                             <small class="text-muted">
                                 <i class="feather icon-info"></i>
-                                عند اختيار مجموعة، سيتم تحديد جميع العمال فيها تلقائياً
+                                {{ __('shifts-workers.team_selection_info') }}
                             </small>
                         </div>
 
                         <div class="form-group full-width">
                             <div class="workers-selection-header">
-                                <label class="form-label">العمال المتاحون</label>
+                                <label class="form-label">{{ __('shifts-workers.available_workers') }}</label>
                                 <div class="selection-info">
-                                    <span class="selected-count">تم اختيار: <strong id="selectedWorkersCount">0</strong></span>
+                                    <span class="selected-count">{{ __('shifts-workers.selected_count') }} <strong id="selectedWorkersCount">0</strong></span>
                                     <button type="button" class="btn-clear-selection" onclick="clearAllWorkers()">
-                                        <i class="feather icon-x"></i> إلغاء الكل
+                                        <i class="feather icon-x"></i> {{ __('shifts-workers.clear_all') }}
                                     </button>
                                 </div>
                             </div>
                             <div class="workers-selection">
                                 @forelse($workers as $worker)
                                 <div class="worker-item">
-                                    <input type="checkbox" 
-                                           id="worker_{{ $worker->id }}" 
-                                           name="workers[]" 
+                                    <input type="checkbox"
+                                           id="worker_{{ $worker->id }}"
+                                           name="workers[]"
                                            value="{{ $worker->id }}"
                                            class="worker-checkbox"
                                            {{ in_array($worker->id, old('workers', [])) ? 'checked' : '' }}
@@ -314,10 +314,10 @@
                                     <label for="worker_{{ $worker->id }}">{{ $worker->name }}</label>
                                 </div>
                                 @empty
-                                <p style="color: #999; text-align: center; padding: 20px;">لا يوجد عمال متاحون حالياً</p>
+                                <p style="color: #999; text-align: center; padding: 20px;">{{ __('shifts-workers.no_workers_available') }}</p>
                                 <a href="{{ route('manufacturing.workers.create') }}" class="btn-submit" style="display: inline-block; margin-top: 10px;">
                                     <i class="feather icon-plus"></i>
-                                    إضافة عامل جديد
+                                    {{ __('shifts-workers.add_new_worker') }}
                                 </a>
                                 @endforelse
                             </div>
@@ -331,14 +331,14 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        حفظ الوردية
+                        {{ __('shifts-workers.save_shift') }}
                     </button>
                     <a href="{{ route('manufacturing.shifts-workers.index') }}" class="btn-cancel">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
-                        إلغاء
+                        {{ __('shifts-workers.cancel') }}
                     </a>
                 </div>
             </form>
@@ -492,7 +492,7 @@
             width: 100%;
             justify-content: space-between;
         }
-        
+
         .section-icon svg {
             width: 18px;
             height: 18px;
@@ -510,7 +510,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize shift times
     updateShiftTimes();
-    
+
     // Auto-generate code if date and type are set
     const date = document.getElementById('shift_date').value;
     const type = document.getElementById('shift_type').value;
@@ -528,13 +528,13 @@ function generateShiftCode() {
     const type = document.getElementById('shift_type').value;
     const btn = document.getElementById('generateShiftBtn');
     const codeInput = document.getElementById('shift_code');
-    
+
     if (!date) {
         alert('الرجاء اختيار تاريخ الوردية أولاً');
         document.getElementById('shift_date').focus();
         return;
     }
-    
+
     if (!type) {
         alert('الرجاء اختيار فترة العمل أولاً');
         document.getElementById('shift_type').focus();
@@ -553,7 +553,7 @@ function generateShiftCode() {
         </svg>
         جاري التوليد...
     `;
-    
+
     fetch(`{{ route('manufacturing.shifts-workers.generate-code') }}?date=${date}&type=${type}`)
         .then(response => {
             if (!response.ok) {
@@ -563,7 +563,7 @@ function generateShiftCode() {
         })
         .then(data => {
             codeInput.value = data.shift_code;
-            
+
             // Success state
             btn.classList.remove('loading');
             btn.classList.add('success');
@@ -573,7 +573,7 @@ function generateShiftCode() {
                 </svg>
                 تم التوليد بنجاح
             `;
-            
+
             // Reset after 2 seconds
             setTimeout(() => {
                 btn.classList.remove('success');
@@ -583,7 +583,7 @@ function generateShiftCode() {
         })
         .catch(error => {
             console.error('Error:', error);
-            
+
             // Error state
             btn.classList.remove('loading');
             btn.classList.add('error');
@@ -594,9 +594,9 @@ function generateShiftCode() {
                 </svg>
                 فشل التوليد
             `;
-            
+
             alert('حدث خطأ في توليد الكود. الرجاء المحاولة مرة أخرى.');
-            
+
             // Reset after 2 seconds
             setTimeout(() => {
                 btn.classList.remove('error');
@@ -620,7 +620,7 @@ function updateShiftTimes() {
     const shiftType = document.getElementById('shift_type').value;
     const startTime = document.getElementById('start_time');
     const endTime = document.getElementById('end_time');
-    
+
     if (shiftType === 'morning') {
         startTime.value = '06:00';
         endTime.value = '18:00';
@@ -634,35 +634,35 @@ function updateShiftTimes() {
 async function loadTeamWorkers() {
     const teamSelect = document.getElementById('team_id');
     const teamId = teamSelect.value;
-    
+
     if (!teamId) {
         return;
     }
-    
+
     try {
         const url = `/manufacturing/worker-teams/${teamId}/workers`;
         console.log('Fetching from:', url);
-        
+
         const response = await fetch(url, {
             headers: {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
             }
         });
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
         console.log('Response data:', data);
-        
+
         if (data.success && data.worker_ids && data.worker_ids.length > 0) {
             // First, uncheck all workers
             document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
                 checkbox.checked = false;
             });
-            
+
             // Then check workers from the selected team
             data.worker_ids.forEach(workerId => {
                 const checkbox = document.getElementById(`worker_${workerId}`);
@@ -670,19 +670,19 @@ async function loadTeamWorkers() {
                     checkbox.checked = true;
                 }
             });
-            
+
             updateWorkersCount();
-            
+
             // Show success message
             const workersCount = data.worker_ids.length;
             const teamName = teamSelect.options[teamSelect.selectedIndex].text;
-            alert(`تم تحديد ${workersCount} عامل من ${teamName}`);
+            alert(`{{ __('shifts-workers.team_workers_selected') }}`.replace('{count}', workersCount).replace('{team}', teamName));
         } else {
-            alert('المجموعة لا تحتوي على عمال');
+            alert('{{ __('shifts-workers.no_workers_in_team') }}');
         }
     } catch (error) {
         console.error('Error loading team workers:', error);
-        alert('حدث خطأ في تحميل عمال المجموعة: ' + error.message);
+        alert('{{ __('shifts-workers.error_loading_team_workers') }}'.replace('{error}', error.message));
     }
 }
 

@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إضافة عامل جديد')
+@section('title', __('workers.add_new_worker'))
 
 @section('content')
 
@@ -46,16 +46,16 @@
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
-                إضافة عامل جديد
+                {{ __('workers.add_new_worker') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('app.menu.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>العمال</span>
+                <span>{{ __('workers.workers') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>إضافة عامل جديد</span>
+                <span>{{ __('workers.add_new_worker') }}</span>
             </nav>
         </div>
 
@@ -71,18 +71,17 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
+                            </div>
+                            <div>
+                                <h3 class="section-title">{{ __('workers.basic_information') }}</h3>
+                                <p class="section-subtitle">{{ __('workers.basic_info_desc') }}</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="section-title">المعلومات الأساسية</h3>
-                            <p class="section-subtitle">أدخل البيانات الأساسية للعامل</p>
-                        </div>
-                    </div>
 
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="worker_code" class="form-label">
-                                كود العامل
+                                {{ __('workers.worker_code') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-group-with-button">
@@ -96,7 +95,7 @@
                                     </svg>
                                     <input type="text" name="worker_code" id="worker_code"
                                         class="form-input"
-                                        value="{{ old('worker_code') }}" placeholder="أدخل كود العامل" required>
+                                        value="{{ old('worker_code') }}" placeholder="{{ __('workers.enter_worker_code') }}" required>
                                 </div>
                                 <button type="button" class="btn-generate" onclick="generateWorkerCode()" id="generateBtn">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -104,14 +103,15 @@
                                         <polyline points="1 20 1 14 7 14"></polyline>
                                         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                                     </svg>
-                                    توليد
+                                    {{ __('workers.generate') }}
+
                                 </button>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="name" class="form-label">
-                                اسم العامل
+                                {{ __('workers.worker_name') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -122,13 +122,13 @@
                                 </svg>
                                 <input type="text" name="name" id="name"
                                     class="form-input"
-                                    value="{{ old('name') }}" placeholder="أدخل اسم العامل" required>
+                                    value="{{ old('name') }}" placeholder="{{ __('workers.enter_worker_name') }}" required>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="national_id" class="form-label">
-                                رقم الهوية
+                                {{ __('workers.national_id') }}
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -138,13 +138,14 @@
                                 </svg>
                                 <input type="text" name="national_id" id="national_id"
                                     class="form-input"
-                                    value="{{ old('national_id') }}" placeholder="أدخل رقم الهوية">
+                                    value="{{ old('national_id') }}" placeholder="{{ __('workers.enter_national_id') }}">
+
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="phone" class="form-label">
-                                رقم الهاتف
+                                {{ __('workers.phone') }}
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -153,13 +154,14 @@
                                 </svg>
                                 <input type="text" name="phone" id="phone"
                                     class="form-input"
-                                    value="{{ old('phone') }}" placeholder="أدخل رقم الهاتف">
+                                    value="{{ old('phone') }}" placeholder="{{ __('workers.enter_phone') }}">
+
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="email" class="form-label">
-                                البريد الإلكتروني
+                                {{ __('workers.email') }}
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -169,13 +171,14 @@
                                 </svg>
                                 <input type="email" name="email" id="email"
                                     class="form-input"
-                                    value="{{ old('email') }}" placeholder="أدخل البريد الإلكتروني">
+                                    value="{{ old('email') }}" placeholder="{{ __('workers.enter_email') }}">
+
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="position" class="form-label">
-                                الوظيفة
+                                {{ __('workers.position') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -188,7 +191,7 @@
                                 </svg>
                                 <select name="role_id" id="position"
                                     class="form-input" required>
-                                    <option value="">اختر الوظيفة</option>
+                                    <option value="">{{ __('workers.select_position') }}</option>
                                     @foreach($roles as $role)
                                     <option value="{{ $role->id }}" data-role-code="{{ $role->role_code }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
                                         {{ $role->role_name }}
@@ -211,8 +214,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">معلومات العمل</h3>
-                            <p class="section-subtitle">أدخل بيانات العمل للعامل</p>
+                            <h3 class="section-title">{{ __('workers.work_information') }}</h3>
+                            <p class="section-subtitle">{{ __('workers.work_info_desc') }}</p>
                         </div>
                     </div>
 
@@ -222,7 +225,7 @@
 
                         <div class="form-group">
                             <label for="hourly_rate" class="form-label">
-                                الأجر بالساعة (IQD)
+                                {{ __('workers.hourly_rate') }} (IQD)
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -233,13 +236,13 @@
                                 </svg>
                                 <input type="number" name="hourly_rate" id="hourly_rate"
                                     class="form-input"
-                                    value="{{ old('hourly_rate', 0) }}" step="0.01" min="0" placeholder="أدخل الأجر بالساعة" required>
+                                    value="{{ old('hourly_rate', 0) }}" step="0.01" min="0" placeholder="{{ __('workers.enter_hourly_rate') }}" required>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="hire_date" class="form-label">
-                                تاريخ التعيين
+                                {{ __('workers.hire_date') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -257,16 +260,16 @@
                         </div>
 
                         <div class="form-group full-width">
-                            <label class="form-label">المراحل المسموح بها</label>
+                            <label class="form-label">{{ __('workers.allowed_stages') }}</label>
                             <div class="workers-selection">
                                 @for($i = 1; $i <= 4; $i++)
                                 <div class="worker-item">
                                     <input type="checkbox" id="stage{{ $i }}" name="allowed_stages[]" value="{{ $i }}"
                                         {{ (is_array(old('allowed_stages')) && in_array($i, old('allowed_stages'))) ? 'checked' : '' }}>
-                                    <label for="stage{{ $i }}">المرحلة {{ $i }}</label>
+                                    <label for="stage{{ $i }}">{{ __('workers.stage') }} {{ $i }}</label>
                                 </div>
                                 @endfor
-                                <p class="text-muted" style="margin-top: 10px;">اترك فارغاً للسماح بجميع المراحل</p>
+                                <p class="text-muted" style="margin-top: 10px;">{{ __('workers.leave_empty_for_all_stages') }}</p>
                             </div>
                         </div>
 
@@ -280,7 +283,7 @@
                                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                                         </svg>
-                                        تفعيل العامل
+                                        {{ __('workers.enable') }} {{ __('workers.worker') }}
                                     </span>
                                 </label>
                             </div>
@@ -298,8 +301,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">الصلاحيات التلقائية</h3>
-                            <p class="section-subtitle">الصلاحيات المعينة حسب الوظيفة المختارة</p>
+                            <h3 class="section-title">{{ __('workers.account_management') }}</h3>
+                            <p class="section-subtitle">{{ __('workers.account_info_desc') }}</p>
                         </div>
                     </div>
 
@@ -307,7 +310,7 @@
                         <div class="form-group full-width">
                             <div id="permissionsContainer" class="permissions-list">
                                 <p class="text-muted" style="text-align: center; padding: 20px;">
-                                    <i class="feather icon-info"></i> اختر وظيفة أولاً لعرض الصلاحيات المتاحة
+                                    <i class="feather icon-info"></i> {{ __('workers.select_position_first') }} {{ __('workers.to_view_permissions') }}
                                 </p>
                             </div>
                         </div>
@@ -324,15 +327,15 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">حساب الدخول للنظام</h3>
-                            <p class="section-subtitle">إدارة حساب الدخول للعامل (اختياري)</p>
+                            <h3 class="section-title">{{ __('workers.user_account_management') }}</h3>
+                            <p class="section-subtitle">{{ __('workers.user_account_desc') }}</p>
                         </div>
                     </div>
 
                     <div class="form-grid">
                         <div class="form-group full-width">
                             <label for="allow_system_access" class="form-label">
-                                السماح بالدخول للنظام؟
+                                {{ __('workers.system_access') }}?
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -344,9 +347,9 @@
                                 </svg>
                                 <select name="allow_system_access" id="allow_system_access"
                                     class="form-input" onchange="toggleUserAccountFields()">
-                                    <option value="no" {{ old('allow_system_access') == 'no' ? 'selected' : '' }}>لا - عامل فقط بدون حساب</option>
-                                    <option value="existing" {{ old('allow_system_access') == 'existing' ? 'selected' : '' }}>نعم - ربط بحساب موجود</option>
-                                    <option value="new" {{ old('allow_system_access') == 'new' ? 'selected' : '' }}>نعم - إنشاء حساب جديد</option>
+                                    <option value="no" {{ old('allow_system_access') == 'no' ? 'selected' : '' }}>{{ __('workers.worker_only') }}</option>
+                                    <option value="existing" {{ old('allow_system_access') == 'existing' ? 'selected' : '' }}>{{ __('workers.link_existing_account') }}</option>
+                                    <option value="new" {{ old('allow_system_access') == 'new' ? 'selected' : '' }}>{{ __('workers.create_new_account') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -354,7 +357,7 @@
                         <!-- Existing User Selection -->
                         <div id="existing_user_section" class="form-group full-width" style="display: none;">
                             <label for="user_id" class="form-label">
-                                اختر المستخدم
+                                {{ __('workers.select_user') }}
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -366,7 +369,7 @@
                                 </svg>
                                 <select name="user_id" id="user_id"
                                     class="form-input">
-                                    <option value="">اختر مستخدم</option>
+                                    <option value="">{{ __('workers.select_user') }}</option>
                                     @foreach($availableUsers as $user)
                                     <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
                                         {{ $user->name }} ({{ $user->email }})
@@ -374,7 +377,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <small class="text-muted">يظهر فقط المستخدمين الذين ليس لديهم ملف عامل مسبقاً</small>
+                            <small class="text-muted">{{ __('workers.users_without_worker_file') }}</small>
                         </div>
 
                         <!-- New User Creation Fields -->
@@ -382,7 +385,7 @@
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="new_username" class="form-label">
-                                        اسم المستخدم
+                                        {{ __('workers.username') }}
                                         <span class="required">*</span>
                                     </label>
                                     <div class="input-wrapper">
@@ -393,14 +396,15 @@
                                         </svg>
                                         <input type="text" name="new_username" id="new_username"
                                             class="form-input"
-                                            value="{{ old('new_username') }}" placeholder="مثال: ahmad.ali">
+                                            value="{{ old('new_username') }}" placeholder="{{ __('workers.enter_username') }}">
+
                                     </div>
-                                    <small class="text-muted">اسم تسجيل الدخول (بالإنجليزية بدون مسافات)</small>
+                                    <small class="text-muted">{{ __('workers.username_desc') }}</small>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="new_email" class="form-label">
-                                        البريد الإلكتروني
+                                        {{ __('workers.email') }}
                                         <span class="required">*</span>
                                     </label>
                                     <div class="input-wrapper">
@@ -412,13 +416,15 @@
                                         <input type="email" name="new_email" id="new_email"
                                             class="form-input"
                                             value="{{ old('new_email') }}" placeholder="example@company.com">
+
                                     </div>
                                 </div>
                             </div>
 
                             <div class="alert alert-warning" style="margin-top: 15px;">
                                 <i data-feather="alert-triangle"></i>
-                                <strong>تنبيه:</strong> سيتم إنشاء حساب مستخدم جديد وإرسال كلمة المرور عبر البريد الإلكتروني.
+                                <strong>{{ __('workers.note') }}:</strong> {{ __('workers.password_will_be_sent') }}
+
                             </div>
                         </div>
                     </div>
@@ -434,15 +440,15 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">معلومات إضافية</h3>
-                            <p class="section-subtitle">أدخل معلومات إضافية للعامل</p>
+                            <h3 class="section-title">{{ __('workers.additional_information') }}</h3>
+                            <p class="section-subtitle">{{ __('workers.additional_info_desc') }}</p>
                         </div>
                     </div>
 
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="emergency_contact" class="form-label">
-                                اسم جهة الاتصال للطوارئ
+                                {{ __('workers.emergency_contact') }}
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -454,13 +460,14 @@
                                 </svg>
                                 <input type="text" name="emergency_contact" id="emergency_contact"
                                     class="form-input"
-                                    value="{{ old('emergency_contact') }}" placeholder="أدخل اسم جهة الاتصال">
+                                    value="{{ old('emergency_contact') }}" placeholder="{{ __('workers.enter_emergency_contact') }}">
+
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="emergency_phone" class="form-label">
-                                رقم هاتف الطوارئ
+                                {{ __('workers.emergency_phone') }}
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -469,12 +476,13 @@
                                 </svg>
                                 <input type="text" name="emergency_phone" id="emergency_phone"
                                     class="form-input"
-                                    value="{{ old('emergency_phone') }}" placeholder="أدخل رقم هاتف الطوارئ">
+                                    value="{{ old('emergency_phone') }}" placeholder="{{ __('workers.enter_emergency_phone') }}">
+
                             </div>
                         </div>
 
                         <div class="form-group full-width">
-                            <label for="notes" class="form-label">ملاحظات</label>
+                            <label for="notes" class="form-label">{{ __('workers.notes') }}</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2">
@@ -486,7 +494,8 @@
                                     <line x1="3" y1="18" x2="3.01" y2="18"></line>
                                 </svg>
                                 <textarea name="notes" id="notes" rows="4"
-                                    class="form-input" placeholder="أدخل ملاحظات للعامل">{{ old('notes') }}</textarea>
+                                    class="form-input" placeholder="{{ __('workers.enter_notes') }}">{{ old('notes') }}</textarea>
+
                             </div>
                         </div>
                     </div>
@@ -499,7 +508,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        حفظ العامل
+                        {{ __('workers.save') }} {{ __('workers.worker') }}
                     </button>
 
                     <a href="{{ route('manufacturing.workers.index') }}" class="btn-cancel">
@@ -507,7 +516,7 @@
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
-                        إلغاء
+                        {{ __('app.buttons.cancel') }}
                     </a>
 
                 </div>

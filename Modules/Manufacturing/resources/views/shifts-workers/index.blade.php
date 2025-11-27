@@ -9,14 +9,14 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-users"></i>
-                إدارة الورديات والعمال
+                {{ __('shifts-workers.manage_shifts_and_workers') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('shifts-workers.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>الورديات والعمال</span>
+                <span>{{ __('shifts-workers.shifts_and_workers') }}</span>
             </nav>
         </div>
 
@@ -47,19 +47,19 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    قائمة الورديات
+                    {{ __('shifts-workers.workers_list') }}
                 </h4>
                 <div style="display: flex; gap: 10px;">
 @if(auth()->user()->hasPermission('SHIFT_HANDOVERS_READ'))
                     <a href="{{ route('manufacturing.shift-handovers.index') }}" class="um-btn um-btn-info">
                         <i class="feather icon-exchange-2"></i>
-                        نقل الورديات
+                        {{ __('shifts-workers.shift_handovers') }}
                     </a>
                     @endif
                     @if(auth()->user()->hasPermission('SHIFTS_CREATE'))
                     <a href="{{ route('manufacturing.shifts-workers.create') }}" class="um-btn um-btn-primary">
                         <i class="feather icon-plus"></i>
-                        إضافة وردية جديدة
+                        {{ __('shifts-workers.add_new_shift') }}
                     </a>
                     @endif
                 </div>
@@ -70,42 +70,42 @@
                 <form method="GET" action="{{ route('manufacturing.shifts-workers.index') }}">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="date" name="date" class="um-form-control" placeholder="التاريخ..." value="{{ request('date') }}">
+                            <input type="date" name="date" class="um-form-control" placeholder="{{ __('shifts-workers.filter_by_date') }}" value="{{ request('date') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="shift_type" class="um-form-control">
-                                <option value="">جميع أنواع الورديات</option>
-                                <option value="morning" {{ request('shift_type') == 'morning' ? 'selected' : '' }}>الفترة الصباحية</option>
-                                <option value="evening" {{ request('shift_type') == 'evening' ? 'selected' : '' }}>الفترة المسائية</option>
-                                <option value="night" {{ request('shift_type') == 'night' ? 'selected' : '' }}>الفترة الليلية</option>
+                                <option value="">{{ __('shifts-workers.all_shift_types') }}</option>
+                                <option value="morning" {{ request('shift_type') == 'morning' ? 'selected' : '' }}>{{ __('shifts-workers.first_period') }}</option>
+                                <option value="evening" {{ request('shift_type') == 'evening' ? 'selected' : '' }}>{{ __('shifts-workers.second_period') }}</option>
+                                <option value="night" {{ request('shift_type') == 'night' ? 'selected' : '' }}>{{ __('shifts-workers.night') }}</option>
                             </select>
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
-                                <option value="">جميع الحالات</option>
-                                <option value="scheduled" {{ request('status') == 'scheduled' ? 'selected' : '' }}>مجدولة</option>
-                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>نشطة</option>
-                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>مكتملة</option>
-                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>ملغاة</option>
+                                <option value="">{{ __('shifts-workers.all_statuses') }}</option>
+                                <option value="scheduled" {{ request('status') == 'scheduled' ? 'selected' : '' }}>{{ __('shifts-workers.scheduled') }}</option>
+                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>{{ __('shifts-workers.active') }}</option>
+                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>{{ __('shifts-workers.completed') }}</option>
+                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>{{ __('shifts-workers.cancelled') }}</option>
                             </select>
                         </div>
                         <div class="um-form-group">
                             <select name="stage_number" class="um-form-control">
-                                <option value="">جميع المراحل</option>
-                                <option value="1" {{ request('stage_number') == '1' ? 'selected' : '' }}>المرحلة الأولى</option>
-                                <option value="2" {{ request('stage_number') == '2' ? 'selected' : '' }}>المرحلة الثانية</option>
-                                <option value="3" {{ request('stage_number') == '3' ? 'selected' : '' }}>المرحلة الثالثة</option>
-                                <option value="4" {{ request('stage_number') == '4' ? 'selected' : '' }}>المرحلة الرابعة</option>
+                                <option value="">{{ __('shifts-workers.all_stages') }}</option>
+                                <option value="1" {{ request('stage_number') == '1' ? 'selected' : '' }}>{{ __('shifts-workers.stage_first') }}</option>
+                                <option value="2" {{ request('stage_number') == '2' ? 'selected' : '' }}>{{ __('shifts-workers.stage_second') }}</option>
+                                <option value="3" {{ request('stage_number') == '3' ? 'selected' : '' }}>{{ __('shifts-workers.stage_third') }}</option>
+                                <option value="4" {{ request('stage_number') == '4' ? 'selected' : '' }}>{{ __('shifts-workers.stage_fourth') }}</option>
                             </select>
                         </div>
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                بحث
+                                {{ __('shifts-workers.apply_filters') }}
                             </button>
                             <a href="{{ route('manufacturing.shifts-workers.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-x"></i>
-                                إعادة تعيين
+                                {{ __('shifts-workers.clear_filters') }}
                             </a>
                         </div>
                     </div>
@@ -118,13 +118,13 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>رقم الوردية</th>
-                            <th>التاريخ</th>
-                            <th>نوع الوردية</th>
-                            <th>عدد العمال</th>
-                            <th>المسؤول</th>
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
+                            <th>{{ __('shifts-workers.shift_number') }}</th>
+                            <th>{{ __('shifts-workers.date') }}</th>
+                            <th>{{ __('shifts-workers.shift_type') }}</th>
+                            <th>{{ __('shifts-workers.workers_count') }}</th>
+                            <th>{{ __('shifts-workers.supervisor') }}</th>
+                            <th>{{ __('shifts-workers.status') }}</th>
+                            <th>{{ __('shifts-workers.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -151,53 +151,50 @@
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
-@if (auth()->user()->hasPermission('SHIFTS_READ'))
-
-
+                                        @if (auth()->user()->hasPermission('SHIFTS_READ'))
                                         <a href="{{ route('manufacturing.shifts-workers.show', $shift->id) }}" class="um-dropdown-item um-btn-view">
                                             <i class="feather icon-eye"></i>
-                                            <span>عرض</span>
+                                            <span>{{ __('shifts-workers.view') }}</span>
                                         </a>
                                         @endif
-@if (auth()->user()->hasPermission('SHIFTS_UPDATE'))
+                                        @if (auth()->user()->hasPermission('SHIFTS_UPDATE'))
                                         <a href="{{ route('manufacturing.shifts-workers.edit', $shift->id) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
-                                            <span>تعديل</span>
+                                            <span>{{ __('shifts-workers.edit') }}</span>
                                         </a>
                                         @endif
                                         @if($shift->status == 'scheduled')
-                                        @if (auth()->user()->hasPermission('SHIFTS_ACTIVATE'))
-                                        <form method="POST" action="{{ route('manufacturing.shifts-workers.activate', $shift->id) }}" style="display: inline;">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="um-dropdown-item um-btn-feature">
-                                                <i class="feather icon-play"></i>
-                                                <span>تفعيل</span>
-                                            </button>
-                                        </form>
-                                        @endif
-                                        @endif
-                                        @if($shift->status == 'active')
+                                            @if (auth()->user()->hasPermission('SHIFTS_ACTIVATE'))
+                                            <form method="POST" action="{{ route('manufacturing.shifts-workers.activate', $shift->id) }}" style="display: inline;">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="um-dropdown-item um-btn-feature">
+                                                    <i class="feather icon-play"></i>
+                                                    <span>{{ __('shifts-workers.activate_shift') }}</span>
+                                                </button>
+                                            </form>
+                                            @endif
+                                        @elseif($shift->status == 'active')
                                             @if (auth()->user()->hasPermission('SHIFTS_COMPLETE'))
                                             <form method="POST" action="{{ route('manufacturing.shifts-workers.complete', $shift->id) }}" style="display: inline;">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="um-dropdown-item um-btn-toggle">
                                                     <i class="feather icon-check"></i>
-                                                    <span>إكمال</span>
+                                                    <span>{{ __('shifts-workers.complete_shift') }}</span>
                                                 </button>
                                             </form>
                                             @endif
                                             @if (auth()->user()->hasPermission('SHIFTS_SUSPEND'))
                                             <button type="button" class="um-dropdown-item um-btn-warning" onclick="openSuspendModal({{ $shift->id }})">
                                                 <i class="feather icon-pause"></i>
-                                                <span>تعليق</span>
+                                                <span>{{ __('shifts-workers.suspend_shift') }}</span>
                                             </button>
                                             @endif
                                             @if (auth()->user()->hasPermission('SHIFT_HANDOVERS_FROM_INDEX'))
                                             <button type="button" class="um-dropdown-item um-btn-info" onclick="openHandoverModal({{ $shift->id }}, '{{ $shift->shift_code }}')">
                                                 <i class="feather icon-exchange-2"></i>
-                                                <span>نقل الوردية</span>
+                                                <span>{{ __('shifts-workers.shift_handover') }}</span>
                                             </button>
                                             @endif
                                         @elseif($shift->status == 'suspended')
@@ -207,18 +204,19 @@
                                                 @method('PATCH')
                                                 <button type="submit" class="um-dropdown-item um-btn-feature">
                                                     <i class="feather icon-play"></i>
-                                                    <span>استئناف</span>
+                                                    <span>{{ __('shifts-workers.resume_shift') }}</span>
                                                 </button>
                                             </form>
                                             @endif
-                                        @elseif(in_array($shift->status, ['scheduled', 'cancelled']))
+                                        @endif
+                                        @if(in_array($shift->status, ['scheduled', 'cancelled']))
                                             @if (auth()->user()->hasPermission('SHIFTS_DELETE'))
                                             <form method="POST" action="{{ route('manufacturing.shifts-workers.destroy', $shift->id) }}" class="delete-form">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="um-dropdown-item um-btn-delete">
                                                     <i class="feather icon-trash-2"></i>
-                                                    <span>حذف</span>
+                                                    <span>{{ __('shifts-workers.delete') }}</span>
                                                 </button>
                                             </form>
                                             @endif
@@ -231,7 +229,7 @@
                         <tr>
                             <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
                                 <i class="feather icon-inbox" style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
-                                لا توجد ورديات
+                                {{ __('shifts-workers.no_records') }}
                             </td>
                         </tr>
                         @endforelse
@@ -241,6 +239,7 @@
 
             <!-- Courses Cards - Mobile View -->
             <div class="um-mobile-view">
+                @forelse($shifts as $shift)
                 <div class="um-category-card">
                     <div class="um-category-card-header">
                         <div class="um-category-info">
@@ -248,95 +247,82 @@
                                 <i class="feather icon-users" style="font-size: 18px;"></i>
                             </div>
                             <div>
-                                <h6 class="um-category-name">وردية صباحية</h6>
-                                <span class="um-category-id">#SHIFT-2025-001</span>
+                                <h6 class="um-category-name">{{ $shift->shift_type_name }}</h6>
+                                <span class="um-category-id">{{ $shift->shift_code }}</span>
                             </div>
                         </div>
-                        <span class="um-badge um-badge-success">نشطة</span>
+                        <span class="um-badge um-badge-{{ $shift->status == 'active' ? 'success' : ($shift->status == 'scheduled' ? 'info' : 'secondary') }}">
+                            {{ $shift->status_name }}
+                        </span>
                     </div>
 
                     <div class="um-category-card-body">
                         <div class="um-info-row">
-                            <span class="um-info-label">التاريخ:</span>
-                            <span class="um-info-value">2025-01-15</span>
+                            <span class="um-info-label">{{ __('shifts-workers.date') }}:</span>
+                            <span class="um-info-value">{{ $shift->shift_date->format('Y-m-d') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">عدد العمال:</span>
-                            <span class="um-info-value">8 عمال</span>
+                            <span class="um-info-label">{{ __('shifts-workers.workers_count') }}:</span>
+                            <span class="um-info-value">{{ $shift->total_workers }} {{ __('shifts-workers.workers') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">المسؤول:</span>
-                            <span class="um-info-value">أحمد محمد</span>
-                        </div>
-                    </div>
-
-                    <div class="um-category-card-footer">
-@if (auth()->user()->hasPermission('SHIFTS_READ'))
-                        <a href="{{ route('manufacturing.shifts-workers.show', 1) }}" class="um-btn um-btn-sm um-btn-primary">
-                            <i class="feather icon-eye" style="font-size: 14px;"></i>
-                            عرض
-                        </a>
-@endif
-                        @if (auth()->user()->hasPermission('SHIFTS_UPDATE'))
-                        <a href="{{ route('manufacturing.shifts-workers.edit', 1) }}" class="um-btn um-btn-sm um-btn-secondary">
-                            <i class="feather icon-edit-2" style="font-size: 14px;"></i>
-                            تعديل
-                        </a>
-                        @endif
-                    </div>
-                </div>
-
-                <div class="um-category-card">
-                    <div class="um-category-card-header">
-                        <div class="um-category-info">
-                            <div class="um-category-icon" style="background: #3f51b520; color: #3f51b5; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-                                <i class="feather icon-users" style="font-size: 18px;"></i>
-                            </div>
-                            <div>
-                                <h6 class="um-category-name">وردية مسائية</h6>
-                                <span class="um-category-id">#SHIFT-2025-002</span>
-                            </div>
-                        </div>
-                        <span class="um-badge um-badge-success">نشطة</span>
-                    </div>
-
-                    <div class="um-category-card-body">
-                        <div class="um-info-row">
-                            <span class="um-info-label">التاريخ:</span>
-                            <span class="um-info-value">2025-01-15</span>
+                            <span class="um-info-label">{{ __('shifts-workers.supervisor') }}:</span>
+                            <span class="um-info-value">{{ $shift->supervisor->name ?? __('shifts-workers.not_specified') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">عدد العمال:</span>
-                            <span class="um-info-value">6 عمال</span>
-                        </div>
-                        <div class="um-info-row">
-                            <span class="um-info-label">المسؤول:</span>
-                            <span class="um-info-value">محمد علي</span>
+                            <span class="um-info-label">{{ __('shifts-workers.start_time') }}:</span>
+                            <span class="um-info-value">{{ $shift->start_time }}</span>
                         </div>
                     </div>
 
                     <div class="um-category-card-footer">
                         @if (auth()->user()->hasPermission('SHIFTS_READ'))
-                        <a href="{{ route('manufacturing.shifts-workers.show', 2) }}" class="um-btn um-btn-sm um-btn-primary">
+                        <a href="{{ route('manufacturing.shifts-workers.show', $shift->id) }}" class="um-btn um-btn-sm um-btn-primary">
                             <i class="feather icon-eye" style="font-size: 14px;"></i>
-                            عرض
+                            {{ __('shifts-workers.view') }}
                         </a>
                         @endif
                         @if (auth()->user()->hasPermission('SHIFTS_UPDATE'))
-                        <a href="{{ route('manufacturing.shifts-workers.edit', 2) }}" class="um-btn um-btn-sm um-btn-secondary">
+                        <a href="{{ route('manufacturing.shifts-workers.edit', $shift->id) }}" class="um-btn um-btn-sm um-btn-secondary">
                             <i class="feather icon-edit-2" style="font-size: 14px;"></i>
-                            تعديل
+                            {{ __('shifts-workers.edit') }}
                         </a>
+                        @endif
+                        @if ($shift->status == 'scheduled' && auth()->user()->hasPermission('SHIFTS_ACTIVATE'))
+                        <form method="POST" action="{{ route('manufacturing.shifts-workers.activate', $shift->id) }}" style="display: inline;">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="um-btn um-btn-sm um-btn-success">
+                                <i class="feather icon-play" style="font-size: 14px;"></i>
+                                {{ __('shifts-workers.activate_shift') }}
+                            </button>
+                        </form>
+                        @endif
+                        @if ($shift->status == 'active' && auth()->user()->hasPermission('SHIFTS_COMPLETE'))
+                        <form method="POST" action="{{ route('manufacturing.shifts-workers.complete', $shift->id) }}" style="display: inline;">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="um-btn um-btn-sm um-btn-info">
+                                <i class="feather icon-check" style="font-size: 14px;"></i>
+                                {{ __('shifts-workers.complete_shift') }}
+                            </button>
+                        </form>
                         @endif
                     </div>
                 </div>
+                @empty
+                <div style="text-align: center; padding: 40px; color: #999;">
+                    <i class="feather icon-inbox" style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
+                    {{ __('shifts-workers.no_records') }}
+                </div>
+                @endforelse
             </div>
 
             <!-- Pagination -->
             <div class="um-pagination-section">
                 <div>
                     <p class="um-pagination-info">
-                        عرض {{ $shifts->firstItem() ?? 0 }} إلى {{ $shifts->lastItem() ?? 0 }} من أصل {{ $shifts->total() }} وردية
+                        {{ __('shifts-workers.showing') }} {{ $shifts->firstItem() ?? 0 }} {{ __('shifts-workers.to') }} {{ $shifts->lastItem() ?? 0 }} {{ __('shifts-workers.of') }} {{ $shifts->total() }} {{ __('shifts-workers.workers_list') }}
                     </p>
                 </div>
                 <div>
@@ -353,8 +339,8 @@
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    if (confirm('هل أنت متأكد من حذف هذه الوردية؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
-                        alert('تم حذف الوردية بنجاح');
+                    if (confirm('{{ __('shifts-workers.confirm_delete') }}')) {
+                        form.submit();
                     }
                 });
             });
@@ -426,27 +412,27 @@
     <div id="suspendModal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>تعليق الوردية</h3>
+                <h3>{{ __('shifts-workers.suspend_shift_title') }}</h3>
                 <button class="close-btn" onclick="closeSuspendModal()">×</button>
             </div>
             <form id="suspendForm" method="POST">
                 @csrf
-                @method('PATCH')@
+                @method('PATCH')
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="suspension_reason">السبب (اختياري)</label>
+                        <label for="suspension_reason">{{ __('shifts-workers.suspension_reason') }}</label>
                         <textarea
                             id="suspension_reason"
                             name="suspension_reason"
                             class="form-control"
                             rows="4"
-                            placeholder="أدخل سبب تعليق الوردية...">
+                            placeholder="{{ __('shifts-workers.suspension_reason_placeholder') }}">
                         </textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeSuspendModal()">إلغاء</button>
-                    <button type="submit" class="btn btn-warning">تعليق الوردية</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeSuspendModal()">{{ __('shifts-workers.cancel') }}</button>
+                    <button type="submit" class="btn btn-warning">{{ __('shifts-workers.suspend_shift') }}</button>
                 </div>
             </form>
         </div>
@@ -456,21 +442,21 @@
     <div id="handoverModal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>نقل الوردية</h3>
+                <h3>{{ __('shifts-workers.shift_handover') }}</h3>
                 <button class="close-btn" onclick="closeHandoverModal()">×</button>
             </div>
             <form id="handoverForm" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>رقم الوردية</label>
+                        <label>{{ __('shifts-workers.shift_number') }}</label>
                         <input type="text" class="form-control" id="handover_shift_code" readonly style="background: #f5f5f5;">
                         <input type="hidden" id="handover_shift_id" name="shift_id">
                     </div>
                     <div class="form-group">
-                        <label for="handover_to_user_id">انقل إلى العامل</label>
+                        <label for="handover_to_user_id">{{ __('shifts-workers.handover_to_worker') }}</label>
                         <select id="handover_to_user_id" name="to_user_id" class="form-control" required>
-                            <option value="">-- اختر العامل الجديد --</option>
+                            <option value="">-- {{ __('shifts-workers.select_worker') }} --</option>
                             @foreach($shifts as $shift)
                                 @if($shift->supervisor)
                                     <option value="{{ $shift->supervisor->id }}">{{ $shift->supervisor->name }}</option>
@@ -479,29 +465,29 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="handover_stage_number">المرحلة</label>
+                        <label for="handover_stage_number">{{ __('shifts-workers.stage_number') }}</label>
                         <select id="handover_stage_number" name="stage_number" class="form-control" required>
-                            <option value="">-- اختر المرحلة --</option>
-                            <option value="1">المرحلة الأولى</option>
-                            <option value="2">المرحلة الثانية</option>
-                            <option value="3">المرحلة الثالثة</option>
-                            <option value="4">المرحلة الرابعة</option>
+                            <option value="">{{ __('shifts-workers.select_stage') }}</option>
+                            <option value="1">{{ __('shifts-workers.stage_first') }}</option>
+                            <option value="2">{{ __('shifts-workers.stage_second') }}</option>
+                            <option value="3">{{ __('shifts-workers.stage_third') }}</option>
+                            <option value="4">{{ __('shifts-workers.stage_fourth') }}</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="handover_notes">ملاحظات (اختياري)</label>
+                        <label for="handover_notes">{{ __('shifts-workers.handover_notes') }}</label>
                         <textarea
                             id="handover_notes"
                             name="notes"
                             class="form-control"
                             rows="3"
-                            placeholder="أضف ملاحظات عن النقل...">
+                            placeholder="{{ __('shifts-workers.handover_notes_placeholder') }}">
                         </textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeHandoverModal()">إلغاء</button>
-                    <button type="submit" class="btn btn-info" style="background: #17a2b8; color: white;">نقل الوردية</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeHandoverModal()">{{ __('shifts-workers.cancel') }}</button>
+                    <button type="submit" class="btn btn-info" style="background: #17a2b8; color: white;">{{ __('shifts-workers.handover_confirm') }}</button>
                 </div>
             </form>
         </div>
@@ -644,6 +630,168 @@
 
         .um-btn-info:hover {
             background: #17a2b820 !important;
+        }
+
+        /* Mobile View Styles */
+        @media (max-width: 768px) {
+            .um-table-responsive.um-desktop-view {
+                display: none;
+            }
+
+            .um-mobile-view {
+                display: block;
+            }
+
+            .um-category-card {
+                background: white;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+                border: 1px solid #e0e0e0;
+            }
+
+            .um-category-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 15px;
+                border-bottom: 1px solid #f0f0f0;
+                background: #f9f9f9;
+            }
+
+            .um-category-info {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                flex: 1;
+            }
+
+            .um-category-icon {
+                min-width: 40px;
+            }
+
+            .um-category-name {
+                font-size: 14px;
+                font-weight: 600;
+                margin: 0;
+                color: #333;
+            }
+
+            .um-category-id {
+                font-size: 12px;
+                color: #999;
+                display: block;
+                margin-top: 3px;
+            }
+
+            .um-category-card-body {
+                padding: 12px 15px;
+            }
+
+            .um-info-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 0;
+                border-bottom: 1px solid #f5f5f5;
+                font-size: 13px;
+            }
+
+            .um-info-row:last-child {
+                border-bottom: none;
+            }
+
+            .um-info-label {
+                font-weight: 500;
+                color: #666;
+            }
+
+            .um-info-value {
+                color: #333;
+                font-weight: 500;
+                text-align: right;
+            }
+
+            .um-category-card-footer {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 10px 15px;
+                background: #f9f9f9;
+                border-top: 1px solid #f0f0f0;
+            }
+
+            .um-btn-sm {
+                padding: 6px 10px !important;
+                font-size: 12px !important;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                flex: 1;
+                min-width: 100px;
+                justify-content: center;
+            }
+
+            .um-badge {
+                padding: 4px 8px;
+                font-size: 11px;
+                border-radius: 4px;
+                font-weight: 500;
+            }
+
+            .um-badge-success {
+                background: #d4edda;
+                color: #155724;
+            }
+
+            .um-badge-info {
+                background: #d1ecf1;
+                color: #0c5460;
+            }
+
+            .um-badge-secondary {
+                background: #e2e3e5;
+                color: #383d41;
+            }
+
+            .um-btn {
+                border-radius: 4px;
+                padding: 8px 12px;
+                font-size: 13px;
+                border: none;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .um-btn-primary {
+                background: #3b82f6;
+                color: white;
+            }
+
+            .um-btn-secondary {
+                background: #6b7280;
+                color: white;
+            }
+
+            .um-btn-success {
+                background: #10b981;
+                color: white;
+            }
+
+            .um-btn-info {
+                background: #0891b2;
+                color: white;
+            }
+
+            .um-mobile-view {
+                display: none;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .um-mobile-view {
+                display: none;
+            }
         }
     </style>
 

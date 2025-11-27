@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تفاصيل العامل - ' . $worker->name)
+@section('title', __('workers.worker_details') . ' - ' . $worker->name)
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
@@ -369,18 +369,18 @@
                     </div>
                     <div class="header-info">
                         <h1>{{ $worker->name }}</h1>
-                        <p><strong>الكود:</strong> {{ $worker->worker_code }} | <strong>الوظيفة:</strong> {{ $worker->position_name }}</p>
+                        <p><strong>{{ __('workers.code') }}:</strong> {{ $worker->worker_code }} | <strong>{{ __('workers.job') }}:</strong> {{ $worker->position_name }}</p>
                     </div>
                 </div>
                 <div class="header-actions">
                     @can('WORKERS_UPDATE')
                     <a href="{{ route('manufacturing.workers.edit', $worker->id) }}" class="action-btn view">
-                        <i class="feather icon-edit-2"></i> تعديل
+                        <i class="feather icon-edit-2"></i> {{ __('app.buttons.edit') }}
                     </a>
                     @endcan
                     @can('WORKERS_READ')
                     <a href="{{ route('manufacturing.workers.index') }}" class="btn-back">
-                        <i class="feather icon-arrow-right"></i> العودة
+                        <i class="feather icon-arrow-right"></i> {{ __('workers.back') }}
                     </a>
                     @endcan
                 </div>
@@ -394,28 +394,28 @@
                     <div class="card-icon primary">
                         <i class="feather icon-user-check"></i>
                     </div>
-                    <h3 class="card-title">المعلومات الأساسية</h3>
+                    <h3 class="card-title">{{ __('workers.basic_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <label>اسم العامل</label>
+                        <label>{{ __('workers.worker_name') }}</label>
                         <div class="value">{{ $worker->name }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>كود العامل</label>
+                        <label>{{ __('workers.worker_code') }}</label>
                         <div class="value"><code style="background: white; padding: 6px 10px; border-radius: 4px;">{{ $worker->worker_code }}</code></div>
                     </div>
 
                     <div class="info-item">
-                        <label>الوظيفة</label>
+                        <label>{{ __('workers.position') }}</label>
                         <div class="value">
                             <span class="status-badge active">{{ $worker->position_name }}</span>
                         </div>
                     </div>
 
                     <div class="info-item">
-                        <label>رقم الهوية</label>
+                        <label>{{ __('workers.national_id') }}</label>
                         <div class="value">{{ $worker->national_id ?? '-' }}</div>
                     </div>
                 </div>
@@ -426,26 +426,26 @@
                     <div class="card-icon success">
                         <i class="feather icon-phone"></i>
                     </div>
-                    <h3 class="card-title">معلومات الاتصال</h3>
+                    <h3 class="card-title">{{ __('workers.contact_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <label>رقم الهاتف</label>
+                        <label>{{ __('workers.phone') }}</label>
                         <div class="value">{{ $worker->phone ?? '-' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>البريد الإلكتروني</label>
+                        <label>{{ __('workers.email') }}</label>
                         <div class="value">{{ $worker->email ?? '-' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>جهة الاتصال للطوارئ</label>
+                        <label>{{ __('workers.emergency_contact') }}</label>
                         <div class="value">{{ $worker->emergency_contact ?? '-' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>هاتف الطوارئ</label>
+                        <label>{{ __('workers.emergency_phone') }}</label>
                         <div class="value">{{ $worker->emergency_phone ?? '-' }}</div>
                     </div>
                 </div>
@@ -456,29 +456,29 @@
                     <div class="card-icon warning">
                         <i class="feather icon-briefcase"></i>
                     </div>
-                    <h3 class="card-title">معلومات العمل</h3>
+                    <h3 class="card-title">{{ __('workers.work_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <label>الأجر بالساعة</label>
-                        <div class="value">{{ number_format($worker->hourly_rate, 2) }} IQD</div>
+                        <label>{{ __('workers.hourly_rate') }}</label>
+                        <div class="value">{{ number_format($worker->hourly_rate, 2) }} {{ __('workers.currency') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>تاريخ التعيين</label>
+                        <label>{{ __('workers.hire_date') }}</label>
                         <div class="value">{{ $worker->hire_date?->format('Y-m-d') ?? '-' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>تفضيل الوردية</label>
+                        <label>{{ __('workers.shift_preference') }}</label>
                         <div class="value">{{ $worker->shift_preference_name }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>الحالة</label>
+                        <label>{{ __('app.status.status') }}</label>
                         <div class="value">
                             <span class="status-badge {{ $worker->is_active ? 'active' : 'inactive' }}">
-                                {{ $worker->is_active ? 'نشط' : 'معطل' }}
+                                {{ $worker->is_active ? __('workers.active') : __('workers.inactive') }}
                             </span>
                         </div>
                     </div>
@@ -494,38 +494,38 @@
                         <div class="card-icon primary">
                             <i class="feather icon-calendar"></i>
                         </div>
-                        <h3 class="card-title">سجل الورديات</h3>
+                        <h3 class="card-title">{{ __('workers.shift_history') }}</h3>
                     </div>
                     <div class="card-body">
                         <!-- Filters -->
                         <form method="GET" action="{{ route('manufacturing.workers.show', $worker->id) }}" class="mb-4" style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
                                 <div>
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">نوع الوردية</label>
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">{{ __('workers.shift_types.shift_type') }}</label>
                                     <select name="shift_type" class="form-control" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
-                                        <option value="">جميع الأنواع</option>
-                                        <option value="morning" {{ request('shift_type') == 'morning' ? 'selected' : '' }}>الفترة الصباحية</option>
-                                        <option value="evening" {{ request('shift_type') == 'evening' ? 'selected' : '' }}>الفترة المسائية</option>
-                                        <option value="night" {{ request('shift_type') == 'night' ? 'selected' : '' }}>الفترة الليلية</option>
+                                        <option value="">{{ __('app.all') }} {{ __('app.types') }}</option>
+                                        <option value="morning" {{ request('shift_type') == 'morning' ? 'selected' : '' }}>{{ __('workers.shift_types.morning') }}</option>
+                                        <option value="evening" {{ request('shift_type') == 'evening' ? 'selected' : '' }}>{{ __('workers.shift_types.evening') }}</option>
+                                        <option value="night" {{ request('shift_type') == 'night' ? 'selected' : '' }}>{{ __('workers.shift_types.night') }}</option>
                                     </select>
                                 </div>
 
                                 <div>
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">من التاريخ</label>
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">{{ __('workers.from_date') }}</label>
                                     <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
                                 </div>
 
                                 <div>
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">إلى التاريخ</label>
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">{{ __('workers.to_date') }}</label>
                                     <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
                                 </div>
 
                                 <div style="display: flex; align-items: flex-end; gap: 8px;">
                                     <button type="submit" class="action-btn view" style="flex: 1;">
-                                        <i class="feather icon-search"></i> بحث
+                                        <i class="feather icon-search"></i> {{ __('app.buttons.search') }}
                                     </button>
                                     <a href="{{ route('manufacturing.workers.show', $worker->id) }}" class="action-btn" style="background: #95a5a6; color: white; flex: 1; justify-content: center;">
-                                        <i class="feather icon-x"></i> مسح
+                                        <i class="feather icon-x"></i> {{ __('app.buttons.reset') }}
                                     </a>
                                 </div>
                             </div>
@@ -537,13 +537,13 @@
                                 <table>
                                     <thead>
                                         <tr>
-                                            <th>رقم الوردية</th>
-                                            <th>التاريخ</th>
-                                            <th>النوع</th>
-                                            <th>الوقت</th>
-                                            <th>المرحلة</th>
-                                            <th>الحالة</th>
-                                            <th>الإجراءات</th>
+                                            <th>{{ __('workers.shift_number') }}</th>
+                                            <th>{{ __('workers.date') }}</th>
+                                            <th>{{ __('workers.type') }}</th>
+                                            <th>{{ __('workers.time') }}</th>
+                                            <th>{{ __('workers.stage') }}</th>
+                                            <th>{{ __('app.status.status') }}</th>
+                                            <th>{{ __('app.actions') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -554,9 +554,9 @@
                                                 <td>
                                                     @php
                                                         $typeLabel = match($shift->shift_type ?? null) {
-                                                            'morning' => 'صباحية',
-                                                            'evening' => 'مسائية',
-                                                            'night' => 'ليلية',
+                                                            'morning' => __('workers.shift_types.morning'),
+                                                            'evening' => __('workers.shift_types.evening'),
+                                                            'night' => __('workers.shift_types.night'),
                                                             default => $shift->shift_type ?? '-'
                                                         };
                                                         $typeColor = match($shift->shift_type ?? null) {
@@ -571,14 +571,14 @@
                                                     </span>
                                                 </td>
                                                 <td>{{ $shift->start_time }} - {{ $shift->end_time }}</td>
-                                                <td>المرحلة {{ $shift->stage_number ?? '-' }}</td>
+                                                <td>{{ __('workers.stage') }} {{ $shift->stage_number ?? '-' }}</td>
                                                 <td>
                                                     @php
                                                         $statusLabel = match($shift->status ?? null) {
-                                                            'scheduled' => 'مجدولة',
-                                                            'active' => 'نشطة',
-                                                            'completed' => 'مكتملة',
-                                                            'cancelled' => 'ملغية',
+                                                            'scheduled' => __('workers.shift_statuses.scheduled'),
+                                                            'active' => __('workers.shift_statuses.active'),
+                                                            'completed' => __('workers.shift_statuses.completed'),
+                                                            'cancelled' => __('workers.shift_statuses.cancelled'),
                                                             default => $shift->status ?? '-'
                                                         };
                                                         $statusBg = match($shift->status ?? null) {
@@ -602,7 +602,7 @@
                                                 </td>
                                                 <td>
                                                     <button type="button" class="view-shift-btn" onclick="viewShiftDetails({{ $shift->id }})">
-                                                        <i class="feather icon-eye"></i> عرض
+                                                        <i class="feather icon-eye"></i> {{ __('workers.show_details') }}
                                                     </button>
                                                 </td>
                                             </tr>
@@ -618,8 +618,8 @@
                         @else
                             <div class="empty-state">
                                 <i class="feather icon-inbox"></i>
-                                <p><strong>لا توجد ورديات</strong></p>
-                                <small>لم يتم تعيين أي ورديات لهذا العامل</small>
+                                <p><strong>{{ __('workers.no_shifts') }}</strong></p>
+                                <small>{{ __('workers.no_shifts_assigned') }}</small>
                             </div>
                         @endif
                     </div>
@@ -639,7 +639,7 @@
                         <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
                             <h3 style="margin: 0; font-size: 20px; font-weight: 700;">
                                 <i class="feather icon-info"></i>
-                                تفاصيل الوردية
+                                {{ __('workers.shift_details') }}
                             </h3>
                             <button onclick="closeMovementModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
                                 <i class="feather icon-x"></i>
@@ -650,7 +650,7 @@
                         <div id="movementDetailsContent" style="padding: 25px;">
                             <div style="text-align: center; padding: 40px;">
                                 <div class="spinner-border text-primary" role="status">
-                                    <span class="sr-only">جاري التحميل...</span>
+                                    <span class="sr-only">{{ __('workers.loading') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -685,14 +685,14 @@
                     content.innerHTML = `
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                             <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-right: 4px solid ${color};">
-                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">رقم الوردية</div>
+                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">{{ __('workers.shift_number') }}</div>
                                 <div style="font-size: 16px; font-weight: 700; color: #2c3e50;">
                                     <code style="background: white; padding: 6px 10px; border-radius: 4px;">${shift.shift_code || '-'}</code>
                                 </div>
                             </div>
 
                             <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-right: 4px solid ${color};">
-                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">نوع الوردية</div>
+                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">{{ __('workers.shift_types.shift_type') }}</div>
                                 <div style="font-size: 16px; font-weight: 700;">
                                     <span style="background: ${color}; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px;">${getShiftTypeLabel(shift.shift_type)}</span>
                                 </div>
@@ -701,23 +701,23 @@
 
                         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                             <h4 style="margin: 0 0 15px 0; font-size: 16px; color: #2c3e50; font-weight: 700; border-bottom: 2px solid #ddd; padding-bottom: 10px;">
-                                <i class="feather icon-calendar"></i> معلومات الوردية
+                                <i class="feather icon-calendar"></i> {{ __('workers.shift_information') }}
                             </h4>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                                 <div>
-                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">التاريخ</div>
+                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">{{ __('workers.date') }}</div>
                                     <div style="font-size: 14px; font-weight: 600; color: #2c3e50;">${shift.shift_date || '-'}</div>
                                 </div>
                                 <div>
-                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">المرحلة</div>
-                                    <div style="font-size: 14px; font-weight: 600; color: #2c3e50;">${shift.stage_number ? 'المرحلة ' + shift.stage_number : '-'}</div>
+                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">{{ __('workers.stage') }}</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: #2c3e50;">${shift.stage_number ? '{{ __('workers.stage') }} ' + shift.stage_number : '-'}</div>
                                 </div>
                                 <div>
-                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">وقت البدء</div>
+                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">{{ __('app.start_time') }}</div>
                                     <div style="font-size: 14px; font-weight: 600; color: #2c3e50;">${shift.start_time || '-'}</div>
                                 </div>
                                 <div>
-                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">وقت الانتهاء</div>
+                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">{{ __('app.end_time') }}</div>
                                     <div style="font-size: 14px; font-weight: 600; color: #2c3e50;">${shift.end_time || '-'}</div>
                                 </div>
                             </div>
@@ -725,15 +725,15 @@
 
                         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                             <h4 style="margin: 0 0 15px 0; font-size: 16px; color: #2c3e50; font-weight: 700; border-bottom: 2px solid #ddd; padding-bottom: 10px;">
-                                <i class="feather icon-activity"></i> الحالة
+                                <i class="feather icon-activity"></i> {{ __('app.status.status') }}
                             </h4>
                             <div style="display: flex; justify-content: center;">
                                 ${(() => {
                                     const statusColors = {
-                                        'scheduled': ['#fff3cd', '#856404', 'مجدولة'],
-                                        'active': ['#d4edda', '#155724', 'نشطة'],
-                                        'completed': ['#d1ecf1', '#0c5460', 'مكتملة'],
-                                        'cancelled': ['#f8d7da', '#721c24', 'ملغية']
+                                        'scheduled': ['#fff3cd', '#856404', '{{ __('workers.shift_statuses.scheduled') }}'],
+                                        'active': ['#d4edda', '#155724', '{{ __('workers.shift_statuses.active') }}'],
+                                        'completed': ['#d1ecf1', '#0c5460', '{{ __('workers.shift_statuses.completed') }}'],
+                                        'cancelled': ['#f8d7da', '#721c24', '{{ __('workers.shift_statuses.cancelled') }}']
                                     };
                                     const [bg, text, label] = statusColors[shift.status] || ['#e2e3e5', '#383d41', shift.status];
                                     return `<span style="background: ${bg}; color: ${text}; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600;">${label}</span>`;
@@ -744,7 +744,7 @@
                         ${shift.notes ? `
                         <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-right: 4px solid #f39c12; margin-bottom: 20px;">
                             <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #856404; font-weight: 700;">
-                                <i class="feather icon-file-text"></i> ملاحظات
+                                <i class="feather icon-file-text"></i> {{ __('workers.notes') }}
                             </h4>
                             <p style="margin: 0; color: #856404; font-size: 13px;">${shift.notes}</p>
                         </div>
@@ -757,8 +757,8 @@
                     content.innerHTML = `
                         <div style="text-align: center; padding: 40px; color: #e74c3c;">
                             <i class="feather icon-alert-circle" style="font-size: 48px; margin-bottom: 15px;"></i>
-                            <p style="margin: 0; font-size: 16px; font-weight: 600;">حدث خطأ في تحميل البيانات</p>
-                            <small style="color: #95a5a6;">يرجى المحاولة مرة أخرى</small>
+                            <p style="margin: 0; font-size: 16px; font-weight: 600;">{{ __('workers.error_loading_data') }}</p>
+                            <small style="color: #95a5a6;">{{ __('app.please_try_again') }}</small>
                         </div>
                     `;
                 });
@@ -773,9 +773,9 @@
 
         function getShiftTypeLabel(type) {
             const labels = {
-                'morning': 'صباحية',
-                'evening': 'مسائية',
-                'night': 'ليلية'
+                'morning': '{{ __('workers.shift_types.morning') }}',
+                'evening': '{{ __('workers.shift_types.evening') }}',
+                'night': '{{ __('workers.shift_types.night') }}'
             };
             return labels[type] || type;
         }
