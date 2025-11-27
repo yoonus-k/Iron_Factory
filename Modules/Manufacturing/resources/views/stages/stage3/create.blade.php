@@ -223,13 +223,16 @@ function loadStage2(barcode) {
             if (!result.success) throw new Error(result.message);
 
             const data = result.data;
+            const source = result.source || 'stage2';
+            
             currentStage2 = {
-                id: data.id,
+                id: data.id || null,
                 barcode: data.barcode,
                 stand_number: data.stand_number || 'غير محدد',
-                output_weight: parseFloat(data.remaining_weight || data.output_weight),
+                output_weight: parseFloat(data.remaining_weight || data.output_weight || data.quantity),
                 material_id: data.material_id,
-                material_name: data.material_name || 'غير محدد'
+                material_name: data.material_name || 'غير محدد',
+                source: source
             };
 
             // Display stage2 data
@@ -300,8 +303,11 @@ function addLafaf() {
     }
 
     const data = {
-        stage2_id: currentStage2.id,
+        stage2_id: currentStage2.id || null,
         stage2_barcode: currentStage2.barcode,
+        source: currentStage2.source || 'stage2',
+        material_id: currentStage2.material_id || null,
+        input_weight: inputWeight,
         total_weight: totalWeightNum,
         color: color,
         plastic_type: plasticType,

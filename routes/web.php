@@ -40,9 +40,6 @@ Route::middleware(['auth'])->group(function () {
         return view('test-permissions');
     })->name('test-permissions');
 
-    // Staff Profile Route
-    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
-
     // Roles & Permissions Routes (Admin Only)
     Route::middleware(['role:ADMIN'])->group(function () {
         Route::resource('roles', RoleController::class);

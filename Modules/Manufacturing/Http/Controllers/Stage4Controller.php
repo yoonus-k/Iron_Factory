@@ -11,10 +11,15 @@ class Stage4Controller extends Controller
 {
     /**
      * عرض قائمة جميع الكراتين
+     * Worker sees only their operations
+     * Admin/Supervisor sees all operations
      */
     public function index()
     {
-        $boxes = DB::table('stage4_boxes')
+        $user = \Illuminate\Support\Facades\Auth::user();
+        
+        // Query base
+        $query = DB::table('stage4_boxes')
             ->leftJoin('material_details', 'stage4_boxes.material_id', '=', 'material_details.id')
             ->leftJoin('materials', 'material_details.material_id', '=', 'materials.id')
             ->leftJoin('users', 'stage4_boxes.created_by', '=', 'users.id')
@@ -22,11 +27,19 @@ class Stage4Controller extends Controller
                 'stage4_boxes.*',
                 'materials.name_ar as material_name',
                 'users.name as created_by_name'
-            )
-            ->orderBy('stage4_boxes.created_at', 'desc')
+            );
+
+        // إذا لم يكن لديه صلاحية رؤية جميع العمليات، يعرض فقط عملياته
+        $viewingAll = $user->hasPermission('VIEW_ALL_STAGE4_OPERATIONS');
+        
+        if (!$viewingAll) {
+            $query->where('stage4_boxes.created_by', $user->id);
+        }
+
+        $boxes = $query->orderBy('stage4_boxes.created_at', 'desc')
             ->paginate(20);
 
-        return view('manufacturing::stages.stage4.index', compact('boxes'));
+        return view('manufacturing::stages.stage4.index', compact('boxes', 'viewingAll'));
     }
 
     /**
@@ -38,10 +51,15 @@ class Stage4Controller extends Controller
     }
 
     /**
-     * الحصول على بيانات اللفاف بواسطة الباركود
+     * Get material by barcode - Supports TWO sources:
+     * 1. Stage 3 barcode (ST3-XXX) from stage3_coils table
+     * 2. Warehouse direct transfer for Stage 4 (confirmed barcodes)
      */
     public function getByBarcode($barcode)
     {
+        \Log::info('Stage4 getByBarcode called', ['barcode' => $barcode]);
+        
+        // المصدر الأول: باركود المرحلة الثالثة (ST3-XXX)
         $lafaf = DB::table('stage3_coils')
             ->leftJoin('stage2_processed', 'stage3_coils.stage2_id', '=', 'stage2_processed.id')
             ->leftJoin('stage1_stands', 'stage3_coils.stage1_id', '=', 'stage1_stands.id')
@@ -55,25 +73,62 @@ class Stage4Controller extends Controller
             )
             ->first();
 
-        if (!$lafaf) {
+        if ($lafaf) {
+            \Log::info('Stage4: Found in stage3_coils', ['lafaf_id' => $lafaf->id]);
+            
+            // التحقق من أن اللفاف ليس معبأ بالفعل
+            if ($lafaf->status === 'packed') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'هذا اللفاف تم تعبئته بالفعل'
+                ], 400);
+            }
+
             return response()->json([
-                'success' => false,
-                'message' => 'لم يتم العثور على باركود اللفاف'
-            ], 404);
+                'success' => true,
+                'source' => 'stage3',
+                'data' => $lafaf
+            ]);
         }
 
-        // التحقق من أن اللفاف ليس معبأ بالفعل
-        if ($lafaf->status === 'packed') {
+        \Log::info('Stage4: Not found in stage3_coils, checking warehouse_direct');
+        
+        // المصدر الثاني: باركود من المخزن مباشرة للمرحلة الرابعة
+        $confirmation = DB::table('production_confirmations')
+            ->join('delivery_notes', 'production_confirmations.delivery_note_id', '=', 'delivery_notes.id')
+            ->join('material_batches', 'production_confirmations.batch_id', '=', 'material_batches.id')
+            ->join('materials', 'material_batches.material_id', '=', 'materials.id')
+            ->where('delivery_notes.production_barcode', $barcode)
+            ->where('production_confirmations.stage_code', 'stage_4')
+            ->where('production_confirmations.status', 'confirmed')
+            ->select(
+                'production_confirmations.id',
+                'delivery_notes.production_barcode as barcode',
+                'material_batches.material_id',
+                DB::raw('COALESCE(production_confirmations.actual_received_quantity, delivery_notes.quantity, 0) as total_weight'),
+                'material_batches.unit_id',
+                'materials.name_ar as material_name',
+                'materials.name_en as material_name_en',
+                'delivery_notes.id as delivery_note_id'
+            )
+            ->first();
+
+        if ($confirmation) {
+            \Log::info('Stage4: Found in warehouse_direct', ['confirmation_id' => $confirmation->id]);
             return response()->json([
-                'success' => false,
-                'message' => 'هذا اللفاف تم تعبئته بالفعل'
-            ], 400);
+                'success' => true,
+                'source' => 'warehouse_direct',
+                'data' => $confirmation
+            ]);
         }
 
+        \Log::warning('Stage4: Barcode not found in any source', ['barcode' => $barcode]);
+        
+        // لم يتم العثور على الباركود في أي من المصدرين
         return response()->json([
-            'success' => true,
-            'data' => $lafaf
-        ]);
+            'success' => false,
+            'message' => 'لم يتم العثور على الباركود في سجلات المرحلة الثالثة أو التحويلات المباشرة من المخزن. تأكد من: 1) الباركود صحيح 2) اللفاف موجود في المرحلة الثالثة 3) أو مصادق عليه للمرحلة الرابعة من المخزن'
+        ], 404);
     }
 
     /**
@@ -252,7 +307,8 @@ class Stage4Controller extends Controller
     {
         $validator = Validator::make($request->all(), [
             'lafaf_barcode' => 'required|string',
-            'lafaf_id' => 'required|integer',
+            'lafaf_id' => 'nullable|integer',
+            'source' => 'nullable|string',
             'material_id' => 'required|integer',
             'weight' => 'required|numeric|min:0.001',
             'notes' => 'nullable|string'

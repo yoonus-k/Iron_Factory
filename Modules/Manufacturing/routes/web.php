@@ -81,42 +81,44 @@ Route::middleware(['auth'])->group(function () {
     Route::put('warehouse-settings/material-types/{id}/toggle-status', [MaterialTypeController::class, 'toggleStatus'])->name('manufacturing.warehouse-settings.material-types.toggle-status');
 
     // ========== تسجيل البضاعة ==========
-    Route::prefix('warehouse/registration')->middleware('permission:WAREHOUSE_REGISTRATION_READ')->group(function () {
+    Route::prefix('warehouse/registration')->group(function () {
         Route::get('/', [WarehouseRegistrationController::class, 'pending'])->name('manufacturing.warehouse.registration.pending');
-        Route::get('create/{deliveryNote}', [WarehouseRegistrationController::class, 'create'])->middleware('permission:WAREHOUSE_REGISTRATION_CREATE')->name('manufacturing.warehouse.registration.create');
-        Route::post('store/{deliveryNote}', [WarehouseRegistrationController::class, 'store'])->middleware('permission:WAREHOUSE_REGISTRATION_CREATE')->name('manufacturing.warehouse.registration.store');
+        Route::get('create/{deliveryNote}', [WarehouseRegistrationController::class, 'create'])->name('manufacturing.warehouse.registration.create');
+        Route::post('store/{deliveryNote}', [WarehouseRegistrationController::class, 'store'])->name('manufacturing.warehouse.registration.store');
         Route::get('show/{deliveryNote}', [WarehouseRegistrationController::class, 'show'])->name('manufacturing.warehouse.registration.show');
 
         // النقل للإنتاج مع اختيار الكمية
-        Route::get('transfer/{deliveryNote}', [WarehouseRegistrationController::class, 'showTransferForm'])->middleware('permission:WAREHOUSE_REGISTRATION_TRANSFER')->name('manufacturing.warehouse.registration.transfer-form');
-        Route::post('transfer-to-production/{deliveryNote}', [WarehouseRegistrationController::class, 'transferToProduction'])->middleware('permission:WAREHOUSE_REGISTRATION_TRANSFER')->name('manufacturing.warehouse.registration.transfer-to-production');
-
+        Route::get('transfer/{deliveryNote}', [WarehouseRegistrationController::class, 'showTransferForm'])->name('manufacturing.warehouse.registration.transfer-form');
+        Route::post('transfer-to-production/{deliveryNote}', [WarehouseRegistrationController::class, 'transferToProduction'])->name('manufacturing.warehouse.registration.transfer-to-production');
+        
         // صفحة باركود الإنتاج
-        Route::get('production-barcode/{deliveryNote}', [WarehouseRegistrationController::class, 'showProductionBarcode'])->middleware('permission:WAREHOUSE_REGISTRATION_TRANSFER')->name('manufacturing.warehouse.registration.production-barcode');
+        Route::get('production-barcode/{deliveryNote}', [WarehouseRegistrationController::class, 'showProductionBarcode'])->name('manufacturing.warehouse.registration.production-barcode');
 
         // النقل الفوري (لاحتفاظ الرجعية)
-        Route::post('move-production/{deliveryNote}', [WarehouseRegistrationController::class, 'moveToProduction'])->middleware('permission:WAREHOUSE_REGISTRATION_TRANSFER')->name('manufacturing.warehouse.registration.move-production');
+        Route::post('move-production/{deliveryNote}', [WarehouseRegistrationController::class, 'moveToProduction'])->name('manufacturing.warehouse.registration.move-production');
 
-        Route::post('lock/{deliveryNote}', [WarehouseRegistrationController::class, 'lock'])->middleware('permission:WAREHOUSE_REGISTRATION_LOCK')->name('manufacturing.warehouse.registration.lock');
-        Route::post('unlock/{deliveryNote}', [WarehouseRegistrationController::class, 'unlock'])->middleware('permission:WAREHOUSE_REGISTRATION_LOCK')->name('manufacturing.warehouse.registration.unlock');
-    });    // ========== التسوية ==========
-    Route::prefix('warehouse/reconciliation')->middleware('permission:WAREHOUSE_RECONCILIATION_READ')->group(function () {
+        Route::post('lock/{deliveryNote}', [WarehouseRegistrationController::class, 'lock'])->name('manufacturing.warehouse.registration.lock');
+        Route::post('unlock/{deliveryNote}', [WarehouseRegistrationController::class, 'unlock'])->name('manufacturing.warehouse.registration.unlock');
+    });
+
+    // ========== التسوية ==========
+    Route::prefix('warehouse/reconciliation')->group(function () {
         Route::get('/', [ReconciliationController::class, 'index'])->name('manufacturing.warehouses.reconciliation.index');
         Route::get('show/{deliveryNote}', [ReconciliationController::class, 'show'])->name('manufacturing.warehouses.reconciliation.show');
-        Route::post('link/{deliveryNote}', [ReconciliationController::class, 'link'])->middleware('permission:WAREHOUSE_RECONCILIATION_UPDATE')->name('manufacturing.warehouses.reconciliation.link');
-        Route::post('decide/{deliveryNote}', [ReconciliationController::class, 'decide'])->middleware('permission:WAREHOUSE_RECONCILIATION_UPDATE')->name('manufacturing.warehouses.reconciliation.decide');
+        Route::post('link/{deliveryNote}', [ReconciliationController::class, 'link'])->name('manufacturing.warehouses.reconciliation.link');
+        Route::post('decide/{deliveryNote}', [ReconciliationController::class, 'decide'])->name('manufacturing.warehouses.reconciliation.decide');
         Route::get('history', [ReconciliationController::class, 'history'])->name('manufacturing.warehouses.reconciliation.history');
         Route::get('supplier-report', [ReconciliationController::class, 'supplierReport'])->name('manufacturing.warehouses.reconciliation.supplier-report');
 
         // ربط الفاتورة المتأخرة
-        Route::get('link-invoice', [ReconciliationController::class, 'showLinkInvoice'])->middleware('permission:WAREHOUSE_RECONCILIATION_LINK_INVOICE')->name('manufacturing.warehouses.reconciliation.link-invoice');
-        Route::post('link-invoice', [ReconciliationController::class, 'storeLinkInvoice'])->middleware('permission:WAREHOUSE_RECONCILIATION_LINK_INVOICE')->name('manufacturing.warehouses.reconciliation.link-invoice.store');
-        Route::get('link-invoice/{reconciliation}/edit', [ReconciliationController::class, 'editLinkInvoice'])->middleware('permission:WAREHOUSE_RECONCILIATION_LINK_INVOICE')->name('manufacturing.warehouses.reconciliation.link-invoice.edit');
-        Route::put('link-invoice/{reconciliation}', [ReconciliationController::class, 'updateLinkInvoice'])->middleware('permission:WAREHOUSE_RECONCILIATION_LINK_INVOICE')->name('manufacturing.warehouses.reconciliation.link-invoice.update');
-        Route::delete('link-invoice/{reconciliation}', [ReconciliationController::class, 'deleteLinkInvoice'])->middleware('permission:WAREHOUSE_RECONCILIATION_LINK_INVOICE')->name('manufacturing.warehouses.reconciliation.link-invoice.delete');
+        Route::get('link-invoice', [ReconciliationController::class, 'showLinkInvoice'])->name('manufacturing.warehouses.reconciliation.link-invoice');
+        Route::post('link-invoice', [ReconciliationController::class, 'storeLinkInvoice'])->name('manufacturing.warehouses.reconciliation.link-invoice.store');
+        Route::get('link-invoice/{reconciliation}/edit', [ReconciliationController::class, 'editLinkInvoice'])->name('manufacturing.warehouses.reconciliation.link-invoice.edit');
+        Route::put('link-invoice/{reconciliation}', [ReconciliationController::class, 'updateLinkInvoice'])->name('manufacturing.warehouses.reconciliation.link-invoice.update');
+        Route::delete('link-invoice/{reconciliation}', [ReconciliationController::class, 'deleteLinkInvoice'])->name('manufacturing.warehouses.reconciliation.link-invoice.delete');
 
         // ✅ لوحة التحكم الإدارية
-        Route::get('management', [ReconciliationController::class, 'showManagement'])->middleware('permission:WAREHOUSE_RECONCILIATION_MANAGEMENT')->name('manufacturing.warehouses.reconciliation.management');
+        Route::get('management', [ReconciliationController::class, 'showManagement'])->name('manufacturing.warehouses.reconciliation.management');
 
         // ✅ APIs للبحث والـ Auto-complete
         Route::get('api/search-delivery-notes', [ReconciliationController::class, 'searchDeliveryNotes'])->name('manufacturing.warehouses.reconciliation.api.search-delivery-notes');
@@ -133,22 +135,22 @@ Route::middleware(['auth'])->group(function () {
         Route::get('api/reconciliation/{id}', [ReconciliationController::class, 'getReconciliationDetails'])->name('manufacturing.warehouses.reconciliation.api.reconciliation-details');
 
         // ✅ Routes التعديل والحذف
-        Route::patch('update-delivery-note/{deliveryNote}', [ReconciliationController::class, 'updateDeliveryNote'])->middleware('permission:WAREHOUSE_RECONCILIATION_UPDATE')->name('manufacturing.warehouses.reconciliation.update-delivery-note');
-        Route::patch('update-invoice/{purchaseInvoice}', [ReconciliationController::class, 'updateInvoice'])->middleware('permission:WAREHOUSE_RECONCILIATION_UPDATE')->name('manufacturing.warehouses.reconciliation.update-invoice');
-        Route::patch('update-reconciliation/{reconciliationLog}', [ReconciliationController::class, 'updateReconciliation'])->middleware('permission:WAREHOUSE_RECONCILIATION_UPDATE')->name('manufacturing.warehouses.reconciliation.update-reconciliation');
-        Route::delete('delete-delivery-note/{deliveryNote}', [ReconciliationController::class, 'deleteDeliveryNote'])->middleware('permission:WAREHOUSE_RECONCILIATION_DELETE')->name('manufacturing.warehouses.reconciliation.delete-delivery-note');
-        Route::delete('delete-invoice/{purchaseInvoice}', [ReconciliationController::class, 'deleteInvoice'])->middleware('permission:WAREHOUSE_RECONCILIATION_DELETE')->name('manufacturing.warehouses.reconciliation.delete-invoice');
-        Route::delete('delete-reconciliation/{reconciliationLog}', [ReconciliationController::class, 'deleteReconciliation'])->middleware('permission:WAREHOUSE_RECONCILIATION_DELETE')->name('manufacturing.warehouses.reconciliation.delete-reconciliation');
-        Route::delete('delete-movement/{materialMovement}', [ReconciliationController::class, 'deleteMovement'])->middleware('permission:WAREHOUSE_RECONCILIATION_DELETE')->name('manufacturing.warehouses.reconciliation.delete-movement');
+        Route::patch('update-delivery-note/{deliveryNote}', [ReconciliationController::class, 'updateDeliveryNote'])->name('manufacturing.warehouses.reconciliation.update-delivery-note');
+        Route::patch('update-invoice/{purchaseInvoice}', [ReconciliationController::class, 'updateInvoice'])->name('manufacturing.warehouses.reconciliation.update-invoice');
+        Route::patch('update-reconciliation/{reconciliationLog}', [ReconciliationController::class, 'updateReconciliation'])->name('manufacturing.warehouses.reconciliation.update-reconciliation');
+        Route::delete('delete-delivery-note/{deliveryNote}', [ReconciliationController::class, 'deleteDeliveryNote'])->name('manufacturing.warehouses.reconciliation.delete-delivery-note');
+        Route::delete('delete-invoice/{purchaseInvoice}', [ReconciliationController::class, 'deleteInvoice'])->name('manufacturing.warehouses.reconciliation.delete-invoice');
+        Route::delete('delete-reconciliation/{reconciliationLog}', [ReconciliationController::class, 'deleteReconciliation'])->name('manufacturing.warehouses.reconciliation.delete-reconciliation');
+        Route::delete('delete-movement/{materialMovement}', [ReconciliationController::class, 'deleteMovement'])->name('manufacturing.warehouses.reconciliation.delete-movement');
 
         // ✅ صفحات التعديل (Edit Pages)
-        Route::get('edit-delivery-note/{deliveryNote}', [ReconciliationController::class, 'editDeliveryNote'])->middleware('permission:WAREHOUSE_RECONCILIATION_UPDATE')->name('manufacturing.warehouses.reconciliation.edit-delivery-note');
-        Route::get('edit-invoice/{purchaseInvoice}', [ReconciliationController::class, 'editInvoice'])->middleware('permission:WAREHOUSE_RECONCILIATION_UPDATE')->name('manufacturing.warehouses.reconciliation.edit-invoice');
-        Route::get('edit-reconciliation/{reconciliationLog}', [ReconciliationController::class, 'editReconciliation'])->middleware('permission:WAREHOUSE_RECONCILIATION_UPDATE')->name('manufacturing.warehouses.reconciliation.edit-reconciliation');
+        Route::get('edit-delivery-note/{deliveryNote}', [ReconciliationController::class, 'editDeliveryNote'])->name('manufacturing.warehouses.reconciliation.edit-delivery-note');
+        Route::get('edit-invoice/{purchaseInvoice}', [ReconciliationController::class, 'editInvoice'])->name('manufacturing.warehouses.reconciliation.edit-invoice');
+        Route::get('edit-reconciliation/{reconciliationLog}', [ReconciliationController::class, 'editReconciliation'])->name('manufacturing.warehouses.reconciliation.edit-reconciliation');
     });
 
     // ========== سجل حركات المواد ==========
-    Route::prefix('warehouse/movements')->middleware('permission:WAREHOUSE_MOVEMENTS_READ')->group(function () {
+    Route::prefix('warehouse/movements')->group(function () {
         Route::get('/', [MaterialMovementController::class, 'index'])->name('manufacturing.warehouse.movements.index');
         Route::get('show/{movement}', [MaterialMovementController::class, 'show'])->name('manufacturing.warehouse.movements.show');
     });

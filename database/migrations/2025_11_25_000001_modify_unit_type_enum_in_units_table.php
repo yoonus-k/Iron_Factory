@@ -21,6 +21,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // تحديث أي قيم غير متطابقة قبل التعديل
+        DB::table('units')
+            ->whereNotIn('unit_type', ['weight', 'length', 'volume', 'count', 'area'])
+            ->update(['unit_type' => 'weight']);
+            
         // إرجاع القيم القديمة
         DB::statement("ALTER TABLE units MODIFY COLUMN unit_type ENUM('weight', 'length', 'volume', 'count', 'area') NOT NULL COMMENT 'نوع الوحدة'");
     }

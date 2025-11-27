@@ -174,31 +174,35 @@
                             
                             <td style="padding: 18px; text-align: center;">
                                 <span style="background: #9b59b6; color: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 14px;">
-                                    {{ $confirmation->batch->batch_code }}
+                                    {{ $confirmation->batch?->batch_code ?? 'غير محدد' }}
                                 </span>
                             </td>
                             
                             <td style="padding: 18px; text-align: center;">
                                 <div style="font-weight: bold; color: #2c3e50; font-size: 15px;">
-                                    {{ $confirmation->batch->material->name }}
+                                    {{ $confirmation->batch?->material?->name ?? 'غير محدد' }}
                                 </div>
                             </td>
                             
                             <td style="padding: 18px; text-align: center;">
-                                <span style="font-size: 16px; font-weight: bold; color: #27ae60;">
-                                    {{ number_format($confirmation->deliveryNote->quantity, 2) }}
-                                </span>
-                                <span style="color: #7f8c8d; font-size: 13px;">كجم</span>
+                                @if($confirmation->deliveryNote?->quantity)
+                                    <span style="font-size: 16px; font-weight: bold; color: #27ae60;">
+                                        {{ number_format($confirmation->deliveryNote->quantity, 2) }}
+                                    </span>
+                                    <span style="color: #7f8c8d; font-size: 13px;">كجم</span>
+                                @else
+                                    <span style="color: #e74c3c; font-size: 14px;">بيانات غير متوفرة</span>
+                                @endif
                             </td>
                             
                             <td style="padding: 18px; text-align: center;">
                                 <span style="background: #3498db; color: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 13px;">
-                                    {{ $confirmation->deliveryNote->production_stage_name }}
+                                    {{ $confirmation->deliveryNote?->production_stage_name ?? 'غير محدد' }}
                                 </span>
                             </td>
                             
                             <td style="padding: 18px; text-align: center; color: #2c3e50; font-weight: 600;">
-                                {{ $confirmation->assignedUser->name }}
+                                {{ $confirmation->assignedUser?->name ?? 'غير محدد' }}
                             </td>
                             
                             <td style="padding: 18px; text-align: center;">
@@ -222,12 +226,29 @@
                             </td>
                             
                             <td style="padding: 18px; text-align: center;">
-                                <a href="{{ route('manufacturing.production.confirmations.show', $confirmation->id) }}" 
-                                   style="background: #3498db; color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 13px; transition: all 0.3s; display: inline-block;"
-                                   onmouseover="this.style.background='#2980b9'"
-                                   onmouseout="this.style.background='#3498db'">
-                                    👁️ التفاصيل
-                                </a>
+                                <div style="display: flex; gap: 8px; justify-content: center;">
+                                    <a href="{{ route('manufacturing.production.confirmations.show', $confirmation->id) }}" 
+                                       style="background: #3498db; color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 13px; transition: all 0.3s; display: inline-block;"
+                                       onmouseover="this.style.background='#2980b9'"
+                                       onmouseout="this.style.background='#3498db'">
+                                        👁️ التفاصيل
+                                    </a>
+                                    
+                                    @if($confirmation->status == 'pending' && $confirmation->assigned_to == auth()->id())
+                                        <button onclick="quickConfirm({{ $confirmation->id }})" 
+                                                style="background: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: all 0.3s;"
+                                                onmouseover="this.style.background='#229954'"
+                                                onmouseout="this.style.background='#27ae60'">
+                                            ✓ تأكيد
+                                        </button>
+                                        <button onclick="quickReject({{ $confirmation->id }})" 
+                                                style="background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: all 0.3s;"
+                                                onmouseover="this.style.background='#c0392b'"
+                                                onmouseout="this.style.background='#e74c3c'">
+                                            ✕ رفض
+                                        </button>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforeach
@@ -242,5 +263,132 @@
     @endif
 
 </div>
+
+<!-- Modals -->
+<div class="modal fade" id="quickConfirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="direction: rtl;">
+            <div class="modal-header" style="background: #27ae60; color: white;">
+                <h5 class="modal-title">✓ تأكيد الاستلام</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="confirm-id">
+                <div class="mb-3">
+                    <label class="form-label">ملاحظات (اختياري)</label>
+                    <textarea id="confirm-notes" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-success" onclick="submitConfirm()">✓ تأكيد</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="quickRejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="direction: rtl;">
+            <div class="modal-header" style="background: #e74c3c; color: white;">
+                <h5 class="modal-title">✕ رفض الاستلام</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="reject-id">
+                <div class="mb-3">
+                    <label class="form-label">سبب الرفض <span class="text-danger">*</span></label>
+                    <textarea id="reject-reason" class="form-control" rows="4" required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-danger" onclick="submitReject()">✕ رفض</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let confirmModal, rejectModal;
+
+document.addEventListener('DOMContentLoaded', function() {
+    confirmModal = new bootstrap.Modal(document.getElementById('quickConfirmModal'));
+    rejectModal = new bootstrap.Modal(document.getElementById('quickRejectModal'));
+});
+
+function quickConfirm(id) {
+    document.getElementById('confirm-id').value = id;
+    document.getElementById('confirm-notes').value = '';
+    confirmModal.show();
+}
+
+function quickReject(id) {
+    document.getElementById('reject-id').value = id;
+    document.getElementById('reject-reason').value = '';
+    rejectModal.show();
+}
+
+function submitConfirm() {
+    const id = document.getElementById('confirm-id').value;
+    const notes = document.getElementById('confirm-notes').value;
+    
+    fetch(`{{ url('manufacturing/production/confirmations') }}/${id}/confirm`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ notes: notes })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            confirmModal.hide();
+            alert('✓ تم التأكيد بنجاح!');
+            location.reload();
+        } else {
+            alert('❌ ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        alert('❌ حدث خطأ أثناء التأكيد');
+    });
+}
+
+function submitReject() {
+    const id = document.getElementById('reject-id').value;
+    const reason = document.getElementById('reject-reason').value;
+    
+    if (!reason.trim()) {
+        alert('الرجاء إدخال سبب الرفض');
+        return;
+    }
+    
+    fetch(`{{ url('manufacturing/production/confirmations') }}/${id}/reject`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ rejection_reason: reason })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            rejectModal.hide();
+            alert('✓ تم الرفض بنجاح!');
+            location.reload();
+        } else {
+            alert('❌ ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        alert('❌ حدث خطأ أثناء الرفض');
+    });
+}
+</script>
 
 @endsection

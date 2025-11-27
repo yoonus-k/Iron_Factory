@@ -39,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Stage 2 Additional Routes
     Route::get('stage1/get-by-barcode/{barcode}', [Stage2Controller::class, 'getByBarcode'])->name('manufacturing.stage1.get-by-barcode');
+    Route::get('stage2/get-by-barcode/{barcode}', [Stage2Controller::class, 'getByBarcode'])->name('manufacturing.stage2.get-by-barcode'); // يدعم مصدرين
     Route::get('stage2/complete/processing', [Stage2Controller::class, 'completeProcessing'])->name('manufacturing.stage2.complete-processing');
     Route::put('stage2/complete', [Stage2Controller::class, 'completeAction'])->name('manufacturing.stage2.complete');
     Route::get('stage2/waste/statistics', [Stage2Controller::class, 'wasteStatistics'])->name('manufacturing.stage2.waste-statistics');

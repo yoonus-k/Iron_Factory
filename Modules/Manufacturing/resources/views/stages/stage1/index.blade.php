@@ -38,6 +38,15 @@
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
                     قائمة الاستاندات ({{ $stands->total() }})
+                    @if(isset($viewingAll) && $viewingAll)
+                        <span style="display: inline-block; background: #3b82f6; color: white; padding: 4px 12px; border-radius: 6px; font-size: 13px; margin-right: 10px;">
+                            <i class="feather icon-eye"></i> جميع العمليات
+                        </span>
+                    @else
+                        <span style="display: inline-block; background: #10b981; color: white; padding: 4px 12px; border-radius: 6px; font-size: 13px; margin-right: 10px;">
+                            <i class="feather icon-user"></i> عملياتي فقط
+                        </span>
+                    @endif
                 </h4>
                 <a href="{{ route('manufacturing.stage1.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>

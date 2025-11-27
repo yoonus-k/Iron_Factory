@@ -13,22 +13,34 @@ class Stage1Controller extends Controller
 {
     /**
      * Display a listing of the resource.
+     * Worker sees only their operations
+     * Admin/Supervisor sees all operations
      */
     public function index()
     {
-        // جلب جميع الاستاندات من المرحلة الأولى مع البيانات المرتبطة
-        $stands = DB::table('stage1_stands')
+        $user = Auth::user();
+        
+        // Query base
+        $query = DB::table('stage1_stands')
             ->join('materials', 'stage1_stands.material_id', '=', 'materials.id')
             ->leftJoin('users', 'stage1_stands.created_by', '=', 'users.id')
             ->select(
                 'stage1_stands.*',
                 'materials.name_ar as material_name',
                 'users.name as created_by_name'
-            )
-            ->orderBy('stage1_stands.created_at', 'desc')
+            );
+
+        // إذا لم يكن لديه صلاحية رؤية جميع العمليات، يعرض فقط عملياته
+        $viewingAll = $user->hasPermission('VIEW_ALL_STAGE1_OPERATIONS');
+        
+        if (!$viewingAll) {
+            $query->where('stage1_stands.created_by', $user->id);
+        }
+
+        $stands = $query->orderBy('stage1_stands.created_at', 'desc')
             ->paginate(20);
 
-        return view('manufacturing::stages.stage1.index', compact('stands'));
+        return view('manufacturing::stages.stage1.index', compact('stands', 'viewingAll'));
     }
 
     /**
@@ -573,6 +585,50 @@ class Stage1Controller extends Controller
     public function getMaterialByBarcode($barcode)
     {
         try {
+            // 🔒 خطوة 1: التحقق من الموافقة على الباركود للمرحلة الأولى
+            $confirmation = DB::table('production_confirmations')
+                ->join('delivery_notes', 'production_confirmations.delivery_note_id', '=', 'delivery_notes.id')
+                ->where('delivery_notes.production_barcode', $barcode)
+                ->where('production_confirmations.stage_code', 'stage_1')
+                ->select(
+                    'production_confirmations.*',
+                    'delivery_notes.production_barcode',
+                    'delivery_notes.batch_id'
+                )
+                ->first();
+
+            // التحقق من وجود الموافقة
+            if (!$confirmation) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '❌ هذا الباركود غير مسجل في نظام الموافقات للمرحلة الأولى'
+                ], 404);
+            }
+
+            // التحقق من حالة الموافقة
+            if ($confirmation->status === 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => '⏳ هذا الباركود في انتظار الموافقة. يجب على عامل المرحلة الأولى الموافقة عليه أولاً'
+                ], 403);
+            }
+
+            if ($confirmation->status === 'rejected') {
+                return response()->json([
+                    'success' => false,
+                    'message' => '❌ تم رفض هذا الباركود. السبب: ' . ($confirmation->rejection_reason ?? 'غير محدد')
+                ], 403);
+            }
+
+            if ($confirmation->status !== 'confirmed') {
+                return response()->json([
+                    'success' => false,
+                    'message' => '❌ حالة الباركود غير صالحة: ' . $confirmation->status
+                ], 403);
+            }
+
+            // ✅ الباركود مؤكد، نتابع جلب البيانات
+            
             // البحث عن الباركود في جدول barcodes أولاً
             $barcodeRecord = DB::table('barcodes')
                 ->where('barcode', $barcode)

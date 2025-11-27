@@ -48,11 +48,22 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('notifications', function (Blueprint $table) {
-            $table->dropIndexIfExists('notifications_is_read_created_at_index');
-            $table->dropIndexIfExists('notifications_type_index');
-            $table->dropIndexIfExists('notifications_created_by_index');
-            $table->dropIndexIfExists('notifications_user_id_index');
-            $table->dropIndexIfExists('notifications_compound_index');
+            // حذف الـ indexes إذا كانت موجودة
+            if (Schema::hasIndex('notifications', 'notifications_is_read_created_at_index')) {
+                $table->dropIndex('notifications_is_read_created_at_index');
+            }
+            if (Schema::hasIndex('notifications', 'notifications_type_index')) {
+                $table->dropIndex('notifications_type_index');
+            }
+            if (Schema::hasIndex('notifications', 'notifications_created_by_index')) {
+                $table->dropIndex('notifications_created_by_index');
+            }
+            if (Schema::hasIndex('notifications', 'notifications_user_id_index')) {
+                $table->dropIndex('notifications_user_id_index');
+            }
+            if (Schema::hasIndex('notifications', 'notifications_compound_index')) {
+                $table->dropIndex('notifications_compound_index');
+            }
         });
     }
 };

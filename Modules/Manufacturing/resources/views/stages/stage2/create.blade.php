@@ -106,12 +106,12 @@
                 <div class="info-label">مقاس السلك <span class="info-tooltip">?<span class="tooltip-text">قياس قطر السلك بالملليمتر</span></span></div>
                 <div class="info-value" id="displayWireSize">-</div>
             </div>
-            @if(canRead('STAGE2_VIEW_WEIGHT'))
+
             <div class="info-item">
                 <div class="info-label">الوزن <span class="info-tooltip">?<span class="tooltip-text">الوزن الإجمالي للاستند بالكيلوغرام</span></span></div>
                 <div class="info-value" id="displayWeight">-</div>
             </div>
-            @endif
+            
         </div>
     </div>
 
@@ -139,16 +139,16 @@
                 </select>
             </div>
 
-            @if(canRead('STAGE2_VIEW_WEIGHT'))
+            
             <div class="form-group">
                 <label>وزن الدخول (كجم) <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">الوزن الإجمالي للاستند قبل المعالجة</span></span></label>
                 <input type="number" id="inputWeight" class="form-control" step="0.01" readonly style="background: #e8f4f8; font-weight: 600;">
                 <small style="color: #27ae60; display: block; margin-top: 5px;"><i class="fas fa-chart-bar"></i> <span class="info-tooltip">?<span class="tooltip-text">وزن الدخول يتم ملأه تلقائياً من بيانات الاستاند المممسوح</span></span></small>
             </div>
-            @endif
+        
         </div>
 
-        @if(canRead('STAGE2_VIEW_WEIGHT'))
+      
         <div class="form-row">
             <div class="form-group">
                 <label>وزن الخروج (كجم) <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">الوزن بعد تطبيق المعالجة</span></span></label>
@@ -162,7 +162,7 @@
                 <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-percent"></i> نسبة الهدر: <span id="wastePercentDisplay">0%</span> <span class="info-tooltip">?<span class="tooltip-text">النسبة المئوية للهدر من وزن الدخول</span></span></small>
             </div>
         </div>
-        @endif
+    
 
         <div class="form-row">
             <div class="form-group">
@@ -237,8 +237,8 @@ function loadStand(barcode) {
         return;
     }
 
-    // Fetch data from API
-    fetch(`/stage1/get-by-barcode/${barcode}`)
+    // Fetch data from API - استخدام stage2 للحصول على البيانات من المصدرين
+    fetch(`/stage2/get-by-barcode/${barcode}`)
         .then(response => {
             if (!response.ok) throw new Error('لم يتم العثور على البيانات');
             return response.json();
@@ -247,12 +247,15 @@ function loadStand(barcode) {
             if (!result.success) throw new Error(result.message);
 
             const data = result.data;
+            const source = result.source || 'stage1'; // stage1 أو warehouse_direct
+            
             currentStand = {
-                id: data.id,
+                id: data.id || null,
                 barcode: data.barcode,
                 wire_size: data.wire_size || '0',
                 weight: parseFloat(data.remaining_weight),
-                material_id: data.material_id
+                material_id: data.material_id,
+                source: source
             };
 
             // Display stand data
@@ -351,8 +354,11 @@ function addProcessed() {
     }
 
     const data = {
-        stage1_id: currentStand.id,
+        stage1_id: currentStand.id || null, // null إذا كان warehouse_direct
         stage1_barcode: currentStand.barcode,
+        source: currentStand.source || 'stage1', // إضافة المصدر
+        material_id: currentStand.material_id || null,
+        input_weight: parseFloat(inputWeight),
         process_type: processType,
         total_weight: parseFloat(outputWeight),
         waste_weight: parseFloat(wasteAmount),

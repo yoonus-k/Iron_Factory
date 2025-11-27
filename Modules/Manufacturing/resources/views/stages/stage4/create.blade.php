@@ -243,15 +243,18 @@ function loadLafaf(barcode) {
             const data = result.data;
             console.log('Lafaf data received:', data);
             
+            const source = result.source || 'stage3';
+            
             currentLafaf = {
-                id: data.id,
+                id: data.id || null,
                 barcode: data.barcode,
                 coil_number: data.coil_number || 'غير محدد',
                 total_weight: parseFloat(data.total_weight),
                 color: data.color || 'غير محدد',
                 plastic_type: data.plastic_type || 'غير محدد',
                 material_id: data.material_id,
-                material_name: data.material_name || 'غير محدد'
+                material_name: data.material_name || 'غير محدد',
+                source: source
             };
             
             console.log('currentLafaf:', currentLafaf);
@@ -308,7 +311,8 @@ async function divideWeight() {
     for (let i = 0; i < count; i++) {
         const data = {
             lafaf_barcode: currentLafaf.barcode,
-            lafaf_id: currentLafaf.id,
+            lafaf_id: currentLafaf.id || null,
+            source: currentLafaf.source || 'stage3',
             material_id: currentLafaf.material_id,
             weight: parseFloat(weightPerBox.toFixed(3)),
             notes: `كرتون ${i + 1} من ${count}`

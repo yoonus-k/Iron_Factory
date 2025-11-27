@@ -273,6 +273,14 @@ class DeliveryNote extends Model
     }
 
     /**
+     * Get the product tracking (for production stages)
+     */
+    public function productTracking()
+    {
+        return $this->hasOne(\App\Models\ProductTracking::class, 'barcode', 'production_barcode');
+    }
+
+    /**
      * Get the material detail from warehouse (to avoid duplicating data)
      * This links to the actual warehouse inventory
      */

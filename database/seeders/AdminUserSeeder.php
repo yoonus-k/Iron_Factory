@@ -18,6 +18,7 @@ class AdminUserSeeder extends Seeder
             User::create([
                 'name' => 'مدير المصنع',
                 'username' => 'admin',
+                'role_id' => 1, // Assuming 1 is the ID for Admin role
                 'email' => 'admin@factory.com',
                 'password' => Hash::make('123456'),
             ]);
@@ -34,6 +35,7 @@ class AdminUserSeeder extends Seeder
             User::create([
                 'name' => 'مستخدم تجريبي',
                 'username' => 'user',
+                'role_id' => 2, // Assuming 2 is the ID for regular user role
                 'email' => 'user@factory.com',
                 'password' => Hash::make('123456'),
             ]);

@@ -15,6 +15,16 @@
             </li>
             @endif
 
+            <!-- لوحة تحكم عمال المراحل -->
+            @if(auth()->user()->hasPermission('STAGE_WORKER_DASHBOARD'))
+            <li>
+                <a href="{{ route('stage-worker.dashboard.index') }}" data-tooltip="لوحة تحكمي">
+                    <i class="fas fa-hard-hat"></i>
+                    <span>لوحة تحكمي</span>
+                </a>
+            </li>
+            @endif
+
 
             <!-- المستودع -->
             @if(auth()->user()->hasPermission('MENU_WAREHOUSE'))
@@ -80,6 +90,15 @@
                         </a>
                     </li>
                     @endif
+                   
+                    @if(auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS'))
+                    <li>
+                        <a href="{{ route('manufacturing.production.confirmations.index') }}">
+                            <i class="fas fa-check-circle"></i> تأكيدات التسليم
+                        </a>
+                    </li>
+                    @endif
+                   
                 </ul>
             </li>
             @endif
@@ -105,6 +124,14 @@
                     <li>
                         <a href="{{ route('manufacturing.stage1.create') }}">
                             <i class="fas fa-plus-circle"></i> {{ __('app.production.stage1.create_new') }}
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('STAGE1_STANDS_READ') || auth()->user()->hasPermission('VIEW_ALL_STAGE1_OPERATIONS'))
+                    <li>
+                        <a href="{{ route('manufacturing.stage1.index') }}">
+                            <i class="fas fa-history"></i> سجل المرحلة
                         </a>
                     </li>
                     @endif
@@ -153,6 +180,14 @@
                     </li>
                     @endif
 
+                    @if(auth()->user()->hasPermission('STAGE2_PROCESSING_READ') || auth()->user()->hasPermission('VIEW_ALL_STAGE2_OPERATIONS'))
+                    <li>
+                        <a href="{{ route('manufacturing.stage2.index') }}">
+                            <i class="fas fa-history"></i> سجل المرحلة
+                        </a>
+                    </li>
+                    @endif
+
                     @if(auth()->user()->hasPermission('STAGE2_COMPLETE_PROCESSING'))
                     <li>
                         <a href="{{ route('manufacturing.stage2.complete-processing') }}">
@@ -196,6 +231,14 @@
                         </a>
                     </li>
                     @endif
+
+                    @if(auth()->user()->hasPermission('STAGE3_COILS_READ') || auth()->user()->hasPermission('VIEW_ALL_STAGE3_OPERATIONS'))
+                    <li>
+                        <a href="{{ route('manufacturing.stage3.index') }}">
+                            <i class="fas fa-history"></i> سجل المرحلة
+                        </a>
+                    </li>
+                    @endif
                 </ul>
             </li>
             @endif
@@ -221,6 +264,14 @@
                     <li>
                         <a href="{{ route('manufacturing.stage4.create') }}">
                             <i class="fas fa-plus-circle"></i> {{ __('app.production.stage4.create_new') }}
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('STAGE4_PACKAGING_READ') || auth()->user()->hasPermission('VIEW_ALL_STAGE4_OPERATIONS'))
+                    <li>
+                        <a href="{{ route('manufacturing.stage4.index') }}">
+                            <i class="fas fa-history"></i> سجل المرحلة
                         </a>
                     </li>
                     @endif
