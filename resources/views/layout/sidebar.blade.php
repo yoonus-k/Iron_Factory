@@ -90,7 +90,7 @@
                         </a>
                     </li>
                     @endif
-                   
+
                     @if(auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS'))
                     <li>
                         <a href="{{ route('manufacturing.production.confirmations.index') }}">
@@ -98,7 +98,7 @@
                         </a>
                     </li>
                     @endif
-                   
+
                 </ul>
             </li>
             @endif
@@ -340,13 +340,6 @@
                     </li>
                     @endif
 
-                    @if(auth()->user()->hasPermission('SHIFTS_ATTENDANCE'))
-                    <li>
-                        <a href="{{ route('manufacturing.shifts-workers.attendance') }}">
-                            <i class="fas fa-user-check"></i> {{ __('app.users.attendance') }}
-                        </a>
-                    </li>
-                    @endif
 
                     @if(auth()->user()->hasPermission('WORKERS_READ'))
                     <li>
