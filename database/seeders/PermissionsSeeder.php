@@ -290,6 +290,38 @@ class PermissionsSeeder extends Seeder
             ['name' => 'SETTINGS_NOTIFICATIONS', 'display_name' => 'إعدادات الإشعارات', 'group_name' => 'الإعدادات', 'description' => 'إعدادات الإشعارات'],
 
             // ============================================
+            // العملاء - Customers
+            // ============================================
+            ['name' => 'MENU_CUSTOMERS', 'display_name' => 'العملاء', 'group_name' => 'العملاء', 'description' => 'إظهار قائمة العملاء'],
+            ['name' => 'CUSTOMERS_READ', 'display_name' => 'عرض العملاء', 'group_name' => 'العملاء', 'description' => 'عرض قائمة العملاء'],
+            ['name' => 'CUSTOMERS_CREATE', 'display_name' => 'إضافة عميل', 'group_name' => 'العملاء', 'description' => 'إضافة عميل جديد'],
+            ['name' => 'CUSTOMERS_UPDATE', 'display_name' => 'تعديل بيانات العميل', 'group_name' => 'العملاء', 'description' => 'تعديل بيانات العميل'],
+            ['name' => 'CUSTOMERS_DELETE', 'display_name' => 'حذف العميل', 'group_name' => 'العملاء', 'description' => 'حذف العميل (soft delete)'],
+            ['name' => 'CUSTOMERS_ACTIVATE', 'display_name' => 'تفعيل/تعطيل العميل', 'group_name' => 'العملاء', 'description' => 'تفعيل أو تعطيل العميل'],
+
+            // ============================================
+            // طلبات إدخال المستودع - Warehouse Intake Requests
+            // ============================================
+            ['name' => 'WAREHOUSE_INTAKE_READ', 'display_name' => 'عرض طلبات الإدخال', 'group_name' => 'إدخال المستودع', 'description' => 'عرض طلبات إدخال المستودع'],
+            ['name' => 'WAREHOUSE_INTAKE_CREATE', 'display_name' => 'إنشاء طلب إدخال', 'group_name' => 'إدخال المستودع', 'description' => 'إنشاء طلب إدخال مستودع جديد'],
+            ['name' => 'WAREHOUSE_INTAKE_APPROVE', 'display_name' => 'اعتماد طلب الإدخال', 'group_name' => 'إدخال المستودع', 'description' => 'اعتماد طلبات إدخال المستودع'],
+            ['name' => 'WAREHOUSE_INTAKE_REJECT', 'display_name' => 'رفض طلب الإدخال', 'group_name' => 'إدخال المستودع', 'description' => 'رفض طلبات إدخال المستودع'],
+            ['name' => 'WAREHOUSE_INTAKE_PRINT', 'display_name' => 'طباعة إذن الإدخال', 'group_name' => 'إدخال المستودع', 'description' => 'طباعة إذن إدخال المستودع'],
+
+            // ============================================
+            // الإذونات الصادرة - منتجات نهائية
+            // ============================================
+            ['name' => 'MENU_FINISHED_PRODUCT_DELIVERIES', 'display_name' => 'الإذونات الصادرة', 'group_name' => 'المنتجات النهائية', 'description' => 'إظهار قائمة الإذونات الصادرة'],
+            ['name' => 'FINISHED_PRODUCT_DELIVERIES_READ', 'display_name' => 'عرض الإذونات الصادرة', 'group_name' => 'المنتجات النهائية', 'description' => 'عرض قائمة الإذونات الصادرة للمنتجات النهائية'],
+            ['name' => 'FINISHED_PRODUCT_DELIVERIES_CREATE', 'display_name' => 'إنشاء إذن صادر', 'group_name' => 'المنتجات النهائية', 'description' => 'إنشاء إذن صادر جديد للمنتجات النهائية'],
+            ['name' => 'FINISHED_PRODUCT_DELIVERIES_UPDATE', 'display_name' => 'تعديل الإذن الصادر', 'group_name' => 'المنتجات النهائية', 'description' => 'تعديل الإذن الصادر (قبل الاعتماد فقط)'],
+            ['name' => 'FINISHED_PRODUCT_DELIVERIES_DELETE', 'display_name' => 'حذف الإذن الصادر', 'group_name' => 'المنتجات النهائية', 'description' => 'حذف الإذن الصادر (قبل الاعتماد فقط)'],
+            ['name' => 'FINISHED_PRODUCT_DELIVERIES_APPROVE', 'display_name' => 'اعتماد الإذن الصادر', 'group_name' => 'المنتجات النهائية', 'description' => 'اعتماد الإذن الصادر (للإدارة العليا)'],
+            ['name' => 'FINISHED_PRODUCT_DELIVERIES_REJECT', 'display_name' => 'رفض الإذن الصادر', 'group_name' => 'المنتجات النهائية', 'description' => 'رفض الإذن الصادر'],
+            ['name' => 'FINISHED_PRODUCT_DELIVERIES_PRINT', 'display_name' => 'طباعة الإذن الصادر', 'group_name' => 'المنتجات النهائية', 'description' => 'طباعة الإذن الصادر (بعد الاعتماد فقط)'],
+            ['name' => 'FINISHED_PRODUCT_DELIVERIES_VIEW_ALL', 'display_name' => 'عرض جميع الإذونات', 'group_name' => 'المنتجات النهائية', 'description' => 'عرض جميع الإذونات (للإدارة والمشرفين)'],
+
+            // ============================================
             // صلاحيات قديمة - Backward Compatibility
             // ============================================
             ['name' => 'MANAGE_USERS', 'display_name' => 'إدارة المستخدمين', 'group_name' => 'إدارة المستخدمين', 'description' => 'إدارة المستخدمين والموظفين'],

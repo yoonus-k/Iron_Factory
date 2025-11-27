@@ -148,7 +148,7 @@
                             <line x1="9" y1="14" x2="15" y2="14"></line>
                         </svg>
                     </div>
-                    <h3 class="card-title">المنتجات في المستودع</h3>
+                    <h3 class="card-title">المواد الخام في المستودع</h3>
                 </div>
                 <div class="card-body">
                     @php
@@ -204,7 +204,140 @@
                                 <path d="M6 9l6-6 6 6"></path>
                                 <path d="M6 9v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V9"></path>
                             </svg>
-                            <p style="margin: 0; font-size: 16px; font-weight: 500;">لا توجد منتجات في هذا المستودع</p>
+                            <p style="margin: 0; font-size: 16px; font-weight: 500;">لا توجد مواد خام في هذا المستودع</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- صناديق المنتجات التامة -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon success">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">صناديق المنتجات التامة</h3>
+                </div>
+                <div class="card-body">
+                    @php
+                        $finishedBoxes = \App\Models\Stage4Box::where('warehouse_id', $warehouse->id)
+                            ->where('status', 'in_warehouse')
+                            ->with(['creator', 'boxCoils'])
+                            ->get();
+                        
+                        $totalBoxes = $finishedBoxes->count();
+                        $totalWeight = $finishedBoxes->sum('total_weight');
+                        
+                        // Group by packaging type
+                        $boxesByType = $finishedBoxes->groupBy('packaging_type');
+                    @endphp
+
+                    @if($finishedBoxes->isNotEmpty())
+                        <!-- Summary Cards -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 600;">إجمالي الصناديق</div>
+                                <div style="font-size: 32px; font-weight: 700;">{{ $totalBoxes }}</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">صندوق</div>
+                            </div>
+
+                            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);">
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 600;">الوزن الإجمالي</div>
+                                <div style="font-size: 32px; font-weight: 700;">{{ number_format($totalWeight, 2) }}</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">كجم</div>
+                            </div>
+
+                            <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);">
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 600;">أنواع التغليف</div>
+                                <div style="font-size: 32px; font-weight: 700;">{{ $boxesByType->count() }}</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">نوع</div>
+                            </div>
+
+                            <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);">
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 600;">متوسط وزن الصندوق</div>
+                                <div style="font-size: 32px; font-weight: 700;">{{ $totalBoxes > 0 ? number_format($totalWeight / $totalBoxes, 2) : '0.00' }}</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">كجم</div>
+                            </div>
+                        </div>
+
+                        <!-- Boxes by Type -->
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+                            <h5 style="margin: 0 0 15px 0; font-size: 16px; color: #2c3e50; font-weight: 700;">
+                                <i class="feather icon-pie-chart"></i> التوزيع حسب نوع التغليف
+                            </h5>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                                @foreach($boxesByType as $type => $boxes)
+                                    <div style="background: white; padding: 15px; border-radius: 8px; border-right: 4px solid #3498db; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                            <span style="font-size: 14px; font-weight: 600; color: #2c3e50;">{{ $type }}</span>
+                                            <span style="background: #3498db; color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700;">{{ $boxes->count() }}</span>
+                                        </div>
+                                        <div style="font-size: 12px; color: #7f8c8d;">
+                                            الوزن: <strong style="color: #2c3e50;">{{ number_format($boxes->sum('total_weight'), 2) }} كجم</strong>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <!-- Boxes List -->
+                        <div class="table-responsive">
+                            <table class="table" style="margin: 0;">
+                                <thead style="background: #f8f9fa;">
+                                    <tr>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">#</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">الباركود</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">نوع التغليف</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">عدد اللفات</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">الوزن</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">تاريخ الإدخال</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">المسجل</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($finishedBoxes as $index => $box)
+                                        <tr style="border-bottom: 1px solid #e9ecef;">
+                                            <td style="padding: 12px; font-size: 13px; color: #2c3e50;">{{ $index + 1 }}</td>
+                                            <td style="padding: 12px;">
+                                                <code style="background: #667eea; color: white; padding: 6px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">
+                                                    {{ $box->barcode }}
+                                                </code>
+                                            </td>
+                                            <td style="padding: 12px; font-size: 13px; font-weight: 600; color: #2c3e50;">
+                                                {{ $box->packaging_type }}
+                                            </td>
+                                            <td style="padding: 12px; text-align: center;">
+                                                <span style="background: #e3f2fd; color: #1976d2; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 700;">
+                                                    {{ $box->boxCoils->count() }}
+                                                </span>
+                                            </td>
+                                            <td style="padding: 12px; font-size: 14px; font-weight: 700; color: #f5576c;">
+                                                {{ number_format($box->total_weight ?? 0, 2) }} <small style="color: #7f8c8d; font-size: 11px;">كجم</small>
+                                            </td>
+                                            <td style="padding: 12px; font-size: 12px; color: #7f8c8d;">
+                                                {{ $box->created_at->format('Y-m-d') }}<br>
+                                                <small style="font-size: 10px;">{{ $box->created_at->diffForHumans() }}</small>
+                                            </td>
+                                            <td style="padding: 12px; font-size: 13px; color: #2c3e50;">
+                                                {{ $box->creator?->name ?? '-' }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div style="text-align: center; padding: 60px 20px; color: #95a5a6;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 64px; height: 64px; margin: 0 auto 15px; opacity: 0.3;">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                            </svg>
+                            <p style="margin: 0; font-size: 16px; font-weight: 500;">لا توجد صناديق في هذا المستودع</p>
                         </div>
                     @endif
                 </div>
