@@ -17,6 +17,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/manager', [DashboardController::class, 'index'])->name('manager');
+       Route::get('/profile', [UserController::class, 'profile'])->name('profile');
 
     // Alias for dashboard
     Route::get('/home', function () {
