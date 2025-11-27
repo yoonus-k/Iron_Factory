@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تفاصيل الوردية')
+@section('title', __('shifts-workers.shift_details'))
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
@@ -20,7 +20,7 @@
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
-                                ورديات
+                                {{ __('shifts-workers.shifts_and_workers') }}
                             </span>
                             <span class="badge {{ $shift->status == 'active' ? 'active' : ($shift->status == 'completed' ? 'completed' : 'scheduled') }}">
                                 {{ $shift->status_name }}
@@ -35,7 +35,7 @@
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
-                            تعديل
+                            {{ __('shifts-workers.edit') }}
                         </a>
                     @endif
                     <a href="{{ route('manufacturing.shifts-workers.index') }}" class="btn btn-back">
@@ -43,7 +43,7 @@
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>
-                        العودة
+                        {{ __('shifts-workers.back') }}
                     </a>
                 </div>
             </div>
@@ -58,7 +58,7 @@
                             <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات الوردية</h3>
+                    <h3 class="card-title">{{ __('shifts-workers.shift_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
@@ -69,7 +69,7 @@
                                 <line x1="8" y1="2" x2="8" y2="6"></line>
                                 <line x1="3" y1="10" x2="21" y2="10"></line>
                             </svg>
-                            رقم الوردية
+                            {{ __('shifts-workers.shift_number') }}
                         </div>
                         <div class="info-value">{{ $shift->shift_code }}</div>
                     </div>
@@ -82,7 +82,7 @@
                                 <line x1="8" y1="2" x2="8" y2="6"></line>
                                 <line x1="3" y1="10" x2="21" y2="10"></line>
                             </svg>
-                            تاريخ الوردية
+                            {{ __('shifts-workers.shift_date') }}
                         </div>
                         <div class="info-value">{{ $shift->shift_date->format('Y-m-d') }}</div>
                     </div>
@@ -93,7 +93,7 @@
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
                             </svg>
-                            فترة العمل
+                            {{ __('shifts-workers.work_period') }}
                         </div>
                         <div class="info-value">
                             <span class="badge badge-info">{{ $shift->shift_type_name }}</span>
@@ -108,9 +108,9 @@
                                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                             </svg>
-                            المشرف المسؤول
+                            {{ __('shifts-workers.supervisor') }}
                         </div>
-                        <div class="info-value">{{ $shift->supervisor->name ?? 'غير محدد' }}</div>
+                        <div class="info-value">{{ $shift->supervisor->name ?? __('shifts-workers.not_specified') }}</div>
                     </div>
 
                     <div class="info-item">
@@ -119,7 +119,7 @@
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
                             </svg>
-                            وقت البدء
+                            {{ __('shifts-workers.start_time') }}
                         </div>
                         <div class="info-value">{{ $shift->start_time }}</div>
                     </div>
@@ -130,7 +130,7 @@
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
                             </svg>
-                            وقت الانتهاء
+                            {{ __('shifts-workers.end_time') }}
                         </div>
                         <div class="info-value">{{ $shift->end_time }}</div>
                     </div>
@@ -145,7 +145,7 @@
                             <circle cx="9" cy="7" r="4"></circle>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات إضافية</h3>
+                    <h3 class="card-title">{{ __('shifts-workers.additional_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
@@ -153,9 +153,9 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                             </svg>
-                            عدد العمال
+                            {{ __('shifts-workers.workers_count') }}
                         </div>
-                        <div class="info-value">{{ $shift->total_workers }} عامل</div>
+                        <div class="info-value">{{ $shift->total_workers }}</div>
                     </div>
 
                     <div class="info-item">
@@ -163,7 +163,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                             </svg>
-                            حالة الوردية
+                            {{ __('shifts-workers.shift_status') }}
                         </div>
                         <div class="info-value">
                             <span class="status {{ $shift->status }}">{{ $shift->status_name }}</span>
@@ -175,7 +175,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                             </svg>
-                            تاريخ الإنشاء
+                            {{ __('shifts-workers.creation_date') }}
                         </div>
                         <div class="info-value">{{ $shift->created_at->format('Y-m-d H:i') }}</div>
                     </div>
@@ -187,7 +187,7 @@
                                 <line x1="16" y1="2" x2="16" y2="6"></line>
                                 <line x1="8" y1="2" x2="8" y2="6"></line>
                             </svg>
-                            تاريخ التحديث
+                            {{ __('shifts-workers.update_date') }}
                         </div>
                         <div class="info-value">{{ $shift->updated_at->format('Y-m-d H:i') }}</div>
                     </div>
@@ -202,7 +202,7 @@
                             <circle cx="9" cy="7" r="4"></circle>
                         </svg>
                     </div>
-                    <h3 class="card-title">العمال المعينون ({{ $workers->count() }})</h3>
+                    <h3 class="card-title">{{ __('shifts-workers.shift_workers_list', ['count' => $workers->count()]) }}</h3>
                 </div>
                 <div class="card-body">
                     @if($workers->count() > 0)
@@ -219,13 +219,13 @@
                                         </div>
                                     </div>
                                     <div class="worker-status">
-                                        <span class="status active">معيّن</span>
+                                        <span class="status active">{{ __('shifts-workers.assigned') }}</span>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                     @else
-                        <p style="text-align: center; color: #999;">لم يتم تعيين عمال لهذه الوردية بعد</p>
+                        <p style="text-align: center; color: #999;">{{ __('shifts-workers.no_workers_assigned') }}</p>
                     @endif
                 </div>
             </div>
@@ -240,7 +240,7 @@
                                 <line x1="8" y1="18" x2="21" y2="18"></line>
                             </svg>
                         </div>
-                        <h3 class="card-title">الملاحظات</h3>
+                        <h3 class="card-title">{{ __('shifts-workers.shift_notes_section') }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="info-item">
@@ -260,7 +260,7 @@
                         <circle cx="5" cy="12" r="1"></circle>
                     </svg>
                 </div>
-                <h3 class="card-title">الإجراءات المتاحة</h3>
+                <h3 class="card-title">{{ __('shifts-workers.available_actions') }}</h3>
             </div>
             <div class="card-body">
                 <div class="actions-grid">
@@ -273,8 +273,8 @@
                                 </svg>
                             </div>
                             <div class="action-text">
-                                <h4>تعديل الوردية</h4>
-                                <p>تعديل تفاصيل الوردية قبل التفعيل</p>
+                                <h4>{{ __('shifts-workers.edit_shift_description') }}</h4>
+                                <p>{{ __('shifts-workers.edit_shift_description') }}</p>
                             </div>
                         </a>
 
@@ -288,13 +288,13 @@
                                     </svg>
                                 </div>
                                 <div class="action-text">
-                                    <h4>تفعيل الوردية</h4>
-                                    <p>بدء الوردية والسماح بتسجيل الإنتاج</p>
+                                    <h4>{{ __('shifts-workers.activate_shift') }}</h4>
+                                    <p>{{ __('shifts-workers.activate_shift_description') }}</p>
                                 </div>
                             </button>
                         </form>
 
-                        <form action="{{ route('manufacturing.shifts-workers.destroy', $shift->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذه الوردية؟');" style="display: inline-block; width: 100%;">
+                        <form action="{{ route('manufacturing.shifts-workers.destroy', $shift->id) }}" method="POST" onsubmit="return confirm('{{ __('shifts-workers.confirm_delete') }}');" style="display: inline-block; width: 100%;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="action-btn delete" style="width: 100%; text-align: right;">
@@ -305,8 +305,8 @@
                                     </svg>
                                 </div>
                                 <div class="action-text">
-                                    <h4>حذف الوردية</h4>
-                                    <p>حذف نهائي للوردية من النظام</p>
+                                    <h4>{{ __('shifts-workers.delete_shift') }}</h4>
+                                    <p>{{ __('shifts-workers.delete_shift_description') }}</p>
                                 </div>
                             </button>
                         </form>
@@ -319,15 +319,15 @@
                                 </svg>
                             </div>
                             <div class="action-text">
-                                <h4>تعديل العمال</h4>
-                                <p>إضافة أو حذف عمال من الوردية النشطة</p>
+                                <h4>{{ __('shifts-workers.edit_workers') }}</h4>
+                                <p>{{ __('shifts-workers.edit_workers_description') }}</p>
                             </div>
                         </a>
 
                         <form action="{{ route('manufacturing.shifts-workers.complete', $shift->id) }}" method="POST" style="display: inline-block; width: 100%;">
                             @csrf
                             @method('PATCH')
-                            <button type="submit" class="action-btn complete" style="width: 100%; text-align: right;" onclick="return confirm('هل أنت متأكد من إكمال هذه الوردية؟');">
+                            <button type="submit" class="action-btn complete" style="width: 100%; text-align: right;" onclick="return confirm('{{ __('shifts-workers.confirm_complete') }}');">
                                 <div class="action-icon">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -335,8 +335,8 @@
                                     </svg>
                                 </div>
                                 <div class="action-text">
-                                    <h4>إكمال الوردية</h4>
-                                    <p>إنهاء الوردية وتسليمها للفترة القادمة</p>
+                                    <h4>{{ __('shifts-workers.complete_shift') }}</h4>
+                                    <p>{{ __('shifts-workers.complete_shift_description') }}</p>
                                 </div>
                             </button>
                         </form>
@@ -350,8 +350,8 @@
                                 </svg>
                             </div>
                             <div class="action-text">
-                                <h4>الوردية مكتملة</h4>
-                                <p>لا يمكن تعديل وردية مكتملة</p>
+                                <h4>{{ __('shifts-workers.shift_completed') }}</h4>
+                                <p>{{ __('shifts-workers.cannot_edit_completed') }}</p>
                             </div>
                         </div>
                     @endif

@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إدارة مجموعات العمال')
+@section('title', __('worker-teams.manage_worker_teams'))
 
 @section('content')
 
@@ -9,14 +9,14 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-users"></i>
-                إدارة مجموعات العمال
+                {{ __('worker-teams.manage_worker_teams') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('worker-teams.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>مجموعات العمال</span>
+                <span>{{ __('worker-teams.worker_teams') }}</span>
             </nav>
         </div>
 
@@ -45,19 +45,19 @@
         <div class="um-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
             <div class="um-stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px;">
                 <div style="font-size: 2.5rem; font-weight: 700;">{{ $stats['total'] ?? 0 }}</div>
-                <div style="opacity: 0.9;">إجمالي المجموعات</div>
+                <div style="opacity: 0.9;">{{ __('worker-teams.total_teams') }}</div>
             </div>
             <div class="um-stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 20px; border-radius: 12px;">
                 <div style="font-size: 2.5rem; font-weight: 700;">{{ $stats['active'] ?? 0 }}</div>
-                <div style="opacity: 0.9;">مجموعات نشطة</div>
+                <div style="opacity: 0.9;">{{ __('worker-teams.active_teams') }}</div>
             </div>
             <div class="um-stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 20px; border-radius: 12px;">
                 <div style="font-size: 2.5rem; font-weight: 700;">{{ $stats['total_workers'] ?? 0 }}</div>
-                <div style="opacity: 0.9;">إجمالي العمال</div>
+                <div style="opacity: 0.9;">{{ __('worker-teams.total_workers') }}</div>
             </div>
             <div class="um-stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 20px; border-radius: 12px;">
                 <div style="font-size: 2.5rem; font-weight: 700;">{{ $stats['avg_workers'] ?? 0 }}</div>
-                <div style="opacity: 0.9;">متوسط العمال/المجموعة</div>
+                <div style="opacity: 0.9;">{{ __('worker-teams.avg_workers_per_team') }}</div>
             </div>
         </div>
 
@@ -67,12 +67,12 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    قائمة مجموعات العمال
+                    {{ __('worker-teams.worker_teams_list') }}
                 </h4>
                 @if(auth()->user()->hasPermission('WORKER_TEAMS_CREATE'))
                 <a href="{{ route('manufacturing.worker-teams.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>
-                    إضافة مجموعة جديدة
+                    {{ __('worker-teams.add_new_team') }}
                 </a>
                 @endif
             </div>
@@ -82,23 +82,23 @@
                 <form method="GET" action="{{ route('manufacturing.worker-teams.index') }}">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث (اسم المجموعة، الكود...)" value="{{ request('search') }}">
+                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('worker-teams.search_placeholder') }}" value="{{ request('search') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="is_active" class="um-form-control">
-                                <option value="">جميع الحالات</option>
-                                <option value="1" {{ request('is_active') == '1' ? 'selected' : '' }}>نشطة</option>
-                                <option value="0" {{ request('is_active') == '0' ? 'selected' : '' }}>غير نشطة</option>
+                                <option value="">{{ __('worker-teams.all_statuses') }}</option>
+                                <option value="1" {{ request('is_active') == '1' ? 'selected' : '' }}>{{ __('worker-teams.active') }}</option>
+                                <option value="0" {{ request('is_active') == '0' ? 'selected' : '' }}>{{ __('worker-teams.inactive') }}</option>
                             </select>
                         </div>
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                بحث
+                                {{ __('worker-teams.search') }}
                             </button>
                             <a href="{{ route('manufacturing.worker-teams.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-x"></i>
-                                إعادة تعيين
+                                {{ __('worker-teams.reset') }}
                             </a>
                         </div>
                     </div>
@@ -111,13 +111,13 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>كود المجموعة</th>
-                            <th>اسم المجموعة</th>
-                            <th>عدد العمال</th>
-                            <th>المسؤول</th>
-                            <th>تاريخ الإنشاء</th>
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
+                            <th>{{ __('worker-teams.team_code') }}</th>
+                            <th>{{ __('worker-teams.team_name') }}</th>
+                            <th>{{ __('worker-teams.workers_count') }}</th>
+                            <th>{{ __('worker-teams.supervisor') }}</th>
+                            <th>{{ __('worker-teams.created_date') }}</th>
+                            <th>{{ __('worker-teams.status') }}</th>
+                            <th>{{ __('worker-teams.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -131,7 +131,7 @@
                             <td>{{ $team->created_at->format('Y-m-d') }}</td>
                             <td>
                                 <span class="um-badge um-badge-{{ $team->is_active ? 'success' : 'secondary' }}">
-                                    {{ $team->is_active ? 'نشطة' : 'غير نشطة' }}
+                                    {{ $team->is_active ? __('worker-teams.active') : __('worker-teams.inactive') }}
                                 </span>
                             </td>
                             <td>
@@ -143,20 +143,20 @@
                                         @if (auth()->user()->hasPermission('WORKER_TEAMS_READ'))
                                         <a href="{{ route('manufacturing.worker-teams.show', $team->id) }}" class="um-dropdown-item um-btn-view">
                                             <i class="feather icon-eye"></i>
-                                            <span>عرض</span>
+                                            <span>{{ __('worker-teams.view') }}</span>
                                         </a>
                                         @endif
                                         @if (auth()->user()->hasPermission('WORKER_TEAMS_UPDATE'))
                                         <a href="{{ route('manufacturing.worker-teams.edit', $team->id) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
-                                            <span>تعديل</span>
+                                            <span>{{ __('worker-teams.edit') }}</span>
                                         </a>
                                         <form method="POST" action="{{ route('manufacturing.worker-teams.toggle-status', $team->id) }}" style="display: inline;">
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit" class="um-dropdown-item um-btn-toggle">
                                                 <i class="feather icon-{{ $team->is_active ? 'pause' : 'play' }}-circle"></i>
-                                                <span>{{ $team->is_active ? 'تعطيل' : 'تفعيل' }}</span>
+                                                <span>{{ $team->is_active ? __('worker-teams.disable') : __('worker-teams.activate') }}</span>
                                             </button>
                                         </form>
                                         @endif
@@ -167,7 +167,7 @@
                                             @method('DELETE')
                                             <button type="submit" class="um-dropdown-item um-btn-delete">
                                                 <i class="feather icon-trash-2"></i>
-                                                <span>حذف</span>
+                                                <span>{{ __('worker-teams.delete') }}</span>
                                             </button>
                                         </form>
                                         @endif
@@ -180,7 +180,7 @@
                         <tr>
                             <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
                                 <i class="feather icon-users" style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
-                                لا توجد مجموعات
+                                {{ __('worker-teams.no_teams') }}
                             </td>
                         </tr>
                         @endforelse
@@ -203,21 +203,21 @@
                             </div>
                         </div>
                         <span class="um-badge um-badge-{{ $team->is_active ? 'success' : 'secondary' }}">
-                            {{ $team->is_active ? 'نشطة' : 'غير نشطة' }}
+                            {{ $team->is_active ? __('worker-teams.active') : __('worker-teams.inactive') }}
                         </span>
                     </div>
 
                     <div class="um-category-card-body">
                         <div class="um-info-row">
-                            <span class="um-info-label">عدد العمال:</span>
-                            <span class="um-info-value">{{ $team->workers_count ?? 0 }} عامل</span>
+                            <span class="um-info-label">{{ __('worker-teams.workers_count_label') }}</span>
+                            <span class="um-info-value">{{ $team->workers_count ?? 0 }} {{ __('worker-teams.worker') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">المسؤول:</span>
-                            <span class="um-info-value">{{ $team->supervisor->name ?? '-' }}</span>
+                            <span class="um-info-label">{{ __('worker-teams.supervisor_label_mobile') }}</span>
+                            <span class="um-info-value">{{ $team->supervisor->name ?? __('worker-teams.not_specified') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">تاريخ الإنشاء:</span>
+                            <span class="um-info-label">{{ __('worker-teams.creation_date_label') }}</span>
                             <span class="um-info-value">{{ $team->created_at->format('Y-m-d') }}</span>
                         </div>
                     </div>
@@ -225,11 +225,11 @@
                     <div class="um-category-card-footer">
                         <a href="{{ route('manufacturing.worker-teams.show', $team->id) }}" class="um-btn um-btn-sm um-btn-primary">
                             <i class="feather icon-eye" style="font-size: 14px;"></i>
-                            عرض
+                            {{ __('worker-teams.view') }}
                         </a>
                         <a href="{{ route('manufacturing.worker-teams.edit', $team->id) }}" class="um-btn um-btn-sm um-btn-secondary">
                             <i class="feather icon-edit-2" style="font-size: 14px;"></i>
-                            تعديل
+                            {{ __('worker-teams.edit') }}
                         </a>
                     </div>
                 </div>
@@ -240,7 +240,7 @@
             <div class="um-pagination-section">
                 <div>
                     <p class="um-pagination-info">
-                        عرض {{ $teams->firstItem() ?? 0 }} إلى {{ $teams->lastItem() ?? 0 }} من أصل {{ $teams->total() }} مجموعة
+                        {{ __('worker-teams.showing') }} {{ $teams->firstItem() ?? 0 }} {{ __('worker-teams.to') }} {{ $teams->lastItem() ?? 0 }} {{ __('worker-teams.of') }} {{ $teams->total() }} {{ __('worker-teams.team') }}
                     </p>
                 </div>
                 <div>
@@ -257,7 +257,7 @@
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    if (confirm('هل أنت متأكد من حذف هذه المجموعة؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
+                    if (confirm('{{ __('worker-teams.confirm_delete') }}')) {
                         form.submit();
                     }
                 });
