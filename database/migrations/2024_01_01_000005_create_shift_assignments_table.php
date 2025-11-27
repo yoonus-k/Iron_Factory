@@ -20,7 +20,7 @@ return new class extends Migration
             $table->time('end_time');
             $table->enum('status', ['scheduled', 'active', 'completed', 'cancelled'])->default('scheduled');
             $table->timestamps();
-            
+
             $table->index(['user_id', 'shift_date']);
         });
     }

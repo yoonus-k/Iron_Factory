@@ -4,6 +4,7 @@ namespace Modules\Manufacturing\Http\Controllers;
 
 use App\Models\ShiftAssignment;
 use App\Models\User;
+use App\Traits\StoresNotifications;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ShiftsWorkersController extends Controller
 {
+    use StoresNotifications;
     /**
      * Display a listing of the resource.
      */
@@ -109,7 +111,7 @@ class ShiftsWorkersController extends Controller
             DB::beginTransaction();
 
             $workerIds = $request->input('workers', []);
-            
+
             $shift = ShiftAssignment::create([
                 'shift_code' => $request->shift_code,
                 'shift_type' => $request->shift_type,
@@ -125,6 +127,13 @@ class ShiftsWorkersController extends Controller
                 'total_workers' => count($workerIds),
                 'worker_ids' => $workerIds,
             ]);
+
+            // Store notification
+            $this->notifyCreate(
+                'وردية',
+                $shift->shift_code,
+                route('manufacturing.shifts-workers.show', $shift->id)
+            );
 
             DB::commit();
 
@@ -153,12 +162,25 @@ class ShiftsWorkersController extends Controller
     }
 
     /**
+     * Get shift details in JSON format for AJAX requests
+     */
+    public function getShiftDetails($id)
+    {
+        $shift = ShiftAssignment::with(['user', 'supervisor'])->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'shift' => $shift
+        ]);
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit($id)
     {
         $shift = ShiftAssignment::findOrFail($id);
-        
+
         // Get all users who can work in shifts
         $workers = User::where('is_active', true)
             ->orderBy('name')
@@ -243,7 +265,7 @@ class ShiftsWorkersController extends Controller
     {
         try {
             $shift = ShiftAssignment::findOrFail($id);
-            
+
             // Prevent deletion of active or completed shifts
             if (in_array($shift->status, [ShiftAssignment::STATUS_ACTIVE, ShiftAssignment::STATUS_COMPLETED])) {
                 return redirect()->back()
@@ -281,7 +303,7 @@ class ShiftsWorkersController extends Controller
     public function attendance(Request $request)
     {
         $date = $request->input('date', today()->format('Y-m-d'));
-        
+
         $shifts = ShiftAssignment::with(['user', 'supervisor'])
             ->whereDate('shift_date', $date)
             ->orderBy('start_time')
@@ -297,13 +319,22 @@ class ShiftsWorkersController extends Controller
     {
         try {
             $shift = ShiftAssignment::findOrFail($id);
-            
+
             if ($shift->status !== ShiftAssignment::STATUS_SCHEDULED) {
                 return redirect()->back()
                     ->with('error', 'يمكن تفعيل الورديات المجدولة فقط');
             }
 
             $shift->update(['status' => ShiftAssignment::STATUS_ACTIVE]);
+
+            // Store notification
+            $this->notifyStatusChange(
+                'وردية',
+                'مجدولة',
+                'نشطة',
+                $shift->shift_code,
+                route('manufacturing.shifts-workers.show', $shift->id)
+            );
 
             return redirect()->back()
                 ->with('success', 'تم تفعيل الوردية بنجاح');
@@ -321,16 +352,109 @@ class ShiftsWorkersController extends Controller
     {
         try {
             $shift = ShiftAssignment::findOrFail($id);
-            
+
             if ($shift->status !== ShiftAssignment::STATUS_ACTIVE) {
                 return redirect()->back()
                     ->with('error', 'يمكن إكمال الورديات النشطة فقط');
             }
 
-            $shift->update(['status' => ShiftAssignment::STATUS_COMPLETED]);
+            $shift->update([
+                'status' => ShiftAssignment::STATUS_COMPLETED,
+                'actual_end_time' => now(),
+                'completed_at' => now(),
+            ]);
+
+            // Store notification
+            $this->notifyStatusChange(
+                'وردية',
+                'نشطة',
+                'مكتملة',
+                $shift->shift_code,
+                route('manufacturing.shifts-workers.show', $shift->id)
+            );
 
             return redirect()->back()
                 ->with('success', 'تم إكمال الوردية بنجاح');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'حدث خطأ: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Pause/Suspend a shift (mark as suspended).
+     */
+    public function suspend($id, Request $request)
+    {
+        try {
+            $shift = ShiftAssignment::findOrFail($id);
+
+            if ($shift->status !== ShiftAssignment::STATUS_ACTIVE) {
+                return redirect()->back()
+                    ->with('error', 'يمكن تعليق الورديات النشطة فقط');
+            }
+
+            $request->validate([
+                'suspension_reason' => 'nullable|string|max:500',
+            ]);
+
+            $suspensionReason = $request->input('suspension_reason') ?? 'بدون سبب محدد';
+
+            $shift->update([
+                'status' => ShiftAssignment::STATUS_SUSPENDED,
+                'suspension_reason' => $request->input('suspension_reason'),
+                'suspended_at' => now(),
+            ]);
+
+            // Store notification
+            $this->storeNotification(
+                'shift_suspended',
+                'تعليق وردية',
+                "تم تعليق الوردية {$shift->shift_code} - السبب: {$suspensionReason}",
+                'warning',
+                'fas fa-pause-circle',
+                route('manufacturing.shifts-workers.show', $shift->id)
+            );
+
+            return redirect()->back()
+                ->with('success', 'تم تعليق الوردية بنجاح');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'حدث خطأ: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Resume a suspended shift (mark as active).
+     */
+    public function resume($id)
+    {
+        try {
+            $shift = ShiftAssignment::findOrFail($id);
+
+            if ($shift->status !== ShiftAssignment::STATUS_SUSPENDED) {
+                return redirect()->back()
+                    ->with('error', 'يمكن استئناف الورديات المعلقة فقط');
+            }
+
+            $shift->update([
+                'status' => ShiftAssignment::STATUS_ACTIVE,
+                'resumed_at' => now(),
+            ]);
+
+            // Store notification
+            $this->notifyStatusChange(
+                'وردية',
+                'معلقة',
+                'نشطة',
+                $shift->shift_code,
+                route('manufacturing.shifts-workers.show', $shift->id)
+            );
+
+            return redirect()->back()
+                ->with('success', 'تم استئناف الوردية بنجاح');
 
         } catch (\Exception $e) {
             return redirect()->back()
@@ -345,21 +469,21 @@ class ShiftsWorkersController extends Controller
     {
         $date = $request->input('date', today()->format('Y-m-d'));
         $type = $request->input('type', 'morning');
-        
+
         $typePrefix = match($type) {
             'morning' => 'M',
             'evening' => 'E',
             'night' => 'N',
             default => 'S',
         };
-        
+
         $dateStr = Carbon::parse($date)->format('Ymd');
         $count = ShiftAssignment::whereDate('shift_date', $date)
             ->where('shift_type', $type)
             ->count() + 1;
-        
+
         $code = "SH-{$typePrefix}-{$dateStr}-" . str_pad($count, 3, '0', STR_PAD_LEFT);
-        
+
         return response()->json(['shift_code' => $code]);
     }
 }

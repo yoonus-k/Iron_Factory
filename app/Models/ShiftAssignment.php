@@ -16,11 +16,16 @@ class ShiftAssignment extends Model
         'shift_date',
         'start_time',
         'end_time',
+        'actual_end_time',
         'status',
         'notes',
+        'suspension_reason',
         'is_active',
         'total_workers',
         'worker_ids',
+        'completed_at',
+        'suspended_at',
+        'resumed_at',
     ];
 
     protected $casts = [
@@ -29,12 +34,16 @@ class ShiftAssignment extends Model
         'is_active' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'completed_at' => 'datetime',
+        'suspended_at' => 'datetime',
+        'resumed_at' => 'datetime',
     ];
 
     const STATUS_SCHEDULED = 'scheduled';
     const STATUS_ACTIVE = 'active';
     const STATUS_COMPLETED = 'completed';
     const STATUS_CANCELLED = 'cancelled';
+    const STATUS_SUSPENDED = 'suspended';
 
     const TYPE_MORNING = 'morning';
     const TYPE_EVENING = 'evening';
@@ -86,6 +95,7 @@ class ShiftAssignment extends Model
             self::STATUS_ACTIVE => 'نشطة',
             self::STATUS_COMPLETED => 'مكتملة',
             self::STATUS_CANCELLED => 'ملغية',
+            self::STATUS_SUSPENDED => 'معلقة',
             default => $this->status,
         };
     }

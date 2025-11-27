@@ -95,6 +95,27 @@ class UserController extends Controller
     }
 
     /**
+     * عرض الملف الشخصي للموظف الحالي
+     */
+    public function profile()
+    {
+        $user = auth()->user();
+        $user->load('roleRelation');
+
+        // الحصول على صلاحيات المستخدم
+        $permissions = [];
+        if ($user->roleRelation) {
+            $permissions = $user->roleRelation->permissions()
+
+                ->get();
+        }
+
+        $operationLogs = $user->operationLogs()->orderBy('created_at', 'desc')->take(10)->get();
+
+        return view('users.profile', compact('user', 'permissions', 'operationLogs'));
+    }
+
+    /**
      * عرض تفاصيل المستخدم
      */
     public function show(User $user)

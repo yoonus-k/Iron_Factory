@@ -23,104 +23,104 @@ class PermissionsSeeder extends Seeder
             // ============================================
             // المواد الخام - Materials
             // ============================================
-            ['name' => 'MENU_WAREHOUSE_MATERIALS', 'display_name' => 'المواد الخام', 'group_name' => 'المواد الخام', 'description' => 'إظهار قائمة المواد الخام'],
-            ['name' => 'WAREHOUSE_MATERIALS_READ', 'display_name' => 'عرض المواد الخام', 'group_name' => 'المواد الخام', 'description' => 'عرض المواد الخام'],
-            ['name' => 'WAREHOUSE_MATERIALS_CREATE', 'display_name' => 'إضافة مواد خام', 'group_name' => 'المواد الخام', 'description' => 'إضافة مواد خام جديدة'],
-            ['name' => 'WAREHOUSE_MATERIALS_UPDATE', 'display_name' => 'تعديل المواد الخام', 'group_name' => 'المواد الخام', 'description' => 'تعديل المواد الخام'],
-            ['name' => 'WAREHOUSE_MATERIALS_DELETE', 'display_name' => 'حذف المواد الخام', 'group_name' => 'المواد الخام', 'description' => 'حذف المواد الخام'],
+            ['name' => 'MENU_WAREHOUSE_MATERIALS', 'display_name' => 'المواد الخام', 'group_name' => 'المستودع - المواد الخام', 'description' => 'إظهار قائمة المواد الخام'],
+            ['name' => 'WAREHOUSE_MATERIALS_READ', 'display_name' => 'عرض المواد الخام', 'group_name' => 'المستودع - المواد الخام', 'description' => 'عرض المواد الخام'],
+            ['name' => 'WAREHOUSE_MATERIALS_CREATE', 'display_name' => 'إضافة مواد خام', 'group_name' => 'المستودع - المواد الخام', 'description' => 'إضافة مواد خام جديدة'],
+            ['name' => 'WAREHOUSE_MATERIALS_UPDATE', 'display_name' => 'تعديل المواد الخام', 'group_name' => 'المستودع - المواد الخام', 'description' => 'تعديل المواد الخام'],
+            ['name' => 'WAREHOUSE_MATERIALS_DELETE', 'display_name' => 'حذف المواد الخام', 'group_name' => 'المستودع - المواد الخام', 'description' => 'حذف المواد الخام'],
 
             // ============================================
             // المخازن - Stores
             // ============================================
-            ['name' => 'MENU_WAREHOUSE_STORES', 'display_name' => 'المخازن', 'group_name' => 'المخازن', 'description' => 'إظهار قائمة المخازن'],
-            ['name' => 'WAREHOUSE_STORES_READ', 'display_name' => 'عرض المخازن', 'group_name' => 'المخازن', 'description' => 'عرض المخازن'],
-            ['name' => 'WAREHOUSE_STORES_CREATE', 'display_name' => 'إضافة مخزن', 'group_name' => 'المخازن', 'description' => 'إضافة مخزن جديد'],
-            ['name' => 'WAREHOUSE_STORES_UPDATE', 'display_name' => 'تعديل المخزن', 'group_name' => 'المخازن', 'description' => 'تعديل بيانات المخزن'],
-            ['name' => 'WAREHOUSE_STORES_DELETE', 'display_name' => 'حذف المخزن', 'group_name' => 'المخازن', 'description' => 'حذف المخزن'],
+            ['name' => 'MENU_WAREHOUSE_STORES', 'display_name' => 'المخازن', 'group_name' => 'المستودع - المخازن', 'description' => 'إظهار قائمة المخازن'],
+            ['name' => 'WAREHOUSE_STORES_READ', 'display_name' => 'عرض المخازن', 'group_name' => 'المستودع - المخازن', 'description' => 'عرض المخازن'],
+            ['name' => 'WAREHOUSE_STORES_CREATE', 'display_name' => 'إضافة مخزن', 'group_name' => 'المستودع - المخازن', 'description' => 'إضافة مخزن جديد'],
+            ['name' => 'WAREHOUSE_STORES_UPDATE', 'display_name' => 'تعديل المخزن', 'group_name' => 'المستودع - المخازن', 'description' => 'تعديل بيانات المخزن'],
+            ['name' => 'WAREHOUSE_STORES_DELETE', 'display_name' => 'حذف المخزن', 'group_name' => 'المستودع - المخازن', 'description' => 'حذف المخزن'],
 
             // ============================================
             // مذكرات التسليم - Delivery Notes
             // ============================================
-            ['name' => 'MENU_WAREHOUSE_DELIVERY_NOTES', 'display_name' => 'مذكرات التسليم', 'group_name' => 'مذكرات التسليم', 'description' => 'إظهار قائمة مذكرات التسليم'],
-            ['name' => 'WAREHOUSE_DELIVERY_NOTES_READ', 'display_name' => 'عرض مذكرات التسليم', 'group_name' => 'مذكرات التسليم', 'description' => 'عرض مذكرات التسليم'],
-            ['name' => 'WAREHOUSE_DELIVERY_NOTES_CREATE', 'display_name' => 'إنشاء مذكرة تسليم', 'group_name' => 'مذكرات التسليم', 'description' => 'إنشاء مذكرة تسليم جديدة'],
-            ['name' => 'WAREHOUSE_DELIVERY_NOTES_UPDATE', 'display_name' => 'تعديل مذكرة التسليم', 'group_name' => 'مذكرات التسليم', 'description' => 'تعديل مذكرات التسليم'],
-            ['name' => 'WAREHOUSE_DELIVERY_NOTES_DELETE', 'display_name' => 'حذف مذكرة التسليم', 'group_name' => 'مذكرات التسليم', 'description' => 'حذف مذكرات التسليم'],
+            ['name' => 'MENU_WAREHOUSE_DELIVERY_NOTES', 'display_name' => 'مذكرات التسليم', 'group_name' => 'المستودع - مذكرات التسليم', 'description' => 'إظهار قائمة مذكرات التسليم'],
+            ['name' => 'WAREHOUSE_DELIVERY_NOTES_READ', 'display_name' => 'عرض مذكرات التسليم', 'group_name' => 'المستودع - مذكرات التسليم', 'description' => 'عرض مذكرات التسليم'],
+            ['name' => 'WAREHOUSE_DELIVERY_NOTES_CREATE', 'display_name' => 'إنشاء مذكرة تسليم', 'group_name' => 'المستودع - مذكرات التسليم', 'description' => 'إنشاء مذكرة تسليم جديدة'],
+            ['name' => 'WAREHOUSE_DELIVERY_NOTES_UPDATE', 'display_name' => 'تعديل مذكرة التسليم', 'group_name' => 'المستودع - مذكرات التسليم', 'description' => 'تعديل مذكرات التسليم'],
+            ['name' => 'WAREHOUSE_DELIVERY_NOTES_DELETE', 'display_name' => 'حذف مذكرة التسليم', 'group_name' => 'المستودع - مذكرات التسليم', 'description' => 'حذف مذكرات التسليم'],
 
             // ============================================
             // فواتير الشراء - Purchase Invoices
             // ============================================
-            ['name' => 'MENU_WAREHOUSE_PURCHASE_INVOICES', 'display_name' => 'فواتير الشراء', 'group_name' => 'فواتير الشراء', 'description' => 'إظهار قائمة فواتير الشراء'],
-            ['name' => 'WAREHOUSE_PURCHASE_INVOICES_READ', 'display_name' => 'عرض فواتير الشراء', 'group_name' => 'فواتير الشراء', 'description' => 'عرض فواتير الشراء'],
-            ['name' => 'WAREHOUSE_PURCHASE_INVOICES_CREATE', 'display_name' => 'إنشاء فاتورة شراء', 'group_name' => 'فواتير الشراء', 'description' => 'إنشاء فاتورة شراء جديدة'],
-            ['name' => 'WAREHOUSE_PURCHASE_INVOICES_UPDATE', 'display_name' => 'تعديل فاتورة الشراء', 'group_name' => 'فواتير الشراء', 'description' => 'تعديل فواتير الشراء'],
-            ['name' => 'WAREHOUSE_PURCHASE_INVOICES_DELETE', 'display_name' => 'حذف فاتورة الشراء', 'group_name' => 'فواتير الشراء', 'description' => 'حذف فواتير الشراء'],
+
+            ['name' => 'WAREHOUSE_PURCHASE_INVOICES_READ', 'display_name' => 'عرض فواتير الشراء', 'group_name' => 'المستودع - فواتير الشراء', 'description' => 'عرض فواتير الشراء'],
+            ['name' => 'WAREHOUSE_PURCHASE_INVOICES_CREATE', 'display_name' => 'إنشاء فاتورة شراء', 'group_name' => 'المستودع - فواتير الشراء', 'description' => 'إنشاء فاتورة شراء جديدة'],
+            ['name' => 'WAREHOUSE_PURCHASE_INVOICES_UPDATE', 'display_name' => 'تعديل فاتورة الشراء', 'group_name' => 'المستودع - فواتير الشراء', 'description' => 'تعديل فواتير الشراء'],
+            ['name' => 'WAREHOUSE_PURCHASE_INVOICES_DELETE', 'display_name' => 'حذف فاتورة الشراء', 'group_name' => 'المستودع - فواتير الشراء', 'description' => 'حذف فواتير الشراء'],
 
             // ============================================
             // الموردين - Suppliers
             // ============================================
-            ['name' => 'MENU_WAREHOUSE_SUPPLIERS', 'display_name' => 'الموردين', 'group_name' => 'الموردين', 'description' => 'إظهار قائمة الموردين'],
-            ['name' => 'WAREHOUSE_SUPPLIERS_READ', 'display_name' => 'عرض الموردين', 'group_name' => 'الموردين', 'description' => 'عرض الموردين'],
-            ['name' => 'WAREHOUSE_SUPPLIERS_CREATE', 'display_name' => 'إضافة مورد', 'group_name' => 'الموردين', 'description' => 'إضافة مورد جديد'],
-            ['name' => 'WAREHOUSE_SUPPLIERS_UPDATE', 'display_name' => 'تعديل بيانات المورد', 'group_name' => 'الموردين', 'description' => 'تعديل بيانات المورد'],
-            ['name' => 'WAREHOUSE_SUPPLIERS_DELETE', 'display_name' => 'حذف المورد', 'group_name' => 'الموردين', 'description' => 'حذف المورد'],
+            ['name' => 'MENU_WAREHOUSE_SUPPLIERS', 'display_name' => 'الموردين', 'group_name' => 'المستودع - الموردين', 'description' => 'إظهار قائمة الموردين'],
+            ['name' => 'WAREHOUSE_SUPPLIERS_READ', 'display_name' => 'عرض الموردين', 'group_name' => 'المستودع - الموردين', 'description' => 'عرض الموردين'],
+            ['name' => 'WAREHOUSE_SUPPLIERS_CREATE', 'display_name' => 'إضافة مورد', 'group_name' => 'المستودع - الموردين', 'description' => 'إضافة مورد جديد'],
+            ['name' => 'WAREHOUSE_SUPPLIERS_UPDATE', 'display_name' => 'تعديل بيانات المورد', 'group_name' => 'المستودع - الموردين', 'description' => 'تعديل بيانات المورد'],
+            ['name' => 'WAREHOUSE_SUPPLIERS_DELETE', 'display_name' => 'حذف المورد', 'group_name' => 'المستودع - الموردين', 'description' => 'حذف المورد'],
 
             // ============================================
             // أنواع المواد - Material Types
             // ============================================
-            ['name' => 'MENU_WAREHOUSE_MATERIAL_TYPES', 'display_name' => 'أنواع المواد', 'group_name' => 'أنواع المواد', 'description' => 'إظهار قائمة أنواع المواد'],
-            ['name' => 'WAREHOUSE_MATERIAL_TYPES_READ', 'display_name' => 'عرض أنواع المواد', 'group_name' => 'أنواع المواد', 'description' => 'عرض أنواع المواد'],
-            ['name' => 'WAREHOUSE_MATERIAL_TYPES_CREATE', 'display_name' => 'إضافة نوع مادة', 'group_name' => 'أنواع المواد', 'description' => 'إضافة نوع مادة جديد'],
-            ['name' => 'WAREHOUSE_MATERIAL_TYPES_UPDATE', 'display_name' => 'تعديل نوع المادة', 'group_name' => 'أنواع المواد', 'description' => 'تعديل أنواع المواد'],
-            ['name' => 'WAREHOUSE_MATERIAL_TYPES_DELETE', 'display_name' => 'حذف نوع المادة', 'group_name' => 'أنواع المواد', 'description' => 'حذف أنواع المواد'],
+            ['name' => 'MENU_WAREHOUSE_MATERIAL_TYPES', 'display_name' => 'أنواع المواد', 'group_name' => 'المستودع - أنواع المواد', 'description' => 'إظهار قائمة أنواع المواد'],
+            ['name' => 'WAREHOUSE_MATERIAL_TYPES_READ', 'display_name' => 'عرض أنواع المواد', 'group_name' => 'المستودع - أنواع المواد', 'description' => 'عرض أنواع المواد'],
+            ['name' => 'WAREHOUSE_MATERIAL_TYPES_CREATE', 'display_name' => 'إضافة نوع مادة', 'group_name' => 'المستودع - أنواع المواد', 'description' => 'إضافة نوع مادة جديد'],
+            ['name' => 'WAREHOUSE_MATERIAL_TYPES_UPDATE', 'display_name' => 'تعديل نوع المادة', 'group_name' => 'المستودع - أنواع المواد', 'description' => 'تعديل أنواع المواد'],
+            ['name' => 'WAREHOUSE_MATERIAL_TYPES_DELETE', 'display_name' => 'حذف نوع المادة', 'group_name' => 'المستودع - أنواع المواد', 'description' => 'حذف أنواع المواد'],
 
             // ============================================
             // وحدات القياس - Units
             // ============================================
-            ['name' => 'MENU_WAREHOUSE_UNITS', 'display_name' => 'وحدات القياس', 'group_name' => 'وحدات القياس', 'description' => 'إظهار قائمة وحدات القياس'],
-            ['name' => 'WAREHOUSE_UNITS_READ', 'display_name' => 'عرض الوحدات', 'group_name' => 'وحدات القياس', 'description' => 'عرض وحدات القياس'],
-            ['name' => 'WAREHOUSE_UNITS_CREATE', 'display_name' => 'إضافة وحدة', 'group_name' => 'وحدات القياس', 'description' => 'إضافة وحدة قياس جديدة'],
-            ['name' => 'WAREHOUSE_UNITS_UPDATE', 'display_name' => 'تعديل الوحدة', 'group_name' => 'وحدات القياس', 'description' => 'تعديل وحدات القياس'],
-            ['name' => 'WAREHOUSE_UNITS_DELETE', 'display_name' => 'حذف الوحدة', 'group_name' => 'وحدات القياس', 'description' => 'حذف وحدات القياس'],
+            ['name' => 'MENU_WAREHOUSE_UNITS', 'display_name' => 'وحدات القياس', 'group_name' => 'المستودع - وحدات القياس', 'description' => 'إظهار قائمة وحدات القياس'],
+            ['name' => 'WAREHOUSE_UNITS_READ', 'display_name' => 'عرض الوحدات', 'group_name' => 'المستودع - وحدات القياس', 'description' => 'عرض وحدات القياس'],
+            ['name' => 'WAREHOUSE_UNITS_CREATE', 'display_name' => 'إضافة وحدة', 'group_name' => 'المستودع - وحدات القياس', 'description' => 'إضافة وحدة قياس جديدة'],
+            ['name' => 'WAREHOUSE_UNITS_UPDATE', 'display_name' => 'تعديل الوحدة', 'group_name' => 'المستودع - وحدات القياس', 'description' => 'تعديل وحدات القياس'],
+            ['name' => 'WAREHOUSE_UNITS_DELETE', 'display_name' => 'حذف الوحدة', 'group_name' => 'المستودع - وحدات القياس', 'description' => 'حذف وحدات القياس'],
 
             // ============================================
             // تسجيل البضاعة - Warehouse Registration
             // ============================================
-            ['name' => 'MENU_WAREHOUSE_REGISTRATION', 'display_name' => 'تسجيل البضاعة', 'group_name' => 'تسجيل البضاعة', 'description' => 'إظهار قائمة تسجيل البضاعة'],
-            ['name' => 'WAREHOUSE_REGISTRATION_READ', 'display_name' => 'عرض تسجيلات البضاعة', 'group_name' => 'تسجيل البضاعة', 'description' => 'عرض قائمة تسجيلات البضاعة'],
-            ['name' => 'WAREHOUSE_REGISTRATION_CREATE', 'display_name' => 'إضافة تسجيل بضاعة', 'group_name' => 'تسجيل البضاعة', 'description' => 'إنشاء تسجيل بضاعة جديد'],
-            ['name' => 'WAREHOUSE_REGISTRATION_UPDATE', 'display_name' => 'تعديل تسجيل البضاعة', 'group_name' => 'تسجيل البضاعة', 'description' => 'تعديل تسجيلات البضاعة'],
-            ['name' => 'WAREHOUSE_REGISTRATION_LOCK', 'display_name' => 'قفل التسجيل', 'group_name' => 'تسجيل البضاعة', 'description' => 'قفل تسجيلات البضاعة'],
-            ['name' => 'WAREHOUSE_REGISTRATION_UNLOCK', 'display_name' => 'فتح القفل', 'group_name' => 'تسجيل البضاعة', 'description' => 'فتح تسجيلات البضاعة المقفلة'],
-            ['name' => 'WAREHOUSE_REGISTRATION_TRANSFER', 'display_name' => 'نقل البضاعة للإنتاج', 'group_name' => 'تسجيل البضاعة', 'description' => 'نقل البضاعة إلى المراحل الإنتاجية'],
+            ['name' => 'MENU_WAREHOUSE_REGISTRATION', 'display_name' => 'تسجيل البضاعة', 'group_name' => 'المستودع - تسجيل البضاعة', 'description' => 'إظهار قائمة تسجيل البضاعة'],
+            ['name' => 'WAREHOUSE_REGISTRATION_READ', 'display_name' => 'عرض تسجيلات البضاعة', 'group_name' => 'المستودع - تسجيل البضاعة', 'description' => 'عرض قائمة تسجيلات البضاعة'],
+            ['name' => 'WAREHOUSE_REGISTRATION_CREATE', 'display_name' => 'إضافة تسجيل بضاعة', 'group_name' => 'المستودع - تسجيل البضاعة', 'description' => 'إنشاء تسجيل بضاعة جديد'],
+            ['name' => 'WAREHOUSE_REGISTRATION_UPDATE', 'display_name' => 'تعديل تسجيل البضاعة', 'group_name' => 'المستودع - تسجيل البضاعة', 'description' => 'تعديل تسجيلات البضاعة'],
+            ['name' => 'WAREHOUSE_REGISTRATION_LOCK', 'display_name' => 'قفل التسجيل', 'group_name' => 'المستودع - تسجيل البضاعة', 'description' => 'قفل تسجيلات البضاعة'],
+            ['name' => 'WAREHOUSE_REGISTRATION_UNLOCK', 'display_name' => 'فتح القفل', 'group_name' => 'المستودع - تسجيل البضاعة', 'description' => 'فتح تسجيلات البضاعة المقفلة'],
+            ['name' => 'WAREHOUSE_REGISTRATION_TRANSFER', 'display_name' => 'نقل البضاعة للإنتاج', 'group_name' => 'المستودع - تسجيل البضاعة', 'description' => 'نقل البضاعة إلى المراحل الإنتاجية'],
 
             // ============================================
             // تسوية المستودع - Warehouse Reconciliation
             // ============================================
-            ['name' => 'MENU_WAREHOUSE_RECONCILIATION', 'display_name' => 'تسوية المستودع', 'group_name' => 'تسوية المستودع', 'description' => 'إظهار قائمة التسوية'],
-            ['name' => 'WAREHOUSE_RECONCILIATION_READ', 'display_name' => 'عرض التسويات', 'group_name' => 'تسوية المستودع', 'description' => 'عرض قائمة التسويات'],
-            ['name' => 'WAREHOUSE_RECONCILIATION_CREATE', 'display_name' => 'إنشاء تسوية', 'group_name' => 'تسوية المستودع', 'description' => 'إنشاء تسوية جديدة'],
-            ['name' => 'WAREHOUSE_RECONCILIATION_UPDATE', 'display_name' => 'تعديل التسوية', 'group_name' => 'تسوية المستودع', 'description' => 'تعديل التسويات'],
-            ['name' => 'WAREHOUSE_RECONCILIATION_DELETE', 'display_name' => 'حذف التسوية', 'group_name' => 'تسوية المستودع', 'description' => 'حذف التسويات'],
-            ['name' => 'WAREHOUSE_RECONCILIATION_MANAGEMENT', 'display_name' => 'إدارة التسويات', 'group_name' => 'تسوية المستودع', 'description' => 'لوحة التحكم الإدارية للتسويات'],
-            ['name' => 'WAREHOUSE_RECONCILIATION_LINK_INVOICE', 'display_name' => 'ربط الفواتير', 'group_name' => 'تسوية المستودع', 'description' => 'ربط الفواتير بمذكرات التسليم'],
+            ['name' => 'MENU_WAREHOUSE_RECONCILIATION', 'display_name' => 'تسوية المستودع', 'group_name' => 'المستودع - تسوية المستودع', 'description' => 'إظهار قائمة التسوية'],
+            ['name' => 'WAREHOUSE_RECONCILIATION_READ', 'display_name' => 'عرض التسويات', 'group_name' => 'المستودع - تسوية المستودع', 'description' => 'عرض قائمة التسويات'],
+            ['name' => 'WAREHOUSE_RECONCILIATION_CREATE', 'display_name' => 'إنشاء تسوية', 'group_name' => 'المستودع - تسوية المستودع', 'description' => 'إنشاء تسوية جديدة'],
+            ['name' => 'WAREHOUSE_RECONCILIATION_UPDATE', 'display_name' => 'تعديل التسوية', 'group_name' => 'المستودع - تسوية المستودع', 'description' => 'تعديل التسويات'],
+            ['name' => 'WAREHOUSE_RECONCILIATION_DELETE', 'display_name' => 'حذف التسوية', 'group_name' => 'المستودع - تسوية المستودع', 'description' => 'حذف التسويات'],
+            ['name' => 'WAREHOUSE_RECONCILIATION_MANAGEMENT', 'display_name' => 'إدارة التسويات', 'group_name' => 'المستودع - تسوية المستودع', 'description' => 'لوحة التحكم الإدارية للتسويات'],
+            ['name' => 'WAREHOUSE_RECONCILIATION_LINK_INVOICE', 'display_name' => 'ربط الفواتير', 'group_name' => 'المستودع - تسوية المستودع', 'description' => 'ربط الفواتير بمذكرات التسليم'],
 
             // ============================================
             // حركات المواد - Material Movements
             // ============================================
-            ['name' => 'MENU_WAREHOUSE_MOVEMENTS', 'display_name' => 'حركات المواد', 'group_name' => 'حركات المواد', 'description' => 'إظهار قائمة حركات المواد'],
-            ['name' => 'WAREHOUSE_MOVEMENTS_READ', 'display_name' => 'عرض حركات المواد', 'group_name' => 'حركات المواد', 'description' => 'عرض سجل حركات المواد'],
-            ['name' => 'WAREHOUSE_MOVEMENTS_DETAILS', 'display_name' => 'عرض تفاصيل الحركة', 'group_name' => 'حركات المواد', 'description' => 'عرض تفاصيل حركة المادة'],
+            ['name' => 'MENU_WAREHOUSE_MOVEMENTS', 'display_name' => 'حركات المواد', 'group_name' => 'المستودع - حركات المواد', 'description' => 'إظهار قائمة حركات المواد'],
+            ['name' => 'WAREHOUSE_MOVEMENTS_READ', 'display_name' => 'عرض حركات المواد', 'group_name' => 'المستودع - حركات المواد', 'description' => 'عرض سجل حركات المواد'],
+            ['name' => 'WAREHOUSE_MOVEMENTS_DETAILS', 'display_name' => 'عرض تفاصيل الحركة', 'group_name' => 'المستودع - حركات المواد', 'description' => 'عرض تفاصيل حركة المادة'],
 
             // ============================================
             // إعدادات المستودع - Warehouse Settings
             // ============================================
-            ['name' => 'MENU_WAREHOUSE_SETTINGS', 'display_name' => 'إعدادات المستودع', 'group_name' => 'إعدادات المستودع', 'description' => 'إظهار قائمة إعدادات المستودع'],
+            ['name' => 'MENU_WAREHOUSE_SETTINGS', 'display_name' => 'إعدادات المستودع', 'group_name' => 'المستودع - إعدادات', 'description' => 'إظهار قائمة إعدادات المستودع'],
 
             // ============================================
             // تقارير المستودع - Warehouse Reports
             // ============================================
-            ['name' => 'MENU_WAREHOUSE_REPORTS', 'display_name' => 'تقارير المستودع', 'group_name' => 'تقارير المستودع', 'description' => 'إظهار قائمة تقارير المستودع'],
+            ['name' => 'MENU_WAREHOUSE_REPORTS', 'display_name' => 'تقارير المستودع', 'group_name' => 'المستودع - تقارير', 'description' => 'إظهار قائمة تقارير المستودع'],
 
             // ============================================
             // المرحلة الأولى - الاستاندات - Stage 1: Stands
@@ -177,12 +177,28 @@ class PermissionsSeeder extends Seeder
             ['name' => 'SHIFTS_CREATE', 'display_name' => 'إضافة وردية', 'group_name' => 'الورديات والعمال', 'description' => 'إضافة وردية جديدة'],
             ['name' => 'SHIFTS_UPDATE', 'display_name' => 'تعديل الوردية', 'group_name' => 'الورديات والعمال', 'description' => 'تعديل بيانات الوردية'],
             ['name' => 'SHIFTS_DELETE', 'display_name' => 'حذف الوردية', 'group_name' => 'الورديات والعمال', 'description' => 'حذف الوردية'],
+            ['name' => 'SHIFTS_ACTIVATE', 'display_name' => 'تفعيل الوردية', 'group_name' => 'الورديات والعمال', 'description' => 'تفعيل وردية مجدولة'],
+            ['name' => 'SHIFTS_COMPLETE', 'display_name' => 'إكمال الوردية', 'group_name' => 'الورديات والعمال', 'description' => 'إكمال وردية نشطة'],
+            ['name' => 'SHIFTS_SUSPEND', 'display_name' => 'تعليق الوردية', 'group_name' => 'الورديات والعمال', 'description' => 'تعليق وردية مؤقتاً'],
+            ['name' => 'SHIFTS_RESUME', 'display_name' => 'استئناف الوردية', 'group_name' => 'الورديات والعمال', 'description' => 'استئناف وردية معلقة'],
             ['name' => 'SHIFTS_CURRENT', 'display_name' => 'الورديات الحالية', 'group_name' => 'الورديات والعمال', 'description' => 'عرض الورديات الحالية'],
             ['name' => 'SHIFTS_ATTENDANCE', 'display_name' => 'الحضور والغياب', 'group_name' => 'الورديات والعمال', 'description' => 'إدارة حضور وغياب العمال'],
             ['name' => 'WORKERS_READ', 'display_name' => 'عرض العمال', 'group_name' => 'الورديات والعمال', 'description' => 'عرض قائمة العمال'],
+              ['name' => 'WORKERS_DELETE', 'display_name' => 'حذف العمال', 'group_name' => 'الورديات والعمال', 'description' => 'حذف عامل'],
             ['name' => 'WORKERS_CREATE', 'display_name' => 'إضافة عامل', 'group_name' => 'الورديات والعمال', 'description' => 'إضافة عامل جديد'],
             ['name' => 'WORKERS_UPDATE', 'display_name' => 'تعديل بيانات العامل', 'group_name' => 'الورديات والعمال', 'description' => 'تعديل بيانات العامل'],
-            ['name' => 'WORKERS_DELETE', 'display_name' => 'حذف العامل', 'group_name' => 'الورديات والعمال', 'description' => 'حذف العامل'],
+
+            // ============================================
+            // نقل الورديات - Shift Handovers
+            // ============================================
+            ['name' => 'MENU_SHIFT_HANDOVERS', 'display_name' => 'نقل الورديات', 'group_name' => 'نقل الورديات', 'description' => 'إظهار قائمة نقل الورديات'],
+            ['name' => 'SHIFT_HANDOVERS_READ', 'display_name' => 'عرض نقل الورديات', 'group_name' => 'نقل الورديات', 'description' => 'عرض قائمة نقل الورديات'],
+            ['name' => 'SHIFT_HANDOVERS_CREATE', 'display_name' => 'إنشاء نقل وردية', 'group_name' => 'نقل الورديات', 'description' => 'إنشاء نقل وردية جديد'],
+            ['name' => 'SHIFT_HANDOVERS_VIEW', 'display_name' => 'عرض تفاصيل النقل', 'group_name' => 'نقل الورديات', 'description' => 'عرض تفاصيل نقل الوردية'],
+            ['name' => 'SHIFT_HANDOVERS_APPROVE', 'display_name' => 'الموافقة على النقل', 'group_name' => 'نقل الورديات', 'description' => 'الموافقة على نقل الوردية'],
+            ['name' => 'SHIFT_HANDOVERS_REJECT', 'display_name' => 'رفض النقل', 'group_name' => 'نقل الورديات', 'description' => 'رفض نقل الوردية'],
+            ['name' => 'SHIFT_HANDOVERS_DELETE', 'display_name' => 'حذف النقل', 'group_name' => 'نقل الورديات', 'description' => 'حذف نقل الوردية'],
+            ['name' => 'SHIFT_HANDOVERS_FROM_INDEX', 'display_name' => 'نقل من الانديكس', 'group_name' => 'نقل الورديات', 'description' => 'السماح بنقل الوردية من صفحة الانديكس مباشرة'],
             ['name' => 'WORKER_TEAMS_READ', 'display_name' => 'عرض مجموعات العمال', 'group_name' => 'الورديات والعمال', 'description' => 'عرض مجموعات العمال'],
             ['name' => 'WORKER_TEAMS_CREATE', 'display_name' => 'إضافة مجموعة عمال', 'group_name' => 'الورديات والعمال', 'description' => 'إضافة مجموعة عمال جديدة'],
             ['name' => 'WORKER_TEAMS_UPDATE', 'display_name' => 'تعديل مجموعة العمال', 'group_name' => 'الورديات والعمال', 'description' => 'تعديل مجموعة العمال'],
@@ -265,17 +281,17 @@ class PermissionsSeeder extends Seeder
             ['name' => 'MANAGE_USERS', 'display_name' => 'إدارة المستخدمين', 'group_name' => 'إدارة المستخدمين', 'description' => 'إدارة المستخدمين والموظفين'],
             ['name' => 'MANAGE_ROLES', 'display_name' => 'إدارة الأدوار', 'group_name' => 'إدارة الأدوار', 'description' => 'إدارة أدوار المستخدمين'],
             ['name' => 'MANAGE_PERMISSIONS', 'display_name' => 'إدارة الصلاحيات', 'group_name' => 'إدارة الصلاحيات', 'description' => 'إدارة صلاحيات النظام'],
-            ['name' => 'MANAGE_MATERIALS', 'display_name' => 'إدارة المواد الخام', 'group_name' => 'المواد الخام', 'description' => 'إدارة المواد الخام والمخزون'],
-            ['name' => 'MANAGE_SUPPLIERS', 'display_name' => 'إدارة الموردين', 'group_name' => 'الموردين', 'description' => 'إدارة الموردين والموزعين'],
-            ['name' => 'MANAGE_WAREHOUSES', 'display_name' => 'إدارة المخازن', 'group_name' => 'المخازن', 'description' => 'إدارة المخازن والمواقع'],
-            ['name' => 'WAREHOUSE_TRANSFERS', 'display_name' => 'تحويلات المخازن', 'group_name' => 'المخازن', 'description' => 'إدارة تحويلات المخازن'],
+            ['name' => 'MANAGE_MATERIALS', 'display_name' => 'إدارة المواد الخام', 'group_name' => 'المستودع - المواد الخام', 'description' => 'إدارة المواد الخام والمخزون'],
+            ['name' => 'MANAGE_SUPPLIERS', 'display_name' => 'إدارة الموردين', 'group_name' => 'المستودع - الموردين', 'description' => 'إدارة الموردين والموزعين'],
+            ['name' => 'MANAGE_WAREHOUSES', 'display_name' => 'إدارة المخازن', 'group_name' => 'المستودع - المخازن', 'description' => 'إدارة المخازن والمواقع'],
+            ['name' => 'WAREHOUSE_TRANSFERS', 'display_name' => 'تحويلات المخازن', 'group_name' => 'المستودع - المخازن', 'description' => 'إدارة تحويلات المخازن'],
             ['name' => 'STAGE1_STANDS', 'display_name' => 'المرحلة الأولى - الاستاندات', 'group_name' => 'المرحلة الأولى - الاستاندات', 'description' => 'إدارة المرحلة الأولى من الإنتاج'],
             ['name' => 'STAGE2_PROCESSING', 'display_name' => 'المرحلة الثانية - المعالجة', 'group_name' => 'المرحلة الثانية - المعالجة', 'description' => 'إدارة المرحلة الثانية من الإنتاج'],
             ['name' => 'STAGE3_COILS', 'display_name' => 'المرحلة الثالثة - اللفائف', 'group_name' => 'المرحلة الثالثة - اللفائف', 'description' => 'إدارة المرحلة الثالثة من الإنتاج'],
             ['name' => 'STAGE4_PACKAGING', 'display_name' => 'المرحلة الرابعة - التعبئة', 'group_name' => 'المرحلة الرابعة - التعبئة', 'description' => 'إدارة المرحلة الرابعة من الإنتاج'],
-            ['name' => 'PURCHASE_INVOICES', 'display_name' => 'فواتير الشراء', 'group_name' => 'فواتير الشراء', 'description' => 'إدارة فواتير الشراء'],
+            ['name' => 'PURCHASE_INVOICES', 'display_name' => 'فواتير الشراء', 'group_name' => 'المستودع - فواتير الشراء', 'description' => 'إدارة فواتير الشراء'],
             ['name' => 'SALES_INVOICES', 'display_name' => 'فواتير المبيعات', 'group_name' => 'التقارير العامة', 'description' => 'إدارة فواتير المبيعات'],
-            ['name' => 'MANAGE_MOVEMENTS', 'display_name' => 'إدارة الحركات', 'group_name' => 'حركات المواد', 'description' => 'إدارة حركات المخزون'],
+            ['name' => 'MANAGE_MOVEMENTS', 'display_name' => 'إدارة الحركات', 'group_name' => 'المستودع - حركات المواد', 'description' => 'إدارة حركات المخزون'],
         ];
 
         foreach ($permissions as &$permission) {

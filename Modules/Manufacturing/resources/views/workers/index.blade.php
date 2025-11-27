@@ -69,11 +69,13 @@
                     <i class="feather icon-list"></i>
                     قائمة العمال
                 </h4>
+                @if(auth()->user()->hasPermission('WORKERS_CREATE'))
                 <a href="{{ route('manufacturing.workers.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>
                     إضافة عامل جديد
                 </a>
-            </div>
+                @endif
+       </div>
 
             <!-- Filters Section -->
             <div class="um-filters-section">
@@ -153,10 +155,13 @@
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
+@if (auth()->user()->hasPermission('WORKERS_READ'))
                                         <a href="{{ route('manufacturing.workers.show', $worker->id) }}" class="um-dropdown-item um-btn-view">
                                             <i class="feather icon-eye"></i>
                                             <span>عرض</span>
                                         </a>
+                                        @endif
+                                        @if (auth()->user()->hasPermission('WORKERS_UPDATE'))
                                         <a href="{{ route('manufacturing.workers.edit', $worker->id) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
                                             <span>تعديل</span>
@@ -169,7 +174,9 @@
                                                 <span>{{ $worker->is_active ? 'تعطيل' : 'تفعيل' }}</span>
                                             </button>
                                         </form>
+                                        @endif
                                         @if(!$worker->is_active)
+                                        @if (auth()->user()->hasPermission('WORKERS_DELETE'))
                                         <form method="POST" action="{{ route('manufacturing.workers.destroy', $worker->id) }}" class="delete-form">
                                             @csrf
                                             @method('DELETE')
@@ -178,6 +185,7 @@
                                                 <span>حذف</span>
                                             </button>
                                         </form>
+                                        @endif
                                         @endif
                                     </div>
                                 </div>

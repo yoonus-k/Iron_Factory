@@ -1,265 +1,420 @@
 @extends('master')
 
-@section('title', 'تفاصيل المجموعة')
+@section('title', 'تفاصيل المجموعة - ' . $team->name)
 
 @section('content')
-    <div class="um-content-wrapper">
-        <!-- Header Section -->
-        <div class="um-header-section">
-            <h1 class="um-page-title">
-                <i class="feather icon-users"></i>
-                {{ $team->name }} - {{ $team->team_code }}
-            </h1>
-            <nav class="um-breadcrumb-nav">
-                <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
-                </span>
-                <i class="feather icon-chevron-left"></i>
-                <span>مجموعات العمال</span>
-                <i class="feather icon-chevron-left"></i>
-                <span>تفاصيل المجموعة</span>
-            </nav>
-        </div>
+    <style>
+        .action-btn.status {
+            display: flex;
+            align-items: center;
+            color: #0066cc;
+            border: none;
+        }
+        .action-btn.status:hover {
+            color: #004499;
+        }
 
-        <!-- Success and Error Messages -->
-        @if(session('success'))
-        <div class="um-alert-custom um-alert-success" role="alert">
+        .info-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-right: 4px solid #3498db;
+        }
+
+        .info-item label {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            font-weight: 600;
+            display: block;
+        }
+
+        .info-item .value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .card-icon.primary {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        .card-icon.success {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+
+        .card-icon.warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-info h1 {
+            margin: 0 0 5px 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .header-info p {
+            margin: 0;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .team-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+        }
+
+        .btn-back {
+            background: white;
+            border: 1px solid #e9ecef;
+            color: #2c3e50;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: #f8f9fa;
+            border-color: #3498db;
+            color: #3498db;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .col-12 {
+            grid-column: 1 / -1;
+        }
+
+        .worker-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 10px;
+        }
+
+        .worker-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .worker-icon {
+            background: #667eea20;
+            color: #667eea;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+
+        .worker-info {
+            flex: 1;
+        }
+
+        .worker-name {
+            font-weight: 500;
+            color: #0f172a;
+            margin-bottom: 2px;
+        }
+
+        .worker-email {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .worker-badge {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+            opacity: 0.5;
+        }
+    </style>
+
+    @if (session('success'))
+        <div class="um-alert-custom um-alert-success" role="alert" id="successMessage">
             <i class="feather icon-check-circle"></i>
             {{ session('success') }}
             <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
                 <i class="feather icon-x"></i>
             </button>
         </div>
-        @endif
+    @endif
 
-        @if(session('error'))
-        <div class="um-alert-custom um-alert-danger" role="alert">
+    @if (session('error'))
+        <div class="um-alert-custom um-alert-error" role="alert" id="errorMessage">
             <i class="feather icon-alert-circle"></i>
             {{ session('error') }}
             <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
                 <i class="feather icon-x"></i>
             </button>
         </div>
-        @endif
+    @endif
 
-        <!-- Main Card -->
-        <section class="um-main-card">
-            <!-- Card Header -->
-            <div class="um-card-header">
-                <h4 class="um-card-title">
-                    <i class="feather icon-info"></i>
-                    معلومات المجموعة
-                </h4>
-                <div style="display: flex; gap: 10px;">
-                    @if($team->is_active)
-                    <a href="{{ route('manufacturing.worker-teams.edit', $team->id) }}" class="um-btn um-btn-secondary">
-                        <i class="feather icon-edit-2"></i>
-                        تعديل
+    <div class="container">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="team-icon">
+                        <i class="feather icon-users"></i>
+                    </div>
+                    <div class="header-info">
+                        <h1>{{ $team->name }}</h1>
+                        <p><strong>كود المجموعة:</strong> {{ $team->team_code }}</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    @can('WORKER_TEAMS_UPDATE')
+                    <a href="{{ route('manufacturing.worker-teams.edit', $team->id) }}" class="action-btn view">
+                        <i class="feather icon-edit-2"></i> تعديل
                     </a>
-                    @endif
-                    <a href="{{ route('manufacturing.worker-teams.index') }}" class="um-btn um-btn-outline">
-                        <i class="feather icon-arrow-right"></i>
-                        العودة
+                    @endcan
+                    @can('WORKER_TEAMS_READ')
+                    <a href="{{ route('manufacturing.worker-teams.index') }}" class="btn-back">
+                        <i class="feather icon-arrow-right"></i> العودة
                     </a>
+                    @endcan
+                </div>
+            </div>
+        </div>
+
+        <!-- Basic Information -->
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon primary">
+                        <i class="feather icon-info"></i>
+                    </div>
+                    <h3 class="card-title">معلومات المجموعة</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <label>اسم المجموعة</label>
+                        <div class="value">{{ $team->name }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <label>كود المجموعة</label>
+                        <div class="value"><code style="background: white; padding: 6px 10px; border-radius: 4px;">{{ $team->team_code }}</code></div>
+                    </div>
+
+                    <div class="info-item">
+                        <label>عدد العمال</label>
+                        <div class="value">
+                            <span class="status-badge active">{{ $team->workers_count }} عامل</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <label>تاريخ الإنشاء</label>
+                        <div class="value">{{ $team->created_at->format('Y-m-d H:i') }}</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Team Information -->
-            <div style="padding: 20px;">
-                <div class="um-category-card" style="margin-bottom: 20px;">
-                    <div class="um-category-card-header">
-                        <div class="um-category-info">
-                            <div class="um-category-icon" style="background: #667eea20; color: #667eea; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-                                <i class="feather icon-users" style="font-size: 18px;"></i>
-                            </div>
-                            <div>
-                                <h6 class="um-category-name">{{ $team->name }}</h6>
-                                <span class="um-category-id">{{ $team->team_code }}</span>
-                            </div>
-                        </div>
-                        <span class="um-badge um-badge-{{ $team->is_active ? 'success' : 'secondary' }}">
-                            {{ $team->status_name }}
-                        </span>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon success">
+                        <i class="feather icon-file-text"></i>
+                    </div>
+                    <h3 class="card-title">وصف المجموعة</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <label>الوصف</label>
+                        <div class="value">{{ $team->description ?? 'لا يوجد وصف' }}</div>
                     </div>
 
-                    <div class="um-category-card-body">
-                        <div class="um-info-row">
-                            <span class="um-info-label">
-                                <i class="feather icon-hash"></i>
-                                رقم المجموعة
-                            </span>
-                            <span class="um-info-value">{{ $team->team_code }}</span>
-                        </div>
-
-                        <div class="um-info-row">
-                            <span class="um-info-label">
-                                <i class="feather icon-user"></i>
-                                عدد العمال
-                            </span>
-                            <span class="um-info-value">
-                                <span class="count-badge">{{ $team->workers_count }}</span> عامل
+                    <div class="info-item">
+                        <label>الحالة</label>
+                        <div class="value">
+                            <span class="status-badge {{ $team->is_active ? 'active' : 'inactive' }}">
+                                {{ $team->is_active ? 'نشطة' : 'غير نشطة' }}
                             </span>
                         </div>
-
-                        <div class="um-info-row">
-                            <span class="um-info-label">
-                                <i class="feather icon-calendar"></i>
-                                تاريخ الإنشاء
-                            </span>
-                            <span class="um-info-value">{{ $team->created_at->format('Y-m-d H:i') }}</span>
-                        </div>
-
-                        @if($team->description)
-                        <div class="um-info-row">
-                            <span class="um-info-label">
-                                <i class="feather icon-file-text"></i>
-                                الوصف
-                            </span>
-                            <span class="um-info-value">{{ $team->description }}</span>
-                        </div>
-                        @endif
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Workers in Team -->
-                <div class="um-category-card">
-                    <div class="um-category-card-header">
-                        <div class="um-category-info">
-                            <div class="um-category-icon" style="background: #f59e0b20; color: #f59e0b; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-                                <i class="feather icon-user" style="font-size: 18px;"></i>
-                            </div>
-                            <div>
-                                <h6 class="um-category-name">العمال في المجموعة</h6>
-                                <span class="um-category-id">{{ $workers->count() }} عامل</span>
-                            </div>
+        <!-- Workers in Team -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon warning">
+                            <i class="feather icon-user"></i>
                         </div>
+                        <h3 class="card-title">العمال في المجموعة</h3>
                     </div>
-
-                    <div class="um-category-card-body">
+                    <div class="card-body">
                         @if($workers->count() > 0)
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
-                            @foreach($workers as $worker)
-                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                <div style="background: #667eea20; color: #667eea; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 6px;">
-                                    <i class="feather icon-user" style="font-size: 16px;"></i>
-                                </div>
-                                <div>
-                                    <div style="font-weight: 500; color: #0f172a;">{{ $worker->name }}</div>
-                                    <div style="font-size: 0.85rem; color: #64748b;">{{ $worker->email ?? 'لا يوجد بريد' }}</div>
-                                </div>
-                                <span class="um-badge um-badge-success" style="margin-right: auto;">عضو</span>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">
+                                @foreach($workers as $worker)
+                                    <div class="worker-item">
+                                        <div class="worker-icon">
+                                            <i class="feather icon-user" style="font-size: 16px;"></i>
+                                        </div>
+                                        <div class="worker-info">
+                                            <div class="worker-name">{{ $worker->name }}</div>
+                                            <div class="worker-email">{{ $worker->email ?? 'لا يوجد بريد' }}</div>
+                                        </div>
+                                        <span class="worker-badge">عضو</span>
+                                    </div>
+                                @endforeach
                             </div>
-                            @endforeach
-                        </div>
                         @else
-                        <div style="text-align: center; padding: 40px; color: #999;">
-                            <i class="feather icon-users" style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
-                            لا يوجد عمال في هذه المجموعة
-                        </div>
+                            <div class="empty-state">
+                                <i class="feather icon-users"></i>
+                                <p><strong>لا يوجد عمال</strong></p>
+                                <small>لا توجد عمال في هذه المجموعة</small>
+                            </div>
                         @endif
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
     </div>
 
-    <style>
-        .count-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .um-category-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 3px 16px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e2e8f0;
-            transition: all 0.3s ease;
-        }
-
-        .um-category-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-        }
-
-        .um-category-card-header {
-            padding: 1.25rem;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .um-category-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .um-category-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #0f172a;
-            margin: 0 0 4px 0;
-        }
-
-        .um-category-id {
-            font-size: 0.85rem;
-            color: #64748b;
-            font-weight: 500;
-        }
-
-        .um-category-card-body {
-            padding: 1.25rem;
-        }
-
-        .um-info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .um-info-row:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
-        }
-
-        .um-info-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #64748b;
-            font-size: 0.9rem;
-        }
-
-        .um-info-value {
-            font-weight: 500;
-            color: #0f172a;
-            text-align: left;
-        }
-
-        @media (max-width: 768px) {
-            .um-info-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-            
-            .um-info-value {
-                text-align: right;
-                width: 100%;
-            }
-        }
-    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-dismiss alerts after 5 seconds
+            const alerts = document.querySelectorAll('.alert:not(.alert-info)');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 500);
+                }, 5000);
+            });
+        });
+    </script>
 @endsection

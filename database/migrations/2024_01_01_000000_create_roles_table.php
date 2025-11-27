@@ -97,6 +97,50 @@ return new class extends Migration
                 'created_at' => now(),
                 'updated_at' => now()
             ],
+            [
+                'role_name' => 'عامل المرحلة الأولى',
+                'role_name_en' => 'Stage 1 Worker',
+                'role_code' => 'STAGE1_WORKER',
+                'description' => 'عامل متخصص في المرحلة الأولى من الإنتاج',
+                'level' => 25,
+                'is_system' => false,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'role_name' => 'عامل المرحلة الثانية',
+                'role_name_en' => 'Stage 2 Worker',
+                'role_code' => 'STAGE2_WORKER',
+                'description' => 'عامل متخصص في المرحلة الثانية من الإنتاج',
+                'level' => 25,
+                'is_system' => false,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'role_name' => 'عامل المرحلة الثالثة',
+                'role_name_en' => 'Stage 3 Worker',
+                'role_code' => 'STAGE3_WORKER',
+                'description' => 'عامل متخصص في المرحلة الثالثة من الإنتاج',
+                'level' => 25,
+                'is_system' => false,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'role_name' => 'عامل المرحلة الرابعة',
+                'role_name_en' => 'Stage 4 Worker',
+                'role_code' => 'STAGE4_WORKER',
+                'description' => 'عامل متخصص في المرحلة الرابعة من الإنتاج',
+                'level' => 25,
+                'is_system' => false,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
         ]);
     }
 

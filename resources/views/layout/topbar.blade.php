@@ -78,7 +78,7 @@
 
             <!-- قائمة المستخدم -->
             <div class="user-menu" id="userMenu">
-                <a href="#"><i class="fas fa-user"></i> الملف الشخصي</a>
+                <a href="{{ route('profile') }}"><i class="fas fa-user"></i> الملف الشخصي</a>
                 <hr>
                 <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <i class="fas fa-sign-out-alt"></i> {{ __('app.users.logout') }}

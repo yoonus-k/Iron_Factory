@@ -11,7 +11,7 @@ class PermissionController extends Controller
     public function index()
     {
         $permissions = Permission::with('roles')->paginate(20);
-        $modules = Permission::distinct()->pluck('module');
+        $modules = Permission::distinct()->pluck('group_name');
         return view('permissions.index', compact('permissions', 'modules'));
     }
 

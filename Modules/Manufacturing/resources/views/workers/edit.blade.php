@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إضافة عامل جديد')
+@section('title', 'تعديل بيانات العامل')
 
 @section('content')
 
@@ -46,7 +46,7 @@
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
-                إضافة عامل جديد
+                تعديل بيانات العامل
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
@@ -55,14 +55,15 @@
                 <i class="feather icon-chevron-left"></i>
                 <span>العمال</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>إضافة عامل جديد</span>
+                <span>تعديل: {{ $worker->name }}</span>
             </nav>
         </div>
 
         <!-- Form Card -->
         <div class="form-card">
-            <form method="POST" action="{{ route('manufacturing.workers.store') }}" id="workerForm">
+            <form method="POST" action="{{ route('manufacturing.workers.update', $worker->id) }}" id="workerForm">
                 @csrf
+                @method('PUT')
 
                 <!-- Basic Information Section -->
                 <div class="form-section">
@@ -75,7 +76,7 @@
                         </div>
                         <div>
                             <h3 class="section-title">المعلومات الأساسية</h3>
-                            <p class="section-subtitle">أدخل البيانات الأساسية للعامل</p>
+                            <p class="section-subtitle">تعديل البيانات الأساسية للعامل</p>
                         </div>
                     </div>
 
@@ -85,27 +86,12 @@
                                 كود العامل
                                 <span class="required">*</span>
                             </label>
-                            <div class="input-group-with-button">
-                                <div class="input-wrapper" style="flex: 1;">
-                                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                                    </svg>
-                                    <input type="text" name="worker_code" id="worker_code"
-                                        class="form-input"
-                                        value="{{ old('worker_code') }}" placeholder="أدخل كود العامل" required>
-                                </div>
-                                <button type="button" class="btn-generate" onclick="generateWorkerCode()" id="generateBtn">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="23 4 23 10 17 10"></polyline>
-                                        <polyline points="1 20 1 14 7 14"></polyline>
-                                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                                    </svg>
-                                    توليد
-                                </button>
+                            <div class="input-wrapper">
+                                <input type="text" id="worker_code" name="worker_code" class="form-input"
+                                       value="{{ old('worker_code', $worker->worker_code) }}" required>
+                                @error('worker_code')
+                                <span class="error-message">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -115,14 +101,11 @@
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
-                                </svg>
-                                <input type="text" name="name" id="name"
-                                    class="form-input"
-                                    value="{{ old('name') }}" placeholder="أدخل اسم العامل" required>
+                                <input type="text" id="name" name="name" class="form-input"
+                                       value="{{ old('name', $worker->name) }}" required>
+                                @error('name')
+                                <span class="error-message">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -131,14 +114,11 @@
                                 رقم الهوية
                             </label>
                             <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                                </svg>
-                                <input type="text" name="national_id" id="national_id"
-                                    class="form-input"
-                                    value="{{ old('national_id') }}" placeholder="أدخل رقم الهوية">
+                                <input type="text" id="national_id" name="national_id" class="form-input"
+                                       value="{{ old('national_id', $worker->national_id) }}">
+                                @error('national_id')
+                                <span class="error-message">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -147,13 +127,11 @@
                                 رقم الهاتف
                             </label>
                             <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                                </svg>
-                                <input type="text" name="phone" id="phone"
-                                    class="form-input"
-                                    value="{{ old('phone') }}" placeholder="أدخل رقم الهاتف">
+                                <input type="tel" id="phone" name="phone" class="form-input"
+                                       value="{{ old('phone', $worker->phone) }}">
+                                @error('phone')
+                                <span class="error-message">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -162,14 +140,11 @@
                                 البريد الإلكتروني
                             </label>
                             <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                    <polyline points="22,6 12,13 2,6"></polyline>
-                                </svg>
-                                <input type="email" name="email" id="email"
-                                    class="form-input"
-                                    value="{{ old('email') }}" placeholder="أدخل البريد الإلكتروني">
+                                <input type="email" id="email" name="email" class="form-input"
+                                       value="{{ old('email', $worker->email) }}">
+                                @error('email')
+                                <span class="error-message">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -179,22 +154,17 @@
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                </svg>
-                                <select name="role_id" id="position"
-                                    class="form-input" required>
+                                <select id="position" name="role_id" class="form-input" required>
                                     <option value="">اختر الوظيفة</option>
                                     @foreach($roles as $role)
-                                    <option value="{{ $role->id }}" data-role-code="{{ $role->role_code }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
+                                    <option value="{{ $role->id }}" data-role-code="{{ $role->role_code }}" {{ old('role_id', $worker->user?->role_id ?? collect($roles)->firstWhere('role_code', strtoupper($worker->position))?->id) == $role->id ? 'selected' : '' }}>
                                         {{ $role->role_name }}
                                     </option>
                                     @endforeach
                                 </select>
+                                @error('role_id')
+                                <span class="error-message">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -205,84 +175,90 @@
                     <div class="section-header">
                         <div class="section-icon account">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                                <line x1="8" y1="21" x2="16" y2="21"></line>
-                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                         </div>
                         <div>
                             <h3 class="section-title">معلومات العمل</h3>
-                            <p class="section-subtitle">أدخل بيانات العمل للعامل</p>
+                            <p class="section-subtitle">تعديل بيانات العمل للعامل</p>
                         </div>
                     </div>
 
                     <div class="form-grid">
-                        <!-- تم إزالة تفضيل الوردية - العمال يعملون حسب الجدولة -->
                         <input type="hidden" name="shift_preference" value="any">
 
                         <div class="form-group">
                             <label for="hourly_rate" class="form-label">
-                                الأجر بالساعة (IQD)
+                                الراتب بالساعة
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <line x1="12" y1="1" x2="12" y2="23"></line>
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                                </svg>
-                                <input type="number" name="hourly_rate" id="hourly_rate"
-                                    class="form-input"
-                                    value="{{ old('hourly_rate', 0) }}" step="0.01" min="0" placeholder="أدخل الأجر بالساعة" required>
+                                <input type="number" id="hourly_rate" name="hourly_rate" class="form-input"
+                                       value="{{ old('hourly_rate', $worker->hourly_rate) }}" step="0.01" required>
+                                @error('hourly_rate')
+                                <span class="error-message">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="hire_date" class="form-label">
-                                تاريخ التعيين
+                                تاريخ التوظيف
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                                </svg>
-                                <input type="date" name="hire_date" id="hire_date"
-                                    class="form-input"
-                                    value="{{ old('hire_date', date('Y-m-d')) }}" required>
+                                <input type="date" id="hire_date" name="hire_date" class="form-input"
+                                       value="{{ old('hire_date', $worker->hire_date ? $worker->hire_date->format('Y-m-d') : '') }}" required>
+                                @error('hire_date')
+                                <span class="error-message">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
                         <div class="form-group full-width">
                             <label class="form-label">المراحل المسموح بها</label>
                             <div class="workers-selection">
-                                @for($i = 1; $i <= 4; $i++)
-                                <div class="worker-item">
-                                    <input type="checkbox" id="stage{{ $i }}" name="allowed_stages[]" value="{{ $i }}"
-                                        {{ (is_array(old('allowed_stages')) && in_array($i, old('allowed_stages'))) ? 'checked' : '' }}>
-                                    <label for="stage{{ $i }}">المرحلة {{ $i }}</label>
-                                </div>
-                                @endfor
-                                <p class="text-muted" style="margin-top: 10px;">اترك فارغاً للسماح بجميع المراحل</p>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="allowed_stages[]" value="1"
+                                           {{ in_array(1, old('allowed_stages', $worker->allowed_stages ?? [])) ? 'checked' : '' }}>
+                                    <span>المرحلة 1 - الاستقبال</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="allowed_stages[]" value="2"
+                                           {{ in_array(2, old('allowed_stages', $worker->allowed_stages ?? [])) ? 'checked' : '' }}>
+                                    <span>المرحلة 2 - التجهيز</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="allowed_stages[]" value="3"
+                                           {{ in_array(3, old('allowed_stages', $worker->allowed_stages ?? [])) ? 'checked' : '' }}>
+                                    <span>المرحلة 3 - المعالجة</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="allowed_stages[]" value="4"
+                                           {{ in_array(4, old('allowed_stages', $worker->allowed_stages ?? [])) ? 'checked' : '' }}>
+                                    <span>المرحلة 4 - التعبئة</span>
+                                </label>
                             </div>
+                            @error('allowed_stages')
+                            <span class="error-message">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="form-group full-width">
                             <div class="switch-group">
-                                <input type="checkbox" id="is_active" name="is_active" value="1" class="switch-input" {{ old('is_active', true) ? 'checked' : '' }}>
-                                <label for="is_active" class="switch-label">
-                                    <span class="switch-button"></span>
-                                    <span class="switch-text">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                        </svg>
-                                        تفعيل العامل
-                                    </span>
+                                <label for="is_active" class="form-label">
+                                    <span>حالة العامل</span>
                                 </label>
+                                <div class="toggle-switch">
+                                    <input type="hidden" name="is_active" value="0">
+                                    <input type="checkbox" id="is_active" name="is_active" value="1"
+                                           {{ old('is_active', $worker->is_active) ? 'checked' : '' }} class="toggle-input">
+                                    <label for="is_active" class="toggle-label">
+                                        <span class="toggle-inner"></span>
+                                        <span class="toggle-switch-label">{{ $worker->is_active ? 'نشط' : 'معطل' }}</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -307,7 +283,7 @@
                         <div class="form-group full-width">
                             <div id="permissionsContainer" class="permissions-list">
                                 <p class="text-muted" style="text-align: center; padding: 20px;">
-                                    <i class="feather icon-info"></i> اختر وظيفة أولاً لعرض الصلاحيات المتاحة
+                                    <i class="feather icon-info"></i> جاري تحميل الصلاحيات...
                                 </p>
                             </div>
                         </div>
@@ -319,31 +295,56 @@
                     <div class="section-header">
                         <div class="section-icon security">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                             </svg>
                         </div>
                         <div>
                             <h3 class="section-title">حساب الدخول للنظام</h3>
-                            <p class="section-subtitle">إدارة حساب الدخول للعامل (اختياري)</p>
+                            <p class="section-subtitle">إدارة حساب الدخول للعامل</p>
                         </div>
                     </div>
 
                     <div class="form-grid">
+                        @if($worker->user)
                         <div class="form-group full-width">
-                            <label for="allow_system_access" class="form-label">
+                            <div class="alert alert-info">
+                                <i class="feather icon-info"></i>
+                                <strong>ملاحظة:</strong> هذا العامل مرتبط بحساب مستخدم.
+                                <br>
+                                <strong>اسم المستخدم:</strong> {{ $worker->user->username }}
+                                <br>
+                                <strong>البريد الإلكتروني:</strong> {{ $worker->user->email }}
+                                <br>
+                                <strong>الرول الحالي:</strong> {{ $worker->user->roleRelation?->role_name ?? 'بدون رول' }}
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="user_id" class="form-label">
+                                تغيير حساب المستخدم (اختياري)
+                            </label>
+                            <div class="input-wrapper">
+                                <select id="user_id" name="user_id" class="form-input">
+                                    <option value="">-- بدون حساب مستخدم --</option>
+                                    @foreach($availableUsers as $user)
+                                    <option value="{{ $user->id }}" {{ $worker->user_id === $user->id ? 'selected' : '' }}>
+                                        {{ $user->username }} ({{ $user->email }})
+                                    </option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">الرول الوظيفي سيتم تحديثه تلقائياً بناءً على وظيفة العامل</small>
+                            </div>
+                            @error('user_id')
+                            <span class="error-message">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        @else
+                        <div class="form-group full-width">
+                            <label for="allow_system_access_edit" class="form-label">
                                 السماح بالدخول للنظام؟
                             </label>
                             <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                </svg>
-                                <select name="allow_system_access" id="allow_system_access"
-                                    class="form-input" onchange="toggleUserAccountFields()">
+                                <select id="allow_system_access_edit" name="allow_system_access" class="form-input" onchange="toggleUserAccountFieldsEdit()">
                                     <option value="no" {{ old('allow_system_access') == 'no' ? 'selected' : '' }}>لا - عامل فقط بدون حساب</option>
                                     <option value="existing" {{ old('allow_system_access') == 'existing' ? 'selected' : '' }}>نعم - ربط بحساب موجود</option>
                                     <option value="new" {{ old('allow_system_access') == 'new' ? 'selected' : '' }}>نعم - إنشاء حساب جديد</option>
@@ -352,24 +353,16 @@
                         </div>
 
                         <!-- Existing User Selection -->
-                        <div id="existing_user_section" class="form-group full-width" style="display: none;">
+                        <div id="existing_user_section_edit" class="form-group full-width" style="display: none;">
                             <label for="user_id" class="form-label">
                                 اختر المستخدم
                             </label>
                             <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                </svg>
-                                <select name="user_id" id="user_id"
-                                    class="form-input">
-                                    <option value="">اختر مستخدم</option>
+                                <select id="user_id" name="user_id" class="form-input">
+                                    <option value="">-- اختر المستخدم --</option>
                                     @foreach($availableUsers as $user)
                                     <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
-                                        {{ $user->name }} ({{ $user->email }})
+                                        {{ $user->username }} ({{ $user->email }})
                                     </option>
                                     @endforeach
                                 </select>
@@ -378,39 +371,27 @@
                         </div>
 
                         <!-- New User Creation Fields -->
-                        <div id="new_user_section" style="display: none;" class="full-width">
+                        <div id="new_user_section_edit" style="display: none;" class="full-width">
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <label for="new_username" class="form-label">
+                                    <label for="new_username_edit" class="form-label">
                                         اسم المستخدم
                                         <span class="required">*</span>
                                     </label>
                                     <div class="input-wrapper">
-                                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2">
-                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                            <circle cx="12" cy="7" r="4"></circle>
-                                        </svg>
-                                        <input type="text" name="new_username" id="new_username"
-                                            class="form-input"
+                                        <input type="text" name="new_username" id="new_username_edit" class="form-input"
                                             value="{{ old('new_username') }}" placeholder="مثال: ahmad.ali">
                                     </div>
                                     <small class="text-muted">اسم تسجيل الدخول (بالإنجليزية بدون مسافات)</small>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="new_email" class="form-label">
+                                    <label for="new_email_edit" class="form-label">
                                         البريد الإلكتروني
                                         <span class="required">*</span>
                                     </label>
                                     <div class="input-wrapper">
-                                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2">
-                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                            <polyline points="22,6 12,13 2,6"></polyline>
-                                        </svg>
-                                        <input type="email" name="new_email" id="new_email"
-                                            class="form-input"
+                                        <input type="email" name="new_email" id="new_email_edit" class="form-input"
                                             value="{{ old('new_email') }}" placeholder="example@company.com">
                                     </div>
                                 </div>
@@ -421,6 +402,7 @@
                                 <strong>تنبيه:</strong> سيتم إنشاء حساب مستخدم جديد وإرسال كلمة المرور عبر البريد الإلكتروني.
                             </div>
                         </div>
+                        @endif
                     </div>
                 </div>
 
@@ -435,26 +417,21 @@
                         </div>
                         <div>
                             <h3 class="section-title">معلومات إضافية</h3>
-                            <p class="section-subtitle">أدخل معلومات إضافية للعامل</p>
+                            <p class="section-subtitle">تعديل معلومات إضافية للعامل</p>
                         </div>
                     </div>
 
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="emergency_contact" class="form-label">
-                                اسم جهة الاتصال للطوارئ
+                                جهة الاتصال في الطوارئ
                             </label>
                             <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                </svg>
-                                <input type="text" name="emergency_contact" id="emergency_contact"
-                                    class="form-input"
-                                    value="{{ old('emergency_contact') }}" placeholder="أدخل اسم جهة الاتصال">
+                                <input type="text" id="emergency_contact" name="emergency_contact" class="form-input"
+                                       value="{{ old('emergency_contact', $worker->emergency_contact) }}">
+                                @error('emergency_contact')
+                                <span class="error-message">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -463,30 +440,21 @@
                                 رقم هاتف الطوارئ
                             </label>
                             <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                                </svg>
-                                <input type="text" name="emergency_phone" id="emergency_phone"
-                                    class="form-input"
-                                    value="{{ old('emergency_phone') }}" placeholder="أدخل رقم هاتف الطوارئ">
+                                <input type="tel" id="emergency_phone" name="emergency_phone" class="form-input"
+                                       value="{{ old('emergency_phone', $worker->emergency_phone) }}">
+                                @error('emergency_phone')
+                                <span class="error-message">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
                         <div class="form-group full-width">
                             <label for="notes" class="form-label">ملاحظات</label>
                             <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <line x1="8" y1="6" x2="21" y2="6"></line>
-                                    <line x1="8" y1="12" x2="21" y2="12"></line>
-                                    <line x1="8" y1="18" x2="21" y2="18"></line>
-                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                                </svg>
-                                <textarea name="notes" id="notes" rows="4"
-                                    class="form-input" placeholder="أدخل ملاحظات للعامل">{{ old('notes') }}</textarea>
+                                <textarea id="notes" name="notes" class="form-input" rows="4">{{ old('notes', $worker->notes) }}</textarea>
+                                @error('notes')
+                                <span class="error-message">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -499,7 +467,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        حفظ العامل
+                        حفظ التعديلات
                     </button>
 
                     <a href="{{ route('manufacturing.workers.index') }}" class="btn-cancel">
@@ -652,6 +620,26 @@
         font-size: 14px;
     }
 
+    /* Alert Styles */
+    .alert {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .alert-info {
+        background-color: #e0f2fe;
+        border-left: 4px solid #0284c7;
+        color: #0c4a6e;
+    }
+
+    .alert strong {
+        font-weight: 600;
+    }
+
     /* Reduce icon sizes */
     .section-icon svg {
         width: 20px;
@@ -777,109 +765,18 @@
         // إضافة رسالة معلومات
         const infoDiv = document.createElement('div');
         infoDiv.style.cssText = 'margin-top: 15px; padding: 12px 15px; background: #eff6ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 13px; color: #1e40af;';
-        infoDiv.innerHTML = '<strong>ملاحظة:</strong> الصلاحيات سيتم تعيينها تلقائياً للعامل عند الحفظ بناءً على الوظيفة المختارة.';
+        infoDiv.innerHTML = '<strong>ملاحظة:</strong> الصلاحيات سيتم تحديثها تلقائياً للعامل عند الحفظ بناءً على الوظيفة المختارة.';
         container.appendChild(infoDiv);
-    }
-
-    // Generate worker code automatically
-    function generateWorkerCode() {
-        const position = document.getElementById('position').value;
-        const btn = document.getElementById('generateBtn');
-        const codeInput = document.getElementById('worker_code');
-
-        if (!position) {
-            alert('الرجاء اختيار الوظيفة أولاً');
-            document.getElementById('position').focus();
-            return;
-        }
-
-        // Add loading state
-        btn.disabled = true;
-        btn.classList.add('loading');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="23 4 23 10 17 10"></polyline>
-                <polyline points="1 20 1 14 7 14"></polyline>
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-            </svg>
-            جاري التوليد...
-        `;
-
-        fetch(`{{ route('manufacturing.workers.generate-code') }}?position=${position}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('فشل في توليد الكود');
-                }
-                return response.json();
-            })
-            .then(data => {
-                codeInput.value = data.worker_code;
-
-                // Success state
-                btn.classList.remove('loading');
-                btn.classList.add('success');
-                btn.innerHTML = `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    تم التوليد بنجاح
-                `;
-
-                // Reset after 2 seconds
-                setTimeout(() => {
-                    btn.classList.remove('success');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }, 2000);
-            })
-            .catch(error => {
-                console.error('Error generating code:', error);
-
-                // Error state
-                btn.classList.remove('loading');
-                btn.classList.add('error');
-                btn.innerHTML = `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                    فشل التوليد
-                `;
-
-                alert('حدث خطأ في توليد الكود. الرجاء المحاولة مرة أخرى.');
-
-                // Reset after 2 seconds
-                setTimeout(() => {
-                    btn.classList.remove('error');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }, 2000);
-            });
     }
 
     // Generate worker code by role code
     function generateWorkerCodeByRole(roleCode) {
-        const btn = document.getElementById('generateBtn');
         const codeInput = document.getElementById('worker_code');
 
         if (!roleCode) {
             alert('الرجاء اختيار الوظيفة أولاً');
             return;
         }
-
-        // Add loading state
-        btn.disabled = true;
-        btn.classList.add('loading');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="23 4 23 10 17 10"></polyline>
-                <polyline points="1 20 1 14 7 14"></polyline>
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-            </svg>
-            جاري التوليد...
-        `;
 
         // Map role code to position
         const positionMap = {
@@ -900,69 +797,17 @@
             })
             .then(data => {
                 codeInput.value = data.worker_code;
-
-                // Success state
-                btn.classList.remove('loading');
-                btn.classList.add('success');
-                btn.innerHTML = `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    تم التوليد بنجاح
-                `;
-
-                // Reset after 2 seconds
-                setTimeout(() => {
-                    btn.classList.remove('success');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }, 2000);
             })
             .catch(error => {
                 console.error('Error generating code:', error);
-
-                // Error state
-                btn.classList.remove('loading');
-                btn.classList.add('error');
-                btn.innerHTML = `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                    فشل التوليد
-                `;
-
-                alert('حدث خطأ في توليد الكود. الرجاء المحاولة مرة أخرى.');
-
-                // Reset after 2 seconds
-                setTimeout(() => {
-                    btn.classList.remove('error');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }, 2000);
             });
     }
 
-    // Auto-generate when position changes
-    document.addEventListener('DOMContentLoaded', function() {
-        const positionSelect = document.getElementById('position');
-        const codeInput = document.getElementById('worker_code');
-
-        positionSelect.addEventListener('change', function() {
-            if (!codeInput.value || confirm('هل تريد توليد كود جديد بناءً على الوظيفة المختارة؟')) {
-                // الحصول على role_code من الخيار المختار
-                const selectedOption = this.options[this.selectedIndex];
-                const roleCode = selectedOption.getAttribute('data-role-code');
-                generateWorkerCodeByRole(roleCode);
-            }
-        });
-    });
-
-    // Toggle user account fields based on selection
-    function toggleUserAccountFields() {
-        const accessType = document.getElementById('allow_system_access').value;
-        const existingSection = document.getElementById('existing_user_section');
-        const newSection = document.getElementById('new_user_section');
+    // Toggle user account fields based on selection for edit page
+    function toggleUserAccountFieldsEdit() {
+        const accessType = document.getElementById('allow_system_access_edit').value;
+        const existingSection = document.getElementById('existing_user_section_edit');
+        const newSection = document.getElementById('new_user_section_edit');
         const userIdSelect = document.getElementById('user_id');
 
         // Hide all sections first
@@ -971,8 +816,10 @@
 
         // Remove required from all fields first
         userIdSelect.required = false;
-        document.getElementById('new_username').required = false;
-        document.getElementById('new_email').required = false;
+        const newUsernameEdit = document.getElementById('new_username_edit');
+        const newEmailEdit = document.getElementById('new_email_edit');
+        if (newUsernameEdit) newUsernameEdit.required = false;
+        if (newEmailEdit) newEmailEdit.required = false;
 
         // Clear user_id if not using existing user
         if (accessType !== 'existing') {
@@ -981,8 +828,8 @@
 
         // Clear new user fields if not creating new user
         if (accessType !== 'new') {
-            document.getElementById('new_username').value = '';
-            document.getElementById('new_email').value = '';
+            if (newUsernameEdit) newUsernameEdit.value = '';
+            if (newEmailEdit) newEmailEdit.value = '';
         }
 
         // Show appropriate section
@@ -992,12 +839,35 @@
         } else if (accessType === 'new') {
             newSection.style.display = 'block';
             // Make new user fields required
-            document.getElementById('new_username').required = true;
-            document.getElementById('new_email').required = true;
+            if (newUsernameEdit) newUsernameEdit.required = true;
+            if (newEmailEdit) newEmailEdit.required = true;
         }
-    }    // Initialize on page load
+    }
+
+    // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
-        toggleUserAccountFields();
+        // جلب الصلاحيات الحالية عند تحميل الصفحة
+        const positionSelect = document.getElementById('position');
+        if (positionSelect && positionSelect.value) {
+            // Permissions auto-sync on role change
+        }
+
+        // عند تغيير الوظيفة، تحديث البيانات
+        positionSelect.addEventListener('change', function() {
+            // Update on role change
+        });
+
+        // Initialize toggle if edit mode and no user
+        @if(!$worker->user)
+        toggleUserAccountFieldsEdit();
+        @endif
+
+        // Initialize Feather icons
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    });
+</script>
 
         // Initialize Feather icons
         if (typeof feather !== 'undefined') {

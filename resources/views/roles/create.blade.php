@@ -252,19 +252,17 @@
         // البنية الهرمية: كل مجموعة فرعية تشير إلى آبائها
         const hierarchy = {
             // المستودع الرئيسي
-            'almawad-alkhama': ['almstw'],
-            'almkhazin': ['almstw'],
-            'mdhakrat-altaslim': ['almstw'],
-            'fawatir-alshira': ['almstw'],
-            'almurudin': ['almstw'],
-
-            // الإعدادات الفرعية
-            'anwa-almawad': ['alaeadadt', 'almstw'],
-            'whudat-alqias': ['alaeadadt', 'almstw'],
-            'tsjil-albad': ['alaeadadt', 'almstw'],
-            'tswiya-almstw': ['alaeadadt', 'almstw'],
-            'hrkdt-almawad': ['alaeadadt', 'almstw'],
-            'alaeadadt': ['almstw']
+            'almstw-almtwh-amkhm': ['almstw'],
+            'almstw-almtwh-alstlm': ['almstw'],
+            'almstw-fwtar-alshra': ['almstw'],
+            'almstw-almwrudn': ['almstw'],
+            'almstw-anwa-almwd': ['almstw'],
+            'almstw-whdat-alqyas': ['almstw'],
+            'almstw-tsjil-albda': ['almstw'],
+            'almstw-tswya-almstw': ['almstw'],
+            'almstw-hrkdt-almwd': ['almstw'],
+            'almstw-alaeadat': ['almstw'],
+            'almstw-tqarir': ['almstw']
         };
 
         function updateGroupState(groupKey) {

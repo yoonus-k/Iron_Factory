@@ -13,11 +13,11 @@
         padding: 0;
         background: transparent;
     }
-    
+
     .perf-header h1 svg {
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
     }
-    
+
     .btn-view {
         padding: var(--spacing-xs) var(--spacing-md);
         font-size: 0.8rem;
@@ -31,12 +31,12 @@
         border: none;
         cursor: pointer;
     }
-    
+
     .btn-view:hover {
         transform: translateY(-2px);
         box-shadow: var(--shadow-md);
     }
-    
+
     .workers-table-container {
         background: var(--white);
         border-radius: var(--radius-xl);
@@ -47,7 +47,7 @@
         overflow: hidden;
         margin-top: var(--spacing-xl);
     }
-    
+
     .workers-table-container::before {
         content: '';
         position: absolute;
@@ -57,16 +57,16 @@
         height: 4px;
         background: linear-gradient(90deg, var(--primary-blue), var(--primary-light-blue));
     }
-    
+
     .workers-table {
         width: 100%;
         border-collapse: collapse;
     }
-    
+
     .workers-table thead {
         background: var(--gray-50);
     }
-    
+
     .workers-table th {
         padding: var(--spacing-md);
         text-align: right;
@@ -77,28 +77,28 @@
         letter-spacing: 0.5px;
         border-bottom: 2px solid var(--gray-300);
     }
-    
+
     .workers-table td {
         padding: var(--spacing-md);
         font-size: 0.875rem;
         color: var(--gray-800);
         border-bottom: 1px solid var(--gray-200);
     }
-    
+
     .workers-table tbody tr {
         transition: all var(--transition-base);
         cursor: pointer;
     }
-    
+
     .workers-table tbody tr:hover {
         background: rgba(0, 102, 178, 0.05);
     }
-    
+
     .worker-name {
         font-weight: 600;
         color: var(--gray-800);
     }
-    
+
     .efficiency-badge {
         display: inline-flex;
         align-items: center;
@@ -111,31 +111,31 @@
         border: 2px solid transparent;
         transition: all var(--transition-base);
     }
-    
+
     .efficiency-badge.excellent {
         background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(52, 211, 153, 0.15) 100%);
         color: var(--success-color);
         border-color: rgba(16, 185, 129, 0.2);
     }
-    
+
     .efficiency-badge.good {
         background: linear-gradient(135deg, rgba(0, 102, 178, 0.1) 0%, rgba(58, 143, 199, 0.15) 100%);
         color: var(--primary-blue);
         border-color: rgba(0, 102, 178, 0.2);
     }
-    
+
     .efficiency-badge.average {
         background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(251, 191, 36, 0.15) 100%);
         color: var(--warning-color);
         border-color: rgba(245, 158, 11, 0.2);
     }
-    
+
     .efficiency-badge.poor {
         background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(248, 113, 113, 0.15) 100%);
         color: var(--danger-color);
         border-color: rgba(239, 68, 68, 0.2);
     }
-    
+
     .progress-bar {
         width: 100%;
         height: 6px;
@@ -144,29 +144,29 @@
         overflow: hidden;
         margin-top: 0.5rem;
     }
-    
+
     .progress-fill {
         height: 100%;
         border-radius: 3px;
         transition: width var(--transition-base);
     }
-    
+
     .progress-fill.excellent {
         background: var(--success-color);
     }
-    
+
     .progress-fill.good {
         background: var(--primary-blue);
     }
-    
+
     .progress-fill.average {
         background: var(--warning-color);
     }
-    
+
     .progress-fill.poor {
         background: var(--danger-color);
     }
-    
+
     /* بطاقات المتصدرين */
     .top-performers {
         display: grid;
@@ -174,7 +174,7 @@
         gap: var(--spacing-lg);
         margin-top: var(--spacing-xl);
     }
-    
+
     .performer-card {
         padding: var(--spacing-lg);
         border-radius: var(--radius-xl);
@@ -184,7 +184,7 @@
         overflow: hidden;
         background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
     }
-    
+
     .performer-card::before {
         content: '';
         position: absolute;
@@ -195,15 +195,15 @@
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
         pointer-events: none;
     }
-    
+
     .performer-card.efficiency {
         background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
     }
-    
+
     .performer-card.productivity {
         background: linear-gradient(135deg, var(--primary-blue) 0%, #4f46e5 100%);
     }
-    
+
     .performer-card h3 {
         margin: 0 0 0.5rem 0;
         font-size: 1.1rem;
@@ -211,48 +211,48 @@
         align-items: center;
         gap: 0.5rem;
     }
-    
+
     .performer-card p {
         margin: 0;
         font-size: 1.5rem;
         font-weight: 700;
     }
-    
+
     .performer-card .detail {
         margin: 0.5rem 0 0 0;
         opacity: 0.9;
         font-size: 0.875rem;
     }
-    
+
     /* استجابة الشاشات */
     @media (max-width: 768px) {
         .perf-container {
             padding: var(--spacing-md);
         }
-        
+
         .perf-header {
             padding: var(--spacing-lg);
         }
-        
+
         .perf-header h1 {
             font-size: 1.5rem;
         }
-        
+
         .stats-grid,
         .filters-grid,
         .top-performers {
             grid-template-columns: 1fr;
         }
-        
+
         .filter-actions {
             flex-direction: column;
         }
-        
+
         .workers-table {
             display: block;
             overflow-x: auto;
         }
-        
+
         .workers-table th,
         .workers-table td {
             padding: var(--spacing-sm);
@@ -381,6 +381,7 @@
             </div>
 
             <div class="filter-actions">
+                @can('REPORTS_WORKER_PERFORMANCE_VIEW')
                 <button type="submit" class="refresh-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"></circle>
@@ -395,6 +396,7 @@
                     </svg>
                     إعادة تعيين
                 </a>
+                @endcan
             </div>
         </form>
     </div>

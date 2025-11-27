@@ -13,7 +13,7 @@
         padding: 0;
         background: transparent;
     }
-    
+
     .delay-badge {
         display: inline-flex;
         align-items: center;
@@ -54,7 +54,7 @@
     .status-normal {
         color: var(--success-color);
     }
-    
+
     .data-table-container {
         background: var(--white);
         border-radius: var(--radius-xl);
@@ -124,23 +124,23 @@
     .data-table tbody tr:hover {
         background-color: rgba(0, 102, 178, 0.05);
     }
-    
+
     .empty-state {
         text-align: center;
         padding: var(--spacing-2xl);
         color: var(--gray-500);
     }
-    
+
     .empty-icon {
         font-size: 3rem;
         margin-bottom: var(--spacing-lg);
     }
-    
+
     .empty-state h3 {
         margin: 0 0 var(--spacing-sm) 0;
         color: var(--gray-700);
     }
-    
+
     .empty-state p {
         margin: 0;
         color: var(--gray-600);
@@ -299,6 +299,7 @@
             </div>
 
             <div class="filter-actions">
+                @can('REPORTS_WIP_VIEW')
                 <button type="submit" class="refresh-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"></circle>
@@ -313,6 +314,7 @@
                     </svg>
                     إعادة تعيين
                 </a>
+                @endcan
             </div>
         </form>
     </div>

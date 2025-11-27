@@ -21,6 +21,7 @@ use Modules\Manufacturing\Http\Controllers\ReconciliationController;
 use Modules\Manufacturing\Http\Controllers\MaterialMovementController;
 use Modules\Manufacturing\Http\Controllers\WarehouseReportsController;
 use Modules\Manufacturing\Http\Controllers\ProductionConfirmationController;
+use Modules\Manufacturing\Http\Controllers\ShiftHandoverController;
 
 /*
 |--------------------------------------------------------------------------
@@ -211,6 +212,14 @@ Route::middleware(['auth'])->group(function () {
     // Stage 4 Additional Routes
     Route::post('stage4/store-single', [Stage4Controller::class, 'storeSingle'])->name('manufacturing.stage4.store-single');
     Route::get('stage4/get-lafaf-by-barcode/{barcode}', [Stage4Controller::class, 'getByBarcode'])->name('manufacturing.stage4.get-lafaf-by-barcode');
+
+    // Shift Handover Routes
+    Route::resource('shift-handovers', ShiftHandoverController::class)->names('manufacturing.shift-handovers');
+    Route::post('shift-handovers/{id}/approve', [ShiftHandoverController::class, 'approve'])->name('manufacturing.shift-handovers.approve');
+    Route::post('shift-handovers/{id}/reject', [ShiftHandoverController::class, 'reject'])->name('manufacturing.shift-handovers.reject');
+    Route::get('shift-handovers/api/user-shifts', [ShiftHandoverController::class, 'getUserActiveShifts'])->name('manufacturing.shift-handovers.api.user-shifts');
+    Route::get('shift-handovers/api/available-workers', [ShiftHandoverController::class, 'getAvailableWorkers'])->name('manufacturing.shift-handovers.api.available-workers');
+    Route::get('shift-handovers/api/history', [ShiftHandoverController::class, 'getHandoverHistory'])->name('manufacturing.shift-handovers.api.history');
 
     // Quality Management Routes
     Route::get('quality', [QualityController::class, 'index'])->name('manufacturing.quality.index');

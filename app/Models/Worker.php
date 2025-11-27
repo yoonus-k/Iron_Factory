@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Worker extends Model
@@ -55,7 +56,13 @@ class Worker extends Model
 
     public function shiftAssignments(): HasMany
     {
-        return $this->hasMany(ShiftAssignment::class);
+        // shift_assignments table uses user_id, not worker_id
+        return $this->hasMany(ShiftAssignment::class, 'user_id', 'user_id');
+    }
+
+    public function permissions(): BelongsToMany
+    {
+        return $this->belongsToMany(Permission::class, 'worker_permissions');
     }
 
     public function getPositionNameAttribute(): string
@@ -100,7 +107,38 @@ class Worker extends Model
         if (empty($this->allowed_stages)) {
             return true; // يمكن العمل في أي مرحلة إذا لم يتم تحديد قيود
         }
-        
+
         return in_array($stageNumber, $this->allowed_stages);
+    }
+
+    /**
+     * الحصول على الصلاحيات الافتراضية حسب الوظيفة
+     */
+    public static function getDefaultPermissionsByRole($roleId)
+    {
+        $role = Role::find($roleId);
+
+        if (!$role) {
+            return [];
+        }
+
+        // الحصول على الصلاحيات المرتبطة بالدور
+        return $role->permissions()->pluck('permissions.id')->toArray();
+    }
+
+    /**
+     * تعيين الصلاحيات تلقائياً للعامل حسب دوره
+     */
+    public function assignDefaultPermissions()
+    {
+        if (!$this->user || !$this->user->role) {
+            return;
+        }
+
+        $permissionIds = self::getDefaultPermissionsByRole($this->user->role_id);
+
+        if (!empty($permissionIds)) {
+            $this->permissions()->sync($permissionIds);
+        }
     }
 }

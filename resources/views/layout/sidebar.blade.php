@@ -455,6 +455,14 @@
             </li>
             @endif
 
+            <!-- الملف الشخصي -->
+            <li>
+                <a href="{{ route('profile') }}" data-tooltip="الملف الشخصي">
+                    <i class="fas fa-user-circle"></i>
+                    <span>الملف الشخصي</span>
+                </a>
+            </li>
+
             <!-- الإعدادات -->
             @if(auth()->user()->hasPermission('MENU_SETTINGS'))
             <li class="has-submenu">
