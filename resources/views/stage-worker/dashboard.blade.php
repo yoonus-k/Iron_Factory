@@ -18,6 +18,10 @@
             </p>
         </div>
         <div class="title-actions">
+            <a href="{{ route('manufacturing.stage' . $stageNumber . '.index') }}" class="stage-link-button">
+                <i class="fas fa-industry"></i>
+                <span>الانتقال للمرحلة {{ $stageNumber }}</span>
+            </a>
             <button type="button" class="refresh-button" id="refresh-btn">
                 <i class="fas fa-sync-alt"></i>
                 <span>تحديث</span>
@@ -260,6 +264,38 @@
         margin: 0 5px;
     }
 
+    /* Title Actions */
+    .title-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* Stage Link Button */
+    .stage-link-button {
+        background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(40,167,69,0.3);
+        text-decoration: none;
+    }
+
+    .stage-link-button:hover {
+        background: linear-gradient(135deg, #1e7e34 0%, #155724 100%);
+        box-shadow: 0 4px 12px rgba(40,167,69,0.4);
+        transform: translateY(-2px);
+        color: white;
+    }
+
     /* Refresh Button */
     .refresh-button {
         background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
@@ -313,6 +349,22 @@
     @media (max-width: 768px) {
         .statistics-grid {
             grid-template-columns: 1fr;
+        }
+
+        .page-title-section {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .title-actions {
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .stage-link-button,
+        .refresh-button {
+            width: 100%;
+            justify-content: center;
         }
     }
 
@@ -643,19 +695,48 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
+    console.log('=== Stage Worker Dashboard Initialized ===');
+    
     let currentConfirmationId = null;
     let lastCheckTime = new Date().toISOString();
     let autoRefreshInterval;
     
     // تهيئة Bootstrap Modals
     let confirmModal, rejectModal;
-    try {
-        confirmModal = new bootstrap.Modal(document.getElementById('quickConfirmModal'));
-        rejectModal = new bootstrap.Modal(document.getElementById('quickRejectModal'));
-        console.log('Bootstrap Modals initialized successfully');
-    } catch (error) {
-        console.error('Error initializing Bootstrap Modals:', error);
+    
+    // التحقق من توفر Bootstrap
+    if (typeof bootstrap !== 'undefined') {
+        console.log('Bootstrap 5 detected, initializing modals...');
+        try {
+            const confirmModalEl = document.getElementById('quickConfirmModal');
+            const rejectModalEl = document.getElementById('quickRejectModal');
+            
+            if (confirmModalEl) {
+                confirmModal = new bootstrap.Modal(confirmModalEl);
+                console.log('Confirm modal initialized');
+            } else {
+                console.error('Confirm modal element not found!');
+            }
+            
+            if (rejectModalEl) {
+                rejectModal = new bootstrap.Modal(rejectModalEl);
+                console.log('Reject modal initialized');
+            } else {
+                console.error('Reject modal element not found!');
+            }
+            
+            console.log('Bootstrap Modals initialized successfully');
+        } catch (error) {
+            console.error('Error initializing Bootstrap Modals:', error);
+        }
+    } else {
+        console.warn('Bootstrap not found, will use jQuery modal fallback');
     }
+    
+    // Log all confirmation cards on page load
+    console.log('Confirmation cards found:', $('.confirmation-card').length);
+    console.log('Quick confirm buttons found:', $('.quick-confirm').length);
+    console.log('Quick reject buttons found:', $('.quick-reject').length);
 
     // تحديث تلقائي كل دقيقة
     function startAutoRefresh() {
@@ -666,11 +747,24 @@ $(document).ready(function() {
 
     // زر التحديث اليدوي
     $('#refresh-btn').on('click', function() {
+        console.log('=== Refresh Button Clicked ===');
         const $btn = $(this);
         $btn.addClass('spinning');
-        fetchUpdates().finally(() => {
-            $btn.removeClass('spinning');
-        });
+        $btn.prop('disabled', true);
+        
+        fetchUpdates()
+            .done(function() {
+                console.log('Refresh completed successfully');
+                showNotification('تم تحديث البيانات', 'success');
+            })
+            .fail(function(xhr) {
+                console.error('Refresh failed:', xhr);
+                showNotification('فشل التحديث', 'error');
+            })
+            .always(function() {
+                $btn.removeClass('spinning');
+                $btn.prop('disabled', false);
+            });
     });
 
     // جلب التحديثات
@@ -831,19 +925,36 @@ $(document).ready(function() {
         `;
     }
 
-    // تأكيد سريع
+    // تأكيد سريع - استخدام event delegation للعناصر الديناميكية والثابتة
     $(document).on('click', '.quick-confirm', function(e) {
         e.preventDefault();
+        e.stopPropagation();
+        
         currentConfirmationId = $(this).data('id');
-        console.log('Quick confirm button clicked, ID:', currentConfirmationId);
+        console.log('=== Quick Confirm Button Clicked ===');
+        console.log('Confirmation ID:', currentConfirmationId);
+        console.log('Button element:', this);
+        
+        if (!currentConfirmationId) {
+            console.error('ERROR: No data-id attribute found on button!');
+            showNotification('خطأ: لم يتم العثور على معرف التأكيد', 'error');
+            return;
+        }
         
         // مسح الملاحظات السابقة
         $('#confirm-notes').val('');
         
-        if (confirmModal) {
-            confirmModal.show();
-        } else {
-            $('#quickConfirmModal').modal('show');
+        console.log('Opening confirm modal...');
+        try {
+            if (typeof bootstrap !== 'undefined' && confirmModal) {
+                confirmModal.show();
+                console.log('Modal shown using Bootstrap 5');
+            } else {
+                $('#quickConfirmModal').modal('show');
+                console.log('Modal shown using jQuery');
+            }
+        } catch (error) {
+            console.error('Error opening modal:', error);
         }
     });
 
@@ -863,34 +974,59 @@ $(document).ready(function() {
             return;
         }
         
-        console.log('Starting AJAX request...');
+        console.log('Starting AJAX request to:', `/manufacturing/production/confirmations/${currentConfirmationId}/confirm`);
         btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> جاري التأكيد...');
         
         $.ajax({
             url: `/manufacturing/production/confirmations/${currentConfirmationId}/confirm`,
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
             },
             contentType: 'application/json',
-            data: JSON.stringify({ notes: notes }),
+            data: JSON.stringify({ 
+                notes: notes,
+                _token: '{{ csrf_token() }}'
+            }),
             success: function(response) {
                 console.log('Confirm success:', response);
                 
                 // إغلاق Modal
-                if (confirmModal) {
-                    confirmModal.hide();
-                } else {
-                    $('#quickConfirmModal').modal('hide');
+                try {
+                    if (typeof bootstrap !== 'undefined' && confirmModal) {
+                        confirmModal.hide();
+                    } else {
+                        $('#quickConfirmModal').modal('hide');
+                    }
+                } catch (e) {
+                    console.error('Error closing modal:', e);
                 }
                 
-                // إزالة البطاقة
-                $('#confirmation-' + currentConfirmationId).fadeOut(300, function() {
-                    $(this).remove();
-                });
+                // إزالة البطاقة من القائمة
+                const $card = $('#confirmation-' + currentConfirmationId);
+                if ($card.length) {
+                    $card.fadeOut(300, function() {
+                        $(this).remove();
+                        // التحقق إذا لم يبق تأكيدات
+                        if ($('#confirmations-list .confirmation-card').length === 0) {
+                            $('#confirmations-list').html(`
+                                <div class="empty-state" id="no-confirmations">
+                                    <div class="empty-icon">
+                                        <i class="fas fa-inbox"></i>
+                                    </div>
+                                    <h4>لا توجد تأكيدات منتظرة</h4>
+                                    <p>جميع التأكيدات تم معالجتها بنجاح</p>
+                                </div>
+                            `);
+                        }
+                    });
+                }
                 
                 showNotification(response.message || 'تم التأكيد بنجاح', 'success');
-                fetchUpdates();
+                
+                // تحديث الإحصائيات
+                setTimeout(() => fetchUpdates(), 500);
                 
                 // إعادة تعيين الزر
                 btn.prop('disabled', false).html('<i class="fas fa-check"></i> تأكيد');
@@ -898,28 +1034,63 @@ $(document).ready(function() {
                 // مسح ID
                 currentConfirmationId = null;
             },
-            error: function(xhr) {
-                console.error('Confirm error:', xhr);
-                const message = xhr.responseJSON?.message || 'فشل التأكيد: ' + (xhr.statusText || 'خطأ غير معروف');
+            error: function(xhr, status, error) {
+                console.error('Confirm AJAX error:');
+                console.error('Status:', status);
+                console.error('Error:', error);
+                console.error('Response:', xhr.responseText);
+                console.error('Status Code:', xhr.status);
+                
+                let message = 'فشل التأكيد';
+                
+                if (xhr.status === 404) {
+                    message = 'لم يتم العثور على التأكيد المطلوب';
+                } else if (xhr.status === 403) {
+                    message = 'ليس لديك صلاحية لتنفيذ هذا الإجراء';
+                } else if (xhr.status === 422) {
+                    message = xhr.responseJSON?.message || 'بيانات غير صحيحة';
+                } else if (xhr.responseJSON?.message) {
+                    message = xhr.responseJSON.message;
+                } else if (xhr.statusText) {
+                    message += ': ' + xhr.statusText;
+                }
+                
                 showNotification(message, 'error');
                 btn.prop('disabled', false).html('<i class="fas fa-check"></i> تأكيد');
             }
         });
     });
 
-    // رفض سريع
+    // رفض سريع - استخدام event delegation للعناصر الديناميكية والثابتة
     $(document).on('click', '.quick-reject', function(e) {
         e.preventDefault();
+        e.stopPropagation();
+        
         currentConfirmationId = $(this).data('id');
-        console.log('Quick reject button clicked, ID:', currentConfirmationId);
+        console.log('=== Quick Reject Button Clicked ===');
+        console.log('Confirmation ID:', currentConfirmationId);
+        console.log('Button element:', this);
+        
+        if (!currentConfirmationId) {
+            console.error('ERROR: No data-id attribute found on button!');
+            showNotification('خطأ: لم يتم العثور على معرف التأكيد', 'error');
+            return;
+        }
         
         // مسح سبب الرفض السابق
         $('#reject-reason').val('');
         
-        if (rejectModal) {
-            rejectModal.show();
-        } else {
-            $('#quickRejectModal').modal('show');
+        console.log('Opening reject modal...');
+        try {
+            if (typeof bootstrap !== 'undefined' && rejectModal) {
+                rejectModal.show();
+                console.log('Modal shown using Bootstrap 5');
+            } else {
+                $('#quickRejectModal').modal('show');
+                console.log('Modal shown using jQuery');
+            }
+        } catch (error) {
+            console.error('Error opening modal:', error);
         }
     });
 
@@ -936,6 +1107,7 @@ $(document).ready(function() {
         if (!reason.trim()) {
             console.error('ERROR: No rejection reason provided!');
             showNotification('الرجاء إدخال سبب الرفض', 'error');
+            $('#reject-reason').focus();
             return;
         }
         
@@ -945,7 +1117,7 @@ $(document).ready(function() {
             return;
         }
 
-        console.log('Starting AJAX request for rejection...');
+        console.log('Starting AJAX request for rejection to:', `/manufacturing/production/confirmations/${currentConfirmationId}/reject`);
         
         btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> جاري الرفض...');
         
@@ -953,28 +1125,53 @@ $(document).ready(function() {
             url: `/manufacturing/production/confirmations/${currentConfirmationId}/reject`,
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
             },
             contentType: 'application/json',
-            data: JSON.stringify({ rejection_reason: reason }),
+            data: JSON.stringify({ 
+                rejection_reason: reason,
+                _token: '{{ csrf_token() }}'
+            }),
             success: function(response) {
                 console.log('Reject success:', response);
                 
                 // إغلاق Modal
-                if (rejectModal) {
-                    rejectModal.hide();
-                } else {
-                    $('#quickRejectModal').modal('hide');
+                try {
+                    if (typeof bootstrap !== 'undefined' && rejectModal) {
+                        rejectModal.hide();
+                    } else {
+                        $('#quickRejectModal').modal('hide');
+                    }
+                } catch (e) {
+                    console.error('Error closing modal:', e);
                 }
                 
-                // إزالة البطاقة
-                $('#confirmation-' + currentConfirmationId).fadeOut(300, function() {
-                    $(this).remove();
-                });
+                // إزالة البطاقة من القائمة
+                const $card = $('#confirmation-' + currentConfirmationId);
+                if ($card.length) {
+                    $card.fadeOut(300, function() {
+                        $(this).remove();
+                        // التحقق إذا لم يبق تأكيدات
+                        if ($('#confirmations-list .confirmation-card').length === 0) {
+                            $('#confirmations-list').html(`
+                                <div class="empty-state" id="no-confirmations">
+                                    <div class="empty-icon">
+                                        <i class="fas fa-inbox"></i>
+                                    </div>
+                                    <h4>لا توجد تأكيدات منتظرة</h4>
+                                    <p>جميع التأكيدات تم معالجتها بنجاح</p>
+                                </div>
+                            `);
+                        }
+                    });
+                }
                 
                 $('#reject-reason').val('');
                 showNotification(response.message || 'تم الرفض بنجاح', 'success');
-                fetchUpdates();
+                
+                // تحديث الإحصائيات
+                setTimeout(() => fetchUpdates(), 500);
                 
                 // إعادة تعيين الزر
                 btn.prop('disabled', false).html('<i class="fas fa-times"></i> رفض');
@@ -982,9 +1179,32 @@ $(document).ready(function() {
                 // مسح ID
                 currentConfirmationId = null;
             },
-            error: function(xhr) {
-                console.error('Reject error:', xhr);
-                const message = xhr.responseJSON?.message || 'فشل الرفض: ' + (xhr.statusText || 'خطأ غير معروف');
+            error: function(xhr, status, error) {
+                console.error('Reject AJAX error:');
+                console.error('Status:', status);
+                console.error('Error:', error);
+                console.error('Response:', xhr.responseText);
+                console.error('Status Code:', xhr.status);
+                
+                let message = 'فشل الرفض';
+                
+                if (xhr.status === 404) {
+                    message = 'لم يتم العثور على التأكيد المطلوب';
+                } else if (xhr.status === 403) {
+                    message = 'ليس لديك صلاحية لتنفيذ هذا الإجراء';
+                } else if (xhr.status === 422) {
+                    const errors = xhr.responseJSON?.errors;
+                    if (errors && errors.rejection_reason) {
+                        message = errors.rejection_reason[0];
+                    } else {
+                        message = xhr.responseJSON?.message || 'بيانات غير صحيحة';
+                    }
+                } else if (xhr.responseJSON?.message) {
+                    message = xhr.responseJSON.message;
+                } else if (xhr.statusText) {
+                    message += ': ' + xhr.statusText;
+                }
+                
                 showNotification(message, 'error');
                 btn.prop('disabled', false).html('<i class="fas fa-times"></i> رفض');
             }

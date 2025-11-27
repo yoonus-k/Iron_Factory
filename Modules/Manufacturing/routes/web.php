@@ -351,7 +351,7 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:STAGE3_COATING_READ')
         ->names('manufacturing.stage3');
     Route::resource('stage4', Stage4Controller::class)
-        ->middleware('permission:STAGE4_LAFAF_READ')
+        ->middleware('permission:STAGE4_PACKAGING_READ')
         ->names('manufacturing.stage4');
 
     // Stage 1 Additional Routes

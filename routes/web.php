@@ -15,7 +15,8 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     // Dashboard Route - with permission check
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
+    Route::get('/stage-worker/dashboard', [App\Http\Controllers\StageWorkerDashboardController::class, 'index'])->name('stage-worker.dashboard.index');
+    Route::get('/stage-worker/dashboard/updates', [App\Http\Controllers\StageWorkerDashboardController::class, 'getUpdates'])->name('stage-worker.dashboard.updates');
     Route::get('/manager', [DashboardController::class, 'index'])->name('manager');
        Route::get('/profile', [UserController::class, 'profile'])->name('profile');
 

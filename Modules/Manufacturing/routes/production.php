@@ -21,10 +21,10 @@ use Modules\Manufacturing\Http\Controllers\ShiftDashboardController;
 Route::middleware(['auth'])->group(function () {
 
     // Production Stages Routes
-    Route::resource('stage1', Stage1Controller::class)->names('manufacturing.stage1');
-    Route::resource('stage2', Stage2Controller::class)->names('manufacturing.stage2');
-    Route::resource('stage3', Stage3Controller::class)->names('manufacturing.stage3');
-    Route::resource('stage4', Stage4Controller::class)->names('manufacturing.stage4');
+    // Route::resource('stage1', Stage1Controller::class)->names('manufacturing.stage1');
+    // Route::resource('stage2', Stage2Controller::class)->names('manufacturing.stage2');
+    // Route::resource('stage3', Stage3Controller::class)->names('manufacturing.stage3');
+    // Route::resource('stage4', Stage4Controller::class)->names('manufacturing.stage4');
 
     // Stands Management Routes
     Route::get('stands/generate-number', [StandsController::class, 'generateStandNumber'])->name('manufacturing.stands.generate-number');
