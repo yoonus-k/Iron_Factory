@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'سجل حركات المواد')
+@section('title', __('warehouse.movements_log'))
 
 @section('content')
     <style>
@@ -100,16 +100,16 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="fas fa-exchange-alt"></i>
-                سجل حركات المواد
+                {{ __('warehouse.movements_log') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('warehouse.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المستودع</span>
+                <span>{{ __('warehouse.warehouse_management') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>سجل الحركات</span>
+                <span>{{ __('warehouse.movement_history') }}</span>
             </nav>
         </div>
 
@@ -140,11 +140,11 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="fas fa-list"></i>
-                    قائمة الحركات
+                    {{ __('warehouse.movements_list') }}
                 </h4>
                 <a href="{{ route('manufacturing.warehouse.registration.pending') }}" class="um-btn um-btn-primary">
                     <i class="fas fa-arrow-right"></i>
-                    رجوع
+                    {{ __('warehouse.back') }}
                 </a>
             </div>
 
@@ -157,26 +157,26 @@
                     <div class="um-filter-row">
                         <div class="um-form-group">
                             <select name="movement_type" class="um-form-control">
-                                <option value="">جميع أنواع الحركات</option>
-                                <option value="incoming" {{ request('movement_type') == 'incoming' ? 'selected' : '' }}>دخول بضاعة</option>
-                                <option value="to_production" {{ request('movement_type') == 'to_production' ? 'selected' : '' }}>نقل للإنتاج</option>
-                                <option value="adjustment" {{ request('movement_type') == 'adjustment' ? 'selected' : '' }}>تسوية</option>
-                                <option value="reconciliation" {{ request('movement_type') == 'reconciliation' ? 'selected' : '' }}>تعديل تسوية</option>
-                                <option value="transfer" {{ request('movement_type') == 'transfer' ? 'selected' : '' }}>نقل بين مستودعات</option>
+                                <option value="">{{ __('warehouse.all_movement_types') }}</option>
+                                <option value="incoming" {{ request('movement_type') == 'incoming' ? 'selected' : '' }}>{{ __('warehouse.movement_incoming') }}</option>
+                                <option value="to_production" {{ request('movement_type') == 'to_production' ? 'selected' : '' }}>{{ __('warehouse.movement_to_production') }}</option>
+                                <option value="adjustment" {{ request('movement_type') == 'adjustment' ? 'selected' : '' }}>{{ __('warehouse.movement_adjustment') }}</option>
+                                <option value="reconciliation" {{ request('movement_type') == 'reconciliation' ? 'selected' : '' }}>{{ __('warehouse.movement_reconciliation_update') }}</option>
+                                <option value="transfer" {{ request('movement_type') == 'transfer' ? 'selected' : '' }}>{{ __('warehouse.movement_transfer_between_warehouses') }}</option>
                             </select>
                         </div>
                         <div class="um-form-group">
                             <select name="source" class="um-form-control">
-                                <option value="">جميع المصادر</option>
-                                <option value="registration" {{ request('source') == 'registration' ? 'selected' : '' }}>تسجيل البضاعة</option>
-                                <option value="reconciliation" {{ request('source') == 'reconciliation' ? 'selected' : '' }}>التسوية</option>
-                                <option value="production" {{ request('source') == 'production' ? 'selected' : '' }}>الإنتاج</option>
-                                <option value="transfer" {{ request('source') == 'transfer' ? 'selected' : '' }}>النقل</option>
+                                <option value="">{{ __('warehouse.all_sources') }}</option>
+                                <option value="registration" {{ request('source') == 'registration' ? 'selected' : '' }}>{{ __('warehouse.source_goods_registration') }}</option>
+                                <option value="reconciliation" {{ request('source') == 'reconciliation' ? 'selected' : '' }}>{{ __('warehouse.source_reconciliation') }}</option>
+                                <option value="production" {{ request('source') == 'production' ? 'selected' : '' }}>{{ __('warehouse.source_production') }}</option>
+                                <option value="transfer" {{ request('source') == 'transfer' ? 'selected' : '' }}>{{ __('warehouse.source_transfer') }}</option>
                             </select>
                         </div>
                         <div class="um-form-group">
                             <select name="warehouse_id" class="um-form-control">
-                                <option value="">جميع المستودعات</option>
+                                <option value="">{{ __('warehouse.all_warehouses') }}</option>
                                 @foreach($warehouses as $warehouse)
                                     <option value="{{ $warehouse->id }}" {{ request('warehouse_id') == $warehouse->id ? 'selected' : '' }}>
                                         {{ $warehouse->name_ar }}
@@ -187,23 +187,23 @@
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                بحث
+                                {{ __('warehouse.search') }}
                             </button>
                             <a href="{{ route('manufacturing.warehouse.movements.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-x"></i>
-                                إعادة تعيين
+                                {{ __('warehouse.reset') }}
                             </a>
                         </div>
                     </div>
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="date" name="from_date" class="um-form-control" placeholder="من تاريخ" value="{{ request('from_date') }}">
+                            <input type="date" name="from_date" class="um-form-control" placeholder="{{ __('warehouse.from_date') }}" value="{{ request('from_date') }}">
                         </div>
                         <div class="um-form-group">
-                            <input type="date" name="to_date" class="um-form-control" placeholder="إلى تاريخ" value="{{ request('to_date') }}">
+                            <input type="date" name="to_date" class="um-form-control" placeholder="{{ __('warehouse.to_date') }}" value="{{ request('to_date') }}">
                         </div>
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث في الحركات..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('warehouse.search_movements') }}" value="{{ request('search') }}">
                         </div>
                     </div>
                 </form>
@@ -215,15 +215,15 @@
                     <thead>
                         <tr>
 
-                            <th>رقم الحركة</th>
-                            <th>التاريخ</th>
-                            <th>النوع</th>
-                            <th>المصدر</th>
-                            <th>المادة</th>
-                            <th>الكمية</th>
-                            <th>من</th>
-                            <th>إلى</th>
-                            <th>الإجراء</th>
+                            <th>{{ __('warehouse.movement_number') }}</th>
+                            <th>{{ __('warehouse.date') }}</th>
+                            <th>{{ __('warehouse.type') }}</th>
+                            <th>{{ __('warehouse.source') }}</th>
+                            <th>{{ __('warehouse.material') }}</th>
+                            <th>{{ __('warehouse.quantity') }}</th>
+                            <th>{{ __('warehouse.from') }}</th>
+                            <th>{{ __('warehouse.to') }}</th>
+                            <th>{{ __('warehouse.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -251,7 +251,7 @@
                                 </span>
                             </td>
                             <td>
-                                <strong>{{ $movement->material->name_ar ?? 'غير محدد' }}</strong>
+                                <strong>{{ $movement->material->name_ar ?? __('warehouse.not_specified') }}</strong>
                             </td>
                             <td>
                                 <span class="um-badge um-badge-secondary">
@@ -273,7 +273,7 @@
                                     <div class="um-dropdown-menu">
                                         <a href="{{ route('manufacturing.warehouse.movements.show', $movement) }}" class="um-dropdown-item um-btn-view">
                                             <i class="feather icon-eye"></i>
-                                            <span>عرض</span>
+                                            <span>{{ __('warehouse.view') }}</span>
                                         </a>
                                     </div>
                                 </div>
@@ -281,7 +281,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="10" class="text-center">لا توجد حركات</td>
+                            <td colspan="10" class="text-center">{{ __('warehouse.no_movements_found') }}</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -306,27 +306,27 @@
                     </div>
                     <div class="um-category-card-body">
                         <div class="um-info-row">
-                            <span class="um-info-label">التاريخ:</span>
+                            <span class="um-info-label">{{ __('warehouse.date') }}:</span>
                             <span class="um-info-value">{{ $movement->movement_date->format('Y-m-d H:i') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">المصدر:</span>
+                            <span class="um-info-label">{{ __('warehouse.source') }}:</span>
                             <span class="um-info-value">{{ $movement->source_name }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">المادة:</span>
-                            <span class="um-info-value">{{ $movement->material->name_ar ?? 'غير محدد' }}</span>
+                            <span class="um-info-label">{{ __('warehouse.material') }}:</span>
+                            <span class="um-info-value">{{ $movement->material->name_ar ?? __('warehouse.not_specified') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">الكمية:</span>
+                            <span class="um-info-label">{{ __('warehouse.quantity') }}:</span>
                             <span class="um-info-value">{{ number_format($movement->quantity, 2) }} {{ $movement->unit->symbol_ar ?? '' }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">من:</span>
+                            <span class="um-info-label">{{ __('warehouse.from') }}:</span>
                             <span class="um-info-value">{{ $movement->fromWarehouse->name_ar ?? ($movement->supplier->name ?? '-') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">إلى:</span>
+                            <span class="um-info-label">{{ __('warehouse.to') }}:</span>
                             <span class="um-info-value">{{ $movement->toWarehouse->name_ar ?? $movement->destination ?? '-' }}</span>
                         </div>
                     </div>
@@ -338,14 +338,14 @@
                             <div class="um-dropdown-menu">
                                 <a href="{{ route('manufacturing.warehouse.movements.show', $movement) }}" class="um-dropdown-item um-btn-view">
                                     <i class="feather icon-eye"></i>
-                                    <span>عرض</span>
+                                    <span>{{ __('warehouse.view') }}</span>
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
                 @empty
-                <div class="text-center">لا توجد حركات</div>
+                <div class="text-center">{{ __('warehouse.no_movements_found') }}</div>
                 @endforelse
             </div>
 
@@ -354,8 +354,8 @@
             <div class="um-pagination-section">
                 <div>
                     <p class="um-pagination-info">
-                        عرض {{ $movements->firstItem() ?? 0 }} إلى {{ $movements->lastItem() ?? 0 }} من أصل
-                        {{ $movements->total() }} حركة
+                        {{ __('warehouse.showing') }} {{ $movements->firstItem() ?? 0 }} {{ __('warehouse.to') }} {{ $movements->lastItem() ?? 0 }} {{ __('warehouse.of') }}
+                        {{ $movements->total() }} {{ __('warehouse.movement') }}
                     </p>
                 </div>
                 <div>

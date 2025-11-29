@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تفاصيل نوع المادة')
+@section('title', __('warehouse.material_type_details'))
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
@@ -19,9 +19,9 @@
                         @endif
                         <div class="badges">
                             @if ($materialType->is_active)
-                                <span class="badge badge-success">نشط</span>
+                                <span class="badge badge-success">{{ __('warehouse.active') }}</span>
                             @else
-                                <span class="badge badge-secondary">غير نشط</span>
+                                <span class="badge badge-secondary">{{ __('warehouse.inactive') }}</span>
                             @endif
                             @php
                                 $categories = [
@@ -43,7 +43,7 @@
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                         </svg>
-                        تعديل
+                        {{ __('warehouse.edit') }}
                     </a>
                     <form method="POST" action="{{ route('manufacturing.warehouse-settings.material-types.toggle-status', $materialType->id) }}" style="display: inline;">
                         @csrf
@@ -53,7 +53,7 @@
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
                             </svg>
-                            {{ $materialType->is_active ? 'تعطيل' : 'تفعيل' }}
+                            {{ $materialType->is_active ? __('warehouse.deactivate') : __('warehouse.activate') }}
                         </button>
                     </form>
                     <a href="{{ route('manufacturing.warehouse-settings.material-types.index') }}" class="btn btn-back">
@@ -61,7 +61,7 @@
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>
-                        العودة
+                        {{ __('warehouse.back') }}
                     </a>
                 </div>
             </div>
@@ -76,30 +76,30 @@
                             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات النوع الأساسية</h3>
+                    <h3 class="card-title">{{ __('warehouse.basic_type_info') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">رمز النوع:</div>
+                        <div class="info-label">{{ __('warehouse.type_code') }}:</div>
                         <div class="info-value">
                             <span class="badge badge-primary">{{ $materialType->type_code }}</span>
                         </div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">اسم النوع (عربي):</div>
+                        <div class="info-label">{{ __('warehouse.type_name_ar') }}:</div>
                         <div class="info-value">{{ $materialType->type_name }}</div>
                     </div>
 
                     @if($materialType->type_name_en)
                     <div class="info-item">
-                        <div class="info-label">اسم النوع (إنجليزي):</div>
+                        <div class="info-label">{{ __('warehouse.type_name_en') }}:</div>
                         <div class="info-value">{{ $materialType->type_name_en }}</div>
                     </div>
                     @endif
 
                     <div class="info-item">
-                        <div class="info-label">الفئة:</div>
+                        <div class="info-label">{{ __('warehouse.category') }}:</div>
                         <div class="info-value">
                             <span class="badge badge-info">{{ $categories[$materialType->category] ?? $materialType->category }}</span>
                         </div>
@@ -107,32 +107,32 @@
 
                     @if($materialType->default_unit)
                     <div class="info-item">
-                        <div class="info-label">الوحدة الافتراضية:</div>
+                        <div class="info-label">{{ __('warehouse.default_unit') }}:</div>
                         <div class="info-value">{{ $materialType->unit?->unit_name }} ({{ $materialType->unit?->unit_code }})</div>
                     </div>
                     @endif
 
                     @if($materialType->standard_cost)
                     <div class="info-item">
-                        <div class="info-label">التكلفة القياسية:</div>
+                        <div class="info-label">{{ __('warehouse.standard_cost') }}:</div>
                         <div class="info-value">{{ $materialType->standard_cost }}</div>
                     </div>
                     @endif
 
                     @if($materialType->shelf_life_days)
                     <div class="info-item">
-                        <div class="info-label">مدة الصلاحية (أيام):</div>
-                        <div class="info-value">{{ $materialType->shelf_life_days }} يوم</div>
+                        <div class="info-label">{{ __('warehouse.shelf_life_days') }}:</div>
+                        <div class="info-value">{{ $materialType->shelf_life_days }} {{ __('warehouse.days') }}</div>
                     </div>
                     @endif
 
                     <div class="info-item">
-                        <div class="info-label">الحالة:</div>
+                        <div class="info-label">{{ __('warehouse.status') }}:</div>
                         <div class="info-value">
                             @if ($materialType->is_active)
-                                <span class="badge badge-success">نشط</span>
+                                <span class="badge badge-success">{{ __('warehouse.active') }}</span>
                             @else
-                                <span class="badge badge-secondary">غير نشط</span>
+                                <span class="badge badge-secondary">{{ __('warehouse.inactive') }}</span>
                             @endif
                         </div>
                     </div>
@@ -151,39 +151,39 @@
                             <polyline points="10 9 9 9 8 9"></polyline>
                         </svg>
                     </div>
-                    <h3 class="card-title">الوصف وشروط التخزين</h3>
+                    <h3 class="card-title">{{ __('warehouse.description_and_storage') }}</h3>
                 </div>
                 <div class="card-body">
                     @if($materialType->description)
                     <div class="info-item">
-                        <div class="info-label">الوصف (عربي):</div>
+                        <div class="info-label">{{ __('warehouse.description_ar') }}:</div>
                         <div class="info-value">{{ $materialType->description }}</div>
                     </div>
                     @endif
 
                     @if($materialType->description_en)
                     <div class="info-item">
-                        <div class="info-label">الوصف (إنجليزي):</div>
+                        <div class="info-label">{{ __('warehouse.description_en') }}:</div>
                         <div class="info-value">{{ $materialType->description_en }}</div>
                     </div>
                     @endif
 
                     @if($materialType->storage_conditions)
                     <div class="info-item">
-                        <div class="info-label">شروط التخزين (عربي):</div>
+                        <div class="info-label">{{ __('warehouse.storage_conditions_ar') }}:</div>
                         <div class="info-value">{{ $materialType->storage_conditions }}</div>
                     </div>
                     @endif
 
                     @if($materialType->storage_conditions_en)
                     <div class="info-item">
-                        <div class="info-label">شروط التخزين (إنجليزي):</div>
+                        <div class="info-label">{{ __('warehouse.storage_conditions_en') }}:</div>
                         <div class="info-value">{{ $materialType->storage_conditions_en }}</div>
                     </div>
                     @endif
 
                     @if(!$materialType->description && !$materialType->description_en && !$materialType->storage_conditions && !$materialType->storage_conditions_en)
-                    <p class="text-muted">لا توجد معلومات إضافية</p>
+                    <p class="text-muted">{{ __('warehouse.no_additional_info') }}</p>
                     @endif
                 </div>
             </div>
@@ -197,22 +197,22 @@
                             <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات إضافية</h3>
+                    <h3 class="card-title">{{ __('warehouse.additional_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">أنشئت بواسطة:</div>
+                        <div class="info-label">{{ __('warehouse.created_by') }}:</div>
                         <div class="info-value">{{ $materialType->creator->name ?? '-' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">تاريخ الإنشاء:</div>
+                        <div class="info-label">{{ __('warehouse.creation_date') }}:</div>
                         <div class="info-value">{{ $materialType->created_at->format('Y-m-d H:i') }}</div>
                     </div>
 
                     @if($materialType->updated_at != $materialType->created_at)
                     <div class="info-item">
-                        <div class="info-label">تاريخ آخر تعديل:</div>
+                        <div class="info-label">{{ __('warehouse.last_modification_date') }}:</div>
                         <div class="info-value">{{ $materialType->updated_at->format('Y-m-d H:i') }}</div>
                     </div>
                     @endif
@@ -228,7 +228,7 @@
                         <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
                 </div>
-                <h3 class="card-title">سجل العمليات</h3>
+                <h3 class="card-title">{{ __('warehouse.operation_logs') }}</h3>
             </div>
             <div class="card-body">
                 @php
@@ -251,13 +251,13 @@
                                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
                                                 @switch($log->action)
                                                     @case('create')
-                                                        <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">إنشاء</span>
+                                                        <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">{{ __('warehouse.create') }}</span>
                                                         @break
                                                     @case('update')
-                                                        <span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">تعديل</span>
+                                                        <span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">{{ __('warehouse.update') }}</span>
                                                         @break
                                                     @case('delete')
-                                                        <span class="badge" style="background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">حذف</span>
+                                                        <span class="badge" style="background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">{{ __('warehouse.delete') }}</span>
                                                         @break
                                                     @default
                                                         <span class="badge" style="background-color: #95a5a6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">{{ $log->action_en ?? $log->action }}</span>
@@ -273,7 +273,7 @@
                                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                                     <circle cx="12" cy="7" r="4"></circle>
                                                 </svg>
-                                                <span><strong>{{ $log->user->name ?? 'مستخدم محذوف' }}</strong></span>
+                                                <span><strong>{{ $log->user->name ?? __('warehouse.deleted_user') }}</strong></span>
                                             </div>
 
                                             <div style="display: flex; align-items: center; gap: 5px;">
@@ -312,7 +312,7 @@
                             <circle cx="12" cy="12" r="10"></circle>
                             <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
-                        <p style="margin: 0; font-size: 14px;">لا توجد عمليات مسجلة</p>
+                        <p style="margin: 0; font-size: 14px;">{{ __('warehouse.no_operations_recorded') }}</p>
                     </div>
                 @endif
             </div>

@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إضافة نوع مادة جديد')
+@section('title', __('warehouse.add_new_material_type'))
 
 @section('content')
 
@@ -10,16 +10,16 @@
             <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
             </svg>
-            إضافة نوع مادة جديد
+            {{ __('warehouse.add_new_material_type') }}
         </h1>
         <nav class="um-breadcrumb-nav">
             <span>
-                <i class="feather icon-home"></i> لوحة التحكم
+                <i class="feather icon-home"></i> {{ __('warehouse.dashboard') }}
             </span>
             <i class="feather icon-chevron-left"></i>
-            <span>أنواع المواد</span>
+            <span>{{ __('warehouse.material_types') }}</span>
             <i class="feather icon-chevron-left"></i>
-            <span>إضافة نوع جديد</span>
+            <span>{{ __('warehouse.add_new_material_type') }}</span>
         </nav>
     </div>
 
@@ -37,8 +37,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">معلومات النوع الأساسية</h3>
-                        <p class="section-subtitle">أدخل بيانات نوع المادة الجديد</p>
+                        <h3 class="section-title">{{ __('warehouse.material_type_information') }}</h3>
+                        <p class="section-subtitle">{{ __('warehouse.enter_material_type_data') }}</p>
                     </div>
                 </div>
 
@@ -46,7 +46,7 @@
                     <!-- رمز النوع -->
                     <div class="form-group">
                         <label for="type_code" class="form-label">
-                            رمز النوع
+                            {{ __('warehouse.type_code') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -62,13 +62,13 @@
                             <div class="error-message" style="display: block;">{{ $message }}</div>
                         @enderror
                         <div class="error-message" id="type_code-error" style="display: none;"></div>
-                        <small style="color: #7f8c8d; display: block; margin-top: 5px;">✓ يتم إنشاء الرمز تلقائياً</small>
+                        <small style="color: #7f8c8d; display: block; margin-top: 5px;">✓ {{ __('warehouse.auto_generated') }}</small>
                     </div>
 
                     <!-- اسم النوع -->
                     <div class="form-group">
                         <label for="type_name" class="form-label">
-                            اسم النوع (عربي)
+                            {{ __('warehouse.type_name_ar') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -87,7 +87,7 @@
 
                     <!-- اسم النوع الإنجليزي -->
                     <div class="form-group">
-                        <label for="type_name_en" class="form-label">اسم النوع (إنجليزي)</label>
+                        <label for="type_name_en" class="form-label">{{ __('warehouse.type_name_en') }}</label>
                         <div class="input-wrapper">
                             <input type="text" name="type_name_en" id="type_name_en" class="form-input @error('type_name_en') error @enderror"
                                    placeholder="مثال: Raw Iron" value="{{ old('type_name_en') }}">
@@ -100,7 +100,7 @@
                     <!-- الفئة -->
                     <div class="form-group">
                         <label for="category" class="form-label">
-                            الفئة
+                            {{ __('warehouse.category') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -122,7 +122,7 @@
 
                     <!-- الوحدة الافتراضية -->
                     <div class="form-group">
-                        <label for="default_unit" class="form-label">الوحدة الافتراضية</label>
+                        <label for="default_unit" class="form-label">{{ __('warehouse.default_unit') }}</label>
                         <div class="input-wrapper">
                             <select name="default_unit" id="default_unit" class="form-input @error('default_unit') error @enderror">
                                 <option value="">-- اختر وحدة --</option>
@@ -140,7 +140,7 @@
 
                     <!-- التكلفة القياسية -->
                     <div class="form-group">
-                        <label for="standard_cost" class="form-label">التكلفة القياسية</label>
+                        <label for="standard_cost" class="form-label">{{ __('warehouse.standard_cost') }}</label>
                         <div class="input-wrapper">
                             <input type="number" name="standard_cost" id="standard_cost" class="form-input @error('standard_cost') error @enderror"
                                    placeholder="0.00" value="{{ old('standard_cost') }}" step="0.01" min="0">
@@ -152,7 +152,7 @@
 
                     <!-- مدة الصلاحية (أيام) -->
                     <div class="form-group">
-                        <label for="shelf_life_days" class="form-label">مدة الصلاحية (أيام)</label>
+                        <label for="shelf_life_days" class="form-label">{{ __('warehouse.shelf_life_days') }}</label>
                         <div class="input-wrapper">
                             <input type="number" name="shelf_life_days" id="shelf_life_days" class="form-input @error('shelf_life_days') error @enderror"
                                    placeholder="365" value="{{ old('shelf_life_days') }}" min="0">
@@ -185,15 +185,15 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">الوصف وشروط التخزين</h3>
-                        <p class="section-subtitle">أدخل وصف النوع وشروط التخزين</p>
+                        <h3 class="section-title">{{ __('warehouse.description_and_storage') }}</h3>
+                        <p class="section-subtitle">{{ __('warehouse.enter_description_and_storage') }}</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <!-- الوصف -->
                     <div class="form-group full-width">
-                        <label for="description" class="form-label">الوصف (عربي)</label>
+                        <label for="description" class="form-label">{{ __('warehouse.description_ar') }}</label>
                         <div class="input-wrapper">
                             <textarea name="description" id="description" class="form-input @error('description') error @enderror"
                                       placeholder="أدخل وصف النوع" rows="3" maxlength="1000">{{ old('description') }}</textarea>
@@ -205,7 +205,7 @@
 
                     <!-- الوصف الإنجليزي -->
                     <div class="form-group full-width">
-                        <label for="description_en" class="form-label">الوصف (إنجليزي)</label>
+                        <label for="description_en" class="form-label">{{ __('warehouse.description_en') }}</label>
                         <div class="input-wrapper">
                             <textarea name="description_en" id="description_en" class="form-input @error('description_en') error @enderror"
                                       placeholder="Enter description in English" rows="3" maxlength="1000">{{ old('description_en') }}</textarea>
@@ -217,7 +217,7 @@
 
                     <!-- شروط التخزين -->
                     <div class="form-group full-width">
-                        <label for="storage_conditions" class="form-label">شروط التخزين (عربي)</label>
+                        <label for="storage_conditions" class="form-label">{{ __('warehouse.storage_conditions_ar') }}</label>
                         <div class="input-wrapper">
                             <textarea name="storage_conditions" id="storage_conditions" class="form-input @error('storage_conditions') error @enderror"
                                       placeholder="مثال: تخزين بدرجة حرارة معتدلة بعيداً عن الرطوبة" rows="2">{{ old('storage_conditions') }}</textarea>
@@ -229,7 +229,7 @@
 
                     <!-- شروط التخزين الإنجليزية -->
                     <div class="form-group full-width">
-                        <label for="storage_conditions_en" class="form-label">شروط التخزين (إنجليزي)</label>
+                        <label for="storage_conditions_en" class="form-label">{{ __('warehouse.storage_conditions_en') }}</label>
                         <div class="input-wrapper">
                             <textarea name="storage_conditions_en" id="storage_conditions_en" class="form-input @error('storage_conditions_en') error @enderror"
                                       placeholder="Store at moderate temperature away from moisture" rows="2">{{ old('storage_conditions_en') }}</textarea>
@@ -247,14 +247,14 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                    حفظ النوع
+                    {{ __('warehouse.save_material_type') }}
                 </button>
                 <a href="{{ route('manufacturing.warehouse-settings.material-types.index') }}" class="btn-cancel">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                    إلغاء
+                    {{ __('warehouse.cancel') }}
                 </a>
             </div>
         </form>
@@ -292,7 +292,7 @@
 
                 requiredFields.forEach(field => {
                     if (!field.value.trim()) {
-                        showError(field.id, 'هذا الحقل مطلوب');
+                        showError(field.id, '{{ __('warehouse.required_field') }}');
                         isValid = false;
                     }
                 });
@@ -301,12 +301,12 @@
                 if (isValid) {
                     // Show SweetAlert2 confirmation
                     Swal.fire({
-                        title: 'تأكيد الحفظ',
-                        text: 'هل أنت متأكد من حفظ بيانات نوع المادة؟',
+                        title: '{{ __('warehouse.confirm_save') }}',
+                        text: '{{ __('warehouse.confirm_save_material_type') }}',
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonText: 'نعم، احفظ',
-                        cancelButtonText: 'إلغاء',
+                        confirmButtonText: '{{ __('warehouse.yes_save') }}',
+                        cancelButtonText: '{{ __('warehouse.cancel') }}',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {

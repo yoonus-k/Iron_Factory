@@ -108,7 +108,7 @@ return [
         'cancelled' => 'ملغي',
     ],
 
-    // الأزرار
+    // Buttons
     'buttons' => [
         'save' => 'حفظ',
         'cancel' => 'إلغاء',
@@ -116,7 +116,7 @@ return [
         'delete' => 'حذف',
         'view' => 'عرض',
         'add' => 'إضافة',
-        'back' => 'رجوع',
+        'back' => 'العودة',
         'next' => 'التالي',
         'previous' => 'السابق',
         'print' => 'طباعة',
@@ -125,8 +125,14 @@ return [
         'search' => 'بحث',
         'filter' => 'تصفية',
         'reset' => 'إعادة تعيين',
-        'login' => 'تسجيل الدخول',
+        'login' => 'دخول',
     ],
+
+    // Pagination
+    'showing' => 'عرض',
+    'to' => 'إلى',
+    'of' => 'من',
+    'actions' => 'الإجراءات',
 
     // الرسائل
     'messages' => [

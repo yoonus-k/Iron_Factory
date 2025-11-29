@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إضافة مستخدم جديد')
+@section('title', __('users.add_new_user'))
 
 @section('content')
     <div class="um-content-wrapper">
@@ -8,16 +8,16 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-user-plus"></i>
-                إضافة مستخدم جديد
+                {{ __('users.add_new_user') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('users.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المستخدمين</span>
+                <span>{{ __('users.users') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>إضافة مستخدم جديد</span>
+                <span>{{ __('users.add_new_user') }}</span>
             </nav>
         </div>
 
@@ -36,7 +36,7 @@
             <div class="alert alert-danger alert-container">
                 <div class="alert-header">
                     <i class="feather icon-alert-circle alert-icon"></i>
-                    <h4 class="alert-title">يوجد أخطاء في البيانات المدخلة</h4>
+                    <h4 class="alert-title">{{ __('users.validation_errors') }}</h4>
                     <button type="button" class="alert-close" onclick="this.parentElement.parentElement.style.display='none'">
                         <i class="feather icon-x"></i>
                     </button>
@@ -68,8 +68,8 @@
                             <i class="feather icon-user"></i>
                         </div>
                         <div>
-                            <h3 class="section-title">بيانات المستخدم</h3>
-                            <p class="section-subtitle">أدخل معلومات المستخدم الأساسية</p>
+                            <h3 class="section-title">{{ __('users.user_information') }}</h3>
+                            <p class="section-subtitle">{{ __('users.user_info_description') }}</p>
                         </div>
                     </div>
 
@@ -77,13 +77,13 @@
                         <!-- Name -->
                         <div class="form-group">
                             <label for="name" class="form-label">
-                                الاسم الكامل
-                                <span class="required">*</span>
+                                {{ __('users.full_name') }}
+                                <span class="required">{{ __('users.required') }}</span>
                             </label>
                             <div class="input-wrapper">
                                 <i class="feather icon-user input-icon"></i>
                                 <input type="text" name="name" id="name" class="form-input"
-                                    value="{{ old('name') }}" placeholder="مثال: أحمد محمد علي" required>
+                                    value="{{ old('name') }}" placeholder="{{ __('users.name_placeholder') }}" required>
                             </div>
                             <div class="error-message" id="name-error" style="display: none;"></div>
                         </div>
@@ -91,13 +91,13 @@
                         <!-- Username -->
                         <div class="form-group">
                             <label for="username" class="form-label">
-                                اسم المستخدم
-                                <span class="required">*</span>
+                                {{ __('users.username') }}
+                                <span class="required">{{ __('users.required') }}</span>
                             </label>
                             <div class="input-wrapper">
                                 <i class="feather icon-at-sign input-icon"></i>
                                 <input type="text" name="username" id="username" class="form-input"
-                                    value="{{ old('username') }}" placeholder="مثال: ahmed.ali" required>
+                                    value="{{ old('username') }}" placeholder="{{ __('users.username_placeholder') }}" required>
                             </div>
                             <div class="error-message" id="username-error" style="display: none;"></div>
                         </div>
@@ -105,13 +105,13 @@
                         <!-- Email -->
                         <div class="form-group">
                             <label for="email" class="form-label">
-                                البريد الإلكتروني
-                                <span class="required">*</span>
+                                {{ __('users.email') }}
+                                <span class="required">{{ __('users.required') }}</span>
                             </label>
                             <div class="input-wrapper">
                                 <i class="feather icon-mail input-icon"></i>
                                 <input type="email" name="email" id="email" class="form-input"
-                                    value="{{ old('email') }}" placeholder="example@domain.com" required>
+                                    value="{{ old('email') }}" placeholder="{{ __('users.email_placeholder') }}" required>
                             </div>
                             <div class="error-message" id="email-error" style="display: none;"></div>
                         </div>
@@ -119,13 +119,13 @@
                         <!-- Role -->
                         <div class="form-group">
                             <label for="role_id" class="form-label">
-                                الدور
-                                <span class="required">*</span>
+                                {{ __('users.role') }}
+                                <span class="required">{{ __('users.required') }}</span>
                             </label>
                             <div class="input-wrapper">
                                 <i class="feather icon-shield input-icon"></i>
                                 <select name="role_id" id="role_id" class="form-input" required>
-                                    <option value="">-- اختر الدور --</option>
+                                    <option value="">{{ __('users.select_role') }}</option>
                                     @foreach($roles as $role)
                                     <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
                                         {{ $role->role_name }}
@@ -139,26 +139,26 @@
                         <!-- Shift -->
                         <div class="form-group">
                             <label for="shift" class="form-label">
-                                الفترة الزمنية
+                                {{ __('users.shift') }}
                             </label>
                             <div class="input-wrapper">
                                 <i class="feather icon-clock input-icon"></i>
                                 <input type="text" name="shift" id="shift" class="form-input"
-                                    value="{{ old('shift') }}" placeholder="صباحي / مسائي / إلخ">
+                                    value="{{ old('shift') }}" placeholder="{{ __('users.shift_placeholder') }}">
                             </div>
                             <div class="error-message" id="shift-error" style="display: none;"></div>
                         </div>
 
                         <!-- Status -->
                         <div class="form-group">
-                            <label class="form-label">الحالة</label>
+                            <label class="form-label">{{ __('users.status') }}</label>
                             <div class="switch-group">
                                 <input type="checkbox" name="is_active" id="is_active" class="switch-input" value="1" checked>
                                 <label for="is_active" class="switch-label">
                                     <span class="switch-button"></span>
                                     <span class="switch-text">
                                         <i class="feather icon-check-circle"></i>
-                                        تفعيل الحساب
+                                        {{ __('users.enable_account') }}
                                     </span>
                                 </label>
                             </div>
@@ -168,7 +168,7 @@
                     <!-- Info Box -->
                     <div class="info-box" style="background-color: #d1ecf1; border-right: 4px solid #17a2b8; padding: 15px; margin-top: 20px; border-radius: 4px;">
                         <p style="color: #0c5460; margin: 0; font-size: 13px;">
-                            <strong>ℹ️ معلومة مهمة:</strong> سيتم إنشاء حساب للمستخدم بكلمة مرور عشوائية. بعد الإنشاء، اذهب لصفحة التفاصيل واضغط على زر "إرسال بيانات الدخول" لإرسالها إلى بريده الإلكتروني.
+                            <strong>ℹ️ {{ __('users.important_info') }}:</strong> {{ __('users.password_info') }}
                         </p>
                     </div>
                     </div>
@@ -178,11 +178,11 @@
                 <div class="form-actions">
                     <button type="submit" class="btn-submit">
                         <i class="feather icon-save"></i>
-                        إضافة المستخدم
+                        {{ __('users.add_user') }}
                     </button>
                     <a href="{{ route('users.index') }}" class="btn-cancel">
                         <i class="feather icon-x"></i>
-                        إلغاء
+                        {{ __('users.cancel') }}
                     </a>
                 </div>
             </form>
@@ -197,7 +197,7 @@
             inputs.forEach(input => {
                 input.addEventListener('blur', function() {
                     if (this.hasAttribute('required') && !this.value.trim()) {
-                        showError(this.id, 'هذا الحقل مطلوب');
+                        showError(this.id, '{{ __('users.field_required') }}');
                     } else {
                         hideError(this.id);
                     }
@@ -221,7 +221,7 @@
 
                 requiredFields.forEach(field => {
                     if (!field.value.trim()) {
-                        showError(field.id, 'هذا الحقل مطلوب');
+                        showError(field.id, '{{ __('users.field_required') }}');
                         isValid = false;
                     }
                 });
@@ -230,12 +230,12 @@
                 if (isValid) {
                     // Show SweetAlert2 confirmation
                     Swal.fire({
-                        title: 'تأكيد الإنشاء',
-                        text: 'هل تريد إنشاء هذا المستخدم الجديد؟',
+                        title: '{{ __('users.confirm_create') }}',
+                        text: '{{ __('users.confirm_create') }}',
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonText: 'نعم، أنشئ المستخدم',
-                        cancelButtonText: 'إلغاء',
+                        confirmButtonText: '{{ __('users.yes_create') }}',
+                        cancelButtonText: '{{ __('users.no_cancel') }}',
                         reverseButtons: true,
                         customClass: {
                             confirmButton: 'swal-btn-confirm',
@@ -245,7 +245,7 @@
                         if (result.isConfirmed) {
                             // Show loading message
                             Swal.fire({
-                                title: 'جاري الإنشاء...',
+                                title: '{{ __('users.creating') }}',
                                 allowOutsideClick: false,
                                 didOpen: (modal) => {
                                     Swal.showLoading();

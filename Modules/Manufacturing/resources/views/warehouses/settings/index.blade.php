@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إعدادات المخازن')
+@section('title', __('warehouse.warehouse_settings'))
 
 @section('content')
     <div class="um-content-wrapper">
@@ -8,14 +8,14 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-settings"></i>
-                إعدادات المخازن
+                {{ __('warehouse.warehouse_settings') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('warehouse.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>إعدادات المخازن</span>
+                <span>{{ __('warehouse.warehouse_settings') }}</span>
             </nav>
         </div>
 
@@ -30,21 +30,21 @@
                             <i class="feather icon-box"></i>
                         </div>
                         <div>
-                            <h6 class="um-category-name">الوحدات</h6>
+                            <h6 class="um-category-name">{{ __('warehouse.units') }}</h6>
                         </div>
                     </div>
                 </div>
 
                 <div class="um-category-card-body">
                     <div class="um-info-row">
-                        <span class="um-info-value">إدارة وحدات القياس للمواد والمنتجات</span>
+                        <span class="um-info-value">{{ __('warehouse.manage_measurement_units') }}</span>
                     </div>
                 </div>
 
                 <div class="um-category-card-footer">
                     <a href="{{ route('manufacturing.warehouse-settings.units.index') }}" class="um-btn um-btn-primary">
                         <i class="feather icon-arrow-right"></i>
-                        الذهاب
+                        {{ __('warehouse.go') }}
                     </a>
                 </div>
             </div>
@@ -58,21 +58,21 @@
                             <i class="feather icon-layers"></i>
                         </div>
                         <div>
-                            <h6 class="um-category-name">أنواع المواد</h6>
+                            <h6 class="um-category-name">{{ __('warehouse.material_types') }}</h6>
                         </div>
                     </div>
                 </div>
 
                 <div class="um-category-card-body">
                     <div class="um-info-row">
-                        <span class="um-info-value">إدارة أنواع المواد والتصنيفات</span>
+                        <span class="um-info-value">{{ __('warehouse.manage_material_types_and_categories') }}</span>
                     </div>
                 </div>
 
                 <div class="um-category-card-footer">
                     <a href="{{ route('manufacturing.warehouse-settings.material-types.index') }}" class="um-btn um-btn-primary">
                         <i class="feather icon-arrow-right"></i>
-                        الذهاب
+                        {{ __('warehouse.go') }}
                     </a>
                 </div>
             </div>

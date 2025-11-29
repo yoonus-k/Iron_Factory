@@ -183,4 +183,362 @@ return [
     'of' => 'of',
     'apply_filters' => 'Search',
     'clear_filters' => 'Reset',
+    'all_stages' => 'All Stages',
+
+    // Shift Handovers Translations
+    'all_statuses' => 'All Statuses',
+    'handover_list' => 'Handovers List',
+    'handover_status' => 'Status',
+    'handover_time' => 'Handover Time',
+    'from_worker' => 'From',
+    'to_worker' => 'To',
+    'approver' => 'Approver',
+    'approved' => 'Approved',
+    'pending' => 'Pending',
+    'no_handovers_found' => 'No handovers available',
+    'handovers_count' => 'handovers',
+    'back_button' => 'Back',
+    'handover_details' => 'Handover Details',
+    'approval_info' => 'Approval Information',
+    'approval_date' => 'Approval Date',
+    'rejection_reason' => 'Rejection Reason',
+    'reject_handover' => 'Reject Handover',
+    'approve_handover' => 'Approve Handover',
+    'handover_items' => 'Handover Items',
+    'notes_section' => 'Notes',
+    'approved_by' => 'Approved By',
+    'none' => 'None',
+    'confirm_approve' => 'Are you sure you want to approve this handover?',
+    'confirm_reject' => 'Are you sure you want to reject this handover?',
+    'rejection_reason_label' => 'Reason for Rejection',
+    'rejection_reason_placeholder' => 'Enter rejection reason...',
+    'cancel_button' => 'Cancel',
+    'reject_button' => 'Reject',
+    'pending_approval' => 'Pending Approval',
+    'handover_approved' => 'Handover Approved',
+    'stage' => 'Stage',
+    'from_user' => 'From User',
+    'to_user' => 'To User',
+    'handover_approved_message' => 'Handover has been approved',
+      'manage_worker_teams' => 'Manage Worker Teams',
+    'worker_teams_list' => 'Worker Teams List',
+    'add_new_team' => 'Add New Team',
+    'edit_team' => 'Edit Team',
+    'team_details' => 'Team Details',
+
+    // Navigation
+    'worker_teams' => 'Worker Teams',
+    'dashboard' => 'Dashboard',
+
+    // Statistics
+    'total_teams' => 'Total Teams',
+    'active_teams' => 'Active Teams',
+    'total_workers' => 'Total Workers',
+    'avg_workers_per_team' => 'Average Workers per Team',
+
+    // Table headers
+    'team_code' => 'Team Code',
+    'team_name' => 'Team Name',
+    'workers_count' => 'Workers Count',
+    'supervisor' => 'Supervisor',
+    'created_date' => 'Creation Date',
+    'status' => 'Status',
+    'actions' => 'Actions',
+
+    // Status
+    'active' => 'Active',
+    'inactive' => 'Inactive',
+    'all_statuses' => 'All Statuses',
+
+    // Actions
+    'view' => 'View',
+    'edit' => 'Edit',
+    'activate' => 'Activate',
+    'disable' => 'Disable',
+    'delete' => 'Delete',
+    'search_action' => 'Search',
+    'reset_action' => 'Reset',
+
+    // Filters
+    'search_placeholder' => 'Search (team name, code...)',
+    'filter_by_status' => 'Filter by Status',
+    'apply_filters' => 'Search',
+    'clear_filters' => 'Reset',
+
+    // Empty states
+    'no_teams' => 'No Teams',
+    'no_results' => 'No Results',
+
+    // Mobile view
+    'workers_count_label' => 'Workers Count:',
+    'supervisor_label_mobile' => 'Supervisor:',
+    'creation_date_label' => 'Creation Date:',
+    'worker' => 'Worker',
+
+    // Pagination
+    'showing' => 'Showing',
+    'to' => 'to',
+    'of' => 'of',
+    'team' => 'Team',
+
+    // Confirmations
+    'confirm_delete' => 'Are you sure you want to delete this team?\n\nThis action cannot be undone!',
+    'confirm_disable' => 'Do you want to disable this team?',
+    'confirm_activate' => 'Do you want to activate this team?',
+
+    // Messages
+    'team_created_successfully' => 'Team created successfully',
+    'team_updated_successfully' => 'Team updated successfully',
+    'team_deleted_successfully' => 'Team deleted successfully',
+    'team_activated_successfully' => 'Team activated successfully',
+    'team_disabled_successfully' => 'Team disabled successfully',
+    'something_went_wrong' => 'Something went wrong',
+
+    // Form labels
+    'team_code_label' => 'Team Code',
+    'team_name_label' => 'Team Name',
+    'supervisor_label' => 'Supervisor',
+    'workers_label' => 'Workers',
+    'description_label' => 'Description',
+    'notes_label' => 'Notes',
+
+    // Buttons
+    'save' => 'Save',
+    'cancel' => 'Cancel',
+    'back' => 'Back',
+    'create' => 'Create',
+    'update' => 'Update',
+    'select_all' => 'Select All',
+    'deselect_all' => 'Deselect All',
+    'auto_hide_alerts' => 'Auto-hide alerts',
+    'generate' => 'Generate',
+    'generating' => 'Generating...',
+    'code_generated_success' => 'Code generated successfully',
+    'code_generation_failed' => 'Code generation failed',
+    'code_generation_error' => 'Error generating code. Please try again.',
+
+    // Additional
+    'not_specified' => '-',
+    'no_workers' => 'No Workers',
+     // Page titles
+    'workers_management' => 'Workers Management',
+    'add_new_worker' => 'Add New Worker',
+    'edit_worker' => 'Edit Worker',
+    'worker_details' => 'Worker Details',
+
+    // Navigation
+    'workers' => 'Workers',
+    'dashboard' => 'Dashboard',
+
+    // Headers
+    'basic_information' => 'Basic Information',
+    'work_information' => 'Work Information',
+    'contact_information' => 'Contact Information',
+    'account_management' => 'Account Management',
+    'additional_information' => 'Additional Information',
+    'shift_history' => 'Shift History',
+    'shift_information' => 'Shift Information',
+
+    // Form labels
+    'worker_code' => 'Worker Code',
+    'worker_name' => 'Worker Name',
+    'national_id' => 'National ID',
+    'phone' => 'Phone',
+    'email' => 'Email',
+    'position' => 'Position',
+    'hourly_rate' => 'Hourly Rate',
+    'hire_date' => 'Hire Date',
+    'allowed_stages' => 'Allowed Stages',
+    'emergency_contact' => 'Emergency Contact',
+    'emergency_phone' => 'Emergency Phone',
+    'notes' => 'Notes',
+    'shift_preference' => 'Shift Preference',
+    'worker_status' => 'Worker Status',
+    'system_access' => 'System Access',
+    'user_account' => 'User Account',
+
+    // Position options
+    'worker' => 'Worker',
+    'supervisor' => 'Supervisor',
+    'technician' => 'Technician',
+    'quality_inspector' => 'Quality Inspector',
+    'positions' => 'Positions',
+
+    // Additional form labels
+    'user_account_management' => 'User Account Management',
+    'user_account_desc' => 'Manage worker\'s system account',
+    'leave_empty_for_all_stages' => 'Leave empty to allow all stages',
+    'users_without_worker_file' => 'Only shows users who don\'t already have a worker profile',
+    'username_desc' => 'Login username (in English without spaces)',
+    'currency' => 'IQD',
+
+    // Shift preference options
+    'morning_shift' => 'Morning Shift',
+    'evening_shift' => 'Evening Shift',
+    'night_shift' => 'Night Shift',
+    'any_shift' => 'Any Shift',
+
+    // Status
+    'active' => 'Active',
+    'inactive' => 'Inactive',
+    'enabled' => 'Enabled',
+    'disabled' => 'Disabled',
+
+    // Buttons and actions
+    'save' => 'Save',
+    'save_changes' => 'Save Changes',
+    'cancel' => 'Cancel',
+    'back' => 'Back',
+    'edit' => 'Edit',
+    'delete' => 'Delete',
+    'view' => 'View',
+    'generate' => 'Generate',
+    'search' => 'Search',
+    'reset' => 'Reset',
+    'add_worker' => 'Add Worker',
+    'update_worker' => 'Update Worker',
+
+    // Table headers
+    'code' => 'Code',
+    'name' => 'Name',
+    'job' => 'Job',
+    'shift_pref' => 'Shift Pref',
+    'salary_hour' => 'Salary/Hour',
+    'actions' => 'Actions',
+
+    // Stage names
+    'stage' => 'Stage',
+    'stage_1' => 'Stage 1',
+    'stage_2' => 'Stage 2',
+    'stage_3' => 'Stage 3',
+    'stage_4' => 'Stage 4',
+
+    // Messages
+    'no_workers_found' => 'No workers found',
+    'confirm_delete' => 'Are you sure you want to delete this worker?\n\nThis action cannot be undone!',
+    'loading_permissions' => 'Loading permissions...',
+    'no_permissions_for_role' => 'No permissions specified for this role',
+    'error_loading_permissions' => 'Error loading permissions',
+    'select_position_first' => 'Please select position first',
+    'code_generation_error' => 'Error generating code. Please try again.',
+    'code_generated_success' => 'Code generated successfully',
+    'code_generation_failed' => 'Code generation failed',
+
+    // Placeholders
+    'enter_worker_code' => 'Enter worker code',
+    'enter_worker_name' => 'Enter worker name',
+    'enter_national_id' => 'Enter national ID',
+    'enter_phone' => 'Enter phone number',
+    'enter_email' => 'Enter email',
+    'select_position' => 'Select position',
+    'enter_hourly_rate' => 'Enter hourly rate',
+    'enter_emergency_contact' => 'Enter emergency contact',
+    'enter_emergency_phone' => 'Enter emergency phone',
+    'enter_notes' => 'Enter notes',
+
+    // Descriptions
+    'basic_info_desc' => 'Enter basic worker information',
+    'work_info_desc' => 'Enter work information for the worker',
+    'contact_info_desc' => 'Enter contact information for the worker',
+    'account_info_desc' => 'Manage worker\'s system account',
+    'additional_info_desc' => 'Enter additional information for the worker',
+    'shift_history_desc' => 'Worker\'s shift history',
+
+    // Other
+    'required' => 'Required',
+    'optional' => 'Optional',
+    'yes' => 'Yes',
+    'no' => 'No',
+    'link_existing_account' => 'Yes - Link to existing account',
+    'create_new_account' => 'Yes - Create new account',
+    'worker_only' => 'No - Worker only without account',
+    'select_user' => 'Select user',
+    'username' => 'Username',
+    'enter_username' => 'Enter username (e.g. john.doe)',
+    'password_will_be_sent' => 'A user account will be created and password sent via email.',
+    'only_users_without_worker' => 'Only shows users who don\'t already have a worker profile',
+    'current_user_info' => 'This worker is linked to a user account.',
+    'change_user_account' => 'Change user account (optional)',
+    'current_role' => 'Current Role',
+    'without_role' => 'Without role',
+    'role_will_be_updated' => 'The role will be automatically updated based on the worker\'s position',
+    'show_details' => 'Show details',
+    'shift_details' => 'Shift Details',
+    'loading' => 'Loading...',
+    'error_loading_data' => 'Error loading data. Please try again.',
+    'no_shifts' => 'No shifts',
+    'no_shifts_assigned' => 'No shifts have been assigned to this worker',
+    'shift_number' => 'Shift Number',
+    'date' => 'Date',
+    'type' => 'Type',
+    'time' => 'Time',
+    'status' => 'Status',
+    'all_types' => 'All Types',
+    'all' => 'All',
+    'from_date' => 'From Date',
+    'to_date' => 'To Date',
+    'clear' => 'Clear',
+    'morning' => 'Morning',
+    'evening' => 'Evening',
+    'night' => 'Night',
+    'scheduled' => 'Scheduled',
+    'completed' => 'Completed',
+    'cancelled' => 'Cancelled',
+    'note' => 'Note',
+    'to_view_permissions' => 'to view permissions',
+    'disable' => 'Disable',
+    // Add these translations to the English file
+
+// Page titles
+'current_shifts' => 'Current Shifts',
+'active_shifts_now' => 'Currently Active Shifts',
+
+// Filters and search
+'search_shifts' => 'Search shifts...',
+'all_shift_types_filter' => 'All Shift Types',
+'refresh' => 'Refresh',
+
+// Table headers
+'shift_number' => 'Shift Number',
+'date' => 'Date',
+'shift_type' => 'Shift Type',
+'supervisor' => 'Supervisor',
+'start_time' => 'Start Time',
+'workers_count' => 'Workers Count',
+'status' => 'Status',
+'actions' => 'Actions',
+
+// Status badges
+'not_specified' => 'Not Specified',
+
+// Actions
+'view_details' => 'View Details',
+'end_shift_now' => 'End Shift',
+'suspend_shift' => 'Suspend Shift',
+
+// Modal
+'suspend_shift_title' => 'Suspend Shift',
+'suspension_reason' => 'Reason (Optional)',
+'suspension_reason_placeholder' => 'Enter reason for suspending shift...',
+'cancel' => 'Cancel',
+'suspend_shift_action' => 'Suspend Shift',
+
+// Empty state
+'no_shifts_found' => 'No active shifts currently',
+
+// Confirmations
+'confirm_complete' => 'Are you sure you want to complete this shift?',
+    'enable' => 'Enable',
+    'shift_types' => [
+        'shift_type' => 'Shift Type',
+        'morning' => 'Morning',
+        'evening' => 'Evening',
+        'night' => 'Night'
+    ],
+    'shift_statuses' => [
+        'scheduled' => 'Scheduled',
+        'active' => 'Active',
+        'completed' => 'Completed',
+        'cancelled' => 'Cancelled'
+    ]
 ];

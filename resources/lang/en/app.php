@@ -128,6 +128,12 @@ return [
         'login' => 'Login',
     ],
 
+    // Pagination
+    'showing' => 'Showing',
+    'to' => 'To',
+    'of' => 'Of',
+    'actions' => 'Actions',
+
     // Messages
     'messages' => [
         'success' => [

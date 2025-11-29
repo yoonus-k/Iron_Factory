@@ -49,7 +49,7 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    {{ __('workers.workers') }} {{ __('app.list') }}
+                    {{ __('workers.workers') }} {{ __('workers.list') }}
                 </h4>
                 @if(auth()->user()->hasPermission('WORKERS_CREATE'))
                 <a href="{{ route('manufacturing.workers.create') }}" class="um-btn um-btn-primary">
@@ -64,11 +64,11 @@
                 <form method="GET" action="{{ route('manufacturing.workers.index') }}">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('app.search') }} ({{ __('workers.worker_name') }}, {{ __('workers.worker_code') }}, {{ __('workers.national_id') }}...)" value="{{ request('search') }}">
+                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('app.buttons.search') }} ({{ __('workers.worker_name') }}, {{ __('workers.worker_code') }}, {{ __('workers.national_id') }}...)" value="{{ request('search') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="position" class="um-form-control">
-                                <option value="">{{ __('app.all') }} {{ __('app.jobs') }}</option>
+                                <option value="">{{ __('workers.all') }} {{ __('workers.positions') }}</option>
                                 <option value="worker" {{ request('position') == 'worker' ? 'selected' : '' }}>{{ __('workers.worker') }}</option>
                                 <option value="supervisor" {{ request('position') == 'supervisor' ? 'selected' : '' }}>{{ __('workers.supervisor') }}</option>
                                 <option value="technician" {{ request('position') == 'technician' ? 'selected' : '' }}>{{ __('workers.technician') }}</option>
@@ -77,7 +77,7 @@
                         </div>
                         <div class="um-form-group">
                             <select name="is_active" class="um-form-control">
-                                <option value="">{{ __('app.all') }} {{ __('app.status.status') }}</option>
+                                <option value="">{{ __('workers.all') }} {{ __('workers.status') }}</option>
                                 <option value="1" {{ request('is_active') == '1' ? 'selected' : '' }}>{{ __('workers.active') }}</option>
                                 <option value="0" {{ request('is_active') == '0' ? 'selected' : '' }}>{{ __('workers.inactive') }}</option>
                             </select>
@@ -108,8 +108,8 @@
                             <th>{{ __('workers.phone') }}</th>
                             <th>{{ __('workers.shift_pref') }}</th>
                             <th>{{ __('workers.salary_hour') }}</th>
-                            <th>{{ __('app.status.status') }}</th>
-                            <th>{{ __('app.actions') }}</th>
+                            <th>{{ __('workers.status') }}</th>
+                            <th>{{ __('workers.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>

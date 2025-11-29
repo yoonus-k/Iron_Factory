@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تعديل الوحدة')
+@section('title', __('warehouse.edit_unit'))
 
 @section('content')
 
@@ -11,16 +11,16 @@
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
-            تعديل الوحدة
+            {{ __('warehouse.edit_unit') }}
         </h1>
         <nav class="um-breadcrumb-nav">
             <span>
-                <i class="feather icon-home"></i> لوحة التحكم
+                <i class="feather icon-home"></i> {{ __('warehouse.dashboard') }}
             </span>
             <i class="feather icon-chevron-left"></i>
-            <span>الوحدات</span>
+            <span>{{ __('warehouse.units') }}</span>
             <i class="feather icon-chevron-left"></i>
-            <span>تعديل وحدة</span>
+            <span>{{ __('warehouse.edit_unit') }}</span>
         </nav>
     </div>
 
@@ -39,8 +39,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">معلومات الوحدة</h3>
-                        <p class="section-subtitle">تعديل بيانات الوحدة</p>
+                        <h3 class="section-title">{{ __('warehouse.unit_information') }}</h3>
+                        <p class="section-subtitle">{{ __('warehouse.edit_unit_data') }}</p>
                     </div>
                 </div>
 
@@ -48,7 +48,7 @@
                     <!-- رمز الوحدة -->
                     <div class="form-group">
                         <label for="unit_code" class="form-label">
-                            رمز الوحدة
+                            {{ __('warehouse.unit_code') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -58,7 +58,7 @@
                                 <path d="M3 18h18"></path>
                             </svg>
                             <input type="text" name="unit_code" id="unit_code" class="form-input @error('unit_code') error @enderror"
-                                   placeholder="مثال: KG" value="{{ old('unit_code', $unit->unit_code) }}" required>
+                                   placeholder="{{ __('warehouse.example') }}: KG" value="{{ old('unit_code', $unit->unit_code) }}" required>
                         </div>
                         @error('unit_code')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -69,7 +69,7 @@
                     <!-- اسم الوحدة -->
                     <div class="form-group">
                         <label for="unit_name" class="form-label">
-                            اسم الوحدة (عربي)
+                            {{ __('warehouse.unit_name_ar') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -78,7 +78,7 @@
                                 <line x1="4" y1="8" x2="20" y2="8"></line>
                             </svg>
                             <input type="text" name="unit_name" id="unit_name" class="form-input @error('unit_name') error @enderror"
-                                   placeholder="مثال: كيلوغرام" value="{{ old('unit_name', $unit->unit_name) }}" required>
+                                   placeholder="{{ __('warehouse.example') }}: كيلوغرام" value="{{ old('unit_name', $unit->unit_name) }}" required>
                         </div>
                         @error('unit_name')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -88,10 +88,10 @@
 
                     <!-- اسم الوحدة الإنجليزي -->
                     <div class="form-group">
-                        <label for="unit_name_en" class="form-label">اسم الوحدة (إنجليزي)</label>
+                        <label for="unit_name_en" class="form-label">{{ __('warehouse.unit_name_en') }}</label>
                         <div class="input-wrapper">
                             <input type="text" name="unit_name_en" id="unit_name_en" class="form-input @error('unit_name_en') error @enderror"
-                                   placeholder="مثال: Kilogram" value="{{ old('unit_name_en', $unit->unit_name_en) }}">
+                                   placeholder="{{ __('warehouse.example') }}: Kilogram" value="{{ old('unit_name_en', $unit->unit_name_en) }}">
                         </div>
                         @error('unit_name_en')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -101,12 +101,12 @@
                     <!-- اختصار الوحدة -->
                     <div class="form-group">
                         <label for="unit_symbol" class="form-label">
-                            الاختصار
+                            {{ __('warehouse.unit_symbol') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
                             <input type="text" name="unit_symbol" id="unit_symbol" class="form-input @error('unit_symbol') error @enderror"
-                                   placeholder="مثال: كغ" value="{{ old('unit_symbol', $unit->unit_symbol) }}" required maxlength="10">
+                                   placeholder="{{ __('warehouse.example') }}: كغ" value="{{ old('unit_symbol', $unit->unit_symbol) }}" required maxlength="10">
                         </div>
                         @error('unit_symbol')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -117,20 +117,20 @@
                     <!-- نوع الوحدة -->
                     <div class="form-group">
                         <label for="unit_type" class="form-label">
-                            نوع الوحدة
+                            {{ __('warehouse.unit_type') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
                             <select name="unit_type" id="unit_type" class="form-input @error('unit_type') error @enderror" required>
-                                <option value="">-- اختر النوع --</option>
-                                <option value="weight" {{ old('unit_type', $unit->unit_type) == 'weight' ? 'selected' : '' }}>الوزن</option>
-                                <option value="length" {{ old('unit_type', $unit->unit_type) == 'length' ? 'selected' : '' }}>الطول</option>
-                                <option value="volume" {{ old('unit_type', $unit->unit_type) == 'volume' ? 'selected' : '' }}>الحجم</option>
-                                <option value="area" {{ old('unit_type', $unit->unit_type) == 'area' ? 'selected' : '' }}>المساحة</option>
-                                <option value="quantity" {{ old('unit_type', $unit->unit_type) == 'quantity' ? 'selected' : '' }}>الكمية</option>
-                                <option value="time" {{ old('unit_type', $unit->unit_type) == 'time' ? 'selected' : '' }}>الوقت</option>
-                                <option value="temperature" {{ old('unit_type', $unit->unit_type) == 'temperature' ? 'selected' : '' }}>درجة الحرارة</option>
-                                <option value="other" {{ old('unit_type', $unit->unit_type) == 'other' ? 'selected' : '' }}>أخرى</option>
+                                <option value="">-- {{ __('warehouse.choose_type') }} --</option>
+                                <option value="weight" {{ old('unit_type', $unit->unit_type) == 'weight' ? 'selected' : '' }}>{{ __('warehouse.weight') }}</option>
+                                <option value="length" {{ old('unit_type', $unit->unit_type) == 'length' ? 'selected' : '' }}>{{ __('warehouse.length') }}</option>
+                                <option value="volume" {{ old('unit_type', $unit->unit_type) == 'volume' ? 'selected' : '' }}>{{ __('warehouse.volume') }}</option>
+                                <option value="area" {{ old('unit_type', $unit->unit_type) == 'area' ? 'selected' : '' }}>{{ __('warehouse.area') }}</option>
+                                <option value="quantity" {{ old('unit_type', $unit->unit_type) == 'quantity' ? 'selected' : '' }}>{{ __('warehouse.quantity') }}</option>
+                                <option value="time" {{ old('unit_type', $unit->unit_type) == 'time' ? 'selected' : '' }}>{{ __('warehouse.time') }}</option>
+                                <option value="temperature" {{ old('unit_type', $unit->unit_type) == 'temperature' ? 'selected' : '' }}>{{ __('warehouse.temperature') }}</option>
+                                <option value="other" {{ old('unit_type', $unit->unit_type) == 'other' ? 'selected' : '' }}>{{ __('warehouse.other') }}</option>
                             </select>
                         </div>
                         @error('unit_type')

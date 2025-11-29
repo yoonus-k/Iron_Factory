@@ -50,7 +50,7 @@
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> {{ __('app.menu.dashboard') }}
+                    <i class="feather icon-home"></i> {{ __('menu.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
                 <span>{{ __('workers.workers') }}</span>

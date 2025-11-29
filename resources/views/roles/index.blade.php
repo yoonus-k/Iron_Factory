@@ -581,16 +581,14 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="fas fa-user-tag"></i>
-                إدارة الأدوار
+                {{ __('roles.roles_management') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('roles.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>الأدوار والصلاحيات</span>
-                <i class="feather icon-chevron-left"></i>
-                <span>الأدوار</span>
+                <span>{{ __('roles.roles') }}</span>
             </nav>
         </div>
 
@@ -621,12 +619,12 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="fas fa-user-tag"></i>
-                    قائمة الأدوار
+                    {{ __('roles.roles_list') }}
                 </h4>
                 @if(canCreate('MANAGE_ROLES'))
                     <a href="{{ route('roles.create') }}" class="um-btn um-btn-primary">
                         <i class="fas fa-plus"></i>
-                        إضافة دور جديد
+                        {{ __('roles.add_new_role') }}
                     </a>
                 @endif
             </div>
@@ -636,14 +634,14 @@
                 <table class="um-table">
                     <thead>
                         <tr>
-                            <th>الرقم</th>
-                            <th>اسم الدور</th>
-                            <th>الاسم بالإنجليزية</th>
-                            <th>الكود</th>
-                            <th>المستوى</th>
-                            <th>عدد الصلاحيات</th>
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
+                            <th>{{ __('roles.number') }}</th>
+                            <th>{{ __('roles.name') }}</th>
+                            <th>{{ __('roles.name') }} (EN)</th>
+                            <th>{{ __('roles.descriptive_name_code') }}</th>
+                            <th>{{ __('roles.level_col') }}</th>
+                            <th>{{ __('roles.permissions_count') }}</th>
+                            <th>{{ __('roles.status') }}</th>
+                            <th>{{ __('roles.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -664,9 +662,9 @@
                                 <td>{{ $role->permissions->count() }}</td>
                                 <td>
                                     @if($role->is_active)
-                                        <span class="badge bg-success">نشط</span>
+                                        <span class="badge bg-success">{{ __('roles.active') }}</span>
                                     @else
-                                        <span class="badge bg-danger">غير نشط</span>
+                                        <span class="badge bg-danger">{{ __('roles.inactive') }}</span>
                                     @endif
                                 </td>
                                 <td>
@@ -676,20 +674,19 @@
                                         </button>
                                         <div class="um-dropdown-menu">
                                             @if(canUpdate('MANAGE_ROLES'))
-                                                <a href="{{ route('roles.edit', $role) }}" class="um-dropdown-item um-btn-edit"
-                                                   @if($role->is_system) onclick="return confirm('هذا دور نظام. بعض الإعدادات لا يمكن تعديلها')" @endif>
+                                                <a href="{{ route('roles.edit', $role) }}" class="um-dropdown-item um-btn-edit">
                                                     <i class="feather icon-edit-2"></i>
-                                                    <span>تعديل</span>
+                                                    <span>{{ __('roles.edit') }}</span>
                                                 </a>
                                             @endif
-                                            
+
                                             @if(canDelete('MANAGE_ROLES') && !$role->is_system)
                                                 <form method="POST" action="{{ route('roles.destroy', $role) }}" style="display: inline;" class="delete-form">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="um-dropdown-item um-btn-delete" style="width: 100%; text-align: right; border: none; background: none; cursor: pointer;">
                                                         <i class="feather icon-trash-2"></i>
-                                                        <span>حذف</span>
+                                                        <span>{{ __('roles.delete') }}</span>
                                                     </button>
                                                 </form>
                                             @endif
@@ -700,7 +697,7 @@
                         @empty
                             <tr>
                                 <td colspan="8" class="text-center text-muted">
-                                    <i class="feather icon-inbox"></i> لا توجد أدوار
+                                    <i class="feather icon-inbox"></i> {{ __('roles.no_roles_found') }}
                                 </td>
                             </tr>
                         @endforelse
@@ -713,8 +710,8 @@
                 <div class="um-pagination-section">
                     <div>
                         <p class="um-pagination-info">
-                            عرض {{ $roles->firstItem() }} إلى {{ $roles->lastItem() }} من أصل
-                            {{ $roles->total() }} دور
+                            {{ __('roles.showing') }} {{ $roles->firstItem() }} {{ __('roles.to') }} {{ $roles->lastItem() }} {{ __('roles.of') }}
+                            {{ $roles->total() }} {{ __('roles.role') }}
                         </p>
                     </div>
                     <div>
@@ -745,12 +742,12 @@
                     e.preventDefault();
 
                     Swal.fire({
-                        title: 'تأكيد الحذف',
-                        text: 'هل أنت متأكد من حذف هذا الدور؟ هذا الإجراء لا يمكن التراجع عنه!',
+                        title: '{{ __('roles.confirm_delete') }}',
+                        text: '{{ __('roles.confirm_delete_message') }}',
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'نعم، احذف',
-                        cancelButtonText: 'إلغاء',
+                        confirmButtonText: '{{ __('roles.yes_delete') }}',
+                        cancelButtonText: '{{ __('roles.no_cancel') }}',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {

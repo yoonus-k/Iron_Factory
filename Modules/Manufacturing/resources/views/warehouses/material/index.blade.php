@@ -101,14 +101,14 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-package"></i>
-                إدارة المواد
+                {{ __('warehouse.materials_management') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('warehouse.breadcrumb_dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المواد</span>
+                <span>{{ __('warehouse.materials') }}</span>
             </nav>
         </div>
 
@@ -139,13 +139,13 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    قائمة المواد
+                    {{ __('warehouse.material_name_col') }}
                 </h4>
                 {{-- ✅ التحقق من صلاحية الإضافة --}}
                 @if (auth()->user()->hasPermission('WAREHOUSE_MATERIALS_CREATE'))
                     <a href="{{ route('manufacturing.warehouse-products.create') }}" class="um-btn um-btn-primary">
                         <i class="feather icon-plus"></i>
-                        إضافة مادة جديدة
+                        {{ __('warehouse.add_material') }}
                     </a>
                 @endif
             </div>
@@ -155,35 +155,34 @@
                 <form method="GET">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث في المواد..."
+                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('warehouse.search_materials') }}"
                                 value="{{ request('search') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="category" class="um-form-control">
-                                <option value="">-- اختر الفئة --</option>
-                                <option value="raw" {{ request('category') == 'raw' ? 'selected' : '' }}>خام</option>
+                                <option value="">{{ __('warehouse.select_category') }}</option>
+                                <option value="raw" {{ request('category') == 'raw' ? 'selected' : '' }}>{{ __('warehouse.raw') }}</option>
                                 <option value="manufactured" {{ request('category') == 'manufactured' ? 'selected' : '' }}>
-                                    مصنع</option>
-                                <option value="finished" {{ request('category') == 'finished' ? 'selected' : '' }}>جاهز
+                                    {{ __('warehouse.manufactured') }}</option>
+                                <option value="finished" {{ request('category') == 'finished' ? 'selected' : '' }}>{{ __('warehouse.finished') }}
                                 </option>
                             </select>
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
-                                <option value="">-- اختر الحالة --</option>
-                                <option value="available" {{ request('status') == 'available' ? 'selected' : '' }}>متوفر
+                                <option value="">{{ __('warehouse.select_status') }}</option>
+                                <option value="available" {{ request('status') == 'available' ? 'selected' : '' }}>{{ __('warehouse.available') }}
                                 </option>
-                                <option value="in_use" {{ request('status') == 'in_use' ? 'selected' : '' }}>قيد الاستخدام
+                                <option value="in_use" {{ request('status') == 'in_use' ? 'selected' : '' }}>{{ __('warehouse.in_use') }}
                                 </option>
-                                <option value="consumed" {{ request('status') == 'consumed' ? 'selected' : '' }}>مستهلك
+                                <option value="consumed" {{ request('status') == 'consumed' ? 'selected' : '' }}>{{ __('warehouse.consumed') }}
                                 </option>
-                                <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>منتهي
-                                    الصلاحية</option>
+                                <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>{{ __('warehouse.expired') }}</option>
                             </select>
                         </div>
                         <div class="um-form-group">
                             <select name="supplier_id" class="um-form-control">
-                                <option value="">-- اختر المورد --</option>
+                                <option value="">{{ __('warehouse.select_supplier') }}</option>
                                 @foreach ($suppliers as $supplier)
                                     <option value="{{ $supplier->id }}"
                                         {{ request('supplier_id') == $supplier->id ? 'selected' : '' }}>
@@ -195,11 +194,11 @@
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                بحث
+                                {{ __('warehouse.search') }}
                             </button>
                             <a href="{{ route('manufacturing.warehouse-products.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-refresh-cw"></i>
-                                إعادة تعيين
+                                {{ __('warehouse.reset') }}
                             </a>
                         </div>
                     </div>
@@ -212,15 +211,15 @@
                     <thead>
                         <tr>
 
-                            <th>رمز المادة</th>
-                            <th>اسم المادة</th>
-                            <th>الفئة</th>
+                            <th>{{ __('warehouse.material_code') }}</th>
+                            <th>{{ __('warehouse.material_name_col') }}</th>
+                            <th>{{ __('warehouse.category_col') }}</th>
 
-                            <th>الوحدة</th>
+                            <th>{{ __('warehouse.unit_col') }}</th>
 
-                            <th>الحالة</th>
-                            <th>تاريخ الإضافة</th>
-                            <th>الإجراءات</th>
+                            <th>{{ __('warehouse.status_col') }}</th>
+                            <th>{{ __('warehouse.date_added') }}</th>
+                            <th>{{ __('warehouse.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -249,22 +248,22 @@
                                     @if ($material->status === 'available')
                                         <span
                                             class="bg-success text-white px-2 py-1 rounded d-inline-flex align-items-center">
-                                            <i class="feather icon-check-circle mr-1"></i> متوفر
+                                            <i class="feather icon-check-circle mr-1"></i> {{ __('warehouse.available') }}
                                         </span>
                                     @elseif ($material->status === 'in_use')
                                         <span
                                             class="bg-warning text-dark px-2 py-1 rounded d-inline-flex align-items-center">
-                                            <i class="feather icon-clock mr-1"></i> قيد الاستخدام
+                                            <i class="feather icon-clock mr-1"></i> {{ __('warehouse.in_use') }}
                                         </span>
                                     @elseif ($material->status === 'consumed')
                                         <span
                                             class="bg-danger text-white px-2 py-1 rounded d-inline-flex align-items-center">
-                                            <i class="feather icon-x-circle mr-1"></i> مستهلك
+                                            <i class="feather icon-x-circle mr-1"></i> {{ __('warehouse.consumed') }}
                                         </span>
                                     @elseif ($material->status === 'expired')
                                         <span
                                             class="bg-secondary text-white px-2 py-1 rounded d-inline-flex align-items-center">
-                                            <i class="feather icon-alert-circle mr-1"></i> منتهي الصلاحية
+                                            <i class="feather icon-alert-circle mr-1"></i> {{ __('warehouse.expired') }}
                                         </span>
                                     @else
                                         <span class="bg-dark text-white px-2 py-1 rounded">N/A</span>
@@ -284,7 +283,7 @@
                                     {{-- ✅ التحقق من الصلاحيات قبل عرض الأزرار --}}
                                     @if (auth()->user()->hasPermission('WAREHOUSE_MATERIALS_READ') || auth()->user()->hasPermission('WAREHOUSE_MATERIALS_UPDATE') || auth()->user()->hasPermission('WAREHOUSE_MATERIALS_DELETE'))
                                         <div class="um-dropdown">
-                                            <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                            <button class="um-btn-action um-btn-dropdown" title="{{ __('warehouse.actions') }}">
                                                 <i class="feather icon-more-vertical"></i>
                                             </button>
                                             <div class="um-dropdown-menu">
@@ -293,7 +292,7 @@
                                                     <a href="{{ route('manufacturing.warehouse-products.show', $material->id) }}"
                                                         class="um-dropdown-item um-btn-view">
                                                         <i class="feather icon-eye"></i>
-                                                        <span>عرض</span>
+                                                        <span>{{ __('warehouse.view') }}</span>
                                                     </a>
                                                 @endif
 
@@ -302,7 +301,7 @@
                                                     <a href="{{ route('manufacturing.warehouse-products.edit', $material->id) }}"
                                                         class="um-dropdown-item um-btn-edit">
                                                         <i class="feather icon-edit-2"></i>
-                                                        <span>تعديل</span>
+                                                        <span>{{ __('warehouse.edit') }}</span>
                                                     </a>
                                                 @endif
 
@@ -315,14 +314,14 @@
                                                         @method('DELETE')
                                                         <button type="submit" class="um-dropdown-item um-btn-delete">
                                                             <i class="feather icon-trash-2"></i>
-                                                            <span>حذف</span>
+                                                            <span>{{ __('warehouse.delete') }}</span>
                                                         </button>
                                                     </form>
                                                 @endif
                                             </div>
                                         </div>
                                     @else
-                                        <span class="text-muted small">بدون صلاحيات</span>
+                                        <span class="text-muted small">{{ __('warehouse.no_warehouses_found') }}</span>
                                     @endif
                                 </td>
 
@@ -330,7 +329,7 @@
                         @empty
                             <tr>
                                 <td colspan="12" class="text-center text-muted">
-                                    <i class="feather icon-inbox"></i> لا توجد مواد لعرضها
+                                    <i class="feather icon-inbox"></i> {{ __('warehouse.no_materials_found') }}
                                 </td>
                             </tr>
                         @endforelse
@@ -343,8 +342,8 @@
                 <div class="um-pagination-section">
                     <div>
                         <p class="um-pagination-info">
-                            عرض {{ $materials->firstItem() }} إلى {{ $materials->lastItem() }} من أصل
-                            {{ $materials->total() }} مادة
+                            {{ __('warehouse.showing') }} {{ $materials->firstItem() }} {{ __('warehouse.to') }} {{ $materials->lastItem() }} {{ __('warehouse.of') }}
+                            {{ $materials->total() }} {{ __('warehouse.material') }}
                         </p>
                     </div>
                     <div>
@@ -364,12 +363,12 @@
                     e.preventDefault();
 
                     Swal.fire({
-                        title: 'تأكيد الحذف',
-                        text: 'هل أنت متأكد من حذف هذه المادة؟ هذا الإجراء لا يمكن التراجع عنه!',
+                        title: '{{ __('warehouse.confirm_delete_title') }}',
+                        text: '{{ __('warehouse.confirm_delete') }}',
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'نعم، احذف',
-                        cancelButtonText: 'إلغاء',
+                        confirmButtonText: '{{ __('warehouse.yes_delete') }}',
+                        cancelButtonText: '{{ __('warehouse.no_cancel') }}',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {

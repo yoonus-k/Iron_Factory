@@ -51,7 +51,7 @@
                 </h4>
                 <div style="display: flex; gap: 10px;">
 @if(auth()->user()->hasPermission('SHIFT_HANDOVERS_READ'))
-                    <a href="{{ route('manufacturing.shift-handovers.index') }}" class="um-btn um-btn-info">
+                    <a href="{{ route('manufacturing.shift-handovers.index') }}" class="um-btn um-btn-primary">
                         <i class="feather icon-exchange-2"></i>
                         {{ __('shifts-workers.shift_handovers') }}
                     </a>
@@ -124,7 +124,7 @@
                             <th>{{ __('shifts-workers.workers_count') }}</th>
                             <th>{{ __('shifts-workers.supervisor') }}</th>
                             <th>{{ __('shifts-workers.status') }}</th>
-                            <th>{{ __('shifts-workers.actions') }}</th>
+                            <th>{{ __('workers.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -147,7 +147,7 @@
                             </td>
                             <td>
                                 <div class="um-dropdown">
-                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                    <button class="um-btn-action um-btn-dropdown" title="{{ __('workers.actions') }}">
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">

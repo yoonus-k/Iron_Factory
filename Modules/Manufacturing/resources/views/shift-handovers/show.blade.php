@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تفاصيل النقل')
+@section('title', __('shifts-workers.handover_details') . ' - #' . $handover->id)
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
@@ -14,15 +14,15 @@
                         <i class="feather icon-exchange-2"></i>
                     </div>
                     <div class="header-info">
-                        <h1>نقل الوردية</h1>
+                        <h1>{{ __('shifts-workers.shift_handover') }}</h1>
                         <div class="badges">
                             <span class="badge category">
                                 <i class="feather icon-layers"></i>
-                                المرحلة {{ $handover->stage_number }}
+                                {{ __('shifts-workers.stage') }} {{ $handover->stage_number }}
                             </span>
                             <span class="badge {{ $handover->supervisor_approved ? 'active' : 'scheduled' }}">
                                 <i class="feather icon-{{ $handover->supervisor_approved ? 'check-circle' : 'clock' }}"></i>
-                                {{ $handover->supervisor_approved ? 'موافق عليه' : 'قيد الانتظار' }}
+                                {{ $handover->supervisor_approved ? __('shifts-workers.approved') : __('shifts-workers.pending') }}
                             </span>
                         </div>
                     </div>
@@ -33,7 +33,7 @@
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>
-                        الرجوع
+                        {{ __('shifts-workers.back_button') }}
                     </a>
                 </div>
             </div>
@@ -50,7 +50,7 @@
                             <circle cx="9" cy="7" r="4"></circle>
                         </svg>
                     </div>
-                    <h3 class="card-title">من العامل</h3>
+                    <h3 class="card-title">{{ __('shifts-workers.from_user') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
@@ -59,9 +59,9 @@
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
-                            الاسم
+                            {{ __('shifts-workers.name') }}
                         </div>
-                        <div class="info-value">{{ $handover->fromUser->name ?? 'غير محدد' }}</div>
+                        <div class="info-value">{{ $handover->fromUser->name ?? __('shifts-workers.not_specified') }}</div>
                     </div>
                 </div>
             </div>
@@ -75,7 +75,7 @@
                             <circle cx="9" cy="7" r="4"></circle>
                         </svg>
                     </div>
-                    <h3 class="card-title">إلى العامل</h3>
+                    <h3 class="card-title">{{ __('shifts-workers.to_user') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
@@ -84,9 +84,9 @@
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
-                            الاسم
+                            {{ __('shifts-workers.name') }}
                         </div>
-                        <div class="info-value" style="color: #28a745;">{{ $handover->toUser->name ?? 'غير محدد' }}</div>
+                        <div class="info-value" style="color: #28a745;">{{ $handover->toUser->name ?? __('shifts-workers.not_specified') }}</div>
                     </div>
                 </div>
             </div>
@@ -100,7 +100,7 @@
                             <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
                     </div>
-                    <h3 class="card-title">تفاصيل النقل</h3>
+                    <h3 class="card-title">{{ __('shifts-workers.handover_details') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
@@ -108,10 +108,10 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                             </svg>
-                            المرحلة
+                            {{ __('shifts-workers.stage') }}
                         </div>
-                        <div class="info-value">
-                            <span class="status active">المرحلة {{ $handover->stage_number }}</span>
+                        <div class="value">
+                            <span class="status active">{{ __('shifts-workers.stage') }} {{ $handover->stage_number }}</span>
                         </div>
                     </div>
 
@@ -123,7 +123,7 @@
                                 <line x1="8" y1="2" x2="8" y2="6"></line>
                                 <line x1="3" y1="10" x2="21" y2="10"></line>
                             </svg>
-                            وقت النقل
+                            {{ __('shifts-workers.handover_time') }}
                         </div>
                         <div class="info-value">{{ $handover->handover_time->format('Y-m-d H:i:s') }}</div>
                     </div>
@@ -133,13 +133,13 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"></path>
                             </svg>
-                            الحالة
+                            {{ __('shifts-workers.handover_status') }}
                         </div>
                         <div class="info-value">
                             @if($handover->supervisor_approved)
-                                <span class="status active">موافق عليه</span>
+                                <span class="status active">{{ __('shifts-workers.approved') }}</span>
                             @else
-                                <span class="status scheduled">قيد الانتظار</span>
+                                <span class="status scheduled">{{ __('shifts-workers.pending') }}</span>
                             @endif
                         </div>
                     </div>
@@ -155,7 +155,7 @@
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                     </div>
-                    <h3 class="card-title">بيانات الموافقة</h3>
+                    <h3 class="card-title">{{ __('shifts-workers.approval_info') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
@@ -164,9 +164,9 @@
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
-                            الموافق
+                            {{ __('shifts-workers.approved_by') }}
                         </div>
-                        <div class="info-value">{{ $handover->approver->name ?? 'N/A' }}</div>
+                        <div class="info-value">{{ $handover->approver->name ?? __('shifts-workers.none') }}</div>
                     </div>
 
                     <div class="info-item">
@@ -177,7 +177,7 @@
                                 <line x1="8" y1="2" x2="8" y2="6"></line>
                                 <line x1="3" y1="10" x2="21" y2="10"></line>
                             </svg>
-                            تاريخ الموافقة
+                            {{ __('shifts-workers.approval_date') }}
                         </div>
                         <div class="info-value">{{ $handover->updated_at->format('Y-m-d H:i:s') }}</div>
                     </div>
@@ -195,7 +195,7 @@
                             <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
-                    <h3 class="card-title">عناصر النقل</h3>
+                    <h3 class="card-title">{{ __('shifts-workers.handover_items') }}</h3>
                 </div>
                 <div class="card-body">
                     <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -220,7 +220,7 @@
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                         </svg>
                     </div>
-                    <h3 class="card-title">الملاحظات</h3>
+                    <h3 class="card-title">{{ __('shifts-workers.notes_section') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
@@ -244,22 +244,22 @@
                         <circle cx="5" cy="12" r="1"></circle>
                     </svg>
                 </div>
-                <h3 class="card-title">الإجراءات</h3>
+                <h3 class="card-title">{{ __('shifts-workers.available_actions') }}</h3>
             </div>
             <div class="card-body">
                 <div class="actions-grid">
                     @can('SHIFT_HANDOVERS_APPROVE')
                     <form action="{{ route('manufacturing.shift-handovers.approve', $handover->id) }}" method="POST" style="display: inline-block; width: 48%;">
                         @csrf
-                        <button type="submit" class="action-btn activate" style="width: 100%; text-align: right;" onclick="return confirm('هل أنت متأكد من الموافقة على هذا النقل؟');">
+                        <button type="submit" class="action-btn activate" style="width: 100%; text-align: right;" onclick="return confirm('{{ __('shifts-workers.confirm_approve') }}');">
                             <div class="action-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="20 6 9 17 4 12"></polyline>
                                 </svg>
                             </div>
                             <div class="action-text">
-                                <h4>الموافقة</h4>
-                                <p>الموافقة على نقل الوردية</p>
+                                <h4>{{ __('shifts-workers.approval_info') }}</h4>
+                                <p>{{ __('shifts-workers.handover_approved') }}</p>
                             </div>
                         </button>
                     </form>
@@ -291,7 +291,7 @@
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                 </div>
-                <h3 class="card-title">تم الموافقة على النقل</h3>
+                <h3 class="card-title">{{ __('shifts-workers.handover_approved') }}</h3>
             </div>
             <div class="card-body">
                 <div style="text-align: center; padding: 20px;">
@@ -309,27 +309,27 @@
     <div id="rejectModal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>رفض النقل</h3>
+                <h3>{{ __('shifts-workers.reject_handover') }}</h3>
                 <button class="close-btn" onclick="closeRejectModal()">×</button>
             </div>
             <form id="rejectForm" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="rejection_reason">سبب الرفض</label>
+                        <label for="rejection_reason">{{ __('shifts-workers.rejection_reason_label') }}</label>
                         <textarea
                             id="rejection_reason"
                             name="rejection_reason"
                             class="form-control"
                             rows="4"
-                            placeholder="أدخل سبب الرفض..."
+                            placeholder="{{ __('shifts-workers.rejection_reason_placeholder') }}"
                             required>
                         </textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeRejectModal()">إلغاء</button>
-                    <button type="submit" class="btn btn-danger">رفض</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeRejectModal()">{{ __('shifts-workers.cancel_button') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ __('shifts-workers.reject_button') }}</button>
                 </div>
             </form>
         </div>

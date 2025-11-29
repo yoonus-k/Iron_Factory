@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'نقل الورديات')
+@section('title', __('shifts-workers.shift_handovers'))
 
 @section('content')
 
@@ -9,14 +9,14 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-exchange-2"></i>
-                نقل الورديات
+                {{ __('shifts-workers.shift_handovers') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('shifts-workers.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>نقل الورديات</span>
+                <span>{{ __('shifts-workers.shift_handovers') }}</span>
             </nav>
         </div>
 
@@ -49,13 +49,13 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    قائمة النقلات
+                    {{ __('shifts-workers.handover_list') }}
                 </h4>
                 <div style="display: flex; gap: 10px;">
 
                     <a href="{{ route('manufacturing.shifts-workers.index') }}" class="um-btn um-btn-primary">
                         <i class="feather icon-arrow-left"></i>
-                        الرجوع
+                        {{ __('shifts-workers.back_button') }}
                     </a>
                 </div>
             </div>
@@ -66,18 +66,18 @@
                     <div class="um-filter-row">
                         <div class="um-form-group">
                             <select name="approval_status" class="um-form-control">
-                                <option value="">جميع الحالات</option>
-                                <option value="approved" {{ request('approval_status') === 'approved' ? 'selected' : '' }}>موافق عليه</option>
-                                <option value="pending" {{ request('approval_status') === 'pending' ? 'selected' : '' }}>قيد الانتظار</option>
+                                <option value="">{{ __('shifts-workers.all_statuses') }}</option>
+                                <option value="approved" {{ request('approval_status') === 'approved' ? 'selected' : '' }}>{{ __('shifts-workers.approved') }}</option>
+                                <option value="pending" {{ request('approval_status') === 'pending' ? 'selected' : '' }}>{{ __('shifts-workers.pending') }}</option>
                             </select>
                         </div>
                         <div class="um-form-group">
                             <select name="stage_number" class="um-form-control">
-                                <option value="">جميع المراحل</option>
-                                <option value="1" {{ request('stage_number') == '1' ? 'selected' : '' }}>المرحلة الأولى</option>
-                                <option value="2" {{ request('stage_number') == '2' ? 'selected' : '' }}>المرحلة الثانية</option>
-                                <option value="3" {{ request('stage_number') == '3' ? 'selected' : '' }}>المرحلة الثالثة</option>
-                                <option value="4" {{ request('stage_number') == '4' ? 'selected' : '' }}>المرحلة الرابعة</option>
+                                <option value="">{{ __('shifts-workers.all_stages') }}</option>
+                                <option value="1" {{ request('stage_number') == '1' ? 'selected' : '' }}>{{ __('shifts-workers.stage_first') }}</option>
+                                <option value="2" {{ request('stage_number') == '2' ? 'selected' : '' }}>{{ __('shifts-workers.stage_second') }}</option>
+                                <option value="3" {{ request('stage_number') == '3' ? 'selected' : '' }}>{{ __('shifts-workers.stage_third') }}</option>
+                                <option value="4" {{ request('stage_number') == '4' ? 'selected' : '' }}>{{ __('shifts-workers.stage_fourth') }}</option>
                             </select>
                         </div>
                         <div class="um-form-group">
@@ -86,11 +86,11 @@
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                بحث
+                                {{ __('shifts-workers.apply_filters') }}
                             </button>
                             <a href="{{ route('manufacturing.shift-handovers.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-x"></i>
-                                إعادة تعيين
+                                {{ __('shifts-workers.clear_filters') }}
                             </a>
                         </div>
                     </div>
@@ -103,13 +103,13 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>من</th>
-                            <th>إلى</th>
-                            <th>المرحلة</th>
-                            <th>وقت النقل</th>
-                            <th>الحالة</th>
-                            <th>الموافق</th>
-                            <th>الإجراءات</th>
+                            <th>{{ __('shifts-workers.from_worker') }}</th>
+                            <th>{{ __('shifts-workers.to_worker') }}</th>
+                            <th>{{ __('shifts-workers.stage') }}</th>
+                            <th>{{ __('shifts-workers.handover_time') }}</th>
+                            <th>{{ __('shifts-workers.handover_status') }}</th>
+                            <th>{{ __('shifts-workers.approver') }}</th>
+                            <th>{{ __('workers.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -117,47 +117,47 @@
                         <tr>
                             <td>{{ $handovers->firstItem() + $index }}</td>
                             <td>
-                                <strong>{{ $handover->fromUser->name ?? 'غير محدد' }}</strong>
+                                <strong>{{ $handover->fromUser->name ?? __('shifts-workers.not_specified') }}</strong>
                             </td>
                             <td>
-                                <strong style="color: #28a745;">{{ $handover->toUser->name ?? 'غير محدد' }}</strong>
+                                <strong style="color: #28a745;">{{ $handover->toUser->name ?? __('shifts-workers.not_specified') }}</strong>
                             </td>
                             <td>
-                                <span class="um-badge um-badge-info">المرحلة {{ $handover->stage_number }}</span>
+                                <span class="um-badge um-badge-info">{{ __('shifts-workers.stage') }} {{ $handover->stage_number }}</span>
                             </td>
                             <td>{{ $handover->handover_time->format('Y-m-d H:i') }}</td>
                             <td>
                                 @if($handover->supervisor_approved)
-                                    <span class="um-badge um-badge-success">موافق عليه</span>
+                                    <span class="um-badge um-badge-success">{{ __('shifts-workers.approved') }}</span>
                                 @else
-                                    <span class="um-badge um-badge-warning">قيد الانتظار</span>
+                                    <span class="um-badge um-badge-warning">{{ __('shifts-workers.pending') }}</span>
                                 @endif
                             </td>
-                            <td>{{ $handover->approver->name ?? 'بدون' }}</td>
+                            <td>{{ $handover->approver->name ?? __('shifts-workers.none') }}</td>
                             <td>
                                 <div class="um-dropdown">
-                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                    <button class="um-btn-action um-btn-dropdown" title="{{ __('workers.actions') }}">
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
                                         <a href="{{ route('manufacturing.shift-handovers.show', $handover->id) }}" class="um-dropdown-item um-btn-view">
                                             <i class="feather icon-eye"></i>
-                                            <span>عرض</span>
+                                            <span>{{ __('shifts-workers.view') }}</span>
                                         </a>
                                         @if(!$handover->supervisor_approved)
                                             @if(auth()->user()->hasPermission('SHIFT_HANDOVERS_APPROVE'))
                                             <form method="POST" action="{{ route('manufacturing.shift-handovers.approve', $handover->id) }}" style="display: inline;">
                                                 @csrf
-                                                <button type="submit" class="um-dropdown-item um-btn-feature" onclick="return confirm('هل تريد الموافقة على هذا النقل؟')">
+                                                <button type="submit" class="um-dropdown-item um-btn-feature" onclick="return confirm('{{ __('shifts-workers.confirm_approve') }}')">
                                                     <i class="feather icon-check"></i>
-                                                    <span>موافقة</span>
+                                                    <span>{{ __('shifts-workers.approve_handover') }}</span>
                                                 </button>
                                             </form>
                                             @endif
                                             @if(auth()->user()->hasPermission('SHIFT_HANDOVERS_REJECT'))
                                             <button type="button" class="um-dropdown-item um-btn-delete" onclick="openRejectModal({{ $handover->id }})">
                                                 <i class="feather icon-x"></i>
-                                                <span>رفض</span>
+                                                <span>{{ __('shifts-workers.reject_handover') }}</span>
                                             </button>
                                             @endif
                                         @endif
@@ -169,7 +169,7 @@
                         <tr>
                             <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
                                 <i class="feather icon-inbox" style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
-                                لا توجد نقلات متاحة
+                                {{ __('shifts-workers.no_handovers_found') }}
                             </td>
                         </tr>
                         @endforelse
@@ -181,7 +181,7 @@
             <div class="um-pagination-section">
                 <div>
                     <p class="um-pagination-info">
-                        عرض {{ $handovers->firstItem() ?? 0 }} إلى {{ $handovers->lastItem() ?? 0 }} من أصل {{ $handovers->total() }} نقل
+                        {{ __('shifts-workers.showing') }} {{ $handovers->firstItem() ?? 0 }} {{ __('shifts-workers.to') }} {{ $handovers->lastItem() ?? 0 }} {{ __('shifts-workers.of') }} {{ $handovers->total() }} {{ __('shifts-workers.handovers_count') }}
                     </p>
                 </div>
                 <div>
@@ -195,27 +195,27 @@
     <div id="rejectModal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>رفض النقل</h3>
+                <h3>{{ __('shifts-workers.reject_handover') }}</h3>
                 <button class="close-btn" onclick="closeRejectModal()">×</button>
             </div>
             <form id="rejectForm" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="rejection_reason">سبب الرفض</label>
+                        <label for="rejection_reason">{{ __('shifts-workers.rejection_reason_label') }}</label>
                         <textarea
                             id="rejection_reason"
                             name="rejection_reason"
                             class="form-control"
                             rows="4"
-                            placeholder="أدخل سبب الرفض..."
+                            placeholder="{{ __('shifts-workers.rejection_reason_placeholder') }}"
                             required>
                         </textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeRejectModal()">إلغاء</button>
-                    <button type="submit" class="btn btn-danger">رفض</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeRejectModal()">{{ __('shifts-workers.cancel_button') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ __('shifts-workers.reject_button') }}</button>
                 </div>
             </form>
         </div>

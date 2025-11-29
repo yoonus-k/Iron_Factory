@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تفاصيل حركة المادة')
+@section('title', __('warehouse.movement_details'))
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
@@ -29,17 +29,17 @@
     <div class="container">
         <div class="page-header">
             <div class="header-content">
-                <div class="header-left">
+                    <div class="header-left">
                     <div class="course-icon">
                         <i class="fas fa-exchange-alt"></i>
                     </div>
                     <div class="header-info">
-                        <h1>حركة المادة #{{ $movement->movement_number }}</h1>
+                        <h1>{{ __('warehouse.movement') }} #{{ $movement->movement_number }}</h1>
                         <div class="badges">
-                            <span class="badge badge-{{ 
-                                $movement->movement_type == 'incoming' ? 'success' : 
-                                ($movement->movement_type == 'to_production' ? 'primary' : 
-                                ($movement->movement_type == 'adjustment' || $movement->movement_type == 'reconciliation' ? 'warning' : 'secondary')) 
+                            <span class="badge badge-{{
+                                $movement->movement_type == 'incoming' ? 'success' :
+                                ($movement->movement_type == 'to_production' ? 'primary' :
+                                ($movement->movement_type == 'adjustment' || $movement->movement_type == 'reconciliation' ? 'warning' : 'secondary'))
                             }}">
                                 {{ $movement->movement_type_name }}
                             </span>
@@ -53,7 +53,7 @@
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>
-                        العودة
+                        {{ __('warehouse.back') }}
                     </a>
                 </div>
             </div>
@@ -67,16 +67,16 @@
                             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات الحركة</h3>
+                    <h3 class="card-title">{{ __('warehouse.movement_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">رقم الحركة:</div>
+                        <div class="info-label">{{ __('warehouse.movement_number') }}:</div>
                         <div class="info-value">{{ $movement->movement_number }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">نوع الحركة:</div>
+                        <div class="info-label">{{ __('warehouse.type') }}:</div>
                         <div class="info-value">
                             <span class="badge badge-{{
                                 $movement->movement_type == 'incoming' ? 'success' :
@@ -89,7 +89,7 @@
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">المصدر:</div>
+                        <div class="info-label">{{ __('warehouse.source') }}:</div>
                         <div class="info-value">
                             <span class="badge badge-info">
                                 {{ $movement->source_name }}
@@ -98,12 +98,12 @@
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">تاريخ الحركة:</div>
+                        <div class="info-label">{{ __('warehouse.movement_date') }}:</div>
                         <div class="info-value">{{ $movement->movement_date->format('Y-m-d H:i') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">الحالة:</div>
+                        <div class="info-label">{{ __('warehouse.status') }}:</div>
                         <div class="info-value">
                             @php
                                 $statusClass = '';
@@ -111,15 +111,15 @@
                                 switch($movement->status) {
                                     case 'pending':
                                         $statusClass = 'warning';
-                                        $statusText = 'معلق';
+                                        $statusText = __('warehouse.status_pending');
                                         break;
                                     case 'completed':
                                         $statusClass = 'success';
-                                        $statusText = 'مكتمل';
+                                        $statusText = __('warehouse.status_completed');
                                         break;
                                     case 'cancelled':
                                         $statusClass = 'danger';
-                                        $statusText = 'ملغى';
+                                        $statusText = __('warehouse.status_cancelled');
                                         break;
                                     default:
                                         $statusClass = 'secondary';
@@ -131,7 +131,7 @@
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">رقم المرجع:</div>
+                        <div class="info-label">{{ __('warehouse.reference_number') }}:</div>
                         <div class="info-value">{{ $movement->reference_number ?? 'N/A' }}</div>
                     </div>
                 </div>
@@ -146,34 +146,34 @@
                             <line x1="12" y1="16" x2="12.01" y2="16"></line>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات المادة</h3>
+                    <h3 class="card-title">{{ __('warehouse.material_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">اسم المادة:</div>
+                        <div class="info-label">{{ __('warehouse.material_name') }}:</div>
                         <div class="info-value">{{ $movement->material->name_ar ?? 'N/A' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">الوحدة:</div>
+                        <div class="info-label">{{ __('warehouse.unit') }}:</div>
                         <div class="info-value">{{ $movement->unit->name_ar ?? 'N/A' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">الكمية:</div>
+                        <div class="info-label">{{ __('warehouse.quantity') }}:</div>
                         <div class="info-value">{{ number_format($movement->quantity, 2) }} {{ $movement->unit->symbol_ar ?? '' }}</div>
                     </div>
 
                     @if($movement->unit_price)
                     <div class="info-item">
-                        <div class="info-label">سعر الوحدة:</div>
+                        <div class="info-label">{{ __('warehouse.unit_price') }}:</div>
                         <div class="info-value">{{ number_format($movement->unit_price, 2) }}</div>
                     </div>
                     @endif
 
                     @if($movement->total_value)
                     <div class="info-item">
-                        <div class="info-label">القيمة الإجمالية:</div>
+                        <div class="info-label">{{ __('warehouse.total_value') }}:</div>
                         <div class="info-value">{{ number_format($movement->total_value, 2) }}</div>
                     </div>
                     @endif
@@ -187,22 +187,22 @@
                             <path d="M3 12h18M3 6h18M3 18h18"></path>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات المستودع</h3>
+                    <h3 class="card-title">{{ __('warehouse.warehouse_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">من المستودع:</div>
+                        <div class="info-label">{{ __('warehouse.from') }} {{ __('warehouse.warehouse_management') }}:</div>
                         <div class="info-value">{{ $movement->fromWarehouse->name_ar ?? ($movement->supplier->name ?? 'N/A') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">إلى المستودع:</div>
+                        <div class="info-label">{{ __('warehouse.to') }} {{ __('warehouse.warehouse_management') }}:</div>
                         <div class="info-value">{{ $movement->toWarehouse->name_ar ?? $movement->destination ?? 'N/A' }}</div>
                     </div>
 
                     @if($movement->materialDetail)
                     <div class="info-item">
-                        <div class="info-label">موقع التخزين:</div>
+                        <div class="info-label">{{ __('warehouse.shelf_location') }}:</div>
                         <div class="info-value">{{ $movement->materialDetail->location_in_warehouse ?? 'N/A' }}</div>
                     </div>
                     @endif
@@ -221,26 +221,26 @@
                             <polyline points="10 9 9 9 8 9"></polyline>
                         </svg>
                     </div>
-                    <h3 class="card-title">بيانات الأذن المرتبطة</h3>
+                    <h3 class="card-title">{{ __('warehouse.delivery_note_related_data') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">رقم الأذن:</div>
+                        <div class="info-label">{{ __('warehouse.delivery_note_number') }}:</div>
                         <div class="info-value">{{ $movement->deliveryNote->note_number ?? 'N/A' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">تاريخ الأذن:</div>
+                        <div class="info-label">{{ __('warehouse.delivery_date') }}:</div>
                         <div class="info-value">{{ $movement->deliveryNote->delivery_date->format('Y-m-d') ?? 'N/A' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">النوع:</div>
+                        <div class="info-label">{{ __('warehouse.type') }}:</div>
                         <div class="info-value">
                             @if($movement->deliveryNote->type === 'incoming')
-                                <span class="badge badge-success">واردة</span>
+                                <span class="badge badge-success">{{ __('warehouse.delivery_note_incoming') }}</span>
                             @else
-                                <span class="badge badge-warning">صادرة</span>
+                                <span class="badge badge-warning">{{ __('warehouse.delivery_note_outgoing') }}</span>
                             @endif
                         </div>
                     </div>
@@ -257,32 +257,32 @@
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
                     </div>
-                    <h3 class="card-title">بيانات التسوية</h3>
+                    <h3 class="card-title">{{ __('warehouse.reconciliation_data') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">الوزن الفعلي:</div>
-                        <div class="info-value">{{ number_format($movement->reconciliationLog->actual_weight, 2) }} كجم</div>
+                        <div class="info-label">{{ __('warehouse.actual_weight') }}:</div>
+                        <div class="info-value">{{ number_format($movement->reconciliationLog->actual_weight, 2) }} kg</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">وزن الفاتورة:</div>
-                        <div class="info-value">{{ number_format($movement->reconciliationLog->invoice_weight, 2) }} كجم</div>
+                        <div class="info-label">{{ __('warehouse.invoice_weight') }}:</div>
+                        <div class="info-value">{{ number_format($movement->reconciliationLog->invoice_weight, 2) }} kg</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">الفرق:</div>
-                        <div class="info-value">{{ number_format($movement->reconciliationLog->discrepancy, 2) }} كجم</div>
+                        <div class="info-label">{{ __('warehouse.difference') }}:</div>
+                        <div class="info-value">{{ number_format($movement->reconciliationLog->discrepancy, 2) }} kg</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">الحالة:</div>
+                        <div class="info-label">{{ __('warehouse.status') }}:</div>
                         <div class="info-value">
                             <span class="badge badge-{{
-                                $movement->reconciliationLog->reconciliation_status === 'matched' ? 'success' : 
+                                $movement->reconciliationLog->reconciliation_status === 'matched' ? 'success' :
                                 ($movement->reconciliationLog->reconciliation_status === 'discrepancy' ? 'warning' : 'secondary')
                             }}">
-                                {{ $movement->reconciliationLog->reconciliation_status === 'matched' ? 'مطابق' : 'اختلاف' }}
+                                {{ $movement->reconciliationLog->reconciliation_status === 'matched' ? __('warehouse.matched') : __('warehouse.discrepancy') }}
                             </span>
                         </div>
                     </div>
@@ -298,38 +298,38 @@
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات التسجيل</h3>
+                    <h3 class="card-title">{{ __('warehouse.registration_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">سجل بواسطة:</div>
+                        <div class="info-label">{{ __('warehouse.registered_by') }}:</div>
                         <div class="info-value">{{ $movement->createdBy->name ?? 'N/A' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">الموافقة بواسطة:</div>
-                        <div class="info-value">{{ $movement->approvedBy->name ?? 'لم تتم الموافقة' }}</div>
+                        <div class="info-label">{{ __('warehouse.approved_by') }}:</div>
+                        <div class="info-value">{{ $movement->approvedBy->name ?? __('warehouse.not_approved') }}</div>
                     </div>
 
                     @if($movement->approved_at)
                     <div class="info-item">
-                        <div class="info-label">تاريخ الموافقة:</div>
+                        <div class="info-label">{{ __('warehouse.approval_date') }}:</div>
                         <div class="info-value">{{ $movement->approved_at->format('Y-m-d H:i') }}</div>
                     </div>
                     @endif
 
                     <div class="info-item">
-                        <div class="info-label">عنوان IP:</div>
+                        <div class="info-label">{{ __('warehouse.ip_address') }}:</div>
                         <div class="info-value">{{ $movement->ip_address ?? 'N/A' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">تم الإنشاء:</div>
+                        <div class="info-label">{{ __('warehouse.created_at') }}:</div>
                         <div class="info-value">{{ $movement->created_at->format('Y-m-d H:i:s') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">آخر تحديث:</div>
+                        <div class="info-label">{{ __('warehouse.updated_at') }}:</div>
                         <div class="info-value">{{ $movement->updated_at->format('Y-m-d H:i:s') }}</div>
                     </div>
                 </div>
@@ -348,19 +348,19 @@
                             <line x1="3" y1="18" x2="3.01" y2="18"></line>
                         </svg>
                     </div>
-                    <h3 class="card-title">الوصف والملاحظات</h3>
+                    <h3 class="card-title">{{ __('warehouse.description_and_notes') }}</h3>
                 </div>
                 <div class="card-body">
                     @if($movement->description)
                     <div class="info-item">
-                        <div class="info-label">الوصف:</div>
+                        <div class="info-label">{{ __('warehouse.description') }}:</div>
                         <div class="info-value">{{ $movement->description }}</div>
                     </div>
                     @endif
 
                     @if($movement->notes)
                     <div class="info-item">
-                        <div class="info-label">الملاحظات:</div>
+                        <div class="info-label">{{ __('warehouse.notes') }}:</div>
                         <div class="info-value">{{ $movement->notes }}</div>
                     </div>
                     @endif

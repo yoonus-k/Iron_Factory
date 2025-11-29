@@ -42,24 +42,7 @@
         @endif
 
         <!-- Statistics Cards -->
-        <div class="um-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
-            <div class="um-stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px;">
-                <div style="font-size: 2.5rem; font-weight: 700;">{{ $stats['total'] ?? 0 }}</div>
-                <div style="opacity: 0.9;">{{ __('worker-teams.total_teams') }}</div>
-            </div>
-            <div class="um-stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 20px; border-radius: 12px;">
-                <div style="font-size: 2.5rem; font-weight: 700;">{{ $stats['active'] ?? 0 }}</div>
-                <div style="opacity: 0.9;">{{ __('worker-teams.active_teams') }}</div>
-            </div>
-            <div class="um-stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 20px; border-radius: 12px;">
-                <div style="font-size: 2.5rem; font-weight: 700;">{{ $stats['total_workers'] ?? 0 }}</div>
-                <div style="opacity: 0.9;">{{ __('worker-teams.total_workers') }}</div>
-            </div>
-            <div class="um-stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 20px; border-radius: 12px;">
-                <div style="font-size: 2.5rem; font-weight: 700;">{{ $stats['avg_workers'] ?? 0 }}</div>
-                <div style="opacity: 0.9;">{{ __('worker-teams.avg_workers_per_team') }}</div>
-            </div>
-        </div>
+
 
         <!-- Main Card -->
         <section class="um-main-card">
@@ -94,11 +77,11 @@
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                {{ __('worker-teams.search') }}
+                                {{ __('worker-teams.search_action') }}
                             </button>
                             <a href="{{ route('manufacturing.worker-teams.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-x"></i>
-                                {{ __('worker-teams.reset') }}
+                                {{ __('worker-teams.reset_action') }}
                             </a>
                         </div>
                     </div>
@@ -136,7 +119,7 @@
                             </td>
                             <td>
                                 <div class="um-dropdown">
-                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                    <button class="um-btn-action um-btn-dropdown" title="{{ __('worker-teams.actions') }}">
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
@@ -252,7 +235,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // تأكيد الحذف
+            // {{ __('worker-teams.confirm_delete') }}
             const deleteForms = document.querySelectorAll('.delete-form');
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
@@ -263,7 +246,7 @@
                 });
             });
 
-            // إخفاء التنبيهات تلقائياً بعد 5 ثواني
+            // {{ __('worker-teams.auto_hide_alerts') }}
             const alerts = document.querySelectorAll('.um-alert-custom');
             alerts.forEach(alert => {
                 setTimeout(() => {

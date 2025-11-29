@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تعديل فاتورة شراء')
+@section('title', __('warehouse.edit_purchase_invoice'))
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('assets/css/invoice-items-table.css') }}">
@@ -13,18 +13,18 @@
                 <line x1="12" y1="11" x2="12" y2="17"></line>
                 <line x1="9" y1="14" x2="15" y2="14"></line>
             </svg>
-            تعديل فاتورة شراء
+            {{ __('warehouse.edit_purchase_invoice') }}
         </h1>
         <nav class="um-breadcrumb-nav">
             <span>
-                <i class="feather icon-home"></i> لوحة التحكم
+                <i class="feather icon-home"></i> {{ __('warehouse.dashboard') }}
             </span>
             <i class="feather icon-chevron-left"></i>
-            <span>المستودع</span>
+            <span>{{ __('warehouse.warehouse_management') }}</span>
             <i class="feather icon-chevron-left"></i>
-            <span>فواتير الشراء</span>
+            <span>{{ __('warehouse.purchase_invoices') }}</span>
             <i class="feather icon-chevron-left"></i>
-            <span>تعديل فاتورة</span>
+            <span>{{ __('warehouse.edit_invoice') }}</span>
         </nav>
     </div>
 
@@ -43,7 +43,7 @@
     @if ($errors->any())
         <div class="um-alert-custom um-alert-error" role="alert" id="validationErrors">
             <i class="feather icon-alert-circle"></i>
-            <strong>خطأ في البيانات:</strong> الرجاء التحقق من المعلومات المدخلة.
+            <strong>{{ __('warehouse.data_error') }}:</strong> {{ __('warehouse.please_check_data') }}
             <ul style="margin-top: 10px; margin-right: 20px;">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -80,15 +80,15 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">معلومات الفاتورة</h3>
-                        <p class="section-subtitle">قم بتحديث بيانات الفاتورة</p>
+                        <h3 class="section-title">{{ __('warehouse.invoice_information') }}</h3>
+                        <p class="section-subtitle">{{ __('warehouse.update_invoice_data') }}</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="invoice_number" class="form-label">
-                            رقم الفاتورة
+                            {{ __('warehouse.invoice_number') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -99,13 +99,13 @@
                                 <path d="M14 12v4"></path>
                             </svg>
                             <input type="text" name="invoice_number" id="invoice_number"
-                                class="form-input" placeholder="مثال: INV-2024-001" value="{{ old('invoice_number', $invoice->invoice_number) }}" required>
+                                class="form-input" placeholder="{{ __('warehouse.example_invoice_number') }}" value="{{ old('invoice_number', $invoice->invoice_number) }}" required>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="invoice_date" class="form-label">
-                            تاريخ الفاتورة
+                            {{ __('warehouse.invoice_date') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -122,7 +122,7 @@
 
                     <div class="form-group">
                         <label for="supplier_id" class="form-label">
-                            المورد
+                            {{ __('warehouse.supplier') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -131,7 +131,7 @@
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                             <select name="supplier_id" id="supplier_id" class="form-input" required>
-                                <option value="">-- اختر المورد --</option>
+                                <option value="">-- {{ __('warehouse.select_supplier') }} --</option>
                                 @foreach($suppliers as $supplier)
                                     <option value="{{ $supplier->id }}" {{ old('supplier_id', $invoice->supplier_id) == $supplier->id ? 'selected' : '' }}>
                                         {{ $supplier->name }}
@@ -142,7 +142,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="invoice_reference_number" class="form-label">رقم مرجع الفاتورة</label>
+                        <label for="invoice_reference_number" class="form-label">{{ __('warehouse.invoice_reference_number') }}</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -150,12 +150,12 @@
                                 <line x1="9" y1="15" x2="15" y2="15"></line>
                             </svg>
                             <input type="text" name="invoice_reference_number" id="invoice_reference_number"
-                                class="form-input" placeholder="رقم مرجعي من المورد" value="{{ old('invoice_reference_number', $invoice->invoice_reference_number) }}">
+                                class="form-input" placeholder="{{ __('warehouse.reference_number_from_supplier') }}" value="{{ old('invoice_reference_number', $invoice->invoice_reference_number) }}">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="due_date" class="form-label">تاريخ الاستحقاق</label>
+                        <label for="due_date" class="form-label">{{ __('warehouse.due_date') }}</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -178,8 +178,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">منتجات الفاتورة</h3>
-                        <p class="section-subtitle">عدّل المنتجات والمواد الخاصة بالفاتورة</p>
+                        <h3 class="section-title">{{ __('warehouse.invoice_products') }}</h3>
+                        <p class="section-subtitle">{{ __('warehouse.edit_invoice_products') }}</p>
                     </div>
                 </div>
 
@@ -189,7 +189,7 @@
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
-                        إضافة منتج
+                        {{ __('warehouse.add_product') }}
                     </button>
                 </div>
 
@@ -199,16 +199,16 @@
                         <thead>
                             <tr>
                                 <th style="width: 40px;">#</th>
-                                <th style="min-width: 150px;">المادة</th>
-                                <th style="min-width: 120px;">الوصف</th>
-                                <th style="width: 100px;">الكمية</th>
-                                <th style="width: 100px;">الوحدة</th>
-                                <th style="width: 100px;">السعر</th>
-                                <th style="width: 80px;">ض%</th>
-                                <th style="width: 80px;">خ%</th>
-                                <th style="width: 80px;">الوزن</th>
-                                <th style="width: 100px;">الإجمالي</th>
-                                <th style="width: 60px;">إجراء</th>
+                                <th style="min-width: 150px;">{{ __('warehouse.material') }}</th>
+                                <th style="min-width: 120px;">{{ __('warehouse.description') }}</th>
+                                <th style="width: 100px;">{{ __('warehouse.quantity') }}</th>
+                                <th style="width: 100px;">{{ __('warehouse.unit') }}</th>
+                                <th style="width: 100px;">{{ __('warehouse.price') }}</th>
+                                <th style="width: 80px;">{{ __('warehouse.tax_percentage') }}</th>
+                                <th style="width: 80px;">{{ __('warehouse.discount_percentage') }}</th>
+                                <th style="width: 80px;">{{ __('warehouse.weight') }}</th>
+                                <th style="width: 100px;">{{ __('warehouse.total') }}</th>
+                                <th style="width: 60px;">{{ __('warehouse.action') }}</th>
                             </tr>
                         </thead>
                         <tbody id="invoice-items-container">
@@ -221,23 +221,23 @@
                 <div style="margin-top: 20px; padding: 20px; background: #f8fafc; border-radius: 8px;">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                         <div>
-                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">الإجمالي الفرعي</label>
+                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">{{ __('warehouse.subtotal') }}</label>
                             <div style="font-size: 24px; font-weight: 700; color: #1e293b;" id="subtotal-display">0.00</div>
                         </div>
                         <div>
-                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">الضريبة</label>
+                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">{{ __('warehouse.tax') }}</label>
                             <div style="font-size: 24px; font-weight: 700; color: #f59e0b;" id="tax-display">0.00</div>
                         </div>
                         <div>
-                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">الخصم</label>
+                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">{{ __('warehouse.discount') }}</label>
                             <div style="font-size: 24px; font-weight: 700; color: #ef4444;" id="discount-display">0.00</div>
                         </div>
                         <div>
-                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">الوزن الإجمالي</label>
+                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">{{ __('warehouse.total_weight') }}</label>
                             <div style="font-size: 24px; font-weight: 700; color: #8b5cf6;" id="weight-display">0.00 كجم</div>
                         </div>
                         <div>
-                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">الإجمالي النهائي</label>
+                            <label style="font-weight: 600; color: #64748b; display: block; margin-bottom: 5px;">{{ __('warehouse.final_total') }}</label>
                             <div style="font-size: 24px; font-weight: 700; color: #10b981;" id="total-display">0.00</div>
                         </div>
                     </div>
@@ -255,14 +255,14 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">العملة وشروط الدفع</h3>
-                        <p class="section-subtitle">حدد العملة وشروط الدفع</p>
+                        <h3 class="section-title">{{ __('warehouse.currency_and_payment_terms') }}</h3>
+                        <p class="section-subtitle">{{ __('warehouse.specify_currency_and_payment') }}</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="currency" class="form-label">العملة</label>
+                        <label for="currency" class="form-label">{{ __('warehouse.currency') }}</label>
                         <div class="input-wrapper">
                             <select name="currency" id="currency" class="form-input">
                                 <option value="SAR" {{ old('currency', $invoice->currency) == 'SAR' ? 'selected' : '' }}>ريال سعودي (SAR)</option>
@@ -274,16 +274,16 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="payment_terms" class="form-label">شروط الدفع</label>
+                        <label for="payment_terms" class="form-label">{{ __('warehouse.payment_terms') }}</label>
                         <div class="input-wrapper">
                             <select name="payment_terms" id="payment_terms" class="form-input">
-                                <option value="">-- اختر شروط الدفع --</option>
-                                <option value="دفع فوري" {{ old('payment_terms', $invoice->payment_terms) == 'دفع فوري' ? 'selected' : '' }}>دفع فوري</option>
-                                <option value="15 يوم" {{ old('payment_terms', $invoice->payment_terms) == '15 يوم' ? 'selected' : '' }}>15 يوم</option>
-                                <option value="30 يوم" {{ old('payment_terms', $invoice->payment_terms) == '30 يوم' ? 'selected' : '' }}>30 يوم</option>
-                                <option value="45 يوم" {{ old('payment_terms', $invoice->payment_terms) == '45 يوم' ? 'selected' : '' }}>45 يوم</option>
-                                <option value="60 يوم" {{ old('payment_terms', $invoice->payment_terms) == '60 يوم' ? 'selected' : '' }}>60 يوم</option>
-                                <option value="مخصص" {{ old('payment_terms', $invoice->payment_terms) == 'مخصص' ? 'selected' : '' }}>مخصص</option>
+                                <option value="">-- {{ __('warehouse.select_payment_terms') }} --</option>
+                                <option value="دفع فوري" {{ old('payment_terms', $invoice->payment_terms) == 'دفع فوري' ? 'selected' : '' }}>{{ __('warehouse.immediate_payment') }}</option>
+                                <option value="15 يوم" {{ old('payment_terms', $invoice->payment_terms) == '15 يوم' ? 'selected' : '' }}>{{ __('warehouse.15_days') }}</option>
+                                <option value="30 يوم" {{ old('payment_terms', $invoice->payment_terms) == '30 يوم' ? 'selected' : '' }}>{{ __('warehouse.30_days') }}</option>
+                                <option value="45 يوم" {{ old('payment_terms', $invoice->payment_terms) == '45 يوم' ? 'selected' : '' }}>{{ __('warehouse.45_days') }}</option>
+                                <option value="60 يوم" {{ old('payment_terms', $invoice->payment_terms) == '60 يوم' ? 'selected' : '' }}>{{ __('warehouse.60_days') }}</option>
+                                <option value="مخصص" {{ old('payment_terms', $invoice->payment_terms) == 'مخصص' ? 'selected' : '' }}>{{ __('warehouse.custom') }}</option>
                             </select>
                         </div>
                     </div>
@@ -299,20 +299,20 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">الحالة والنشاط</h3>
-                        <p class="section-subtitle">حدد حالة الفاتورة ونشاطها</p>
+                        <h3 class="section-title">{{ __('warehouse.status_and_activity') }}</h3>
+                        <p class="section-subtitle">{{ __('warehouse.specify_invoice_status') }}</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label class="form-label">النشاط</label>
+                        <label class="form-label">{{ __('warehouse.activity') }}</label>
                         <div class="input-wrapper">
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="is_active"
                                        name="is_active" value="1" {{ old('is_active', $invoice->is_active) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="is_active">
-                                    ✓ الفاتورة نشطة
+                                    ✓ {{ __('warehouse.invoice_active') }}
                                 </label>
                             </div>
                         </div>
@@ -330,16 +330,16 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">ملاحظات إضافية</h3>
+                        <h3 class="section-title">{{ __('warehouse.additional_notes') }}</h3>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group full-width">
-                        <label for="notes" class="form-label">الملاحظات</label>
+                        <label for="notes" class="form-label">{{ __('warehouse.notes') }}</label>
                         <div class="input-wrapper">
                             <textarea name="notes" id="notes"
-                                class="form-input" rows="4" placeholder="أدخل أي ملاحظات إضافية...">{{ old('notes', $invoice->notes) }}</textarea>
+                                class="form-input" rows="4" placeholder="{{ __('warehouse.enter_additional_notes') }}">{{ old('notes', $invoice->notes) }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -351,7 +351,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                    حفظ التغييرات
+                    {{ __('warehouse.save_changes') }}
                 </button>
                 <a href="{{ route('manufacturing.purchase-invoices.show', $invoice->id) }}" class="btn-cancel">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

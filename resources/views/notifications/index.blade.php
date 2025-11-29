@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'الإشعارات')
+@section('title', __('notifications.notifications'))
 
 @section('content')
 <div class="container-fluid py-4">
@@ -9,15 +9,15 @@
             <!-- Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h1 class="h3 mb-0">الإشعارات</h1>
-                    <small class="text-muted">إدارة والاطلاع على جميع الإشعارات والتنبيهات</small>
+                    <h1 class="h3 mb-0">{{ __('notifications.header_title') }}</h1>
+                    <small class="text-muted">{{ __('notifications.header_subtitle') }}</small>
                 </div>
                 <div class="btn-group">
-                    <button id="markAllReadBtn" class="btn btn-primary btn-sm" title="وضع علامة على الكل كمقروء">
-                        <i class="feather icon-check-circle"></i> وضع علامة الكل مقروء
+                    <button id="markAllReadBtn" class="btn btn-primary btn-sm" title="{{ __('notifications.mark_all_read_title') }}">
+                        <i class="feather icon-check-circle"></i> {{ __('notifications.mark_all_read') }}
                     </button>
-                    <button id="deleteAllBtn" class="btn btn-danger btn-sm" title="حذف جميع الإشعارات">
-                        <i class="feather icon-trash-2"></i> حذف الكل
+                    <button id="deleteAllBtn" class="btn btn-danger btn-sm" title="{{ __('notifications.delete_all_title') }}">
+                        <i class="feather icon-trash-2"></i> {{ __('notifications.delete_all') }}
                     </button>
                 </div>
             </div>
@@ -29,7 +29,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <p class="text-muted mb-1">إجمالي الإشعارات</p>
+                                    <p class="text-muted mb-1">{{ __('notifications.total_notifications') }}</p>
                                     <h3 class="mb-0">{{ $stats['total'] ?? 0 }}</h3>
                                 </div>
                                 <i class="feather icon-bell" style="font-size: 2.5rem; color: #3b82f6; opacity: 0.3;"></i>
@@ -43,7 +43,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <p class="text-muted mb-1">غير مقروءة</p>
+                                    <p class="text-muted mb-1">{{ __('notifications.unread') }}</p>
                                     <h3 class="mb-0" style="color: #f59e0b;">{{ $stats['unread'] ?? 0 }}</h3>
                                 </div>
                                 <i class="feather icon-alert-circle" style="font-size: 2.5rem; color: #f59e0b; opacity: 0.3;"></i>
@@ -57,7 +57,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <p class="text-muted mb-1">مقروءة</p>
+                                    <p class="text-muted mb-1">{{ __('notifications.read') }}</p>
                                     <h3 class="mb-0" style="color: #10b981;">{{ $stats['read'] ?? 0 }}</h3>
                                 </div>
                                 <i class="feather icon-check-circle" style="font-size: 2.5rem; color: #10b981; opacity: 0.3;"></i>
@@ -71,7 +71,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <p class="text-muted mb-1">تحذيرات</p>
+                                    <p class="text-muted mb-1">{{ __('notifications.warnings') }}</p>
                                     <h3 class="mb-0" style="color: #ef4444;">
                                         @if(isset($stats['by_color']) && $stats['by_color'] instanceof \Illuminate\Support\Collection)
                                             {{ $stats['by_color']->where('color', 'danger')->first()?->count ?? 0 }}
@@ -92,35 +92,35 @@
                 <div class="card-body">
                     <form action="{{ route('notifications.index') }}" method="GET" class="row g-3">
                         <div class="col-md-4">
-                            <label class="form-label">النوع</label>
+                            <label class="form-label">{{ __('notifications.type') }}</label>
                             <select name="type" class="form-select" onchange="this.form.submit()">
-                                <option value="">جميع الأنواع</option>
-                                <option value="material_added" {{ request('type') === 'material_added' ? 'selected' : '' }}>مادة مضافة</option>
-                                <option value="material_updated" {{ request('type') === 'material_updated' ? 'selected' : '' }}>مادة محدثة</option>
-                                <option value="purchase_invoice_created" {{ request('type') === 'purchase_invoice_created' ? 'selected' : '' }}>فاتورة شراء</option>
-                                <option value="delivery_note_registered" {{ request('type') === 'delivery_note_registered' ? 'selected' : '' }}>أذن توصيل</option>
-                                <option value="weight_discrepancy" {{ request('type') === 'weight_discrepancy' ? 'selected' : '' }}>فرق وزن</option>
-                                <option value="moved_to_production" {{ request('type') === 'moved_to_production' ? 'selected' : '' }}>نقل للإنتاج</option>
-                                <option value="production_transfer" {{ request('type') === 'production_transfer' ? 'selected' : '' }}>طلب استلام دفعة</option>
-                                <option value="production_confirmed" {{ request('type') === 'production_confirmed' ? 'selected' : '' }}>تأكيد استلام</option>
-                                <option value="production_rejected" {{ request('type') === 'production_rejected' ? 'selected' : '' }}>رفض استلام</option>
-                                <option value="custom" {{ request('type') === 'custom' ? 'selected' : '' }}>مخصص</option>
+                                <option value="">{{ __('notifications.all_types') }}</option>
+                                <option value="material_added" {{ request('type') === 'material_added' ? 'selected' : '' }}>{{ __('notifications.material_added') }}</option>
+                                <option value="material_updated" {{ request('type') === 'material_updated' ? 'selected' : '' }}>{{ __('notifications.material_updated') }}</option>
+                                <option value="purchase_invoice_created" {{ request('type') === 'purchase_invoice_created' ? 'selected' : '' }}>{{ __('notifications.purchase_invoice_created') }}</option>
+                                <option value="delivery_note_registered" {{ request('type') === 'delivery_note_registered' ? 'selected' : '' }}>{{ __('notifications.delivery_note_registered') }}</option>
+                                <option value="weight_discrepancy" {{ request('type') === 'weight_discrepancy' ? 'selected' : '' }}>{{ __('notifications.weight_discrepancy') }}</option>
+                                <option value="moved_to_production" {{ request('type') === 'moved_to_production' ? 'selected' : '' }}>{{ __('notifications.moved_to_production') }}</option>
+                                <option value="production_transfer" {{ request('type') === 'production_transfer' ? 'selected' : '' }}>{{ __('notifications.production_transfer') }}</option>
+                                <option value="production_confirmed" {{ request('type') === 'production_confirmed' ? 'selected' : '' }}>{{ __('notifications.production_confirmed') }}</option>
+                                <option value="production_rejected" {{ request('type') === 'production_rejected' ? 'selected' : '' }}>{{ __('notifications.production_rejected') }}</option>
+                                <option value="custom" {{ request('type') === 'custom' ? 'selected' : '' }}>{{ __('notifications.custom') }}</option>
                             </select>
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">الحالة</label>
+                            <label class="form-label">{{ __('notifications.status') }}</label>
                             <select name="unread" class="form-select" onchange="this.form.submit()">
-                                <option value="">الكل</option>
-                                <option value="1" {{ request('unread') === '1' ? 'selected' : (request('unread') === 'true' ? 'selected' : '') }}>غير مقروءة فقط</option>
-                                <option value="0" {{ request('unread') === '0' ? 'selected' : (request('unread') === 'false' ? 'selected' : '') }}>مقروءة فقط</option>
+                                <option value="">{{ __('notifications.all') }}</option>
+                                <option value="1" {{ request('unread') === '1' ? 'selected' : (request('unread') === 'true' ? 'selected' : '') }}>{{ __('notifications.unread_only') }}</option>
+                                <option value="0" {{ request('unread') === '0' ? 'selected' : (request('unread') === 'false' ? 'selected' : '') }}>{{ __('notifications.read_only') }}</option>
                             </select>
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label">&nbsp;</label>
                             <button type="submit" class="btn btn-primary w-100">
-                                <i class="feather icon-search"></i> بحث
+                                <i class="feather icon-search"></i> {{ __('notifications.search') }}
                             </button>
                         </div>
                     </form>
@@ -144,21 +144,21 @@
                                                 @if(!$notification->is_read)
                                                     <li>
                                                         <a class="dropdown-item mark-read" href="#" data-id="{{ $notification->id }}">
-                                                            <i class="feather icon-check-circle"></i> وضع علامة مقروء
+                                                            <i class="feather icon-check-circle"></i> {{ __('notifications.mark_as_read') }}
                                                         </a>
                                                     </li>
                                                 @endif
                                                 @if($notification->action_url && $notification->action_url !== '#')
                                                     <li>
                                                         <a class="dropdown-item" href="{{ $notification->action_url }}">
-                                                            <i class="feather icon-external-link"></i> الذهاب للصفحة
+                                                            <i class="feather icon-external-link"></i> {{ __('notifications.go_to_page') }}
                                                         </a>
                                                     </li>
                                                 @endif
                                                 <li><hr class="dropdown-divider"></li>
                                                 <li>
                                                     <a class="dropdown-item text-danger delete-notif" href="#" data-id="{{ $notification->id }}">
-                                                        <i class="feather icon-trash-2"></i> حذف
+                                                        <i class="feather icon-trash-2"></i> {{ __('notifications.delete') }}
                                                     </a>
                                                 </li>
                                             </ul>
@@ -170,12 +170,12 @@
                                                 @endif
                                                 <h6 class="mb-0" style="font-weight: 600;">{{ $notification->title }}</h6>
                                                 @if(!$notification->is_read)
-                                                    <span class="badge bg-primary ms-2">جديد</span>
+                                                    <span class="badge bg-primary ms-2">{{ __('notifications.new') }}</span>
                                                 @endif
                                             </div>
                                             <p class="mb-2 text-dark">{{ $notification->message }}</p>
                                             <small class="text-muted">
-                                                <i class="feather icon-user"></i> {{ $notification->creator?->name ?? 'النظام' }}
+                                                <i class="feather icon-user"></i> {{ $notification->creator?->name ?? __('notifications.system') }}
                                                 • <i class="feather icon-clock"></i> {{ $notification->created_at->diffForHumans() }}
                                             </small>
                                         </div>
@@ -191,8 +191,8 @@
                     @else
                         <div class="text-center py-5">
                             <i class="feather icon-inbox" style="font-size: 3rem; color: #d1d5db;"></i>
-                            <h5 class="mt-3 text-muted">لا توجد إشعارات</h5>
-                            <p class="text-muted">جميع الإشعارات محذوفة أو غير متاحة حالياً</p>
+                            <h5 class="mt-3 text-muted">{{ __('notifications.no_notifications') }}</h5>
+                            <p class="text-muted">{{ __('notifications.no_notifications_message') }}</p>
                         </div>
                     @endif
                 </div>
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.delete-notif').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            if (confirm('هل أنت متأكد من حذف هذا الإشعار؟')) {
+            if (confirm('{{ __('notifications.confirm_delete') }}')) {
                 const id = this.getAttribute('data-id');
                 fetch(`/notifications/${id}`, {
                     method: 'DELETE',
@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Mark all as read
     document.getElementById('markAllReadBtn')?.addEventListener('click', function() {
-        if (confirm('وضع علامة على جميع الإشعارات كمقروءة؟')) {
+        if (confirm('{{ __('notifications.confirm_mark_all_read') }}')) {
             fetch('/notifications/mark-all-read', {
                 method: 'POST',
                 headers: {
@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Delete all
     document.getElementById('deleteAllBtn')?.addEventListener('click', function() {
-        if (confirm('هل أنت متأكد من حذف جميع الإشعارات؟')) {
+        if (confirm('{{ __('notifications.confirm_delete_all') }}')) {
             fetch('/notifications', {
                 method: 'DELETE',
                 headers: {

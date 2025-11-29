@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إدارة المستخدمين')
+@section('title', __('users.users_management'))
 
 @section('content')
     <div class="um-content-wrapper">
@@ -8,14 +8,14 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-users"></i>
-                إدارة المستخدمين
+                {{ __('users.users_management') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('users.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المستخدمين</span>
+                <span>{{ __('users.users') }}</span>
             </nav>
         </div>
 
@@ -50,12 +50,12 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    قائمة المستخدمين
+                    {{ __('users.users_list') }}
                 </h4>
                 @if(auth()->user()->hasPermission('MANAGE_USERS', 'create'))
                 <a href="{{ route('users.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>
-                    إضافة مستخدم جديد
+                    {{ __('users.add_new_user') }}
                 </a>
                 @endif
             </div>
@@ -65,11 +65,11 @@
                 <form method="GET">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث في المستخدمين..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('users.search_placeholder') }}" value="{{ request('search') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="role" class="um-form-control">
-                                <option value="">-- اختر الدور --</option>
+                                <option value="">{{ __('users.all_roles') }}</option>
                                 @foreach($roles as $role)
                                 <option value="{{ $role->id }}" {{ request('role') == $role->id ? 'selected' : '' }}>
                                     {{ $role->role_name }}
@@ -79,19 +79,19 @@
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
-                                <option value="">-- حالة الحساب --</option>
-                                <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>نشط</option>
-                                <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>غير نشط</option>
+                                <option value="">{{ __('users.select_status') }}</option>
+                                <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>{{ __('users.active') }}</option>
+                                <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>{{ __('users.inactive') }}</option>
                             </select>
                         </div>
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                بحث
+                                {{ __('users.search') }}
                             </button>
                             <a href="{{ route('users.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-x"></i>
-                                إعادة تعيين
+                                {{ __('users.reset') }}
                             </a>
                         </div>
                     </div>
@@ -103,14 +103,14 @@
                 <table class="um-table">
                     <thead>
                         <tr>
-                            <th>الرقم</th>
-                            <th>الاسم</th>
-                            <th>اسم المستخدم</th>
-                            <th>البريد الإلكتروني</th>
-                            <th>الدور</th>
-                            <th>الفترة الزمنية</th>
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
+                            <th>{{ __('users.number') }}</th>
+                            <th>{{ __('users.name') }}</th>
+                            <th>{{ __('users.username') }}</th>
+                            <th>{{ __('users.email') }}</th>
+                            <th>{{ __('users.role') }}</th>
+                            <th>{{ __('users.shift') }}</th>
+                            <th>{{ __('users.status') }}</th>
+                            <th>{{ __('users.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -131,35 +131,35 @@
                                 </span>
                                 @else
                                 <span class="um-badge um-badge-secondary">
-                                    لا يوجد دور
+                                    {{ __('users.no_role_assigned') }}
                                 </span>
                                 @endif
                             </td>
                             <td>{{ $user->shift ?? '-' }}</td>
                             <td>
                                 @if($user->is_active)
-                                <span class="um-badge um-badge-success">نشط</span>
+                                <span class="um-badge um-badge-success">{{ __('users.active') }}</span>
                                 @else
-                                <span class="um-badge um-badge-danger">غير نشط</span>
+                                <span class="um-badge um-badge-danger">{{ __('users.inactive') }}</span>
                                 @endif
                             </td>
                             <td>
                                 <div class="um-dropdown">
-                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                    <button class="um-btn-action um-btn-dropdown" title="{{ __('workers.actions') }}">
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
                                         @if(auth()->user()->hasPermission('MANAGE_USERS', 'read'))
                                         <a href="{{ route('users.show', $user) }}" class="um-dropdown-item um-btn-view">
                                             <i class="feather icon-eye"></i>
-                                            <span>عرض</span>
+                                            <span>{{ __('users.view') }}</span>
                                         </a>
                                         @endif
 
                                         @if(auth()->user()->hasPermission('MANAGE_USERS', 'update'))
                                         <a href="{{ route('users.edit', $user) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
-                                            <span>تعديل</span>
+                                            <span>{{ __('users.edit') }}</span>
                                         </a>
                                         @endif
 
@@ -169,7 +169,7 @@
                                             @method('DELETE')
                                             <button type="submit" class="um-dropdown-item um-btn-delete">
                                                 <i class="feather icon-trash-2"></i>
-                                                <span>حذف</span>
+                                                <span>{{ __('users.delete') }}</span>
                                             </button>
                                         </form>
                                         @endif
@@ -180,7 +180,7 @@
                         @empty
                         <tr>
                             <td colspan="8" class="text-center" style="padding: 20px;">
-                                <p>لا توجد مستخدمين حالياً</p>
+                                <p>{{ __('users.no_users_found') }}</p>
                             </td>
                         </tr>
                         @endforelse
@@ -203,48 +203,48 @@
                             </div>
                         </div>
                         <span class="um-badge {{ $user->is_active ? 'um-badge-success' : 'um-badge-danger' }}">
-                            {{ $user->is_active ? 'نشط' : 'غير نشط' }}
+                            {{ $user->is_active ? __('users.active') : __('users.inactive') }}
                         </span>
                     </div>
 
                     <div class="um-category-card-body">
                         <div class="um-info-row">
-                            <span class="um-info-label">البريد الإلكتروني:</span>
+                            <span class="um-info-label">{{ __('users.email') }}:</span>
                             <span class="um-info-value">{{ $user->email }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">الدور:</span>
+                            <span class="um-info-label">{{ __('users.role') }}:</span>
                             <span class="um-info-value">
                                 @if($user->roleRelation)
                                     {{ $user->roleRelation->role_name }}
                                 @else
-                                    لا يوجد دور
+                                    {{ __('users.no_role_assigned') }}
                                 @endif
                             </span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">الفترة الزمنية:</span>
+                            <span class="um-info-label">{{ __('users.shift') }}:</span>
                             <span class="um-info-value">{{ $user->shift ?? '-' }}</span>
                         </div>
                     </div>
 
                     <div class="um-category-card-footer">
                         <div class="um-dropdown">
-                            <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                            <button class="um-btn-action um-btn-dropdown" title="{{ __('workers.actions') }}">
                                 <i class="feather icon-more-vertical"></i>
                             </button>
                             <div class="um-dropdown-menu">
                                 @if(auth()->user()->hasPermission('MANAGE_USERS', 'read'))
                                 <a href="{{ route('users.show', $user) }}" class="um-dropdown-item um-btn-view">
                                     <i class="feather icon-eye"></i>
-                                    <span>عرض</span>
+                                    <span>{{ __('users.view') }}</span>
                                 </a>
                                 @endif
 
                                 @if(auth()->user()->hasPermission('MANAGE_USERS', 'update'))
                                 <a href="{{ route('users.edit', $user) }}" class="um-dropdown-item um-btn-edit">
                                     <i class="feather icon-edit-2"></i>
-                                    <span>تعديل</span>
+                                    <span>{{ __('users.edit') }}</span>
                                 </a>
                                 @endif
 
@@ -254,7 +254,7 @@
                                     @method('DELETE')
                                     <button type="submit" class="um-dropdown-item um-btn-delete">
                                         <i class="feather icon-trash-2"></i>
-                                        <span>حذف</span>
+                                        <span>{{ __('users.delete') }}</span>
                                     </button>
                                 </form>
                                 @endif
@@ -264,7 +264,7 @@
                 </div>
                 @empty
                 <div style="text-align: center; padding: 40px;">
-                    <p>لا توجد مستخدمين حالياً</p>
+                    <p>{{ __('users.no_users_found') }}</p>
                 </div>
                 @endforelse
             </div>
@@ -274,9 +274,9 @@
                 <div>
                     <p class="um-pagination-info">
                         @if($users->count())
-                            عرض {{ $users->firstItem() }} إلى {{ $users->lastItem() }} من أصل {{ $users->total() }} مستخدم
+                            {{ __('users.showing') }} {{ $users->firstItem() }} {{ __('users.to') }} {{ $users->lastItem() }} {{ __('users.of') }} {{ $users->total() }} {{ __('users.user') }}
                         @else
-                            لا توجد نتائج
+                            {{ __('users.no_results') }}
                         @endif
                     </p>
                 </div>
@@ -296,12 +296,12 @@
                     e.preventDefault();
 
                     Swal.fire({
-                        title: 'تأكيد الحذف',
-                        text: 'هل أنت متأكد من حذف هذا المستخدم؟ هذا الإجراء لا يمكن التراجع عنه!',
+                        title: '{{ __('users.confirm_delete') }}',
+                        text: '{{ __('users.confirm_delete') }}',
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'نعم، احذف',
-                        cancelButtonText: 'إلغاء',
+                        confirmButtonText: '{{ __('users.yes_delete') }}',
+                        cancelButtonText: '{{ __('users.no_cancel') }}',
                         reverseButtons: true,
                         customClass: {
                             confirmButton: 'swal-btn-confirm',
@@ -311,7 +311,7 @@
                         if (result.isConfirmed) {
                             // Show loading message
                             Swal.fire({
-                                title: 'جاري الحذف...',
+                                title: '{{ __('users.deleting') }}',
                                 allowOutsideClick: false,
                                 didOpen: (modal) => {
                                     Swal.showLoading();

@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تفاصيل المستخدم')
+@section('title', __('users.user_details'))
 
 @section('content')
     <div class="um-content-wrapper">
@@ -8,16 +8,16 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-user"></i>
-                تفاصيل المستخدم: {{ $user->name }}
+                {{ __('users.user_details_title') }}: {{ $user->name }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('users.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المستخدمين</span>
+                <span>{{ __('users.users') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>تفاصيل المستخدم</span>
+                <span>{{ __('users.user_details') }}</span>
             </nav>
         </div>
 
@@ -76,7 +76,7 @@
                                     #{{ $user->id }}
                                 </span>
                                 <span class="badge {{ $user->is_active ? 'active' : 'inactive' }}">
-                                    {{ $user->is_active ? 'نشط' : 'غير نشط' }}
+                                    {{ $user->is_active ? __('users.active') : __('users.inactive') }}
                                 </span>
                             </div>
                         </div>
@@ -85,16 +85,16 @@
                         @if(auth()->user()->hasPermission('MANAGE_USERS', 'update'))
                         <a href="{{ route('users.edit', $user) }}" class="btn btn-edit">
                             <i class="feather icon-edit"></i>
-                            تعديل
+                            {{ __('users.edit') }}
                         </a>
                         @endif
 
                         @if($user->is_active && auth()->user()->isAdmin())
                         <form method="POST" action="{{ route('users.impersonate', $user) }}" style="display: inline;">
                             @csrf
-                            <button type="submit" class="btn btn-impersonate" title="تسجيل الدخول كموظف">
+                            <button type="submit" class="btn btn-impersonate" title="{{ __('users.impersonate_title') }}">
                                 <i class="feather icon-log-in"></i>
-                                دخول كموظف
+                                {{ __('users.login_as_employee') }}
                             </button>
                         </form>
                         @endif
@@ -102,16 +102,16 @@
                         @if(auth()->user()->hasPermission('MANAGE_USERS', 'update'))
                         <form method="POST" action="{{ route('users.resend-credentials', $user) }}" style="display: inline;" class="resend-form">
                             @csrf
-                            <button type="submit" class="btn btn-mail" title="إرسال بيانات الدخول للبريد الإلكتروني">
+                            <button type="submit" class="btn btn-mail" title="{{ __('users.send_credentials_email') }}">
                                 <i class="feather icon-send"></i>
-                                إرسال بيانات الدخول
+                                {{ __('users.resend_credentials') }}
                             </button>
                         </form>
                         @endif
 
                         <a href="{{ route('users.index') }}" class="btn btn-back">
                             <i class="feather icon-arrow-right"></i>
-                            العودة
+                            {{ __('users.back') }}
                         </a>
                     </div>
                 </div>
@@ -124,50 +124,50 @@
                         <div class="card-icon primary">
                             <i class="feather icon-user"></i>
                         </div>
-                        <h3 class="card-title">معلومات المستخدم</h3>
+                        <h3 class="card-title">{{ __('users.user_information') }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="info-item">
-                            <div class="info-label">الاسم الكامل:</div>
+                            <div class="info-label">{{ __('users.full_name') }}:</div>
                             <div class="info-value">{{ $user->name }}</div>
                         </div>
 
                         <div class="info-item">
-                            <div class="info-label">اسم المستخدم:</div>
+                            <div class="info-label">{{ __('users.username') }}:</div>
                             <div class="info-value">{{ $user->username }}</div>
                         </div>
 
                         <div class="info-item">
-                            <div class="info-label">البريد الإلكتروني:</div>
+                            <div class="info-label">{{ __('users.email') }}:</div>
                             <div class="info-value">{{ $user->email }}</div>
                         </div>
 
                         <div class="info-item">
-                            <div class="info-label">الفترة الزمنية:</div>
-                            <div class="info-value">{{ $user->shift ?? 'غير محدد' }}</div>
+                            <div class="info-label">{{ __('users.shift') }}:</div>
+                            <div class="info-value">{{ $user->shift ?? __('users.not_specified') }}</div>
                         </div>
 
                         <div class="info-item">
-                            <div class="info-label">الحالة:</div>
+                            <div class="info-label">{{ __('users.status') }}:</div>
                             <div class="info-value">
                                 <span class=" {{ $user->is_active ? 'badge-success' : 'badge-danger' }}">
-                                    {{ $user->is_active ? 'نشط' : 'غير نشط' }}
+                                    {{ $user->is_active ? __('users.active') : __('users.inactive') }}
                                 </span>
                             </div>
                         </div>
 
                         <div class="info-item">
-                            <div class="info-label">رقم المستخدم:</div>
+                            <div class="info-label">{{ __('users.user_number') }}:</div>
                             <div class="info-value">{{ $user->id }}</div>
                         </div>
 
                         <div class="info-item">
-                            <div class="info-label">تاريخ الإنشاء:</div>
+                            <div class="info-label">{{ __('users.created_at') }}:</div>
                             <div class="info-value">{{ $user->created_at->format('Y-m-d H:i:s') }}</div>
                         </div>
 
                         <div class="info-item">
-                            <div class="info-label">تاريخ التحديث:</div>
+                            <div class="info-label">{{ __('users.updated_at') }}:</div>
                             <div class="info-value">{{ $user->updated_at->format('Y-m-d H:i:s') }}</div>
                         </div>
                     </div>
@@ -179,31 +179,31 @@
                         <div class="card-icon info">
                             <i class="feather icon-shield"></i>
                         </div>
-                        <h3 class="card-title">الدور والصلاحيات</h3>
+                        <h3 class="card-title">{{ __('users.role_information') }}</h3>
                     </div>
                     <div class="card-body">
                         @if($user->roleRelation)
                         <div class="info-item">
-                            <div class="info-label">الدور الأساسي:</div>
+                            <div class="info-label">{{ __('users.role') }}:</div>
                             <div class="info-value">
                                 <span class="">{{ $user->roleRelation->role_name }}</span>
                             </div>
                         </div>
 
                         <div class="info-item">
-                            <div class="info-label">وصف الدور:</div>
-                            <div class="info-value">{{ $user->roleRelation->description ?? 'لا يوجد وصف' }}</div>
+                            <div class="info-label">{{ __('users.role_description') }}:</div>
+                            <div class="info-value">{{ $user->roleRelation->description ?? __('users.no_description') }}</div>
                         </div>
 
                         <div class="info-item">
-                            <div class="info-label">مستوى الدور:</div>
+                            <div class="info-label">{{ __('users.role_level') }}:</div>
                             <div class="info-value">
-                                <span class="">المستوى {{ $user->roleRelation->level }}</span>
+                                <span class="">{{ __('users.level') }} {{ $user->roleRelation->level }}</span>
                             </div>
                         </div>
                         @else
                         <div class="alert alert-warning">
-                            لم يتم تعيين دور لهذا المستخدم
+                            {{ __('users.no_role_assigned') }}
                         </div>
                         @endif
                     </div>
@@ -217,17 +217,17 @@
                     <div class="card-icon success">
                         <i class="feather icon-clock"></i>
                     </div>
-                    <h3 class="card-title">سجل العمليات</h3>
+                    <h3 class="card-title">{{ __('users.operation_logs') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table" style="margin: 0;">
                             <thead style="background: #f8f9fa;">
                                 <tr>
-                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">التاريخ والوقت</th>
-                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">نوع العملية</th>
-                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">التفاصيل</th>
-                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">المستخدم</th>
+                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('users.date_time') }}</th>
+                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('users.operation_type') }}</th>
+                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('users.details') }}</th>
+                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('users.name') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -559,12 +559,12 @@
                     e.preventDefault();
 
                     Swal.fire({
-                        title: 'تأكيد الإرسال',
-                        text: 'هل تريد إرسال بيانات دخول جديدة للبريد الإلكتروني؟',
+                        title: '{{ __('users.confirm_send') }}',
+                        text: '{{ __('users.confirm_send_new_credentials') }}',
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonText: 'نعم، أرسل',
-                        cancelButtonText: 'إلغاء',
+                        confirmButtonText: '{{ __('users.yes_send') }}',
+                        cancelButtonText: '{{ __('users.no_cancel') }}',
                         reverseButtons: true,
                         customClass: {
                             confirmButton: 'swal-btn-confirm',
@@ -574,7 +574,7 @@
                         if (result.isConfirmed) {
                             // Show loading message
                             Swal.fire({
-                                title: 'جاري الإرسال...',
+                                title: '{{ __('users.sending') }}',
                                 allowOutsideClick: false,
                                 didOpen: (modal) => {
                                     Swal.showLoading();

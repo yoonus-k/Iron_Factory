@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إضافة مادة جديدة')
+@section('title', __('warehouse.add_new_material'))
 
 @section('content')
 
@@ -222,12 +222,12 @@
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
             </svg>
-            إضافة مادة جديدة
+            {{ __('warehouse.add_new_material') }}
         </h1>
         <nav class="um-breadcrumb-nav">
-            <span>لوحة التحكم</span>
+            <span>{{ __('warehouse.breadcrumb_dashboard') }}</span>
             <span>›</span>
-            <span>المواد</span>
+            <span>{{ __('warehouse.materials') }}</span>
         </nav>
     </div>
 
@@ -246,7 +246,7 @@
 
     @if ($errors->any())
         <div class="alert alert-error">
-            <strong>خطأ في البيانات:</strong>
+            <strong>{{ __('warehouse.error_in_data') }}:</strong>
             <ul style="margin: 8px 0 0 0; padding-right: 20px;">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -263,18 +263,18 @@
             <!-- Material Information Section -->
             <div class="form-section">
                 <div class="section-header">
-                    <h3 class="section-title">💡 معلومات المادة</h3>
+                    <h3 class="section-title">💡 {{ __('warehouse.material_information') }}</h3>
                 </div>
 
                 <div class="form-grid">
                     <!-- Field 1: Material Name (Arabic) -->
                     <div class="form-group">
                         <label for="name_ar" class="form-label">
-                            اسم المادة <span class="required">*</span>
+                            {{ __('warehouse.material_name') }} <span class="required">*</span>
                         </label>
                         <input type="text" name="name_ar" id="name_ar"
                                class="form-input @error('name_ar') input-error @enderror"
-                               placeholder="أدخل اسم المادة"
+                               placeholder="{{ __('warehouse.search_materials') }}"
                                value="{{ old('name_ar') }}"
                                required>
                         @error('name_ar')
@@ -285,12 +285,12 @@
                     <!-- Field 2: Material Type -->
                     <div class="form-group">
                         <label for="material_type_id" class="form-label">
-                            نوع المادة <span class="required">*</span>
+                            {{ __('warehouse.material_type') }} <span class="required">*</span>
                         </label>
                         <select name="material_type_id" id="material_type_id"
                                 class="form-input @error('material_type_id') input-error @enderror"
                                 required>
-                            <option value="">-- اختر نوع المادة --</option>
+                            <option value="">{{ __('warehouse.select_material_type') }}</option>
                             @foreach ($materialTypes as $type)
                                 <option value="{{ $type->id }}" {{ old('material_type_id') == $type->id ? 'selected' : '' }}>
                                     {{ $type->type_name }}
@@ -305,12 +305,12 @@
                     <!-- Field 3: Unit -->
                     <div class="form-group">
                         <label for="unit_id" class="form-label">
-                            وحدة القياس <span class="required">*</span>
+                            {{ __('warehouse.unit') }} <span class="required">*</span>
                         </label>
                         <select name="unit_id" id="unit_id"
                                 class="form-input @error('unit_id') input-error @enderror"
                                 required>
-                            <option value="">-- اختر الوحدة --</option>
+                            <option value="">{{ __('warehouse.select_unit') }}</option>
                             @foreach ($units as $unit)
                                 <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
                                     {{ $unit->unit_name }} ({{ $unit->unit_symbol }})
@@ -320,7 +320,7 @@
                         @error('unit_id')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
-                        <small style="color: #666; margin-top: 5px; display: block;">💡 ستُستخدم دائماً لهذا المنتج</small>
+                        <small style="color: #666; margin-top: 5px; display: block;">💡 {{ __('warehouse.leave_empty_if_no_change') }}</small>
                     </div>
                 </div>
 
@@ -331,10 +331,10 @@
             <!-- Form Actions -->
             <div class="form-actions">
                 <button type="submit" class="btn-submit">
-                    ✓ حفظ
+                    ✓ {{ __('warehouse.save') }}
                 </button>
                 <a href="{{ route('manufacturing.warehouse-products.index') }}" class="btn-cancel">
-                    ✕ إلغاء
+                    ✕ {{ __('warehouse.cancel') }}
                 </a>
             </div>
         </form>
@@ -346,7 +346,7 @@
             const inputs = form.querySelectorAll('[required]');
             const barcodeInput = document.getElementById('barcode');
 
-            // ✅ توليد الباركود تلقائياً عند تحميل الصفحة
+            // ✅ {{ __('warehouse.barcode') }} {{ __('warehouse.movement_in') }}
             function generateBarcode() {
                 const prefix = 'MAT-';
                 const date = new Date();
@@ -374,12 +374,12 @@
 
                 if (!isValid) {
                     e.preventDefault();
-                    alert('❌ الرجاء ملء جميع الحقول المطلوبة');
+                    alert('❌ {{ __('warehouse.please_fill_all_required_fields') }}');
                     return false;
                 }
             });
 
-            // إزالة التنبيهات بعد 5 ثواني
+            // {{ __('warehouse.delete') }} {{ __('warehouse.material_information') }}
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
                 setTimeout(() => {

@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إضافة مجموعة عمال')
+@section('title', __('worker-teams.add_new_team'))
 
 @section('content')
 
@@ -33,14 +33,14 @@
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
             </svg>
-            إضافة مجموعة عمال جديدة
+            {{ __('worker-teams.add_new_team') }}
         </h1>
         <nav class="um-breadcrumb-nav">
-            <span><i class="feather icon-home"></i> لوحة التحكم</span>
+            <span><i class="feather icon-home"></i> {{ __('worker-teams.dashboard') }}</span>
             <i class="feather icon-chevron-left"></i>
-            <span>مجموعات العمال</span>
+            <span>{{ __('worker-teams.worker_teams') }}</span>
             <i class="feather icon-chevron-left"></i>
-            <span>إضافة مجموعة</span>
+            <span>{{ __('worker-teams.add_new_team') }}</span>
         </nav>
     </div>
 
@@ -48,7 +48,7 @@
         <form method="POST" action="{{ route('manufacturing.worker-teams.store') }}" id="teamForm">
             @csrf
 
-            <!-- معلومات المجموعة -->
+            <!-- Team Information -->
             <div class="form-section">
                 <div class="section-header">
                     <div class="section-icon personal">
@@ -58,15 +58,15 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">معلومات المجموعة</h3>
-                        <p class="section-subtitle">أدخل البيانات الأساسية للمجموعة</p>
+                        <h3 class="section-title">{{ __('worker-teams.team_code_label') }}</h3>
+                        <p class="section-subtitle">{{ __('worker-teams.team_created_successfully') }}</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="team_code" class="form-label">
-                            رقم المجموعة
+                            {{ __('worker-teams.team_code_label') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-group-with-button">
@@ -78,7 +78,7 @@
                                 </svg>
                                 <input type="text" name="team_code" id="team_code"
                                     class="form-input @error('team_code') is-invalid @enderror"
-                                    value="{{ old('team_code') }}" placeholder="رقم المجموعة" required readonly>
+                                    value="{{ old('team_code') }}" placeholder="{{ __('worker-teams.team_code_label') }}" required readonly>
                             </div>
                             <button type="button" id="generateCodeBtn" class="btn-generate">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -86,7 +86,7 @@
                                     <polyline points="1 20 1 14 7 14"></polyline>
                                     <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                                 </svg>
-                                توليد
+                                {{ __('worker-teams.generate') }}
                             </button>
                         </div>
                         @error('team_code')
@@ -96,7 +96,7 @@
 
                     <div class="form-group">
                         <label for="name" class="form-label">
-                            اسم المجموعة
+                            {{ __('worker-teams.team_name_label') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -106,7 +106,7 @@
                             </svg>
                             <input type="text" name="name" id="name"
                                 class="form-input @error('name') is-invalid @enderror"
-                                value="{{ old('name') }}" placeholder="مثال: مجموعة الإنتاج A" required>
+                                value="{{ old('name') }}" placeholder="{{ __('worker-teams.team_name_label') }}" required>
                         </div>
                         @error('name')
                             <span class="error-message">{{ $message }}</span>
@@ -114,7 +114,7 @@
                     </div>
 
                     <div class="form-group full-width">
-                        <label for="description" class="form-label">وصف المجموعة</label>
+                        <label for="description" class="form-label">{{ __('worker-teams.description_label') }}</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="8" y1="6" x2="21" y2="6"></line>
@@ -123,7 +123,7 @@
                             </svg>
                             <textarea name="description" id="description" rows="3"
                                 class="form-input @error('description') is-invalid @enderror"
-                                placeholder="وصف اختياري للمجموعة">{{ old('description') }}</textarea>
+                                placeholder="{{ __('worker-teams.description_label') }}">{{ old('description') }}</textarea>
                         </div>
                         @error('description')
                             <span class="error-message">{{ $message }}</span>
@@ -132,7 +132,7 @@
                 </div>
             </div>
 
-            <!-- اختيار العمال -->
+            <!-- Worker Selection -->
             <div class="form-section">
                 <div class="section-header">
                     <div class="section-icon account">
@@ -142,19 +142,19 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">اختيار العمال</h3>
-                        <p class="section-subtitle">حدد العمال المنضمين لهذه المجموعة</p>
+                        <h3 class="section-title">{{ __('worker-teams.workers_label') }}</h3>
+                        <p class="section-subtitle">{{ __('worker-teams.description_label') }}</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group full-width">
                         <div class="workers-selection-header">
-                            <label class="form-label">العمال النشطون</label>
+                            <label class="form-label">{{ __('worker-teams.workers_label') }}</label>
                             <div class="selection-actions">
-                                <button type="button" class="btn-select-all">تحديد الكل</button>
-                                <button type="button" class="btn-deselect-all">إلغاء الكل</button>
-                                <span class="selected-count">تم اختيار: <strong id="selectedCount">0</strong></span>
+                                <button type="button" class="btn-select-all">{{ __('worker-teams.select_all') }}</button>
+                                <button type="button" class="btn-deselect-all">{{ __('worker-teams.deselect_all') }}</button>
+                                <span class="selected-count">{{ __('worker-teams.showing') }}: <strong id="selectedCount">0</strong></span>
                             </div>
                         </div>
 
@@ -168,11 +168,11 @@
                                            {{ in_array($worker->id, old('workers', [])) ? 'checked' : '' }}
                                            class="worker-checkbox">
                                     <label for="worker_{{ $worker->id }}">
-                                        {{ $worker->name }} - {{ $worker->email ?? 'لا يوجد بريد' }}
+                                        {{ $worker->name }} - {{ $worker->email ?? __('worker-teams.not_specified') }}
                                     </label>
                                 </div>
                             @empty
-                                <p style="color: #999; text-align: center;">لا يوجد عمال نشطون</p>
+                                <p style="color: #999; text-align: center;">{{ __('worker-teams.no_workers') }}</p>
                             @endforelse
                         </div>
                         @error('workers')
@@ -182,14 +182,14 @@
                 </div>
             </div>
 
-            <!-- أزرار الإجراءات -->
+            <!-- Action Buttons -->
             <div class="form-actions">
                 @if(auth()->user()->hasPermission('WORKER_TEAMS_CREATE'))
                 <button type="submit" class="btn-submit">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                    حفظ المجموعة
+                    {{ __('worker-teams.save') }}
                 </button>
                 @endif
                 @if(auth()->user()->hasPermission('WORKER_TEAMS_READ'))
@@ -198,7 +198,7 @@
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                    إلغاء
+                    {{ __('worker-teams.cancel') }}
                 </a>
                 @endif
             </div>
@@ -389,7 +389,7 @@
     </style>
 
     <script>
-        // توليد رقم المجموعة تلقائياً
+        // Auto-generate team code
         document.getElementById('generateCodeBtn').addEventListener('click', async function() {
             const button = this;
             const icon = button.querySelector('svg');
@@ -405,7 +405,7 @@
                     <polyline points="1 20 1 14 7 14"></polyline>
                     <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                 </svg>
-                جاري التوليد...
+{{ __('worker-teams.generating') }}
             `;
 
             try {
@@ -422,7 +422,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        تم التوليد بنجاح
+                        {{ __('worker-teams.code_generated_success') }}
                     `;
 
                     // Reset after 2 seconds
@@ -443,10 +443,10 @@
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                    فشل التوليد
+                    {{ __('worker-teams.code_generation_failed') }}
                 `;
 
-                alert('حدث خطأ في توليد الرقم. الرجاء المحاولة مرة أخرى.');
+                alert('{{ __('worker-teams.code_generation_error') }}');
 
                 // Reset after 2 seconds
                 setTimeout(() => {
@@ -457,7 +457,7 @@
             }
         });
 
-        // تحديد/إلغاء تحديد الكل
+        // Select/Deselect All
         document.querySelector('.btn-select-all').addEventListener('click', function() {
             document.querySelectorAll('.worker-checkbox').forEach(cb => cb.checked = true);
             updateSelectedCount();
@@ -468,7 +468,7 @@
             updateSelectedCount();
         });
 
-        // تحديث عداد العمال المختارين
+        // Update selected workers count
         function updateSelectedCount() {
             const count = document.querySelectorAll('.worker-checkbox:checked').length;
             document.getElementById('selectedCount').textContent = count;
@@ -478,10 +478,10 @@
             checkbox.addEventListener('change', updateSelectedCount);
         });
 
-        // تحديث العداد عند تحميل الصفحة
+        // Update count on page load
         updateSelectedCount();
 
-        // توليد رقم تلقائي عند فتح الصفحة
+        // Auto-generate code on page load
         window.addEventListener('DOMContentLoaded', function() {
             if (!document.getElementById('team_code').value) {
                 document.getElementById('generateCodeBtn').click();

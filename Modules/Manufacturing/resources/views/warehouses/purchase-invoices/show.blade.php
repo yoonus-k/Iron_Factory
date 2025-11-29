@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تفاصيل فاتورة شراء')
+@section('title', __('warehouse.purchase_invoice_details'))
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
@@ -57,7 +57,7 @@
                         <i class="feather icon-file-text"></i>
                     </div>
                     <div class="header-info">
-                        <h1>فاتورة شراء #{{ $invoice->invoice_number }}</h1>
+                        <h1>{{ __('warehouse.purchase_invoice') }} #{{ $invoice->invoice_number }}</h1>
                         <div class="badges">
                             <span class="badge badge-info">{{ $invoice->invoice_date->format('d-m-Y') }}</span>
                             @php
@@ -71,7 +71,7 @@
                                 {{ $invoice->status->label() }}
                             </span>
                             @if($invoice->isOverdue())
-                                <span class="badge badge-danger">منتهية الصلاحية</span>
+                                <span class="badge badge-danger">{{ __('warehouse.expired') }}</span>
                             @endif
                         </div>
                     </div>
@@ -90,7 +90,7 @@
                     <!-- تغيير الحالة (Status) في الـ Header -->
                     @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_UPDATE'))
                         <div class="dropdown">
-                            <button class="btn" type="button" data-bs-toggle="dropdown" title="تغيير حالة الفاتورة">
+                            <button class="btn" type="button" data-bs-toggle="dropdown" title="{{ __('warehouse.change_invoice_status') }}">
                                 @php
                                     $statusColor = $invoice->status->color();
                                     $colorCode = $statusColor === 'yellow' ? '#f39c12' : ($statusColor === 'green' ? '#27ae60' : ($statusColor === 'red' ? '#e74c3c' : '#3498db'));
@@ -125,7 +125,7 @@
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>
-                        العودة
+                        {{ __('warehouse.back') }}
                     </a>
                 </div>
             </div>
@@ -139,21 +139,21 @@
                             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات الفاتورة</h3>
+                    <h3 class="card-title">{{ __('warehouse.invoice_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">رقم الفاتورة:</div>
+                        <div class="info-label">{{ __('warehouse.invoice_number') }}:</div>
                         <div class="info-value">{{ $invoice->invoice_number }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">رقم مرجع الفاتورة:</div>
-                        <div class="info-value">{{ $invoice->invoice_reference_number ?? 'لا يوجد' }}</div>
+                        <div class="info-label">{{ __('warehouse.invoice_reference_number') }}:</div>
+                        <div class="info-value">{{ $invoice->invoice_reference_number ?? __('warehouse.not_available') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">الحالة:</div>
+                        <div class="info-label">{{ __('warehouse.status') }}:</div>
                         <div class="info-value">
                             @php
                                 $statusColor = $invoice->status->color();
@@ -170,16 +170,16 @@
 
                     @if ($invoice->is_active)
                         <div class="info-item">
-                            <div class="info-label">النشاط:</div>
+                            <div class="info-label">{{ __('warehouse.activity') }}:</div>
                             <div class="info-value">
-                                <span class="badge badge-success">✓ فعّالة</span>
+                                <span class="badge badge-success">✓ {{ __('warehouse.active') }}</span>
                             </div>
                         </div>
                     @else
                         <div class="info-item">
-                            <div class="info-label">النشاط:</div>
+                            <div class="info-label">{{ __('warehouse.activity') }}:</div>
                             <div class="info-value">
-                                <span class="badge badge-warning">⚠ معطّلة</span>
+                                <span class="badge badge-warning">⚠ {{ __('warehouse.disabled') }}</span>
                             </div>
                         </div>
                     @endif
@@ -194,27 +194,27 @@
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات المورد</h3>
+                    <h3 class="card-title">{{ __('warehouse.supplier_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">اسم المورد:</div>
-                        <div class="info-value">{{ $invoice->supplier->name ?? 'غير محدد' }}</div>
+                        <div class="info-label">{{ __('warehouse.supplier_name') }}:</div>
+                        <div class="info-value">{{ $invoice->supplier->name ?? __('warehouse.not_specified') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">البريد الإلكتروني:</div>
-                        <div class="info-value">{{ $invoice->supplier->email ?? 'لا يوجد' }}</div>
+                        <div class="info-label">{{ __('warehouse.email') }}:</div>
+                        <div class="info-value">{{ $invoice->supplier->email ?? __('warehouse.not_available') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">رقم الهاتف:</div>
-                        <div class="info-value">{{ $invoice->supplier->phone ?? 'لا يوجد' }}</div>
+                        <div class="info-label">{{ __('warehouse.phone_number') }}:</div>
+                        <div class="info-value">{{ $invoice->supplier->phone ?? __('warehouse.not_available') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">العنوان:</div>
-                        <div class="info-value">{{ $invoice->supplier->address ?? 'لا يوجد' }}</div>
+                        <div class="info-label">{{ __('warehouse.address') }}:</div>
+                        <div class="info-value">{{ $invoice->supplier->address ?? __('warehouse.not_available') }}</div>
                     </div>
                 </div>
             </div>
@@ -229,47 +229,47 @@
                             <path d="M9 16h6"></path>
                         </svg>
                     </div>
-                    <h3 class="card-title">التواريخ والمبالغ</h3>
+                    <h3 class="card-title">{{ __('warehouse.dates_and_amounts') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">تاريخ الفاتورة:</div>
+                        <div class="info-label">{{ __('warehouse.invoice_date') }}:</div>
                         <div class="info-value">{{ $invoice->invoice_date->format('Y-m-d') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">تاريخ الاستحقاق:</div>
+                        <div class="info-label">{{ __('warehouse.due_date') }}:</div>
                         <div class="info-value">
                             @if($invoice->due_date)
                                 {{ $invoice->due_date->format('Y-m-d') }}
                                 @if($invoice->isOverdue())
-                                    <span class="badge badge-danger">متأخر</span>
+                                    <span class="badge badge-danger">{{ __('warehouse.overdue') }}</span>
                                 @else
-                                    <span class="badge badge-info">{{ $invoice->daysUntilDue() }} يوم متبقي</span>
+                                    <span class="badge badge-info">{{ $invoice->daysUntilDue() }} {{ __('warehouse.days_remaining') }}</span>
                                 @endif
                             @else
-                                <span class="text-muted">لم يتم تحديد تاريخ</span>
+                                <span class="text-muted">{{ __('warehouse.date_not_specified') }}</span>
                             @endif
                         </div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">المبلغ الإجمالي:</div>
+                        <div class="info-label">{{ __('warehouse.total_amount') }}:</div>
                         <div class="info-value" style="font-size: 1.2em; font-weight: bold; color: #2c3e50;">
                             {{ number_format($invoice->total_amount, 2) }} {{ $invoice->currency }}
                         </div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">الوزن الإجمالي:</div>
+                        <div class="info-label">{{ __('warehouse.total_weight') }}:</div>
                         <div class="info-value" style="font-size: 1.2em; font-weight: bold; color: #8b5cf6;">
-                            {{ number_format($invoice->weight ?? 0, 2) }} {{ $invoice->weight_unit ?? 'وحدة' }}
+                            {{ number_format($invoice->weight ?? 0, 2) }} {{ $invoice->weight_unit ?? __('warehouse.unit') }}
                         </div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">شروط الدفع:</div>
-                        <div class="info-value">{{ $invoice->payment_terms ?? 'عام' }}</div>
+                        <div class="info-label">{{ __('warehouse.payment_terms') }}:</div>
+                        <div class="info-value">{{ $invoice->payment_terms ?? __('warehouse.general') }}</div>
                     </div>
                 </div>
             </div>
@@ -282,33 +282,33 @@
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات التسجيل والموافقة</h3>
+                    <h3 class="card-title">{{ __('warehouse.registration_and_approval_info') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">سجل بواسطة:</div>
-                        <div class="info-value">{{ $invoice->recordedBy->name ?? 'غير محدد' }}</div>
+                        <div class="info-label">{{ __('warehouse.recorded_by') }}:</div>
+                        <div class="info-value">{{ $invoice->recordedBy->name ?? __('warehouse.not_specified') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">تاريخ التسجيل:</div>
+                        <div class="info-label">{{ __('warehouse.registration_date') }}:</div>
                         <div class="info-value">{{ $invoice->created_at->format('d-m-Y H:i:s') }}</div>
                     </div>
 
                     @if($invoice->approvedBy)
                         <div class="info-item">
-                            <div class="info-label">وافق عليها:</div>
+                            <div class="info-label">{{ __('warehouse.approved_by') }}:</div>
                             <div class="info-value">{{ $invoice->approvedBy->name }}</div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label">تاريخ الموافقة:</div>
+                            <div class="info-label">{{ __('warehouse.approval_date') }}:</div>
                             <div class="info-value">{{ $invoice->approved_at->format('d-m-Y H:i') }}</div>
                         </div>
                     @endif
 
                     @if($invoice->paid_at)
                         <div class="info-item">
-                            <div class="info-label">تاريخ الدفع:</div>
+                            <div class="info-label">{{ __('warehouse.payment_date') }}:</div>
                             <div class="info-value">{{ $invoice->paid_at->format('d-m-Y H:i') }}</div>
                         </div>
                     @endif
@@ -323,7 +323,7 @@
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                             </svg>
                         </div>
-                        <h3 class="card-title">ملاحظات</h3>
+                        <h3 class="card-title">{{ __('warehouse.notes') }}</h3>
                     </div>
                     <div class="card-body">
                         <p style="color: #555; line-height: 1.6; margin: 0;">{{ $invoice->notes }}</p>
@@ -339,7 +339,7 @@
                             <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
                     </div>
-                    <h3 class="card-title">سجل العمليات</h3>
+                    <h3 class="card-title">{{ __('warehouse.operation_logs') }}</h3>
                 </div>
                 <div class="card-body">
                     @php

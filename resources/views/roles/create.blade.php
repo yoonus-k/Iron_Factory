@@ -11,22 +11,22 @@
                     <circle cx="12" cy="8" r="7"></circle>
                     <path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.11"></path>
                 </svg>
-                إضافة دور جديد
+                {{ __('roles.add_new_role') }}
             </h1>
-            <p class="header-subtitle">أضف دور جديد وحدد صلاحياته بسهولة</p>
+            <p class="header-subtitle">{{ __('roles.add_role_subtitle') }}</p>
         </div>
         <nav class="um-breadcrumb-nav">
             <a href="{{ route('dashboard') }}">
-                <i class="fas fa-home"></i> لوحة التحكم
+                <i class="fas fa-home"></i> {{ __('roles.dashboard') }}
             </a>
             <svg class="breadcrumb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
-            <a href="{{ route('roles.index') }}">الأدوار</a>
+            <a href="{{ route('roles.index') }}">{{ __('roles.roles') }}</a>
             <svg class="breadcrumb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
-            <span>إضافة دور</span>
+            <span>{{ __('roles.add_role') }}</span>
         </nav>
     </div>
     @if(session('success'))
@@ -65,16 +65,16 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">بيانات الدور</h3>
-                        <p class="section-subtitle">أضف دور جديد واختر صلاحياته</p>
+                        <h3 class="section-title">{{ __('roles.role_data') }}</h3>
+                        <p class="section-subtitle">{{ __('roles.role_data_description') }}</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="display_name" class="form-label">
-                            اسم الدور
-                            <span class="required">*</span>
+                            {{ __('roles.role_name') }}
+                            <span class="required">{{ __('roles.required') }}</span>
                         </label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -90,7 +90,7 @@
 
                     <div class="form-group">
                         <label for="name" class="form-label">
-                            الاسم الوصفي (الكود)
+                            {{ __('roles.descriptive_name_code') }}
                         </label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -105,8 +105,8 @@
 
                     <div class="form-group">
                         <label for="level" class="form-label">
-                            المستوى (0-100)
-                            <span class="required">*</span>
+                            {{ __('roles.level') }}
+                            <span class="required">{{ __('roles.required') }}</span>
                         </label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -120,7 +120,7 @@
                     </div>
 
                     <div class="form-group full-width">
-                        <label for="description" class="form-label">الوصف</label>
+                        <label for="description" class="form-label">{{ __('roles.description') }}</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M4 4h16v16H4z"></path>
@@ -134,14 +134,14 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="is_active" class="form-label">الدور نشط</label>
+                        <label for="is_active" class="form-label">{{ __('roles.role_active') }}</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
                             <select id="is_active" name="is_active" class="form-input @error('is_active') is-invalid @enderror">
-                                <option value="1" {{ old('is_active', 1) ? 'selected' : '' }}>نعم</option>
-                                <option value="0" {{ !old('is_active', 1) ? 'selected' : '' }}>لا</option>
+                                <option value="1" {{ old('is_active', 1) ? 'selected' : '' }}>{{ __('roles.yes') }}</option>
+                                <option value="0" {{ !old('is_active', 1) ? 'selected' : '' }}>{{ __('roles.no') }}</option>
                             </select>
                         </div>
                         @error('is_active')
@@ -161,28 +161,33 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">الصلاحيات</h3>
-                        <p class="section-subtitle">يمكنك تحديد كل صلاحيات قسم معيّن بضغطة واحدة</p>
+                        <h3 class="section-title">{{ __('roles.permissions') }}</h3>
+                        <p class="section-subtitle">{{ __('roles.permissions_description') }}</p>
                     </div>
                 </div>
             </div>
 
             @php
                 use Illuminate\Support\Str;
-                $grouped = $permissions->groupBy('group_name');
+                // تجميع الصلاحيات حسب اسم المجموعة المترجم
+                $grouped = $permissions->groupBy(function($perm) {
+                    return $perm->getGroupName();
+                });
                 $selected = old('permission_ids', []);
             @endphp
 
             <!-- Permission Groups Cards -->
             @foreach ($grouped as $group => $items)
-                @php $groupKey = Str::slug($group ?: 'غير-مصنّف'); @endphp
+                @php
+                    $groupKey = Str::slug($group ?: __('roles.unclassified'));
+                @endphp
                 <div class="form-card permissions-group" data-group="{{ $groupKey }}">
                     <div class="section-subgroup-header">
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <strong class="group-title">{{ $group ?: 'غير مصنّف' }}</strong>
+                            <strong class="group-title">{{ $group ?: __('roles.unclassified') }}</strong>
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input check-all" id="check_all_{{ $groupKey }}" data-group="{{ $groupKey }}">
-                                <label class="form-check-label" for="check_all_{{ $groupKey }}">تحديد الكل</label>
+                                <label class="form-check-label" for="check_all_{{ $groupKey }}">{{ __('roles.select_all') }}</label>
                             </div>
                         </div>
                     </div>
@@ -198,7 +203,7 @@
                                        data-group="{{ $groupKey }}"
                                        {{ in_array($perm->id, $selected) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="perm_{{ $perm->id }}">
-                                    {{ $perm->display_name }}
+                                    {{ $perm->getDisplayName() }}
                                 </label>
                             </div>
                         @endforeach
@@ -221,14 +226,14 @@
                             <polyline points="17 21 17 13 7 13 7 21"></polyline>
                             <polyline points="7 3 7 8 15 8"></polyline>
                         </svg>
-                        إضافة
+                        {{ __('roles.add') }}
                     </button>
                     <a href="{{ route('roles.index') }}" class="btn-cancel">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
-                        إلغاء
+                        {{ __('roles.cancel') }}
                     </a>
                 </div>
             </div>

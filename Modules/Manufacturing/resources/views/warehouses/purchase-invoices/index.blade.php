@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إدارة فواتير الشراء')
+@section('title', __('warehouse.purchase_invoices_management'))
 
 @section('content')
 
@@ -9,16 +9,16 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-file-text"></i>
-                إدارة فواتير الشراء
+                {{ __('warehouse.purchase_invoices_management') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('warehouse.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المستودع</span>
+                <span>{{ __('warehouse.warehouse_management') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>فواتير الشراء</span>
+                <span>{{ __('warehouse.purchase_invoices') }}</span>
             </nav>
         </div>
 
@@ -49,12 +49,12 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    قائمة فواتير الشراء
+                    {{ __('warehouse.purchase_invoices_list') }}
                 </h4>
                 @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_CREATE'))
                     <a href="{{ route('manufacturing.purchase-invoices.create') }}" class="um-btn um-btn-primary">
                         <i class="feather icon-plus"></i>
-                        إضافة فاتورة شراء جديدة
+                        {{ __('warehouse.add_new_purchase_invoice') }}
                     </a>
                 @endif
             </div>
@@ -64,14 +64,14 @@
                 <form method="GET" action="{{ route('manufacturing.purchase-invoices.index') }}">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث في الفواتير..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('warehouse.search_invoices') }}" value="{{ request('search') }}">
                         </div>
                         <div class="um-form-group">
-                            <input type="text" name="invoice_number" class="um-form-control" placeholder="رقم الفاتورة..." value="{{ request('invoice_number') }}">
+                            <input type="text" name="invoice_number" class="um-form-control" placeholder="{{ __('warehouse.invoice_number') }}" value="{{ request('invoice_number') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="supplier_id" class="um-form-control">
-                                <option value="">جميع الموردين</option>
+                                <option value="">{{ __('warehouse.all_suppliers') }}</option>
                                 @foreach($suppliers as $supplier)
                                     <option value="{{ $supplier->id }}" {{ request('supplier_id') == $supplier->id ? 'selected' : '' }}>
                                         {{ $supplier->name }}
@@ -81,22 +81,22 @@
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
-                                <option value="">جميع الحالات</option>
-                                <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>مسودة</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>قيد الانتظار</option>
-                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>موافق عليه</option>
-                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>مدفوع</option>
-                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>مرفوض</option>
+                                <option value="">{{ __('warehouse.all_statuses') }}</option>
+                                <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>{{ __('warehouse.status_draft') }}</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('warehouse.status_pending') }}</option>
+                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('warehouse.status_approved') }}</option>
+                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>{{ __('warehouse.status_paid') }}</option>
+                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>{{ __('warehouse.status_rejected') }}</option>
                             </select>
                         </div>
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                بحث
+                                {{ __('warehouse.search') }}
                             </button>
                             <a href="{{ route('manufacturing.purchase-invoices.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-x"></i>
-                                إعادة تعيين
+                                {{ __('warehouse.reset') }}
                             </a>
                         </div>
                     </div>
@@ -109,12 +109,12 @@
                     <thead>
                         <tr>
 
-                            <th>رقم الفاتورة</th>
-                            <th>المورد</th>
-                            <th>تاريخ الفاتورة</th>
-                            <th>المبلغ</th>
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
+                            <th>{{ __('warehouse.invoice_number') }}</th>
+                            <th>{{ __('warehouse.supplier') }}</th>
+                            <th>{{ __('warehouse.invoice_date') }}</th>
+                            <th>{{ __('warehouse.amount') }}</th>
+                            <th>{{ __('warehouse.status') }}</th>
+                            <th>{{ __('warehouse.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -145,29 +145,29 @@
                             </td>
                             <td>
                                 <div class="um-dropdown">
-                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                    <button class="um-btn-action um-btn-dropdown" title="{{ __('warehouse.actions') }}">
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
                                         @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_READ'))
                                             <a href="{{ route('manufacturing.purchase-invoices.show', $invoice->id) }}" class="um-dropdown-item um-btn-view">
                                                 <i class="feather icon-eye"></i>
-                                                <span>عرض</span>
+                                                <span>{{ __('warehouse.view') }}</span>
                                             </a>
                                         @endif
                                         @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_UPDATE'))
                                             <a href="{{ route('manufacturing.purchase-invoices.edit', $invoice->id) }}" class="um-dropdown-item um-btn-edit">
                                                 <i class="feather icon-edit-2"></i>
-                                                <span>تعديل</span>
+                                                <span>{{ __('warehouse.edit') }}</span>
                                             </a>
                                         @endif
                                         @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_DELETE'))
                                             <form action="{{ route('manufacturing.purchase-invoices.destroy', $invoice->id) }}" method="POST" style="display: inline;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="um-dropdown-item um-btn-delete" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+                                                <button type="submit" class="um-dropdown-item um-btn-delete" title="{{ __('warehouse.delete') }}" onclick="return confirm('{{ __('warehouse.confirm_delete') }}?')">
                                                     <i class="feather icon-trash-2"></i>
-                                                    <span>حذف</span>
+                                                    <span>{{ __('warehouse.delete') }}</span>
                                                 </button>
                                             </form>
                                         @endif
@@ -177,7 +177,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center">لا توجد فواتير شراء</td>
+                            <td colspan="7" class="text-center">{{ __('warehouse.no_purchase_invoices') }}</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -212,19 +212,19 @@
                     </div>
                     <div class="um-category-card-body">
                         <div class="um-info-row">
-                            <span>تاريخ الفاتورة:</span>
+                            <span>{{ __('warehouse.invoice_date') }}:</span>
                             <span>{{ $invoice->invoice_date->format('Y-m-d') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span>المبلغ:</span>
+                            <span>{{ __('warehouse.amount') }}:</span>
                             <span>{{ number_format($invoice->total_amount, 2) }} {{ $invoice->currency }}</span>
                         </div>
                         @if($invoice->due_date)
                         <div class="um-info-row">
-                            <span>تاريخ الاستحقاق:</span>
+                            <span>{{ __('warehouse.due_date') }}:</span>
                             <span>{{ $invoice->due_date->format('Y-m-d') }}
                                 @if($invoice->isOverdue())
-                                    <span class="um-badge um-badge-danger">متأخر</span>
+                                    <span class="um-badge um-badge-danger">{{ __('warehouse.overdue') }}</span>
                                 @endif
                             </span>
                         </div>
@@ -232,29 +232,29 @@
                     </div>
                     <div class="um-category-card-footer">
                         <div class="um-dropdown">
-                            <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                            <button class="um-btn-action um-btn-dropdown" title="{{ __('warehouse.actions') }}">
                                 <i class="feather icon-more-vertical"></i>
                             </button>
                             <div class="um-dropdown-menu">
                                 @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_READ'))
                                     <a href="{{ route('manufacturing.purchase-invoices.show', $invoice->id) }}" class="um-dropdown-item um-btn-view">
                                         <i class="feather icon-eye"></i>
-                                        <span>عرض</span>
+                                        <span>{{ __('warehouse.view') }}</span>
                                     </a>
                                 @endif
                                 @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_UPDATE'))
                                     <a href="{{ route('manufacturing.purchase-invoices.edit', $invoice->id) }}" class="um-dropdown-item um-btn-edit">
                                         <i class="feather icon-edit-2"></i>
-                                        <span>تعديل</span>
+                                        <span>{{ __('warehouse.edit') }}</span>
                                     </a>
                                 @endif
                                 @if (auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_DELETE'))
                                     <form action="{{ route('manufacturing.purchase-invoices.destroy', $invoice->id) }}" method="POST" style="display: inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="um-dropdown-item um-btn-delete" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+                                        <button type="submit" class="um-dropdown-item um-btn-delete" title="{{ __('warehouse.delete') }}" onclick="return confirm('{{ __('warehouse.confirm_delete') }}?')">
                                             <i class="feather icon-trash-2"></i>
-                                            <span>حذف</span>
+                                            <span>{{ __('warehouse.delete') }}</span>
                                         </button>
                                     </form>
                                 @endif
@@ -263,7 +263,7 @@
                     </div>
                 </div>
                 @empty
-                <div class="text-center">لا توجد فواتير شراء</div>
+                <div class="text-center">{{ __('warehouse.no_purchase_invoices') }}</div>
                 @endforelse
             </div>
 
@@ -272,8 +272,8 @@
                 <div class="um-pagination-section">
                     <div>
                         <p class="um-pagination-info">
-                            عرض {{ $invoices->firstItem() ?? 0 }} إلى {{ $invoices->lastItem() ?? 0 }} من أصل
-                            {{ $invoices->total() }} فاتورة شراء
+                            {{ __('warehouse.showing') }} {{ $invoices->firstItem() ?? 0 }} {{ __('warehouse.to') }} {{ $invoices->lastItem() ?? 0 }} {{ __('warehouse.of') }}
+                            {{ $invoices->total() }} {{ __('warehouse.purchase_invoice') }}
                         </p>
                     </div>
                     <div>

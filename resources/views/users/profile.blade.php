@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'الملف الشخصي')
+@section('title', __('users.user_profile'))
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('assets/css/profile.css') }}">
@@ -9,14 +9,14 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-user-circle"></i>
-                الملف الشخصي للموظف
+                {{ __('users.employee_profile') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('users.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>الملف الشخصي</span>
+                <span>{{ __('users.profile') }}</span>
             </nav>
         </div>
 
@@ -62,14 +62,14 @@
                         </span>
                         <span class="meta-item">
                             <i class="feather icon-id-card"></i>
-                            الرقم: #{{ $user->id }}
+                            {{ __('users.number') }}: #{{ $user->id }}
                         </span>
                     </div>
                 </div>
                 <div class="profile-status">
                     <span class="badge {{ $user->is_active ? 'badge-active' : 'badge-inactive' }}">
                         <i class="feather {{ $user->is_active ? 'icon-check-circle' : 'icon-x-circle' }}"></i>
-                        {{ $user->is_active ? 'نشط' : 'غير نشط' }}
+                        {{ $user->is_active ? __('users.active') : __('users.inactive') }}
                     </span>
                 </div>
             </div>
@@ -82,14 +82,14 @@
                         <div class="card-icon">
                             <i class="feather icon-user"></i>
                         </div>
-                        <h3 class="card-title">معلومات الحساب</h3>
+                        <h3 class="card-title">{{ __('users.account_information') }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="info-group">
                             <div class="info-item">
                                 <div class="info-label">
                                     <i class="feather icon-user"></i>
-                                    الاسم الكامل
+                                    {{ __('users.full_name') }}
                                 </div>
                                 <div class="info-value">{{ $user->name }}</div>
                             </div>
@@ -97,7 +97,7 @@
                             <div class="info-item">
                                 <div class="info-label">
                                     <i class="feather icon-at-sign"></i>
-                                    اسم المستخدم
+                                    {{ __('users.username') }}
                                 </div>
                                 <div class="info-value">{{ $user->username }}</div>
                             </div>
@@ -105,7 +105,7 @@
                             <div class="info-item">
                                 <div class="info-label">
                                     <i class="feather icon-mail"></i>
-                                    البريد الإلكتروني
+                                    {{ __('users.email') }}
                                 </div>
                                 <div class="info-value">{{ $user->email }}</div>
                             </div>
@@ -113,19 +113,19 @@
                             <div class="info-item">
                                 <div class="info-label">
                                     <i class="feather icon-clock"></i>
-                                    الفترة الزمنية
+                                    {{ __('users.shift') }}
                                 </div>
-                                <div class="info-value">{{ $user->shift ?? 'غير محدد' }}</div>
+                                <div class="info-value">{{ $user->shift ?? __('users.not_specified') }}</div>
                             </div>
 
                             <div class="info-item">
                                 <div class="info-label">
                                     <i class="feather icon-shield"></i>
-                                    الحالة
+                                    {{ __('users.status') }}
                                 </div>
                                 <div class="info-value">
                                     <span class="status-badge {{ $user->is_active ? 'status-active' : 'status-inactive' }}">
-                                        {{ $user->is_active ? 'نشط' : 'غير نشط' }}
+                                        {{ $user->is_active ? __('users.active') : __('users.inactive') }}
                                     </span>
                                 </div>
                             </div>
@@ -133,7 +133,7 @@
                             <div class="info-item">
                                 <div class="info-label">
                                     <i class="feather icon-calendar"></i>
-                                    تاريخ الإنشاء
+                                    {{ __('users.created_at') }}
                                 </div>
                                 <div class="info-value">{{ $user->created_at->format('Y-m-d H:i:s') }}</div>
                             </div>
@@ -141,7 +141,7 @@
                             <div class="info-item">
                                 <div class="info-label">
                                     <i class="feather icon-calendar"></i>
-                                    آخر تحديث
+                                    {{ __('users.updated_at') }}
                                 </div>
                                 <div class="info-value">{{ $user->updated_at->format('Y-m-d H:i:s') }}</div>
                             </div>
@@ -155,34 +155,34 @@
                         <div class="card-icon">
                             <i class="feather icon-award"></i>
                         </div>
-                        <h3 class="card-title">معلومات الدور</h3>
+                        <h3 class="card-title">{{ __('users.role_information') }}</h3>
                     </div>
                     <div class="card-body">
                         @if($user->roleRelation)
                             <div class="role-badge">
                                 <span class="role-name">{{ $user->roleRelation->role_name }}</span>
-                                <span class="role-level">المستوى {{ $user->roleRelation->level }}</span>
+                                <span class="role-level">{{ __('users.level') }} {{ $user->roleRelation->level }}</span>
                             </div>
 
                             <div class="info-group">
                                 <div class="info-item">
                                     <div class="info-label">
                                         <i class="feather icon-file-text"></i>
-                                        وصف الدور
+                                        {{ __('users.role_description') }}
                                     </div>
                                     <div class="info-value">
-                                        {{ $user->roleRelation->description ?? 'لا يوجد وصف' }}
+                                        {{ $user->roleRelation->description ?? __('users.no_description') }}
                                     </div>
                                 </div>
 
                                 <div class="info-item">
                                     <div class="info-label">
                                         <i class="feather icon-info"></i>
-                                        حالة الدور
+                                        {{ __('users.role_status') }}
                                     </div>
                                     <div class="info-value">
                                         <span class="status-badge {{ $user->roleRelation->is_active ? 'status-active' : 'status-inactive' }}">
-                                            {{ $user->roleRelation->is_active ? 'فعال' : 'معطل' }}
+                                            {{ $user->roleRelation->is_active ? __('users.active') : __('users.disabled') }}
                                         </span>
                                     </div>
                                 </div>
@@ -190,14 +190,14 @@
                                 @if($user->isAdmin())
                                     <div class="admin-badge">
                                         <i class="feather icon-crown"></i>
-                                        مسؤول النظام
+                                        {{ __('users.system_admin') }}
                                     </div>
                                 @endif
                             </div>
                         @else
                             <div class="alert alert-warning">
                                 <i class="feather icon-alert-triangle"></i>
-                                لم يتم تعيين دور لهذا الحساب
+                                {{ __('users.no_role_assigned') }}
                             </div>
                         @endif
                     </div>
@@ -210,9 +210,9 @@
                     <div class="card-icon">
                         <i class="feather icon-lock"></i>
                     </div>
-                    <h3 class="card-title">الصلاحيات المتاحة</h3>
+                    <h3 class="card-title">{{ __('users.permissions') }}</h3>
                     @if($permissions)
-                        <span class="permission-count">{{ $permissions->count() }} صلاحية</span>
+                        <span class="permission-count">{{ $permissions->count() }} {{ __('users.permissions_count') }}</span>
                     @endif
                 </div>
                 <div class="card-body">
@@ -226,7 +226,7 @@
                             @foreach($groupedPermissions as $groupName => $perms)
                                 <div class="permission-group">
                                     <div class="group-header">
-                                        <h4 class="group-title">{{ $groupName ?? 'عام' }}</h4>
+                                        <h4 class="group-title">{{ $groupName ?? __('users.general') }}</h4>
                                     </div>
                                     <div class="permissions-list">
                                         @foreach($perms as $permission)
@@ -247,12 +247,12 @@
                     @elseif($user->isAdmin())
                         <div class="admin-permissions">
                             <i class="feather icon-crown"></i>
-                            <p>لديك <strong>جميع الصلاحيات</strong> كمسؤول النظام</p>
+                            <p>{{ __('users.admin_all_permissions') }}</p>
                         </div>
                     @else
                         <div class="no-permissions">
                             <i class="feather icon-slash"></i>
-                            <p>لا توجد صلاحيات مخصصة لك</p>
+                            <p>{{ __('users.no_permissions') }}</p>
                         </div>
                     @endif
                 </div>
@@ -265,7 +265,7 @@
                     <div class="card-icon">
                         <i class="feather icon-activity"></i>
                     </div>
-                    <h3 class="card-title">آخر النشاطات</h3>
+                    <h3 class="card-title">{{ __('users.recent_activity') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="activity-list">

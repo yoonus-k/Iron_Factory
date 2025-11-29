@@ -10,8 +10,11 @@ class Permission extends Model
     protected $fillable = [
         'name',
         'display_name',
+        'display_name_en',
         'group_name',
+        'group_name_en',
         'description',
+        'description_en',
         'created_by',
     ];
 
@@ -38,6 +41,56 @@ class Permission extends Model
      */
     public function getDisplayName($locale = null)
     {
+        $locale = $locale ?? app()->getLocale();
+
+        if ($locale === 'en' && !empty($this->display_name_en)) {
+            return $this->display_name_en;
+        }
+
         return $this->display_name;
+    }
+
+    /**
+     * الحصول على اسم المجموعة المترجم
+     */
+    public function getGroupName($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+
+        if ($locale === 'en' && !empty($this->group_name_en)) {
+            return $this->group_name_en;
+        }
+
+        return $this->group_name;
+    }
+
+    /**
+     * الحصول على الوصف المترجم
+     */
+    public function getDescription($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+
+        if ($locale === 'en' && !empty($this->description_en)) {
+            return $this->description_en;
+        }
+
+        return $this->description;
+    }
+
+    /**
+     * Accessor لاسم العرض المترجم تلقائياً
+     */
+    public function getTranslatedDisplayNameAttribute()
+    {
+        return $this->getDisplayName();
+    }
+
+    /**
+     * Accessor لاسم المجموعة المترجم تلقائياً
+     */
+    public function getTranslatedGroupNameAttribute()
+    {
+        return $this->getGroupName();
     }
 }
