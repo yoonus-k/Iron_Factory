@@ -22,6 +22,8 @@ use Modules\Manufacturing\Http\Controllers\MaterialMovementController;
 use Modules\Manufacturing\Http\Controllers\WarehouseReportsController;
 use Modules\Manufacturing\Http\Controllers\ProductionConfirmationController;
 use Modules\Manufacturing\Http\Controllers\ShiftHandoverController;
+use Modules\Manufacturing\Http\Controllers\FinishedProductDeliveryController;
+use Modules\Manufacturing\Http\Controllers\WarehouseIntakeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -487,5 +489,74 @@ Route::middleware(['auth'])->group(function () {
     Route::get('iron-journey/show', [QualityController::class, 'showIronJourney'])
         ->middleware('permission:MENU_QUALITY')
         ->name('manufacturing.iron-journey.show');
+
+    // Warehouse Intake Routes (طلبات إدخال المستودع)
+    Route::prefix('warehouse-intake')->name('manufacturing.warehouse-intake.')->group(function () {
+        Route::get('/', [WarehouseIntakeController::class, 'index'])
+            ->middleware('permission:WAREHOUSE_INTAKE_READ')
+            ->name('index');
+        Route::get('create', [WarehouseIntakeController::class, 'create'])
+            ->middleware('permission:WAREHOUSE_INTAKE_CREATE')
+            ->name('create');
+        Route::post('/', [WarehouseIntakeController::class, 'store'])
+            ->middleware('permission:WAREHOUSE_INTAKE_CREATE')
+            ->name('store');
+        Route::get('pending-approval', [WarehouseIntakeController::class, 'pendingApproval'])
+            ->middleware('permission:WAREHOUSE_INTAKE_APPROVE')
+            ->name('pending-approval');
+        Route::get('api/available-boxes', [WarehouseIntakeController::class, 'getAvailableBoxes'])
+            ->name('api.available-boxes');
+        Route::get('{id}', [WarehouseIntakeController::class, 'show'])
+            ->middleware('permission:WAREHOUSE_INTAKE_READ')
+            ->name('show');
+        Route::post('{id}/approve', [WarehouseIntakeController::class, 'approve'])
+            ->middleware('permission:WAREHOUSE_INTAKE_APPROVE')
+            ->name('approve');
+        Route::post('{id}/reject', [WarehouseIntakeController::class, 'reject'])
+            ->middleware('permission:WAREHOUSE_INTAKE_REJECT')
+            ->name('reject');
+        Route::get('{id}/print', [WarehouseIntakeController::class, 'print'])
+            ->middleware('permission:WAREHOUSE_INTAKE_PRINT')
+            ->name('print');
+    });
+
+    // Finished Product Deliveries Routes
+    Route::prefix('finished-product-deliveries')->name('manufacturing.finished-product-deliveries.')->group(function () {
+        Route::get('/', [FinishedProductDeliveryController::class, 'index'])
+            ->middleware('permission:FINISHED_PRODUCT_DELIVERIES_READ')
+            ->name('index');
+        Route::get('create', [FinishedProductDeliveryController::class, 'create'])
+            ->middleware('permission:FINISHED_PRODUCT_DELIVERIES_CREATE')
+            ->name('create');
+        Route::post('/', [FinishedProductDeliveryController::class, 'store'])
+            ->middleware('permission:FINISHED_PRODUCT_DELIVERIES_CREATE')
+            ->name('store');
+        Route::get('pending-approval', [FinishedProductDeliveryController::class, 'pendingApproval'])
+            ->middleware('permission:FINISHED_PRODUCT_DELIVERIES_APPROVE')
+            ->name('pending-approval');
+        Route::get('api/available-boxes', [FinishedProductDeliveryController::class, 'getAvailableBoxes'])
+            ->name('api.available-boxes');
+        Route::get('{id}', [FinishedProductDeliveryController::class, 'show'])
+            ->middleware('permission:FINISHED_PRODUCT_DELIVERIES_READ')
+            ->name('show');
+        Route::get('{id}/edit', [FinishedProductDeliveryController::class, 'edit'])
+            ->middleware('permission:FINISHED_PRODUCT_DELIVERIES_UPDATE')
+            ->name('edit');
+        Route::put('{id}', [FinishedProductDeliveryController::class, 'update'])
+            ->middleware('permission:FINISHED_PRODUCT_DELIVERIES_UPDATE')
+            ->name('update');
+        Route::delete('{id}', [FinishedProductDeliveryController::class, 'destroy'])
+            ->middleware('permission:FINISHED_PRODUCT_DELIVERIES_DELETE')
+            ->name('destroy');
+        Route::post('{id}/approve', [FinishedProductDeliveryController::class, 'approve'])
+            ->middleware('permission:FINISHED_PRODUCT_DELIVERIES_APPROVE')
+            ->name('approve');
+        Route::post('{id}/reject', [FinishedProductDeliveryController::class, 'reject'])
+            ->middleware('permission:FINISHED_PRODUCT_DELIVERIES_REJECT')
+            ->name('reject');
+        Route::get('{id}/print', [FinishedProductDeliveryController::class, 'print'])
+            ->middleware('permission:FINISHED_PRODUCT_DELIVERIES_PRINT')
+            ->name('print');
+    });
 
 }); // End of Authentication Middleware

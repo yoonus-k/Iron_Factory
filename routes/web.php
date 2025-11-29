@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CustomerController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -41,6 +42,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/test-permissions', function () {
         return view('test-permissions');
     })->name('test-permissions');
+
+    // Customers Routes
+    Route::resource('customers', CustomerController::class)->except(['create', 'show', 'edit']);
+    Route::post('customers/{id}/activate', [CustomerController::class, 'activate'])->name('customers.activate');
+    Route::post('customers/{id}/deactivate', [CustomerController::class, 'deactivate'])->name('customers.deactivate');
+    Route::get('customers/search', [CustomerController::class, 'search'])->name('customers.search');
 
     // Roles & Permissions Routes (Admin Only)
     Route::middleware(['role:ADMIN'])->group(function () {

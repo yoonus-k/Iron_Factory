@@ -18,6 +18,7 @@ class Stage4Box extends Model
         'total_weight',
         'waste',
         'status',
+        'warehouse_id',
         'customer_info',
         'customer_info_en',
         'shipping_address',
@@ -50,5 +51,10 @@ class Stage4Box extends Model
     public function boxCoils(): HasMany
     {
         return $this->hasMany(BoxCoil::class, 'box_id');
+    }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
     }
 }

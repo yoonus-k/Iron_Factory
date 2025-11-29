@@ -99,6 +99,36 @@
                     </li>
                     @endif
 
+                    @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_READ'))
+                    <li>
+                        <a href="{{ route('manufacturing.warehouse-intake.index') }}">
+                            <i class="fas fa-dolly"></i> طلبات إدخال المستودع
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_APPROVE'))
+                    <li>
+                        <a href="{{ route('manufacturing.warehouse-intake.pending-approval') }}">
+                            <i class="fas fa-clipboard-check"></i> اعتماد طلبات الإدخال
+                            @php
+                                $pendingIntakeCount = \App\Models\WarehouseIntakeRequest::where('status', 'pending')->count();
+                            @endphp
+                            @if($pendingIntakeCount > 0)
+                                <span class="badge badge-danger" style="margin-right: 5px;">{{ $pendingIntakeCount }}</span>
+                            @endif
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_READ'))
+                    <li>
+                        <a href="{{ route('manufacturing.finished-product-deliveries.index') }}">
+                            <i class="fas fa-truck-loading"></i> إذونات صرف المنتجات
+                        </a>
+                    </li>
+                    @endif
+
                 </ul>
             </li>
             @endif
@@ -112,13 +142,13 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
-                    @if(auth()->user()->hasPermission('STAGE1_STANDS_READ'))
+                    <!-- @if(auth()->user()->hasPermission('STAGE1_STANDS_READ'))
                     <li>
                         <a href="{{ route('manufacturing.stands.index') }}">
                             <i class="fas fa-list"></i> {{ __('app.production.stage1.list') }}
                         </a>
                     </li>
-                    @endif
+                    @endif -->
 
                     @if(auth()->user()->hasPermission('STAGE1_STANDS_CREATE'))
                     <li>
@@ -272,6 +302,50 @@
                     <li>
                         <a href="{{ route('manufacturing.stage4.index') }}">
                             <i class="fas fa-history"></i> سجل المرحلة
+                        </a>
+                    </li>
+                    @endif
+                </ul>
+            </li>
+            @endif
+
+            <!-- المنتجات النهائية والعملاء -->
+            @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES') || auth()->user()->hasPermission('MENU_CUSTOMERS'))
+            <li class="has-submenu">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="المنتجات النهائية والعملاء">
+                    <i class="fas fa-truck-loading"></i>
+                    <span>المنتجات النهائية</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </a>
+                <ul class="submenu">
+                    @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES'))
+                    <li>
+                        <a href="{{ route('manufacturing.finished-product-deliveries.index') }}">
+                            <i class="fas fa-box-open"></i> إذونات الصرف
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_CREATE'))
+                    <li>
+                        <a href="{{ route('manufacturing.finished-product-deliveries.create') }}">
+                            <i class="fas fa-plus-circle"></i> إنشاء إذن صرف
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_APPROVE'))
+                    <li>
+                        <a href="{{ route('manufacturing.finished-product-deliveries.pending-approval') }}">
+                            <i class="fas fa-clock"></i> الإذونات المعلقة
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('MENU_CUSTOMERS'))
+                    <li>
+                        <a href="{{ route('customers.index') }}">
+                            <i class="fas fa-users"></i> إدارة العملاء
                         </a>
                     </li>
                     @endif

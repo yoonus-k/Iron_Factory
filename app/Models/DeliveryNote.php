@@ -2,38 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\DeliveryNoteStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
-enum DeliveryNoteStatus: string
-{
-    case PENDING = 'pending';
-    case APPROVED = 'approved';
-    case REJECTED = 'rejected';
-    case COMPLETED = 'completed';
-
-
-    public function label(): string
-    {
-        return match($this) {
-            self::PENDING => 'قيد الانتظار',
-            self::APPROVED => 'موافق عليه',
-            self::REJECTED => 'مرفوض',
-            self::COMPLETED => 'مكتمل',
-        };
-    }
-
-    public function color(): string
-    {
-        return match($this) {
-            self::PENDING => 'yellow',
-            self::APPROVED => 'green',
-            self::REJECTED => 'red',
-            self::COMPLETED => 'blue',
-        };
-    }
-}
 
 class DeliveryNote extends Model
 {
@@ -41,7 +13,7 @@ class DeliveryNote extends Model
 
     protected $fillable = [
         'note_number',
-        'type', // incoming / outgoing
+        'type', // incoming / outgoing / finished_product_outgoing
         'status', // pending, approved, rejected, completed
         'material_id',
         'material_detail_id', // ربط مع تفاصيل المادة بالمستودع (لتجنب التكرار)
@@ -66,11 +38,15 @@ class DeliveryNote extends Model
         'approved_by', // من وافق على الأذن
         'approved_at',
         'supplier_id', // المورد (للواردة)
+        'customer_id', // ✅ العميل (للإذونات الصادرة)
         'destination_id', // الوجهة (للصادرة)
         'invoice_number', // رقم الفاتورة
         'invoice_reference_number', // رقم مرجع الفاتورة
         'is_active',
         'notes', // ملاحظات ✅
+        'print_count', // ✅ عدد مرات الطباعة
+        'source_type', // ✅ نوع المصدر (stage4_box)
+        'source_id', // ✅ ID المصدر
         // ========== الحقول الجديدة ==========
         'registration_status',
         'registered_by',
@@ -299,6 +275,22 @@ class DeliveryNote extends Model
     }
 
     /**
+     * العلاقة مع العميل (للإذونات الصادرة)
+     */
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    /**
+     * العلاقة مع أصناف الإذن (الكراتين)
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(DeliveryNoteItem::class);
+    }
+
+    /**
      * Get operation logs for this delivery note
      */
     public function operationLogs(): HasMany
@@ -481,5 +473,82 @@ class DeliveryNote extends Model
     public function scopeWithDiscrepancies($query)
     {
         return $query->where('reconciliation_status', 'discrepancy');
+    }
+
+    /**
+     * Scope للإذونات الصادرة - منتجات نهائية
+     */
+    public function scopeFinishedProductOutgoing($query)
+    {
+        return $query->where('type', 'finished_product_outgoing');
+    }
+
+    /**
+     * التحقق من إمكانية الطباعة
+     */
+    public function canPrint(): bool
+    {
+        $statusValue = $this->status instanceof \App\Enums\DeliveryNoteStatus 
+            ? $this->status->value 
+            : $this->status;
+            
+        return $statusValue === 'approved' && $this->type === 'finished_product_outgoing';
+    }
+
+    /**
+     * التحقق من إمكانية الاعتماد
+     */
+    public function canApprove(): bool
+    {
+        $statusValue = $this->status instanceof \App\Enums\DeliveryNoteStatus 
+            ? $this->status->value 
+            : $this->status;
+            
+        return $statusValue === 'pending' && $this->type === 'finished_product_outgoing';
+    }
+
+    /**
+     * اعتماد الإذن
+     */
+    public function approve(User $approver, ?int $customerId = null): bool
+    {
+        if (!$this->canApprove()) {
+            return false;
+        }
+
+        $this->status = 'approved';
+        $this->approved_by = $approver->id;
+        $this->approved_at = now();
+        
+        if ($customerId) {
+            $this->customer_id = $customerId;
+        }
+
+        return $this->save();
+    }
+
+    /**
+     * رفض الإذن
+     */
+    public function reject(User $user, string $reason): bool
+    {
+        if (!$this->canApprove()) {
+            return false;
+        }
+
+        $this->status = 'rejected';
+        $this->rejection_reason = $reason;
+        $this->approved_by = $user->id;
+        $this->approved_at = now();
+
+        return $this->save();
+    }
+
+    /**
+     * زيادة عداد الطباعة
+     */
+    public function incrementPrintCount(): void
+    {
+        $this->increment('print_count');
     }
 }
