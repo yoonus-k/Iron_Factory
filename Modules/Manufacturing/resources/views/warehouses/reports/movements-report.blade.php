@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تقرير الحركات والتحويلات')
+@section('title', __('warehouse.movements_report'))
 
 @section('content')
     <div class="report-container">
@@ -11,16 +11,16 @@
                     <i class="feather icon-repeat"></i>
                 </div>
                 <div>
-                    <h1 class="page-title">تقرير الحركات والتحويلات</h1>
-                    <p class="page-subtitle">سجل حركات المواد بين المستودعات</p>
+                    <h1 class="page-title">{{ __('warehouse.movements_report') }}</h1>
+                    <p class="page-subtitle">{{ __('warehouse.movements_subtitle') }}</p>
                 </div>
             </div>
             <div class="header-actions">
                 <button onclick="window.print()" class="btn-action">
-                    <i class="feather icon-printer"></i> طباعة
+                    <i class="feather icon-printer"></i> {{ __('warehouse.print') }}
                 </button>
                 <a href="{{ route('manufacturing.warehouse-reports.index') }}" class="btn-action">
-                    <i class="feather icon-arrow-right"></i> رجوع
+                    <i class="feather icon-arrow-right"></i> {{ __('warehouse.back') }}
                 </a>
             </div>
         </div>
@@ -29,17 +29,17 @@
         <div class="filter-card">
             <form method="GET" class="filter-form">
                 <div class="filter-group">
-                    <label>من تاريخ</label>
+                    <label>{{ __('warehouse.from_date') }}</label>
                     <input type="date" name="start_date" value="{{ $startDate }}" class="form-control">
                 </div>
                 <div class="filter-group">
-                    <label>إلى تاريخ</label>
+                    <label>{{ __('warehouse.to_date') }}</label>
                     <input type="date" name="end_date" value="{{ $endDate }}" class="form-control">
                 </div>
                 <div class="filter-group">
-                    <label>المستودع</label>
+                    <label>{{ __('warehouse.warehouse') }}</label>
                     <select name="warehouse_id" class="form-control">
-                        <option value="">الكل</option>
+                        <option value="">{{ __('warehouse.all') }}</option>
                         @foreach($warehouses as $warehouse)
                             <option value="{{ $warehouse->id }}" {{ request('warehouse_id') == $warehouse->id ? 'selected' : '' }}>
                                 {{ $warehouse->warehouse_name }}
@@ -48,16 +48,16 @@
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label>نوع الحركة</label>
+                    <label>{{ __('warehouse.movement_type') }}</label>
                     <select name="transaction_type" class="form-control">
-                        <option value="">الكل</option>
-                        <option value="incoming" {{ request('transaction_type') == 'incoming' ? 'selected' : '' }}>دخول بضاعة</option>
-                        <option value="outgoing" {{ request('transaction_type') == 'outgoing' ? 'selected' : '' }}>خروج بضاعة</option>
-                        <option value="transfer" {{ request('transaction_type') == 'transfer' ? 'selected' : '' }}>نقل بين مستودعات</option>
+                        <option value="">{{ __('warehouse.all') }}</option>
+                        <option value="incoming" {{ request('transaction_type') == 'incoming' ? 'selected' : '' }}>{{ __('warehouse.incoming') }}</option>
+                        <option value="outgoing" {{ request('transaction_type') == 'outgoing' ? 'selected' : '' }}>{{ __('warehouse.outgoing') }}</option>
+                        <option value="transfer" {{ request('transaction_type') == 'transfer' ? 'selected' : '' }}>{{ __('warehouse.transfer_between_warehouses') }}</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-filter">
-                    <i class="feather icon-search"></i> بحث
+                    <i class="feather icon-search"></i> {{ __('warehouse.search') }}
                 </button>
             </form>
         </div>
@@ -66,7 +66,7 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-bar-chart"></i>
-                الإحصائيات
+                {{ __('warehouse.statistics') }}
             </h2>
             <div class="chart-container">
                 <canvas id="movementsChart"></canvas>
@@ -81,7 +81,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['total_movements'] }}</h3>
-                    <p>إجمالي الحركات</p>
+                    <p>{{ __('warehouse.total_movements') }}</p>
                 </div>
             </div>
             <div class="stat-card green">
@@ -90,7 +90,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['receive_count'] }}</h3>
-                    <p>دخول بضاعة</p>
+                    <p>{{ __('warehouse.receive_goods') }}</p>
                 </div>
             </div>
             <div class="stat-card orange">
@@ -99,7 +99,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['issue_count'] }}</h3>
-                    <p>خروج بضاعة</p>
+                    <p>{{ __('warehouse.issue_goods') }}</p>
                 </div>
             </div>
             <div class="stat-card purple">
@@ -108,7 +108,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['transfer_count'] }}</h3>
-                    <p>نقل بين مستودعات</p>
+                    <p>{{ __('warehouse.transfer_between_warehouses') }}</p>
                 </div>
             </div>
             <div class="stat-card blue">
@@ -117,7 +117,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ number_format($stats['total_quantity'], 2) }}</h3>
-                    <p>إجمالي الكميات</p>
+                    <p>{{ __('warehouse.total_quantity') }}</p>
                 </div>
             </div>
         </div>
@@ -126,55 +126,55 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-list"></i>
-                تفاصيل الحركات
+                {{ __('warehouse.movements_details') }}
             </h2>
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>اسم المادة</th>
-                            <th>المستودع</th>
-                            <th>النوع</th>
-                            <th>الكمية</th>
-                            <th>الوحدة</th>
-                            <th>نوع الحركة</th>
-                            <th>التاريخ</th>
+                            <th>{{ __('warehouse.material_name') }}</th>
+                            <th>{{ __('warehouse.warehouse') }}</th>
+                            <th>{{ __('warehouse.type') }}</th>
+                            <th>{{ __('warehouse.quantity') }}</th>
+                            <th>{{ __('warehouse.unit') }}</th>
+                            <th>{{ __('warehouse.movement_type') }}</th>
+                            <th>{{ __('warehouse.date') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($movements as $index => $movement)
                             <tr>
                                 <td>{{ $movements->firstItem() + $index }}</td>
-                                <td><strong>{{ $movement->material->name_ar ?? $movement->material->name_en ?? 'غير محدد' }}</strong></td>
+                                <td><strong>{{ $movement->material->name_ar ?? $movement->material->name_en ?? __('warehouse.undefined') }}</strong></td>
                                 <td>
                                     @if($movement->fromWarehouse)
                                         {{ $movement->fromWarehouse->warehouse_name }}
                                     @elseif($movement->supplier)
-                                        {{ $movement->supplier->name ?? 'غير محدد' }}
+                                        {{ $movement->supplier->name ?? __('warehouse.undefined') }}
                                     @else
-                                        غير محدد
+                                        {{ __('warehouse.undefined') }}
                                     @endif
                                 </td>
-                                <td>{{ $movement->material->materialType->type_name ?? 'غير محدد' }}</td>
+                                <td>{{ $movement->material->materialType->type_name ?? __('warehouse.undefined') }}</td>
                                 <td>
                                     <span class="quantity-badge">
                                         {{ number_format($movement->quantity, 2) }}
                                     </span>
                                 </td>
-                                <td>{{ $movement->unit->unit_name ?? 'وحدة' }}</td>
+                                <td>{{ $movement->unit->unit_name ?? __('warehouse.unit') }}</td>
                                 <td>
                                     @if($movement->movement_type == 'incoming')
                                         <span class="type-badge receive">
-                                            <i class="feather icon-arrow-down"></i> استلام
+                                            <i class="feather icon-arrow-down"></i> {{ __('warehouse.receive') }}
                                         </span>
                                     @elseif($movement->movement_type == 'outgoing')
                                         <span class="type-badge issue">
-                                            <i class="feather icon-arrow-up"></i> صرف
+                                            <i class="feather icon-arrow-up"></i> {{ __('warehouse.issue') }}
                                         </span>
                                     @elseif($movement->movement_type == 'transfer')
                                         <span class="type-badge transfer">
-                                            <i class="feather icon-shuffle"></i> تحويل
+                                            <i class="feather icon-shuffle"></i> {{ __('warehouse.transfer') }}
                                         </span>
                                     @else
                                         <span class="type-badge">{{ $movement->movement_type }}</span>
@@ -184,7 +184,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center">لا توجد حركات</td>
+                                <td colspan="8" class="text-center">{{ __('warehouse.no_movements') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -492,9 +492,9 @@
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['إجمالي الحركات', 'دخول بضاعة', 'خروج بضاعة', 'نقل بين مستودعات'],
+                    labels: ['{{ __('warehouse.total_movements') }}', '{{ __('warehouse.receive_goods') }}', '{{ __('warehouse.issue_goods') }}', '{{ __('warehouse.transfer_between_warehouses') }}'],
                     datasets: [{
-                        label: 'الإحصائيات',
+                        label: '{{ __('warehouse.statistics') }}',
                         data: [
                             {{ $stats['total_movements'] }},
                             {{ $stats['receive_count'] }},

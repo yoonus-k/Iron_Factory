@@ -4,12 +4,14 @@ return [
     // Main Menu
     'menu' => [
         'dashboard' => 'Dashboard',
+        'menu_stage_worker_dashboard' => 'My Dashboard',
         'warehouse' => 'Warehouse',
         'production' => 'Production',
         'production_tracking' => 'Production Tracking',
         'quality' => 'Quality & Waste',
         'reports' => 'Reports & Statistics',
         'shifts' => 'Shifts & Workers',
+        'finished_products' => 'Finished Products & Customers',
         'management' => 'Management',
         'settings' => 'Settings',
     ],
@@ -55,6 +57,7 @@ return [
         'downtime_tracking' => 'Downtime & Failures',
         'waste_limits' => 'Allowed Waste Limits',
         'iron_journey' => 'Iron Journey',
+'history'=>'Phase Record',
 
         // Stage 1
         'stage1' => [
@@ -180,7 +183,7 @@ return [
         'role' => 'Role',
         'shift' => 'Shift',
         'is_active' => 'Active',
-        'manage_users' => 'Manage Users',
+        'profile' => 'Profile',
         'roles' => 'Roles & Permissions',
         'activity_log' => 'Activity Log',
         'shifts_list' => 'Shifts List',

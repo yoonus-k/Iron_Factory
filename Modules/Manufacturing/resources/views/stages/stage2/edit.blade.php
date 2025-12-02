@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تعديل المعالجة - المرحلة الثانية')
+@section('title', __('stages.stage2_edit_processing'))
 
 @section('content')
 
@@ -12,16 +12,16 @@
                 <path d="M3.27 6.96L12 12.7m8.73-5.74L12 12.7"></path>
                 <line x1="12" y1="22.7" x2="12" y2="12"></line>
             </svg>
-            تعديل المعالجة
+            {{ __('stages.stage2_edit_processing') }}
         </h1>
         <nav class="um-breadcrumb-nav">
             <span>
-                <i class="feather icon-home"></i> لوحة التحكم
+                <i class="feather icon-home"></i> {{ __('stages.dashboard') }}
             </span>
             <i class="feather icon-chevron-left"></i>
-            <span>المرحلة الثانية</span>
+            <span>{{ __('stages.stage2_title') }}</span>
             <i class="feather icon-chevron-left"></i>
-            <span>تعديل معالجة</span>
+            <span>{{ __('stages.edit_processing') }}</span>
         </nav>
     </div>
 
@@ -42,15 +42,15 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">معلومات المعالجة</h3>
-                        <p class="section-subtitle">قم بتحديث بيانات المعالجة</p>
+                        <h3 class="section-title">{{ __('stages.stage2_processing_information') }}</h3>
+                        <p class="section-subtitle">{{ __('stages.update_processing_data') }}</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="stage1_id" class="form-label">
-                            الاستاند
+                            {{ __('stages.stand_number') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -58,7 +58,7 @@
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                             </svg>
                             <select name="stage1_id" id="stage1_id" class="form-input" required>
-                                <option value="">اختر استاند</option>
+                                <option value="">{{ __('stages.choose_stand') }}</option>
                                 <option value="1" {{ ($stage2->stage1_id ?? old('stage1_id')) == '1' ? 'selected' : '' }}>ST-001</option>
                                 <option value="2" {{ ($stage2->stage1_id ?? old('stage1_id')) == '2' ? 'selected' : '' }}>ST-002</option>
                                 <option value="3" {{ ($stage2->stage1_id ?? old('stage1_id')) == '3' ? 'selected' : '' }}>ST-003</option>
@@ -68,7 +68,7 @@
 
                     <div class="form-group">
                         <label for="input_weight" class="form-label">
-                            وزن الدخول (كجم)
+                            {{ __('stages.input_weight_label') }} (كجم)
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -76,13 +76,13 @@
                                 <line x1="12" y1="1" x2="12" y2="23"></line>
                                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                             </svg>
-                            <input type="number" name="input_weight" id="input_weight" class="form-input" value="{{ $stage2->input_weight ?? old('input_weight') }}" placeholder="أدخل وزن الدخول" step="0.01" min="0" required>
+                            <input type="number" name="input_weight" id="input_weight" class="form-input" value="{{ $stage2->input_weight ?? old('input_weight') }}" placeholder="{{ __('stages.enter_input_weight') }}" step="0.01" min="0" required>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="output_weight" class="form-label">
-                            وزن الخروج (كجم)
+                            {{ __('stages.output_weight_label') }} (كجم)
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -90,13 +90,13 @@
                                 <line x1="12" y1="1" x2="12" y2="23"></line>
                                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                             </svg>
-                            <input type="number" name="output_weight" id="output_weight" class="form-input" value="{{ $stage2->output_weight ?? old('output_weight') }}" placeholder="أدخل وزن الخروج" step="0.01" min="0" required>
+                            <input type="number" name="output_weight" id="output_weight" class="form-input" value="{{ $stage2->output_weight ?? old('output_weight') }}" placeholder="{{ __('stages.enter_output_weight') }}" step="0.01" min="0" required>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="process_details" class="form-label">
-                            نوع المعالجة
+                            {{ __('stages.processing_type') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -105,42 +105,42 @@
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
                             <select name="process_details" id="process_details" class="form-input" required>
-                                <option value="">اختر نوع المعالجة</option>
-                                <option value="heating" {{ ($stage2->process_details ?? old('process_details')) == 'heating' ? 'selected' : '' }}>التسخين</option>
-                                <option value="cooling" {{ ($stage2->process_details ?? old('process_details')) == 'cooling' ? 'selected' : '' }}>التبريد</option>
-                                <option value="cutting" {{ ($stage2->process_details ?? old('process_details')) == 'cutting' ? 'selected' : '' }}>القطع</option>
-                                <option value="rolling" {{ ($stage2->process_details ?? old('process_details')) == 'rolling' ? 'selected' : '' }}>الفرد</option>
+                                <option value="">{{ __('stages.stage2_select_processing_type') }}</option>
+                                <option value="heating" {{ ($stage2->process_details ?? old('process_details')) == 'heating' ? 'selected' : '' }}>{{ __('stages.process_heating') }}</option>
+                                <option value="cooling" {{ ($stage2->process_details ?? old('process_details')) == 'cooling' ? 'selected' : '' }}>{{ __('stages.process_cooling') }}</option>
+                                <option value="cutting" {{ ($stage2->process_details ?? old('process_details')) == 'cutting' ? 'selected' : '' }}>{{ __('stages.process_cutting') }}</option>
+                                <option value="rolling" {{ ($stage2->process_details ?? old('process_details')) == 'rolling' ? 'selected' : '' }}>{{ __('stages.process_rolling') }}</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="status" class="form-label">الحالة</label>
+                        <label for="status" class="form-label">{{ __('stages.status') }}</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
                             </svg>
                             <select name="status" id="status" class="form-input">
-                                <option value="created" {{ ($stage2->status ?? old('status')) == 'created' ? 'selected' : '' }}>تم الإنشاء</option>
-                                <option value="in_process" {{ ($stage2->status ?? old('status')) == 'in_process' ? 'selected' : '' }}>قيد المعالجة</option>
-                                <option value="completed" {{ ($stage2->status ?? old('status')) == 'completed' ? 'selected' : '' }}>مكتمل</option>
+                                <option value="created" {{ ($stage2->status ?? old('status')) == 'created' ? 'selected' : '' }}>{{ __('stages.stand_status_created') }}</option>
+                                <option value="in_process" {{ ($stage2->status ?? old('status')) == 'in_process' ? 'selected' : '' }}>{{ __('stages.stand_status_in_process') }}</option>
+                                <option value="completed" {{ ($stage2->status ?? old('status')) == 'completed' ? 'selected' : '' }}>{{ __('stages.stand_status_completed') }}</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="waste_percentage" class="form-label">نسبة الهدر (%)</label>
+                        <label for="waste_percentage" class="form-label">{{ __('stages.waste_percentage') }} (%)</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
                             </svg>
-                            <input type="number" name="waste_percentage" id="waste_percentage" class="form-input" value="{{ $stage2->waste_percentage ?? old('waste_percentage') }}" placeholder="نسبة الهدر" step="0.01" min="0" max="100">
+                            <input type="number" name="waste_percentage" id="waste_percentage" class="form-input" value="{{ $stage2->waste_percentage ?? old('waste_percentage') }}" placeholder="{{ __('stages.waste_percentage') }}" step="0.01" min="0" max="100">
                         </div>
                     </div>
 
                     <div class="form-group full-width">
-                        <label for="notes" class="form-label">الملاحظات</label>
+                        <label for="notes" class="form-label">{{ __('stages.notes_label') }}</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="8" y1="6" x2="21" y2="6"></line>
@@ -150,7 +150,7 @@
                                 <line x1="3" y1="12" x2="3.01" y2="12"></line>
                                 <line x1="3" y1="18" x2="3.01" y2="18"></line>
                             </svg>
-                            <textarea name="notes" id="notes" rows="4" class="form-input" placeholder="أدخل ملاحظات للمعالجة">{{ $stage2->notes ?? old('notes') }}</textarea>
+                            <textarea name="notes" id="notes" rows="4" class="form-input" placeholder="{{ __('stages.enter_notes_for_processing') }}">{{ $stage2->notes ?? old('notes') }}</textarea>
                         </div>
                     </div>
 
@@ -172,15 +172,15 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">معلومات إضافية</h3>
-                        <p class="section-subtitle">معلومات تاريخية للمعالجة</p>
+                        <h3 class="section-title">{{ __('stages.additional_information') }}</h3>
+                        <p class="section-subtitle">{{ __('stages.historical_information_for_processing') }}</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="created_at" class="form-label">
-                            تاريخ الإنشاء
+                            {{ __('stages.created_at_label') }}
                         </label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -195,7 +195,7 @@
 
                     <div class="form-group">
                         <label for="updated_at" class="form-label">
-                            تاريخ التحديث
+                            {{ __('stages.updated_at_label') }}
                         </label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -240,14 +240,14 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                    حفظ التغييرات
+                    {{ __('stages.save_changes') }}
                 </button>
                 <a href="{{ route('manufacturing.stage2.index') }}" class="btn-cancel">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                    إلغاء
+                    {{ __('stages.cancel_button') }}
                 </a>
             </div>
         </form>

@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'التقرير الشامل للمستودعات')
+@section('title', __('warehouse.comprehensive_report'))
 
 @section('content')
     <div class="report-container">
@@ -11,19 +11,19 @@
                     <i class="feather icon-bar-chart-2"></i>
                 </div>
                 <div>
-                    <h1 class="page-title">التقرير الشامل للمستودعات</h1>
-                    <p class="page-subtitle">نظرة عامة متكاملة على جميع عمليات وأنشطة المستودعات والمواد والتسليمات</p>
+                    <h1 class="page-title">{{ __('warehouse.comprehensive_report') }}</h1>
+                    <p class="page-subtitle">{{ __('warehouse.comprehensive_report_subtitle') }}</p>
                 </div>
             </div>
             <div class="header-actions">
                 <button onclick="window.print()" class="btn-action print-btn">
-                    <i class="feather icon-printer"></i> طباعة
+                    <i class="feather icon-printer"></i> {{ __('warehouse.print') }}
                 </button>
                 <button onclick="exportReport()" class="btn-action export-btn">
-                    <i class="feather icon-download"></i> تصدير PDF
+                    <i class="feather icon-download"></i> {{ __('warehouse.export_pdf') }}
                 </button>
                 <a href="{{ route('manufacturing.warehouse-reports.index') }}" class="btn-action back-btn">
-                    <i class="feather icon-arrow-right"></i> رجوع
+                    <i class="feather icon-arrow-right"></i> {{ __('warehouse.back') }}
                 </a>
             </div>
         </div>

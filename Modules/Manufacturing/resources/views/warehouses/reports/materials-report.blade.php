@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تقرير المواد والمخزون')
+@section('title', __('warehouse.materials_report'))
 
 @section('content')
     <div class="report-container">
@@ -11,16 +11,16 @@
                     <i class="feather icon-package"></i>
                 </div>
                 <div>
-                    <h1 class="page-title">تقرير المواد والمخزون</h1>
-                    <p class="page-subtitle">حالة المواد الخام والكميات المتاحة والتنبيهات</p>
+                    <h1 class="page-title">{{ __('warehouse.materials_report') }}</h1>
+                    <p class="page-subtitle">{{ __('warehouse.materials_subtitle') }}</p>
                 </div>
             </div>
             <div class="header-actions">
                 <button onclick="window.print()" class="btn-action">
-                    <i class="feather icon-printer"></i> طباعة
+                    <i class="feather icon-printer"></i> {{ __('warehouse.print') }}
                 </button>
                 <a href="{{ route('manufacturing.warehouse-reports.index') }}" class="btn-action">
-                    <i class="feather icon-arrow-right"></i> رجوع
+                    <i class="feather icon-arrow-right"></i> {{ __('warehouse.back') }}
                 </a>
             </div>
         </div>
@@ -29,9 +29,9 @@
         <div class="filter-card">
             <form method="GET" class="filter-form">
                 <div class="filter-group">
-                    <label>المستودع</label>
+                    <label>{{ __('warehouse.warehouse') }}</label>
                     <select name="warehouse_id" class="form-control">
-                        <option value="">الكل</option>
+                        <option value="">{{ __('warehouse.all') }}</option>
                         @foreach($warehouses as $warehouse)
                             <option value="{{ $warehouse->id }}" {{ request('warehouse_id') == $warehouse->id ? 'selected' : '' }}>
                                 {{ $warehouse->warehouse_name }}
@@ -40,15 +40,15 @@
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label>الحالة</label>
+                    <label>{{ __('warehouse.status') }}</label>
                     <select name="status" class="form-control">
-                        <option value="">الكل</option>
-                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>نشط</option>
-                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>غير نشط</option>
+                        <option value="">{{ __('warehouse.all') }}</option>
+                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>{{ __('warehouse.active') }}</option>
+                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>{{ __('warehouse.inactive') }}</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-filter">
-                    <i class="feather icon-search"></i> بحث
+                    <i class="feather icon-search"></i> {{ __('warehouse.search') }}
                 </button>
             </form>
         </div>
@@ -57,7 +57,7 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-bar-chart"></i>
-                الإحصائيات
+                {{ __('warehouse.statistics') }}
             </h2>
             <div class="chart-container">
                 <canvas id="materialsChart"></canvas>
@@ -72,7 +72,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['total_materials'] }}</h3>
-                    <p>إجمالي المواد</p>
+                    <p>{{ __('warehouse.total_materials') }}</p>
                 </div>
             </div>
 
@@ -82,7 +82,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ number_format($stats['total_quantity'], 2) }}</h3>
-                    <p>إجمالي الكميات</p>
+                    <p>{{ __('warehouse.total_quantity') }}</p>
                 </div>
             </div>
             <div class="stat-card orange">
@@ -91,7 +91,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['low_stock'] }}</h3>
-                    <p>مخزون منخفض</p>
+                    <p>{{ __('warehouse.low_stock') }}</p>
                 </div>
             </div>
             <div class="stat-card purple">
@@ -100,7 +100,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ number_format($stats['total_weight'], 2) }}</h3>
-                    <p>الوزن الكلي (كجم)</p>
+                    <p>{{ __('warehouse.total_weight') }} ({{ __('warehouse.kg') }})</p>
                 </div>
             </div>
 
@@ -110,30 +110,30 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-list"></i>
-                تفاصيل المواد
+                {{ __('warehouse.materials_details') }}
             </h2>
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>اسم المادة</th>
-                            <th>المستودع</th>
-                            <th>النوع</th>
-                            <th>الكمية</th>
-                            <th>الوحدة</th>
-                            <th>الحد الأدنى</th>
-                            <th>الوزن الفعلي</th>
-                            <th>الحالة</th>
+                            <th>{{ __('warehouse.material_name') }}</th>
+                            <th>{{ __('warehouse.warehouse') }}</th>
+                            <th>{{ __('warehouse.type') }}</th>
+                            <th>{{ __('warehouse.quantity') }}</th>
+                            <th>{{ __('warehouse.unit') }}</th>
+                            <th>{{ __('warehouse.minimum_quantity') }}</th>
+                            <th>{{ __('warehouse.actual_weight') }}</th>
+                            <th>{{ __('warehouse.status') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($materialDetails as $index => $detail)
                             <tr class="{{ $detail->quantity <= ($detail->min_quantity ?? 0) && $detail->min_quantity > 0 ? 'low-stock-row' : '' }}">
                                 <td>{{ $materialDetails->firstItem() + $index }}</td>
-                                <td><strong>{{ $detail->material->name_ar ?? $detail->material->name_en ?? 'غير محدد' }}</strong></td>
-                                <td>{{ $detail->warehouse->warehouse_name ?? 'غير محدد' }}</td>
-                                <td>{{ $detail->material->materialType->type_name ?? 'غير محدد' }}</td>
+                                <td><strong>{{ $detail->material->name_ar ?? $detail->material->name_en ?? __('warehouse.undefined') }}</strong></td>
+                                <td>{{ $detail->warehouse->warehouse_name ?? __('warehouse.undefined') }}</td>
+                                <td>{{ $detail->material->materialType->type_name ?? __('warehouse.undefined') }}</td>
                                 <td>
                                     <span class="quantity-badge {{ $detail->min_quantity > 0 && $detail->quantity <= $detail->min_quantity ? 'low' : '' }}">
                                         {{ number_format($detail->quantity, 2) }}
@@ -144,9 +144,9 @@
                                 <td>{{ number_format($detail->actual_weight ?? 0, 2) }} كجم</td>
                                 <td>
                                     @if($detail->material->status == 'available')
-                                        <span class="status-badge active">متاح</span>
+                                        <span class="status-badge active">{{ __('warehouse.available') }}</span>
                                     @elseif($detail->material->status == 'in_use')
-                                        <span class="status-badge warning">قيد الاستخدام</span>
+                                        <span class="status-badge warning">{{ __('warehouse.in_use') }}</span>
                                     @else
                                         <span class="status-badge inactive">{{ $detail->material->status }}</span>
                                     @endif
@@ -154,7 +154,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center">لا توجد مواد</td>
+                                <td colspan="9" class="text-center">{{ __('warehouse.no_materials') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -464,9 +464,9 @@
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['إجمالي المواد', 'الكميات', 'مخزون منخفض', 'الوزن الكلي'],
+                    labels: ['{{ __('warehouse.total_materials') }}', '{{ __('warehouse.quantity') }}', '{{ __('warehouse.low_stock') }}', '{{ __('warehouse.total_weight') }}'],
                     datasets: [{
-                        label: 'الإحصائيات',
+                        label: '{{ __('warehouse.statistics') }}',
                         data: [
                             {{ $stats['total_materials'] }},
                             {{ $stats['total_quantity'] }},

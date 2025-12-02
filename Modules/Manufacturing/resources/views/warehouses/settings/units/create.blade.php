@@ -143,7 +143,7 @@
                     <div class="form-group">
                         <label class="form-label">
                             <input type="checkbox" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}>
-                            نشط
+                            {{ __('warehouse.active') }}
                         </label>
                     </div>
                 </div>
@@ -162,14 +162,14 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">الوصف</h3>
-                        <p class="section-subtitle">أدخل وصف الوحدة</p>
+                        <h3 class="section-title">{{ __('warehouse.description') }}</h3>
+                        <p class="section-subtitle">{{ __('warehouse.enter_description_and_storage') }}</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group full-width">
-                        <label for="description" class="form-label">الوصف (عربي)</label>
+                        <label for="description" class="form-label">{{ __('warehouse.description_ar') }}</label>
                         <div class="input-wrapper">
                             <textarea name="description" id="description" class="form-input @error('description') error @enderror"
                                       placeholder="أدخل وصف الوحدة" rows="3">{{ old('description') }}</textarea>
@@ -180,7 +180,7 @@
                     </div>
 
                     <div class="form-group full-width">
-                        <label for="description_en" class="form-label">الوصف (إنجليزي)</label>
+                        <label for="description_en" class="form-label">{{ __('warehouse.description_en') }}</label>
                         <div class="input-wrapper">
                             <textarea name="description_en" id="description_en" class="form-input @error('description_en') error @enderror"
                                       placeholder="Enter unit description in English" rows="3">{{ old('description_en') }}</textarea>
@@ -198,7 +198,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                    حفظ الوحدة
+                    {{ __('warehouse.save') }}
                 </button>
                 <a href="{{ route('manufacturing.warehouse-settings.units.index') }}" class="btn-cancel">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -252,12 +252,12 @@
                 if (isValid) {
                     // Show SweetAlert2 confirmation
                     Swal.fire({
-                        title: 'تأكيد الحفظ',
-                        text: 'هل أنت متأكد من حفظ بيانات الوحدة؟',
+                        title: '{{ __('warehouse.confirm_save') }}',
+                        text: '{{ __('warehouse.confirm_save_unit') }}',
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonText: 'نعم، احفظ',
-                        cancelButtonText: 'إلغاء',
+                        confirmButtonText: '{{ __('warehouse.yes_save') }}',
+                        cancelButtonText: '{{ __('warehouse.cancel') }}',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {

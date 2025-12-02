@@ -25,14 +25,14 @@
                             @endif
                             @php
                                 $types = [
-                                    'weight' => 'الوزن',
-                                    'length' => 'الطول',
-                                    'volume' => 'الحجم',
-                                    'area' => 'المساحة',
-                                    'quantity' => 'الكمية',
-                                    'time' => 'الوقت',
-                                    'temperature' => 'درجة الحرارة',
-                                    'other' => 'أخرى'
+                                    'weight' => __('warehouse.weight'),
+                                    'length' => __('warehouse.length'),
+                                    'volume' => __('warehouse.volume'),
+                                    'area' => __('warehouse.area'),
+                                    'quantity' => __('warehouse.quantity'),
+                                    'time' => __('warehouse.time'),
+                                    'temperature' => __('warehouse.temperature'),
+                                    'other' => __('warehouse.other')
                                 ];
                             @endphp
                             <span class="badge badge-info">{{ $types[$unit->unit_type] ?? $unit->unit_type }}</span>

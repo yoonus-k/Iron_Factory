@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تقرير فواتير المشتريات')
+@section('title', __('warehouse.purchase_invoices_report'))
 
 @section('content')
     <div class="report-container">
@@ -11,16 +11,16 @@
                     <i class="feather icon-file"></i>
                 </div>
                 <div>
-                    <h1 class="page-title">تقرير فواتير المشتريات</h1>
-                    <p class="page-subtitle">التقارير المالية والفواتير وحالات الدفع</p>
+                    <h1 class="page-title">{{ __('warehouse.purchase_invoices_report') }}</h1>
+                    <p class="page-subtitle">{{ __('warehouse.purchase_invoices_subtitle') }}</p>
                 </div>
             </div>
             <div class="header-actions">
                 <button onclick="window.print()" class="btn-action">
-                    <i class="feather icon-printer"></i> طباعة
+                    <i class="feather icon-printer"></i> {{ __('warehouse.print') }}
                 </button>
                 <a href="{{ route('manufacturing.warehouse-reports.index') }}" class="btn-action">
-                    <i class="feather icon-arrow-right"></i> رجوع
+                    <i class="feather icon-arrow-right"></i> {{ __('warehouse.back') }}
                 </a>
             </div>
         </div>
@@ -29,33 +29,33 @@
         <div class="filter-card">
             <form method="GET" class="filter-form">
                 <div class="filter-group">
-                    <label>من تاريخ</label>
+                    <label>{{ __('warehouse.from_date') }}</label>
                     <input type="date" name="start_date" value="{{ $startDate }}" class="form-control">
                 </div>
                 <div class="filter-group">
-                    <label>إلى تاريخ</label>
+                    <label>{{ __('warehouse.to_date') }}</label>
                     <input type="date" name="end_date" value="{{ $endDate }}" class="form-control">
                 </div>
                 <div class="filter-group">
-                    <label>المورد</label>
+                    <label>{{ __('warehouse.supplier') }}</label>
                     <select name="supplier_id" class="form-control">
-                        <option value="">الكل</option>
+                        <option value="">{{ __('warehouse.all') }}</option>
                         @foreach($suppliers as $supplier)
                             <option value="{{ $supplier->id }}">{{ $supplier->supplier_name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label>حالة الدفع</label>
+                    <label>{{ __('warehouse.payment_status') }}</label>
                     <select name="status" class="form-control">
-                        <option value="">الكل</option>
-                        <option value="pending">قيد الانتظار</option>
-                        <option value="paid">مدفوعة</option>
-                        <option value="partially_paid">مدفوعة جزئياً</option>
+                        <option value="">{{ __('warehouse.all') }}</option>
+                        <option value="pending">{{ __('warehouse.pending') }}</option>
+                        <option value="paid">{{ __('warehouse.paid') }}</option>
+                        <option value="partially_paid">{{ __('warehouse.partially_paid') }}</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-filter">
-                    <i class="feather icon-search"></i> بحث
+                    <i class="feather icon-search"></i> {{ __('warehouse.search') }}
                 </button>
             </form>
         </div>
@@ -64,7 +64,7 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-bar-chart"></i>
-                الإحصائيات
+                {{ __('warehouse.statistics') }}
             </h2>
             <div class="chart-container">
                 <canvas id="invoicesChart"></canvas>
@@ -79,7 +79,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['total_invoices'] }}</h3>
-                    <p>إجمالي الفواتير</p>
+                    <p>{{ __('warehouse.total_invoices') }}</p>
                 </div>
             </div>
             <div class="stat-card purple">
@@ -88,7 +88,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ number_format($stats['total_amount'], 2) }}</h3>
-                    <p>المبلغ الإجمالي (ريال)</p>
+                    <p>{{ __('warehouse.total_amount') }} ({{ __('warehouse.sar') }})</p>
                 </div>
             </div>
 
@@ -98,7 +98,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['total_invoices'] }}</h3>
-                    <p>إجمالي الفواتير</p>
+                    <p>{{ __('warehouse.total_invoices') }}</p>
                 </div>
             </div>
         </div>
@@ -107,20 +107,20 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-list"></i>
-                تفاصيل الفواتير
+                {{ __('warehouse.invoices_details') }}
             </h2>
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>رقم الفاتورة</th>
-                            <th>المورد</th>
-                            <th>تاريخ الفاتورة</th>
-                            <th>المبلغ الإجمالي</th>
-                            <th>المبلغ المدفوع</th>
-                            <th>المتبقي</th>
-                            <th>حالة الدفع</th>
+                            <th>{{ __('warehouse.invoice_number') }}</th>
+                            <th>{{ __('warehouse.supplier') }}</th>
+                            <th>{{ __('warehouse.invoice_date') }}</th>
+                            <th>{{ __('warehouse.total_amount') }}</th>
+                            <th>{{ __('warehouse.paid_amount') }}</th>
+                            <th>{{ __('warehouse.remaining') }}</th>
+                            <th>{{ __('warehouse.payment_status') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -130,9 +130,9 @@
                                 <td><span class="badge badge-info">{{ $invoice->invoice_number }}</span></td>
                                 <td>{{ $invoice->supplier->supplier_name ?? '-' }}</td>
                                 <td>{{ $invoice->invoice_date }}</td>
-                                <td><strong>{{ number_format($invoice->total_amount, 2) }} ريال</strong></td>
-                                <td>{{ number_format($invoice->paid_amount ?? 0, 2) }} ريال</td>
-                                <td>{{ number_format($invoice->total_amount - ($invoice->paid_amount ?? 0), 2) }} ريال</td>
+                                <td><strong>{{ number_format($invoice->total_amount, 2) }} {{ __('warehouse.sar') }}</strong></td>
+                                <td>{{ number_format($invoice->paid_amount ?? 0, 2) }} {{ __('warehouse.sar') }}</td>
+                                <td>{{ number_format($invoice->total_amount - ($invoice->paid_amount ?? 0), 2) }} {{ __('warehouse.sar') }}</td>
                                 <td>
                                     {{-- @if($invoice->payment_status == 'paid')
                                         <span class="status-badge paid">مدفوعة</span>
@@ -147,7 +147,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center">لا توجد فواتير</td>
+                                <td colspan="8" class="text-center">{{ __('warehouse.no_invoices') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -444,9 +444,9 @@
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['إجمالي الفواتير', 'المبلغ الإجمالي', 'المبلغ المدفوع', 'المبلغ المعلق'],
+                    labels: ['{{ __('warehouse.total_invoices') }}', '{{ __('warehouse.total_amount') }}', '{{ __('warehouse.paid_amount') }}', '{{ __('warehouse.pending_amount') }}'],
                     datasets: [{
-                        label: 'الإحصائيات',
+                        label: '{{ __('warehouse.statistics') }}',
                         data: [
                             {{ $stats['total_invoices'] }},
                             {{ $stats['total_amount'] }},
@@ -483,7 +483,7 @@
                                     if (context.dataIndex === 0) {
                                         return context.dataset.label + ': ' + context.parsed.y.toLocaleString();
                                     } else {
-                                        return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + ' ريال';
+                                        return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + ' {{ __('warehouse.sar') }}';
                                     }
                                 }
                             }

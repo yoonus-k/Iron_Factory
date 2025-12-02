@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تفاصيل المورد')
+@section('title', __('warehouse.supplier_details'))
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
@@ -300,9 +300,9 @@
                                 {{ $supplier->contact_person }}
                             </span>
                             @if($supplier->is_active)
-                                <span class="badge active">نشط</span>
+                                <span class="badge active">{{ __('warehouse.active') }}</span>
                             @else
-                                <span class="badge inactive">غير نشط</span>
+                                <span class="badge inactive">{{ __('warehouse.inactive') }}</span>
                             @endif
                         </div>
                     </div>
@@ -314,7 +314,7 @@
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
-                            تعديل
+                            {{ __('warehouse.edit') }}
                         </a>
                     @endif
                     @if (auth()->user()->hasPermission('WAREHOUSE_SUPPLIERS_UPDATE'))
@@ -326,7 +326,7 @@
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
-                                {{ $supplier->is_active ? 'تعطيل' : 'تفعيل' }}
+                                {{ $supplier->is_active ? __('warehouse.disable') : __('warehouse.enable') }}
                             </button>
                         </form>
                     @endif
@@ -335,7 +335,7 @@
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>
-                        العودة
+                        {{ __('warehouse.back') }}
                     </a>
                 </div>
             </div>
@@ -350,46 +350,46 @@
                             <circle cx="9" cy="7" r="4"></circle>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات المورد</h3>
+                    <h3 class="card-title">{{ __('warehouse.supplier_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">اسم المورد:</div>
+                        <div class="info-label">{{ __('warehouse.supplier_name') }}:</div>
                         <div class="info-value">{{ $supplier->getName() }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">الشخص المسؤول:</div>
+                        <div class="info-label">{{ __('warehouse.contact_person') }}:</div>
                         <div class="info-value">{{ $supplier->contact_person }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">رقم الهاتف:</div>
+                        <div class="info-label">{{ __('warehouse.phone') }}:</div>
                         <div class="info-value">{{ $supplier->phone }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">البريد الإلكتروني:</div>
+                        <div class="info-label">{{ __('warehouse.email') }}:</div>
                         <div class="info-value">{{ $supplier->email }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">العنوان:</div>
-                        <div class="info-value">{{ $supplier->address ?? 'غير محدد' }}</div>
+                        <div class="info-label">{{ __('warehouse.address') }}:</div>
+                        <div class="info-value">{{ $supplier->address ?? __('warehouse.not_specified') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">المدينة:</div>
-                        <div class="info-value">{{ $supplier->city ?? 'غير محدد' }}</div>
+                        <div class="info-label">{{ __('warehouse.city') }}:</div>
+                        <div class="info-value">{{ $supplier->city ?? __('warehouse.not_specified') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">الحالة:</div>
+                        <div class="info-label">{{ __('warehouse.status') }}:</div>
                         <div class="info-value">
                             @if($supplier->is_active)
-                                <span class="badge badge-success">نشط</span>
+                                <span class="badge badge-success">{{ __('warehouse.active') }}</span>
                             @else
-                                <span class="badge badge-danger">غير نشط</span>
+                                <span class="badge badge-danger">{{ __('warehouse.inactive') }}</span>
                             @endif
                         </div>
                     </div>
@@ -404,10 +404,10 @@
                             <path d="M7 11V7a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v4"></path>
                         </svg>
                     </div>
-                    <h3 class="card-title">الملاحظات</h3>
+                    <h3 class="card-title">{{ __('warehouse.notes') }}</h3>
                 </div>
                 <div class="card-body">
-                    <p class="info-text">{{ $supplier->notes ?? 'لا توجد ملاحظات' }}</p>
+                    <p class="info-text">{{ $supplier->notes ?? __('warehouse.no_notes') }}</p>
                 </div>
             </div>
         </div>
@@ -419,7 +419,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     </svg>
-                    📄 فواتير المورد
+                    📄 {{ __('warehouse.supplier_invoices') }}
                     <span class="badge-count">{{ $invoices->total() }}</span>
                 </button>
 
@@ -428,7 +428,7 @@
                         <path d="M9 19h6m-6 0a7 7 0 1 1 6 0m-6 0H3m6 0h6"></path>
                         <path d="M12 5v9m-4-4l4-4 4 4"></path>
                     </svg>
-                    📦 أذون التسليم
+                    📦 {{ __('warehouse.delivery_notes') }}
                     <span class="badge-count">{{ $deliveryNotes->total() }}</span>
                 </button>
 
@@ -437,7 +437,7 @@
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
                         <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
-                    📋 سجل العمليات
+                    📋 {{ __('warehouse.operation_logs') }}
                     @php
                         $operationLogs = $supplier->operationLogs()->orderBy('created_at', 'desc')->get();
                     @endphp
@@ -452,11 +452,11 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>رقم الفاتورة</th>
-                                <th>التاريخ</th>
-                                <th>المبلغ</th>
-                                <th>الحالة</th>
-                                <th>الإجراءات</th>
+                                <th>{{ __('warehouse.invoice_number') }}</th>
+                                <th>{{ __('warehouse.date') }}</th>
+                                <th>{{ __('warehouse.amount') }}</th>
+                                <th>{{ __('warehouse.status') }}</th>
+                                <th>{{ __('warehouse.actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -495,9 +495,9 @@
                                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                             </svg>
-                                            تعديل
+                                            {{ __('warehouse.edit') }}
                                         </a>
-                                        <button onclick="deleteInvoice({{ $invoice->id }})" class="badge" style="cursor: pointer; background-color: #3498db; color: white; padding: 5px 10px; border-radius: 4px; border: none; font-size: 12px;" title="حذف">
+                                        <button onclick="deleteInvoice({{ $invoice->id }})" class="badge" style="cursor: pointer; background-color: #3498db; color: white; padding: 5px 10px; border-radius: 4px; border: none; font-size: 12px;" title="{{ __('warehouse.delete') }}">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; display: inline; margin-right: 4px;">
                                                 <polyline points="3 6 5 6 21 6"></polyline>
                                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -511,7 +511,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center">📭 لا توجد فواتير</td>
+                                <td colspan="6" class="text-center">📭 {{ __('warehouse.no_invoices') }}</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -522,7 +522,7 @@
                 <div class="um-pagination-section">
                     <div class="pagination-info">
                         <p class="um-pagination-info">
-                            عرض {{ $invoices->firstItem() ?? 0 }} إلى {{ $invoices->lastItem() ?? 0 }} من أصل {{ $invoices->total() }} فاتورة
+                            {{ __('warehouse.showing') }} {{ $invoices->firstItem() ?? 0 }} {{ __('warehouse.to') }} {{ $invoices->lastItem() ?? 0 }} {{ __('warehouse.of') }} {{ $invoices->total() }} {{ __('warehouse.invoice') }}
                         </p>
                     </div>
                     <div class="pagination-links">
@@ -539,13 +539,13 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>رقم الأذن</th>
-                                <th>التاريخ</th>
-                                <th>المادة</th>
-                                <th>الكمية</th>
-                                <th>الوزن</th>
-                                <th>الحالة</th>
-                                <th>الإجراءات</th>
+                                <th>{{ __('warehouse.note_number') }}</th>
+                                <th>{{ __('warehouse.date') }}</th>
+                                <th>{{ __('warehouse.material') }}</th>
+                                <th>{{ __('warehouse.quantity') }}</th>
+                                <th>{{ __('warehouse.weight') }}</th>
+                                <th>{{ __('warehouse.status') }}</th>
+                                <th>{{ __('warehouse.actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -554,7 +554,7 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td><strong>{{ $note->note_number }}</strong></td>
                                 <td>{{ $note->delivery_date->format('Y-m-d') }}</td>
-                                <td>{{ $note->material->name_ar ?? 'مادة محذوفة' }}</td>
+                                <td>{{ $note->material->name_ar ?? __('warehouse.deleted_material') }}</td>
                                 <td>{{ $note->delivery_quantity ?? '-' }}</td>
                                 <td><strong>{{ $note->delivered_weight ?? '-' }} كجم</strong></td>
                                 <td>
@@ -569,13 +569,13 @@
                                             'in_production' => '#3498db',
                                         ];
                                         $statusLabel = [
-                                            'pending' => 'قيد الانتظار',
-                                            'approved' => 'موافق عليه',
-                                            'rejected' => 'مرفوض',
-                                            'completed' => 'مكتمل',
-                                            'not_registered' => 'غير مسجلة',
-                                            'registered' => 'مسجلة',
-                                            'in_production' => 'في الإنتاج',
+                                            'pending' => __('warehouse.pending'),
+                                            'approved' => __('warehouse.approved'),
+                                            'rejected' => __('warehouse.rejected'),
+                                            'completed' => __('warehouse.completed'),
+                                            'not_registered' => __('warehouse.not_registered'),
+                                            'registered' => __('warehouse.registered'),
+                                            'in_production' => __('warehouse.in_production'),
                                         ];
                                         $statusKey = $note->registration_status ?? $note->status ?? 'pending';
                                         $bg = $statusColors[$statusKey] ?? '#95a5a6';
@@ -587,7 +587,7 @@
                                 </td>
                                 <td>
                                     <div style="display: flex; gap: 6px; justify-content: flex-start;">
-                                        <a href="{{ route('manufacturing.delivery-notes.show', $note->id) }}" class="badge badge-info" style="cursor: pointer; background-color: #3498db; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px;" title="عرض">
+                                        <a href="{{ route('manufacturing.delivery-notes.show', $note->id) }}" class="badge badge-info" style="cursor: pointer; background-color: #3498db; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px;" title="{{ __('warehouse.view') }}">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; display: inline; margin-right: 4px;">
                                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                                 <circle cx="12" cy="12" r="3"></circle>
@@ -615,7 +615,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="8" class="text-center">📭 لا توجد أذون تسليم</td>
+                                <td colspan="8" class="text-center">📭 {{ __('warehouse.no_delivery_notes') }}</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -626,7 +626,7 @@
                 <div class="um-pagination-section">
                     <div class="pagination-info">
                         <p class="um-pagination-info">
-                            عرض {{ $deliveryNotes->firstItem() ?? 0 }} إلى {{ $deliveryNotes->lastItem() ?? 0 }} من أصل {{ $deliveryNotes->total() }} أذن تسليم
+                            {{ __('warehouse.showing') }} {{ $deliveryNotes->firstItem() ?? 0 }} {{ __('warehouse.to') }} {{ $deliveryNotes->lastItem() ?? 0 }} {{ __('warehouse.of') }} {{ $deliveryNotes->total() }} {{ __('warehouse.delivery_note') }}
                         </p>
                     </div>
                     <div class="pagination-links">
@@ -715,7 +715,7 @@
                             <circle cx="12" cy="12" r="10"></circle>
                             <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
-                        <p style="margin: 0; font-size: 14px;">لا توجد عمليات مسجلة</p>
+                        <p style="margin: 0; font-size: 14px;">{{ __('warehouse.no_operation_logs') }}</p>
                     </div>
                 @endif
             </div>
@@ -730,7 +730,7 @@
                         <circle cx="5" cy="12" r="1"></circle>
                     </svg>
                 </div>
-                <h3 class="card-title">الإجراءات المتاحة</h3>
+                <h3 class="card-title">{{ __('warehouse.available_actions') }}</h3>
             </div>
             <div class="card-body">
                 <div class="actions-grid">
@@ -739,7 +739,7 @@
                             <i class="feather icon-phone"></i>
                         </div>
                         <div class="action-text">
-                            <span>اتصل</span>
+                            <span>{{ __('warehouse.call') }}</span>
                         </div>
                     </button>
 
@@ -748,7 +748,7 @@
                             <i class="feather icon-mail"></i>
                         </div>
                         <div class="action-text">
-                            <span>إرسال بريد</span>
+                            <span>{{ __('warehouse.send_email') }}</span>
                         </div>
                     </button>
 
@@ -758,7 +758,7 @@
                                 <i class="feather icon-trash-2"></i>
                             </div>
                             <div class="action-text">
-                                <span>حذف</span>
+                                <span>{{ __('warehouse.delete') }}</span>
                             </div>
                         </button>
                     @endif
@@ -874,7 +874,7 @@
         });
 
         function deleteSupplier(id) {
-            if (confirm('⚠️ هل أنت متأكد من حذف هذا المورد؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
+            if (confirm('{{ __('warehouse.confirm_delete_supplier_full') }}')) {
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '{{ url('manufacturing/suppliers') }}/' + id;
@@ -897,7 +897,7 @@
         }
 
         function deleteInvoice(id) {
-            if (confirm('⚠️ هل أنت متأكد من حذف هذه الفاتورة؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
+            if (confirm('{{ __('warehouse.confirm_delete_invoice_full') }}')) {
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '{{ url('manufacturing/purchase-invoices') }}/' + id;
@@ -920,7 +920,7 @@
         }
 
         function deleteDeliveryNote(id) {
-            if (confirm('⚠️ هل أنت متأكد من حذف هذه الأذن؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
+            if (confirm('{{ __('warehouse.confirm_delete_delivery_note_full') }}')) {
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '{{ url('manufacturing/delivery-notes') }}/' + id;

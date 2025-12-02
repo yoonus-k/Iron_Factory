@@ -5,7 +5,7 @@
 
     <nav class="sidebar-menu">
         <ul>
-            <!-- لوحة التحكم -->
+            <!-- {{ __('app.menu.dashboard') }} -->
             @if(auth()->user()->hasPermission('MENU_DASHBOARD'))
             <li>
                 <a href="" data-tooltip="{{ __('app.menu.dashboard') }}">
@@ -15,12 +15,12 @@
             </li>
             @endif
 
-            <!-- لوحة تحكم عمال المراحل -->
+            <!-- {{ __('app.menu_stage_worker_dashboard') }} -->
             @if(auth()->user()->hasPermission('STAGE_WORKER_DASHBOARD'))
             <li>
-                <a href="{{ route('dashboard') }}" data-tooltip="لوحة تحكمي">
+                <a href="{{ route('dashboard') }}" data-tooltip="{{ __('app.menu_stage_worker_dashboard') }}">
                     <i class="fas fa-hard-hat"></i>
-                    <span>لوحة تحكمي</span>
+                    <span>{{ __('app.menu.menu_stage_worker_dashboard') }}</span>
                 </a>
             </li>
             @endif
@@ -161,7 +161,7 @@
                     @if(auth()->user()->hasPermission('STAGE1_STANDS_READ') || auth()->user()->hasPermission('VIEW_ALL_STAGE1_OPERATIONS'))
                     <li>
                         <a href="{{ route('manufacturing.stage1.index') }}">
-                            <i class="fas fa-history"></i> سجل المرحلة
+                            <i class="fas fa-history"></i>{{ __('app.production.history') }}
                         </a>
                     </li>
                     @endif
@@ -213,7 +213,7 @@
                     @if(auth()->user()->hasPermission('STAGE2_PROCESSING_READ') || auth()->user()->hasPermission('VIEW_ALL_STAGE2_OPERATIONS'))
                     <li>
                         <a href="{{ route('manufacturing.stage2.index') }}">
-                            <i class="fas fa-history"></i> سجل المرحلة
+                            <i class="fas fa-history"></i> {{ __('app.production.history') }}
                         </a>
                     </li>
                     @endif
@@ -265,7 +265,7 @@
                     @if(auth()->user()->hasPermission('STAGE3_COILS_READ') || auth()->user()->hasPermission('VIEW_ALL_STAGE3_OPERATIONS'))
                     <li>
                         <a href="{{ route('manufacturing.stage3.index') }}">
-                            <i class="fas fa-history"></i> سجل المرحلة
+                            <i class="fas fa-history"></i> {{ __('app.production.history') }}
                         </a>
                     </li>
                     @endif
@@ -301,7 +301,7 @@
                     @if(auth()->user()->hasPermission('STAGE4_PACKAGING_READ') || auth()->user()->hasPermission('VIEW_ALL_STAGE4_OPERATIONS'))
                     <li>
                         <a href="{{ route('manufacturing.stage4.index') }}">
-                            <i class="fas fa-history"></i> سجل المرحلة
+                            <i class="fas fa-history"></i> {{ __('app.production.history') }}
                         </a>
                     </li>
                     @endif
@@ -309,12 +309,12 @@
             </li>
             @endif
 
-            <!-- المنتجات النهائية والعملاء -->
+            <!-- {{ __('app.menu.finished_products') }} -->
             @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES') || auth()->user()->hasPermission('MENU_CUSTOMERS'))
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="المنتجات النهائية والعملاء">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.finished_products') }}">
                     <i class="fas fa-truck-loading"></i>
-                    <span>المنتجات النهائية</span>
+                    <span>{{ __('app.menu.finished_products') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
@@ -434,7 +434,7 @@
             </li>
             @endif
 
-            <!-- الجودة والهدر -->
+            <!-- {{ __('app.menu.quality') }} -->
             @if(auth()->user()->hasPermission('MENU_QUALITY_WASTE'))
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.quality') }}">
@@ -526,7 +526,7 @@
             </li>
             @endif
 
-            <!-- الإدارة والموارد البشرية -->
+            <!-- {{ __('app.menu.management') }} -->
             @if(auth()->user()->hasPermission('MENU_MANAGEMENT') || auth()->user()->hasPermission('MENU_MANAGE_USERS'))
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.management') }}">
@@ -573,15 +573,15 @@
             </li>
             @endif
 
-            <!-- الملف الشخصي -->
+            <!-- {{ __('app.users.profile') }} -->
             <li>
-                <a href="{{ route('profile') }}" data-tooltip="الملف الشخصي">
+                <a href="{{ route('profile') }}" data-tooltip="{{ __('app.users.profile') }}">
                     <i class="fas fa-user-circle"></i>
-                    <span>الملف الشخصي</span>
+                    <span>{{ __('app.users.profile') }}</span>
                 </a>
             </li>
 
-            <!-- الإعدادات -->
+            <!-- {{ __('app.menu.settings') }} -->
             @if(auth()->user()->hasPermission('MENU_SETTINGS'))
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.settings') }}">

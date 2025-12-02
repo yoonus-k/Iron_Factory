@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إدارة الموردين')
+@section('title', __('warehouse.suppliers_management'))
 
 @section('content')
 
@@ -101,16 +101,16 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-truck"></i>
-                إدارة الموردين
+                {{ __('warehouse.suppliers_management') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('warehouse.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المستودع</span>
+                <span>{{ __('warehouse.warehouse') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>الموردين</span>
+                <span>{{ __('warehouse.suppliers') }}</span>
             </nav>
         </div>
 
@@ -141,12 +141,12 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    قائمة الموردين
+                    {{ __('warehouse.suppliers_list') }}
                 </h4>
                 @if (auth()->user()->hasPermission('WAREHOUSE_SUPPLIERS_CREATE'))
                     <a href="{{ route('manufacturing.suppliers.create') }}" class="um-btn um-btn-primary">
                         <i class="feather icon-plus"></i>
-                        إضافة مورد جديد
+                        {{ __('warehouse.add_new_supplier') }}
                     </a>
                 @endif
             </div>
@@ -156,26 +156,26 @@
                 <form method="GET">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث في الموردين..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('warehouse.search_suppliers') }}" value="{{ request('search') }}">
                         </div>
                         <div class="um-form-group">
-                            <input type="text" name="phone" class="um-form-control" placeholder="البحث برقم الهاتف..." value="{{ request('phone') }}">
+                            <input type="text" name="phone" class="um-form-control" placeholder="{{ __('warehouse.search_by_phone') }}" value="{{ request('phone') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
-                                <option value="">جميع الحالات</option>
-                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>نشط</option>
-                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>غير نشط</option>
+                                <option value="">{{ __('warehouse.all_statuses') }}</option>
+                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>{{ __('warehouse.active') }}</option>
+                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>{{ __('warehouse.inactive') }}</option>
                             </select>
                         </div>
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                بحث
+                                {{ __('warehouse.search') }}
                             </button>
                             <button type="reset" class="um-btn um-btn-outline" onclick="window.location='{{ route('manufacturing.suppliers.index') }}'">
                                 <i class="feather icon-x"></i>
-                                إعادة تعيين
+                                {{ __('warehouse.reset') }}
                             </button>
                         </div>
                     </div>
@@ -188,12 +188,12 @@
                     <thead>
                         <tr>
 
-                            <th>اسم المورد</th>
-                            <th>الشخص المسؤول</th>
-                            <th>الهاتف</th>
-                            <th>البريد الإلكتروني</th>
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
+                            <th>{{ __('warehouse.supplier_name') }}</th>
+                            <th>{{ __('warehouse.contact_person') }}</th>
+                            <th>{{ __('warehouse.phone') }}</th>
+                            <th>{{ __('warehouse.email') }}</th>
+                            <th>{{ __('warehouse.status') }}</th>
+                            <th>{{ __('warehouse.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -206,9 +206,9 @@
                             <td>{{ $supplier->email }}</td>
                             <td>
                                 @if($supplier->is_active)
-                                    <span class="um-badge um-badge-success">نشط</span>
+                                    <span class="um-badge um-badge-success">{{ __('warehouse.active') }}</span>
                                 @else
-                                    <span class="um-badge um-badge-danger">غير نشط</span>
+                                    <span class="um-badge um-badge-danger">{{ __('warehouse.inactive') }}</span>
                                 @endif
                             </td>
                            <td>
@@ -270,8 +270,8 @@
             <div class="um-pagination-section">
                 <div>
                     <p class="um-pagination-info">
-                        عرض {{ $suppliers->firstItem() ?? 0 }} إلى {{ $suppliers->lastItem() ?? 0 }} من أصل
-                        {{ $suppliers->total() }} مورد
+                        {{ __('warehouse.showing') }} {{ $suppliers->firstItem() ?? 0 }} {{ __('warehouse.to') }} {{ $suppliers->lastItem() ?? 0 }} {{ __('warehouse.of') }}
+                        {{ $suppliers->total() }} {{ __('warehouse.supplier') }}
                     </p>
                 </div>
                 <div>
@@ -297,7 +297,7 @@
         });
 
         function deleteSupplier(id) {
-            if (confirm('⚠️ هل أنت متأكد من حذف هذا المورد؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
+            if (confirm(__('warehouse.confirm_delete_supplier_message'))) {
                 // Create a form dynamically
                 const form = document.createElement('form');
                 form.method = 'POST';
@@ -324,7 +324,7 @@
         }
 
         function toggleStatus(id) {
-            if (confirm('هل أنت متأكد من تغيير حالة هذا المورد؟')) {
+            if (confirm('{{ __('warehouse.confirm_change_status') }}')) {
                 // Create a form dynamically
                 const form = document.createElement('form');
                 form.method = 'POST';

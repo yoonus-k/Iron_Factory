@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'المرحلة الأولى - تقسيم المواد')
+@section('title', __('stages.stage1_division_materials'))
 
 @section('content')
 
@@ -113,141 +113,141 @@
     <div class="stage-header">
         <h1>
             <i class="fas fa-tools"></i>
-            المرحلة الأولى - تقسيم المواد على الاستاندات
+            {{ __('stages.stage1_title') }}
         </h1>
-        <p>امسح باركود المادة الخام واختر استاند متوفر لبدء التقسيم</p>
+        <p>{{ __('stages.stage1_subtitle') }}</p>
     </div>
 
     <!-- Barcode Scanner -->
     <div class="form-section barcode-section">
-        <h3 class="section-title"><i class="fas fa-barcode"></i> مسح باركود المادة الخام</h3>
+        <h3 class="section-title"><i class="fas fa-barcode"></i> {{ __('stages.scan_barcode') }}</h3>
         <div class="barcode-input-wrapper">
-            <input type="text" id="materialBarcode" class="barcode-input" placeholder="امسح أو اكتب باركود المادة الخام" autofocus>
+            <input type="text" id="materialBarcode" class="barcode-input" placeholder="{{ __('stages.scan_or_write_barcode') }}" autofocus>
             <span class="barcode-icon"><i class="fas fa-tag"></i></span>
         </div>
-        <small style="color: #7f8c8d; display: block; margin-top: 20px; font-size: 16px;"><i class="fas fa-lightbulb"></i> امسح الباركود أو اضغط Enter للبحث عن المادة الخام</small>
+        <small style="color: #7f8c8d; display: block; margin-top: 20px; font-size: 16px;"><i class="fas fa-lightbulb"></i> {{ __('stages.scan_hint') }}</small>
     </div>
 
     <!-- Material Display -->
     <div id="materialDisplay" class="material-display">
-        <h4><i class="fas fa-circle-check"></i> بيانات المادة الخام</h4>
+        <h4><i class="fas fa-circle-check"></i> {{ __('stages.material_data') }}</h4>
         <div class="material-info">
             <div class="info-item">
-                <div class="info-label">الباركود</div>
+                <div class="info-label">{{ __('stages.barcode') }}</div>
                 <div class="info-value" id="displayBarcode">-</div>
             </div>
             <div class="info-item">
-                <div class="info-label">نوع المادة</div>
+                <div class="info-label">{{ __('stages.material_type') }}</div>
                 <div class="info-value" id="displayMaterialType">-</div>
             </div>
-             
+
             <div class="info-item">
-                <div class="info-label">الوزن المنقول للإنتاج</div>
+                <div class="info-label">{{ __('stages.weight_transferred_production') }}</div>
                 <div class="info-value" id="displayWeight">-</div>
             </div>
-        
+
         </div>
     </div>
 
     <!-- Stand Form -->
     <div class="form-section">
-        <h3 class="section-title"><i class="fas fa-target"></i> اختيار الاستاند المتوفر</h3>
+        <h3 class="section-title"><i class="fas fa-target"></i> {{ __('stages.select_stand') }}</h3>
 
         <div class="info-box">
-            <strong><i class="fas fa-thumbtack"></i> ملاحظة مهمة:</strong>
+            <strong><i class="fas fa-thumbtack"></i> {{ __('stages.important_note') }}:</strong>
             <ul>
-                <li><strong>الوزن الصافي = الوزن الإجمالي - وزن الاستاند الفارغ</strong></li>
-                <li>مثال: 100 كجم إجمالي - 2 كجم وزن الاستاند = 98 كجم صافي</li>
-                <li>سيتم تحويل حالة الاستاند إلى "مستخدم" تلقائياً</li>
+                <li><strong>{{ __('stages.net_weight_formula') }}</strong></li>
+                <li>{{ __('stages.example_calculation') }}</li>
+                <li>{{ __('stages.stand_status_change') }}</li>
             </ul>
         </div>
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
-                <label for="standSelect"><i class="fas fa-bullseye"></i> اختر الاستاند المتوفر <span class="required">*</span></label>
+                <label for="standSelect"><i class="fas fa-bullseye"></i> {{ __('stages.select_available_stand') }} <span class="required">*</span></label>
                 <select id="standSelect" class="form-control" onchange="loadStand()" style="font-size: 17px; padding: 16px;">
-                    <option value="">-- اختر استاند متوفر من القائمة --</option>
+                    <option value="">-- {{ __('stages.select_stand_from_list') }} --</option>
                 </select>
-                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-lightbulb"></i> اختر الاستاند الذي تريد استخدامه (فقط الاستاندات الغير مستخدمة)</small>
+                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-lightbulb"></i> {{ __('stages.select_unused_stands') }}</small>
             </div>
         </div>
 
         <div id="standDetails" style="display: none; margin: 30px 0; padding: 30px; background: linear-gradient(135deg, #e8f8f5 0%, #d5f4e6 100%); border-radius: 12px; border-right: 5px solid #27ae60;">
-            <h4 style="margin: 0 0 25px 0; color: #27ae60; font-size: 22px; display: flex; align-items: center; gap: 12px;"><i class="fas fa-box"></i> الاستاند المختار</h4>
+            <h4 style="margin: 0 0 25px 0; color: #27ae60; font-size: 22px; display: flex; align-items: center; gap: 12px;"><i class="fas fa-box"></i> {{ __('stages.selected_stand') }}</h4>
             <div class="stand-info" style="grid-template-columns: repeat(2, 1fr);">
                 <div class="info-item">
-                    <div class="info-label">رقم الاستاند</div>
+                    <div class="info-label">{{ __('stages.stand_number') }}</div>
                     <div class="info-value" id="selectedStandNumber" style="color: #27ae60; font-weight: 700;">-</div>
                 </div>
-                
+
                 <div class="info-item">
-                    <div class="info-label">وزن الاستاند الفارغ</div>
+                    <div class="info-label">{{ __('stages.stand_empty_weight') }}</div>
                     <div class="info-value" id="selectedStandWeight" style="color: #e67e22; font-weight: 700;">-</div>
                 </div>
-            
+
             </div>
         </div>
 
-         
+
          <div class="form-row">
             <div class="form-group">
-                <label for="wasteWeight"><i class="fas fa-trash-alt"></i> وزن الهدر (كجم)</label>
-                <input type="number" id="wasteWeight" class="form-control" placeholder="سيتم حسابه تلقائياً" step="0.01" oninput="calculateWastePercentage()">
-                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-calculator"></i> يُحسب تلقائياً: الإجمالي - الصافي - وزن الاستاند (يمكن التعديل)</small>
+                <label for="wasteWeight"><i class="fas fa-trash-alt"></i> {{ __('stages.waste_weight') }}</label>
+                <input type="number" id="wasteWeight" class="form-control" placeholder="{{ __('stages.auto_calculated') }}" step="0.01" oninput="calculateWastePercentage()">
+                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-calculator"></i> {{ __('stages.auto_waste_hint') }}</small>
             </div>
             <div class="form-group">
-                <label for="wastePercentage"><i class="fas fa-chart-bar"></i> نسبة الهدر (%)</label>
+                <label for="wastePercentage"><i class="fas fa-chart-bar"></i> {{ __('stages.waste_percentage') }}</label>
                 <input type="number" id="wastePercentage" class="form-control" placeholder="0" step="0.01" readonly style="background: #ecf0f1;">
-                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-percent"></i> يُحسب تلقائياً من وزن الهدر</small>
+                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-percent"></i> {{ __('stages.auto_percentage_hint') }}</small>
             </div>
         </div>
-    
+
 
         <div class="form-row">
             <div class="form-group">
-                <label for="totalWeight"><i class="fas fa-weight"></i> الوزن الإجمالي (كجم) <span class="required">*</span></label>
-                <input type="number" id="totalWeight" class="form-control" placeholder="أدخل الوزن الإجمالي" step="0.01" oninput="calculateNetWeight()" style="font-size: 17px;">
-                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-balance-scale"></i> الوزن الكلي شامل وزن الاستاند</small>
+                <label for="totalWeight"><i class="fas fa-weight"></i> {{ __('stages.total_weight') }} <span class="required">*</span></label>
+                <input type="number" id="totalWeight" class="form-control" placeholder="{{ __('stages.enter_total_weight') }}" step="0.01" oninput="calculateNetWeight()" style="font-size: 17px;">
+                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-balance-scale"></i> {{ __('stages.total_weight_hint') }}</small>
             </div>
 
-            
+
             <div class="form-group">
-                <label for="standWeight"><i class="fas fa-box-open"></i> وزن الاستاند الفارغ (كجم)</label>
-                <input type="number" id="standWeight" class="form-control" placeholder="سيتم جلبه تلقائياً" step="0.01" readonly style="background: #ecf0f1; font-weight: 600;">
-                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-sync"></i> يتم جلبه تلقائياً من بيانات الاستاند</small>
+                <label for="standWeight"><i class="fas fa-box-open"></i> {{ __('stages.stand_empty_weight') }}</label>
+                <input type="number" id="standWeight" class="form-control" placeholder="{{ __('stages.fetched_automatically') }}" step="0.01" readonly style="background: #ecf0f1; font-weight: 600;">
+                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-sync"></i> {{ __('stages.auto_fetch_hint') }}</small>
             </div>
-            
+
         </div>
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
-                <label for="netWeight"><i class="fas fa-check"></i> الوزن الصافي (كجم) <span class="required">*</span></label>
-                <input type="number" id="netWeight" class="form-control" placeholder="سيتم حسابه تلقائياً" step="0.01" readonly style="background: linear-gradient(135deg, #d5f4e6 0%, #e8f8f5 100%); font-weight: 700; font-size: 22px; text-align: center; color: #27ae60; border: 3px solid #27ae60; border-radius: 12px;">
-                <small style="color: #27ae60; display: block; margin-top: 10px; font-weight: 600; font-size: 16px;"><i class="fas fa-calculator"></i> يُحسب تلقائياً: الوزن الإجمالي - وزن الاستاند الفارغ</small>
+                <label for="netWeight"><i class="fas fa-check"></i> {{ __('stages.net_weight') }} <span class="required">*</span></label>
+                <input type="number" id="netWeight" class="form-control" placeholder="{{ __('stages.auto_calculated') }}" step="0.01" readonly style="background: linear-gradient(135deg, #d5f4e6 0%, #e8f8f5 100%); font-weight: 700; font-size: 22px; text-align: center; color: #27ae60; border: 3px solid #27ae60; border-radius: 12px;">
+                <small style="color: #27ae60; display: block; margin-top: 10px; font-weight: 600; font-size: 16px;"><i class="fas fa-calculator"></i> {{ __('stages.net_weight_formula') }}</small>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
-                <label for="notes"><i class="fas fa-sticky-note"></i> ملاحظات</label>
-                <textarea id="notes" class="form-control" placeholder="ملاحظات اختيارية..." rows="4"></textarea>
-                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-sticky-note"></i> يمكنك إضافة أي ملاحظات إضافية هنا</small>
+                <label for="notes"><i class="fas fa-sticky-note"></i> {{ __('stages.notes') }}</label>
+                <textarea id="notes" class="form-control" placeholder="{{ __('stages.optional_notes') }}" rows="4"></textarea>
+                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-sticky-note"></i> {{ __('stages.add_any_notes') }}</small>
             </div>
         </div>
 
         <div class="button-group">
             <button type="button" class="btn-primary" onclick="addProcessedStand()">
-                <i class="fas fa-plus"></i> إضافة للقائمة
+                <i class="fas fa-plus"></i> {{ __('stages.add_to_list') }}
             </button>
             <button type="button" class="btn-secondary" onclick="clearForm()">
-                <i class="fas fa-sync"></i> مسح النموذج
+                <i class="fas fa-sync"></i> {{ __('stages.clear_form') }}
             </button>
         </div>
     </div>
 
     <!-- Processed Stands List -->
     <div class="form-section">
-        <h3 class="section-title"><i class="fas fa-list"></i> الاستاندات المعالجة (<span id="standsCount">0</span>)</h3>
+        <h3 class="section-title"><i class="fas fa-list"></i> {{ __('stages.processed_stands') }} (<span id="standsCount">0</span>)</h3>
         <div id="standsList" class="stands-list">
             <div class="empty-state">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -255,7 +255,7 @@
                     <line x1="12" y1="8" x2="12" y2="12"></line>
                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
-                <p>لا توجد استاندات معالجة بعد</p>
+                <p>{{ __('stages.no_processed_stands') }}</p>
             </div>
         </div>
     </div>
@@ -263,10 +263,10 @@
     <!-- Actions -->
     <div class="form-actions">
         <button type="button" class="btn-success" onclick="finishOperation()" id="finishBtn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 18px; padding: 16px 32px;">
-            <i class="fas fa-check-double"></i> إنهاء العملية والعودة للرئيسية
+            <i class="fas fa-check-double"></i> {{ __('stages.finish_operation') }}
         </button>
-        <button type="button" class="btn-secondary" onclick="if(confirm('هل أنت متأكد من الخروج؟ جميع البيانات محفوظة.')) window.location.href='{{ route('manufacturing.stage1.index') }}'">
-            <i class="fas fa-times"></i> إلغاء
+        <button type="button" class="btn-secondary" onclick="if(confirm('{{ __('stages.confirm_exit') }}')) window.location.href='{{ route('manufacturing.stage1.index') }}'">
+            <i class="fas fa-times"></i> {{ __('stages.cancel') }}
         </button>
     </div>
 </div>
@@ -288,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const saved = localStorage.getItem('stage1_processed');
     if (saved) {
         const data = JSON.parse(saved);
-        if (confirm('تم العثور على بيانات محفوظة. هل تريد استعادتها؟')) {
+        if (confirm('{{ __("stages.found_saved_data") }}')) {
             currentMaterial = data.material;
             processedStands = data.stands;
             if (currentMaterial) {
@@ -314,7 +314,7 @@ document.getElementById('materialBarcode').addEventListener('keypress', function
 // Load material by barcode
 function loadMaterialByBarcode(barcode) {
     if (!barcode) {
-        alert('⚠️ يرجى إدخال باركود المادة الخام!');
+        alert('⚠️ ' + '{{ __('stages.enter_raw_material_barcode') }}');
         return;
     }
 
@@ -329,27 +329,27 @@ function loadMaterialByBarcode(barcode) {
         if (data.success && data.material) {
             currentMaterial = data.material;
             displayMaterialInfo(currentMaterial);
-            showToast('✅ تم تحميل بيانات المادة الخام بنجاح!', 'success');
+            showToast('✅ {{ __("stages.material_loaded_success") }}', 'success');
         } else {
-            throw new Error(data.message || 'المادة غير موجودة');
+            throw new Error(data.message || '{{ __("stages.material_not_found") }}');
         }
     })
     .catch(error => {
-        console.error('خطأ:', error);
+        console.error('{{ __("stages.error_label") }}:', error);
         showToast('❌ ' + error.message, 'error');
     });
 }
 
 function displayMaterialInfo(material) {
     document.getElementById('displayBarcode').textContent = material.barcode;
-    document.getElementById('displayMaterialType').textContent = material.material_name || material.material_type || 'غير محدد';
-    
+    document.getElementById('displayMaterialType').textContent = material.material_name || material.material_type || '{{ __("warehouse.undefined") }}';
+
     // فقط إذا كان العنصر موجود (بناءً على الصلاحية)
     const weightElement = document.getElementById('displayWeight');
     if (weightElement) {
         weightElement.textContent = (material.transferred_to_production || material.production_weight || 0) + ' ' + (material.unit_symbol || 'كجم');
     }
-    
+
     document.getElementById('materialDisplay').classList.add('active');
 }
 
@@ -375,31 +375,31 @@ function loadStandsList() {
         return response.json();
     })
     .then(data => {
-        console.log('✅ البيانات المستلمة:', data);
+        console.log('✅ Data received:', data);
         const select = document.getElementById('standSelect');
-        select.innerHTML = '<option value="">-- اختر استاند متوفر من القائمة --</option>';
+        select.innerHTML = '<option value="">-- {{ __("stages.select_stand_from_list") }} --</option>';
 
         if (data.stands && data.stands.length > 0) {
-            console.log('📦 عدد الاستاندات:', data.stands.length);
+            console.log('Stands count:', data.stands.length);
             data.stands.forEach(stand => {
                 const option = document.createElement('option');
                 option.value = stand.id;
-                option.textContent = `${stand.stand_number} - وزن فارغ: ${stand.weight} كجم`;
+                option.textContent = `${stand.stand_number} - {{ __("stages.stand_empty_weight") }}: ${stand.weight} {{ __("stages.weight_unit") }}`;
                 option.dataset.stand = JSON.stringify(stand);
                 select.appendChild(option);
             });
-            showToast(`✅ تم تحميل ${data.stands.length} استاند متاح`, 'success');
+            showToast(`✅ {{ __("stages.stands_loaded") }} ${data.stands.length} {{ __("stages.stands_available") }}`, 'success');
         } else {
-            console.warn('⚠️ لا توجد استاندات متاحة');
-            select.innerHTML = '<option value="">لا توجد استاندات متاحة - أضف استاند جديد أولاً</option>';
-            showToast('⚠️ لا توجد استاندات متاحة حالياً', 'warning');
+            console.warn('No stands available');
+            select.innerHTML = '<option value="">{{ __("stages.no_stands_available") }} - {{ __("stages.add_first_stand") }}</option>';
+            showToast('⚠️ {{ __("stages.no_stands_available") }}', 'warning');
         }
     })
     .catch(error => {
-        console.error('❌ خطأ في تحميل الاستاندات:', error);
+        console.error('Error loading stands:', error);
         const select = document.getElementById('standSelect');
-        select.innerHTML = '<option value="">حدث خطأ في تحميل الاستاندات - حاول مرة أخرى</option>';
-        showToast('❌ فشل تحميل قائمة الاستاندات: ' + error.message, 'error');
+        select.innerHTML = '<option value="">{{ __("stages.failed_load_stands") }}</option>';
+        showToast('❌ {{ __("stages.failed_load_stands") }}: ' + error.message, 'error');
     });
 }
 
@@ -410,17 +410,17 @@ function loadStand() {
 
     if (!selectedOption.value) {
         document.getElementById('standDetails').style.display = 'none';
-        
+
         const standWeightElement = document.getElementById('standWeight');
         if (standWeightElement) {
             standWeightElement.value = '';
         }
-        
+
         const netWeightElement = document.getElementById('netWeight');
         if (netWeightElement) {
             netWeightElement.value = '';
         }
-        
+
         selectedStand = null;
         return;
     }
@@ -428,21 +428,21 @@ function loadStand() {
     selectedStand = JSON.parse(selectedOption.dataset.stand);
 
     document.getElementById('selectedStandNumber').textContent = selectedStand.stand_number;
-    
+
     const standWeightElement = document.getElementById('selectedStandWeight');
     if (standWeightElement) {
         standWeightElement.textContent = selectedStand.weight + ' كجم';
     }
-    
+
     const standWeightInputElement = document.getElementById('standWeight');
     if (standWeightInputElement) {
         standWeightInputElement.value = selectedStand.weight;
     }
-    
+
     document.getElementById('standDetails').style.display = 'block';
 
     calculateNetWeight();
-    showToast('✅ تم تحميل بيانات الاستاند', 'success');
+    showToast('✅ {{ __("stages.stand_loaded_success") }}', 'success');
 }
 
 // Calculate net weight and waste
@@ -471,12 +471,12 @@ function calculateNetWeight() {
         if (netWeightElement) {
             netWeightElement.value = '';
         }
-        
+
         const wasteWeightElement = document.getElementById('wasteWeight');
         if (wasteWeightElement) {
             wasteWeightElement.value = '';
         }
-        
+
         const wastePercentageElement = document.getElementById('wastePercentage');
         if (wastePercentageElement) {
             wastePercentageElement.value = '';
@@ -502,39 +502,39 @@ function calculateWastePercentage() {
 
 function addProcessedStand() {
     if (!currentMaterial) {
-        alert('⚠️ يرجى مسح باركود المادة الخام أولاً!');
+        alert('⚠️ {{ __("stages.enter_raw_material_barcode") }}');
         return;
     }
 
     if (!selectedStand) {
-        alert('⚠️ يرجى اختيار استاند متوفر من القائمة!');
+        alert('⚠️ {{ __("stages.select_available_stand") }}');
         return;
     }
 
     const totalWeight = parseFloat(document.getElementById('totalWeight').value) || 0;
-    
+
     if (!totalWeight) {
-        alert('⚠️ يرجى إدخال الوزن الإجمالي!');
+        alert('⚠️ {{ __("stages.enter_total_weight_required") }}');
         return;
     }
 
     // حساب الوزن الصافي من البيانات المتاحة (حتى لو كانت الحقول مخفية)
     const standWeight = selectedStand.weight || 0;
     const netWeight = totalWeight - standWeight;
-    
+
     // التحقق من وجود العناصر قبل قراءة قيمها (للحقول الاختيارية)
     const wasteWeightElement = document.getElementById('wasteWeight');
     const wasteWeight = wasteWeightElement ? (parseFloat(wasteWeightElement.value) || 0) : 0;
-    
+
     const wastePercentageElement = document.getElementById('wastePercentage');
     const wastePercentage = wastePercentageElement ? (parseFloat(wastePercentageElement.value) || 0) : 0;
-    
+
     const notes = document.getElementById('notes').value.trim();
 
-    // تعطيل زر الإضافة مؤقتاً
+    // Disable add button temporarily
     const addBtn = event.target;
     addBtn.disabled = true;
-    addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+    addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {{ __("stages.saving") }}...';
 
     // إرسال للخادم فوراً
     const formData = {
@@ -590,18 +590,18 @@ function addProcessedStand() {
             saveOffline();
             loadStandsList(); // إعادة تحميل قائمة الاستاندات المتاحة
 
-            showToast('✅ تم حفظ الاستاند بنجاح! يمكنك طباعة الباركود الآن', 'success');
+            showToast('✅ {{ __("stages.stand_saved_print_now") }}', 'success');
         } else {
-            throw new Error(data.message || 'حدث خطأ أثناء الحفظ');
+            throw new Error(data.message || '{{ __("stages.error_saving") }}');
         }
     })
     .catch(error => {
-        console.error('خطأ:', error);
-        alert('❌ خطأ: ' + error.message);
+        console.error('{{ __("stages.error_label") }}:', error);
+        alert('❌ {{ __("stages.error_label") }}: ' + error.message);
     })
     .finally(() => {
         addBtn.disabled = false;
-        addBtn.innerHTML = '<i class="fas fa-plus"></i> إضافة للقائمة';
+        addBtn.innerHTML = '<i class="fas fa-plus"></i> {{ __("stages.add_to_list") }}';
     });
 }
 
@@ -617,7 +617,7 @@ function renderStands() {
                     <line x1="12" y1="8" x2="12" y2="12"></line>
                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
-                <p>لا توجد استاندات معالجة بعد</p>
+                <p>{{ __('stages.no_processed_stands') }}</p>
             </div>
         `;
         return;
@@ -628,21 +628,21 @@ function renderStands() {
             <div class="stand-info">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                     <strong style="font-size: 18px;"><i class="fas fa-check-circle" style="color: #27ae60;"></i> ${item.stand_number}</strong>
-                    <span style="background: #27ae60; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">✓ محفوظ</span>
+                    <span style="background: #27ae60; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">{{ __('stages.saved_badge') }}</span>
                 </div>
                 <small style="display: block; line-height: 1.6;">
-                    <strong>المادة:</strong> ${item.material_name || item.material_type} |
-                    <strong>الباركود:</strong> <code style="background: #f8f9fa; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${item.barcode}</code><br>
-                    <strong>إجمالي:</strong> ${item.total_weight} كجم |
-                    <strong>صافي:</strong> ${item.net_weight} كجم |
-                    <strong>وزن الاستاند:</strong> ${item.stand_weight} كجم |
-                    <strong>هدر:</strong> ${item.waste_weight || 0} كجم (${item.waste_percentage || 0}%)
-                    ${item.notes ? '<br>📝 <strong>ملاحظات:</strong> ' + item.notes : ''}
+                    <strong>{{ __('stages.material_label') }}</strong> ${item.material_name || item.material_type} |
+                    <strong>{{ __('stages.barcode_label') }}</strong> <code style="background: #f8f9fa; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${item.barcode}</code><br>
+                    <strong>{{ __('stages.total_weight_label') }}</strong> ${item.total_weight} {{ __('stages.weight_unit') }} |
+                    <strong>{{ __('stages.net_weight_label') }}</strong> ${item.net_weight} {{ __('stages.weight_unit') }} |
+                    <strong>{{ __('stages.stand_weight_label') }}</strong> ${item.stand_weight} {{ __('stages.weight_unit') }} |
+                    <strong>{{ __('stages.waste_label') }}</strong> ${item.waste_weight || 0} {{ __('stages.weight_unit') }} (${item.waste_percentage || 0}%)
+                    ${item.notes ? '<br>📝 <strong>{{ __("stages.notes_label") }}</strong> ' + item.notes : ''}
                 </small>
             </div>
             <div class="stand-actions" style="display: flex; gap: 8px;">
                 <button class="btn-print" onclick='printStandBarcode(${JSON.stringify(item).replace(/'/g, "\\'")})' style="background: #27ae60;">
-                    <i class="fas fa-print"></i> طباعة الباركود
+                    <i class="fas fa-print"></i> {{ __('stages.print_barcode_button') }}
                 </button>
             </div>
         </div>
@@ -651,17 +651,17 @@ function renderStands() {
 
 function finishOperation() {
     if (processedStands.length === 0) {
-        if (confirm('لم تتم إضافة أي استاندات. هل تريد المتابعة للخروج؟')) {
+        if (confirm('{{ __("stages.stands_added_confirm_exit") }}')) {
             localStorage.removeItem('stage1_processed');
             window.location.href = '{{ route("manufacturing.stage1.index") }}';
         }
         return;
     }
 
-    const message = `تم حفظ ${processedStands.length} استاند بنجاح!\n\nهل تريد العودة للصفحة الرئيسية؟`;
+    const message = `{{ __("stages.stands_saved_confirm_home") }}`.replace('{count}', processedStands.length);
     if (confirm(message)) {
         localStorage.removeItem('stage1_processed');
-        showToast('✅ تمت العملية بنجاح!', 'success');
+        showToast('✅ {{ __("stages.operation_success") }}', 'success');
         setTimeout(() => {
             window.location.href = '{{ route("manufacturing.stage1.index") }}';
         }, 1000);
@@ -672,27 +672,27 @@ function clearForm() {
     document.getElementById('standSelect').value = '';
     document.getElementById('standDetails').style.display = 'none';
     document.getElementById('totalWeight').value = '';
-    
+
     const standWeightElement = document.getElementById('standWeight');
     if (standWeightElement) {
         standWeightElement.value = '';
     }
-    
+
     const netWeightElement = document.getElementById('netWeight');
     if (netWeightElement) {
         netWeightElement.value = '';
     }
-    
+
     const wasteWeightElement = document.getElementById('wasteWeight');
     if (wasteWeightElement) {
         wasteWeightElement.value = '';
     }
-    
+
     const wastePercentageElement = document.getElementById('wastePercentage');
     if (wastePercentageElement) {
         wastePercentageElement.value = '';
     }
-    
+
     document.getElementById('notes').value = '';
     selectedStand = null;
 
@@ -900,12 +900,12 @@ function _unused_printAllBarcodes(barcodes) {
 // Print barcode for a saved stand
 function printStandBarcode(stand) {
     if (!stand || !stand.barcode) {
-        alert('❌ لم يتم العثور على باركود الاستاند!');
+        alert('❌ {{ __("stages.barcode_not_found") }}');
         return;
     }
 
     const printWindow = window.open('', '', 'height=650,width=850');
-    printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - ' + stand.stand_number + '</title>');
+    printWindow.document.write('<html dir="rtl"><head><title>{{ __("stages.print_barcode_button") }} - ' + stand.stand_number + '</title>');
     printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
     printWindow.document.write('<style>');
     printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
@@ -920,14 +920,14 @@ function printStandBarcode(stand) {
     printWindow.document.write('@media print { body { background: white; } }');
     printWindow.document.write('</style></head><body>');
     printWindow.document.write('<div class="barcode-container">');
-    printWindow.document.write('<div class="title">باركود المرحلة الأولى</div>');
-    printWindow.document.write('<div class="stand-number">استاند ' + stand.stand_number + '</div>');
+    printWindow.document.write('<div class="title">{{ __("stages.barcode_title") }}</div>');
+    printWindow.document.write('<div class="stand-number">{{ __("stages.stand_label_print") }} ' + stand.stand_number + '</div>');
     printWindow.document.write('<svg id="print-barcode"></svg>');
     printWindow.document.write('<div class="barcode-code">' + stand.barcode + '</div>');
     printWindow.document.write('<div class="info">');
-    printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + (stand.material_name || stand.material_type) + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">الوزن الصافي:</span><span class="value">' + stand.net_weight + ' كجم</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.material_label_print") }}</span><span class="value">' + (stand.material_name || stand.material_type) + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.net_weight_label_print") }}</span><span class="value">' + stand.net_weight + ' {{ __("stages.weight_unit") }}</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.date_label_print") }}</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
     printWindow.document.write('</div></div>');
     printWindow.document.write('<script>');
     printWindow.document.write('JsBarcode("#print-barcode", "' + stand.barcode + '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');

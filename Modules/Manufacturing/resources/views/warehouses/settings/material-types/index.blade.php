@@ -123,12 +123,12 @@
                                 <td>
                                     @php
                                         $categories = [
-                                            'raw_material' => 'خام',
-                                            'finished_product' => 'منتج نهائي',
-                                            'semi_finished' => 'منتج نصف نهائي',
-                                            'additive' => 'إضافة',
-                                            'packing_material' => 'مادة تغليف',
-                                            'component' => 'مكون',
+                                            'raw_material' => __('warehouse.raw_material'),
+                                            'finished_product' => __('warehouse.finished_product'),
+                                            'semi_finished' => __('warehouse.semi_finished_product'),
+                                            'additive' => __('warehouse.additive'),
+                                            'packing_material' => __('warehouse.packing_material'),
+                                            'component' => __('warehouse.component'),
                                         ];
                                     @endphp
                                     <span class="badge badge-info">{{ $categories[$materialType->category] ?? $materialType->category }}</span>

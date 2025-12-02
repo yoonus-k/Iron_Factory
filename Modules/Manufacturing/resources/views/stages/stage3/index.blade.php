@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'المرحلة الثالثة: تصنيع الكويلات')
+@section('title', __('stages.stage3_index_title'))
 
 @section('head')
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
@@ -13,21 +13,21 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-package"></i>
-                المرحلة الثالثة: تصنيع الكويلات
+                {{ __('stages.stage3_coils_manufacturing') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('stages.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المرحلة الثالثة</span>
+                <span>{{ __('stages.stage3_title') }}</span>
             </nav>
         </div>
 
         <!-- Success and Error Messages -->
         <div class="um-alert-custom um-alert-success" role="alert" style="display: none;">
             <i class="feather icon-check-circle"></i>
-            تم حفظ البيانات بنجاح
+            {{ __('stages.data_saved_successfully') }}
             <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
                 <i class="feather icon-x"></i>
             </button>
@@ -39,20 +39,20 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    قائمة الكويلات
+                    {{ __('stages.stage3_coils_list') }}
                     @if(isset($viewingAll) && $viewingAll)
                         <span style="background: #3b82f6; color: white; padding: 4px 12px; border-radius: 12px; font-size: 13px; margin-right: 10px; display: inline-flex; align-items: center; gap: 5px;">
-                            <i class="feather icon-eye"></i> جميع العمليات
+                            <i class="feather icon-eye"></i> {{ __('stages.all_operations') }}
                         </span>
                     @else
                         <span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 13px; margin-right: 10px; display: inline-flex; align-items: center; gap: 5px;">
-                            <i class="feather icon-user"></i> عملياتي فقط
+                            <i class="feather icon-user"></i> {{ __('stages.my_operations_only') }}
                         </span>
                     @endif
                 </h4>
                 <a href="{{ route('manufacturing.stage3.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>
-                    إنشاء لفاف جديد
+                    {{ __('stages.stage3_create_new_coil') }}
                 </a>
             </div>
 
@@ -61,27 +61,27 @@
                 <form method="GET">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث برقم الكويل...">
+                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('stages.stage3_search_by_coil') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
-                                <option value="">جميع الحالات</option>
-                                <option value="created">تم الإنشاء</option>
-                                <option value="in_process">قيد الصنع</option>
-                                <option value="completed">جاهز</option>
+                                <option value="">{{ __('stages.all_statuses') }}</option>
+                                <option value="created">{{ __('stages.status_created') }}</option>
+                                <option value="in_process">{{ __('stages.stage3_status_in_process') }}</option>
+                                <option value="completed">{{ __('stages.status_completed') }}</option>
                             </select>
                         </div>
                         <div class="um-form-group">
-                            <input type="date" name="date" class="um-form-control" placeholder="التاريخ">
+                            <input type="date" name="date" class="um-form-control" placeholder="{{ __('stages.date_label') }}">
                         </div>
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                بحث
+                                {{ __('stages.search_button') }}
                             </button>
                             <button type="reset" class="um-btn um-btn-outline">
                                 <i class="feather icon-x"></i>
-                                إعادة تعيين
+                                {{ __('stages.reset_button') }}
                             </button>
                         </div>
                     </div>
@@ -94,11 +94,11 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>رقم الفاف</th>
-                            <th>الوزن</th>
-                            <th>اللون</th>
-                            <th>نوع البلاستيك</th>
-                            <th>الحالة</th>
+                            <th>{{ __('stages.stage3_coil_number_header') }}</th>
+                            <th>{{ __('stages.stage3_weight_header') }}</th>
+                            <th>{{ __('stages.stage3_color_header') }}</th>
+                            <th>{{ __('stages.stage3_plastic_type_header') }}</th>
+                            <th>{{ __('stages.status_header') }}</th>
                             <th>التاريخ</th>
                             <th>الإجراءات</th>
                         </tr>
@@ -108,21 +108,21 @@
                         <tr>
                             <td>{{ $loop->iteration + ($lafafs->currentPage() - 1) * $lafafs->perPage() }}</td>
                             <td><span class="badge badge-info">{{ $item->coil_number }}</span></td>
-                            <td>{{ number_format($item->total_weight, 2) }} كجم</td>
+                            <td>{{ number_format($item->total_weight, 2) }} {{ __('stages.unit_kg') }}</td>
                             <td>{{ $item->color }}</td>
                             <td>{{ $item->plastic_type }}</td>
                             <td>
                                 @if($item->status === 'completed')
-                                <span class="um-badge um-badge-success">مكتمل</span>
+                                <span class="um-badge um-badge-success">{{ __('stages.status_completed') }}</span>
                                 @elseif($item->status === 'in_progress')
-                                <span class="um-badge um-badge-warning">قيد التنفيذ</span>
+                                <span class="um-badge um-badge-warning">{{ __('stages.stage3_status_in_process') }}</span>
                                 @else
-                                <span class="um-badge um-badge-secondary">{{ $item->status }}</span>
+                                <span class="um-badge um-badge-secondary">{{ __('stages.' . $item->status) }}</span>
                                 @endif
                             </td>
                             <td>{{ is_string($item->created_at) ? date('Y-m-d', strtotime($item->created_at)) : $item->created_at->format('Y-m-d') }}</td>
                             <td>
-                                <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->material_name ?? 'غير محدد' }}', {{ $item->total_weight }}, '{{ $item->color }}')" class="um-btn um-btn-success um-btn-sm" title="طباعة الباركود">
+                                <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->material_name ?? __('stages.not_specified') }}', {{ $item->total_weight }}, '{{ $item->color }}')" class="um-btn um-btn-success um-btn-sm" title="{{ __('stages.stage3_print_barcode') }}">
                                     <i class="feather icon-printer"></i>
                                 </button>
                             </td>
@@ -131,7 +131,7 @@
                         <tr>
                             <td colspan="8" class="text-center" style="padding: 50px;">
                                 <i class="feather icon-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                                <p class="mt-2" style="color: #999;">لا توجد لفائف مسجلة</p>
+                                <p class="mt-2" style="color: #999;">{{ __('stages.stage3_no_lafafs_added_yet') }}</p>
                             </td>
                         </tr>
                         @endforelse
@@ -154,44 +154,44 @@
                             </div>
                         </div>
                         @if($item->status === 'completed')
-                        <span class="um-badge um-badge-success">مكتمل</span>
+                        <span class="um-badge um-badge-success">{{ __('stages.status_completed') }}</span>
                         @elseif($item->status === 'in_progress')
-                        <span class="um-badge um-badge-warning">قيد التنفيذ</span>
+                        <span class="um-badge um-badge-warning">{{ __('stages.stage3_status_in_process') }}</span>
                         @else
-                        <span class="um-badge um-badge-secondary">{{ $item->status }}</span>
+                        <span class="um-badge um-badge-secondary">{{ __('stages.' . $item->status) }}</span>
                         @endif
                     </div>
 
                     <div class="um-category-card-body">
                         <div class="um-info-row">
-                            <span class="um-info-label">الوزن:</span>
-                            <span class="um-info-value">{{ number_format($item->total_weight, 2) }} كجم</span>
+                            <span class="um-info-label">{{ __('stages.stage3_weight_header') }}:</span>
+                            <span class="um-info-value">{{ number_format($item->total_weight, 2) }} {{ __('stages.unit_kg') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">اللون:</span>
+                            <span class="um-info-label">{{ __('stages.stage3_color_header') }}:</span>
                             <span class="um-info-value">{{ $item->color }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">نوع البلاستيك:</span>
+                            <span class="um-info-label">{{ __('stages.stage3_plastic_type_header') }}:</span>
                             <span class="um-info-value">{{ $item->plastic_type }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">التاريخ:</span>
+                            <span class="um-info-label">{{ __('stages.stage3_created_at_label') }}:</span>
                             <span class="um-info-value">{{ is_string($item->created_at) ? date('Y-m-d', strtotime($item->created_at)) : $item->created_at->format('Y-m-d') }}</span>
                         </div>
                     </div>
 
                     <div class="um-category-card-footer">
-                        <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->material_name ?? 'غير محدد' }}', {{ $item->total_weight }}, '{{ $item->color }}')" class="um-btn um-btn-success um-btn-sm">
+                        <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->material_name ?? __('stages.not_specified') }}', {{ $item->total_weight }}, '{{ $item->color }}')" class="um-btn um-btn-success um-btn-sm">
                             <i class="feather icon-printer"></i>
-                            طباعة الباركود
+                            {{ __('stages.stage3_print_barcode') }}
                         </button>
                     </div>
                 </div>
                 @empty
                 <div class="text-center" style="padding: 50px;">
                     <i class="feather icon-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                    <p class="mt-2" style="color: #999;">لا توجد لفائف مسجلة</p>
+                    <p class="mt-2" style="color: #999;">{{ __('stages.stage3_no_lafafs_added_yet') }}</p>
                 </div>
                 @endforelse
                                 <a href="{{ route('manufacturing.stage3.show', 1) }}" class="um-dropdown-item um-btn-view">
@@ -227,7 +227,7 @@
             <div class="um-pagination-section">
                 <div>
                     <p class="um-pagination-info">
-                        عرض {{ $lafafs->firstItem() ?? 0 }} إلى {{ $lafafs->lastItem() ?? 0 }} من أصل {{ $lafafs->total() }} كويل
+                        {{ __('stages.showing') }} {{ $lafafs->firstItem() ?? 0 }} {{ __('stages.to') }} {{ $lafafs->lastItem() ?? 0 }} {{ __('stages.of') }} {{ $lafafs->total() }} {{ __('stages.stage3_coil_number_header') }}
                     </p>
                 </div>
                 <div>
@@ -280,8 +280,8 @@
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    if (confirm('هل أنت متأكد من حذف هذا الكويل؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
-                        alert('تم حذف الكويل بنجاح');
+                    if (confirm('{{ __('stages.stage3_confirm_remove_lafaf') }}\n\n{{ __('stages.delete_confirmation_warning') }}')) {
+                        alert('{{ __('stages.deleted_successfully') }}');
                     }
                 });
             });

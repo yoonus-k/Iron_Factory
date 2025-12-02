@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إحصائيات المستودعات')
+@section('title', __('warehouse.warehouses_statistics'))
 
 @section('content')
     <div class="report-container">
@@ -11,16 +11,16 @@
                     <i class="feather icon-home"></i>
                 </div>
                 <div>
-                    <h1 class="page-title">إحصائيات المستودعات</h1>
-                    <p class="page-subtitle">تقرير شامل عن جميع المستودعات والسعات التخزينية</p>
+                    <h1 class="page-title">{{ __('warehouse.warehouses_statistics') }}</h1>
+                    <p class="page-subtitle">{{ __('warehouse.warehouses_statistics_subtitle') }}</p>
                 </div>
             </div>
             <div class="header-actions">
                 <button onclick="window.print()" class="btn-action">
-                    <i class="feather icon-printer"></i> طباعة
+                    <i class="feather icon-printer"></i> {{ __('warehouse.print') }}
                 </button>
                 <a href="{{ route('manufacturing.warehouse-reports.index') }}" class="btn-action">
-                    <i class="feather icon-arrow-right"></i> رجوع
+                    <i class="feather icon-arrow-right"></i> {{ __('warehouse.back') }}
                 </a>
             </div>
         </div>
@@ -33,7 +33,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['total_warehouses'] }}</h3>
-                    <p>إجمالي المستودعات</p>
+                    <p>{{ __('warehouse.total_warehouses') }}</p>
                 </div>
             </div>
             <div class="stat-card green">
@@ -42,7 +42,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['active_warehouses'] }}</h3>
-                    <p>مستودعات نشطة</p>
+                    <p>{{ __('warehouse.active_warehouses') }}</p>
                 </div>
             </div>
             <div class="stat-card gray">
@@ -51,7 +51,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['inactive_warehouses'] }}</h3>
-                    <p>مستودعات غير نشطة</p>
+                    <p>{{ __('warehouse.inactive_warehouses') }}</p>
                 </div>
             </div>
             <div class="stat-card orange">
@@ -60,7 +60,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ number_format($stats['total_capacity'] ?? 0, 2) }}</h3>
-                    <p>السعة الإجمالية</p>
+                    <p>{{ __('warehouse.total_capacity') }}</p>
                 </div>
             </div>
         </div>
@@ -69,7 +69,7 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-bar-chart"></i>
-                الإحصائيات
+                {{ __('warehouse.statistics') }}
             </h2>
             <div class="chart-container">
                 <canvas id="warehousesChart"></canvas>
@@ -80,20 +80,20 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-pie-chart"></i>
-                توزيع المستودعات حسب النوع
+                {{ __('warehouse.warehouses_distribution') }}
             </h2>
             <div class="types-grid">
                 @foreach($warehousesByType as $type => $count)
                     <div class="type-item">
                         <div class="type-label">
                             @if($type == 'raw_materials')
-                                <i class="feather icon-box"></i> مواد خام
+                                <i class="feather icon-box"></i> {{ __('warehouse.raw_materials') }}
                             @elseif($type == 'additives')
-                                <i class="feather icon-droplet"></i> صبغات وبلاستيك
+                                <i class="feather icon-droplet"></i> {{ __('warehouse.additives') }}
                             @elseif($type == 'finished_goods')
-                                <i class="feather icon-package"></i> منتجات نهائية
+                                <i class="feather icon-package"></i> {{ __('warehouse.finished_products') }}
                             @else
-                                <i class="feather icon-archive"></i> عام
+                                <i class="feather icon-archive"></i> {{ __('warehouse.general') }}
                             @endif
                         </div>
                         <div class="type-count">{{ $count }}</div>
@@ -106,20 +106,20 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-list"></i>
-                تفاصيل المستودعات
+                {{ __('warehouse.warehouses_details') }}
             </h2>
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>رمز المستودع</th>
-                            <th>اسم المستودع</th>
-                            <th>النوع</th>
-                            <th>الموقع</th>
-                            <th>السعة</th>
-                            <th>عدد المواد</th>
-                            <th>الحالة</th>
+                            <th>{{ __('warehouse.warehouse_code') }}</th>
+                            <th>{{ __('warehouse.warehouse_name') }}</th>
+                            <th>{{ __('warehouse.type') }}</th>
+                            <th>{{ __('warehouse.location') }}</th>
+                            <th>{{ __('warehouse.capacity') }}</th>
+                            <th>{{ __('warehouse.materials_count') }}</th>
+                            <th>{{ __('warehouse.status') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -130,13 +130,13 @@
                                 <td><strong>{{ $warehouse->warehouse_name }}</strong></td>
                                 <td>
                                     @if($warehouse->warehouse_type == 'raw_materials')
-                                        <span class="type-badge raw">مواد خام</span>
+                                        <span class="type-badge raw">{{ __('warehouse.raw_materials') }}</span>
                                     @elseif($warehouse->warehouse_type == 'additives')
-                                        <span class="type-badge additives">صبغات وبلاستيك</span>
+                                        <span class="type-badge additives">{{ __('warehouse.additives') }}</span>
                                     @elseif($warehouse->warehouse_type == 'finished_goods')
-                                        <span class="type-badge finished">منتجات نهائية</span>
+                                        <span class="type-badge finished">{{ __('warehouse.finished_products') }}</span>
                                     @else
-                                        <span class="type-badge general">عام</span>
+                                        <span class="type-badge general">{{ __('warehouse.general') }}</span>
                                     @endif
                                 </td>
                                 <td>{{ $warehouse->location ?? '-' }}</td>
@@ -152,7 +152,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center">لا توجد مستودعات</td>
+                                <td colspan="8" class="text-center">{{ __('warehouse.no_warehouses_found') }}</td>
                             </tr>
                         @endforelse
                     </tbody>

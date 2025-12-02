@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تقرير الموردين')
+@section('title', __('warehouse.suppliers_report'))
 
 @section('content')
     <div class="report-container">
@@ -11,16 +11,16 @@
                     <i class="feather icon-truck"></i>
                 </div>
                 <div>
-                    <h1 class="page-title">تقرير الموردين</h1>
-                    <p class="page-subtitle">إحصائيات الموردين والتعاملات معهم</p>
+                    <h1 class="page-title">{{ __('warehouse.suppliers_report') }}</h1>
+                    <p class="page-subtitle">{{ __('warehouse.suppliers_report_subtitle') }}</p>
                 </div>
             </div>
             <div class="header-actions">
                 <button onclick="window.print()" class="btn-action">
-                    <i class="feather icon-printer"></i> طباعة
+                    <i class="feather icon-printer"></i> {{ __('warehouse.print') }}
                 </button>
                 <a href="{{ route('manufacturing.warehouse-reports.index') }}" class="btn-action">
-                    <i class="feather icon-arrow-right"></i> رجوع
+                    <i class="feather icon-arrow-right"></i> {{ __('warehouse.back') }}
                 </a>
             </div>
         </div>
@@ -33,7 +33,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['total_suppliers'] }}</h3>
-                    <p>إجمالي الموردين</p>
+                    <p>{{ __('warehouse.total_suppliers') }}</p>
                 </div>
             </div>
             <div class="stat-card green">
@@ -42,7 +42,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['active_suppliers'] }}</h3>
-                    <p>موردين نشطين</p>
+                    <p>{{ __('warehouse.active_suppliers') }}</p>
                 </div>
             </div>
             <div class="stat-card orange">
@@ -51,7 +51,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['inactive_suppliers'] }}</h3>
-                    <p>موردين غير نشطين</p>
+                    <p>{{ __('warehouse.inactive_suppliers') }}</p>
                 </div>
             </div>
         </div>
@@ -60,7 +60,7 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-bar-chart"></i>
-                الإحصائيات
+                {{ __('warehouse.statistics') }}
             </h2>
             <div class="chart-container">
                 <canvas id="suppliersChart"></canvas>
@@ -71,20 +71,20 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-list"></i>
-                تفاصيل الموردين
+                {{ __('warehouse.suppliers_details') }}
             </h2>
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>اسم المورد</th>
-                            <th>الشخص المسؤول</th>
-                            <th>رقم الهاتف</th>
-                            <th>البريد الإلكتروني</th>
-                            <th>عدد أذون التسليم</th>
-                            <th>عدد الفواتير</th>
-                            <th>الحالة</th>
+                            <th>{{ __('warehouse.supplier_name') }}</th>
+                            <th>{{ __('warehouse.contact_person') }}</th>
+                            <th>{{ __('warehouse.phone_number') }}</th>
+                            <th>{{ __('warehouse.email') }}</th>
+                            <th>{{ __('warehouse.delivery_notes_count') }}</th>
+                            <th>{{ __('warehouse.invoices_count') }}</th>
+                            <th>{{ __('warehouse.status') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -111,7 +111,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center">لا يوجد موردين</td>
+                                <td colspan="8" class="text-center">{{ __('warehouse.no_suppliers') }}</td>
                             </tr>
                         @endforelse
                     </tbody>

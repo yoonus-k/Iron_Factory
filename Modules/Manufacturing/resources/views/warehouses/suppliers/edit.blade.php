@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تعديل بيانات المورد')
+@section('title', __('warehouse.edit_supplier'))
 
 @section('content')
 
@@ -11,18 +11,18 @@
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
             </svg>
-            تعديل بيانات المورد
+            {{ __('warehouse.edit_supplier') }}
         </h1>
         <nav class="um-breadcrumb-nav">
             <span>
-                <i class="feather icon-home"></i> لوحة التحكم
+                <i class="feather icon-home"></i> {{ __('warehouse.dashboard') }}
             </span>
             <i class="feather icon-chevron-left"></i>
-            <span>المستودع</span>
+            <span>{{ __('warehouse.warehouse') }}</span>
             <i class="feather icon-chevron-left"></i>
-            <span>الموردين</span>
+            <span>{{ __('warehouse.suppliers') }}</span>
             <i class="feather icon-chevron-left"></i>
-            <span>تعديل مورد</span>
+            <span>{{ __('warehouse.edit_supplier') }}</span>
         </nav>
     </div>
 
@@ -42,15 +42,15 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">معلومات المورد</h3>
-                        <p class="section-subtitle">قم بتحديث بيانات المورد</p>
+                        <h3 class="section-title">{{ __('warehouse.supplier_information') }}</h3>
+                        <p class="section-subtitle">{{ __('warehouse.update_supplier_data') }}</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="supplier_name" class="form-label">
-                            اسم المورد
+                            {{ __('warehouse.supplier_name') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -65,7 +65,7 @@
 
                     <div class="form-group">
                         <label for="contact_person" class="form-label">
-                            الشخص المسؤول
+                            {{ __('warehouse.contact_person') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -80,7 +80,7 @@
 
                     <div class="form-group">
                         <label for="phone" class="form-label">
-                            رقم الهاتف
+                            {{ __('warehouse.phone') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -94,7 +94,7 @@
 
                     <div class="form-group">
                         <label for="email" class="form-label">
-                            البريد الإلكتروني
+                            {{ __('warehouse.email') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -108,7 +108,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="address" class="form-label">العنوان</label>
+                        <label for="address" class="form-label">{{ __('warehouse.address') }}</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -120,7 +120,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="city" class="form-label">المدينة</label>
+                        <label for="city" class="form-label">{{ __('warehouse.city') }}</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -131,7 +131,7 @@
                     </div>
 
                     <div class="form-group full-width">
-                        <label for="notes" class="form-label">ملاحظات</label>
+                        <label for="notes" class="form-label">{{ __('warehouse.notes') }}</label>
                         <div class="input-wrapper">
                             <textarea name="notes" id="notes"
                                 class="form-input" rows="4">{{ old('notes', $supplier->notes) }}</textarea>
@@ -139,11 +139,11 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="status" class="form-label">الحالة</label>
+                        <label for="status" class="form-label">{{ __('warehouse.status') }}</label>
                         <div class="input-wrapper">
                             <select name="status" id="status" class="form-input">
-                                <option value="active" {{ old('status', $supplier->is_active) ? 'selected' : '' }}>نشط</option>
-                                <option value="inactive" {{ old('status', $supplier->is_active) ? '' : 'selected' }}>غير نشط</option>
+                                <option value="active" {{ old('status', $supplier->is_active) ? 'selected' : '' }}>{{ __('warehouse.active') }}</option>
+                                <option value="inactive" {{ old('status', $supplier->is_active) ? '' : 'selected' }}>{{ __('warehouse.inactive') }}</option>
                             </select>
                         </div>
                     </div>
@@ -156,13 +156,13 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                    حفظ التغييرات
+                    {{ __('warehouse.save_changes_supplier') }}
                 </button>
                 <a href="{{ route('manufacturing.suppliers.index') }}" class="btn-cancel">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                     </svg>
-                    إلغاء
+                    {{ __('warehouse.cancel') }}
                 </a>
             </div>
         </form>

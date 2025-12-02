@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'المرحلة الثانية - المعالجة')
+@section('title', __('stages.stage2_processing'))
 
 @section('content')
 
@@ -79,24 +79,24 @@
     <div class="stage-header">
         <h1>
             <i class="fas fa-cog"></i>
-            المرحلة الثانية - معالجة الاستاندات
+            {{ __('stages.stage2_processing_stands') }}
         </h1>
-        <p>امسح باركود الاستاند وأضف بيانات المعالجة لإنشاء منتج معالج جديد</p>
+        <p>{{ __('stages.stage2_scan_barcode_and_add_processing') }}</p>
     </div>
 
     <!-- Barcode Scanner -->
     <div class="form-section barcode-section">
-        <h3 style="margin: 0 0 15px 0; color: #0066B2;"><i class="fas fa-camera"></i> مسح باركود الاستاند <span class="info-tooltip">?<span class="tooltip-text">مسح باركود الاستاند من المرحلة الأولى</span></span></h3>
+        <h3 style="margin: 0 0 15px 0; color: #0066B2;"><i class="fas fa-camera"></i> {{ __('stages.stage2_scan_stand_barcode') }} <span class="info-tooltip">?<span class="tooltip-text">{{ __('stages.stage2_scan_stand_barcode_from_phase1') }}</span></span></h3>
         <div class="barcode-input-wrapper">
-            <input type="text" id="standBarcode" class="barcode-input" placeholder="امسح أو اكتب باركود الاستاند (ST1-XXX-2025)" autofocus>
+            <input type="text" id="standBarcode" class="barcode-input" placeholder="{{ __('stages.stage2_scan_or_type_barcode') }}" autofocus>
             <span class="barcode-icon">🔧</span>
         </div>
-        <small style="color: #7f8c8d; display: block; margin-top: 10px;"><i class="fas fa-lightbulb"></i> <span class="info-tooltip">?<span class="tooltip-text">امسح الباركود أو اضغط Enter للبحث</span></span></small>
+        <small style="color: #7f8c8d; display: block; margin-top: 10px;"><i class="fas fa-lightbulb"></i> <span class="info-tooltip">?<span class="tooltip-text">{{ __('stages.stage2_scan_barcode_or_press_enter') }}</span></span></small>
     </div>
 
     <!-- Stand Display -->
     <div id="standDisplay" class="stand-display">
-        <h4><i class="fas fa-circle-check"></i> بيانات الاستاند</h4>
+        <h4><i class="fas fa-circle-check"></i> {{ __('stages.stand_data') }}</h4>
         <div class="stand-info">
             <div class="info-item">
                 <div class="info-label">الباركود <span class="info-tooltip">?<span class="tooltip-text">الرمز الشريطي الفريد للاستند</span></span></div>
@@ -111,86 +111,86 @@
                 <div class="info-label">الوزن <span class="info-tooltip">?<span class="tooltip-text">الوزن الإجمالي للاستند بالكيلوغرام</span></span></div>
                 <div class="info-value" id="displayWeight">-</div>
             </div>
-            
+
         </div>
     </div>
 
     <!-- Processed Form -->
     <div class="form-section">
-        <h3 class="section-title"><i class="fas fa-edit"></i> بيانات المعالجة</h3>
+        <h3 class="section-title"><i class="fas fa-edit"></i> {{ __('stages.stage2_processing_data') }}</h3>
 
         <div class="info-box">
             <div class="info-box-header">
-                <strong><i class="fas fa-thumbtack"></i> ملاحظة هامة: <span class="info-tooltip">?<span class="tooltip-text"><strong>معادلة حساب الهدر والوزن:</strong><br><br>• المعادلة: وزن الخروج = وزن الدخول - كمية الهدر<br><br>• الهدر الافتراضي: 3% من وزن الدخول<br><br>• وزن الدخول يُحدد تلقائياً من الاستاند المُمسوح</span></span></strong>
+                <strong><i class="fas fa-thumbtack"></i> {{ __('stages.important_note') }}: <span class="info-tooltip">?<span class="tooltip-text"><strong>{{ __('stages.stage2_waste_calculation_formula') }}:</strong><br><br>• {{ __('stages.stage2_formula') }}<br><br>• {{ __('stages.stage2_default_waste') }}<br><br>• {{ __('stages.stage2_input_weight_auto_filled') }}</span></span></strong>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label>نوع المعالجة <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">اختر نوع العملية التي سيتم تطبيقها على الاستاند</span></span></label>
+                <label>{{ __('stages.processing_type') }} <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">{{ __('stages.stage2_choose_process_type') }}</span></span></label>
                 <select id="processType" class="form-select">
-                    <option value="">اختر نوع المعالجة</option>
-                    <option value="heating">التسخين</option>
-                    <option value="cooling">التبريد</option>
-                    <option value="cutting">القطع</option>
-                    <option value="rolling">الفرد</option>
-                    <option value="shaping">التشكيل</option>
-                    <option value="polishing">الصقل</option>
+                    <option value="">{{ __('stages.stage2_select_processing_type') }}</option>
+                    <option value="heating">{{ __('stages.process_heating') }}</option>
+                    <option value="cooling">{{ __('stages.process_cooling') }}</option>
+                    <option value="cutting">{{ __('stages.process_cutting') }}</option>
+                    <option value="rolling">{{ __('stages.process_rolling') }}</option>
+                    <option value="shaping">{{ __('stages.process_shaping') }}</option>
+                    <option value="polishing">{{ __('stages.process_polishing') }}</option>
                 </select>
             </div>
 
-            
+
             <div class="form-group">
-                <label>وزن الدخول (كجم) <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">الوزن الإجمالي للاستند قبل المعالجة</span></span></label>
+                <label>{{ __('stages.input_weight_label') }} <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">{{ __('stages.stage2_total_weight_before_processing') }}</span></span></label>
                 <input type="number" id="inputWeight" class="form-control" step="0.01" readonly style="background: #e8f4f8; font-weight: 600;">
-                <small style="color: #27ae60; display: block; margin-top: 5px;"><i class="fas fa-chart-bar"></i> <span class="info-tooltip">?<span class="tooltip-text">وزن الدخول يتم ملأه تلقائياً من بيانات الاستاند المممسوح</span></span></small>
+                <small style="color: #27ae60; display: block; margin-top: 5px;"><i class="fas fa-chart-bar"></i> <span class="info-tooltip">?<span class="tooltip-text">{{ __('stages.stage2_input_weight_auto_filled_tooltip') }}</span></span></small>
             </div>
-        
+
         </div>
 
-      
+
         <div class="form-row">
             <div class="form-group">
-                <label>وزن الخروج (كجم) <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">الوزن بعد تطبيق المعالجة</span></span></label>
+                <label>{{ __('stages.output_weight_label') }} <span class="required">*</span> <span class="info-tooltip">?<span class="tooltip-text">{{ __('stages.stage2_weight_after_processing') }}</span></span></label>
                 <input type="number" id="outputWeight" class="form-control" step="0.01">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-lightbulb"></i> <span class="info-tooltip">?<span class="tooltip-text">الوزن بعد تطبيق المعالجة (التسخين أو التبريد أو القطع)</span></span></small>
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-lightbulb"></i> <span class="info-tooltip">?<span class="tooltip-text">{{ __('stages.stage2_weight_after_treatment') }}</span></span></small>
             </div>
 
             <div class="form-group">
-                <label>كمية الهدر (كجم) <span class="info-tooltip">?<span class="tooltip-text">الفرق بين وزن الدخول ووزن الخروج</span></span></label>
+                <label>{{ __('stages.waste_amount_label') }} <span class="info-tooltip">?<span class="tooltip-text">{{ __('stages.stage2_difference_between_weights') }}</span></span></label>
                 <input type="number" id="wasteAmount" class="form-control" step="0.01" readonly style="background: #ecf0f1;">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-percent"></i> نسبة الهدر: <span id="wastePercentDisplay">0%</span> <span class="info-tooltip">?<span class="tooltip-text">النسبة المئوية للهدر من وزن الدخول</span></span></small>
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-percent"></i> {{ __('stages.waste_percentage') }}: <span id="wastePercentDisplay">0%</span> <span class="info-tooltip">?<span class="tooltip-text">{{ __('stages.stage2_waste_percentage_tooltip') }}</span></span></small>
             </div>
         </div>
-    
+
 
         <div class="form-row">
             <div class="form-group">
-                <label>تفاصيل المعالجة <span class="info-tooltip">?<span class="tooltip-text">تفاصيل إضافية حول عملية المعالجة</span></span></label>
-                <textarea id="processDetails" class="form-control" placeholder="تفاصيل إضافية عن المعالجة..."></textarea>
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-sticky-note"></i> <span class="info-tooltip">?<span class="tooltip-text">يمكنك إضافة تفاصيل إضافية حول المعالجة</span></span></small>
+                <label>{{ __('stages.processing_details_label') }} <span class="info-tooltip">?<span class="tooltip-text">{{ __('stages.stage2_additional_processing_details') }}</span></span></label>
+                <textarea id="processDetails" class="form-control" placeholder="{{ __('stages.stage2_processing_details_placeholder') }}"></textarea>
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-sticky-note"></i> <span class="info-tooltip">?<span class="tooltip-text">{{ __('stages.stage2_add_processing_details') }}</span></span></small>
             </div>
 
             <div class="form-group">
-                <label>ملاحظات <span class="info-tooltip">?<span class="tooltip-text">ملاحظات إضافية حول العملية</span></span></label>
-                <textarea id="notes" class="form-control" placeholder="ملاحظات اختيارية..."></textarea>
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-comment"></i> <span class="info-tooltip">?<span class="tooltip-text">يمكنك إضافة أي ملاحظات إضافية هنا</span></span></small>
+                <label>{{ __('stages.notes_label') }} <span class="info-tooltip">?<span class="tooltip-text">{{ __('stages.stage2_additional_notes') }}</span></span></label>
+                <textarea id="notes" class="form-control" placeholder="{{ __('stages.placeholder_notes') }}"></textarea>
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;"><i class="fas fa-comment"></i> <span class="info-tooltip">?<span class="tooltip-text">{{ __('stages.stage2_add_any_notes') }}</span></span></small>
             </div>
         </div>
 
         <div class="button-group">
             <button type="button" class="btn-primary" onclick="addProcessed()">
-                <i class="fas fa-plus"></i> إضافة المعالجة
+                <i class="fas fa-plus"></i> {{ __('stages.stage2_add_processing') }}
             </button>
             <button type="button" class="btn-secondary" onclick="clearForm()">
-                <i class="fas fa-sync"></i> مسح النموذج
+                <i class="fas fa-sync"></i> {{ __('stages.clear_form') }}
             </button>
         </div>
     </div>
 
     <!-- Processed List -->
     <div class="form-section">
-        <h3 class="section-title"><i class="fas fa-clipboard"></i> المعالجات المضافة (<span id="processedCount">0</span>)</h3>
+        <h3 class="section-title"><i class="fas fa-clipboard"></i> {{ __('stages.stage2_added_processings') }} (<span id="processedCount">0</span>)</h3>
         <div id="processedList" class="processed-list">
             <div class="empty-state">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -198,7 +198,7 @@
                     <line x1="12" y1="8" x2="12" y2="12"></line>
                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
-                <p>لا توجد معالجات مضافة بعد</p>
+                <p>{{ __('stages.stage2_no_processings_added_yet') }}</p>
             </div>
         </div>
     </div>
@@ -206,10 +206,10 @@
     <!-- Actions -->
     <div class="form-actions">
         <button type="button" class="btn-success" onclick="finishOperation()" id="submitBtn" disabled>
-            <i class="fas fa-check-double"></i> إنهاء العملية
+            <i class="fas fa-check-double"></i> {{ __('stages.finish_operation') }}
         </button>
         <button type="button" class="btn-secondary" onclick="window.location.href='{{ route('manufacturing.stage2.index') }}'">
-            <i class="fas fa-times"></i> إلغاء
+            <i class="fas fa-times"></i> {{ __('stages.cancel_button') }}
         </button>
     </div>
 </div>
@@ -248,7 +248,7 @@ function loadStand(barcode) {
 
             const data = result.data;
             const source = result.source || 'stage1'; // stage1 أو warehouse_direct
-            
+
             currentStand = {
                 id: data.id || null,
                 barcode: data.barcode,
@@ -261,12 +261,12 @@ function loadStand(barcode) {
             // Display stand data
             document.getElementById('displayBarcode').textContent = currentStand.barcode;
             document.getElementById('displayWireSize').textContent = currentStand.wire_size + ' مم';
-            
+
             const displayWeightElement = document.getElementById('displayWeight');
             if (displayWeightElement) {
                 displayWeightElement.textContent = currentStand.weight + ' كجم';
             }
-            
+
             document.getElementById('standDisplay').classList.add('active');
 
             // Fill input weight automatically
@@ -278,7 +278,7 @@ function loadStand(barcode) {
             // Calculate expected output weight (default 3% waste)
             const expectedWaste = currentStand.weight * 0.03;
             const expectedOutput = currentStand.weight - expectedWaste;
-            
+
             const outputWeightElement = document.getElementById('outputWeight');
             if (outputWeightElement) {
                 outputWeightElement.value = '';
@@ -291,10 +291,10 @@ function loadStand(barcode) {
             document.getElementById('processType').focus();
 
             // Show success message
-            showToast('تم تحميل بيانات الاستاند بنجاح!', 'success');
+            showToast('{{ __("stages.stand_data_loaded_successfully") }}', 'success');
         })
         .catch(error => {
-            alert('خطأ: ' + error.message);
+            alert('{{ __("stages.error_label") }}: ' + error.message);
             document.getElementById('standBarcode').focus();
         });
 }
@@ -304,14 +304,14 @@ function calculateWaste() {
     const outputWeightElement = document.getElementById('outputWeight');
     const wasteAmountElement = document.getElementById('wasteAmount');
     const wastePercentElement = document.getElementById('wastePercentDisplay');
-    
+
     const inputWeight = inputWeightElement ? (parseFloat(inputWeightElement.value) || 0) : 0;
     const outputWeight = outputWeightElement ? (parseFloat(outputWeightElement.value) || 0) : 0;
 
     if (inputWeight > 0 && outputWeight > 0) {
         const wasteAmount = (inputWeight - outputWeight).toFixed(2);
         const wastePercent = ((inputWeight - outputWeight) / inputWeight * 100).toFixed(2);
-        
+
         if (wasteAmountElement) {
             wasteAmountElement.value = wasteAmount;
         }
@@ -338,12 +338,12 @@ function addProcessed() {
     const processType = document.getElementById('processType').value;
     const processDetails = document.getElementById('processDetails').value.trim();
     const notes = document.getElementById('notes').value.trim();
-    
+
     // حساب الأوزان من العناصر أو من currentStand إذا كانت مخفية
     const inputWeightElement = document.getElementById('inputWeight');
     const outputWeightElement = document.getElementById('outputWeight');
     const wasteAmountElement = document.getElementById('wasteAmount');
-    
+
     const inputWeight = inputWeightElement ? inputWeightElement.value : currentStand.weight;
     const outputWeight = outputWeightElement ? outputWeightElement.value : (currentStand.weight * 0.97); // افتراض 3% هدر
     const wasteAmount = wasteAmountElement ? (wasteAmountElement.value || 0) : (currentStand.weight * 0.03);
@@ -403,9 +403,9 @@ function addProcessed() {
             processedItems.push(processed);
             renderProcessed();
             clearForm();
-            
+
             showToast('✅ تم حفظ المعالجة بنجاح!', 'success');
-            
+
             // Focus on barcode for next scan
             document.getElementById('standBarcode').focus();
         } else {
@@ -484,12 +484,12 @@ function clearForm() {
     document.getElementById('processType').value = '';
     document.getElementById('processDetails').value = '';
     document.getElementById('notes').value = '';
-    
+
     const inputWeightElement = document.getElementById('inputWeight');
     const outputWeightElement = document.getElementById('outputWeight');
     const wasteAmountElement = document.getElementById('wasteAmount');
     const wastePercentElement = document.getElementById('wastePercentDisplay');
-    
+
     if (inputWeightElement) {
         inputWeightElement.value = '';
     }
@@ -676,7 +676,7 @@ function closeBarcodesModal() {
 
 function printStage2Barcode(barcode, standNumber, materialName, netWeight) {
     const printWindow = window.open('', '', 'height=600,width=800');
-    printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - المرحلة الثانية</title>');
+    printWindow.document.write('<html dir="rtl"><head><title>{{ __("stages.print_barcode") }} - {{ __("stages.stage2_title") }}</title>');
     printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
     printWindow.document.write('<style>');
     printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
@@ -691,14 +691,14 @@ function printStage2Barcode(barcode, standNumber, materialName, netWeight) {
     printWindow.document.write('@media print { body { background: white; } }');
     printWindow.document.write('</style></head><body>');
     printWindow.document.write('<div class="barcode-container">');
-    printWindow.document.write('<div class="title">باركود المرحلة الثانية</div>');
+    printWindow.document.write('<div class="title">{{ __("stages.barcode_title") }}</div>');
     printWindow.document.write('<div class="stand-number">' + standNumber + '</div>');
     printWindow.document.write('<svg id="print-barcode"></svg>');
     printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
     printWindow.document.write('<div class="info">');
-    printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + materialName + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">الوزن الصافي:</span><span class="value">' + netWeight + ' كجم</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.material_label") }}:</span><span class="value">' + materialName + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.net_weight_label") }}:</span><span class="value">' + netWeight + ' {{ __("stages.kg_unit") }}</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.date_label_print") }}:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
     printWindow.document.write('</div></div>');
     printWindow.document.write('<script>');
     printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 80, displayValue: false, margin: 10 });');
@@ -722,7 +722,7 @@ function printAllStage2Barcodes(barcodes) {
     printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 14px; }');
     printWindow.document.write('@media print { body { background: white; padding: 0; } .barcode-item { box-shadow: none; page-break-after: always; } }');
     printWindow.document.write('</style></head><body>');
-    
+
     barcodes.forEach((item, index) => {
         printWindow.document.write('<div class="barcode-item">');
         printWindow.document.write('<div class="title">باركود المرحلة الثانية - ' + item.stand_number + '</div>');
@@ -736,7 +736,7 @@ function printAllStage2Barcodes(barcodes) {
         printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
         printWindow.document.write('</div></div>');
     });
-    
+
     printWindow.document.write('<script>');
     barcodes.forEach((item, index) => {
         printWindow.document.write('JsBarcode("#print-barcode-' + index + '", "' + item.barcode + '", { format: "CODE128", width: 2, height: 70, displayValue: false, margin: 10 });');

@@ -4,12 +4,14 @@ return [
     // القوائم الرئيسية
     'menu' => [
         'dashboard' => 'لوحة التحكم',
+        'menu_stage_worker_dashboard' => 'لوحة تحكمي',
         'warehouse' => 'المستودع',
         'production' => 'الإنتاج',
         'production_tracking' => 'تتبع الإنتاج',
         'quality' => 'الجودة والهدر',
         'reports' => 'التقارير والإحصائيات',
         'shifts' => 'الورديات والعمال',
+        'finished_products' => 'المنتجات النهائية والعملاء',
         'management' => 'الإدارة',
         'settings' => 'الإعدادات',
     ],
@@ -55,6 +57,7 @@ return [
         'downtime_tracking' => 'الأعطال والتوقفات',
         'waste_limits' => 'حدود الهدر المسموحة',
         'iron_journey' => 'رحلة الحديد',
+        'history'=>'سجل المرحلة',
 
         // المرحلة 1
         'stage1' => [
@@ -180,7 +183,7 @@ return [
         'role' => 'الدور',
         'shift' => 'الوردية',
         'is_active' => 'نشط',
-        'manage_users' => 'إدارة المستخدمين',
+        'profile' => 'الملف الشخصي',
         'roles' => 'الأدوار والصلاحيات',
         'activity_log' => 'سجل الأنشطة',
         'shifts_list' => 'قائمة الورديات',

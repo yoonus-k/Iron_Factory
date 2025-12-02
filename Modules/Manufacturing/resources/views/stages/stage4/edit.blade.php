@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تعديل الكرتون - المرحلة الرابعة')
+@section('title', __('stages.stage4_edit_title'))
 
 @section('content')
 
@@ -12,16 +12,16 @@
                 <path d="M6 9v6a2 2 0 002 2h8a2 2 0 002-2V9"></path>
                 <path d="M6 9l-2 12a2 2 0 002 2h12a2 2 0 002-2l-2-12"></path>
             </svg>
-            تعديل الكرتون
+            {{ __('stages.stage4_edit_box') }}
         </h1>
         <nav class="um-breadcrumb-nav">
             <span>
-                <i class="feather icon-home"></i> لوحة التحكم
+                <i class="feather icon-home"></i> {{ __('app.menu.dashboard') }}
             </span>
             <i class="feather icon-chevron-left"></i>
-            <span>المرحلة الرابعة</span>
+            <span>{{ __('stages.stage4_create_title') }}</span>
             <i class="feather icon-chevron-left"></i>
-            <span>تعديل كرتون</span>
+            <span>{{ __('stages.stage4_edit_box') }}</span>
         </nav>
     </div>
 
@@ -42,15 +42,15 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">معلومات الكرتون</h3>
-                        <p class="section-subtitle">قم بتحديث بيانات الكرتون</p>
+                        <h3 class="section-title">{{ __('stages.stage4_box_information') }}</h3>
+                        <p class="section-subtitle">{{ __('stages.stage4_update_box_data') }}</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group full-width">
                         <label for="stage3_id" class="form-label">
-                            الكويل
+                            {{ __('stages.stage3_coil_label') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -58,7 +58,7 @@
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                             </svg>
                             <select name="stage3_id" id="stage3_id" class="form-input" required>
-                                <option value="">اختر كويل من المرحلة الثالثة</option>
+                                <option value="">{{ __('stages.stage4_select_coil') }}</option>
                                 <option value="1" selected>COIL-001 (250 كجم)</option>
                                 <option value="2">COIL-002 (245 كجم)</option>
                             </select>
@@ -67,7 +67,7 @@
 
                     <div class="form-group">
                         <label for="box_number" class="form-label">
-                            رقم الكرتون
+                            {{ __('stages.stage4_box_number') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -76,25 +76,25 @@
                                 <path d="M6 9v6a2 2 0 002 2h8a2 2 0 002-2V9"></path>
                                 <path d="M6 9l-2 12a2 2 0 002 2h12a2 2 0 002-2l-2-12"></path>
                             </svg>
-                            <input type="text" name="box_number" id="box_number" class="form-input" value="BOX-001" placeholder="أدخل رقم الكرتون" required>
+                            <input type="text" name="box_number" id="box_number" class="form-input" value="BOX-001" placeholder="{{ __("stages.stage4_box_number_placeholder") }}" required>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="coils_count" class="form-label">عدد الكويلات <span class="required">*</span></label>
+                        <label for="coils_count" class="form-label">{{ __('stages.stage4_total_coils') }} <span class="required">*</span></label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="9" cy="21" r="1"></circle>
                                 <circle cx="20" cy="21" r="1"></circle>
                                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                             </svg>
-                            <input type="number" name="coils_count" id="coils_count" class="form-input" value="5" placeholder="أدخل عدد الكويلات" min="1" required>
+                            <input type="number" name="coils_count" id="coils_count" class="form-input" value="5" placeholder="{{ __("stages.stage4_example") }}: 5" min="1" required>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="packaging_type" class="form-label">
-                            نوع التغليف
+                            {{ __('stages.stage4_packaging_type') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -104,22 +104,22 @@
                                 <path d="M6 9l-2 12a2 2 0 002 2h12a2 2 0 002-2l-2-12"></path>
                             </svg>
                             <select name="packaging_type" id="packaging_type" class="form-input" required>
-                                <option value="">اختر نوع التغليف</option>
-                                <option value="carton" selected>كرتون</option>
-                                <option value="plastic">بلاستيك</option>
-                                <option value="wood">خشب</option>
+                                <option value="">{{ __('stages.stage4_select_packaging') }}</option>
+                                <option value="carton" selected>{{ __('stages.stage4_carton') }}</option>
+                                <option value="plastic">{{ __('stages.stage4_plastic') }}</option>
+                                <option value="wood">{{ __('stages.stage4_wood') }}</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="total_weight" class="form-label">الوزن الإجمالي (كجم) <span class="required">*</span></label>
+                        <label for="total_weight" class="form-label">{{ __('stages.stage4_box_weight_label') }} <span class="required">*</span></label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="12" y1="1" x2="12" y2="23"></line>
                                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                             </svg>
-                            <input type="number" name="total_weight" id="total_weight" class="form-input" value="250" placeholder="أدخل الوزن الإجمالي" step="0.01" min="0" required>
+                            <input type="number" name="total_weight" id="total_weight" class="form-input" value="250" placeholder="{{ __('stages.stage4_example') }}: 250" step="0.01" min="0" required>
                         </div>
                     </div>
 
@@ -130,7 +130,7 @@
 
                     <div class="form-group">
                         <label for="customer_name" class="form-label">
-                            اسم العميل
+                            {{ __('stages.stage4_customer_name') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -138,13 +138,13 @@
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
-                            <input type="text" name="customer_name" id="customer_name" class="form-input" value="أحمد محمد علي" placeholder="أدخل اسم العميل" required>
+                            <input type="text" name="customer_name" id="customer_name" class="form-input" value="أحمد محمد علي" placeholder="{{ __("stages.stage4_customer_name_placeholder") }}" required>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="customer_email" class="form-label">
-                            البريد الإلكتروني للعميل
+                            {{ __('stages.stage4_customer_email') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -152,20 +152,20 @@
                                 <rect x="2" y="4" width="20" height="16" rx="2"></rect>
                                 <path d="M22 4l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 4"></path>
                             </svg>
-                            <input type="email" name="customer_email" id="customer_email" class="form-input" value="customer@example.com" placeholder="أدخل البريد الإلكتروني" required>
+                            <input type="email" name="customer_email" id="customer_email" class="form-input" value="customer@example.com" placeholder="{{ __("stages.stage4_customer_email_placeholder") }}" required>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="customer_phone" class="form-label">
-                            رقم الهاتف للعميل
+                            {{ __('stages.stage4_customer_phone') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                             </svg>
-                            <input type="tel" name="customer_phone" id="customer_phone" class="form-input" value="+966501234567" placeholder="أدخل رقم الهاتف" required>
+                            <input type="tel" name="customer_phone" id="customer_phone" class="form-input" value="+966501234567" placeholder="{{ __("stages.stage4_customer_phone_placeholder") }}" required>
                         </div>
                     </div>
 
@@ -176,7 +176,7 @@
 
                     <div class="form-group full-width">
                         <label for="shipping_address" class="form-label">
-                            عنوان الشحن
+                            {{ __('stages.stage4_shipping_address') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -184,13 +184,13 @@
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                                 <circle cx="12" cy="10" r="3"></circle>
                             </svg>
-                            <textarea name="shipping_address" id="shipping_address" rows="3" class="form-input" placeholder="أدخل عنوان الشحن الكامل" required>شارع الأمير محمد بن عبدالعزيز، الرياض 12345</textarea>
+                            <textarea name="shipping_address" id="shipping_address" rows="3" class="form-input" placeholder="{{ __("stages.stage4_shipping_address_placeholder") }}" required>{{ __('stages.stage4_shipping_address_example') }}</textarea>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="tracking_number" class="form-label">
-                            رقم التتبع
+                            {{ __('stages.stage4_tracking_number') }}
                         </label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -198,7 +198,7 @@
                                 <path d="M6 9v6a2 2 0 002 2h8a2 2 0 002-2V9"></path>
                                 <path d="M6 9l-2 12a2 2 0 002 2h12a2 2 0 002-2l-2-12"></path>
                             </svg>
-                            <input type="text" name="tracking_number" id="tracking_number" class="form-input" value="TRK-2025-001234" placeholder="أدخل رقم التتبع (اختياري)">
+                            <input type="text" name="tracking_number" id="tracking_number" class="form-input" value="TRK-2025-001234" placeholder="{{ __("stages.stage4_tracking_number_placeholder") }}">
                         </div>
                     </div>
 
@@ -271,7 +271,7 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="created_at" class="form-label">
-                            تاريخ الإنشاء
+                            {{ __('stages.stage3_created_label') }}
                         </label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -286,7 +286,7 @@
 
                     <div class="form-group">
                         <label for="updated_at" class="form-label">
-                            تاريخ التحديث
+                            {{ __('stages.stage3_updated_label') }}
                         </label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

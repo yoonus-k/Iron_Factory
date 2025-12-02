@@ -58,7 +58,7 @@
                                 <path d="M3 18h18"></path>
                             </svg>
                             <input type="text" name="type_code" id="type_code" class="form-input @error('type_code') error @enderror"
-                                   placeholder="مثال: RM001" value="{{ old('type_code', $materialType->type_code) }}" required>
+                                   placeholder="{{ __('warehouse.example') }}: RM001" value="{{ old('type_code', $materialType->type_code) }}" required>
                         </div>
                         @error('type_code')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -78,7 +78,7 @@
                                 <line x1="4" y1="8" x2="20" y2="8"></line>
                             </svg>
                             <input type="text" name="type_name" id="type_name" class="form-input @error('type_name') error @enderror"
-                                   placeholder="مثال: حديد خام" value="{{ old('type_name', $materialType->type_name) }}" required>
+                                   placeholder="{{ __('warehouse.example') }}: {{ __('warehouse.raw_material_example') }}" value="{{ old('type_name', $materialType->type_name) }}" required>
                         </div>
                         @error('type_name')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -91,7 +91,7 @@
                         <label for="type_name_en" class="form-label">{{ __('warehouse.type_name_en') }}</label>
                         <div class="input-wrapper">
                             <input type="text" name="type_name_en" id="type_name_en" class="form-input @error('type_name_en') error @enderror"
-                                   placeholder="مثال: Raw Iron" value="{{ old('type_name_en', $materialType->type_name_en) }}">
+                                   placeholder="{{ __('warehouse.example') }}: {{ __('warehouse.raw_material_example_en') }}" value="{{ old('type_name_en', $materialType->type_name_en) }}">
                         </div>
                         @error('type_name_en')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -106,13 +106,13 @@
                         </label>
                         <div class="input-wrapper">
                             <select name="category" id="category" class="form-input @error('category') error @enderror" required>
-                                <option value="">-- اختر الفئة --</option>
-                                <option value="raw_material" {{ old('category', $materialType->category) == 'raw_material' ? 'selected' : '' }}>مادة خام</option>
-                                <option value="finished_product" {{ old('category', $materialType->category) == 'finished_product' ? 'selected' : '' }}>منتج نهائي</option>
-                                <option value="semi_finished" {{ old('category', $materialType->category) == 'semi_finished' ? 'selected' : '' }}>منتج شبه مكتمل</option>
-                                <option value="additive" {{ old('category', $materialType->category) == 'additive' ? 'selected' : '' }}>مادة مضافة</option>
-                                <option value="packing_material" {{ old('category', $materialType->category) == 'packing_material' ? 'selected' : '' }}>مادة تغليف</option>
-                                <option value="component" {{ old('category', $materialType->category) == 'component' ? 'selected' : '' }}>مكون</option>
+                                <option value="">{{ __('warehouse.select_category') }}</option>
+                                <option value="raw_material" {{ old('category', $materialType->category) == 'raw_material' ? 'selected' : '' }}>{{ __('warehouse.raw_material_category') }}</option>
+                                <option value="finished_product" {{ old('category', $materialType->category) == 'finished_product' ? 'selected' : '' }}>{{ __('warehouse.finished_product_category') }}</option>
+                                <option value="semi_finished" {{ old('category', $materialType->category) == 'semi_finished' ? 'selected' : '' }}>{{ __('warehouse.semi_finished_category') }}</option>
+                                <option value="additive" {{ old('category', $materialType->category) == 'additive' ? 'selected' : '' }}>{{ __('warehouse.additive_category') }}</option>
+                                <option value="packing_material" {{ old('category', $materialType->category) == 'packing_material' ? 'selected' : '' }}>{{ __('warehouse.packing_material_category') }}</option>
+                                <option value="component" {{ old('category', $materialType->category) == 'component' ? 'selected' : '' }}>{{ __('warehouse.component_category') }}</option>
                             </select>
                         </div>
                         @error('category')
@@ -126,7 +126,7 @@
                         <label for="default_unit" class="form-label">{{ __('warehouse.default_unit') }}</label>
                         <div class="input-wrapper">
                             <select name="default_unit" id="default_unit" class="form-input @error('default_unit') error @enderror">
-                                <option value="">-- اختر وحدة --</option>
+                                <option value="">{{ __('warehouse.select_unit') }}</option>
                                 @foreach ($units as $unit)
                                     <option value="{{ $unit->id }}" {{ old('default_unit', $materialType->default_unit) == $unit->id ? 'selected' : '' }}>
                                         {{ $unit->unit_name }} ({{ $unit->unit_code }})
@@ -167,7 +167,7 @@
                     <div class="form-group">
                         <label class="form-label">
                             <input type="checkbox" name="is_active" value="1" {{ old('is_active', $materialType->is_active) ? 'checked' : '' }}>
-                            نشط
+                            {{ __('warehouse.active') }}
                         </label>
                     </div>
                 </div>
@@ -197,7 +197,7 @@
                         <label for="description" class="form-label">{{ __('warehouse.description_ar') }}</label>
                         <div class="input-wrapper">
                             <textarea name="description" id="description" class="form-input @error('description') error @enderror"
-                                      placeholder="أدخل وصف النوع" rows="3" maxlength="1000">{{ old('description', $materialType->description) }}</textarea>
+                                      placeholder="{{ __('warehouse.enter_description') }}" rows="3" maxlength="1000">{{ old('description', $materialType->description) }}</textarea>
                         </div>
                         @error('description')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -209,7 +209,7 @@
                         <label for="description_en" class="form-label">{{ __('warehouse.description_en') }}</label>
                         <div class="input-wrapper">
                             <textarea name="description_en" id="description_en" class="form-input @error('description_en') error @enderror"
-                                      placeholder="Enter description in English" rows="3" maxlength="1000">{{ old('description_en', $materialType->description_en) }}</textarea>
+                                      placeholder="{{ __('warehouse.enter_description_en') }}" rows="3" maxlength="1000">{{ old('description_en', $materialType->description_en) }}</textarea>
                         </div>
                         @error('description_en')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -221,7 +221,7 @@
                         <label for="storage_conditions" class="form-label">{{ __('warehouse.storage_conditions_ar') }}</label>
                         <div class="input-wrapper">
                             <textarea name="storage_conditions" id="storage_conditions" class="form-input @error('storage_conditions') error @enderror"
-                                      placeholder="مثال: تخزين بدرجة حرارة معتدلة بعيداً عن الرطوبة" rows="2">{{ old('storage_conditions', $materialType->storage_conditions) }}</textarea>
+                                      placeholder="{{ __('warehouse.storage_conditions_example') }}" rows="2">{{ old('storage_conditions', $materialType->storage_conditions) }}</textarea>
                         </div>
                         @error('storage_conditions')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -233,7 +233,7 @@
                         <label for="storage_conditions_en" class="form-label">{{ __('warehouse.storage_conditions_en') }}</label>
                         <div class="input-wrapper">
                             <textarea name="storage_conditions_en" id="storage_conditions_en" class="form-input @error('storage_conditions_en') error @enderror"
-                                      placeholder="Store at moderate temperature away from moisture" rows="2">{{ old('storage_conditions_en', $materialType->storage_conditions_en) }}</textarea>
+                                      placeholder="{{ __('warehouse.storage_conditions_example_en') }}" rows="2">{{ old('storage_conditions_en', $materialType->storage_conditions_en) }}</textarea>
                         </div>
                         @error('storage_conditions_en')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -269,7 +269,7 @@
             inputs.forEach(input => {
                 input.addEventListener('blur', function() {
                     if (this.hasAttribute('required') && !this.value.trim()) {
-                        showError(this.id, 'هذا الحقل مطلوب');
+                        showError(this.id, '{{ __('warehouse.required_field') }}');
                     } else {
                         hideError(this.id);
                     }

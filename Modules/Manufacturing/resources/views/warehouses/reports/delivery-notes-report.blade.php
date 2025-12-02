@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تقرير أذون التسليم')
+@section('title', __('warehouse.delivery_notes_report'))
 
 @section('content')
     <div class="report-container">
@@ -11,19 +11,19 @@
                     <i class="feather icon-file-text"></i>
                 </div>
                 <div>
-                    <h1 class="page-title">تقرير أذون التسليم</h1>
-                    <p class="page-subtitle">متابعة أذون التسليم والشحنات الواردة والصادرة</p>
+                    <h1 class="page-title">{{ __('warehouse.delivery_notes_report') }}</h1>
+                    <p class="page-subtitle">{{ __('warehouse.delivery_notes_subtitle') }}</p>
                 </div>
             </div>
             <div class="header-actions">
                 <button onclick="window.print()" class="btn-action">
-                    <i class="feather icon-printer"></i> طباعة
+                    <i class="feather icon-printer"></i> {{ __('warehouse.print') }}
                 </button>
                 <button onclick="exportToPDF()" class="btn-action">
-                    <i class="feather icon-download"></i> تحميل PDF
+                    <i class="feather icon-download"></i> {{ __('warehouse.export_pdf') }}
                 </button>
                 <a href="{{ route('manufacturing.warehouse-reports.index') }}" class="btn-action">
-                    <i class="feather icon-arrow-right"></i> رجوع
+                    <i class="feather icon-arrow-right"></i> {{ __('warehouse.back') }}
                 </a>
             </div>
         </div>
@@ -32,17 +32,17 @@
         <div class="filter-card">
             <form method="GET" class="filter-form">
                 <div class="filter-group">
-                    <label>من تاريخ</label>
+                    <label>{{ __('warehouse.from_date') }}</label>
                     <input type="date" name="start_date" value="{{ $startDate }}" class="form-control">
                 </div>
                 <div class="filter-group">
-                    <label>إلى تاريخ</label>
+                    <label>{{ __('warehouse.to_date') }}</label>
                     <input type="date" name="end_date" value="{{ $endDate }}" class="form-control">
                 </div>
                 <div class="filter-group">
-                    <label>المورد</label>
+                    <label>{{ __('warehouse.supplier') }}</label>
                     <select name="supplier_id" class="form-control">
-                        <option value="">الكل</option>
+                        <option value="">{{ __('warehouse.all') }}</option>
                         @foreach($suppliers as $supplier)
                             <option value="{{ $supplier->id }}" {{ request('supplier_id') == $supplier->id ? 'selected' : '' }}>
                                 {{ $supplier->name }}
@@ -51,9 +51,9 @@
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label>المستودع</label>
+                    <label>{{ __('warehouse.warehouse') }}</label>
                     <select name="warehouse_id" class="form-control">
-                        <option value="">الكل</option>
+                        <option value="">{{ __('warehouse.all') }}</option>
                         @foreach($warehouses as $warehouse)
                             <option value="{{ $warehouse->id }}" {{ request('warehouse_id') == $warehouse->id ? 'selected' : '' }}>
                                 {{ $warehouse->warehouse_name }}
@@ -62,21 +62,21 @@
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label>الحالة</label>
+                    <label>{{ __('warehouse.status') }}</label>
                     <select name="status" class="form-control">
-                        <option value="">الكل</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>قيد الانتظار</option>
-                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>موافق عليه</option>
-                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>مكتمل</option>
-                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>مرفوض</option>
+                        <option value="">{{ __('warehouse.all') }}</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('warehouse.pending') }}</option>
+                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('warehouse.approved') }}</option>
+                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>{{ __('warehouse.completed') }}</option>
+                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>{{ __('warehouse.rejected') }}</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-filter">
-                    <i class="feather icon-search"></i> بحث
+                    <i class="feather icon-search"></i> {{ __('warehouse.search') }}
                 </button>
                 @if(request('start_date') || request('end_date') || request('supplier_id') || request('warehouse_id') || request('status'))
                     <a href="{{ route('manufacturing.warehouse-reports.delivery-notes') }}" class="btn-filter btn-reset">
-                        <i class="feather icon-x"></i> إعادة تعيين
+                        <i class="feather icon-x"></i> {{ __('warehouse.reset') }}
                     </a>
                 @endif
             </form>
@@ -90,8 +90,8 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['total_notes'] }}</h3>
-                    <p>إجمالي الأذون</p>
-                    <span class="stat-detail">في الفترة المحددة</span>
+                    <p>{{ __('warehouse.total_delivery_notes') }}</p>
+                    <span class="stat-detail">{{ __('warehouse.in_selected_period') }}</span>
                 </div>
             </div>
 
@@ -101,7 +101,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['pending_notes'] }}</h3>
-                    <p>قيد الانتظار</p>
+                    <p>{{ __('warehouse.pending') }}</p>
                     <span class="stat-detail">{{ round(($stats['pending_notes'] / max($stats['total_notes'], 1)) * 100, 1) }}%</span>
                 </div>
             </div>
@@ -112,7 +112,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['approved_notes'] }}</h3>
-                    <p>موافق عليه</p>
+                    <p>{{ __('warehouse.approved') }}</p>
                     <span class="stat-detail">{{ round(($stats['approved_notes'] / max($stats['total_notes'], 1)) * 100, 1) }}%</span>
                 </div>
             </div>
@@ -123,7 +123,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['completed_notes'] }}</h3>
-                    <p>مكتمل</p>
+                    <p>{{ __('warehouse.completed') }}</p>
                     <span class="stat-detail">{{ round(($stats['completed_notes'] / max($stats['total_notes'], 1)) * 100, 1) }}%</span>
                 </div>
             </div>
@@ -134,7 +134,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $stats['rejected_notes'] }}</h3>
-                    <p>مرفوض</p>
+                    <p>{{ __('warehouse.rejected') }}</p>
                     <span class="stat-detail">{{ round(($stats['rejected_notes'] / max($stats['total_notes'], 1)) * 100, 1) }}%</span>
                 </div>
             </div>
@@ -145,8 +145,8 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ number_format($stats['total_quantity'], 2) }}</h3>
-                    <p>إجمالي الكمية</p>
-                    <span class="stat-detail">متوسط: {{ $stats['avg_quantity'] }}</span>
+                    <p>{{ __('warehouse.total_quantity') }}</p>
+                    <span class="stat-detail">{{ __('warehouse.average') }}: {{ $stats['avg_quantity'] }}</span>
                 </div>
             </div>
         </div>
@@ -158,7 +158,7 @@
                     <i class="feather icon-arrow-down"></i>
                 </div>
                 <div class="info-content">
-                    <h4>الحركات الواردة</h4>
+                    <h4>{{ __('warehouse.incoming_movements') }}</h4>
                     <p class="big-number">{{ $typeStats['incoming'] ?? 0 }}</p>
                 </div>
             </div>
@@ -168,7 +168,7 @@
                     <i class="feather icon-arrow-up"></i>
                 </div>
                 <div class="info-content">
-                    <h4>الحركات الصادرة</h4>
+                    <h4>{{ __('warehouse.outgoing_movements') }}</h4>
                     <p class="big-number">{{ $typeStats['outgoing'] ?? 0 }}</p>
                 </div>
             </div>
@@ -178,8 +178,8 @@
                     <i class="feather icon-weight"></i>
                 </div>
                 <div class="info-content">
-                    <h4>إجمالي الوزن</h4>
-                    <p class="big-number">{{ number_format($stats['total_weight'] ?? 0, 2) }} كجم</p>
+                    <h4>{{ __('warehouse.total_weight') }}</h4>
+                    <p class="big-number">{{ number_format($stats['total_weight'] ?? 0, 2) }} {{ __('warehouse.kg') }}</p>
                 </div>
             </div>
 
@@ -188,8 +188,8 @@
                     <i class="feather icon-trending-up"></i>
                 </div>
                 <div class="info-content">
-                    <h4>متوسط الوزن</h4>
-                    <p class="big-number">{{ number_format($stats['avg_weight'] ?? 0, 2) }} كجم</p>
+                    <h4>{{ __('warehouse.average_weight') }}</h4>
+                    <p class="big-number">{{ number_format($stats['avg_weight'] ?? 0, 2) }} {{ __('warehouse.kg') }}</p>
                 </div>
             </div>
         </div>
@@ -198,16 +198,16 @@
         <div class="charts-grid">
             <!-- Type Distribution Chart -->
             <div class="chart-card">
-                <h3 class="chart-title">توزيع نوع الحركات</h3>
+                <h3 class="chart-title">{{ __('warehouse.movement_type_distribution') }}</h3>
                 <canvas id="typeChart"></canvas>
                 <div class="chart-legend">
                     <div class="legend-item">
                         <span class="legend-color" style="background: #0066B2;"></span>
-                        <span>واردة: {{ $typeStats['incoming'] ?? 0 }}</span>
+                        <span>{{ __('warehouse.incoming') }}: {{ $typeStats['incoming'] ?? 0 }}</span>
                     </div>
                     <div class="legend-item">
                         <span class="legend-color" style="background: #9c27b0;"></span>
-                        <span>صادرة: {{ $typeStats['outgoing'] ?? 0 }}</span>
+                        <span>{{ __('warehouse.outgoing') }}: {{ $typeStats['outgoing'] ?? 0 }}</span>
                     </div>
                 </div>
             </div>
@@ -216,7 +216,7 @@
             <div class="chart-card" style="grid-column: 1 / -1;">
                 <h2 class="chart-title">
                     <i class="feather icon-trending-up"></i>
-                    الاتجاهات الشهرية
+                    {{ __('warehouse.monthly_trends') }}
                 </h2>
                 <canvas id="trendsChart" height="80"></canvas>
             </div>
@@ -227,17 +227,17 @@
             <div class="section-card">
                 <h2 class="section-title">
                     <i class="feather icon-users"></i>
-                    أفضل 10 موردين
+                    {{ __('warehouse.top_suppliers_10') }}
                 </h2>
                 <div class="top-suppliers-grid">
                     @foreach($topSuppliers as $index => $supplier)
                         <div class="supplier-card">
                             <div class="supplier-rank">{{ $index + 1 }}</div>
                             <div class="supplier-content">
-                                <h4>{{ $supplier->supplier->name ?? 'غير محدد' }}</h4>
+                                <h4>{{ $supplier->supplier->name ?? __('warehouse.undefined') }}</h4>
                                 <div class="supplier-stats">
-                                    <span class="badge-supplier">{{ $supplier->count }} أذن</span>
-                                    <span class="badge-supplier qty">{{ number_format($supplier->total_quantity, 2) }} وحدة</span>
+                                    <span class="badge-supplier">{{ $supplier->count }} {{ __('warehouse.note') }}</span>
+                                    <span class="badge-supplier qty">{{ number_format($supplier->total_quantity, 2) }} {{ __('warehouse.unit') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -251,7 +251,7 @@
             <div class="section-card">
                 <h2 class="section-title">
                     <i class="feather icon-archive"></i>
-                    إحصائيات المستودعات
+                    {{ __('warehouse.warehouse_statistics') }}
                 </h2>
                 <div class="table-responsive">
                     <table class="data-table">
@@ -291,7 +291,7 @@
             <div class="section-card">
                 <h2 class="section-title">
                     <i class="feather icon-package"></i>
-                    توزيع الوحدات والمواد
+                    {{ __('warehouse.units_materials_distribution') }}
                 </h2>
                 <div class="table-responsive">
                     <table class="data-table">
@@ -315,7 +315,7 @@
                                             @if($material->material && $material->material->name_ar)
                                                 {{ $material->material->name_ar }}
                                             @else
-                                                غير محدد
+                                                {{ __('warehouse.undefined') }}
                                             @endif
                                         </strong>
                                     </td>
@@ -324,7 +324,7 @@
                                     </td>
                                     <td>{{ number_format($material->total_quantity, 2) }}</td>
                                     <td>{{ number_format($material->avg_quantity, 2) }}</td>
-                                    <td>{{ number_format($material->total_weight ?? 0, 2) }} كجم</td>
+                                    <td>{{ number_format($material->total_weight ?? 0, 2) }} {{ __('warehouse.kg') }}</td>
                                     <td>
                                         <div class="progress-bar">
                                             <div class="progress" style="width: {{ ($material->count / max($materialsDistribution->sum('count'), 1)) * 100 }}%"></div>
@@ -342,22 +342,22 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-list"></i>
-                تفاصيل أذون التسليم
+                {{ __('warehouse.delivery_notes_details') }}
             </h2>
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>رقم الإذن</th>
-                            <th>المورد</th>
-                            <th>المستودع</th>
-                            <th>النوع</th>
-                            <th>تاريخ التسليم</th>
-                            <th>الكمية</th>
-                            <th>الوزن (كجم)</th>
-                            <th>المسجل بواسطة</th>
-                            <th>الحالة</th>
+                            <th>{{ __('warehouse.note_number') }}</th>
+                            <th>{{ __('warehouse.supplier') }}</th>
+                            <th>{{ __('warehouse.warehouse') }}</th>
+                            <th>{{ __('warehouse.type') }}</th>
+                            <th>{{ __('warehouse.delivery_date') }}</th>
+                            <th>{{ __('warehouse.quantity') }}</th>
+                            <th>{{ __('warehouse.weight') }} ({{ __('warehouse.kg') }})</th>
+                            <th>{{ __('warehouse.recorded_by') }}</th>
+                            <th>{{ __('warehouse.status') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -369,9 +369,9 @@
                                 <td>{{ $note->warehouse->warehouse_name ?? '-' }}</td>
                                 <td>
                                     @if($note->type == 'incoming')
-                                        <span class="badge badge-primary">واردة</span>
+                                        <span class="badge badge-primary">{{ __('warehouse.incoming') }}</span>
                                     @else
-                                        <span class="badge badge-warning">صادرة</span>
+                                        <span class="badge badge-warning">{{ __('warehouse.outgoing') }}</span>
                                     @endif
                                 </td>
                                 <td>{{ \Carbon\Carbon::parse($note->delivery_date)->format('Y-m-d') }}</td>
@@ -380,13 +380,13 @@
                                 <td>{{ $note->recordedBy->name ?? '-' }}</td>
                                 <td>
                                     @if($note->status == 'pending')
-                                        <span class="status-badge pending">قيد الانتظار</span>
+                                        <span class="status-badge pending">{{ __('warehouse.pending') }}</span>
                                     @elseif($note->status == 'approved')
-                                        <span class="status-badge approved">موافق عليه</span>
+                                        <span class="status-badge approved">{{ __('warehouse.approved') }}</span>
                                     @elseif($note->status == 'completed')
-                                        <span class="status-badge completed">مكتمل</span>
+                                        <span class="status-badge completed">{{ __('warehouse.completed') }}</span>
                                     @elseif($note->status == 'rejected')
-                                        <span class="status-badge rejected">مرفوض</span>
+                                        <span class="status-badge rejected">{{ __('warehouse.rejected') }}</span>
                                     @else
                                         <span class="status-badge">{{ $note->status->label() ?? $note->status }}</span>
                                     @endif
@@ -394,7 +394,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center text-muted">لا توجد أذون تسليم</td>
+                                <td colspan="10" class="text-center text-muted">{{ __('warehouse.no_delivery_notes') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -957,7 +957,7 @@
         new Chart(typeCtx, {
             type: 'doughnut',
             data: {
-                labels: ['واردة', 'صادرة'],
+                labels: ['{{ __('warehouse.incoming') }}', '{{ __('warehouse.outgoing') }}'],
                 datasets: [{
                     data: [
                         {{ $typeStats['incoming'] ?? 0 }},
@@ -989,7 +989,7 @@
                     @endforeach
                 ],
                 datasets: [{
-                    label: 'عدد الأذون',
+                    label: '{{ __('warehouse.delivery_notes_count') }}',
                     data: [
                         @foreach($monthlyTrends as $trend)
                             {{ $trend->count }},
@@ -1005,7 +1005,7 @@
                     pointBorderWidth: 2,
                     pointRadius: 5
                 }, {
-                    label: 'إجمالي الكمية',
+                    label: '{{ __('warehouse.total_quantity') }}',
                     data: [
                         @foreach($monthlyTrends as $trend)
                             {{ $trend->quantity }},
@@ -1042,7 +1042,7 @@
                         position: 'left',
                         title: {
                             display: true,
-                            text: 'عدد الأذون'
+                            text: '{{ __('warehouse.delivery_notes_count') }}'
                         }
                     },
                     y1: {
@@ -1051,7 +1051,7 @@
                         position: 'right',
                         title: {
                             display: true,
-                            text: 'الكمية'
+                            text: '{{ __('warehouse.quantity') }}'
                         },
                         grid: {
                             drawOnChartArea: false,

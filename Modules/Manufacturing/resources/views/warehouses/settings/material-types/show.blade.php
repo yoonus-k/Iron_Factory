@@ -25,12 +25,12 @@
                             @endif
                             @php
                                 $categories = [
-                                    'raw_material' => 'مادة خام',
-                                    'finished_product' => 'منتج نهائي',
-                                    'semi_finished' => 'منتج شبه مكتمل',
-                                    'additive' => 'مادة مضافة',
-                                    'packing_material' => 'مادة تغليف',
-                                    'component' => 'مكون'
+                                    'raw_material' => __('warehouse.raw_material'),
+                                    'finished_product' => __('warehouse.finished_product'),
+                                    'semi_finished' => __('warehouse.semi_finished_product'),
+                                    'additive' => __('warehouse.additive'),
+                                    'packing_material' => __('warehouse.packing_material'),
+                                    'component' => __('warehouse.component')
                                 ];
                             @endphp
                             <span class="badge badge-info">{{ $categories[$materialType->category] ?? $materialType->category }}</span>
@@ -331,12 +331,12 @@
                     const form = this.closest('form');
 
                     Swal.fire({
-                        title: 'تأكيد الحذف',
-                        text: 'هل أنت متأكد من حذف هذا النوع؟ هذا الإجراء لا يمكن التراجع عنه!',
+                        title: '{{ __('warehouse.confirm_delete') }}',
+                        text: '{{ __('warehouse.confirm_delete_type_message') }}',
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'نعم، احذف',
-                        cancelButtonText: 'إلغاء',
+                        confirmButtonText: '{{ __('warehouse.yes_delete') }}',
+                        cancelButtonText: '{{ __('warehouse.cancel') }}',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {

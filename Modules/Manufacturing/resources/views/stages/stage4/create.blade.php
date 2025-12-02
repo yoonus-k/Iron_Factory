@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'المرحلة الرابعة - تعبئة الكراتين')
+@section('title', __('stages.stage4_create_title'))
 
 @section('content')
 
@@ -71,39 +71,39 @@
     <div class="stage-header">
         <h1>
             <i class="fas fa-box"></i>
-            المرحلة الرابعة - تعبئة الكراتين
+            {{ __('stages.stage4_create_title') }}
         </h1>
-        <p>امسح باركود اللفاف وقسّم الوزن على الكراتين (يمكن أن يزيد الوزن بسبب التعبئة)</p>
+        <p>{{ __('stages.stage4_packaging_title') }}</p>
     </div>
 
     <!-- Barcode Scanner -->
     <div class="form-section barcode-section">
-        <h3 style="margin: 0 0 15px 0; color: #e67e22;"><i class="fas fa-camera"></i> مسح باركود اللفاف</h3>
+        <h3 style="margin: 0 0 15px 0; color: #e67e22;"><i class="fas fa-camera"></i> {{ __('stages.stage4_scan_stage3_barcode') }}</h3>
         <div class="barcode-input-wrapper">
-            <input type="text" id="lafafBarcode" class="barcode-input" placeholder="امسح أو اكتب باركود اللفاف (CO3-XXX-2025)" autofocus>
+            <input type="text" id="lafafBarcode" class="barcode-input" placeholder="{{ __('stages.stage4_scan_or_press_enter') }}" autofocus>
             <span class="barcode-icon">📦</span>
         </div>
-        <small style="color: #7f8c8d; display: block; margin-top: 10px;"><i class="fas fa-lightbulb"></i> امسح الباركود أو اضغط Enter للبحث</small>
+        <small style="color: #7f8c8d; display: block; margin-top: 10px;"><i class="fas fa-lightbulb"></i> {{ __('stages.stage4_scan_or_press_enter') }}</small>
     </div>
 
     <!-- Lafaf Display -->
     <div id="lafafDisplay" class="lafaf-display">
-        <h4><i class="fas fa-circle-check"></i> بيانات اللفاف</h4>
+        <h4><i class="fas fa-circle-check"></i> {{ __('stages.stage4_coil_information') }}</h4>
         <div class="lafaf-info">
             <div class="info-item">
-                <div class="info-label">الباركود</div>
+                <div class="info-label">{{ __('stages.stage1_barcode_label') }}</div>
                 <div class="info-value" id="displayBarcode">-</div>
             </div>
             <div class="info-item">
-                <div class="info-label">المادة</div>
+                <div class="info-label">{{ __('stages.stage2_input_weight_label') }}</div>
                 <div class="info-value" id="displayMaterial">-</div>
             </div>
             <div class="info-item">
-                <div class="info-label">اللون</div>
+                <div class="info-label">{{ __('stages.stage3_dye_color_label') }}</div>
                 <div class="info-value" id="displayColor">-</div>
             </div>
             <div class="info-item">
-                <div class="info-label">الوزن الكلي</div>
+                <div class="info-label">{{ __('stages.stage4_box_weight_label') }}</div>
                 <div class="info-value" id="displayWeight">-</div>
             </div>
         </div>
@@ -111,56 +111,56 @@
 
     <!-- Box Form -->
     <div class="form-section">
-        <h3 class="section-title"><i class="fas fa-boxes"></i> تقسيم الكراتين</h3>
+        <h3 class="section-title"><i class="fas fa-boxes"></i> {{ __('stages.stage4_box_data') }}</h3>
 
         <div class="info-box">
-            <strong><i class="fas fa-thumbtack"></i> ملاحظة هامة:</strong>
+            <strong><i class="fas fa-thumbtack"></i> {{ __('stages.stage4_important_note') }}:</strong>
             <ul style="margin:8px 0 0 20px; color:#7f8c8d; font-size:13px;">
-                <li><strong>يمكن أن يزيد الوزن</strong> في هذه المرحلة بسبب التعبئة والكراتين</li>
-                <li>يمكنك تقسيم الوزن تلقائياً على عدد معين من الكراتين</li>
-                <li>أو إضافة كل كرتون على حدة يدوياً</li>
-                <li>كل كرتون سيحصل على باركود خاص (BOX4-XXX)</li>
+                <li><strong>{{ __('stages.stage4_weight_can_increase') }}</strong></li>
+                <li>{{ __('stages.stage4_auto_divide_option') }}</li>
+                <li>{{ __('stages.stage4_manual_add_option') }}</li>
+                <li>{{ __('stages.stage4_each_gets_barcode') }}</li>
             </ul>
         </div>
 
         <!-- Auto Divide Section -->
         <div class="divide-section">
-            <h4><i class="fas fa-calculator"></i> تقسيم تلقائي للوزن</h4>
+            <h4><i class="fas fa-calculator"></i> {{ __('stages.stage4_auto_divide') }}</h4>
             <div class="form-row">
                 <div class="form-group">
-                    <label>الوزن الإجمالي للكراتين (كجم)</label>
-                    <input type="number" id="totalBoxesWeight" class="form-control" placeholder="مثال: 110.5" step="0.001">
-                    <small style="color: #7f8c8d; display: block; margin-top: 5px;">يمكن أن يكون أكبر من وزن اللفاف</small>
+                    <label>{{ __('stages.stage4_total_boxes_weight') }}</label>
+                    <input type="number" id="totalBoxesWeight" class="form-control" placeholder="{{ __('stages.stage4_example') }}: 110.5" step="0.001">
+                    <small style="color: #7f8c8d; display: block; margin-top: 5px;">{{ __('stages.stage4_weight_can_be_more') }}</small>
                 </div>
                 <div class="form-group">
-                    <label>عدد الكراتين</label>
-                    <input type="number" id="boxesCount" class="form-control" placeholder="مثال: 5" min="1">
+                    <label>{{ __('stages.stage4_boxes_count') }}</label>
+                    <input type="number" id="boxesCount" class="form-control" placeholder="{{ __('stages.stage4_example') }}: 5" min="1">
                 </div>
             </div>
             <button type="button" class="btn-warning" onclick="divideWeight()">
-                <i class="fas fa-divide"></i> تقسيم الوزن تلقائياً
+                <i class="fas fa-divide"></i> {{ __('stages.stage4_divide_weight_auto') }}
             </button>
         </div>
 
         <!-- Manual Box Entry -->
         <div style="margin-top: 20px;">
-            <h4 style="color: #e67e22; margin-bottom: 12px;"><i class="fas fa-hand-pointer"></i> أو أضف كرتون يدوياً</h4>
+            <h4 style="color: #e67e22; margin-bottom: 12px;"><i class="fas fa-hand-pointer"></i> {{ __('stages.stage4_manual_add') }}</h4>
             <div class="form-row">
                 <div class="form-group">
-                    <label>الوزن (كجم) <span style="color:#e74c3c;">*</span></label>
-                    <input type="number" id="boxWeight" class="form-control" placeholder="مثال: 22.5" step="0.001">
+                    <label>{{ __('stages.stage4_box_weight_label') }} <span style="color:#e74c3c;">*</span></label>
+                    <input type="number" id="boxWeight" class="form-control" placeholder="{{ __('stages.stage4_example') }}: 22.5" step="0.001">
                 </div>
                 <div class="form-group">
-                    <label>ملاحظات</label>
-                    <input type="text" id="boxNotes" class="form-control" placeholder="ملاحظات إضافية...">
+                    <label>{{ __('stages.stage4_notes_label') }}</label>
+                    <input type="text" id="boxNotes" class="form-control" placeholder="{{ __('stages.stage4_additional_notes') }}">
                 </div>
             </div>
             <div class="button-group">
                 <button type="button" class="btn-primary" onclick="addBox()">
-                    <i class="fas fa-plus"></i> إضافة الكرتون
+                    <i class="fas fa-plus"></i> {{ __('stages.stage4_add_box_button') }}
                 </button>
                 <button type="button" class="btn-secondary" onclick="clearForm()">
-                    <i class="fas fa-sync"></i> مسح النموذج
+                    <i class="fas fa-sync"></i> {{ __('stages.stage4_clear_form_button') }}
                 </button>
             </div>
         </div>
@@ -168,7 +168,7 @@
 
     <!-- Boxes List -->
     <div class="form-section">
-        <h3 class="section-title"><i class="fas fa-clipboard"></i> الكراتين المضافة (<span id="boxCount">0</span>)</h3>
+        <h3 class="section-title"><i class="fas fa-clipboard"></i> {{ __('stages.stage4_added_boxes') }} (<span id="boxCount">0</span>)</h3>
         <div id="boxList" class="boxes-list">
             <div class="empty-state">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:48px;height:48px;opacity:0.3;">
@@ -176,24 +176,24 @@
                     <line x1="12" y1="8" x2="12" y2="12"></line>
                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
-                <p>لا توجد كراتين مضافة بعد</p>
+                <p>{{ __('stages.stage4_no_boxes_added') }}</p>
             </div>
         </div>
 
         <!-- Summary -->
         <div id="summaryBox" style="display:none; background:linear-gradient(135deg,#e8f5e9 0,#c8e6c9 100%); padding:15px; border-radius:10px; margin-top:15px; border-right:4px solid #27ae60;">
-            <h4 style="margin:0 0 10px 0; color:#2e7d32;"><i class="fas fa-chart-bar"></i> الملخص</h4>
+            <h4 style="margin:0 0 10px 0; color:#2e7d32;"><i class="fas fa-chart-bar"></i> {{ __('stages.stage4_summary') }}</h4>
             <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px;">
                 <div style="background:white; padding:10px; border-radius:8px; text-align:center;">
-                    <div style="font-size:12px; color:#7f8c8d; margin-bottom:4px;">عدد الكراتين</div>
+                    <div style="font-size:12px; color:#7f8c8d; margin-bottom:4px;">{{ __('stages.stage4_total_boxes') }}</div>
                     <div style="font-size:20px; font-weight:700; color:#2e7d32;" id="summaryCount">0</div>
                 </div>
                 <div style="background:white; padding:10px; border-radius:8px; text-align:center;">
-                    <div style="font-size:12px; color:#7f8c8d; margin-bottom:4px;">مجموع الأوزان</div>
+                    <div style="font-size:12px; color:#7f8c8d; margin-bottom:4px;">{{ __('stages.stage4_total_weight_sum') }}</div>
                     <div style="font-size:20px; font-weight:700; color:#e67e22;" id="summaryTotal">0</div>
                 </div>
                 <div style="background:white; padding:10px; border-radius:8px; text-align:center;">
-                    <div style="font-size:12px; color:#7f8c8d; margin-bottom:4px;">وزن اللفاف</div>
+                    <div style="font-size:12px; color:#7f8c8d; margin-bottom:4px;">{{ __('stages.stage4_lafaf_weight') }}</div>
                     <div style="font-size:20px; font-weight:700; color:#3498db;" id="summaryLafaf">0</div>
                 </div>
             </div>
@@ -203,10 +203,10 @@
     <!-- Actions -->
     <div style="display:flex; gap:15px; justify-content:center; margin-top:25px; padding-top:20px; border-top:2px solid #ecf0f1;">
         <button type="button" class="btn-success" onclick="finishOperation()" id="submitBtn" disabled style="padding:14px 32px; font-size:16px;">
-            <i class="fas fa-check-double"></i> إنهاء العملية
+            <i class="fas fa-check-double"></i> {{ __('stages.stage4_finish_shipment') }}
         </button>
         <button type="button" class="btn-secondary" onclick="window.location.href='{{ route('manufacturing.stage4.index') }}'">
-            <i class="fas fa-times"></i> إلغاء
+            <i class="fas fa-times"></i> {{ __('app.cancel') }}
         </button>
     </div>
 </div>
@@ -228,13 +228,13 @@ document.getElementById('lafafBarcode').addEventListener('keypress', function(e)
 
 function loadLafaf(barcode) {
     if (!barcode) {
-        alert('⚠️ يرجى إدخال باركود اللفاف!');
+        alert('{{ __("stages.stage4_please_enter_barcode") }}');
         return;
     }
 
     fetch(`{{ url('/stage4/get-lafaf-by-barcode') }}/${barcode}`)
         .then(response => {
-            if (!response.ok) throw new Error('لم يتم العثور على البيانات');
+            if (!response.ok) throw new Error('{{ __("stages.stage4_coil_not_found") }}');
             return response.json();
         })
         .then(result => {
@@ -242,9 +242,9 @@ function loadLafaf(barcode) {
 
             const data = result.data;
             console.log('Lafaf data received:', data);
-            
+
             const source = result.source || 'stage3';
-            
+
             currentLafaf = {
                 id: data.id || null,
                 barcode: data.barcode,
@@ -256,7 +256,7 @@ function loadLafaf(barcode) {
                 material_name: data.material_name || 'غير محدد',
                 source: source
             };
-            
+
             console.log('currentLafaf:', currentLafaf);
 
             // Display lafaf data
@@ -272,7 +272,7 @@ function loadLafaf(barcode) {
             // Focus on box weight
             document.getElementById('boxWeight').focus();
 
-            showToast('تم تحميل بيانات اللفاف بنجاح!', 'success');
+            showToast('{{ __("stages.stage4_coil_loaded_success") }}', 'success');
         })
         .catch(error => {
             alert('خطأ: ' + error.message);
@@ -305,7 +305,7 @@ async function divideWeight() {
     // Calculate weight per box
     const weightPerBox = totalWeight / count;
 
-    showToast(`جاري حفظ ${count} كرتون...`, 'info');
+    showToast(`{{ __("stages.stage4_saving_boxes") }}: ${count}...`, 'info');
 
     // Save each box
     for (let i = 0; i < count; i++) {
@@ -317,7 +317,7 @@ async function divideWeight() {
             weight: parseFloat(weightPerBox.toFixed(3)),
             notes: `كرتون ${i + 1} من ${count}`
         };
-        
+
         console.log('Saving box', i + 1, 'with data:', data);
 
         try {
@@ -344,7 +344,7 @@ async function divideWeight() {
                     notes: data.notes,
                     saved: true
                 };
-                
+
                 console.log('Box object created:', box);
                 boxes.push(box);
             } else {
@@ -357,7 +357,7 @@ async function divideWeight() {
     }
 
     renderBoxes();
-    showToast(`✅ تم حفظ ${boxes.length} كرتون بنجاح! (${weightPerBox.toFixed(3)} كجم لكل كرتون)`, 'success');
+    showToast(`{{ __("stages.stage4_box_saved_success") }}: ${boxes.length}! (${weightPerBox.toFixed(3)} كجم)`, 'success');
 
     // Clear divide inputs
     document.getElementById('totalBoxesWeight').value = '';
@@ -366,7 +366,7 @@ async function divideWeight() {
 
 function addBox() {
     if (!currentLafaf) {
-        alert('⚠️ يرجى مسح باركود اللفاف أولاً!');
+        alert('{{ __("stages.stage4_please_enter_barcode") }}');
         document.getElementById('lafafBarcode').focus();
         return;
     }
@@ -375,7 +375,7 @@ function addBox() {
     const notes = document.getElementById('boxNotes').value.trim();
 
     if (!weight || parseFloat(weight) <= 0) {
-        alert('⚠️ يرجى إدخال وزن الكرتون!');
+        alert('{{ __("stages.stage4_invalid_weight") }}');
         document.getElementById('boxWeight').focus();
         return;
     }
@@ -388,10 +388,10 @@ function addBox() {
         notes: notes
     };
 
-    // حفظ فوري للكرتون
+    // Save box immediately
     const addBtn = event.target;
     addBtn.disabled = true;
-    addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+    addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {{ __("app.saving") }}...';
 
     fetch('{{ route("manufacturing.stage4.store-single") }}', {
         method: 'POST',
@@ -418,20 +418,20 @@ function addBox() {
             boxes.push(box);
             renderBoxes();
             clearForm();
-            
-            showToast('✅ تم حفظ الكرتون بنجاح!', 'success');
-            
+
+            showToast('{{ __("stages.stage4_box_saved_success") }}', 'success');
+
             document.getElementById('boxWeight').focus();
         } else {
             throw new Error(result.message || 'حدث خطأ أثناء الحفظ');
         }
     })
     .catch(error => {
-        alert('❌ خطأ: ' + error.message);
+        alert('{{ __("app.error") }}: ' + error.message);
     })
     .finally(() => {
         addBtn.disabled = false;
-        addBtn.innerHTML = '<i class="fas fa-plus"></i> إضافة الكرتون';
+        addBtn.innerHTML = '<i class="fas fa-plus"></i> {{ __("stages.stage4_add_box_button") }}';
     });
 }
 
@@ -448,7 +448,7 @@ function renderBoxes() {
                     <line x1="12" y1="8" x2="12" y2="12"></line>
                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
-                <p>لا توجد كراتين مضافة بعد</p>
+                <p>{{ __("stages.stage4_no_boxes_added") }}</p>
             </div>
         `;
         document.getElementById('summaryBox').style.display = 'none';
@@ -462,7 +462,7 @@ function renderBoxes() {
                     <strong style="color:#2c3e50; font-size:16px;">
                         <i class="fas fa-box" style="color:#27ae60;"></i> ${item.box_number || 'كرتون ' + (index + 1)}
                     </strong>
-                    <span style="background:#27ae60; color:white; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600;">✓ محفوظ</span>
+                    <span style="background:#27ae60; color:white; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600;">✓ {{ __("app.saved") }}</span>
                 </div>
                 <small style="display:block; line-height:1.6;">
                     <strong>المادة:</strong> ${item.material_name || 'غير محدد'} |
@@ -472,8 +472,8 @@ function renderBoxes() {
                 </small>
             </div>
             <div style="display:flex; gap:8px;">
-                <button class="btn-print" onclick="printBoxBarcode('${item.barcode}', '${item.box_number || 'كرتون'}', '${item.material_name || 'غير محدد'}', ${item.weight}, '${currentLafaf ? currentLafaf.barcode : ''}')">
-                    <i class="fas fa-print"></i> طباعة
+                <button class="btn-print" onclick="printBoxBarcode('${item.barcode}', '${item.box_number || '{{ __("stages.stage4_box") }}'}', '${item.material_name || '{{ __("app.not_specified") }}'}', ${item.weight}, '${currentLafaf ? currentLafaf.barcode : ''}')">
+                    <i class="fas fa-print"></i> {{ __("app.print") }}
                 </button>
             </div>
         </div>
@@ -490,7 +490,7 @@ function updateSummary() {
     }
 
     const totalWeight = boxes.reduce((sum, box) => sum + parseFloat(box.weight), 0);
-    
+
     document.getElementById('summaryCount').textContent = boxes.length;
     document.getElementById('summaryTotal').textContent = totalWeight.toFixed(3) + ' كجم';
     document.getElementById('summaryBox').style.display = 'block';

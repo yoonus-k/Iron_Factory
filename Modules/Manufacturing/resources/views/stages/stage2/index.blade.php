@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'المرحلة الثانية: معالجة الاستاندات')
+@section('title', __('stages.stage2_index_title'))
 
 @section('content')
 
@@ -9,21 +9,21 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-package"></i>
-                المرحلة الثانية: معالجة الاستاندات
+                {{ __('stages.stage2_index_title') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('stages.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المرحلة الثانية</span>
+                <span>{{ __('stages.stage2_title') }}</span>
             </nav>
         </div>
 
         <!-- Success and Error Messages -->
         <div class="um-alert-custom um-alert-success" role="alert" style="display: none;">
             <i class="feather icon-check-circle"></i>
-            تم حفظ البيانات بنجاح
+            {{ __('stages.stand_data_loaded_successfully') }}
             <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
                 <i class="feather icon-x"></i>
             </button>
@@ -35,20 +35,20 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    قائمة المعالجات
+                    {{ __('stages.stage2_processing_list') }}
                     @if(isset($viewingAll) && $viewingAll)
                         <span style="display: inline-block; background: #3b82f6; color: white; padding: 4px 12px; border-radius: 6px; font-size: 13px; margin-right: 10px;">
-                            <i class="feather icon-eye"></i> جميع العمليات
+                            <i class="feather icon-eye"></i> {{ __('stages.all_operations') }}
                         </span>
                     @else
                         <span style="display: inline-block; background: #10b981; color: white; padding: 4px 12px; border-radius: 6px; font-size: 13px; margin-right: 10px;">
-                            <i class="feather icon-user"></i> عملياتي فقط
+                            <i class="feather icon-user"></i> {{ __('stages.my_operations_only') }}
                         </span>
                     @endif
                 </h4>
                 <a href="{{ route('manufacturing.stage2.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>
-                    بدء معالجة جديدة
+                    {{ __('stages.stage2_start_new_processing') }}
                 </a>
             </div>
 
@@ -57,27 +57,27 @@
                 <form method="GET">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث بالاستاند...">
+                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('stages.search_by_stand') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
-                                <option value="">جميع الحالات</option>
-                                <option value="created">تم الإنشاء</option>
-                                <option value="in_process">قيد المعالجة</option>
-                                <option value="completed">مكتمل</option>
+                                <option value="">{{ __('stages.all_statuses') }}</option>
+                                <option value="created">{{ __('stages.status_created') }}</option>
+                                <option value="in_process">{{ __('stages.status_in_process') }}</option>
+                                <option value="completed">{{ __('stages.status_completed') }}</option>
                             </select>
                         </div>
                         <div class="um-form-group">
-                            <input type="date" name="date" class="um-form-control" placeholder="التاريخ">
+                            <input type="date" name="date" class="um-form-control" placeholder="{{ __('stages.date_table_header') }}">
                         </div>
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                بحث
+                                {{ __('stages.search_button') }}
                             </button>
                             <button type="reset" class="um-btn um-btn-outline">
                                 <i class="feather icon-x"></i>
-                                إعادة تعيين
+                                {{ __('stages.reset_button') }}
                             </button>
                         </div>
                     </div>
@@ -90,16 +90,16 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>الباركود</th>
-                            <th>الاستاند</th>
-                            <th>المادة</th>
-                            <th>وزن الدخول</th>
-                            <th>وزن الخروج</th>
-                            <th>الهدر</th>
-                            <th>الحالة</th>
-                            <th>المستخدم</th>
-                            <th>التاريخ</th>
-                            <th>الإجراءات</th>
+                            <th>{{ __('stages.barcode_table_header') }}</th>
+                            <th>{{ __('stages.stand_table_header') }}</th>
+                            <th>{{ __('stages.material_table_header') }}</th>
+                            <th>{{ __('stages.input_weight_table_header') }}</th>
+                            <th>{{ __('stages.output_weight_table_header') }}</th>
+                            <th>{{ __('stages.waste_table_header') }}</th>
+                            <th>{{ __('stages.status_table_header') }}</th>
+                            <th>{{ __('stages.user_table_header') }}</th>
+                            <th>{{ __('stages.date_table_header') }}</th>
+                            <th>{{ __('stages.actions_table_header') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -112,19 +112,19 @@
                                 </code>
                             </td>
                             <td>
-                                <span class="badge badge-info">{{ $item->stand_number ?? 'غير محدد' }}</span>
+                                <span class="badge badge-info">{{ $item->stand_number ?? __('stages.not_specified') }}</span>
                             </td>
-                            <td>{{ $item->material_name ?? 'غير محدد' }}</td>
-                            <td><strong>{{ number_format($item->input_weight, 2) }}</strong> كجم</td>
-                            <td><strong style="color: #27ae60;">{{ number_format($item->output_weight, 2) }}</strong> كجم</td>
-                            <td><strong style="color: #e74c3c;">{{ number_format($item->waste, 2) }}</strong> كجم</td>
+                            <td>{{ $item->material_name ?? __('stages.not_specified') }}</td>
+                            <td><strong>{{ number_format($item->input_weight, 2) }}</strong> {{ __('stages.kg_unit') }}</td>
+                            <td><strong style="color: #27ae60;">{{ number_format($item->output_weight, 2) }}</strong> {{ __('stages.kg_unit') }}</td>
+                            <td><strong style="color: #e74c3c;">{{ number_format($item->waste, 2) }}</strong> {{ __('stages.kg_unit') }}</td>
                             <td>
                                 @if($item->status == 'in_progress')
-                                    <span class="um-badge um-badge-warning">قيد المعالجة</span>
+                                    <span class="um-badge um-badge-warning">{{ __('stages.status_in_process') }}</span>
                                 @elseif($item->status == 'completed')
-                                    <span class="um-badge um-badge-success">مكتمل</span>
+                                    <span class="um-badge um-badge-success">{{ __('stages.status_completed') }}</span>
                                 @elseif($item->status == 'started')
-                                    <span class="um-badge um-badge-info">بدأت</span>
+                                    <span class="um-badge um-badge-info">{{ __('stages.status_created') }}</span>
                                 @else
                                     <span class="um-badge um-badge-secondary">{{ $item->status }}</span>
                                 @endif
@@ -132,9 +132,9 @@
                             <td>{{ $item->created_by_name ?? 'غير محدد' }}</td>
                             <td>{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i') }}</td>
                             <td>
-                                <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->stand_number }}', '{{ $item->material_name }}', {{ $item->output_weight }})" 
-                                        class="um-btn um-btn-sm um-btn-success" 
-                                        title="طباعة الباركود"
+                                <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->stand_number }}', '{{ $item->material_name }}', {{ $item->output_weight }})"
+                                        class="um-btn um-btn-sm um-btn-success"
+                                        title="{{ __('stages.print_barcode_action') }}"
                                         style="padding: 6px 12px;">
                                     <i class="feather icon-printer"></i>
                                 </button>
@@ -144,9 +144,9 @@
                         <tr>
                             <td colspan="11" style="text-align: center; padding: 40px; color: #7f8c8d;">
                                 <i class="feather icon-inbox" style="font-size: 48px; opacity: 0.3;"></i>
-                                <p style="margin-top: 15px;">لا توجد معالجات مسجلة بعد</p>
+                                <p style="margin-top: 15px;">{{ __('stages.no_processings_recorded') }}</p>
                                 <a href="{{ route('manufacturing.stage2.create') }}" class="um-btn um-btn-primary" style="margin-top: 15px;">
-                                    <i class="feather icon-plus"></i> بدء معالجة جديدة
+                                    <i class="feather icon-plus"></i> {{ __('stages.stage2_start_new_processing') }}
                                 </a>
                             </td>
                         </tr>
@@ -182,7 +182,7 @@
 
                     <div class="um-category-card-body">
                         <div class="um-info-row">
-                            <span class="um-info-label">الباركود:</span>
+                            <span class="um-info-label">{{ __('stages.barcode_table_header') }}:</span>
                             <span class="um-info-value">
                                 <code style="background: #f8f9fa; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 11px;">
                                     {{ $item->barcode }}
@@ -190,45 +190,45 @@
                             </span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">المادة:</span>
-                            <span class="um-info-value">{{ $item->material_name ?? 'غير محدد' }}</span>
+                            <span class="um-info-label">{{ __('stages.material_table_header') }}:</span>
+                            <span class="um-info-value">{{ $item->material_name ?? __('stages.not_specified') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">وزن الدخول:</span>
-                            <span class="um-info-value"><strong>{{ number_format($item->input_weight, 2) }}</strong> كجم</span>
+                            <span class="um-info-label">{{ __('stages.input_weight_table_header') }}:</span>
+                            <span class="um-info-value"><strong>{{ number_format($item->input_weight, 2) }}</strong> {{ __('stages.kg_unit') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">وزن الخروج:</span>
-                            <span class="um-info-value"><strong style="color: #27ae60;">{{ number_format($item->output_weight, 2) }}</strong> كجم</span>
+                            <span class="um-info-label">{{ __('stages.output_weight_table_header') }}:</span>
+                            <span class="um-info-value"><strong style="color: #27ae60;">{{ number_format($item->output_weight, 2) }}</strong> {{ __('stages.kg_unit') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">الهدر:</span>
-                            <span class="um-info-value"><strong style="color: #e74c3c;">{{ number_format($item->waste, 2) }}</strong> كجم</span>
+                            <span class="um-info-label">{{ __('stages.waste_table_header') }}:</span>
+                            <span class="um-info-value"><strong style="color: #e74c3c;">{{ number_format($item->waste, 2) }}</strong> {{ __('stages.kg_unit') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">المستخدم:</span>
-                            <span class="um-info-value">{{ $item->created_by_name ?? 'غير محدد' }}</span>
+                            <span class="um-info-label">{{ __('stages.user_table_header') }}:</span>
+                            <span class="um-info-value">{{ $item->created_by_name ?? __('stages.not_specified') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">التاريخ:</span>
+                            <span class="um-info-label">{{ __('stages.date_table_header') }}:</span>
                             <span class="um-info-value">{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i') }}</span>
                         </div>
                     </div>
 
                     <div class="um-category-card-footer">
-                        <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->stand_number }}', '{{ $item->material_name }}', {{ $item->output_weight }})" 
-                                class="um-btn um-btn-success" 
+                        <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->stand_number }}', '{{ $item->material_name }}', {{ $item->output_weight }})"
+                                class="um-btn um-btn-success"
                                 style="width: 100%;">
-                            <i class="feather icon-printer"></i> طباعة الباركود
+                            <i class="feather icon-printer"></i> {{ __('stages.print_barcode_action') }}
                         </button>
                     </div>
                 </div>
                 @empty
                 <div style="text-align: center; padding: 40px; color: #7f8c8d;">
                     <i class="feather icon-inbox" style="font-size: 64px; opacity: 0.3;"></i>
-                    <p style="margin-top: 15px; font-size: 16px;">لا توجد معالجات مسجلة بعد</p>
+                    <p style="margin-top: 15px; font-size: 16px;">{{ __('stages.no_processings_recorded') }}</p>
                     <a href="{{ route('manufacturing.stage2.create') }}" class="um-btn um-btn-primary" style="margin-top: 15px;">
-                        <i class="feather icon-plus"></i> بدء معالجة جديدة
+                        <i class="feather icon-plus"></i> {{ __('stages.stage2_start_new_processing') }}
                     </a>
                 </div>
                 @endforelse
@@ -239,7 +239,7 @@
             <div class="um-pagination-section">
                 <div>
                     <p class="um-pagination-info">
-                        عرض {{ $processed->firstItem() }} إلى {{ $processed->lastItem() }} من أصل {{ $processed->total() }} معالجة
+                        {{ __('stages.stage2_showing_info', ['from' => $processed->firstItem(), 'to' => $processed->lastItem(), 'total' => $processed->total()]) }}
                     </p>
                 </div>
                 <div>
@@ -256,7 +256,7 @@
     <script>
         function printBarcode(barcode, standNumber, materialName, netWeight) {
             const printWindow = window.open('', '', 'height=650,width=850');
-            printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - ' + standNumber + '</title>');
+            printWindow.document.write('<html dir="rtl"><head><title>{{ __("stages.print_barcode_action") }} - ' + standNumber + '</title>');
             printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
             printWindow.document.write('<style>');
             printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
@@ -271,14 +271,14 @@
             printWindow.document.write('@media print { body { background: white; } }');
             printWindow.document.write('</style></head><body>');
             printWindow.document.write('<div class="barcode-container">');
-            printWindow.document.write('<div class="title">باركود المرحلة الثانية</div>');
-            printWindow.document.write('<div class="stand-number">استاند ' + standNumber + '</div>');
+            printWindow.document.write('<div class="title">{{ __("stages.stage2_barcode_title") }}</div>');
+            printWindow.document.write('<div class="stand-number">{{ __("stages.stand_number_label") }} ' + standNumber + '</div>');
             printWindow.document.write('<svg id="print-barcode"></svg>');
             printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
             printWindow.document.write('<div class="info">');
-            printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + materialName + '</span></div>');
-            printWindow.document.write('<div class="info-row"><span class="label">الوزن الصافي:</span><span class="value">' + netWeight + ' كجم</span></div>');
-            printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+            printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.material_label") }}</span><span class="value">' + materialName + '</span></div>');
+            printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.net_weight_label") }}</span><span class="value">' + netWeight + ' {{ __("stages.kg_unit") }}</span></div>');
+            printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.date_label_print") }}</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
             printWindow.document.write('</div></div>');
             printWindow.document.write('<script>');
             printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');

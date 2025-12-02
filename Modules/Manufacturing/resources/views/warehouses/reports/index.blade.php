@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تقارير وإحصائيات المستودع')
+@section('title', __('warehouse.reports_and_statistics'))
 
 @section('content')
     <div class="report-container">
@@ -11,16 +11,16 @@
                     <i class="feather icon-bar-chart-2"></i>
                 </div>
                 <div>
-                    <h1 class="page-title">تقارير وإحصائيات المستودع</h1>
-                    <p class="page-subtitle">مركز التقارير الشامل لجميع عمليات المستودعات</p>
+                    <h1 class="page-title">{{ __('warehouse.reports_and_statistics') }}</h1>
+                    <p class="page-subtitle">{{ __('warehouse.reports_center_subtitle') }}</p>
                 </div>
             </div>
             <div class="header-actions">
                 <button onclick="window.print()" class="btn-action">
-                    <i class="feather icon-printer"></i> طباعة
+                    <i class="feather icon-printer"></i> {{ __('warehouse.print') }}
                 </button>
                 <a href="{{ url()->previous() }}" class="btn-action">
-                    <i class="feather icon-arrow-right"></i> رجوع
+                    <i class="feather icon-arrow-right"></i> {{ __('warehouse.back') }}
                 </a>
             </div>
         </div>
@@ -29,7 +29,7 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-layout"></i>
-                قائمة التقارير
+                {{ __('warehouse.reports_list') }}
             </h2>
             <div class="reports-grid">
                 <!-- Comprehensive Report -->
@@ -39,11 +39,11 @@
                             <i class="feather icon-file-text"></i>
                         </div>
                         <div class="report-content">
-                            <h3 class="report-title">التقرير الشامل</h3>
-                            <p class="report-description">نظرة عامة شاملة على جميع أقسام المستودع</p>
+                            <h3 class="report-title">{{ __('warehouse.comprehensive_report') }}</h3>
+                            <p class="report-description">{{ __('warehouse.comprehensive_report_description') }}</p>
                             <div class="report-badge">
                                 <i class="feather icon-trending-up"></i>
-                                تقرير متكامل
+                                {{ __('warehouse.integrated_report') }}
                             </div>
                         </div>
                         <div class="report-arrow">
@@ -59,8 +59,8 @@
                             <i class="feather icon-home"></i>
                         </div>
                         <div class="report-content">
-                            <h3 class="report-title">إحصائيات المستودعات</h3>
-                            <p class="report-description">تقرير شامل عن جميع المستودعات والسعات التخزينية</p>
+                            <h3 class="report-title">{{ __('warehouse.warehouses_statistics') }}</h3>
+                            <p class="report-description">{{ __('warehouse.warehouses_statistics_description') }}</p>
                         </div>
                         <div class="report-arrow">
                             <i class="feather icon-arrow-left"></i>
@@ -75,8 +75,8 @@
                             <i class="feather icon-package"></i>
                         </div>
                         <div class="report-content">
-                            <h3 class="report-title">تقرير المواد والمخزون</h3>
-                            <p class="report-description">حالة المواد الخام والكميات المتاحة والتنبيهات</p>
+                            <h3 class="report-title">{{ __('warehouse.materials_report') }}</h3>
+                            <p class="report-description">{{ __('warehouse.materials_report_description') }}</p>
                         </div>
                         <div class="report-arrow">
                             <i class="feather icon-arrow-left"></i>
@@ -91,8 +91,8 @@
                             <i class="feather icon-file-text"></i>
                         </div>
                         <div class="report-content">
-                            <h3 class="report-title">تقرير أذون التسليم</h3>
-                            <p class="report-description">متابعة أذون التسليم والشحنات الواردة</p>
+                            <h3 class="report-title">{{ __('warehouse.delivery_notes_report') }}</h3>
+                            <p class="report-description">{{ __('warehouse.delivery_notes_report_description') }}</p>
                         </div>
                         <div class="report-arrow">
                             <i class="feather icon-arrow-left"></i>
@@ -107,8 +107,8 @@
                             <i class="feather icon-file"></i>
                         </div>
                         <div class="report-content">
-                            <h3 class="report-title">تقرير فواتير المشتريات</h3>
-                            <p class="report-description">التقارير المالية والفواتير وحالات الدفع</p>
+                            <h3 class="report-title">{{ __('warehouse.purchase_invoices_report') }}</h3>
+                            <p class="report-description">{{ __('warehouse.purchase_invoices_report_description') }}</p>
                         </div>
                         <div class="report-arrow">
                             <i class="feather icon-arrow-left"></i>
@@ -124,8 +124,8 @@
                             <i class="feather icon-repeat"></i>
                         </div>
                         <div class="report-content">
-                            <h3 class="report-title">تقرير الحركات والتحويلات</h3>
-                            <p class="report-description">سجل حركات المواد بين المستودعات</p>
+                            <h3 class="report-title">{{ __('warehouse.movements_report') }}</h3>
+                            <p class="report-description">{{ __('warehouse.movements_report_description') }}</p>
                         </div>
                         <div class="report-arrow">
                             <i class="feather icon-arrow-left"></i>
@@ -140,8 +140,8 @@
                             <i class="feather icon-truck"></i>
                         </div>
                         <div class="report-content">
-                            <h3 class="report-title">تقرير الموردين</h3>
-                            <p class="report-description">إحصائيات الموردين والتعاملات معهم</p>
+                            <h3 class="report-title">{{ __('warehouse.suppliers_report') }}</h3>
+                            <p class="report-description">{{ __('warehouse.suppliers_report_description') }}</p>
                         </div>
                         <div class="report-arrow">
                             <i class="feather icon-arrow-left"></i>
@@ -155,24 +155,24 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-zap"></i>
-                إجراءات سريعة
+                {{ __('warehouse.quick_actions') }}
             </h2>
             <div class="quick-actions-grid">
                 <button class="action-btn" onclick="window.print()">
                     <i class="feather icon-printer"></i>
-                    <span>طباعة</span>
+                    <span>{{ __('warehouse.print') }}</span>
                 </button>
                 <button class="action-btn" onclick="exportToExcel()">
                     <i class="feather icon-download"></i>
-                    <span>تصدير Excel</span>
+                    <span>{{ __('warehouse.export_excel') }}</span>
                 </button>
                 <button class="action-btn" onclick="exportToPDF()">
                     <i class="feather icon-file"></i>
-                    <span>تصدير PDF</span>
+                    <span>{{ __('warehouse.export_pdf') }}</span>
                 </button>
                 <button class="action-btn" onclick="shareReport()">
                     <i class="feather icon-share-2"></i>
-                    <span>مشاركة</span>
+                    <span>{{ __('warehouse.share') }}</span>
                 </button>
             </div>
         </div>
@@ -529,7 +529,7 @@
                     url: window.location.href
                 });
             } else {
-                alert('المشاركة غير مدعومة في هذا المتصفح');
+                alert('{{ __('warehouse.share_not_supported') }}');
             }
         }
     </script>

@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'المرحلة الثالثة - إنشاء اللفائف')
+@section('title', __('stages.stage3_create_title'))
 
 @section('content')
 
@@ -69,35 +69,35 @@
     <div class="stage-header">
         <h1>
             <i class="fas fa-circle"></i>
-            المرحلة الثالثة - إنشاء اللفائف
+            {{ __('stages.stage3_create_title') }}
         </h1>
-        <p>امسح باركود المرحلة الثانية وأضف الصبغة والبلاستيك لإنشاء لفاف (الوزن يزيد في هذه المرحلة)</p>
+        <p>{{ __('stages.stage3_header_description') }}</p>
     </div>
 
     <!-- Barcode Scanner -->
     <div class="form-section barcode-section">
-        <h3 style="margin: 0 0 15px 0; color: #9b59b6;"><i class="fas fa-camera"></i> مسح باركود المرحلة الثانية</h3>
+        <h3 style="margin: 0 0 15px 0; color: #9b59b6;"><i class="fas fa-camera"></i> {{ __('stages.stage3_scan_stage2_barcode') }}</h3>
         <div class="barcode-input-wrapper">
-            <input type="text" id="stage2Barcode" class="barcode-input" placeholder="امسح أو اكتب باركود المرحلة الثانية (ST2-XXX-2025)" autofocus>
+            <input type="text" id="stage2Barcode" class="barcode-input" placeholder="{{ __('stages.stage3_barcode_placeholder') }}" autofocus>
             <span class="barcode-icon">🎨</span>
         </div>
-        <small style="color: #7f8c8d; display: block; margin-top: 10px;"><i class="fas fa-lightbulb"></i> امسح الباركود أو اضغط Enter للبحث</small>
+        <small style="color: #7f8c8d; display: block; margin-top: 10px;"><i class="fas fa-lightbulb"></i> {{ __('stages.stage3_scan_or_press_enter') }}</small>
     </div>
 
     <!-- Stage2 Display -->
     <div id="stage2Display" class="stage2-display">
-        <h4><i class="fas fa-circle-check"></i> بيانات المرحلة الثانية</h4>
+        <h4><i class="fas fa-circle-check"></i> {{ __('stages.stage3_stage2_data') }}</h4>
         <div class="stage2-info">
             <div class="info-item">
-                <div class="info-label">الباركود</div>
+                <div class="info-label">{{ __('stages.stand_label') }}</div>
                 <div class="info-value" id="displayBarcode">-</div>
             </div>
             <div class="info-item">
-                <div class="info-label">الاستاند</div>
-                <div class="info-value" id="displayStand">-</div>
+                <div class="info-label">{{ __('stages.material_label') }}</div>
+                <div class="info-value" id="displayMaterial">-</div>
             </div>
             <div class="info-item">
-                <div class="info-label">الوزن المتبقي</div>
+                <div class="info-label">{{ __('stages.output_weight_label') }}</div>
                 <div class="info-value" id="displayWeight">-</div>
             </div>
         </div>
@@ -105,68 +105,68 @@
 
     <!-- Lafaf Form -->
     <div class="form-section">
-        <h3 class="section-title"><i class="fas fa-edit"></i> بيانات اللفاف</h3>
+        <h3 class="section-title"><i class="fas fa-edit"></i> {{ __('stages.stage3_lafaf_data') }}</h3>
 
         <div class="info-box">
-            <strong><i class="fas fa-thumbtack"></i> ملاحظة هامة:</strong>
+            <strong><i class="fas fa-thumbtack"></i> {{ __('stages.stage3_important_note') }}:</strong>
             <ul style="margin:8px 0 0 20px; color:#7f8c8d; font-size:13px;">
-                <li><strong>الوزن يزيد</strong> في هذه المرحلة (إضافة الصبغة والبلاستيك)</li>
-                <li>أدخل الوزن الكامل الشامل (وزن المرحلة السابقة + الصبغة + البلاستيك)</li>
-                <li>سيتم حساب الوزن المضاف تلقائياً</li>
+                <li>{{ __('stages.stage3_weight_increases_note') }}</li>
+                <li>{{ __('stages.stage3_enter_complete_weight_note') }}</li>
+                <li>{{ __('stages.stage3_auto_calc_note') }}</li>
             </ul>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label>وزن الدخول من المرحلة السابقة (كجم)</label>
+                <label>{{ __('stages.stage3_input_weight_from_previous') }}</label>
                 <input type="number" id="inputWeight" class="form-control" readonly style="background: #ecf0f1; font-weight: 600;">
             </div>
 
             <div class="form-group">
-                <label>الوزن الكامل الشامل (كجم) <span style="color:#e74c3c;">*</span></label>
-                <input type="number" id="totalWeight" class="form-control" placeholder="مثال: 105.50" step="0.01">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">شامل وزن الدخول + الصبغة + البلاستيك</small>
+                <label>{{ __('stages.stage3_total_weight_label') }} <span style="color:#e74c3c;">*</span></label>
+                <input type="number" id="totalWeight" class="form-control" placeholder="{{ __('stages.stage3_example_weight') }}" step="0.01">
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;">{{ __('stages.stage3_total_weight_note') }}</small>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label>الوزن المضاف (كجم)</label>
+                <label>{{ __('stages.stage3_added_weight_label') }}</label>
                 <input type="number" id="addedWeight" class="form-control" readonly style="background: #e8f5e9; font-weight: 600; color: #27ae60;">
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">يتم الحساب تلقائياً = الوزن الكامل - وزن الدخول</small>
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;">{{ __('stages.stage3_auto_calc_label') }}</small>
             </div>
 
             <div class="form-group">
-                <label>اللون <span style="color:#e74c3c;">*</span></label>
-                <input type="text" id="color" class="form-control" placeholder="مثال: أحمر، أزرق، أخضر...">
+                <label>{{ __('stages.stage3_color_label') }} <span style="color:#e74c3c;">*</span></label>
+                <input type="text" id="color" class="form-control" placeholder="{{ __('stages.stage3_color_placeholder') }}">
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label>نوع البلاستيك</label>
-                <input type="text" id="plasticType" class="form-control" placeholder="مثال: PE، PP، PVC...">
+                <label>{{ __('stages.stage3_plastic_type_label') }}</label>
+                <input type="text" id="plasticType" class="form-control" placeholder="{{ __('stages.stage3_plastic_placeholder') }}">
             </div>
 
             <div class="form-group">
-                <label>ملاحظات</label>
-                <textarea id="notes" class="form-control" placeholder="أضف أي ملاحظات إضافية..."></textarea>
+                <label>{{ __('stages.stage3_notes_label') }}</label>
+                <textarea id="notes" class="form-control" placeholder="{{ __('stages.stage3_notes_placeholder') }}"></textarea>
             </div>
         </div>
 
         <div class="button-group">
             <button type="button" class="btn-primary" onclick="addLafaf()">
-                <i class="fas fa-plus"></i> إضافة اللفاف
+                <i class="fas fa-plus"></i> {{ __('stages.stage3_add_lafaf_button') }}
             </button>
             <button type="button" class="btn-secondary" onclick="clearForm()">
-                <i class="fas fa-sync"></i> مسح النموذج
+                <i class="fas fa-sync"></i> {{ __('stages.stage3_clear_form_button') }}
             </button>
         </div>
     </div>
 
     <!-- Lafafs List -->
     <div class="form-section">
-        <h3 class="section-title"><i class="fas fa-clipboard"></i> اللفائف المضافة (<span id="lafafCount">0</span>)</h3>
+        <h3 class="section-title"><i class="fas fa-clipboard"></i> {{ __('stages.stage3_added_lafafs') }} (<span id="lafafCount">0</span>)</h3>
         <div id="lafafList" class="lafafs-list">
             <div class="empty-state">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:48px;height:48px;opacity:0.3;">
@@ -174,7 +174,7 @@
                     <line x1="12" y1="8" x2="12" y2="12"></line>
                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
-                <p>لا توجد لفائف مضافة بعد</p>
+                <p>{{ __('stages.stage3_no_lafafs_added_yet') }}</p>
             </div>
         </div>
     </div>
@@ -182,10 +182,12 @@
     <!-- Actions -->
     <div style="display:flex; gap:15px; justify-content:center; margin-top:25px; padding-top:20px; border-top:2px solid #ecf0f1;">
         <button type="button" class="btn-success" onclick="finishOperation()" id="submitBtn" disabled style="padding:14px 32px; font-size:16px;">
-            <i class="fas fa-check-double"></i> إنهاء العملية
+            <i class="fas fa-check-double"></i> {{ __('stages.stage3_finish_operation') }}
         </button>
         <button type="button" class="btn-secondary" onclick="window.location.href='{{ route('manufacturing.stage3.index') }}'">
-            <i class="fas fa-times"></i> إلغاء
+            <i class="fas fa-times"></i> {{ __('stages.cancel_button') }}
+        </button>
+    </div>
         </button>
     </div>
 </div>
@@ -210,13 +212,13 @@ document.getElementById('totalWeight').addEventListener('input', calculateAddedW
 
 function loadStage2(barcode) {
     if (!barcode) {
-        alert('⚠️ يرجى إدخال باركود المرحلة الثانية!');
+        alert('{{ __('stages.stage3_please_enter_barcode') }}');
         return;
     }
 
     fetch(`/stage3/get-stage2-by-barcode/${barcode}`)
         .then(response => {
-            if (!response.ok) throw new Error('لم يتم العثور على البيانات');
+            if (!response.ok) throw new Error('{{ __('stages.stage3_data_not_found') }}');
             return response.json();
         })
         .then(result => {
@@ -224,21 +226,21 @@ function loadStage2(barcode) {
 
             const data = result.data;
             const source = result.source || 'stage2';
-            
+
             currentStage2 = {
                 id: data.id || null,
                 barcode: data.barcode,
-                stand_number: data.stand_number || 'غير محدد',
+                stand_number: data.stand_number || '{{ __('stages.not_specified') }}',
                 output_weight: parseFloat(data.remaining_weight || data.output_weight || data.quantity),
                 material_id: data.material_id,
-                material_name: data.material_name || 'غير محدد',
+                material_name: data.material_name || '{{ __('stages.not_specified') }}',
                 source: source
             };
 
             // Display stage2 data
             document.getElementById('displayBarcode').textContent = currentStage2.barcode;
             document.getElementById('displayStand').textContent = currentStage2.stand_number;
-            document.getElementById('displayWeight').textContent = currentStage2.output_weight + ' كجم';
+            document.getElementById('displayWeight').textContent = currentStage2.output_weight + ' {{ __('stages.kg_unit') }}';
             document.getElementById('stage2Display').classList.add('active');
 
             // Fill input weight
@@ -250,10 +252,10 @@ function loadStage2(barcode) {
             // Focus on total weight
             document.getElementById('totalWeight').focus();
 
-            showToast('تم تحميل بيانات المرحلة الثانية بنجاح!', 'success');
+            showToast('{{ __('stages.stage3_stage2_loaded_success') }}', 'success');
         })
         .catch(error => {
-            alert('خطأ: ' + error.message);
+            alert('{{ __('stages.stage3_error_label') }}' + error.message);
             document.getElementById('stage2Barcode').focus();
         });
 }
@@ -264,9 +266,9 @@ function calculateAddedWeight() {
 
     if (totalWeight > 0 && inputWeight > 0) {
         const addedWeight = totalWeight - inputWeight;
-        
+
         if (addedWeight < 0) {
-            showToast('⚠️ الوزن الكامل يجب أن يكون أكبر من وزن الدخول!', 'error');
+            showToast('{{ __('stages.stage3_total_weight_must_exceed_input') }}', 'error');
             document.getElementById('addedWeight').value = '';
             return;
         }
@@ -279,7 +281,7 @@ function calculateAddedWeight() {
 
 function addLafaf() {
     if (!currentStage2) {
-        alert('⚠️ يرجى مسح باركود المرحلة الثانية أولاً!');
+        alert('{{ __('stages.stage3_please_load_stage2_first') }}');
         document.getElementById('stage2Barcode').focus();
         return;
     }
@@ -290,7 +292,7 @@ function addLafaf() {
     const notes = document.getElementById('notes').value.trim();
 
     if (!totalWeight || !color) {
-        alert('⚠️ يرجى ملء جميع الحقول المطلوبة!');
+        alert('{{ __('stages.stage3_fill_required_fields') }}');
         return;
     }
 
@@ -298,7 +300,7 @@ function addLafaf() {
     const totalWeightNum = parseFloat(totalWeight);
 
     if (totalWeightNum <= inputWeight) {
-        alert('⚠️ الوزن الكامل يجب أن يكون أكبر من وزن الدخول!');
+        alert('{{ __('stages.stage3_total_weight_must_exceed_input') }}');
         return;
     }
 
@@ -317,7 +319,7 @@ function addLafaf() {
     // حفظ فوري للفاف
     const addBtn = event.target;
     addBtn.disabled = true;
-    addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+    addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {{ __('stages.stage3_saving') }}...';
 
     fetch('{{ route("manufacturing.stage3.store-single") }}', {
         method: 'POST',
@@ -348,20 +350,20 @@ function addLafaf() {
             lafafs.push(lafaf);
             renderLafafs();
             clearForm();
-            
-            showToast('✅ تم حفظ اللفاف بنجاح!', 'success');
-            
+
+            showToast('{{ __('stages.stage3_lafaf_saved_success') }}', 'success');
+
             document.getElementById('stage2Barcode').focus();
         } else {
-            throw new Error(result.message || 'حدث خطأ أثناء الحفظ');
+            throw new Error(result.message || '{{ __('stages.stage3_error_saving_lafaf') }}');
         }
-    })
+    }})
     .catch(error => {
-        alert('❌ خطأ: ' + error.message);
+        alert('{{ __('stages.stage3_error_label') }}' + error.message);
     })
     .finally(() => {
         addBtn.disabled = false;
-        addBtn.innerHTML = '<i class="fas fa-plus"></i> إضافة اللفاف';
+        addBtn.innerHTML = '<i class="fas fa-plus"></i> {{ __('stages.stage3_add_lafaf_button') }}';
     });
 }
 
@@ -378,7 +380,7 @@ function renderLafafs() {
                     <line x1="12" y1="8" x2="12" y2="12"></line>
                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
-                <p>لا توجد لفائف مضافة بعد</p>
+                <p>{{ __('stages.stage3_no_lafafs_added_yet') }}</p>
             </div>
         `;
         return;
@@ -391,21 +393,21 @@ function renderLafafs() {
                     <strong style="color:#2c3e50; font-size:16px;">
                         <i class="fas fa-circle" style="color:#27ae60;"></i> ${item.coil_number}
                     </strong>
-                    <span style="background:#27ae60; color:white; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600;">✓ محفوظ</span>
+                    <span style="background:#27ae60; color:white; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600;">✓ {{ __('stages.stage3_saved_label') }}</span>
                 </div>
                 <small style="display:block; line-height:1.6;">
-                    <strong>المادة:</strong> ${item.material_name} |
-                    <strong>الباركود:</strong> <code style="background:#f8f9fa; padding:2px 6px; border-radius:4px; font-family:monospace;">${item.barcode}</code><br>
-                    <strong>وزن كامل:</strong> ${item.total_weight} كجم |
-                    <strong>وزن مضاف:</strong> ${item.added_weight} كجم |
-                    <strong>اللون:</strong> ${item.color}
-                    ${item.plastic_type ? ' | <strong>بلاستيك:</strong> ' + item.plastic_type : ''}
-                    ${item.notes ? '<br>📝 <strong>ملاحظات:</strong> ' + item.notes : ''}
+                    <strong>{{ __('stages.material_label') }}:</strong> ${item.material_name} |
+                    <strong>{{ __('stages.barcode_label') }}:</strong> <code style="background:#f8f9fa; padding:2px 6px; border-radius:4px; font-family:monospace;">${item.barcode}</code><br>
+                    <strong>{{ __('stages.stage3_total_weight_label') }}:</strong> ${item.total_weight} {{ __('stages.kg_unit') }} |
+                    <strong>{{ __('stages.stage3_added_weight_label') }}:</strong> ${item.added_weight} {{ __('stages.kg_unit') }} |
+                    <strong>{{ __('stages.stage3_color_label') }}:</strong> ${item.color}
+                    ${item.plastic_type ? ' | <strong>{{ __('stages.stage3_plastic_type_label') }}:</strong> ' + item.plastic_type : ''}
+                    ${item.notes ? '<br>📝 <strong>{{ __('stages.stage3_notes_label') }}:</strong> ' + item.notes : ''}
                 </small>
             </div>
             <div style="display:flex; gap:8px;">
                 <button class="btn-print" onclick="printLafafBarcode('${item.barcode}', '${item.coil_number}', '${item.material_name}', ${item.total_weight}, '${item.color}')">
-                    <i class="fas fa-print"></i> طباعة الباركود
+                    <i class="fas fa-print"></i> {{ __('stages.stage3_print_barcode') }}
                 </button>
             </div>
         </div>
@@ -414,11 +416,11 @@ function renderLafafs() {
 
 function finishOperation() {
     if (lafafs.length === 0) {
-        alert('⚠️ لا توجد لفائف محفوظة!');
+        alert('{{ __('stages.stage3_add_at_least_one_lafaf') }}');
         return;
     }
 
-    showToast('✅ تم إنهاء العملية بنجاح!', 'success');
+    showToast('{{ __('stages.stage3_operation_finished_success') }}', 'success');
     setTimeout(() => {
         window.location.href = '{{ route("manufacturing.stage3.index") }}';
     }, 1000);
@@ -438,7 +440,7 @@ function clearForm() {
 
 function printLafafBarcode(barcode, coilNumber, materialName, totalWeight, color) {
     const printWindow = window.open('', '', 'height=650,width=850');
-    printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - ' + coilNumber + '</title>');
+    printWindow.document.write('<html dir="rtl"><head><title>{{ __('stages.stage3_print_barcode') }} - ' + coilNumber + '</title>');
     printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
     printWindow.document.write('<style>');
     printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
@@ -453,15 +455,15 @@ function printLafafBarcode(barcode, coilNumber, materialName, totalWeight, color
     printWindow.document.write('@media print { body { background: white; } }');
     printWindow.document.write('</style></head><body>');
     printWindow.document.write('<div class="barcode-container">');
-    printWindow.document.write('<div class="title">باركود اللفاف - المرحلة الثالثة</div>');
+    printWindow.document.write('<div class="title">{{ __('stages.stage3_barcode_title') }}</div>');
     printWindow.document.write('<div class="coil-number">' + coilNumber + '</div>');
     printWindow.document.write('<svg id="print-barcode"></svg>');
     printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
     printWindow.document.write('<div class="info">');
-    printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + materialName + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">الوزن الكلي:</span><span class="value">' + totalWeight + ' كجم</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">اللون:</span><span class="value">' + color + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __('stages.material_label') }}:</span><span class="value">' + materialName + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __('stages.stage3_total_weight_label') }}:</span><span class="value">' + totalWeight + ' {{ __('stages.kg_unit') }}</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __('stages.stage3_color_label') }}:</span><span class="value">' + color + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __('stages.date_label_print') }}:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
     printWindow.document.write('</div></div>');
     printWindow.document.write('<script>');
     printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');

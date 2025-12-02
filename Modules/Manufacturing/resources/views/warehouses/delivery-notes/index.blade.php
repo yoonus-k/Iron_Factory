@@ -1,10 +1,9 @@
 @extends('master')
 
-@section('title', 'الاذونات التسليم')
+@section('title', __('delivery_notes.delivery_notes'))
 
 @section('content')
     <style>
-        /* Pagination Styling */
         .um-pagination-section {
             margin-top: 25px;
             display: flex;
@@ -23,7 +22,6 @@
             font-weight: 500;
         }
 
-        /* Bootstrap Pagination Custom Styling */
         .pagination {
             margin: 0;
             gap: 5px;
@@ -94,7 +92,6 @@
             }
         }
 
-        /* Stats Row */
         .stats-row {
             display: flex;
             gap: 20px;
@@ -161,7 +158,6 @@
             }
         }
 
-        /* Filter Form Styles */
         .filter-form {
             padding: 0;
         }
@@ -195,7 +191,6 @@
             color: #adb5bd;
         }
 
-        /* Button Styles */
         .btn-primary {
             background: linear-gradient(135deg, #0051E5 0%, #003FA0 100%);
             border: none;
@@ -361,7 +356,6 @@
             border-radius: 0;
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             .filter-form .row {
                 gap: 0;
@@ -377,7 +371,6 @@
             }
         }
 
-        /* Custom badge styles */
         .badge-pending {
             background: #0051E5;
             color: white;
@@ -398,41 +391,32 @@
             color: white;
         }
 
-        /* Status column styling */
         .status-column {
             min-width: 180px;
         }
-
-        /* Dropdown Styles */
-
-
-
-
     </style>
 
     <div class="um-content-wrapper">
-        <!-- Header Section -->
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="fas fa-box"></i>
-                اذونات التسليم
+                {{ __('delivery_notes.delivery_notes') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('delivery_notes.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المستودع</span>
+                <span>{{ __('delivery_notes.warehouse') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>اذونات التسليم </span>
+                <span>{{ __('delivery_notes.delivery_notes') }}</span>
             </nav>
         </div>
 
-        <!-- Success and Error Messages -->
         @if ($errors->any())
             <div class="um-alert-custom um-alert-error" role="alert">
                 <i class="feather icon-x-circle"></i>
-                <strong>❌ خطأ!</strong>
+                <strong>❌ {{ __('delivery_notes.data_error') }}</strong>
                 <ul class="mb-0">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -474,14 +458,13 @@
             </div>
         @endif
 
-        <!-- Statistics -->
         <div class="stats-row">
             <div class="stat-item pending-stat">
                 <div class="stat-icon">
                     <i class="fas fa-hourglass-half"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-label">🔴 شحنات معلقة (بانتظار التسجيل)</span>
+                    <span class="stat-label">🔴 {{ __('delivery_notes.pending_shipments') }}</span>
                     <span class="stat-number" style="color: #0051E5;">{{ $incomingUnregistered ?? 0 }}</span>
                 </div>
             </div>
@@ -491,7 +474,7 @@
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-label">🟢 شحنات مسجلة</span>
+                    <span class="stat-label">🟢 {{ __('delivery_notes.registered_shipments') }}</span>
                     <span class="stat-number" style="color: #3E4651;">{{ $incomingRegistered ?? 0 }}</span>
                 </div>
             </div>
@@ -502,132 +485,120 @@
                     <i class="fas fa-industry"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-label">🏭 منقولة للإنتاج</span>
+                    <span class="stat-label">🏭 {{ __('delivery_notes.moved_to_production') }}</span>
                     <span class="stat-number" style="color: #0051E5;">{{ $movedToProduction ?? 0 }}</span>
                 </div>
             </div>
             @endif
         </div>
 
-        <!-- Main Card -->
         <section class="um-main-card">
-            <!-- Card Header -->
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="fas fa-box"></i>
-                    إدارة تسجيل الشحنات الواردة
+                    {{ __('delivery_notes.management') }}
                 </h4>
                 <div style="display: flex; gap: 10px;">
                     @if (auth()->user()->hasPermission('WAREHOUSE_MOVEMENTS_DETAILS'))
                         <a href="{{ route('manufacturing.warehouse.movements.index') }}" class="um-btn um-btn-primary">
                             <i class="fas fa-exchange-alt"></i>
-                            سجل الحركات
+                            {{ __('delivery_notes.movements_log') }}
                         </a>
                     @endif
                     @if (auth()->user()->hasPermission('WAREHOUSE_RECONCILIATION_LINK_INVOICE'))
                         <a href="{{ route('manufacturing.warehouses.reconciliation.link-invoice') }}" class="um-btn um-btn-primary">
                             <i class="fas fa-link"></i>
-                            ربط فاتورة
+                            {{ __('delivery_notes.link_invoice') }}
                         </a>
                     @endif
                     @if (auth()->user()->hasPermission('WAREHOUSE_RECONCILIATION_READ'))
                         <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="um-btn um-btn-primary">
                             <i class="fas fa-balance-scale"></i>
-                            التسويات
+                            {{ __('delivery_notes.reconciliations') }}
                         </a>
                     @endif
                     @if (auth()->user()->hasPermission('WAREHOUSE_DELIVERY_NOTES_CREATE'))
                         <a href="{{ route('manufacturing.delivery-notes.create') }}" class="um-btn um-btn-primary">
                             <i class="fas fa-balance-scale"></i>
-                            اضافة اذن تسليم
+                            {{ __('delivery_notes.add_delivery_note') }}
                         </a>
                     @endif
                 </div>
             </div>
 
-            <!-- Filters Section -->
             <div class="um-filters-section">
                 <form method="GET" action="{{ route('manufacturing.delivery-notes.index') }}" class="filter-form">
                     <div class="um-filter-row">
-                        <!-- Search Input -->
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="ابحث عن أذن التسليم..."
+                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('delivery_notes.search_placeholder') }}"
                                 value="{{ request('search') }}">
                         </div>
 
-                        <!-- Type Filter -->
                         <div class="um-form-group">
                             <select name="type" class="um-form-control">
-                                <option value="">-- اختر النوع --</option>
-                                <option value="incoming" {{ request('type') == 'incoming' ? 'selected' : '' }}>وارد</option>
-                                <option value="outgoing" {{ request('type') == 'outgoing' ? 'selected' : '' }}>صادر</option>
+                                <option value="">{{ __('delivery_notes.select_type') }}</option>
+                                <option value="incoming" {{ request('type') == 'incoming' ? 'selected' : '' }}>{{ __('delivery_notes.incoming') }}</option>
+                                <option value="outgoing" {{ request('type') == 'outgoing' ? 'selected' : '' }}>{{ __('delivery_notes.outgoing') }}</option>
                             </select>
                         </div>
 
-                        <!-- From Date -->
                         <div class="um-form-group">
                             <input type="date" name="from_date" class="um-form-control"
                                    value="{{ request('from_date') }}">
                         </div>
 
-                        <!-- To Date -->
                         <div class="um-form-group">
                             <input type="date" name="to_date" class="um-form-control"
                                    value="{{ request('to_date') }}">
                         </div>
 
-                        <!-- Action Buttons -->
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                بحث
+                                {{ __('delivery_notes.search') }}
                             </button>
                             <a href="{{ route('manufacturing.delivery-notes.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-refresh-cw"></i>
-                                إعادة تعيين
+                                {{ __('delivery_notes.reset') }}
                             </a>
                         </div>
                     </div>
                 </form>
             </div>
 
-            <!-- Combined Table for All Shipments -->
             <div class="um-table-responsive">
                 <table class="um-table">
                     <thead>
                         <tr>
-                            <th>النوع</th>
-                            <th>رقم الأذن</th>
-                            <th>المادة / الوجهة</th>
-                            <th>المورد / المصدر</th>
-                            <th>الكمية</th>
-                            <th>تاريخ الإنشاء</th>
-                            <th class="status-column">الحالة</th>
-                            <th>الإجراءات</th>
+                            <th>{{ __('delivery_notes.type') }}</th>
+                            <th>{{ __('delivery_notes.note_number') }}</th>
+                            <th>{{ __('delivery_notes.material_destination') }}</th>
+                            <th>{{ __('delivery_notes.supplier_source') }}</th>
+                            <th>{{ __('delivery_notes.quantity') }}</th>
+                            <th>{{ __('delivery_notes.creation_date') }}</th>
+                            <th class="status-column">{{ __('delivery_notes.status') }}</th>
+                            <th>{{ __('delivery_notes.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($deliveryNotes as $note)
                             <tr>
-                                <!-- النوع -->
                                 <td>
                                     @if($note->type === 'incoming')
                                         <span class="badge" style="background-color: #0051E5; color: white;">
-                                            <i class="fas fa-arrow-down"></i> وارد
+                                            <i class="fas fa-arrow-down"></i> {{ __('delivery_notes.incoming') }}
                                         </span>
                                     @else
                                         <span class="badge" style="background-color: #3E4651; color: white;">
-                                            <i class="fas fa-arrow-up"></i> صادر
+                                            <i class="fas fa-arrow-up"></i> {{ __('delivery_notes.outgoing') }}
                                         </span>
                                     @endif
                                 </td>
 
-                                <!-- رقم الأذن -->
                                 <td>
                                     <strong>{{ $note->note_number ?? $note->id }}</strong>
                                 </td>
 
-                                <!-- المادة / الوجهة -->
                                 <td>
                                     @if($note->type === 'incoming' && $note->material)
                                         <strong>{{ $note->material->name_ar }}</strong><br>
@@ -641,18 +612,16 @@
                                     @endif
                                 </td>
 
-                                <!-- المورد / المصدر -->
                                 <td>
                                     @if($note->type === 'incoming' && $note->supplier)
                                         {{ $note->supplier->name }}
                                     @elseif($note->type === 'outgoing')
-                                        <span class="text-muted">المستودع</span>
+                                        <span class="text-muted">{{ __('delivery_notes.warehouse') }}</span>
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
 
-                                <!-- الكمية -->
                                 <td>
                                     @if($note->type === 'incoming')
                                         {{ number_format($note->quantity, 2) }}
@@ -667,35 +636,32 @@
                                     @endif
                                 </td>
 
-                                <!-- التاريخ -->
                                 <td>
                                     <small>{{ $note->created_at->format('Y-m-d H:i') }}</small>
                                 </td>
 
-                                <!-- الحالة -->
                                 <td class="status-column">
                                     @if($note->type === 'incoming')
                                         @if($note->registration_status === 'not_registered')
                                             <span class="um-badge badge-pending">
-                                                <i class="fas fa-hourglass-half"></i> معلقة
+                                                <i class="fas fa-hourglass-half"></i> {{ __('delivery_notes.pending') }}
                                             </span>
                                         @elseif($note->registration_status === 'in_production' || $note->quantity_remaining <= 0)
                                             <span class="um-badge badge-moved">
-                                                <i class="fas fa-industry"></i> منقولة
+                                                <i class="fas fa-industry"></i> {{ __('delivery_notes.moved') }}
                                             </span>
                                         @else
                                             <span class="um-badge badge-registered">
-                                                <i class="fas fa-check-circle"></i> مسجلة
+                                                <i class="fas fa-check-circle"></i> {{ __('delivery_notes.registered') }}
                                             </span>
                                         @endif
                                     @else
                                         <span class="um-badge badge-registered">
-                                            <i class="fas fa-check-circle"></i> صادر
+                                            <i class="fas fa-check-circle"></i> {{ __('delivery_notes.outgoing') }}
                                         </span>
                                     @endif
                                 </td>
 
-                                <!-- الإجراءات -->
                                 <td>
                                     <div class="um-dropdown">
                                         <button class="um-btn-dropdown" type="button">
@@ -705,14 +671,14 @@
                                             @if (auth()->user()->hasPermission('WAREHOUSE_DELIVERY_NOTES_READ'))
                                                 <a href="{{ route('manufacturing.delivery-notes.show', $note->id) }}" class="um-dropdown-item um-btn-view">
                                                     <i class="feather icon-eye"></i>
-                                                    <span>عرض</span>
+                                                    <span>{{ __('delivery_notes.view') }}</span>
                                                 </a>
                                             @endif
 
                                             @if (auth()->user()->hasPermission('WAREHOUSE_DELIVERY_NOTES_UPDATE'))
                                                 <a href="{{ route('manufacturing.delivery-notes.edit', $note->id) }}" class="um-dropdown-item um-btn-edit">
                                                     <i class="feather icon-edit-2"></i>
-                                                    <span>تعديل</span>
+                                                    <span>{{ __('delivery_notes.edit') }}</span>
                                                 </a>
                                             @endif
                                             @if (auth()->user()->hasPermission('WAREHOUSE_DELIVERY_NOTES_DELETE'))
@@ -721,7 +687,7 @@
                                                     @method('DELETE')
                                                     <button type="submit" class="um-dropdown-item um-btn-delete" style="width: 100%; text-align: right; border: none; background: none; cursor: pointer;">
                                                         <i class="feather icon-trash-2"></i>
-                                                        <span>حذف</span>
+                                                        <span>{{ __('delivery_notes.delete') }}</span>
                                                     </button>
                                                 </form>
                                             @endif
@@ -732,7 +698,7 @@
                         @empty
                             <tr>
                                 <td colspan="8" class="text-center text-muted">
-                                    <i class="feather icon-inbox"></i> لا توجد أذن تسليم
+                                    <i class="feather icon-inbox"></i> {{ __('delivery_notes.no_delivery_notes') }}
                                 </td>
                             </tr>
                         @endforelse
@@ -740,13 +706,12 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
             @if ($deliveryNotes->hasPages())
                 <div class="um-pagination-section">
                     <div>
                         <p class="um-pagination-info">
-                            عرض {{ $deliveryNotes->firstItem() }} إلى {{ $deliveryNotes->lastItem() }} من أصل
-                            {{ $deliveryNotes->total() }} أذن تسليم
+                            {{ __('delivery_notes.showing') }} {{ $deliveryNotes->firstItem() }} {{ __('delivery_notes.to') }} {{ $deliveryNotes->lastItem() }} {{ __('delivery_notes.of') }}
+                            {{ $deliveryNotes->total() }} {{ __('delivery_notes.delivery_notes_total') }}
                         </p>
                     </div>
                     <div>
@@ -770,19 +735,18 @@
                 }, 5000);
             });
 
-            // Delete confirmation
             const deleteForms = document.querySelectorAll('.delete-form');
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
 
                     Swal.fire({
-                        title: 'تأكيد الحذف',
-                        text: 'هل أنت متأكد من حذف هذه الأذن؟ هذا الإجراء لا يمكن التراجع عنه!',
+                        title: '{{ __('delivery_notes.confirm_delete') }}',
+                        text: '{{ __('delivery_notes.confirm_delete_message') }}',
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'نعم، احذف',
-                        cancelButtonText: 'إلغاء',
+                        confirmButtonText: '{{ __('delivery_notes.yes_delete') }}',
+                        cancelButtonText: '{{ __('delivery_notes.cancel') }}',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
@@ -792,33 +756,28 @@
                 });
             });
 
-            // Dropdown functionality
             document.querySelectorAll('.um-btn-dropdown').forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const dropdown = this.closest('.um-dropdown');
                     const menu = dropdown.querySelector('.um-dropdown-menu');
 
-                    // Close all other dropdowns
                     document.querySelectorAll('.um-dropdown-menu').forEach(d => {
                         if (d !== menu) {
                             d.classList.remove('show');
                         }
                     });
 
-                    // Toggle current dropdown
                     menu.classList.toggle('show');
                 });
             });
 
-            // Close dropdown when clicking outside
             document.addEventListener('click', function() {
                 document.querySelectorAll('.um-dropdown-menu').forEach(menu => {
                     menu.classList.remove('show');
                 });
             });
 
-            // Prevent closing dropdown when clicking inside
             document.querySelectorAll('.um-dropdown-menu').forEach(menu => {
                 menu.addEventListener('click', function(e) {
                     e.stopPropagation();
