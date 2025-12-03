@@ -192,13 +192,13 @@
          <div class="form-row">
             <div class="form-group">
                 <label for="wasteWeight"><i class="fas fa-trash-alt"></i> {{ __('stages.waste_weight') }}</label>
-                <input type="number" id="wasteWeight" class="form-control" placeholder="{{ __('stages.auto_calculated') }}" step="0.01" oninput="calculateWastePercentage()">
-                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-calculator"></i> {{ __('stages.auto_waste_hint') }}</small>
+                <input type="number" id="wasteWeight" class="form-control" placeholder="{{ __('stages.auto_calculated') }}" step="0.01" readonly style="background: #ecf0f1;">
+                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-calculator"></i> يُحسب تلقائياً = (الوزن الكلي - الاستاند - الوزن الصافي)</small>
             </div>
             <div class="form-group">
                 <label for="wastePercentage"><i class="fas fa-chart-bar"></i> {{ __('stages.waste_percentage') }}</label>
                 <input type="number" id="wastePercentage" class="form-control" placeholder="0" step="0.01" readonly style="background: #ecf0f1;">
-                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-percent"></i> {{ __('stages.auto_percentage_hint') }}</small>
+                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-percent"></i> يُحسب تلقائياً = (وزن الهدر ÷ الوزن الكلي) × 100</small>
             </div>
         </div>
 
@@ -222,8 +222,8 @@
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
                 <label for="netWeight"><i class="fas fa-check"></i> {{ __('stages.net_weight') }} <span class="required">*</span></label>
-                <input type="number" id="netWeight" class="form-control" placeholder="{{ __('stages.auto_calculated') }}" step="0.01" readonly style="background: linear-gradient(135deg, #d5f4e6 0%, #e8f8f5 100%); font-weight: 700; font-size: 22px; text-align: center; color: #27ae60; border: 3px solid #27ae60; border-radius: 12px;">
-                <small style="color: #27ae60; display: block; margin-top: 10px; font-weight: 600; font-size: 16px;"><i class="fas fa-calculator"></i> {{ __('stages.net_weight_formula') }}</small>
+                <input type="number" id="netWeight" class="form-control" placeholder="{{ __('stages.auto_calculated') }}" step="0.01" oninput="calculateWasteFromNet()" style="background: linear-gradient(135deg, #d5f4e6 0%, #e8f8f5 100%); font-weight: 700; font-size: 22px; text-align: center; color: #27ae60; border: 3px solid #27ae60; border-radius: 12px;">
+                <small style="color: #27ae60; display: block; margin-top: 10px; font-weight: 600; font-size: 16px;"><i class="fas fa-calculator"></i> يُحسب تلقائياً = (الوزن الكلي - الاستاند)، يمكن تعديله لحساب الهدر</small>
             </div>
         </div>
 
@@ -280,6 +280,7 @@
 let processedStands = [];
 let selectedStand = null;
 let currentMaterial = null;
+let materialTransferredWeight = 0; // وزن المادة المنقول للإنتاج (مرجع حساب الهدر)
 
 // Load stands on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -344,13 +345,21 @@ function displayMaterialInfo(material) {
     document.getElementById('displayBarcode').textContent = material.barcode;
     document.getElementById('displayMaterialType').textContent = material.material_name || material.material_type || '{{ __("warehouse.undefined") }}';
 
+    materialTransferredWeight = parseFloat(material.transferred_to_production || material.production_weight || 0) || 0;
+
     // فقط إذا كان العنصر موجود (بناءً على الصلاحية)
     const weightElement = document.getElementById('displayWeight');
     if (weightElement) {
-        weightElement.textContent = (material.transferred_to_production || material.production_weight || 0) + ' ' + (material.unit_symbol || 'كجم');
+        weightElement.textContent = materialTransferredWeight + ' ' + (material.unit_symbol || 'كجم');
     }
 
     document.getElementById('materialDisplay').classList.add('active');
+    
+    const netWeightElement = document.getElementById('netWeight');
+    if (netWeightElement && !netWeightElement.value) {
+        netWeightElement.value = materialTransferredWeight ? materialTransferredWeight.toFixed(2) : '';
+    }
+    calculateWasteFromNet();
 }
 
 // Load stands from API
@@ -445,27 +454,21 @@ function loadStand() {
     showToast('✅ {{ __("stages.stand_loaded_success") }}', 'success');
 }
 
-// Calculate net weight and waste
+// Calculate net weight automatically (total - stand)
 function calculateNetWeight() {
     const total = parseFloat(document.getElementById('totalWeight').value) || 0;
     const standWeight = parseFloat(document.getElementById('standWeight').value) || 0;
 
     if (total > 0 && standWeight > 0) {
-        const net = total - standWeight;
+        // حساب الوزن الصافي تلقائياً (افتراضياً بدون هدر)
+        const netWeight = total - standWeight;
+        
         const netWeightElement = document.getElementById('netWeight');
         if (netWeightElement) {
-            netWeightElement.value = net.toFixed(2);
+            netWeightElement.value = netWeight.toFixed(2);
         }
-
-        // حساب وزن الهدر تلقائياً (الفرق بين الإجمالي والصافي والاستاند)
-        const waste = total - standWeight - net;
-        if (waste >= 0) {
-            const wasteWeightElement = document.getElementById('wasteWeight');
-            if (wasteWeightElement) {
-                wasteWeightElement.value = waste.toFixed(2);
-                calculateWastePercentage();
-            }
-        }
+        
+        calculateWasteFromNet();
     } else {
         const netWeightElement = document.getElementById('netWeight');
         if (netWeightElement) {
@@ -484,18 +487,63 @@ function calculateNetWeight() {
     }
 }
 
+// Calculate waste when user modifies net weight manually
+function calculateWasteFromNet() {
+    const total = parseFloat(document.getElementById('totalWeight').value) || 0;
+    const standWeight = parseFloat(document.getElementById('standWeight').value) || 0;
+    const netWeight = parseFloat(document.getElementById('netWeight').value) || 0;
+    
+    let referenceWeight = 0;
+    if (materialTransferredWeight > 0) {
+        referenceWeight = materialTransferredWeight;
+    } else if (total > 0 && standWeight > 0) {
+        referenceWeight = total - standWeight;
+    }
+
+    const wasteWeightElement = document.getElementById('wasteWeight');
+
+    if (referenceWeight > 0 && netWeight > 0) {
+        const wasteWeight = Math.max(0, referenceWeight - netWeight);
+
+        if (wasteWeightElement) {
+            wasteWeightElement.value = wasteWeight.toFixed(2);
+        }
+
+        calculateWastePercentage(referenceWeight);
+    } else {
+        if (wasteWeightElement) {
+            wasteWeightElement.value = '';
+        }
+
+        const wastePercentageElement = document.getElementById('wastePercentage');
+        if (wastePercentageElement) {
+            wastePercentageElement.value = '';
+        }
+    }
+}
+
 // Calculate waste percentage from weight
-function calculateWastePercentage() {
+function calculateWastePercentage(materialWeight = null) {
     const wasteWeight = parseFloat(document.getElementById('wasteWeight').value) || 0;
-    const totalWeight = parseFloat(document.getElementById('totalWeight').value) || 0;
+    
+    // إذا لم يتم تمرير الوزن المادي، احسبه من الوزن الكلي - الاستاند
+    if (!materialWeight) {
+        if (materialTransferredWeight > 0) {
+            materialWeight = materialTransferredWeight;
+        } else {
+            const totalWeight = parseFloat(document.getElementById('totalWeight').value) || 0;
+            const standWeight = parseFloat(document.getElementById('standWeight').value) || 0;
+            materialWeight = totalWeight - standWeight;
+        }
+    }
 
     const wastePercentageElement = document.getElementById('wastePercentage');
     if (wastePercentageElement) {
-        if (totalWeight > 0 && wasteWeight >= 0) {
-            const percentage = (wasteWeight / totalWeight) * 100;
+        if (materialWeight > 0 && wasteWeight >= 0) {
+            const percentage = (wasteWeight / materialWeight) * 100;
             wastePercentageElement.value = percentage.toFixed(2);
         } else {
-            wastePercentageElement.value = '0';
+            wastePercentageElement.value = '0.00';
         }
     }
 }
@@ -562,6 +610,58 @@ function addProcessedStand() {
     })
     .then(response => response.json())
     .then(data => {
+        console.log('📥 Server Response:', data);
+        
+        // 🔥 فحص pending_approval أولاً قبل success
+        if (data.pending_approval) {
+            // تم الحفظ لكن في انتظار الموافقة بسبب تجاوز نسبة الهدر
+            const processedData = {
+                id: data.data.stand_id,
+                material_id: currentMaterial.id,
+                material_barcode: currentMaterial.barcode,
+                material_type: data.data.material_name,
+                material_name: data.data.material_name,
+                stand_id: selectedStand.id,
+                stand_number: data.data.stand_number,
+                stand_weight: standWeight,
+                wire_size: 0,
+                total_weight: totalWeight,
+                net_weight: data.data.net_weight,
+                waste_weight: data.data.waste_weight,
+                waste_percentage: data.data.waste_percentage,
+                cost: 0,
+                notes: notes,
+                barcode: data.data.barcode,
+                saved: true,
+                pending_approval: true,
+                status: 'pending_approval',
+                allowed_percentage: data.data.allowed_percentage
+            };
+
+            processedStands.push(processedData);
+            renderStands();
+            clearForm();
+            saveOffline();
+            loadStandsList();
+
+            // عرض رسالة SweetAlert مع أيقونة خطأ
+            Swal.fire({
+                icon: 'error',
+                title: data.alert_title || '⛔ تم إيقاف الانتقال للمرحلة الثانية',
+                html: data.alert_message,
+                confirmButtonText: 'فهمت',
+                confirmButtonColor: '#dc3545',
+                allowOutsideClick: false,
+                width: '600px',
+                customClass: {
+                    popup: 'swal2-rtl',
+                    title: 'text-danger'
+                }
+            });
+            
+            return; // إنهاء التنفيذ هنا
+        }
+        
         if (data.success) {
             // إضافة البيانات المحفوظة مع الباركود الحقيقي
             const processedData = {
@@ -591,6 +691,58 @@ function addProcessedStand() {
             loadStandsList(); // إعادة تحميل قائمة الاستاندات المتاحة
 
             showToast('✅ {{ __("stages.stand_saved_print_now") }}', 'success');
+        } else if (data.suspended) {
+            // 🔥 تم إيقاف المرحلة بسبب تجاوز نسبة الهدر
+            Swal.fire({
+                icon: 'warning',
+                title: data.alert_title || 'تجاوز نسبة الهدر المسموح بها',
+                html: `
+                    <div style="text-align: right; direction: rtl;">
+                        <p style="font-size: 16px; margin-bottom: 15px;">${data.alert_message}</p>
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-right: 4px solid #ffc107; margin-top: 20px;">
+                            <h5 style="color: #856404; margin-bottom: 10px;">
+                                <i class="fas fa-exclamation-triangle"></i> تفاصيل الهدر:
+                            </h5>
+                            <table style="width: 100%; text-align: right;">
+                                <tr>
+                                    <td style="padding: 5px;"><strong>الوزن المدخل:</strong></td>
+                                    <td style="padding: 5px;">${data.details.input_weight} كجم</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px;"><strong>الوزن الناتج:</strong></td>
+                                    <td style="padding: 5px;">${data.details.output_weight} كجم</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px;"><strong>وزن الهدر:</strong></td>
+                                    <td style="padding: 5px; color: #dc3545;">${data.details.waste_weight} كجم</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px;"><strong>نسبة الهدر:</strong></td>
+                                    <td style="padding: 5px; color: #dc3545; font-weight: bold;">${data.details.waste_percentage}%</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px;"><strong>النسبة المسموح بها:</strong></td>
+                                    <td style="padding: 5px; color: #28a745;">${data.details.allowed_percentage}%</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; border-right: 4px solid #17a2b8; margin-top: 15px;">
+                            <p style="color: #0c5460; margin: 0;">
+                                <i class="fas fa-info-circle"></i> 
+                                <strong>تم إرسال تنبيه للإدارة للمراجعة والموافقة.</strong><br>
+                                لن تتمكن من الاستمرار في هذه المرحلة حتى تتم الموافقة من قبل المسؤولين.
+                            </p>
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'فهمت',
+                confirmButtonColor: '#3085d6',
+                width: '600px',
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'swal2-rtl'
+                }
+            });
         } else {
             throw new Error(data.message || '{{ __("stages.error_saving") }}');
         }
@@ -623,30 +775,48 @@ function renderStands() {
         return;
     }
 
-    list.innerHTML = processedStands.map(item => `
-        <div class="stand-item" style="border-right: 4px solid #27ae60;">
-            <div class="stand-info">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                    <strong style="font-size: 18px;"><i class="fas fa-check-circle" style="color: #27ae60;"></i> ${item.stand_number}</strong>
-                    <span style="background: #27ae60; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">{{ __('stages.saved_badge') }}</span>
+    list.innerHTML = processedStands.map(item => {
+        // تحديد اللون والشارة حسب الحالة
+        const isPending = item.status === 'pending_approval' || item.pending_approval === true;
+        const borderColor = isPending ? '#ffc107' : '#27ae60';
+        const iconColor = isPending ? '#ffc107' : '#27ae60';
+        const iconClass = isPending ? 'fa-clock' : 'fa-check-circle';
+        const badgeColor = isPending ? '#ffc107' : '#27ae60';
+        const badgeText = isPending ? '⏸️ في انتظار الموافقة' : '{{ __("stages.saved_badge") }}';
+        
+        return `
+            <div class="stand-item" style="border-right: 4px solid ${borderColor};">
+                <div class="stand-info">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <strong style="font-size: 18px;"><i class="fas ${iconClass}" style="color: ${iconColor};"></i> ${item.stand_number}</strong>
+                        <span style="background: ${badgeColor}; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">${badgeText}</span>
+                    </div>
+                    ${isPending ? `
+                    <div style="background: #fff3cd; border-right: 3px solid #ffc107; padding: 8px 12px; margin-bottom: 8px; border-radius: 6px;">
+                        <p style="margin: 0; color: #856404; font-size: 13px;">
+                            <i class="fas fa-exclamation-triangle"></i> <strong>تنبيه:</strong> هذا الاستاند في انتظار موافقة الإدارة بسبب تجاوز نسبة الهدر المسموح بها (${item.waste_percentage}% > ${item.allowed_percentage || '3'}%).
+                            لن يمكن استخدامه في المرحلة الثانية حتى تتم الموافقة عليه.
+                        </p>
+                    </div>
+                    ` : ''}
+                    <small style="display: block; line-height: 1.6;">
+                        <strong>{{ __('stages.material_label') }}</strong> ${item.material_name || item.material_type} |
+                        <strong>{{ __('stages.barcode_label') }}</strong> <code style="background: #f8f9fa; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${item.barcode}</code><br>
+                        <strong>{{ __('stages.total_weight_label') }}</strong> ${item.total_weight} {{ __('stages.weight_unit') }} |
+                        <strong>{{ __('stages.net_weight_label') }}</strong> ${item.net_weight} {{ __('stages.weight_unit') }} |
+                        <strong>{{ __('stages.stand_weight_label') }}</strong> ${item.stand_weight} {{ __('stages.weight_unit') }} |
+                        <strong>{{ __('stages.waste_label') }}</strong> ${item.waste_weight || 0} {{ __('stages.weight_unit') }} (<span style="color: ${isPending ? '#dc3545' : 'inherit'}; font-weight: ${isPending ? 'bold' : 'normal'};">${item.waste_percentage || 0}%</span>)
+                        ${item.notes ? '<br>📝 <strong>{{ __("stages.notes_label") }}</strong> ' + item.notes : ''}
+                    </small>
                 </div>
-                <small style="display: block; line-height: 1.6;">
-                    <strong>{{ __('stages.material_label') }}</strong> ${item.material_name || item.material_type} |
-                    <strong>{{ __('stages.barcode_label') }}</strong> <code style="background: #f8f9fa; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${item.barcode}</code><br>
-                    <strong>{{ __('stages.total_weight_label') }}</strong> ${item.total_weight} {{ __('stages.weight_unit') }} |
-                    <strong>{{ __('stages.net_weight_label') }}</strong> ${item.net_weight} {{ __('stages.weight_unit') }} |
-                    <strong>{{ __('stages.stand_weight_label') }}</strong> ${item.stand_weight} {{ __('stages.weight_unit') }} |
-                    <strong>{{ __('stages.waste_label') }}</strong> ${item.waste_weight || 0} {{ __('stages.weight_unit') }} (${item.waste_percentage || 0}%)
-                    ${item.notes ? '<br>📝 <strong>{{ __("stages.notes_label") }}</strong> ' + item.notes : ''}
-                </small>
+                <div class="stand-actions" style="display: flex; gap: 8px;">
+                    <button class="btn-print" onclick='printStandBarcode(${JSON.stringify(item).replace(/'/g, "\\'")})' style="background: ${badgeColor};">
+                        <i class="fas fa-print"></i> {{ __('stages.print_barcode_button') }}
+                    </button>
+                </div>
             </div>
-            <div class="stand-actions" style="display: flex; gap: 8px;">
-                <button class="btn-print" onclick='printStandBarcode(${JSON.stringify(item).replace(/'/g, "\\'")})' style="background: #27ae60;">
-                    <i class="fas fa-print"></i> {{ __('stages.print_barcode_button') }}
-                </button>
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function finishOperation() {

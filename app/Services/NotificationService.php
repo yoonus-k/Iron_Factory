@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Notification;
+use App\Models\StageSuspension;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -295,6 +296,84 @@ class NotificationService
             $icon,
             $actionUrl,
             $metadata
+        );
+    }
+
+    /**
+     * Notify admins when a stage is suspended due to waste limit exceed
+     */
+    public function notifyStageSuspensionTriggered(User $user, StageSuspension $suspension)
+    {
+        $stageName = $suspension->getStageName();
+        $wastePercentage = number_format($suspension->waste_percentage, 2);
+        $allowedPercentage = number_format($suspension->allowed_percentage, 2);
+
+        $message = sprintf(
+            'تم إيقاف %s للدفعة %s بسبب نسبة هدر %s%% (المسموح %s%%).',
+            $stageName,
+            $suspension->batch_barcode,
+            $wastePercentage,
+            $allowedPercentage
+        );
+
+        return $this->create(
+            $user,
+            'stage_waste_exceeded',
+            'تنبيه: تم إيقاف ' . $stageName,
+            $message,
+            'suspend',
+            'StageSuspension',
+            $suspension->id,
+            'danger',
+            'feather icon-alert-triangle',
+            route('stage-suspensions.index', ['stage' => $suspension->stage_number, 'status' => 'suspended']),
+            [
+                'suspension_id' => $suspension->id,
+                'stage_number' => $suspension->stage_number,
+                'batch_barcode' => $suspension->batch_barcode,
+                'waste_percentage' => $suspension->waste_percentage,
+                'allowed_percentage' => $suspension->allowed_percentage,
+            ]
+        );
+    }
+
+    /**
+     * Notify admins when a suspension gets reviewed (approved/rejected)
+     */
+    public function notifyStageSuspensionReviewed(User $user, StageSuspension $suspension, string $action, ?User $reviewer = null)
+    {
+        $stageName = $suspension->getStageName();
+        $reviewerName = $reviewer ? $reviewer->name : 'الإدارة';
+
+        $isApproved = $action === 'approved';
+        $title = $isApproved
+            ? 'تمت الموافقة على استئناف ' . $stageName
+            : 'تم رفض استئناف ' . $stageName;
+
+        $message = $isApproved
+            ? sprintf('تمت الموافقة على استئناف %s للدفعة %s بواسطة %s.', $stageName, $suspension->batch_barcode, $reviewerName)
+            : sprintf('تم رفض استئناف %s للدفعة %s بواسطة %s.', $stageName, $suspension->batch_barcode, $reviewerName);
+
+        $color = $isApproved ? 'success' : 'danger';
+        $icon = $isApproved ? 'feather icon-check-circle' : 'feather icon-x-circle';
+
+        return $this->create(
+            $user,
+            'stage_suspension_reviewed',
+            $title,
+            $message,
+            'review',
+            'StageSuspension',
+            $suspension->id,
+            $color,
+            $icon,
+            route('stage-suspensions.index', ['stage' => $suspension->stage_number]),
+            [
+                'suspension_id' => $suspension->id,
+                'stage_number' => $suspension->stage_number,
+                'batch_barcode' => $suspension->batch_barcode,
+                'review_action' => $action,
+            ]
         );
     }
 

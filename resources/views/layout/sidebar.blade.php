@@ -99,6 +99,20 @@
                     </li>
                     @endif
 
+                    @if(auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW'))
+                    <li>
+                        <a href="{{ route('stage-suspensions.index') }}">
+                            <i class="fas fa-pause-circle"></i> المراحل الموقوفة
+                            @php
+                                $pendingSuspensions = \App\Models\StageSuspension::where('status', 'suspended')->count();
+                            @endphp
+                            @if($pendingSuspensions > 0)
+                                <span class="badge badge-danger" style="margin-right: 5px;">{{ $pendingSuspensions }}</span>
+                            @endif
+                        </a>
+                    </li>
+                    @endif
+
                     @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_READ'))
                     <li>
                         <a href="{{ route('manufacturing.warehouse-intake.index') }}">
@@ -526,6 +540,22 @@
             </li>
             @endif
 
+            <!-- مراقبة الهدر والمراحل الموقوفة -->
+            @if(auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW'))
+            <li>
+                <a href="{{ route('stage-suspensions.index') }}" data-tooltip="المراحل الموقوفة">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>المراحل الموقوفة</span>
+                    @php
+                        $pendingSuspensions = \DB::table('stage_suspensions')->where('status', 'suspended')->count();
+                    @endphp
+                    @if($pendingSuspensions > 0)
+                    <span class="badge bg-danger" style="margin-right: 5px;">{{ $pendingSuspensions }}</span>
+                    @endif
+                </a>
+            </li>
+            @endif
+
             <!-- {{ __('app.menu.management') }} -->
             @if(auth()->user()->hasPermission('MENU_MANAGEMENT') || auth()->user()->hasPermission('MENU_MANAGE_USERS'))
             <li class="has-submenu">
@@ -592,7 +622,7 @@
                 <ul class="submenu">
                     @if(auth()->user()->hasPermission('SETTINGS_GENERAL'))
                     <li>
-                        <a href="#">
+                        <a href="{{ route('settings.index') }}">
                             <i class="fas fa-sliders-h"></i> {{ __('app.settings.general') }}
                         </a>
                     </li>
