@@ -303,68 +303,23 @@
             </li>
             @endif
 
-            <!-- تأكيدات التسليم -->
-            @if(auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS'))
+            <!-- التسليم والعملاء -->
+            @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES') || auth()->user()->hasPermission('MENU_CUSTOMERS') || auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS') || auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW'))
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="تأكيدات التسليم">
-                    <i class="fas fa-check-circle"></i>
-                    <span>تأكيدات التسليم</span>
-                    <i class="fas fa-chevron-down arrow"></i>
-                </a>
-                <ul class="submenu">
-                    <li>
-                        <a href="{{ route('manufacturing.production.confirmations.index') }}">
-                            <i class="fas fa-list"></i> جميع التأكيدات
-                        </a>
-                    </li>
-                    @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_APPROVE'))
-                    <li>
-                        <a href="{{ route('manufacturing.finished-product-deliveries.pending-approval') }}">
-                            <i class="fas fa-clock"></i> التأكيدات المعلقة
-                            @php
-                                $pendingDeliveryCount = \App\Models\DeliveryNote::where('status', 'pending')
-                                    ->where('type', 'finished_product_outgoing')
-                                    ->count();
-                            @endphp
-                            @if($pendingDeliveryCount > 0)
-                                <span class="badge badge-danger" style="margin-right: 5px;">{{ $pendingDeliveryCount }}</span>
-                            @endif
-                        </a>
-                    </li>
-                    @endif
-                </ul>
-            </li>
-            @endif
-
-            <!-- المراحل الموقوفة -->
-            @if(auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW'))
-            <li>
-                <a href="{{ route('stage-suspensions.index') }}" data-tooltip="المراحل الموقوفة">
-                    <i class="fas fa-pause-circle"></i>
-                    <span>المراحل الموقوفة</span>
-                    @php
-                        $suspendedStagesCount = \App\Models\StageSuspension::where('status', 'suspended')->count();
-                    @endphp
-                    @if($suspendedStagesCount > 0)
-                    <span class="badge bg-danger" style="margin-right: 5px;">{{ $suspendedStagesCount }}</span>
-                    @endif
-                </a>
-            </li>
-            @endif
-
-            <!-- {{ __('app.menu.finished_products') }} -->
-            @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES') || auth()->user()->hasPermission('MENU_CUSTOMERS'))
-            <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.finished_products') }}">
-                    <i class="fas fa-truck-loading"></i>
-                    <span>{{ __('app.menu.finished_products') }}</span>
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="التسليم والعملاء">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>التسليم والعملاء</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES'))
+                    <li class="submenu-header"><span>إذونات الصرف</span></li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES'))
                     <li>
                         <a href="{{ route('manufacturing.finished-product-deliveries.index') }}">
-                            <i class="fas fa-box-open"></i> إذونات الصرف
+                            <i class="fas fa-list"></i> جميع الإذونات
                         </a>
                     </li>
                     @endif
@@ -377,10 +332,54 @@
                     </li>
                     @endif
 
+                    @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_APPROVE'))
+                    <li>
+                        <a href="{{ route('manufacturing.finished-product-deliveries.pending-approval') }}">
+                            <i class="fas fa-clock"></i> الإذونات المعلقة
+                            @php
+                                $pendingDeliveryCount = \App\Models\DeliveryNote::where('status', 'pending')
+                                    ->where('type', 'finished_product_outgoing')
+                                    ->count();
+                            @endphp
+                            @if($pendingDeliveryCount > 0)
+                                <span class="badge badge-danger" style="margin-right: 5px;">{{ $pendingDeliveryCount }}</span>
+                            @endif
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS'))
+                    <li class="submenu-header" style="margin-top: 10px;"><span>التأكيدات والمتابعة</span></li>
+                    
+                    <li>
+                        <a href="{{ route('manufacturing.production.confirmations.index') }}">
+                            <i class="fas fa-check-circle"></i> تأكيدات التسليم
+                        </a>
+                    </li>
+                    @endif
+
                     @if(auth()->user()->hasPermission('MENU_CUSTOMERS'))
+                    <li class="submenu-header" style="margin-top: 10px;"><span>إدارة العملاء</span></li>
+                    
                     <li>
                         <a href="{{ route('customers.index') }}">
-                            <i class="fas fa-users"></i> إدارة العملاء
+                            <i class="fas fa-users"></i> قائمة العملاء
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW'))
+                    <li class="submenu-header" style="margin-top: 10px;"><span>المراحل الإنتاجية</span></li>
+                    
+                    <li>
+                        <a href="{{ route('stage-suspensions.index') }}">
+                            <i class="fas fa-pause-circle"></i> المراحل الموقوفة
+                            @php
+                                $suspendedStagesCount = \App\Models\StageSuspension::where('status', 'suspended')->count();
+                            @endphp
+                            @if($suspendedStagesCount > 0)
+                                <span class="badge badge-danger" style="margin-right: 5px;">{{ $suspendedStagesCount }}</span>
+                            @endif
                         </a>
                     </li>
                     @endif
