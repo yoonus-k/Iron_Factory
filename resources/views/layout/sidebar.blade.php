@@ -91,55 +91,35 @@
                     </li>
                     @endif
 
-                    @if(auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS'))
-                    <li>
-                        <a href="{{ route('manufacturing.production.confirmations.index') }}">
-                            <i class="fas fa-check-circle"></i> تأكيدات التسليم
-                        </a>
-                    </li>
-                    @endif
-
-                    @if(auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW'))
-                    <li>
-                        <a href="{{ route('stage-suspensions.index') }}">
-                            <i class="fas fa-pause-circle"></i> المراحل الموقوفة
-                            @php
-                                $pendingSuspensions = \App\Models\StageSuspension::where('status', 'suspended')->count();
-                            @endphp
-                            @if($pendingSuspensions > 0)
-                                <span class="badge badge-danger" style="margin-right: 5px;">{{ $pendingSuspensions }}</span>
-                            @endif
-                        </a>
-                    </li>
-                    @endif
-
-                    @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_READ'))
-                    <li>
-                        <a href="{{ route('manufacturing.warehouse-intake.index') }}">
+                    @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_READ') || auth()->user()->hasPermission('WAREHOUSE_INTAKE_APPROVE'))
+                    <li class="submenu-item has-submenu">
+                        <a href="javascript:void(0)" class="submenu-toggle">
                             <i class="fas fa-dolly"></i> طلبات إدخال المستودع
+                            <i class="fas fa-chevron-down arrow"></i>
                         </a>
-                    </li>
-                    @endif
-
-                    @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_APPROVE'))
-                    <li>
-                        <a href="{{ route('manufacturing.warehouse-intake.pending-approval') }}">
-                            <i class="fas fa-clipboard-check"></i> اعتماد طلبات الإدخال
-                            @php
-                                $pendingIntakeCount = \App\Models\WarehouseIntakeRequest::where('status', 'pending')->count();
-                            @endphp
-                            @if($pendingIntakeCount > 0)
-                                <span class="badge badge-danger" style="margin-right: 5px;">{{ $pendingIntakeCount }}</span>
+                        <ul class="submenu">
+                            @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_READ'))
+                            <li>
+                                <a href="{{ route('manufacturing.warehouse-intake.index') }}">
+                                    <i class="fas fa-list"></i> جميع الطلبات
+                                </a>
+                            </li>
                             @endif
-                        </a>
-                    </li>
-                    @endif
 
-                    @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_READ'))
-                    <li>
-                        <a href="{{ route('manufacturing.finished-product-deliveries.index') }}">
-                            <i class="fas fa-truck-loading"></i> إذونات صرف المنتجات
-                        </a>
+                            @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_APPROVE'))
+                            <li>
+                                <a href="{{ route('manufacturing.warehouse-intake.pending-approval') }}">
+                                    <i class="fas fa-clipboard-check"></i> الطلبات المعلقة
+                                    @php
+                                        $pendingIntakeCount = \App\Models\WarehouseIntakeRequest::where('status', 'pending')->count();
+                                    @endphp
+                                    @if($pendingIntakeCount > 0)
+                                        <span class="badge badge-danger" style="margin-right: 5px;">{{ $pendingIntakeCount }}</span>
+                                    @endif
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
                     </li>
                     @endif
 
@@ -323,6 +303,55 @@
             </li>
             @endif
 
+            <!-- تأكيدات التسليم -->
+            @if(auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS'))
+            <li class="has-submenu">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="تأكيدات التسليم">
+                    <i class="fas fa-check-circle"></i>
+                    <span>تأكيدات التسليم</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="{{ route('manufacturing.production.confirmations.index') }}">
+                            <i class="fas fa-list"></i> جميع التأكيدات
+                        </a>
+                    </li>
+                    @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_APPROVE'))
+                    <li>
+                        <a href="{{ route('manufacturing.finished-product-deliveries.pending-approval') }}">
+                            <i class="fas fa-clock"></i> التأكيدات المعلقة
+                            @php
+                                $pendingDeliveryCount = \App\Models\DeliveryNote::where('status', 'pending')
+                                    ->where('type', 'finished_product_outgoing')
+                                    ->count();
+                            @endphp
+                            @if($pendingDeliveryCount > 0)
+                                <span class="badge badge-danger" style="margin-right: 5px;">{{ $pendingDeliveryCount }}</span>
+                            @endif
+                        </a>
+                    </li>
+                    @endif
+                </ul>
+            </li>
+            @endif
+
+            <!-- المراحل الموقوفة -->
+            @if(auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW'))
+            <li>
+                <a href="{{ route('stage-suspensions.index') }}" data-tooltip="المراحل الموقوفة">
+                    <i class="fas fa-pause-circle"></i>
+                    <span>المراحل الموقوفة</span>
+                    @php
+                        $suspendedStagesCount = \App\Models\StageSuspension::where('status', 'suspended')->count();
+                    @endphp
+                    @if($suspendedStagesCount > 0)
+                    <span class="badge bg-danger" style="margin-right: 5px;">{{ $suspendedStagesCount }}</span>
+                    @endif
+                </a>
+            </li>
+            @endif
+
             <!-- {{ __('app.menu.finished_products') }} -->
             @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES') || auth()->user()->hasPermission('MENU_CUSTOMERS'))
             <li class="has-submenu">
@@ -344,14 +373,6 @@
                     <li>
                         <a href="{{ route('manufacturing.finished-product-deliveries.create') }}">
                             <i class="fas fa-plus-circle"></i> إنشاء إذن صرف
-                        </a>
-                    </li>
-                    @endif
-
-                    @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_APPROVE'))
-                    <li>
-                        <a href="{{ route('manufacturing.finished-product-deliveries.pending-approval') }}">
-                            <i class="fas fa-clock"></i> الإذونات المعلقة
                         </a>
                     </li>
                     @endif
@@ -541,7 +562,7 @@
             @endif
 
             <!-- مراقبة الهدر والمراحل الموقوفة -->
-            @if(auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW'))
+            @if(false) {{-- Removed duplicate, now under production section --}}
             <li>
                 <a href="{{ route('stage-suspensions.index') }}" data-tooltip="المراحل الموقوفة">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -769,20 +790,67 @@
     .submenu li a:hover {
         background: #e5e7eb;
     }
+
+    /* Nested submenu styles */
+    .submenu .submenu-item.has-submenu > a {
+        display: flex;
+        align-items: center;
+        padding: 10px 20px 10px 52px;
+    }
+
+    .submenu .submenu-item.has-submenu > a .arrow {
+        margin-right: auto;
+        margin-left: 8px;
+        font-size: 0.75rem;
+        transition: transform 0.3s ease;
+    }
+
+    .submenu .submenu-item.has-submenu.active > a .arrow {
+        transform: rotate(180deg);
+    }
+
+    .submenu .submenu-item .submenu {
+        background: #f3f4f6;
+    }
+
+    .submenu .submenu-item .submenu li a {
+        padding: 8px 20px 8px 68px;
+        font-size: 0.85rem;
+    }
+
+    .submenu .submenu-item .submenu li a:hover {
+        background: #d1d5db;
+    }
+
+    /* Badge styles */
+    .badge {
+        display: inline-block;
+        padding: 2px 6px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        line-height: 1;
+        border-radius: 10px;
+        background-color: #ef4444;
+        color: #fff;
+    }
+
+    .badge-danger, .bg-danger {
+        background-color: #ef4444;
+    }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle submenu toggle
-        const submenuToggles = document.querySelectorAll('.submenu-toggle');
+        // Handle main submenu toggle
+        const submenuToggles = document.querySelectorAll('.sidebar-menu > ul > .has-submenu > .submenu-toggle');
 
         submenuToggles.forEach(toggle => {
             toggle.addEventListener('click', function(e) {
                 e.preventDefault();
                 const parent = this.closest('.has-submenu');
 
-                // Close other submenus
-                document.querySelectorAll('.has-submenu').forEach(item => {
+                // Close other main submenus
+                document.querySelectorAll('.sidebar-menu > ul > .has-submenu').forEach(item => {
                     if (item !== parent) {
                         item.classList.remove('active');
                     }
@@ -793,13 +861,38 @@
             });
         });
 
+        // Handle nested submenu toggle (submenu within submenu)
+        const nestedSubmenuToggles = document.querySelectorAll('.submenu .submenu-item.has-submenu > .submenu-toggle');
+
+        nestedSubmenuToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation(); // Prevent parent menu from closing
+                const parent = this.closest('.submenu-item.has-submenu');
+
+                // Close other nested submenus at same level
+                const parentSubmenu = parent.closest('.submenu');
+                parentSubmenu.querySelectorAll(':scope > .submenu-item.has-submenu').forEach(item => {
+                    if (item !== parent) {
+                        item.classList.remove('active');
+                    }
+                });
+
+                // Toggle current nested submenu
+                parent.classList.toggle('active');
+            });
+        });
+
         // Keep active menu item's parent open
         const activeLink = document.querySelector('.submenu a[href="' + window.location.pathname + '"]');
         if (activeLink) {
             activeLink.classList.add('active');
-            const parentSubmenu = activeLink.closest('.has-submenu');
-            if (parentSubmenu) {
+            
+            // Open all parent menus
+            let parentSubmenu = activeLink.closest('.has-submenu');
+            while (parentSubmenu) {
                 parentSubmenu.classList.add('active');
+                parentSubmenu = parentSubmenu.parentElement.closest('.has-submenu');
             }
         }
     });

@@ -4,6 +4,9 @@
 
 @section('content')
 
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
     :root{
         --brand-1: #9b59b6;
@@ -155,7 +158,7 @@
         </div>
 
         <div class="button-group">
-            <button type="button" class="btn-primary" onclick="addLafaf()">
+            <button type="button" class="btn-primary" onclick="addLafaf(this)">
                 <i class="fas fa-plus"></i> {{ __('stages.stage3_add_lafaf_button') }}
             </button>
             <button type="button" class="btn-secondary" onclick="clearForm()">
@@ -200,29 +203,81 @@ let currentStage2 = null;
 let lafafs = [];
 
 // Barcode scanner
-document.getElementById('stage2Barcode').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        loadStage2(this.value.trim());
-        this.value = '';
+document.addEventListener('DOMContentLoaded', function() {
+    const barcodeInput = document.getElementById('stage2Barcode');
+    
+    if (barcodeInput) {
+        console.log('✅ Barcode input found and event listener attached');
+        
+        barcodeInput.addEventListener('keypress', function(e) {
+            console.log('🔑 Key pressed:', e.key, 'Value:', this.value);
+            
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const barcode = this.value.trim();
+                console.log('📦 Loading barcode:', barcode);
+                loadStage2(barcode);
+                this.value = '';
+            }
+        });
+    } else {
+        console.error('❌ Barcode input not found!');
+    }
+    
+    // Auto-calculate added weight
+    const totalWeightInput = document.getElementById('totalWeight');
+    if (totalWeightInput) {
+        totalWeightInput.addEventListener('input', calculateAddedWeight);
+        console.log('✅ Total weight input listener attached');
+    } else {
+        console.error('❌ Total weight input not found!');
     }
 });
 
-// Auto-calculate added weight
-document.getElementById('totalWeight').addEventListener('input', calculateAddedWeight);
-
 function loadStage2(barcode) {
+    console.log('🚀 loadStage2 called with barcode:', barcode);
+    
     if (!barcode) {
         alert('{{ __('stages.stage3_please_enter_barcode') }}');
         return;
     }
 
+    console.log('📡 Fetching:', `/stage3/get-stage2-by-barcode/${barcode}`);
+    
     fetch(`/stage3/get-stage2-by-barcode/${barcode}`)
         .then(response => {
-            if (!response.ok) throw new Error('{{ __('stages.stage3_data_not_found') }}');
+            // التعامل مع الاستجابات غير الناجحة
+            if (!response.ok) {
+                return response.json().then(data => {
+                    // رمي الخطأ مع البيانات الكاملة
+                    const error = { 
+                        blocked: data.blocked || false, 
+                        message: data.message || '{{ __('stages.stage3_data_not_found') }}' 
+                    };
+                    throw error;
+                });
+            }
             return response.json();
         })
         .then(result => {
-            if (!result.success) throw new Error(result.message);
+            // التحقق من حالة blocked
+            if (result && result.blocked) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '⛔ غير مسموح',
+                    text: result.message,
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#dc3545',
+                    allowOutsideClick: false,
+                    customClass: {
+                        popup: 'swal2-rtl'
+                    }
+                });
+                document.getElementById('stage2Barcode').focus();
+                return;
+            }
+            
+            if (result && !result.success) throw { message: result.message };
 
             const data = result.data;
             const source = result.source || 'stage2';
@@ -237,11 +292,31 @@ function loadStage2(barcode) {
                 source: source
             };
 
-            // Display stage2 data
-            document.getElementById('displayBarcode').textContent = currentStage2.barcode;
-            document.getElementById('displayStand').textContent = currentStage2.stand_number;
-            document.getElementById('displayWeight').textContent = currentStage2.output_weight + ' {{ __('stages.kg_unit') }}';
-            document.getElementById('stage2Display').classList.add('active');
+            // Display stage2 data safely
+            const barcodeElement = document.getElementById('displayBarcode');
+            if (barcodeElement) {
+                barcodeElement.textContent = currentStage2.barcode;
+            }
+
+            const standElement = document.getElementById('displayStand');
+            if (standElement) {
+                standElement.textContent = currentStage2.stand_number;
+            }
+
+            const materialElement = document.getElementById('displayMaterial');
+            if (materialElement) {
+                materialElement.textContent = currentStage2.material_name;
+            }
+
+            const weightElement = document.getElementById('displayWeight');
+            if (weightElement) {
+                weightElement.textContent = currentStage2.output_weight + ' {{ __('stages.kg_unit') }}';
+            }
+
+            const stage2DisplayElement = document.getElementById('stage2Display');
+            if (stage2DisplayElement) {
+                stage2DisplayElement.classList.add('active');
+            }
 
             // Fill input weight
             document.getElementById('inputWeight').value = currentStage2.output_weight;
@@ -255,7 +330,22 @@ function loadStage2(barcode) {
             showToast('{{ __('stages.stage3_stage2_loaded_success') }}', 'success');
         })
         .catch(error => {
-            alert('{{ __('stages.stage3_error_label') }}' + error.message);
+            const errorMessage = error.message || '{{ __('stages.stage3_error_label') }}' + error;
+            if (error.blocked) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '⛔ غير مسموح',
+                    text: errorMessage,
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#dc3545',
+                    allowOutsideClick: false,
+                    customClass: {
+                        popup: 'swal2-rtl'
+                    }
+                });
+            } else {
+                alert(errorMessage);
+            }
             document.getElementById('stage2Barcode').focus();
         });
 }
@@ -279,7 +369,7 @@ function calculateAddedWeight() {
     }
 }
 
-function addLafaf() {
+function addLafaf(button = null) {
     if (!currentStage2) {
         alert('{{ __('stages.stage3_please_load_stage2_first') }}');
         document.getElementById('stage2Barcode').focus();
@@ -317,7 +407,7 @@ function addLafaf() {
     };
 
     // حفظ فوري للفاف
-    const addBtn = event.target;
+    const addBtn = button || document.querySelector('.btn-primary[onclick*="addLafaf"]');
     addBtn.disabled = true;
     addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {{ __('stages.stage3_saving') }}...';
 
@@ -357,7 +447,7 @@ function addLafaf() {
         } else {
             throw new Error(result.message || '{{ __('stages.stage3_error_saving_lafaf') }}');
         }
-    }})
+    })
     .catch(error => {
         alert('{{ __('stages.stage3_error_label') }}' + error.message);
     })
@@ -494,6 +584,11 @@ function showToast(message, type = 'info') {
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
+
+// جعل الدوال متاحة للأزرار في الواجهة
+window.addLafaf = addLafaf;
+window.clearForm = clearForm;
+window.finishOperation = finishOperation;
 </script>
 
 @endsection

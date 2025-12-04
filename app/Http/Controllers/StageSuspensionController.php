@@ -77,6 +77,26 @@ class StageSuspensionController extends Controller
                 'review_notes' => $request->review_notes,
             ]);
 
+            // 🔥 تحديث حالة الاستاندات المرتبطة بهذا الإيقاف
+            // تغيير الحالة من pending_approval إلى created/in_progress
+            if ($suspension->stage_number == 1) {
+                DB::table('stage1_stands')
+                    ->where('parent_barcode', $suspension->batch_barcode)
+                    ->where('status', 'pending_approval')
+                    ->update([
+                        'status' => 'created',
+                        'updated_at' => now()
+                    ]);
+            } elseif ($suspension->stage_number == 2) {
+                DB::table('stage2_processed')
+                    ->where('parent_barcode', $suspension->batch_barcode)
+                    ->where('status', 'pending_approval')
+                    ->update([
+                        'status' => 'in_progress',
+                        'updated_at' => now()
+                    ]);
+            }
+
             // Send notification to the worker that stage is resumed
             $this->sendResumeNotification($suspension, 'approved');
 

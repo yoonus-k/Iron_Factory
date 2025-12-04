@@ -127,9 +127,21 @@ class Stage1Controller extends Controller
             }
 
             // 🔥 فحص نسبة الهدر قبل الحفظ
-            // الوزن الفعلي للمادة (بدون وزن الاستاند)
-            $materialWeight = $validated['total_weight'] - $standWeight;
-            $outputWeight = $netWeight;
+            // الحساب الصحيح:
+            // inputWeight = الوزن الصافي + وزن الهدر (المادة الفعلية المستخدمة)
+            // outputWeight = الوزن الصافي (ما تبقى بعد التصنيع)
+            // waste = inputWeight - outputWeight
+            $outputWeight = $netWeight; // المادة الخارجة
+            $wasteWeight = $validated['waste_weight'] ?? 0; // الهدر
+            $materialWeight = $outputWeight + $wasteWeight; // المادة الداخلة الفعلية
+            
+            \Log::info('Waste Calculation Check', [
+                'net_weight' => $outputWeight,
+                'waste_weight' => $wasteWeight,
+                'material_weight' => $materialWeight,
+                'total_weight' => $validated['total_weight'],
+                'stand_weight' => $standWeight,
+            ]);
             
             $wasteCheck = WasteCheckService::checkAndSuspend(
                 stageNumber: 1,

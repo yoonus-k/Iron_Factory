@@ -65,6 +65,7 @@
                             <select name="status" class="um-form-control">
                                 <option value="">{{ __('stages.all_statuses') }}</option>
                                 <option value="created" {{ request('status') == 'created' ? 'selected' : '' }}>{{ __('stages.stand_status_created') }}</option>
+                                <option value="pending_approval" {{ request('status') == 'pending_approval' ? 'selected' : '' }}>⏸️ في انتظار الموافقة</option>
                                 <option value="in_process" {{ request('status') == 'in_process' ? 'selected' : '' }}>{{ __('stages.stand_status_in_process') }}</option>
                                 <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>{{ __('stages.stand_status_completed') }}</option>
                                 <option value="consumed" {{ request('status') == 'consumed' ? 'selected' : '' }}>{{ __('stages.consumed') }}</option>
@@ -131,7 +132,9 @@
                                 @endif
                             </td>
                             <td>
-                                @if($stand->status == 'created')
+                                @if($stand->status == 'pending_approval')
+                                <span class="um-badge" style="background: #ff9800; color: white;">⏸️ في انتظار الموافقة</span>
+                                @elseif($stand->status == 'created')
                                 <span class="um-badge um-badge-info">{{ __('stages.stand_status_created') }}</span>
                                 @elseif($stand->status == 'in_process')
                                 <span class="um-badge um-badge-warning">{{ __('stages.stand_status_in_process') }}</span>
@@ -185,7 +188,9 @@
                                 <span class="um-category-id">#{{ $stand->barcode }}</span>
                             </div>
                         </div>
-                        @if($stand->status == 'created')
+                        @if($stand->status == 'pending_approval')
+                        <span class="um-badge" style="background: #ff9800; color: white;">⏸️ في انتظار الموافقة</span>
+                        @elseif($stand->status == 'created')
                         <span class="um-badge um-badge-info">{{ __('stages.stand_status_created') }}</span>
                         @elseif($stand->status == 'in_process')
                         <span class="um-badge um-badge-warning">{{ __('stages.stand_status_in_process') }}</span>

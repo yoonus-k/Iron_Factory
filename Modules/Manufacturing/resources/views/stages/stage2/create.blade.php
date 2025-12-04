@@ -240,10 +240,32 @@ function loadStand(barcode) {
     // Fetch data from API - استخدام stage2 للحصول على البيانات من المصدرين
     fetch(`/stage2/get-by-barcode/${barcode}`)
         .then(response => {
-            if (!response.ok) throw new Error('لم يتم العثور على البيانات');
+            // التعامل مع الاستجابات غير الناجحة
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'لم يتم العثور على البيانات');
+                });
+            }
             return response.json();
         })
         .then(result => {
+            // التحقق من حالة blocked
+            if (result.blocked) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '⛔ غير مسموح',
+                    text: result.message,
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#dc3545',
+                    allowOutsideClick: false,
+                    customClass: {
+                        popup: 'swal2-rtl'
+                    }
+                });
+                document.getElementById('standBarcode').focus();
+                return;
+            }
+            
             if (!result.success) throw new Error(result.message);
 
             const data = result.data;
@@ -383,6 +405,52 @@ function addProcessed() {
     })
     .then(response => response.json())
     .then(result => {
+        console.log('📥 Server Response:', result);
+        
+        // 🔥 فحص pending_approval أولاً قبل success
+        if (result.pending_approval) {
+            // تم الحفظ لكن في انتظار الموافقة بسبب تجاوز نسبة الهدر
+            const processed = {
+                id: result.data.stage2_id,
+                stand_number: result.data.stand_number,
+                barcode: result.data.barcode,
+                stage1_barcode: currentStand.barcode,
+                process_type: processType,
+                total_weight: parseFloat(outputWeight),
+                waste_weight: parseFloat(wasteAmount),
+                net_weight: result.data.net_weight,
+                material_name: result.data.material_name,
+                process_details: processDetails,
+                notes: notes,
+                saved: true,
+                pending_approval: true,
+                status: 'pending_approval'
+            };
+
+            processedItems.push(processed);
+            renderProcessed();
+            clearForm();
+
+            // عرض رسالة SweetAlert مع أيقونة خطأ
+            Swal.fire({
+                icon: 'error',
+                title: result.alert_title || '⛔ تم إيقاف الانتقال للمرحلة الثالثة',
+                html: result.alert_message,
+                confirmButtonText: 'فهمت',
+                confirmButtonColor: '#dc3545',
+                allowOutsideClick: false,
+                width: '600px',
+                customClass: {
+                    popup: 'swal2-rtl',
+                    title: 'text-danger'
+                }
+            });
+            
+            // Focus on barcode for next scan
+            document.getElementById('standBarcode').focus();
+            return; // إنهاء التنفيذ هنا
+        }
+        
         if (result.success) {
             // إضافة إلى القائمة المحلية مع الباركود الحقيقي
             const processed = {
