@@ -1,35 +1,35 @@
 @extends('master')
 
-@section('title', 'تفاصيل التأكيد')
+@section('title', __('app.production_confirmations.show_title'))
 
 @section('content')
 <div class="container-fluid" style="padding: 20px; direction: rtl; font-family: 'Cairo', sans-serif;">
-    
+
     <!-- العنوان الرئيسي -->
     <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); padding: 30px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <h1 style="color: white; margin: 0 0 10px 0; font-size: 32px; font-weight: bold;">
-                    📋 تفاصيل التأكيد
+                    📋 {{ __('app.production_confirmations.show_title') }}
                 </h1>
                 <p style="color: rgba(255, 255, 255, 0.9); margin: 0; font-size: 16px;">
-                    معلومات كاملة عن طلب التأكيد
+                    {{ __('app.production_confirmations.show_subtitle') }}
                 </p>
             </div>
-            
+
             <!-- الحالة الكبيرة -->
             <div>
                 @if($confirmation->status == 'pending')
                     <div style="background: #f39c12; color: white; padding: 15px 30px; border-radius: 12px; font-weight: bold; font-size: 20px; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);">
-                        ⏳ معلق
+                        ⏳ {{ __('app.production_confirmations.pending') }}
                     </div>
                 @elseif($confirmation->status == 'confirmed')
                     <div style="background: #27ae60; color: white; padding: 15px 30px; border-radius: 12px; font-weight: bold; font-size: 20px; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);">
-                        ✓ مؤكد
+                        ✓ {{ __('app.production_confirmations.confirmed') }}
                     </div>
                 @else
                     <div style="background: #e74c3c; color: white; padding: 15px 30px; border-radius: 12px; font-weight: bold; font-size: 20px; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);">
-                        ✕ مرفوض
+                        ✕ {{ __('app.production_confirmations.rejected') }}
                     </div>
                 @endif
             </div>
@@ -38,51 +38,51 @@
 
     <!-- زر العودة والأزرار -->
     <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
-        <a href="{{ route('manufacturing.production.confirmations.index') }}" 
+        <a href="{{ route('manufacturing.production.confirmations.index') }}"
            style="background: #95a5a6; color: white; text-decoration: none; padding: 12px 25px; border-radius: 10px; font-weight: bold; display: inline-block; transition: all 0.3s;"
            onmouseover="this.style.background='#7f8c8d'"
            onmouseout="this.style.background='#95a5a6'">
-            ← العودة للقائمة
+            {{ __('app.production_confirmations.back_arrow') }}
         </a>
-        
+
         @if($confirmation->status == 'pending' && $confirmation->assigned_to == auth()->id())
-            <form action="{{ route('manufacturing.production.confirmations.confirm', $confirmation->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('هل أنت متأكد من تأكيد الاستلام؟')">
+            <form action="{{ route('manufacturing.production.confirmations.confirm', $confirmation->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('{{ __('app.production_confirmations.confirm_sure') }}')">
                 @csrf
                 <button type="submit" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); color: white; border: none; padding: 12px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: all 0.3s;"
                         onmouseover="this.style.background='linear-gradient(135deg, #1e7e34 0%, #155724 100%)'"
                         onmouseout="this.style.background='linear-gradient(135deg, #28a745 0%, #1e7e34 100%)'">
-                    ✓ تأكيد الاستلام
+                    ✓ {{ __('app.production_confirmations.confirm_receipt') }}
                 </button>
             </form>
-            
+
             <button type="button" data-bs-toggle="modal" data-bs-target="#rejectModal"
                     style="background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%); color: white; border: none; padding: 12px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: all 0.3s;"
                     onmouseover="this.style.background='linear-gradient(135deg, #bd2130 0%, #a71d2a 100%)'"
                     onmouseout="this.style.background='linear-gradient(135deg, #dc3545 0%, #bd2130 100%)'">
-                ✕ رفض الاستلام
+                ✕ {{ __('app.production_confirmations.reject_receipt') }}
             </button>
         @endif
     </div>
-    
+
     <!-- Modal للرفض -->
     <div class="modal fade" id="rejectModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content" style="direction: rtl;">
                 <div class="modal-header">
-                    <h5 class="modal-title">رفض الاستلام</h5>
+                    <h5 class="modal-title">{{ __('app.production_confirmations.reject_modal_title') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{{ route('manufacturing.production.confirmations.reject', $confirmation->id) }}" method="POST">
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">سبب الرفض <span class="text-danger">*</span></label>
-                            <textarea name="rejection_reason" class="form-control" rows="4" required placeholder="الرجاء إدخال سبب الرفض..."></textarea>
+                            <label class="form-label fw-bold">{{ __('app.production_confirmations.rejection_reason') }} <span class="text-danger">*</span></label>
+                            <textarea name="rejection_reason" class="form-control" rows="4" required placeholder="{{ __('app.production_confirmations.rejection_reason_desc') }}"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                        <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('app.production_confirmations.cancel_btn') }}</button>
+                        <button type="submit" class="btn btn-danger">{{ __('app.production_confirmations.reject_btn') }}</button>
                     </div>
                 </form>
             </div>
@@ -90,110 +90,77 @@
     </div>
 
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
-        
+
         <!-- العمود الأيسر - التفاصيل الرئيسية -->
         <div>
-            
+
             <!-- معلومات الدفعة -->
             <div style="background: white; border-radius: 15px; padding: 30px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <h3 style="color: #2c3e50; margin-bottom: 25px; font-size: 22px; font-weight: bold; border-bottom: 3px solid #3498db; padding-bottom: 15px;">
-                    📦 معلومات الدفعة
+                    📦 {{ __('app.production_confirmations.batch_info') }}
                 </h3>
-                
+
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 4px solid #9b59b6;">
-                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">باركود الإنتاج</div>
+                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">{{ __('app.production_confirmations.batch_code_label') }}</div>
                         <div style="font-weight: bold; color: #2c3e50; font-size: 18px;">
-                            @php
-                                $barcode = $confirmation->deliveryNote->production_barcode 
-                                    ?? $confirmation->deliveryNote->materialBatch?->batch_code 
-                                    ?? $confirmation->batch?->batch_code 
-                                    ?? 'غير محدد';
-                            @endphp
-                            {{ $barcode }}
+                            {{ $confirmation->batch?->batch_code ?? __('app.production_confirmations.table.not_specified') }}
                         </div>
                     </div>
-                    
+
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 4px solid #3498db;">
-                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">المادة</div>
+                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">{{ __('app.production_confirmations.material_label') }}</div>
                         <div style="font-weight: bold; color: #2c3e50; font-size: 18px;">
-                            @php
-                                $materialName = $confirmation->deliveryNote?->material?->name_ar 
-                                    ?? $confirmation->deliveryNote?->material?->name 
-                                    ?? $confirmation->batch?->material?->name_ar 
-                                    ?? $confirmation->batch?->material?->name 
-                                    ?? 'غير محدد';
-                            @endphp
-                            {{ $materialName }}
+                            {{ $confirmation->batch?->material?->name ?? __('app.production_confirmations.table.not_specified') }}
                         </div>
                         <div style="color: #95a5a6; font-size: 13px; margin-top: 3px;">
-                            {{ $confirmation->deliveryNote?->material?->category ?? $confirmation->batch?->material?->category ?? '' }}
+                            @if($confirmation->batch?->material?->weight)
+                                {{ __('app.production_confirmations.material_label') }}: {{ $confirmation->batch->material->weight }} {{ __('app.units.kg') }}
+                            @endif
                         </div>
                     </div>
-                    
+
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 4px solid #27ae60;">
-                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">الوزن النهائي</div>
+                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">{{ __('app.production_confirmations.final_weight') }}</div>
                         <div style="font-weight: bold; color: #27ae60; font-size: 20px;">
-                            @php
-                                $weight = null;
-                                
-                                // أولاً: الكمية المنقولة من DeliveryNote
-                                if ($confirmation->deliveryNote && isset($confirmation->deliveryNote->quantity_used) && $confirmation->deliveryNote->quantity_used > 0) {
-                                    $weight = $confirmation->deliveryNote->quantity_used;
-                                }
-                                
-                                // ثانياً: من MaterialBatch
-                                if (!$weight && $confirmation->deliveryNote->materialBatch) {
-                                    $weight = $confirmation->deliveryNote->materialBatch->initial_quantity 
-                                        ?? $confirmation->deliveryNote->materialBatch->available_quantity;
-                                }
-                                
-                                // ثالثاً: من Batch المرتبط بالتأكيد
-                                if (!$weight && $confirmation->batch) {
-                                    $weight = $confirmation->batch->initial_quantity 
-                                        ?? $confirmation->batch->available_quantity;
-                                }
-                                
-                                // رابعاً: من DeliveryNote
-                                if (!$weight && $confirmation->deliveryNote) {
-                                    $weight = $confirmation->deliveryNote->quantity 
-                                        ?? $confirmation->deliveryNote->actual_weight;
-                                }
-                                
-                                $weight = $weight ?? 0;
-                            @endphp
-                            {{ number_format($weight, 2) }} <span style="font-size: 14px;">كجم</span>
+                            @if($confirmation->deliveryNote?->quantity)
+                                {{ number_format($confirmation->deliveryNote->quantity, 2) }}
+                            @else
+                                <span style="color: #e74c3c;">{{ __('app.production_confirmations.table.data_unavailable') }}</span>
+                            @endif
                         </div>
+                        <div style="color: #95a5a6; font-size: 13px; margin-top: 3px;">{{ __('app.units.kg') }}</div>
                     </div>
-                    
+
                     @if($confirmation->actual_received_quantity)
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 4px solid #16a085;">
-                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">الكمية المستلمة فعلياً</div>
+                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">{{ __('app.production_confirmations.actual_received') }}</div>
                         <div style="font-weight: bold; color: #16a085; font-size: 20px;">
-                            {{ number_format($confirmation->actual_received_quantity, 2) }} <span style="font-size: 14px;">كجم</span>
+                            {{ number_format($confirmation->actual_received_quantity, 2) }}
                         </div>
+                        <div style="color: #95a5a6; font-size: 13px; margin-top: 3px;">{{ __('app.units.kg') }}</div>
                     </div>
                     @endif
-                    
+
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 4px solid #e67e22;">
-                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">المرحلة الإنتاجية</div>
-                        <div style="font-weight: bold; color: #2c3e50; font-size: 18px;">{{ $confirmation->deliveryNote->production_stage_name }}</div>
+                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">{{ __('app.production_confirmations.production_stage') }}</div>
+                        <div style="font-weight: bold; color: #2c3e50; font-size: 18px;">{{ $confirmation->deliveryNote?->production_stage_name ?? __('app.production_confirmations.table.not_specified') }}</div>
                     </div>
-                    
-                    @if($confirmation->batch->coil_number)
+
+                    @if($confirmation->batch?->coil_number)
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 4px solid #8e44ad;">
-                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">رقم الكويل</div>
-                        <div style="font-weight: bold; color: #8e44ad; font-size: 18px;">{{ $confirmation->batch->coil_number }}</div>
+                        <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">{{ __('app.production_confirmations.coil_number') }}</div>
+                        <div style="font-weight: bold; color: #2c3e50; font-size: 18px;">{{ $confirmation->batch->coil_number }}</div>
                     </div>
                     @endif
                 </div>
             </div>
 
             <!-- الباركود -->
-            @if($confirmation->batch->production_barcode)
+            @if($confirmation->batch?->production_barcode)
             <div style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); border-radius: 15px; padding: 30px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3); text-align: center;">
                 <h3 style="color: white; margin-bottom: 20px; font-size: 22px; font-weight: bold;">
-                    🏷️ الباركود الإنتاجي
+                    🏷️ {{ __('app.production_confirmations.production_barcode') }}
                 </h3>
                 <div style="background: white; padding: 25px; border-radius: 10px; display: inline-block;">
                     {!! DNS1D::getBarcodeHTML($confirmation->batch->production_barcode, 'C128', 2, 80) !!}
@@ -205,22 +172,22 @@
             @endif
 
             <!-- الملاحظات -->
-            @if($confirmation->deliveryNote->notes || $confirmation->notes)
+            @if($confirmation->deliveryNote?->notes || $confirmation->notes)
             <div style="background: white; border-radius: 15px; padding: 30px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <h3 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: bold; border-bottom: 3px solid #f39c12; padding-bottom: 15px;">
-                    📝 الملاحظات
+                    📝 {{ __('app.production_confirmations.notes') }}
                 </h3>
-                
-                @if($confirmation->deliveryNote->notes)
+
+                @if($confirmation->deliveryNote?->notes)
                 <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; margin-bottom: 15px;">
-                    <div style="font-weight: bold; color: #856404; margin-bottom: 10px; font-size: 15px;">عند النقل:</div>
+                    <div style="font-weight: bold; color: #856404; margin-bottom: 10px; font-size: 15px;">{{ __('app.production_confirmations.notes_on_transfer') }}:</div>
                     <div style="color: #856404; line-height: 1.8; font-size: 15px;">{{ $confirmation->deliveryNote->notes }}</div>
                 </div>
                 @endif
-                
+
                 @if($confirmation->notes)
                 <div style="background: #d1ecf1; border: 2px solid #17a2b8; border-radius: 10px; padding: 20px;">
-                    <div style="font-weight: bold; color: #0c5460; margin-bottom: 10px; font-size: 15px;">عند التأكيد:</div>
+                    <div style="font-weight: bold; color: #0c5460; margin-bottom: 10px; font-size: 15px;">{{ __('app.production_confirmations.notes_on_confirm') }}:</div>
                     <div style="color: #0c5460; line-height: 1.8; font-size: 15px;">{{ $confirmation->notes }}</div>
                 </div>
                 @endif
@@ -231,7 +198,7 @@
             @if($confirmation->rejection_reason)
             <div style="background: white; border-radius: 15px; padding: 30px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <h3 style="color: #e74c3c; margin-bottom: 20px; font-size: 22px; font-weight: bold; border-bottom: 3px solid #e74c3c; padding-bottom: 15px;">
-                    ⚠️ سبب الرفض
+                    ⚠️ {{ __('app.production_confirmations.rejection_reason') }}
                 </h3>
                 <div style="background: #f8d7da; border: 2px solid #e74c3c; border-radius: 10px; padding: 20px;">
                     <div style="color: #721c24; line-height: 1.8; font-size: 16px;">{{ $confirmation->rejection_reason }}</div>
@@ -243,28 +210,28 @@
 
         <!-- العمود الأيمن - الجدول الزمني -->
         <div>
-            
+
             <!-- معلومات الموظفين -->
             <div style="background: white; border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <h3 style="color: #2c3e50; margin-bottom: 20px; font-size: 20px; font-weight: bold; border-bottom: 3px solid #9b59b6; padding-bottom: 12px;">
-                    👥 الموظفين
+                    👥 {{ __('app.production_confirmations.employees') }}
                 </h3>
-                
+
                 <div style="margin-bottom: 20px;">
-                    <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">الموظف المستلم</div>
-                    <div style="font-weight: bold; color: #2c3e50; font-size: 16px;">{{ $confirmation->assignedUser->name }}</div>
+                    <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">{{ __('app.production_confirmations.assigned_to') }}</div>
+                    <div style="font-weight: bold; color: #2c3e50; font-size: 16px;">{{ $confirmation->assignedUser?->name ?? __('app.production_confirmations.table.not_specified') }}</div>
                 </div>
-                
+
                 @if($confirmation->confirmedByUser)
                 <div style="margin-bottom: 20px;">
-                    <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">تم التأكيد بواسطة</div>
+                    <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">{{ __('app.production_confirmations.confirmed_by') }}</div>
                     <div style="font-weight: bold; color: #27ae60; font-size: 16px;">{{ $confirmation->confirmedByUser->name }}</div>
                 </div>
                 @endif
-                
+
                 @if($confirmation->rejectedByUser)
                 <div>
-                    <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">تم الرفض بواسطة</div>
+                    <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">{{ __('app.production_confirmations.rejected_by') }}</div>
                     <div style="font-weight: bold; color: #e74c3c; font-size: 16px;">{{ $confirmation->rejectedByUser->name }}</div>
                 </div>
                 @endif
@@ -273,56 +240,45 @@
             <!-- الجدول الزمني -->
             <div style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <h3 style="color: #2c3e50; margin-bottom: 25px; font-size: 20px; font-weight: bold; border-bottom: 3px solid #3498db; padding-bottom: 12px;">
-                    ⏱️ الجدول الزمني
+                    ⏱️ {{ __('app.production_confirmations.timeline') }}
                 </h3>
-                
+
                 <!-- Timeline -->
                 <div style="position: relative; padding-right: 30px;">
-                    
+
                     <!-- خط الجدول الزمني -->
                     <div style="position: absolute; right: 9px; top: 0; bottom: 0; width: 2px; background: #ecf0f1;"></div>
-                    
+
                     <!-- تم الإنشاء -->
                     <div style="position: relative; margin-bottom: 30px;">
-                        <div style="position: absolute; right: -27px; width: 20px; height: 20px; background: #3498db; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 0 2px #3498db;"></div>
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-right: 4px solid #3498db;">
-                            <div style="font-weight: bold; color: #2c3e50; margin-bottom: 5px; font-size: 15px;">✓ تم الإنشاء</div>
-                            <div style="color: #7f8c8d; font-size: 13px;">{{ $confirmation->created_at->format('Y/m/d - h:i A') }}</div>
-                            <div style="color: #95a5a6; font-size: 12px; margin-top: 3px;">{{ $confirmation->created_at->diffForHumans() }}</div>
+                        <div style="position: absolute; right: -8px; width: 18px; height: 18px; background: #3498db; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 0 2px #3498db;"></div>
+                        <div style="margin-right: 30px;">
+                            <div style="font-weight: bold; color: #2c3e50; font-size: 15px;">{{ __('app.production_confirmations.created_at') }}</div>
+                            <div style="color: #7f8c8d; font-size: 14px;">{{ $confirmation->created_at->format('d/m/Y H:i') }}</div>
                         </div>
                     </div>
-                    
+
                     <!-- تم التأكيد / الرفض -->
                     @if($confirmation->status == 'confirmed')
                         <div style="position: relative; margin-bottom: 30px;">
-                            <div style="position: absolute; right: -27px; width: 20px; height: 20px; background: #27ae60; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 0 2px #27ae60;"></div>
-                            <div style="background: #d5f4e6; padding: 15px; border-radius: 10px; border-right: 4px solid #27ae60;">
-                                <div style="font-weight: bold; color: #27ae60; margin-bottom: 5px; font-size: 15px;">✓ تم التأكيد</div>
-                                <div style="color: #229954; font-size: 13px;">{{ $confirmation->confirmed_at->format('Y/m/d - h:i A') }}</div>
-                                <div style="color: #52b788; font-size: 12px; margin-top: 3px;">{{ $confirmation->confirmed_at->diffForHumans() }}</div>
+                            <div style="position: absolute; right: -8px; width: 18px; height: 18px; background: #27ae60; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 0 2px #27ae60;"></div>
+                            <div style="margin-right: 30px;">
+                                <div style="font-weight: bold; color: #27ae60; font-size: 15px;">{{ __('app.production_confirmations.confirmed_at') }}</div>
+                                <div style="color: #7f8c8d; font-size: 14px;">{{ $confirmation->confirmed_at ? $confirmation->confirmed_at->format('d/m/Y H:i') : '-' }}</div>
                             </div>
                         </div>
                     @elseif($confirmation->status == 'rejected')
                         <div style="position: relative; margin-bottom: 30px;">
-                            <div style="position: absolute; right: -27px; width: 20px; height: 20px; background: #e74c3c; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 0 2px #e74c3c;"></div>
-                            <div style="background: #f8d7da; padding: 15px; border-radius: 10px; border-right: 4px solid #e74c3c;">
-                                <div style="font-weight: bold; color: #e74c3c; margin-bottom: 5px; font-size: 15px;">✕ تم الرفض</div>
-                                <div style="color: #c0392b; font-size: 13px;">{{ $confirmation->rejected_at->format('Y/m/d - h:i A') }}</div>
-                                <div style="color: #e57373; font-size: 12px; margin-top: 3px;">{{ $confirmation->rejected_at->diffForHumans() }}</div>
-                            </div>
-                        </div>
-                    @else
-                        <div style="position: relative; margin-bottom: 30px;">
-                            <div style="position: absolute; right: -27px; width: 20px; height: 20px; background: #f39c12; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 0 2px #f39c12; animation: pulse 2s infinite;"></div>
-                            <div style="background: #fef5e7; padding: 15px; border-radius: 10px; border-right: 4px solid #f39c12;">
-                                <div style="font-weight: bold; color: #f39c12; margin-bottom: 5px; font-size: 15px;">⏳ بانتظار التأكيد</div>
-                                <div style="color: #e67e22; font-size: 13px;">منذ {{ $confirmation->created_at->diffForHumans() }}</div>
+                            <div style="position: absolute; right: -8px; width: 18px; height: 18px; background: #e74c3c; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 0 2px #e74c3c;"></div>
+                            <div style="margin-right: 30px;">
+                                <div style="font-weight: bold; color: #e74c3c; font-size: 15px;">{{ __('app.production_confirmations.rejected_at') }}</div>
+                                <div style="color: #7f8c8d; font-size: 14px;">{{ $confirmation->rejected_at ? $confirmation->rejected_at->format('d/m/Y H:i') : '-' }}</div>
                             </div>
                         </div>
                     @endif
-                    
+
                 </div>
-                
+
             </div>
 
         </div>

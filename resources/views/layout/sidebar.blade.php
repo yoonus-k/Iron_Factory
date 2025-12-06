@@ -94,7 +94,7 @@
                     @if(auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS'))
                     <li>
                         <a href="{{ route('manufacturing.production.confirmations.index') }}">
-                            <i class="fas fa-check-circle"></i> تأكيدات التسليم
+                            <i class="fas fa-check-circle"></i> {{ __('app.warehouse.production_confirmations') }}
                         </a>
                     </li>
                     @endif
@@ -102,7 +102,7 @@
                     @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_READ'))
                     <li>
                         <a href="{{ route('manufacturing.warehouse-intake.index') }}">
-                            <i class="fas fa-dolly"></i> طلبات إدخال المستودع
+                            <i class="fas fa-dolly"></i> {{ __('app.warehouse.intake_requests') }}
                         </a>
                     </li>
                     @endif
@@ -110,7 +110,7 @@
                     @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_APPROVE'))
                     <li>
                         <a href="{{ route('manufacturing.warehouse-intake.pending-approval') }}">
-                            <i class="fas fa-clipboard-check"></i> اعتماد طلبات الإدخال
+                            <i class="fas fa-clipboard-check"></i> {{ __('app.warehouse.approve_intake_requests') }}
                             @php
                                 $pendingIntakeCount = \App\Models\WarehouseIntakeRequest::where('status', 'pending')->count();
                             @endphp
@@ -124,7 +124,7 @@
                     @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_READ'))
                     <li>
                         <a href="{{ route('manufacturing.finished-product-deliveries.index') }}">
-                            <i class="fas fa-truck-loading"></i> إذونات صرف المنتجات
+                            <i class="fas fa-truck-loading"></i> {{ __('app.warehouse.product_delivery_notes') }}
                         </a>
                     </li>
                     @endif
@@ -321,7 +321,7 @@
                     @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES'))
                     <li>
                         <a href="{{ route('manufacturing.finished-product-deliveries.index') }}">
-                            <i class="fas fa-box-open"></i> إذونات الصرف
+                            <i class="fas fa-box-open"></i> {{ __('app.finished_products.delivery_notes') }}
                         </a>
                     </li>
                     @endif
@@ -329,7 +329,7 @@
                     @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_CREATE'))
                     <li>
                         <a href="{{ route('manufacturing.finished-product-deliveries.create') }}">
-                            <i class="fas fa-plus-circle"></i> إنشاء إذن صرف
+                            <i class="fas fa-plus-circle"></i> {{ __('app.finished_products.create_delivery_note') }}
                         </a>
                     </li>
                     @endif
@@ -337,7 +337,7 @@
                     @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_APPROVE'))
                     <li>
                         <a href="{{ route('manufacturing.finished-product-deliveries.pending-approval') }}">
-                            <i class="fas fa-clock"></i> الإذونات المعلقة
+                            <i class="fas fa-clock"></i> {{ __('app.finished_products.pending_notes') }}
                         </a>
                     </li>
                     @endif
@@ -345,7 +345,7 @@
                     @if(auth()->user()->hasPermission('MENU_CUSTOMERS'))
                     <li>
                         <a href="{{ route('customers.index') }}">
-                            <i class="fas fa-users"></i> إدارة العملاء
+                            <i class="fas fa-users"></i> {{ __('app.customers.manage') }}
                         </a>
                     </li>
                     @endif
@@ -418,7 +418,7 @@
                     @if(auth()->user()->hasPermission('WORKERS_READ'))
                     <li>
                         <a href="{{ route('manufacturing.workers.index') }}">
-                            <i class="fas fa-user-tie"></i> إدارة العمال
+                            <i class="fas fa-user-tie"></i> {{ __('app.workers.manage') }}
                         </a>
                     </li>
                     @endif
@@ -426,7 +426,7 @@
                     @if(auth()->user()->hasPermission('WORKER_TEAMS_READ'))
                     <li>
                         <a href="{{ route('manufacturing.worker-teams.index') }}">
-                            <i class="fas fa-users-cog"></i> مجموعات العمال
+                            <i class="fas fa-users-cog"></i> {{ __('app.workers.teams') }}
                         </a>
                     </li>
                     @endif
@@ -492,7 +492,7 @@
                     @if(auth()->user()->hasPermission('REPORTS_WIP'))
                     <li>
                         <a href="{{ route('manufacturing.reports.wip') }}">
-                            <i class="fas fa-hourglass-half"></i> الأعمال غير المنتهية
+                            <i class="fas fa-hourglass-half"></i> {{ __('app.reports.wip') }}
                         </a>
                     </li>
                     @endif
@@ -500,7 +500,7 @@
                     @if(auth()->user()->hasPermission('REPORTS_SHIFT_DASHBOARD'))
                     <li>
                         <a href="{{ route('manufacturing.reports.shift-dashboard') }}">
-                            <i class="fas fa-clock"></i> ملخص الوردية
+                            <i class="fas fa-clock"></i> {{ __('app.reports.shift_summary') }}
                         </a>
                     </li>
                     @endif
@@ -508,7 +508,7 @@
                     @if(auth()->user()->hasPermission('REPORTS_STANDS_USAGE'))
                     <li>
                         <a href="{{ route('manufacturing.stands.usage-history') }}">
-                            <i class="fas fa-history"></i> تاريخ استخدام الستاندات
+                            <i class="fas fa-history"></i> {{ __('app.reports.stands_usage_history') }}
                         </a>
                     </li>
                     @endif
@@ -518,7 +518,7 @@
                     @if(auth()->user()->hasPermission('REPORTS_WORKER_PERFORMANCE'))
                     <li>
                         <a href="{{ route('manufacturing.reports.worker-performance') }}">
-                            <i class="fas fa-user-chart"></i> أداء العمال
+                            <i class="fas fa-user-chart"></i> {{ __('app.reports.worker_performance') }}
                         </a>
                     </li>
                     @endif
@@ -538,7 +538,7 @@
                     @if(auth()->user()->hasPermission('MENU_MANAGE_USERS') || auth()->user()->hasPermission('MANAGE_USERS_READ'))
                     <li>
                         <a href="{{ route('users.index') }}">
-                            <i class="fas fa-users"></i> {{ __('app.users.manage_users') }}
+                            <i class="fas fa-users"></i> {{ __('app.users.manage') }}
                         </a>
                     </li>
                     @endif
@@ -554,14 +554,14 @@
                     @if(auth()->user()->hasPermission('MENU_MANAGE_PERMISSIONS') || auth()->user()->hasPermission('MANAGE_PERMISSIONS_READ'))
                     <li>
                         <a href="{{ route('permissions.index') }}">
-                            <i class="fas fa-key"></i> إدارة الصلاحيات
+                            <i class="fas fa-key"></i> {{ __('app.permissions.manage') }}
                         </a>
                     </li>
                     @endif
 
                     <li>
                         <a href="/test-permissions">
-                            <i class="fas fa-vial"></i> اختبار الصلاحيات
+                            <i class="fas fa-vial"></i> {{ __('app.permissions.test') }}
                         </a>
                     </li>
                     <li>

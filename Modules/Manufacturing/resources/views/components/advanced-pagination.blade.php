@@ -7,12 +7,12 @@
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div style="padding: 10px 15px; background-color: white; border-radius: 6px; border: 1px solid #dee2e6;">
                         <small style="color: #666; font-weight: 600;">
-                            📄 الصفحة <strong>{{ $paginator->currentPage() }}</strong> من <strong>{{ $paginator->lastPage() }}</strong>
+                            📄 {{ __('app.pagination.page') }} <strong>{{ $paginator->currentPage() }}</strong> {{ __('app.pagination.from') }} <strong>{{ $paginator->lastPage() }}</strong>
                         </small>
                     </div>
                     <div style="padding: 10px 15px; background-color: white; border-radius: 6px; border: 1px solid #dee2e6;">
                         <small style="color: #666; font-weight: 600;">
-                            📊 السجلات: <strong>{{ $paginator->count() }}</strong> من <strong>{{ $paginator->total() }}</strong>
+                            📊 {{ __('app.pagination.records') }}: <strong>{{ $paginator->count() }}</strong> {{ __('app.pagination.from') }} <strong>{{ $paginator->total() }}</strong>
                         </small>
                     </div>
                 </div>
@@ -29,7 +29,7 @@
 
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <label style="color: #666; font-weight: 600; margin: 0; font-size: 13px;">
-                            عدد السجلات لكل صفحة:
+                            {{ __('app.pagination.items_per_page') }}:
                         </label>
                         <select name="per_page" onchange="this.form.submit()"
                                 style="padding: 6px 10px; border: 1px solid #dee2e6; border-radius: 4px; background-color: white; cursor: pointer;">
@@ -49,11 +49,11 @@
             {{-- Previous Page Link --}}
             @if ($paginator->onFirstPage())
                 <button disabled style="padding: 8px 12px; background-color: #e9ecef; color: #999; border: 1px solid #dee2e6; border-radius: 4px; cursor: not-allowed; font-weight: 600; font-size: 12px;">
-                    <i class="fas fa-chevron-right"></i> السابق
+                    <i class="fas fa-chevron-right"></i> {{ __('app.pagination.previous') }}
                 </button>
             @else
                 <a href="{{ $paginator->previousPageUrl() }}" style="padding: 8px 12px; background-color: white; color: #0051E5; border: 1px solid #0051E5; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; text-decoration: none; transition: all 0.2s;">
-                    <i class="fas fa-chevron-right"></i> السابق
+                    <i class="fas fa-chevron-right"></i> {{ __('app.pagination.previous') }}
                 </a>
             @endif
 
@@ -83,11 +83,11 @@
             {{-- Next Page Link --}}
             @if ($paginator->hasMorePages())
                 <a href="{{ $paginator->nextPageUrl() }}" style="padding: 8px 12px; background-color: white; color: #0051E5; border: 1px solid #0051E5; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; text-decoration: none; transition: all 0.2s;">
-                    التالي <i class="fas fa-chevron-left"></i>
+                    {{ __('app.pagination.next') }} <i class="fas fa-chevron-left"></i>
                 </a>
             @else
                 <button disabled style="padding: 8px 12px; background-color: #e9ecef; color: #999; border: 1px solid #dee2e6; border-radius: 4px; cursor: not-allowed; font-weight: 600; font-size: 12px;">
-                    التالي <i class="fas fa-chevron-left"></i>
+                    {{ __('app.pagination.next') }} <i class="fas fa-chevron-left"></i>
                 </button>
             @endif
         </div>
@@ -102,13 +102,13 @@
                 @endforeach
 
                 <label style="color: #666; font-weight: 600; margin: 0; font-size: 13px; display: flex; align-items: center;">
-                    🚀 قفزة سريعة للصفحة:
+                    🚀 {{ __('app.pagination.quick_jump') }}:
                 </label>
                 <input type="number" name="page" min="1" max="{{ $paginator->lastPage() }}"
-                       value="{{ $paginator->currentPage() }}" placeholder="رقم الصفحة"
+                       value="{{ $paginator->currentPage() }}" placeholder="{{ __('app.pagination.page_number') }}"
                        style="padding: 6px 10px; border: 1px solid #dee2e6; border-radius: 4px; width: 80px; font-weight: 600;">
                 <button type="submit" style="padding: 6px 12px; background: linear-gradient(135deg, #0051E5 0%, #003FA0 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">
-                    اذهب <i class="fas fa-arrow-left" style="margin-right: 5px;"></i>
+                    {{ __('app.pagination.go') }} <i class="fas fa-arrow-left" style="margin-right: 5px;"></i>
                 </button>
             </form>
         </div>
@@ -117,9 +117,9 @@
         <div style="margin-top: 15px; padding: 12px; background-color: white; border-radius: 6px; border-right: 4px solid #0051E5;">
             <small style="color: #0051E5; font-weight: 500; display: flex; align-items: center; gap: 6px;">
                 <i class="fas fa-info-circle"></i>
-                عرض السجلات من <strong>{{ ($paginator->currentPage() - 1) * $paginator->perPage() + 1 }}</strong>
-                إلى <strong>{{ min($paginator->currentPage() * $paginator->perPage(), $paginator->total()) }}</strong>
-                من إجمالي <strong>{{ $paginator->total() }}</strong> سجل
+                {{ __('app.pagination.showing_records_from') }} <strong>{{ ($paginator->currentPage() - 1) * $paginator->perPage() + 1 }}</strong>
+                {{ __('app.pagination.to') }} <strong>{{ min($paginator->currentPage() * $paginator->perPage(), $paginator->total()) }}</strong>
+                {{ __('app.pagination.of_total') }} <strong>{{ $paginator->total() }}</strong> {{ __('app.pagination.records_label') }}
             </small>
         </div>
     </div>
