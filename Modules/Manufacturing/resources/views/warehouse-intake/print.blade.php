@@ -264,12 +264,12 @@
     <div class="print-container">
         <!-- Header -->
         <div class="header">
-            <img src="{{ asset('assets/images/logo/logo-dark.jpg') }}" alt="شعار الشركة" class="logo">
-            <h1>🏭 مصنع السلك للحديد</h1>
-            <h2>إذن إدخال مستودع</h2>
-            <div class="request-number">رقم الطلب: {{ $intakeRequest->request_number }}</div>
+            <img src="{{ asset('assets/images/logo/logo-dark.jpg') }}" alt="{{ __('warehouse_intake.company_logo') }}" class="logo">
+            <h1>🏭 {{ __('warehouse_intake.factory_name') }}</h1>
+            <h2>{{ __('warehouse_intake.warehouse_entry_permit') }}</h2>
+            <div class="request-number">{{ __('warehouse_intake.request_number') }}: {{ $intakeRequest->request_number }}</div>
             @if($intakeRequest->status === 'approved')
-            <div class="status-badge status-approved">✓ معتمد</div>
+            <div class="status-badge status-approved">✓ {{ __('warehouse_intake.approved') }}</div>
             @endif
         </div>
 
@@ -277,26 +277,26 @@
         <div class="info-section">
             <!-- معلومات الطلب -->
             <div class="info-box">
-                <h3>📋 معلومات الطلب</h3>
+                <h3>📋 {{ __('warehouse_intake.request_information') }}</h3>
                 <div class="info-row">
-                    <span class="label">تاريخ الإنشاء:</span>
+                    <span class="label">{{ __('warehouse_intake.creation_date') }}:</span>
                     <span class="value">{{ $intakeRequest->created_at->format('Y-m-d') }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">الوقت:</span>
+                    <span class="label">{{ __('warehouse_intake.time') }}:</span>
                     <span class="value">{{ $intakeRequest->created_at->format('H:i') }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">مسؤول الوردية:</span>
+                    <span class="label">{{ __('warehouse_intake.shift_responsible') }}:</span>
                     <span class="value">{{ $intakeRequest->requestedBy->name ?? '-' }}</span>
                 </div>
                 @if($intakeRequest->approved_at)
                 <div class="info-row">
-                    <span class="label">تاريخ الاعتماد:</span>
+                    <span class="label">{{ __('warehouse_intake.approval_date') }}:</span>
                     <span class="value">{{ $intakeRequest->approved_at->format('Y-m-d H:i') }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">أمين المستودع:</span>
+                    <span class="label">{{ __('warehouse_intake.warehouse_keeper') }}:</span>
                     <span class="value">{{ $intakeRequest->approvedBy->name ?? '-' }}</span>
                 </div>
                 @endif
@@ -304,17 +304,17 @@
 
             <!-- إحصائيات -->
             <div class="info-box">
-                <h3>📊 الإحصائيات</h3>
+                <h3>📊 {{ __('warehouse_intake.statistics') }}</h3>
                 <div class="info-row">
-                    <span class="label">عدد الصناديق:</span>
+                    <span class="label">{{ __('warehouse_intake.boxes_count') }}:</span>
                     <span class="value">{{ $intakeRequest->boxes_count }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">الوزن الإجمالي:</span>
+                    <span class="label">{{ __('warehouse_intake.total_weight') }}:</span>
                     <span class="value">{{ number_format($intakeRequest->total_weight, 2) }} كجم</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">متوسط الوزن:</span>
+                    <span class="label">{{ __('warehouse_intake.average_weight') }}:</span>
                     <span class="value">{{ number_format($intakeRequest->total_weight / max($intakeRequest->boxes_count, 1), 2) }} كجم</span>
                 </div>
             </div>
@@ -324,11 +324,11 @@
         <div class="summary-boxes">
             <div class="summary-box">
                 <div class="number">{{ $intakeRequest->boxes_count }}</div>
-                <div class="label">عدد الصناديق</div>
+                <div class="label">{{ __('warehouse_intake.boxes_count') }}</div>
             </div>
             <div class="summary-box">
                 <div class="number">{{ number_format($intakeRequest->total_weight, 2) }}</div>
-                <div class="label">الوزن الإجمالي (كجم)</div>
+                <div class="label">{{ __('warehouse_intake.total_weight_kg') }}</div>
             </div>
         </div>
 
@@ -337,10 +337,10 @@
             <thead>
                 <tr>
                     <th style="width: 50px;">#</th>
-                    <th>الباركود</th>
-                    <th>نوع التغليف</th>
-                    <th>المواصفات</th>
-                    <th style="width: 120px;">الوزن (كجم)</th>
+                    <th>{{ __('warehouse_intake.barcode') }}</th>
+                    <th>{{ __('warehouse_intake.packaging_type') }}</th>
+                    <th>{{ __('warehouse_intake.specifications') }}</th>
+                    <th style="width: 120px;">{{ __('warehouse_intake.weight_kg') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -370,7 +370,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="4" style="text-align: left;">الإجمالي:</td>
+                    <td colspan="4" style="text-align: left;">{{ __('warehouse_intake.total') }}:</td>
                     <td><strong>{{ number_format($totalWeight, 2) }}</strong></td>
                 </tr>
             </tfoot>
@@ -379,7 +379,7 @@
         <!-- Notes Section -->
         @if($intakeRequest->notes)
         <div class="notes-section">
-            <h3>📝 ملاحظات</h3>
+            <h3>📝 {{ __('warehouse_intake.notes') }}</h3>
             <p>{{ $intakeRequest->notes }}</p>
         </div>
         @endif
@@ -388,21 +388,21 @@
         <div class="signatures">
             <div class="signature-box">
                 <div class="signature-line">
-                    <div class="title">مسؤول الوردية</div>
+                    <div class="title">{{ __('warehouse_intake.shift_responsible') }}</div>
                     <div class="name">{{ $intakeRequest->requestedBy->name ?? '' }}</div>
                 </div>
             </div>
 
             <div class="signature-box">
                 <div class="signature-line">
-                    <div class="title">أمين المستودع</div>
+                    <div class="title">{{ __('warehouse_intake.warehouse_keeper') }}</div>
                     <div class="name">{{ $intakeRequest->approvedBy->name ?? '' }}</div>
                 </div>
             </div>
 
             <div class="signature-box">
                 <div class="signature-line">
-                    <div class="title">المدير العام</div>
+                    <div class="title">{{ __('warehouse_intake.general_manager') }}</div>
                     <div class="name"></div>
                 </div>
             </div>
@@ -410,8 +410,8 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p>تم الطباعة في: {{ now()->format('Y-m-d H:i:s') }}</p>
-            <p>هذا المستند تم إنشاؤه إلكترونياً من نظام إدارة المصنع</p>
+            <p>{{ __('warehouse_intake.printed_at', ['time' => now()->format('Y-m-d H:i:s')]) }}</p>
+            <p>{{ __('warehouse_intake.document_generated_by_system') }}</p>
         </div>
     </div>
 

@@ -329,10 +329,10 @@
             @endif
 
             <!-- التسليم والعملاء -->
-            @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES') || 
-                auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_CREATE') || 
-                auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_APPROVE') || 
-                auth()->user()->hasPermission('MENU_CUSTOMERS') || 
+            @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES') ||
+                auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_CREATE') ||
+                auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_APPROVE') ||
+                auth()->user()->hasPermission('MENU_CUSTOMERS') ||
                 auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW'))
 
             <!-- {{ __('app.menu.finished_products') }} -->
@@ -512,6 +512,7 @@
                     @endif
                 </ul>
             </li>
+            @endif
             @endif
 
             <!-- التقارير الإنتاجية -->

@@ -4,20 +4,8 @@
 <div class="dashboard-wrapper">
     <!-- صفحة الرئيسية/لوحة التحكم -->
     <div class="page-title-section">
-        <h1>
-            @if(app()->getLocale() === 'ar')
-                لوحة التحكم
-            @else
-                Dashboard
-            @endif
-        </h1>
-        <p class="subtitle">
-            @if(app()->getLocale() === 'ar')
-                مرحبا بك في نظام إدارة التصنيع
-            @else
-                Welcome to Manufacturing Management System
-            @endif
-        </p>
+        <h1>{{ __('app.menu.dashboard') }}</h1>
+        <p class="subtitle">{{ __('messages.welcome') }}</p>
     </div>
 
     <!-- الإحصائيات الرئيسية -->

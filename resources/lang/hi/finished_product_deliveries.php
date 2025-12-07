@@ -41,7 +41,7 @@ return [
     'choose_customer' => 'ग्राहक चुनें',
     'rejection_reason_placeholder' => 'डिलीवरी नोट को अस्वीकार करने के कारण को दर्ज करें',
     'boxes_will_be_reset' => 'बॉक्स की स्थिति "पूर्ण" पर रीसेट होगी और दोबारा उपयोग की जा सकेगी',
-    
+
     // Index page
     'delivery_notes' => 'डिलीवरी नोट्स',
     'create_new_delivery_note' => 'नया डिलीवरी नोट बनाएं',
@@ -58,7 +58,7 @@ return [
     'edit' => 'संपादित करें',
     'delete' => 'हटाएं',
     'no_delivery_notes' => 'कोई डिलीवरी नोट नहीं मिला',
-    
+
     // Create page
     'create_delivery_note' => 'डिलीवरी नोट बनाएं',
     'select_boxes_from_stage_four' => 'चरण चार से बॉक्स चुनें',
@@ -92,7 +92,7 @@ return [
     'success' => 'सफलता!',
     'error_occurred_while_saving' => 'सहेजते समय एक त्रुटि हुई',
     'box' => 'बॉक्स',
-    
+
     // Edit page
     'edit_delivery_note' => 'डिलीवरी नोट संपादित करें',
     'edit_data' => 'डेटा संपादित करें',
@@ -103,7 +103,7 @@ return [
     'back_to_details' => 'विवरण में वापस जाएं',
     'selected_boxes_title' => 'चयनित बॉक्स',
     'cannot_edit' => 'संपादित नहीं कर सकते',
-    
+
     // Pending approval page
     'pending_approval' => 'अनुमोदन के लिए लंबित',
     'review_and_approve_or_reject' => 'डिलीवरी नोट्स की समीक्षा करें और अनुमोदित या अस्वीकार करें',
@@ -123,7 +123,7 @@ return [
     'approval_confirmation' => 'अनुमोदन की पुष्टि',
     'sure_approve_note' => 'क्या आप निश्चित हैं कि आप इस नोट को अनुमोदित करना चाहते हैं?',
     'customer_required' => 'अनुमोदन से पहले ग्राहक का चयन आवश्यक है',
-    
+
     // Messages
     'saved_successfully' => 'सफलतापूर्वक सहेजा गया',
     'approved_successfully' => 'सफलतापूर्वक अनुमोदित',

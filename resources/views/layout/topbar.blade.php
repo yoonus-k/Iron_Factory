@@ -47,7 +47,12 @@
         <div class="language-switcher">
             <button class="language-btn" onclick="toggleLanguageMenu()" title="اختر اللغة">
                 <i class="fas fa-globe"></i>
-                <span class="current-lang">{{ app()->getLocale() === 'ar' ? 'AR' : 'EN' }}</span>
+                <span class="current-lang">
+                    @php
+                        $langCodes = ['ar' => 'AR', 'en' => 'EN', 'ur' => 'UR', 'hi' => 'HI'];
+                        echo $langCodes[app()->getLocale()] ?? 'AR';
+                    @endphp
+                </span>
             </button>
             <div class="language-menu" id="languageMenu" style="display: none;">
                 <a href="#" data-lang="ar" onclick="changeLanguage('ar', event)" class="{{ app()->getLocale() === 'ar' ? 'active' : '' }}">
@@ -55,6 +60,12 @@
                 </a>
                 <a href="#" data-lang="en" onclick="changeLanguage('en', event)" class="{{ app()->getLocale() === 'en' ? 'active' : '' }}">
                     <i class="fas fa-check"></i> English
+                </a>
+                <a href="#" data-lang="ur" onclick="changeLanguage('ur', event)" class="{{ app()->getLocale() === 'ur' ? 'active' : '' }}">
+                    <i class="fas fa-check"></i> اردو
+                </a>
+                <a href="#" data-lang="hi" onclick="changeLanguage('hi', event)" class="{{ app()->getLocale() === 'hi' ? 'active' : '' }}">
+                    <i class="fas fa-check"></i> हिन्दी
                 </a>
             </div>
         </div>
@@ -543,7 +554,7 @@
         // setInterval(updateNotificationBadge, 30000);
 
         const currentLang = document.documentElement.getAttribute('lang') || 'ar';
-        document.body.classList.remove('lang-ar', 'lang-en');
+        document.body.classList.remove('lang-ar', 'lang-en', 'lang-ur', 'lang-hi');
         document.body.classList.add(`lang-${currentLang}`);
 
         document.querySelectorAll('.language-menu a').forEach(link => {
@@ -555,7 +566,13 @@
 
         const currentLangSpan = document.querySelector('.current-lang');
         if (currentLangSpan) {
-            currentLangSpan.textContent = currentLang === 'ar' ? 'AR' : 'EN';
+            const langLabels = {
+                'ar': 'AR',
+                'en': 'EN',
+                'ur': 'UR',
+                'hi': 'HI'
+            };
+            currentLangSpan.textContent = langLabels[currentLang] || 'AR';
         }
     });
 </script>

@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'طلبات الإدخال المعلقة')
+@section('title', __('warehouse_intake.pending_approval_title'))
 
 @section('content')
 <div class="container-fluid">
@@ -8,16 +8,16 @@
         <div class="col-md-8">
             <h2 class="mb-2">
                 <i class="bi bi-hourglass-split me-2 text-warning"></i>
-                طلبات إدخال المستودع - بانتظار الموافقة
+                {{ __('warehouse_intake.pending_requests_header') }}
             </h2>
             <p class="text-muted mb-0">
-                قم بمراجعة واعتماد أو رفض طلبات إدخال الصناديق للمستودع
+                {{ __('warehouse_intake.pending_description') }}
             </p>
         </div>
         <div class="col-md-4 text-end">
             <a href="{{ route('manufacturing.warehouse-intake.index') }}" class="btn btn-secondary">
                 <i class="bi bi-arrow-right me-1"></i>
-                جميع الطلبات
+                {{ __('warehouse_intake.all_requests') }}
             </a>
         </div>
     </div>
@@ -25,7 +25,7 @@
     @if($pendingRequests->count() > 0)
     <div class="alert alert-warning mb-4">
         <i class="bi bi-exclamation-triangle me-2"></i>
-        <strong>يوجد {{ $pendingRequests->total() }} طلب بانتظار المراجعة</strong>
+        <strong>{{ __('warehouse_intake.pending_review_count', ['count' => $pendingRequests->total()]) }}</strong>
     </div>
 
     @foreach($pendingRequests as $request)
@@ -35,7 +35,7 @@
                 <div class="col-md-8">
                     <h5 class="mb-0">
                         <i class="bi bi-file-earmark-text me-2"></i>
-                        طلب رقم: <strong>{{ $request->request_number }}</strong>
+                        {{ __('warehouse_intake.request_number_label', ['number' => $request->request_number]) }}
                     </h5>
                     <small class="text-dark">
                         <i class="bi bi-person me-1"></i>
@@ -48,7 +48,7 @@
                     <a href="{{ route('manufacturing.warehouse-intake.show', $request->id) }}" 
                        class="btn btn-sm btn-info" target="_blank">
                         <i class="bi bi-eye me-1"></i>
-                        عرض التفاصيل
+                        {{ __('warehouse_intake.view_details') }}
                     </a>
                 </div>
             </div>
@@ -65,21 +65,21 @@
                     <div class="row g-3">
                         <div class="col-6">
                             <div class="p-3 bg-light rounded">
-                                <small class="text-muted d-block">عدد الصناديق</small>
+                                <small class="text-muted d-block">{{ __('warehouse_intake.boxes_count_label') }}</small>
                                 <h4 class="mb-0 text-primary">{{ $request->boxes_count }}</h4>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="p-3 bg-light rounded">
-                                <small class="text-muted d-block">الوزن الإجمالي</small>
-                                <h4 class="mb-0 text-success">{{ number_format($request->total_weight, 2) }} كجم</h4>
+                                <small class="text-muted d-block">{{ __('warehouse_intake.total_weight_label') }}</small>
+                                <h4 class="mb-0 text-success">{{ number_format($request->total_weight, 2) }} {{ __('warehouse_intake.kg') }}</h4>
                             </div>
                         </div>
                     </div>
 
                     @if($request->notes)
                     <div class="mt-3">
-                        <small class="text-muted">ملاحظات الطلب:</small>
+                        <small class="text-muted">{{ __('warehouse_intake.request_notes') }}</small>
                         <div class="alert alert-light py-2 mb-0 mt-1">
                             <i class="bi bi-chat-left-text me-1"></i>
                             {{ $request->notes }}
@@ -92,17 +92,17 @@
                 <div class="col-md-6">
                     <h6 class="text-muted mb-3">
                         <i class="bi bi-box-seam me-1"></i>
-                        قائمة الصناديق
+                        {{ __('warehouse_intake.boxes_list') }}
                     </h6>
                     
                     <div style="max-height: 250px; overflow-y: auto;">
                         <table class="table table-sm table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>#</th>
-                                    <th>الباركود</th>
-                                    <th>التغليف</th>
-                                    <th>الوزن</th>
+                                    <th>{{ __('warehouse_intake.box_number') }}</th>
+                                    <th>{{ __('warehouse_intake.barcode') }}</th>
+                                    <th>{{ __('warehouse_intake.packaging_type') }}</th>
+                                    <th>{{ __('warehouse_intake.weight') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -128,13 +128,13 @@
                                 data-request-id="{{ $request->id }}"
                                 data-request-number="{{ $request->request_number }}">
                             <i class="bi bi-check-circle me-2"></i>
-                            اعتماد وإدخال للمستودع
+                            {{ __('warehouse_intake.approve_and_intake') }}
                         </button>
                         <button type="button" class="btn btn-danger btn-lg reject-btn" 
                                 data-request-id="{{ $request->id }}"
                                 data-request-number="{{ $request->request_number }}">
                             <i class="bi bi-x-circle me-2"></i>
-                            رفض الطلب
+                            {{ __('warehouse_intake.reject_request') }}
                         </button>
                     </div>
                 </div>
@@ -152,8 +152,8 @@
     <div class="card border-success">
         <div class="card-body text-center py-5">
             <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
-            <h4 class="mt-3 mb-2">لا توجد طلبات معلقة</h4>
-            <p class="text-muted">جميع الطلبات تمت معالجتها ✓</p>
+            <h4 class="mt-3 mb-2">{{ __('warehouse_intake.no_pending_requests') }}</h4>
+            <p class="text-muted">{{ __('warehouse_intake.all_requests_processed') }}</p>
         </div>
     </div>
     @endif
@@ -166,7 +166,7 @@
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title">
                     <i class="bi bi-check-circle me-2"></i>
-                    اعتماد طلب الإدخال
+                    {{ __('warehouse_intake.approve_intake_modal') }}
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -176,12 +176,12 @@
                 <div class="modal-body">
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle me-2"></i>
-                        اختر المستودع الذي سيتم إدخال الصناديق إليه
+                        {{ __('warehouse_intake.select_warehouse_info') }}
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">المستودع المستهدف <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('warehouse_intake.target_warehouse') }} <span class="text-danger">*</span></label>
                         <select name="warehouse_id" class="form-select" required>
-                            <option value="">-- اختر المستودع --</option>
+                            <option value="">{{ __('warehouse_intake.select_warehouse') }}</option>
                             @foreach($warehouses as $warehouse)
                             <option value="{{ $warehouse->id }}">
                                 {{ $warehouse->warehouse_name }}
@@ -193,16 +193,16 @@
                         </select>
                     </div>
                     <div id="request-summary" class="alert alert-light d-none">
-                        <!-- سيتم ملؤه بواسطة JavaScript -->
+                        {{-- {{ __('warehouse_intake.request_summary_placeholder') }} --}}
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        إلغاء
+                        {{ __('warehouse_intake.cancel') }}
                     </button>
                     <button type="submit" class="btn btn-success">
                         <i class="bi bi-check-circle me-1"></i>
-                        تأكيد الاعتماد والإدخال
+                        {{ __('warehouse_intake.confirm_approval') }}
                     </button>
                 </div>
             </form>
@@ -217,7 +217,7 @@
             <div class="modal-header bg-danger text-white">
                 <h5 class="modal-title">
                     <i class="bi bi-x-circle me-2"></i>
-                    رفض طلب الإدخال
+                    {{ __('warehouse_intake.reject_intake_modal') }}
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -227,21 +227,21 @@
                 <div class="modal-body">
                     <div class="alert alert-warning">
                         <i class="bi bi-exclamation-triangle me-2"></i>
-                        سيتم إرجاع الصناديق للمرحلة الرابعة بحالة "مكتمل"
+                        {{ __('warehouse_intake.rejection_warning') }}
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">سبب الرفض <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('warehouse_intake.rejection_reason') }} <span class="text-danger">*</span></label>
                         <textarea name="rejection_reason" class="form-control" rows="4" 
-                                  placeholder="اذكر سبب رفض طلب الإدخال..." required></textarea>
+                                  placeholder="{{ __('warehouse_intake.rejection_reason_placeholder') }}" required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        إلغاء
+                        {{ __('warehouse_intake.cancel') }}
                     </button>
                     <button type="submit" class="btn btn-danger">
                         <i class="bi bi-x-circle me-1"></i>
-                        تأكيد الرفض
+                        {{ __('warehouse_intake.confirm_rejection') }}
                     </button>
                 </div>
             </form>
@@ -268,13 +268,12 @@ $(document).ready(function() {
         const totalWeight = card.find('.badge.bg-info').text().split(' ')[0];
         
         $('#request-summary').removeClass('d-none').html(`
-            <strong>ملخص الطلب ${requestNumber}:</strong><br>
-            <i class="bi bi-box-seam me-1"></i> عدد الصناديق: <strong>${boxesCount}</strong><br>
-            <i class="bi bi-file-earmark-bar-graph me-1"></i> الوزن الإجمالي: <strong>${totalWeight} كجم</strong>
-        `);
+            <strong>{{ __('warehouse_intake.request_summary', ['number' => ${requestNumber}]) }}</strong><br>
+            <i class="bi bi-box-seam me-1"></i> {{ __('warehouse_intake.boxes_count') }}: <strong>${boxesCount}</strong><br>
+            <i class="bi bi-file-earmark-bar-graph me-1"></i> {{ __('warehouse_intake.total_weight') }}: <strong>${totalWeight} {{ __('warehouse_intake.kg') }}</strong>
+        <strong>{{ __('warehouse_intake.pending_review_count', ['count' => $pendingRequests->total()]) }}</strong>
         
         $('#approveModal').modal('show');
-    });
 
     // تأكيد الاعتماد
     $('#approveForm').on('submit', function(e) {
@@ -284,7 +283,7 @@ $(document).ready(function() {
         const warehouseId = $(this).find('[name="warehouse_id"]').val();
 
         if (!warehouseId) {
-            Swal.fire('تنبيه', 'يجب اختيار المستودع', 'warning');
+            Swal.fire('{{ __('warehouse_intake.alert') }}', '{{ __('warehouse_intake.select_warehouse_required') }}', 'warning');
             return;
         }
 
@@ -300,7 +299,7 @@ $(document).ready(function() {
                     $('#approveModal').modal('hide');
                     Swal.fire({
                         icon: 'success',
-                        title: 'تم الاعتماد بنجاح!',
+                        title: '{{ __('warehouse_intake.approval_success') }}',
                         text: response.message,
                         timer: 3000
                     }).then(() => {
@@ -309,10 +308,10 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
-                Swal.fire('خطأ', xhr.responseJSON?.error || 'فشل اعتماد الطلب', 'error');
+                Swal.fire('{{ __('warehouse_intake.error') }}', xhr.responseJSON?.error || '{{ __('warehouse_intake.request_approval_failed') }}', 'error');
             }
         });
-    });
+    }
 
     // فتح modal الرفض
     $(document).on('click', '.reject-btn', function() {
@@ -324,7 +323,7 @@ $(document).ready(function() {
         $('#rejectModal').modal('show');
     });
 
-    // تأكيد الرفض
+    // {{ __('warehouse_intake.confirm_rejection') }}
     $('#rejectForm').on('submit', function(e) {
         e.preventDefault();
         
@@ -332,7 +331,7 @@ $(document).ready(function() {
         const reason = $(this).find('[name="rejection_reason"]').val();
 
         if (!reason.trim()) {
-            Swal.fire('تنبيه', 'يجب ذكر سبب الرفض', 'warning');
+            Swal.fire('{{ __('warehouse_intake.alert') }}', '{{ __('warehouse_intake.rejection_reason_required') }}', 'warning');
             return;
         }
 
@@ -348,7 +347,7 @@ $(document).ready(function() {
                     $('#rejectModal').modal('hide');
                     Swal.fire({
                         icon: 'success',
-                        title: 'تم الرفض',
+                        title: '{{ __('warehouse_intake.rejection_success') }}',
                         text: response.message,
                         timer: 2000
                     }).then(() => {
@@ -357,10 +356,11 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
-                Swal.fire('خطأ', xhr.responseJSON?.error || 'فشل رفض الطلب', 'error');
+                Swal.fire('{{ __('warehouse_intake.error') }}', xhr.responseJSON?.error || '{{ __('warehouse_intake.request_rejection_failed') }}', 'error');
             }
         });
     });
 });
+
 </script>
 @endpush

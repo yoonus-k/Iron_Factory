@@ -41,7 +41,7 @@ return [
     'choose_customer' => 'صارف منتخب کریں',
     'rejection_reason_placeholder' => 'ڈیلیوری نوٹ کو مسترد کرنے کی وجہ درج کریں',
     'boxes_will_be_reset' => 'ڈبے کی حالت "مکمل شدہ" پر ری سیٹ ہوگی اور دوبارہ استعمال کی جا سکے گی',
-    
+
     // Index page
     'delivery_notes' => 'ڈیلیوری نوٹس',
     'create_new_delivery_note' => 'نیا ڈیلیوری نوٹ بنائیں',
@@ -58,7 +58,7 @@ return [
     'edit' => 'ترمیم کریں',
     'delete' => 'حذف کریں',
     'no_delivery_notes' => 'کوئی ڈیلیوری نوٹ نہیں ملا',
-    
+
     // Create page
     'create_delivery_note' => 'ڈیلیوری نوٹ بنائیں',
     'select_boxes_from_stage_four' => 'مرحلہ چار سے ڈبے منتخب کریں',
@@ -92,7 +92,7 @@ return [
     'success' => 'کامیابی!',
     'error_occurred_while_saving' => 'محفوظ کرتے وقت خرابی پیش آئی',
     'box' => 'ڈبہ',
-    
+
     // Edit page
     'edit_delivery_note' => 'ڈیلیوری نوٹ میں ترمیم کریں',
     'edit_data' => 'ڈیٹا میں ترمیم کریں',
@@ -103,7 +103,7 @@ return [
     'back_to_details' => 'تفصیلات میں واپس جائیں',
     'selected_boxes_title' => 'منتخب ڈبے',
     'cannot_edit' => 'ترمیم نہیں ہو سکتی',
-    
+
     // Pending approval page
     'pending_approval' => 'منظوری کے لیے زیرِ التوا',
     'review_and_approve_or_reject' => 'ڈیلیوری نوٹس کا جائزہ لیں اور منظور یا مسترد کریں',
@@ -123,7 +123,7 @@ return [
     'approval_confirmation' => 'منظوری کی تصدیق',
     'sure_approve_note' => 'کیا آپ یقینی ہیں کہ اس نوٹ کو منظور کرنا چاہتے ہیں؟',
     'customer_required' => 'منظوری سے پہلے صارف کا انتخاب ضروری ہے',
-    
+
     // Messages
     'saved_successfully' => 'کامیابی سے محفوظ ہو گیا',
     'approved_successfully' => 'کامیابی سے منظور ہوا',
