@@ -43,6 +43,14 @@
                     </li>
                     @endif
 
+                    @if(auth()->user()->hasPermission('MENU_STAGE1_STANDS') || auth()->user()->hasPermission('STAGE1_STANDS_READ'))
+                    <li>
+                        <a href="{{ route('manufacturing.stands.index') }}">
+                            <i class="fas fa-layer-group"></i> {{ __('app.warehouse.stands') }}
+                        </a>
+                    </li>
+                    @endif
+
                     @if(auth()->user()->hasPermission('MENU_WAREHOUSE_STORES') || auth()->user()->hasPermission('WAREHOUSE_STORES_READ'))
                     <li>
                         <a href="{{ route('manufacturing.warehouses.index') }}">
@@ -303,8 +311,22 @@
             </li>
             @endif
 
+            <!-- تأكيدات الإنتاج -->
+            @if(auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS'))
+            <li>
+                <a href="{{ route('manufacturing.production.confirmations.index') }}" data-tooltip="تأكيدات الإنتاج">
+                    <i class="fas fa-check-circle"></i>
+                    <span>تأكيدات الإنتاج</span>
+                </a>
+            </li>
+            @endif
+
             <!-- التسليم والعملاء -->
-            @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES') || auth()->user()->hasPermission('MENU_CUSTOMERS') || auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS') || auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW'))
+            @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES') || 
+                auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_CREATE') || 
+                auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_APPROVE') || 
+                auth()->user()->hasPermission('MENU_CUSTOMERS') || 
+                auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW'))
             <li class="has-submenu">
                 <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="التسليم والعملاء">
                     <i class="fas fa-shipping-fast"></i>
@@ -344,16 +366,6 @@
                             @if($pendingDeliveryCount > 0)
                                 <span class="badge badge-danger" style="margin-right: 5px;">{{ $pendingDeliveryCount }}</span>
                             @endif
-                        </a>
-                    </li>
-                    @endif
-
-                    @if(auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS'))
-                    <li class="submenu-header" style="margin-top: 10px;"><span>التأكيدات والمتابعة</span></li>
-                    
-                    <li>
-                        <a href="{{ route('manufacturing.production.confirmations.index') }}">
-                            <i class="fas fa-check-circle"></i> تأكيدات التسليم
                         </a>
                     </li>
                     @endif

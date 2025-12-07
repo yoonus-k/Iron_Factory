@@ -576,4 +576,54 @@ return [
     'stage4_shipment_finished_success' => '✅ تم إنهاء الشحنة بنجاح!',
     'stage4_print_label' => 'طباعة الملصق',
     'stage4_confirm_remove_box' => 'هل أنت متأكد من حذف هذا الكرتون؟',
+    'stage4_important_note' => 'ملاحظة مهمة',
+    'stage4_weight_can_increase' => 'الوزن قد يزيد بعد إضافة الكرتون والتغليف',
+    'stage4_auto_divide_option' => 'يمكنك تقسيم اللفاف تلقائياً إلى كراتين متساوية',
+    'stage4_manual_add_option' => 'أو إضافة الكراتين يدوياً بأوزان مختلفة',
+    'stage4_each_gets_barcode' => 'كل كرتون سيحصل على باركود مستقل',
+    'stage4_auto_divide' => 'تقسيم تلقائي',
+    'stage4_total_boxes_weight' => 'الوزن الإجمالي للكراتين (كجم)',
+    'stage4_example' => 'مثال',
+    'stage4_weight_can_be_more' => 'يمكن أن يكون الوزن أكثر من اللفاف بسبب التغليف',
+    'stage4_boxes_count' => 'عدد الكراتين',
+    'stage4_divide_weight_auto' => 'تقسيم الوزن تلقائياً',
+    'stage4_manual_add' => 'إضافة يدوية',
+    'stage4_additional_notes' => 'ملاحظات إضافية...',
+    'stage4_summary' => 'ملخص',
+    'stage4_total_weight_sum' => 'إجمالي الوزن',
+    'stage4_lafaf_weight' => 'وزن اللفاف',
+
+    // Show Page Titles
+    'stage2_details_title' => 'تفاصيل المرحلة الثانية',
+    'stage3_details_title' => 'تفاصيل المرحلة الثالثة',
+    'stage4_details_title' => 'تفاصيل المرحلة الرابعة',
+    'details' => 'التفاصيل',
+
+    // Status Labels
+    'packed_status' => 'معبأ',
+    'in_warehouse' => 'في المستودع',
+    'delivered' => 'تم التسليم',
+
+    // Stage 4 Specific Labels
+    'packaging_type_label' => 'نوع التعبئة',
+    'coils_count_label' => 'عدد اللفات',
+    'product_specifications' => 'مواصفات المنتج',
+    'box_type' => 'كرتونة',
+    'bundle_type' => 'طردة',
+
+    // Stage 3 Specific Labels
+    'color_label' => 'اللون',
+    'base_weight_label' => 'وزن الأساس',
+    'plastic_weight_label' => 'وزن البلاستيك',
+    'dye_weight_label' => 'وزن الصبغة',
+    'plastic_type_label' => 'نوع البلاستيك',
+    'stage3_weight_header' => 'الوزن',
+    'stage3_color_header' => 'اللون',
+    'stage3_plastic_type_header' => 'نوع البلاستيك',
+    'status_header' => 'الحالة',
+
+    // General Labels
+    'action_type' => 'نوع العملية',
+    'barcode_label' => 'الباركود',
+    'gross_weight_label' => 'الوزن الإجمالي',
 ];

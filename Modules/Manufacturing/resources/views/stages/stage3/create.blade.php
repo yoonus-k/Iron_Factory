@@ -117,6 +117,28 @@
                 <li>{{ __('stages.stage3_enter_complete_weight_note') }}</li>
                 <li>{{ __('stages.stage3_auto_calc_note') }}</li>
             </ul>
+            @if($plastic)
+            <div style="margin-top:15px; padding:10px; background:#e8f5e9; border-radius:8px; border-right:3px solid #27ae60;">
+                <strong style="color:#27ae60;"><i class="fas fa-box"></i> البلاستيك المتاح في المستودع:</strong>
+                @php
+                    $plasticQuantity = DB::table('material_details')
+                        ->where('material_id', $plastic->id)
+                        ->where('quantity', '>', 0)
+                        ->sum('quantity');
+                @endphp
+                <span style="font-size:16px; font-weight:700; color:#1e7e34; margin-right:10px;">
+                    {{ number_format($plasticQuantity, 3) }} كجم
+                </span>
+                <small style="display:block; margin-top:5px; color:#666;">
+                    <i class="fas fa-info-circle"></i> سيتم خصم الوزن المضاف بالكامل من البلاستيك
+                </small>
+            </div>
+            @else
+            <div style="margin-top:15px; padding:10px; background:#fff3cd; border-radius:8px; border-right:3px solid #ffc107;">
+                <strong style="color:#856404;"><i class="fas fa-exclamation-triangle"></i> تحذير:</strong>
+                <span style="color:#856404;">لا يوجد بلاستيك متاح في المستودع</span>
+            </div>
+            @endif
         </div>
 
         <div class="form-row">
@@ -141,7 +163,14 @@
 
             <div class="form-group">
                 <label>{{ __('stages.stage3_color_label') }} <span style="color:#e74c3c;">*</span></label>
-                <input type="text" id="color" class="form-control" placeholder="{{ __('stages.stage3_color_placeholder') }}">
+                <select id="colorSelect" class="form-select" style="padding:10px 12px; border-radius:8px; border:1.5px solid #e7eef5;">
+                    <option value="">-- اختر اللون --</option>
+                    @foreach($colors as $color)
+                        <option value="{{ $color->id }}" data-name="{{ $color->name_ar }}">{{ $color->name_ar }}</option>
+                    @endforeach
+                </select>
+                <input type="hidden" id="color" value="">
+                <input type="hidden" id="colorMaterialId" value="">
             </div>
         </div>
 
@@ -231,6 +260,19 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('✅ Total weight input listener attached');
     } else {
         console.error('❌ Total weight input not found!');
+    }
+
+    // تحديث اللون عند الاختيار
+    const colorSelect = document.getElementById('colorSelect');
+    if (colorSelect) {
+        colorSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const colorName = selectedOption.getAttribute('data-name');
+            const colorId = this.value;
+            
+            document.getElementById('color').value = colorName || '';
+            document.getElementById('colorMaterialId').value = colorId || '';
+        });
     }
 });
 
@@ -378,6 +420,7 @@ function addLafaf(button = null) {
 
     const totalWeight = document.getElementById('totalWeight').value;
     const color = document.getElementById('color').value.trim();
+    const colorMaterialId = document.getElementById('colorMaterialId').value;
     const plasticType = document.getElementById('plasticType').value.trim();
     const notes = document.getElementById('notes').value.trim();
 

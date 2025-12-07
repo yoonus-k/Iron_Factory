@@ -7,29 +7,77 @@
     .box-card {
         border: 2px solid #e0e0e0;
         border-radius: 12px;
-        padding: 15px;
+        padding: 18px;
         margin-bottom: 15px;
         transition: all 0.3s ease;
         cursor: pointer;
         background: white;
+        position: relative;
+    }
+    
+    .box-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 50px 50px 0;
+        border-color: transparent #27ae60 transparent transparent;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .box-card.selected::before {
+        opacity: 1;
+    }
+    
+    .box-card.selected::after {
+        content: '✓';
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+        z-index: 1;
     }
     
     .box-card:hover {
         border-color: #667eea;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.25);
+        transform: translateY(-3px);
     }
     
     .box-card.selected {
-        border-color: #667eea;
-        background: linear-gradient(135deg, #f0f4ff 0%, #e8f0ff 100%);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        border-color: #27ae60;
+        background: linear-gradient(135deg, #f0fff4 0%, #e6f9ea 100%);
+        box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
     }
     
     .box-selector {
-        max-height: 600px;
+        max-height: calc(100vh - 250px);
         overflow-y: auto;
         padding: 10px;
+    }
+    
+    .box-selector::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .box-selector::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .box-selector::-webkit-scrollbar-thumb {
+        background: #667eea;
+        border-radius: 10px;
+    }
+    
+    .box-selector::-webkit-scrollbar-thumb:hover {
+        background: #5568d3;
     }
     
     .summary-card {
@@ -38,8 +86,51 @@
         border-radius: 16px;
         padding: 24px;
         box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        position: sticky;
-        top: 20px;
+    }
+    
+    @media (min-width: 992px) {
+        .summary-card {
+            position: sticky;
+            top: 20px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+    }
+    
+    .sticky-bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 15px 20px;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+        z-index: 1000;
+        display: none;
+    }
+    
+    .sticky-bottom-bar.show {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .sticky-bottom-info {
+        color: white;
+        display: flex;
+        gap: 25px;
+        align-items: center;
+    }
+    
+    .sticky-stat {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .sticky-stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
     }
     
     .stat-badge {
@@ -219,6 +310,31 @@
             </div>
         </div>
     </form>
+    
+    <!-- شريط ثابت في الأسفل يظهر عند التمرير -->
+    <div class="sticky-bottom-bar" id="stickyBar">
+        <div class="sticky-bottom-info">
+            <div class="sticky-stat">
+                <i class="bi bi-box-seam fs-4"></i>
+                <div>
+                    <div class="sticky-stat-number" id="stickyCount">0</div>
+                    <small>صندوق</small>
+                </div>
+            </div>
+            <div class="sticky-stat">
+                <i class="bi bi-speedometer fs-4"></i>
+                <div>
+                    <div class="sticky-stat-number" id="stickyWeight">0</div>
+                    <small>كجم</small>
+                </div>
+            </div>
+        </div>
+        <button type="button" id="stickySubmitBtn" class="btn btn-light btn-lg px-5 fw-bold" disabled>
+            <i class="bi bi-check-circle me-2"></i>
+            حفظ إذن الصرف
+        </button>
+    </div>
+    
     @endif
 </div>
 
@@ -252,8 +368,21 @@ $(document).ready(function() {
             const isSelected = selectedBoxes.some(b => b.id === box.id);
             const materials = box.materials || [];
             const materialsHtml = materials.length > 0 
-                ? materials.map(m => `<span class="material-badge"><i class="bi bi-palette me-1"></i>${m.color} - ${m.type} - ${m.thickness}</span>`).join('')
-                : '<span class="text-muted">-</span>';
+                ? materials.map(m => {
+                    let specs = `<span class="material-badge">
+                        <i class="bi bi-palette me-1"></i>`;
+                    
+                    let parts = [];
+                    if (m.color && m.color !== 'غير محدد') parts.push(m.color);
+                    if (m.type && m.type !== 'غير محدد') parts.push(m.type);
+                    if (m.wire_size) parts.push(m.wire_size);
+                    if (m.plastic_type) parts.push(m.plastic_type);
+                    
+                    specs += parts.length > 0 ? parts.join(' - ') : 'غير محدد';
+                    specs += `</span>`;
+                    return specs;
+                }).join('')
+                : '<span class="text-muted">لا توجد مواصفات</span>';
             
             html += `
                 <div class="box-card ${isSelected ? 'selected' : ''}" data-box-id="${box.id}">
@@ -387,7 +516,32 @@ $(document).ready(function() {
 
         // تفعيل/تعطيل زر الحفظ
         $('#submitBtn').prop('disabled', count === 0);
+        $('#stickySubmitBtn').prop('disabled', count === 0);
+        
+        // تحديث الشريط الثابت
+        $('#stickyCount').text(count);
+        $('#stickyWeight').text(totalWeight.toFixed(2));
     }
+    
+    // إظهار/إخفاء الشريط الثابت عند التمرير
+    let summaryCardTop = $('.summary-card').offset().top;
+    $(window).on('scroll', function() {
+        let scrollTop = $(window).scrollTop();
+        let windowHeight = $(window).height();
+        let summaryCardBottom = summaryCardTop + $('.summary-card').outerHeight();
+        
+        // إظهار الشريط عندما يكون زر الحفظ خارج الشاشة
+        if (scrollTop + windowHeight < summaryCardBottom || scrollTop > summaryCardTop + 200) {
+            $('#stickyBar').addClass('show');
+        } else {
+            $('#stickyBar').removeClass('show');
+        }
+    });
+    
+    // نسخ وظيفة زر الحفظ للشريط الثابت
+    $('#stickySubmitBtn').on('click', function() {
+        $('#deliveryForm').submit();
+    });
 
     // إزالة صندوق من القائمة المحددة
     $(document).on('click', '.remove-box', function(e) {
@@ -415,8 +569,10 @@ $(document).ready(function() {
         });
 
         const submitBtn = $('#submitBtn');
+        const stickyBtn = $('#stickySubmitBtn');
         const originalText = submitBtn.html();
         submitBtn.prop('disabled', true).html('<i class="bi bi-hourglass-split me-1"></i> جاري الحفظ...');
+        stickyBtn.prop('disabled', true).html('<i class="bi bi-hourglass-split me-1"></i> جاري الحفظ...');
 
         $.ajax({
             url: $(this).attr('action'),

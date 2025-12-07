@@ -88,33 +88,58 @@ class FinishedProductDeliveryController extends Controller
         $customers = Customer::active()->orderBy('name')->get();
         
         // جلب جميع الصناديق الموجودة في المستودع فقط
-        $availableBoxes = Stage4Box::where('status', 'in_warehouse')
-            ->whereDoesntHave('deliveryNoteItems')
-            ->with(['creator', 'boxCoils.stage3Coil.stage2Record.stage1Batch.material'])
-            ->orderBy('created_at', 'desc')
+        $availableBoxes = DB::table('stage4_boxes')
+            ->where('stage4_boxes.status', 'in_warehouse')
+            ->whereNotExists(function($query) {
+                $query->select(DB::raw(1))
+                    ->from('delivery_note_items')
+                    ->whereColumn('delivery_note_items.stage4_box_id', 'stage4_boxes.id');
+            })
+            ->leftJoin('users', 'stage4_boxes.created_by', '=', 'users.id')
+            ->select(
+                'stage4_boxes.id',
+                'stage4_boxes.barcode',
+                'stage4_boxes.parent_barcode',
+                'stage4_boxes.material_id',
+                'stage4_boxes.packaging_type',
+                'stage4_boxes.total_weight as weight',
+                'stage4_boxes.coils_count',
+                'stage4_boxes.created_at',
+                'users.name as creator'
+            )
+            ->orderBy('stage4_boxes.created_at', 'desc')
             ->get()
             ->map(function($box) {
+                // جلب معلومات المواد من stage3_coils عبر parent_barcode
+                $materials = DB::table('stage3_coils')
+                    ->leftJoin('materials', 'stage3_coils.material_id', '=', 'materials.id')
+                    ->where('stage3_coils.barcode', $box->parent_barcode)
+                    ->select(
+                        'stage3_coils.color',
+                        'stage3_coils.wire_size',
+                        'stage3_coils.plastic_type',
+                        'materials.name_ar as material_type'
+                    )
+                    ->get()
+                    ->map(function($material) {
+                        return [
+                            'color' => $material->color ?? 'غير محدد',
+                            'type' => $material->material_type ?? 'غير محدد',
+                            'wire_size' => $material->wire_size ?? null,
+                            'plastic_type' => $material->plastic_type ?? null,
+                        ];
+                    })
+                    ->values();
+
                 return [
                     'id' => $box->id,
                     'barcode' => $box->barcode,
                     'packaging_type' => $box->packaging_type,
-                    'weight' => $box->total_weight,
+                    'weight' => $box->weight,
                     'coils_count' => $box->coils_count,
-                    'creator' => $box->creator ? $box->creator->name : 'غير محدد',
-                    'created_at' => $box->created_at->format('Y-m-d'),
-                    // إضافة معلومات المواد من المرحلة الثالثة
-                    'materials' => $box->boxCoils->map(function($boxCoil) {
-                        $stage3 = $boxCoil->stage3Coil;
-                        if ($stage3 && $stage3->stage2Record && $stage3->stage2Record->stage1Batch) {
-                            $material = $stage3->stage2Record->stage1Batch->material;
-                            return [
-                                'color' => $material->color ?? 'غير محدد',
-                                'type' => $material->type ?? 'غير محدد',
-                                'thickness' => $material->thickness ?? 'غير محدد',
-                            ];
-                        }
-                        return null;
-                    })->filter()->unique('color')->values()
+                    'creator' => $box->creator ?? 'غير محدد',
+                    'created_at' => $box->created_at,
+                    'materials' => $materials
                 ];
             });
 
@@ -275,6 +300,17 @@ class FinishedProductDeliveryController extends Controller
             abort(403, 'ليس لديك صلاحية لعرض هذا الإذن');
         }
         
+        // إضافة معلومات المواد لكل صندوق
+        foreach ($deliveryNote->items as $item) {
+            if ($item->stage4Box && $item->stage4Box->parent_barcode) {
+                $item->materials = DB::table('stage3_coils')
+                    ->leftJoin('materials', 'stage3_coils.material_id', '=', 'materials.id')
+                    ->where('stage3_coils.barcode', $item->stage4Box->parent_barcode)
+                    ->select('stage3_coils.color', 'stage3_coils.wire_size', 'materials.name_ar as material_type')
+                    ->get();
+            }
+        }
+        
         // قائمة العملاء للاستخدام في modal الاعتماد
         $customers = Customer::active()->orderBy('name')->get();
 
@@ -375,6 +411,19 @@ class FinishedProductDeliveryController extends Controller
             ->with(['customer', 'recordedBy', 'items.stage4Box'])
             ->orderBy('created_at', 'asc')
             ->paginate(20);
+        
+        // إضافة معلومات المواد لكل صندوق
+        foreach ($deliveryNotes as $deliveryNote) {
+            foreach ($deliveryNote->items as $item) {
+                if ($item->stage4Box && $item->stage4Box->parent_barcode) {
+                    $item->materials = DB::table('stage3_coils')
+                        ->leftJoin('materials', 'stage3_coils.material_id', '=', 'materials.id')
+                        ->where('stage3_coils.barcode', $item->stage4Box->parent_barcode)
+                        ->select('stage3_coils.color', 'stage3_coils.wire_size', 'materials.name_ar as material_type')
+                        ->get();
+                }
+            }
+        }
         
         // قائمة العملاء
         $customers = Customer::active()->orderBy('name')->get();
@@ -481,6 +530,17 @@ class FinishedProductDeliveryController extends Controller
 
         if (!$deliveryNote->canPrint()) {
             return redirect()->back()->with('error', 'لا يمكن طباعة إذن غير معتمد');
+        }
+
+        // إضافة معلومات المواد لكل صندوق
+        foreach ($deliveryNote->items as $item) {
+            if ($item->stage4Box && $item->stage4Box->parent_barcode) {
+                $item->materials = DB::table('stage3_coils')
+                    ->leftJoin('materials', 'stage3_coils.material_id', '=', 'materials.id')
+                    ->where('stage3_coils.barcode', $item->stage4Box->parent_barcode)
+                    ->select('stage3_coils.color', 'stage3_coils.wire_size', 'materials.name_ar as material_type')
+                    ->get();
+            }
         }
 
         // زيادة عداد الطباعة

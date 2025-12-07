@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Stage4Box;
 
 class Stage4Controller extends Controller
 {
@@ -43,11 +44,23 @@ class Stage4Controller extends Controller
     }
 
     /**
-     * عرض صفحة إنشاء كرتون جديد
+     * عرض صفحة إنشاء كراتين جديدة
      */
     public function create()
     {
-        return view('manufacturing::stages.stage4.create');
+        // جلب الكرتون من المستودع
+        $carton = DB::table('materials')
+            ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
+            ->where('material_types.type_name', 'كرتون')
+            ->where('materials.status', 'available')
+            ->select(
+                'materials.id',
+                'materials.name_ar',
+                DB::raw('COALESCE((SELECT SUM(quantity) FROM material_details WHERE material_id = materials.id AND quantity > 0), 0) as available_quantity')
+            )
+            ->first();
+
+        return view('manufacturing::stages.stage4.create', compact('carton'));
     }
 
     /**
@@ -169,6 +182,28 @@ class Stage4Controller extends Controller
 
             $boxes = $request->boxes;
             $totalBoxesWeight = array_sum(array_column($boxes, 'weight'));
+            $boxesCount = count($boxes);
+
+            // 🔍 التحقق من كمية الكراتين في المستودع
+            $carton = DB::table('materials')
+                ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
+                ->where('material_types.type_name', 'كرتون')
+                ->where('materials.status', 'available')
+                ->select('materials.id', 'materials.name_ar')
+                ->selectRaw('COALESCE((SELECT SUM(quantity) FROM material_details WHERE material_id = materials.id AND quantity > 0), 0) as available_quantity')
+                ->first();
+
+            if (!$carton) {
+                throw new \Exception('❌ لا يوجد كرتون متاح في المستودع');
+            }
+
+            if ($carton->available_quantity < $boxesCount) {
+                throw new \Exception(sprintf(
+                    '❌ عدد الكراتين المطلوبة (%d كرتونة) أكبر من العدد المتاح في المستودع (%d كرتونة)',
+                    $boxesCount,
+                    (int)$carton->available_quantity
+                ));
+            }
 
             // التحقق من أن مجموع أوزان الكراتين يساوي وزن اللفاف تقريباً
             $lafafWeight = $lafaf->total_weight;
@@ -252,6 +287,29 @@ class Stage4Controller extends Controller
                     'created_at' => now()
                 ]);
 
+                // 📦 خصم كرتونة واحدة من المستودع
+                try {
+                    \Log::info("Stage4: Starting carton deduction", [
+                        'carton_id' => $carton->id,
+                        'box_index' => $index + 1,
+                        'barcode' => $barcode
+                    ]);
+                    
+                    $this->deductCartonFromWarehouse($carton->id, 1);
+                    
+                    \Log::info("Stage4: Carton deducted successfully", [
+                        'carton_id' => $carton->id,
+                        'box_index' => $index + 1
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::error("Stage4: Carton deduction failed", [
+                        'error' => $e->getMessage(),
+                        'carton_id' => $carton->id,
+                        'box_index' => $index + 1
+                    ]);
+                    throw $e;
+                }
+
                 // إدراج سجل في barcodes
                 DB::table('barcodes')->insert([
                     'barcode' => $barcode,
@@ -325,6 +383,26 @@ class Stage4Controller extends Controller
         try {
             DB::beginTransaction();
 
+            // 🔍 التحقق من كمية الكراتين في المستودع
+            $carton = DB::table('materials')
+                ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
+                ->where('material_types.type_name', 'كرتون')
+                ->where('materials.status', 'available')
+                ->select('materials.id', 'materials.name_ar')
+                ->selectRaw('COALESCE((SELECT SUM(quantity) FROM material_details WHERE material_id = materials.id AND quantity > 0), 0) as available_quantity')
+                ->first();
+
+            if (!$carton) {
+                throw new \Exception('❌ لا يوجد كرتون متاح في المستودع');
+            }
+
+            if ($carton->available_quantity < 1) {
+                throw new \Exception(sprintf(
+                    '❌ لا توجد كراتين متاحة في المستودع. الكمية المتاحة: %d كرتونة',
+                    (int)$carton->available_quantity
+                ));
+            }
+
             // توليد الباركود
             $barcode = $this->generateStageBarcode('stage4');
 
@@ -370,6 +448,28 @@ class Stage4Controller extends Controller
             $materialName = DB::table('materials')
                 ->where('materials.id', $request->material_id)
                 ->value('name_ar');
+
+            // 📦 خصم كرتونة واحدة من المستودع
+            try {
+                \Log::info("Stage4 storeSingle: Starting carton deduction", [
+                    'carton_id' => $carton->id,
+                    'barcode' => $barcode,
+                    'box_number' => $boxNumber
+                ]);
+                
+                $this->deductCartonFromWarehouse($carton->id, 1);
+                
+                \Log::info("Stage4 storeSingle: Carton deducted successfully", [
+                    'carton_id' => $carton->id,
+                    'barcode' => $barcode
+                ]);
+            } catch (\Exception $e) {
+                \Log::error("Stage4 storeSingle: Carton deduction failed", [
+                    'error' => $e->getMessage(),
+                    'carton_id' => $carton->id
+                ]);
+                throw new \Exception('فشل خصم الكرتون من المستودع: ' . $e->getMessage());
+            }
 
             DB::commit();
 
@@ -459,28 +559,162 @@ class Stage4Controller extends Controller
      */
     public function show($id)
     {
-        $box = DB::table('stage4_boxes')
-            ->leftJoin('material_details', 'stage4_boxes.material_id', '=', 'material_details.id')
-            ->leftJoin('materials', 'material_details.material_id', '=', 'materials.id')
-            ->where('stage4_boxes.id', $id)
-            ->select(
-                'stage4_boxes.*',
-                'materials.name_ar as material_name_ar',
-                'materials.name_en as material_name_en'
-            )
-            ->first();
+        $box = Stage4Box::with('creator')->findOrFail($id);
 
         if (!$box) {
             abort(404, 'الكرتون غير موجود');
         }
 
-        // الحصول على اللفائف المرتبطة
-        $coils = DB::table('box_coils')
-            ->join('stage3_coils', 'box_coils.coil_id', '=', 'stage3_coils.id')
-            ->where('box_coils.box_id', $id)
-            ->select('stage3_coils.*', 'box_coils.weight as box_weight')
+        // الحصول على مواصفات المنتج من stage3_coils
+        $materials = DB::table('stage3_coils')
+            ->leftJoin('materials', 'stage3_coils.material_id', '=', 'materials.id')
+            ->where('stage3_coils.barcode', $box->parent_barcode)
+            ->select('materials.color', 'materials.material_type', 'stage3_coils.wire_size')
             ->get();
 
-        return view('manufacturing::stages.stage4.show', compact('box', 'coils'));
+        // جلب سجل العمليات من operation_logs
+        $operationLogs = DB::table('operation_logs')
+            ->leftJoin('users', 'operation_logs.user_id', '=', 'users.id')
+            ->where(function($query) use ($id, $box) {
+                $query->where('operation_logs.table_name', 'stage4_boxes')
+                      ->where('operation_logs.record_id', $id);
+            })
+            ->orWhere('operation_logs.description', 'LIKE', '%' . $box->barcode . '%')
+            ->select(
+                'operation_logs.*',
+                'users.name as user_name'
+            )
+            ->orderBy('operation_logs.created_at', 'desc')
+            ->limit(50)
+            ->get();
+
+        // جلب سجل تتبع المنتج من product_tracking
+        $trackingLogs = DB::table('product_tracking')
+            ->leftJoin('users as worker', 'product_tracking.worker_id', '=', 'worker.id')
+            ->where('product_tracking.barcode', $box->barcode)
+            ->orWhere('product_tracking.input_barcode', $box->parent_barcode)
+            ->orWhere('product_tracking.output_barcode', $box->barcode)
+            ->select(
+                'product_tracking.*',
+                'worker.name as worker_name'
+            )
+            ->orderBy('product_tracking.created_at', 'desc')
+            ->get();
+
+        // جلب سجل الاستخدام
+        $usageHistory = DB::table('stand_usage_history')
+            ->leftJoin('users', 'stand_usage_history.user_id', '=', 'users.id')
+            ->where('stand_usage_history.material_barcode', $box->parent_barcode)
+            ->select(
+                'stand_usage_history.*',
+                'users.name as user_name'
+            )
+            ->orderBy('stand_usage_history.created_at', 'desc')
+            ->first();
+
+        return view('manufacturing::stages.stage4.show', compact('box', 'materials', 'operationLogs', 'trackingLogs', 'usageHistory'));
+    }
+
+    /**
+     * خصم كراتين من المستودع
+     */
+    private function deductCartonFromWarehouse($cartonMaterialId, $quantity)
+    {
+        \Log::info("deductCartonFromWarehouse called", [
+            'material_id' => $cartonMaterialId,
+            'quantity' => $quantity
+        ]);
+
+        // البحث عن أقدم سجل متاح في material_details
+        $materialDetail = DB::table('material_details')
+            ->where('material_id', $cartonMaterialId)
+            ->where('quantity', '>', 0)
+            ->orderBy('created_at', 'asc')
+            ->first();
+
+        \Log::info("Material detail search result", [
+            'found' => $materialDetail ? 'yes' : 'no',
+            'detail' => $materialDetail
+        ]);
+
+        if (!$materialDetail) {
+            throw new \Exception('لا توجد تفاصيل متاحة للكرتون في المستودع');
+        }
+
+        $remainingToDeduct = $quantity;
+
+        // خصم من السجل الحالي
+        if ($materialDetail->quantity >= $remainingToDeduct) {
+            // الكمية كافية في هذا السجل
+            $newQuantity = $materialDetail->quantity - $remainingToDeduct;
+            
+            DB::table('material_details')
+                ->where('id', $materialDetail->id)
+                ->update([
+                    'quantity' => $newQuantity,
+                    'updated_at' => now()
+                ]);
+
+            // تسجيل الحركة
+            $movementNumber = 'MOV-' . date('Ymd') . '-' . str_pad(DB::table('material_movements')->count() + 1, 6, '0', STR_PAD_LEFT);
+            
+            DB::table('material_movements')->insert([
+                'movement_number' => $movementNumber,
+                'movement_type' => 'to_production',
+                'source' => 'production',
+                'material_id' => $cartonMaterialId,
+                'material_detail_id' => $materialDetail->id,
+                'unit_id' => $materialDetail->unit_id ?? null,
+                'quantity' => $remainingToDeduct,
+                'to_warehouse_id' => $materialDetail->warehouse_id ?? null,
+                'description' => 'خصم كرتون للمرحلة الرابعة - التعبئة',
+                'notes' => 'خصم تلقائي من المستودع',
+                'created_by' => auth()->id() ?? 1,
+                'movement_date' => now(),
+                'status' => 'completed',
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            $remainingToDeduct = 0;
+        } else {
+            // الكمية غير كافية، نحتاج سجلات إضافية
+            $deducted = $materialDetail->quantity;
+            
+            DB::table('material_details')
+                ->where('id', $materialDetail->id)
+                ->update([
+                    'quantity' => 0,
+                    'updated_at' => now()
+                ]);
+
+            // تسجيل الحركة
+            $movementNumber = 'MOV-' . date('Ymd') . '-' . str_pad(DB::table('material_movements')->count() + 1, 6, '0', STR_PAD_LEFT);
+            
+            DB::table('material_movements')->insert([
+                'movement_number' => $movementNumber,
+                'movement_type' => 'to_production',
+                'source' => 'production',
+                'material_id' => $cartonMaterialId,
+                'material_detail_id' => $materialDetail->id,
+                'unit_id' => $materialDetail->unit_id ?? null,
+                'quantity' => $deducted,
+                'to_warehouse_id' => $materialDetail->warehouse_id ?? null,
+                'description' => 'خصم كرتون للمرحلة الرابعة - التعبئة (جزئي)',
+                'notes' => 'خصم تلقائي من المستودع - جزء من كمية أكبر',
+                'created_by' => auth()->id() ?? 1,
+                'movement_date' => now(),
+                'status' => 'completed',
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            $remainingToDeduct -= $deducted;
+
+            // استدعاء ذاتي للخصم من السجل التالي
+            if ($remainingToDeduct > 0) {
+                $this->deductCartonFromWarehouse($cartonMaterialId, $remainingToDeduct);
+            }
+        }
     }
 }

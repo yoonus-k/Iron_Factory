@@ -380,11 +380,11 @@ function addProcessed() {
         stage1_barcode: currentStand.barcode,
         source: currentStand.source || 'stage1', // إضافة المصدر
         material_id: currentStand.material_id || null,
-        input_weight: parseFloat(inputWeight),
+        input_weight: parseFloat(inputWeight) || 0,
         process_type: processType,
-        total_weight: parseFloat(outputWeight),
-        waste_weight: parseFloat(wasteAmount),
-        net_weight: parseFloat(outputWeight),
+        total_weight: parseFloat(outputWeight) || 0,
+        waste_weight: parseFloat(wasteAmount) || 0,
+        net_weight: parseFloat(outputWeight) || 0,
         process_details: processDetails,
         notes: notes
     };

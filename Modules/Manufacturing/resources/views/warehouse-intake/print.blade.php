@@ -339,7 +339,7 @@
                     <th style="width: 50px;">#</th>
                     <th>الباركود</th>
                     <th>نوع التغليف</th>
-                    <th>عدد اللفات</th>
+                    <th>المواصفات</th>
                     <th style="width: 120px;">الوزن (كجم)</th>
                 </tr>
             </thead>
@@ -351,7 +351,19 @@
                     <td>{{ $index + 1 }}</td>
                     <td><strong>{{ $item->barcode }}</strong></td>
                     <td>{{ $item->packaging_type }}</td>
-                    <td>{{ $item->stage4Box->boxCoils->count() ?? 0 }}</td>
+                    <td style="text-align: right; font-size: 12px;">
+                        @if(isset($item->materials) && $item->materials->count() > 0)
+                            @foreach($item->materials as $material)
+                                <div style="margin-bottom: 3px;">
+                                    @if($material->color) {{ $material->color }} @endif
+                                    @if($material->plastic_type) - {{ $material->plastic_type }} @endif
+                                    @if($material->wire_size) - {{ $material->wire_size }} @endif
+                                </div>
+                            @endforeach
+                        @else
+                            -
+                        @endif
+                    </td>
                     <td><strong>{{ number_format($item->weight, 2) }}</strong></td>
                 </tr>
                 @endforeach

@@ -7,6 +7,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use App\Models\Stage3Coil;
 
 class Stage3Controller extends Controller
 {
@@ -52,7 +53,23 @@ class Stage3Controller extends Controller
      */
     public function create()
     {
-        return view('manufacturing::stages.stage3.create');
+        // جلب قائمة الألوان (الصبغات) من المواد
+        $colors = DB::table('materials')
+            ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
+            ->where('material_types.type_name', 'صبغة')
+            ->where('materials.status', 'available')
+            ->select('materials.id', 'materials.name_ar', 'materials.barcode')
+            ->orderBy('materials.name_ar')
+            ->get();
+
+        // جلب البلاستيك من المستودع
+        $plastic = DB::table('materials')
+            ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
+            ->where('material_types.type_name', 'بلاستيك')
+            ->where('materials.status', 'available')
+            ->first();
+
+        return view('manufacturing::stages.stage3.create', compact('colors', 'plastic'));
     }
 
     /**
@@ -201,6 +218,30 @@ class Stage3Controller extends Controller
             }
 
             $addedWeight = $totalWeight - $inputWeight;
+            $plasticWeight = $addedWeight; // الوزن الزائد كله من البلاستيك
+            $dyeWeight = 0; // الصبغة لا يتم خصمها
+
+            // 🔍 التحقق من كمية البلاستيك في المستودع
+            $plastic = DB::table('materials')
+                ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
+                ->where('material_types.type_name', 'بلاستيك')
+                ->where('materials.status', 'available')
+                ->select('materials.id', 'materials.name_ar')
+                ->selectRaw('COALESCE((SELECT SUM(quantity) FROM material_details WHERE material_id = materials.id AND quantity > 0), 0) as available_quantity')
+                ->first();
+
+            if (!$plastic) {
+                throw new \Exception('❌ لا يوجد بلاستيك متاح في المستودع');
+            }
+
+            if ($plastic->available_quantity < $plasticWeight) {
+                throw new \Exception(sprintf(
+                    '❌ كمية البلاستيك المطلوبة (%.3f كجم) أكبر من الكمية المتاحة في المستودع (%.3f كجم)',
+                    $plasticWeight,
+                    $plastic->available_quantity
+                ));
+            }
+
             $barcode = $this->generateStageBarcode('stage3');
             $lafafCount = DB::table('stage3_coils')->count() + 1;
 
@@ -215,8 +256,8 @@ class Stage3Controller extends Controller
                 'input_weight' => $inputWeight,
                 'base_weight' => $inputWeight,
                 'total_weight' => $totalWeight,
-                'dye_weight' => $addedWeight * 0.3,
-                'plastic_weight' => $addedWeight * 0.7,
+                'dye_weight' => $dyeWeight,
+                'plastic_weight' => $plasticWeight,
                 'color' => $request->color,
                 'dye_type' => $request->dye_type ?? null,
                 'plastic_type' => $request->plastic_type,
@@ -227,6 +268,9 @@ class Stage3Controller extends Controller
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
+
+            // 📦 خصم كمية البلاستيك من المستودع
+            $this->deductPlasticFromWarehouse($plastic->id, $plasticWeight);
 
             // تحديث حالة المرحلة الثانية (فقط إذا كان المصدر stage2)
             if ($stage2Id) {
@@ -537,26 +581,53 @@ class Stage3Controller extends Controller
      */
     public function show($id)
     {
-        $lafaf = DB::table('stage3_coils')
-            ->leftJoin('stage2_processed', 'stage3_coils.stage2_id', '=', 'stage2_processed.id')
-            ->leftJoin('stage1_stands', 'stage3_coils.stage1_id', '=', 'stage1_stands.id')
-            ->leftJoin('material_details', 'stage3_coils.material_id', '=', 'material_details.id')
-            ->leftJoin('materials', 'material_details.material_id', '=', 'materials.id')
-            ->where('stage3_coils.id', $id)
-            ->select(
-                'stage3_coils.*',
-                'stage2_processed.barcode as stage2_barcode',
-                'stage1_stands.barcode as stage1_barcode',
-                'materials.name_ar as material_name_ar',
-                'materials.name_en as material_name_en'
-            )
-            ->first();
+        $coil = Stage3Coil::with('creator')->findOrFail($id);
 
-        if (!$lafaf) {
+        if (!$coil) {
             abort(404, 'اللفاف غير موجود');
         }
 
-        return view('manufacturing::stages.stage3.show', compact('lafaf'));
+        // جلب سجل العمليات من operation_logs
+        $operationLogs = DB::table('operation_logs')
+            ->leftJoin('users', 'operation_logs.user_id', '=', 'users.id')
+            ->where(function($query) use ($id, $coil) {
+                $query->where('operation_logs.table_name', 'stage3_coils')
+                      ->where('operation_logs.record_id', $id);
+            })
+            ->orWhere('operation_logs.description', 'LIKE', '%' . $coil->barcode . '%')
+            ->select(
+                'operation_logs.*',
+                'users.name as user_name'
+            )
+            ->orderBy('operation_logs.created_at', 'desc')
+            ->limit(50)
+            ->get();
+
+        // جلب سجل تتبع المنتج من product_tracking
+        $trackingLogs = DB::table('product_tracking')
+            ->leftJoin('users as worker', 'product_tracking.worker_id', '=', 'worker.id')
+            ->where('product_tracking.barcode', $coil->barcode)
+            ->orWhere('product_tracking.input_barcode', $coil->parent_barcode)
+            ->orWhere('product_tracking.output_barcode', $coil->barcode)
+            ->select(
+                'product_tracking.*',
+                'worker.name as worker_name'
+            )
+            ->orderBy('product_tracking.created_at', 'desc')
+            ->get();
+
+        // جلب سجل الاستخدام
+        $usageHistory = DB::table('stand_usage_history')
+            ->leftJoin('users', 'stand_usage_history.user_id', '=', 'users.id')
+            ->where('stand_usage_history.material_barcode', $coil->parent_barcode)
+            ->select(
+                'stand_usage_history.*',
+                'users.name as user_name'
+            )
+            ->orderBy('stand_usage_history.created_at', 'desc')
+            ->first();
+
+        return view('manufacturing::stages.stage3.show', compact('coil', 'operationLogs', 'trackingLogs', 'usageHistory'));
     }
 
     /**
@@ -592,5 +663,98 @@ class Stage3Controller extends Controller
         // حذف اللفاف
         return redirect()->route('manufacturing.stage3.index')
             ->with('success', 'تم حذف اللفاف بنجاح');
+    }
+
+    /**
+     * خصم كمية البلاستيك من المستودع
+     */
+    private function deductPlasticFromWarehouse($plasticMaterialId, $quantity)
+    {
+        // البحث عن أقدم سجل متاح في material_details
+        $materialDetail = DB::table('material_details')
+            ->where('material_id', $plasticMaterialId)
+            ->where('quantity', '>', 0)
+            ->orderBy('created_at', 'asc')
+            ->first();
+
+        if (!$materialDetail) {
+            throw new \Exception('لا توجد تفاصيل متاحة للبلاستيك في المستودع');
+        }
+
+        $remainingToDeduct = $quantity;
+
+        // خصم من السجل الحالي
+        if ($materialDetail->quantity >= $remainingToDeduct) {
+            // الكمية كافية في هذا السجل
+            $newQuantity = $materialDetail->quantity - $remainingToDeduct;
+            
+            DB::table('material_details')
+                ->where('id', $materialDetail->id)
+                ->update([
+                    'quantity' => $newQuantity,
+                    'updated_at' => now()
+                ]);
+
+            // تسجيل الحركة
+            $movementNumber = 'MOV-' . date('Ymd') . '-' . str_pad(DB::table('material_movements')->count() + 1, 6, '0', STR_PAD_LEFT);
+            
+            DB::table('material_movements')->insert([
+                'movement_number' => $movementNumber,
+                'movement_type' => 'to_production',
+                'source' => 'production',
+                'material_id' => $plasticMaterialId,
+                'material_detail_id' => $materialDetail->id,
+                'unit_id' => $materialDetail->unit_id ?? null,
+                'quantity' => $remainingToDeduct,
+                'to_warehouse_id' => $materialDetail->warehouse_id ?? null,
+                'description' => 'خصم بلاستيك للمرحلة الثالثة - اللفائف',
+                'notes' => 'خصم تلقائي من المستودع',
+                'created_by' => auth()->id() ?? 1,
+                'movement_date' => now(),
+                'status' => 'completed',
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            $remainingToDeduct = 0;
+        } else {
+            // الكمية غير كافية، نحتاج سجلات إضافية
+            $deducted = $materialDetail->quantity;
+            
+            DB::table('material_details')
+                ->where('id', $materialDetail->id)
+                ->update([
+                    'quantity' => 0,
+                    'updated_at' => now()
+                ]);
+
+            // تسجيل الحركة
+            $movementNumber = 'MOV-' . date('Ymd') . '-' . str_pad(DB::table('material_movements')->count() + 1, 6, '0', STR_PAD_LEFT);
+            
+            DB::table('material_movements')->insert([
+                'movement_number' => $movementNumber,
+                'movement_type' => 'to_production',
+                'source' => 'production',
+                'material_id' => $plasticMaterialId,
+                'material_detail_id' => $materialDetail->id,
+                'unit_id' => $materialDetail->unit_id ?? null,
+                'quantity' => $deducted,
+                'to_warehouse_id' => $materialDetail->warehouse_id ?? null,
+                'description' => 'خصم بلاستيك للمرحلة الثالثة - اللفائف (جزئي)',
+                'notes' => 'خصم تلقائي من المستودع - جزء من كمية أكبر',
+                'created_by' => auth()->id() ?? 1,
+                'movement_date' => now(),
+                'status' => 'completed',
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            $remainingToDeduct -= $deducted;
+
+            // استدعاء ذاتي للخصم من السجل التالي
+            if ($remainingToDeduct > 0) {
+                $this->deductPlasticFromWarehouse($plasticMaterialId, $remainingToDeduct);
+            }
+        }
     }
 }

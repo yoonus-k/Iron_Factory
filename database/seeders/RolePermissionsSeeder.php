@@ -135,8 +135,7 @@ class RolePermissionsSeeder extends Seeder
                 $stage1Permissions = Permission::whereIn('name', [
                     'MENU_STAGE1_STANDS', 'STAGE1_STANDS_READ', 'STAGE1_STANDS_CREATE', 
                     'STAGE1_STANDS_UPDATE', 'STAGE1_BARCODE_SCAN', 'STAGE1_WASTE_TRACKING',
-                    'VIEW_DASHBOARD', 'STAGE_WORKER_DASHBOARD', 'MENU_PRODUCTION_CONFIRMATIONS', 
-                    'PRODUCTION_CONFIRMATIONS_CONFIRM', 'PRODUCTION_CONFIRMATIONS_REJECT'
+                    'VIEW_DASHBOARD', 'STAGE_WORKER_DASHBOARD'
                 ])->get();
 
                 foreach ($stage1Permissions as $permission) {

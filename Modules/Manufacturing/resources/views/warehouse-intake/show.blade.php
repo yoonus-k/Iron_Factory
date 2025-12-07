@@ -65,20 +65,34 @@
                                     <th>#</th>
                                     <th>الباركود</th>
                                     <th>التغليف</th>
+                                    <th>المواصفات</th>
                                     <th>الوزن</th>
-                                    <th>اللفات</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @php $totalWeight = 0; @endphp
                                 @foreach($intakeRequest->items as $index => $item)
-                                @php $totalWeight += $item->weight; @endphp
+                                @php 
+                                    $totalWeight += $item->weight;
+                                @endphp
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td><strong class="text-primary">{{ $item->barcode }}</strong></td>
                                     <td>{{ $item->packaging_type }}</td>
+                                    <td>
+                                        @if(isset($item->materials) && $item->materials->count() > 0)
+                                            @foreach($item->materials as $material)
+                                                <span class="badge bg-info me-1">
+                                                    @if($material->color) {{ $material->color }} @endif
+                                                    @if($material->plastic_type) - {{ $material->plastic_type }} @endif
+                                                    @if($material->wire_size) - {{ $material->wire_size }} @endif
+                                                </span>
+                                            @endforeach
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
                                     <td><strong>{{ number_format($item->weight, 2) }} كجم</strong></td>
-                                    <td>{{ $item->stage4Box->boxCoils->count() ?? 0 }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>

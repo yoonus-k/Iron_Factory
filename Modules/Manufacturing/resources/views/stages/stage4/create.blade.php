@@ -121,6 +121,28 @@
                 <li>{{ __('stages.stage4_manual_add_option') }}</li>
                 <li>{{ __('stages.stage4_each_gets_barcode') }}</li>
             </ul>
+            @if($carton)
+            <div style="margin-top:15px; padding:10px; background:#e8f5e9; border-radius:8px; border-right:3px solid #27ae60;">
+                <strong style="color:#27ae60;"><i class="fas fa-box"></i> الكراتين المتاحة في المستودع:</strong>
+                @php
+                    $cartonQuantity = DB::table('material_details')
+                        ->where('material_id', $carton->id)
+                        ->where('quantity', '>', 0)
+                        ->sum('quantity');
+                @endphp
+                <span style="font-size:16px; font-weight:700; color:#1e7e34; margin-right:10px;">
+                    {{ number_format($cartonQuantity, 0) }} كرتونة
+                </span>
+                <small style="display:block; margin-top:5px; color:#666;">
+                    <i class="fas fa-info-circle"></i> سيتم خصم كرتونة واحدة لكل كرتونة مضافة
+                </small>
+            </div>
+            @else
+            <div style="margin-top:15px; padding:10px; background:#fff3cd; border-radius:8px; border-right:3px solid #ffc107;">
+                <strong style="color:#856404;"><i class="fas fa-exclamation-triangle"></i> تحذير:</strong>
+                <span style="color:#856404;">لا توجد كراتين متاحة في المستودع</span>
+            </div>
+            @endif
         </div>
 
         <!-- Auto Divide Section -->

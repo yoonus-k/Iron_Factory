@@ -94,20 +94,24 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>{{ __('stages.stage3_coil_number_header') }}</th>
+                            <th>{{ __('stages.barcode_table_header') }}</th>
                             <th>{{ __('stages.stage3_weight_header') }}</th>
                             <th>{{ __('stages.stage3_color_header') }}</th>
                             <th>{{ __('stages.stage3_plastic_type_header') }}</th>
                             <th>{{ __('stages.status_header') }}</th>
-                            <th>التاريخ</th>
-                            <th>الإجراءات</th>
+                            <th>{{ __('stages.date_table_header') }}</th>
+                            <th>{{ __('stages.actions_table_header') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($lafafs as $item)
                         <tr>
                             <td>{{ $loop->iteration + ($lafafs->currentPage() - 1) * $lafafs->perPage() }}</td>
-                            <td><span class="badge badge-info">{{ $item->coil_number }}</span></td>
+                            <td>
+                                <code style="background: #f8f9fa; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: 600;">
+                                    {{ $item->barcode }}
+                                </code>
+                            </td>
                             <td>{{ number_format($item->total_weight, 2) }} {{ __('stages.unit_kg') }}</td>
                             <td>{{ $item->color }}</td>
                             <td>{{ $item->plastic_type }}</td>
@@ -122,9 +126,27 @@
                             </td>
                             <td>{{ is_string($item->created_at) ? date('Y-m-d', strtotime($item->created_at)) : $item->created_at->format('Y-m-d') }}</td>
                             <td>
-                                <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->material_name ?? __('stages.not_specified') }}', {{ $item->total_weight }}, '{{ $item->color }}')" class="um-btn um-btn-success um-btn-sm" title="{{ __('stages.stage3_print_barcode') }}">
-                                    <i class="feather icon-printer"></i>
-                                </button>
+                                <div class="um-dropdown">
+                                    <button class="um-btn-action um-btn-dropdown" title="{{ __('stages.table_header_actions') }}">
+                                        <i class="feather icon-more-vertical"></i>
+                                    </button>
+                                    <div class="um-dropdown-menu">
+                                        <button type="button" class="um-dropdown-item" onclick="printBarcode('{{ $item->barcode }}', '{{ $item->color ?? '' }}', '{{ $item->wire_size }}', {{ $item->total_weight }})" style="color: #27ae60;">
+                                            <i class="feather icon-printer"></i>
+                                            <span>{{ __('stages.print_barcode_button') }}</span>
+                                        </button>
+                                        <a href="{{ route('manufacturing.stage3.show', $item->id) }}" class="um-dropdown-item um-btn-view">
+                                            <i class="feather icon-eye"></i>
+                                            <span>{{ __('stages.view_details') }}</span>
+                                        </a>
+                                        @if(isset($item->created_by_name) && $item->created_by_name)
+                                        <div class="um-dropdown-item" style="pointer-events: none; opacity: 0.7;">
+                                            <i class="feather icon-user"></i>
+                                            <span>{{ $item->created_by_name }}</span>
+                                        </div>
+                                        @endif
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                         @empty
@@ -145,11 +167,11 @@
                 <div class="um-category-card">
                     <div class="um-category-card-header">
                         <div class="um-category-info">
-                            <div class="um-category-icon" style="background: #3f51b520; color: #3f51b5;">
+                            <div class="um-category-icon" style="background: #9b59b620; color: #9b59b6;">
                                 <i class="feather icon-package"></i>
                             </div>
                             <div>
-                                <h6 class="um-category-name">{{ $item->coil_number }}</h6>
+                                <h6 class="um-category-name">{{ $item->barcode }}</h6>
                                 <span class="um-category-id">#{{ $loop->iteration }}</span>
                             </div>
                         </div>
@@ -182,9 +204,13 @@
                     </div>
 
                     <div class="um-category-card-footer">
-                        <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->material_name ?? __('stages.not_specified') }}', {{ $item->total_weight }}, '{{ $item->color }}')" class="um-btn um-btn-success um-btn-sm">
+                        <a href="{{ route('manufacturing.stage3.show', $item->id) }}" class="um-btn um-btn-primary um-btn-sm" style="margin-left: 5px;">
+                            <i class="feather icon-eye"></i>
+                            {{ __('stages.view_details') }}
+                        </a>
+                        <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->color ?? '' }}', '{{ $item->wire_size }}', {{ $item->total_weight }})" class="um-btn um-btn-success um-btn-sm">
                             <i class="feather icon-printer"></i>
-                            {{ __('stages.stage3_print_barcode') }}
+                            {{ __('stages.print_barcode_button') }}
                         </button>
                     </div>
                 </div>
@@ -240,7 +266,40 @@
 
     <script>
         // Print barcode function
-        function printBarcode(barcode, materialName, totalWeight, color) {
+        function printBarcode(barcode, color, wireSize, totalWeight) {
+            const printWindow = window.open('', '', 'height=650,width=850');
+            printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - ' + barcode + '</title>');
+            printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
+            printWindow.document.write('<style>');
+            printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
+            printWindow.document.write('.barcode-container { background: white; padding: 50px; border-radius: 16px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); text-align: center; max-width: 550px; }');
+            printWindow.document.write('.title { font-size: 28px; font-weight: bold; color: #2c3e50; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 4px solid #9b59b6; }');
+            printWindow.document.write('.barcode-code { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 25px 0; letter-spacing: 4px; font-family: "Courier New", monospace; }');
+            printWindow.document.write('.info { margin-top: 30px; padding: 25px; background: #f8f9fa; border-radius: 10px; text-align: right; }');
+            printWindow.document.write('.info-row { margin: 12px 0; display: flex; justify-content: space-between; }');
+            printWindow.document.write('.label { color: #7f8c8d; font-size: 16px; }');
+            printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 18px; }');
+            printWindow.document.write('@media print { body { background: white; } }');
+            printWindow.document.write('</style></head><body>');
+            printWindow.document.write('<div class="barcode-container">');
+            printWindow.document.write('<div class="title">المرحلة الثالثة - اللفائف</div>');
+            printWindow.document.write('<svg id="print-barcode"></svg>');
+            printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
+            printWindow.document.write('<div class="info">');
+            if (color) {
+                printWindow.document.write('<div class="info-row"><span class="label">اللون:</span><span class="value">' + color + '</span></div>');
+            }
+            printWindow.document.write('<div class="info-row"><span class="label">حجم السلك:</span><span class="value">' + wireSize + ' مم</span></div>');
+            printWindow.document.write('<div class="info-row"><span class="label">الوزن الإجمالي:</span><span class="value">' + totalWeight + ' كجم</span></div>');
+            printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+            printWindow.document.write('</div></div>');
+            printWindow.document.write('<script>');
+            printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');
+            printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };');
+            printWindow.document.write('<\/script></body></html>');
+            printWindow.document.close();
+        }
+    </script>
             const printWindow = window.open('', '', 'height=650,width=850');
             printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - ' + barcode + '</title>');
             printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');

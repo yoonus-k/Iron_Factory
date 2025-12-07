@@ -20,7 +20,8 @@
     $invoiceWeight = $deliveryNote->invoice_weight ?? 0;
     $discrepancy = $actualWeight - $invoiceWeight;
     $discrepancyPercentage = $invoiceWeight > 0 ? (($discrepancy / $invoiceWeight) * 100) : 0;
-    $isInOurFavor = $discrepancy < 0; // الفاتورة كاتبة أكثر من الفعلي = في صالحنا
+    $isInOurFavor = $discrepancy > 0; // الوزن الفعلي أكبر من الفاتورة = في صالحنا
+    $isDeficit = $discrepancy < 0; // الوزن الفعلي أقل من الفاتورة = عجز
     
     // معلومات debugging
     $debugInfo = [
@@ -206,15 +207,15 @@
 
         <!-- المقارنة والفرق -->
         <div class="col-lg-4">
-            <div class="comparison-card {{ $isInOurFavor ? 'success-border' : 'danger-border' }}">
-                <div class="comparison-card-header {{ $isInOurFavor ? 'success-bg' : 'danger-bg' }}">
+            <div class="comparison-card {{ $isDeficit ? 'danger-border' : 'success-border' }}">
+                <div class="comparison-card-header {{ $isDeficit ? 'danger-bg' : 'success-bg' }}">
                     <i class="fas fa-balance-scale-right"></i>
                     <h5 class="mb-0">المقارنة والفرق</h5>
                 </div>
                 <div class="comparison-card-body">
                     <div class="comparison-item">
                         <label>الفرق (كجم):</label>
-                        <div class="comparison-value {{ $isInOurFavor ? 'success' : 'danger' }}">
+                        <div class="comparison-value {{ $isDeficit ? 'danger' : 'success' }}">
                             {{ $discrepancy >= 0 ? '+ ' : '- ' }}
                             {{ number_format(abs($discrepancy), 2) }} كجم
                         </div>
@@ -238,20 +239,20 @@
                         </div>
                     @elseif ($isInOurFavor)
                         <div class="alert-custom alert-success-custom-2">
-                            <i class="fas fa-arrow-down"></i>
-                            <div>
-                                <strong>✓ في صالحنا - الفاتورة أكثر!</strong>
-                                <small>الفاتورة: {{ number_format($invoiceWeight, 2) }} كجم | الفعلي: {{ number_format($actualWeight, 2) }} كجم<br>
-                                المورد كتب زيادة {{ number_format(abs($discrepancy), 2) }} كجم</small>
-                            </div>
-                        </div>
-                    @else
-                        <div class="alert-custom alert-danger-custom">
                             <i class="fas fa-arrow-up"></i>
                             <div>
-                                <strong>⚠ عجز - الفعلي أكثر من الفاتورة!</strong>
+                                <strong>✓ في صالحنا - استلمنا أكثر مما تم فوترته!</strong>
                                 <small>الفاتورة: {{ number_format($invoiceWeight, 2) }} كجم | الفعلي: {{ number_format($actualWeight, 2) }} كجم<br>
-                                المورد كتب أقل بـ {{ number_format($discrepancy, 2) }} كجم</small>
+                                المورد فوَّتر أقل بـ {{ number_format(abs($discrepancy), 2) }} كجم</small>
+                            </div>
+                        </div>
+                    @elseif ($isDeficit)
+                        <div class="alert-custom alert-danger-custom">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <strong>⚠ عجز - الوزن الفعلي أقل من وزن الفاتورة!</strong>
+                                <small>الفاتورة: {{ number_format($invoiceWeight, 2) }} كجم | الفعلي: {{ number_format($actualWeight, 2) }} كجم<br>
+                                يوجد نقص مقداره {{ number_format(abs($discrepancy), 2) }} كجم مقارنة بالفاتورة</small>
                             </div>
                         </div>
                     @endif
@@ -292,7 +293,7 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <strong class="text-{{ $isInOurFavor ? 'success' : 'danger' }}" style="font-size: 1.2rem;">
+                                <strong class="text-{{ $isDeficit ? 'danger' : 'success' }}" style="font-size: 1.2rem;">
                                     {{ $discrepancy >= 0 ? '+ ' : '- ' }}
                                     {{ number_format(abs($discrepancy), 2) }} كجم
                                 </strong>
@@ -309,7 +310,7 @@
                                 <small class="text-muted">
                                     <strong>المعادلة:</strong> الفرق = الوزن الفعلي - وزن الفاتورة = 
                                     {{ number_format($actualWeight, 2) }} - {{ number_format($invoiceWeight, 2) }} = 
-                                    <span class="text-{{ $isInOurFavor ? 'success' : 'danger' }}">{{ number_format($discrepancy, 2) }} كجم</span>
+                                    <span class="text-{{ $isDeficit ? 'danger' : 'success' }}">{{ number_format($discrepancy, 2) }} كجم</span>
                                 </small>
                             </td>
                         </tr>
@@ -320,22 +321,22 @@
     </div>
 
     <!-- ملخص سريع -->
-    <div class="alert" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-right: 5px solid {{ $isInOurFavor ? '#27ae60' : '#e74c3c' }}; padding: 1.5rem; margin-bottom: 2rem; border-radius: 12px;">
+    <div class="alert" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-right: 5px solid {{ $isDeficit ? '#e74c3c' : '#27ae60' }}; padding: 1.5rem; margin-bottom: 2rem; border-radius: 12px;">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h5 class="mb-2"><i class="fas fa-info-circle" style="color: {{ $isInOurFavor ? '#27ae60' : '#e74c3c' }};"></i> <strong>ملخص سريع:</strong></h5>
+                <h5 class="mb-2"><i class="fas fa-info-circle" style="color: {{ $isDeficit ? '#e74c3c' : '#27ae60' }};"></i> <strong>ملخص سريع:</strong></h5>
                 <p class="mb-0" style="font-size: 1.1rem; color: #2D3748;">
                     @if (abs($discrepancy) < 0.01)
                         ✓ الأوزان متطابقة تماماً - لا يوجد أي فرق
                     @elseif ($isInOurFavor)
-                        ✓ الفاتورة كاتبة <strong style="color: #27ae60;">{{ number_format(abs($discrepancy), 2) }} كجم زيادة</strong> - في صالحنا
-                    @else
-                        ⚠ يوجد عجز <strong style="color: #e74c3c;">{{ number_format($discrepancy, 2) }} كجم</strong> - الفعلي أكثر من الفاتورة
+                        ✓ استلمنا <strong style="color: #27ae60;">{{ number_format(abs($discrepancy), 2) }} كجم</strong> أكثر مما تم فوترته - في صالحنا
+                    @elseif ($isDeficit)
+                        ⚠ يوجد عجز <strong style="color: #e74c3c;">{{ number_format(abs($discrepancy), 2) }} كجم</strong> - الوزن الفعلي أقل من وزن الفاتورة
                     @endif
                 </p>
             </div>
             <div class="col-md-4 text-end">
-                <div style="font-size: 2.5rem; font-weight: 700; color: {{ $isInOurFavor ? '#27ae60' : '#e74c3c' }};">
+                <div style="font-size: 2.5rem; font-weight: 700; color: {{ $isDeficit ? '#e74c3c' : '#27ae60' }};">
                     {{ $discrepancy >= 0 ? '+' : '' }}{{ number_format($discrepancy, 2) }}
                     <small style="font-size: 1rem; display: block; color: #718096;">كيلوجرام</small>
                 </div>

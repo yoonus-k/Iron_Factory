@@ -136,8 +136,8 @@
                                 <tr>
                                     <th>الباركود</th>
                                     <th>نوع التغليف</th>
+                                    <th>المواصفات</th>
                                     <th>الوزن (كجم)</th>
-                                    <th>عدد اللفات</th>
                                     <th>المسؤول</th>
                                     <th>تاريخ الإنتاج</th>
                                     <th class="text-end">الإجراء</th>
@@ -225,12 +225,17 @@
             return;
         }
 
-        const rows = selectedBoxes.map(box => `
+        const rows = selectedBoxes.map(box => {
+            const specsHtml = box.specifications 
+                ? `<span class="badge bg-info me-1">${box.specifications}</span>` 
+                : '<span style="color: #999;">-</span>';
+            
+            return `
             <tr>
                 <td><strong>${box.barcode}</strong></td>
                 <td>${box.packaging_type || '-'}</td>
+                <td>${specsHtml}</td>
                 <td>${formatWeight(box.weight)}</td>
-                <td>${box.coils_count || 0}</td>
                 <td>${box.creator || 'غير محدد'}</td>
                 <td>${box.created_at || '—'}</td>
                 <td class="text-end">
@@ -240,7 +245,7 @@
                     </button>
                 </td>
             </tr>
-        `).join('');
+        `}).join('');
 
         tableBody.innerHTML = rows;
         const totalWeight = selectedBoxes.reduce((sum, box) => sum + parseFloat(box.weight || 0), 0);

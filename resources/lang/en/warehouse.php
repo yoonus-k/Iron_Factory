@@ -11,9 +11,10 @@ return [
     // Navigation
     'dashboard' => 'Dashboard',
     'materials' => 'Materials',
-     'units' => 'Units',
+    'units' => 'Units',
      'amount' => 'Amount',
-'invoice_date'=>'Invoice Date',
+    'invoice_date'=>'Invoice Date',
+    'due_date' => 'Due Date',
 
     // Form Labels
     'material_name' => 'Material Name',

@@ -1,354 +1,389 @@
 @extends('master')
 
-@section('title', __('stages.stage3_show_title'))
+@section('title', __('stages.stage3_details'))
 
 @section('content')
-    <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
 
-    <div class="container">
-        <div class="page-header">
-            <div class="header-content">
-                <div class="header-left">
-                    <div class="course-icon">
-                        <i class="feather icon-package"></i>
-                    </div>
-                    <div class="header-info">
-                        <h1>{{ __('stages.stage3_coil_label') }} {{ $stage3->coil_number ?? 'COIL-001' }}</h1>
-                        <div class="badges">
-                            <span class="badge category">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                                    <path d="M3.27 6.96L12 12.7m8.73-5.74L12 12.7"></path>
-                                    <line x1="12" y1="22.7" x2="12" y2="12"></line>
-                                </svg>
-                                {{ __('stages.stage3_title') }}
-                            </span>
-                            <span class="badge active">{{ __('stages.status_completed') }}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="header-actions">
-                    <a href="{{ route('manufacturing.stage3.edit', $stage3->id ?? 1) }}" class="btn btn-edit">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                        {{ __('stages.edit_label') }}
-                    </a>
-                    <a href="{{ route('manufacturing.stage3.index') }}" class="btn btn-back">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                            <polyline points="12 19 5 12 12 5"></polyline>
-                        </svg>
-                        {{ __('stages.back_label') }}
-                    </a>
-                </div>
+<style>
+    .detail-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border-right: 4px solid #667eea;
+    }
+
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .detail-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .info-item {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-right: 3px solid #667eea;
+    }
+
+    .info-label {
+        font-size: 13px;
+        color: #7f8c8d;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .info-value {
+        font-size: 18px;
+        color: #2c3e50;
+        font-weight: 700;
+    }
+
+    .barcode-display {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .barcode-code {
+        font-size: 32px;
+        font-weight: 700;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 4px;
+        margin: 15px 0;
+    }
+
+    .log-item {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        border-right: 3px solid #27ae60;
+    }
+
+    .log-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .log-action {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .log-time {
+        color: #7f8c8d;
+        font-size: 13px;
+    }
+
+    .log-details {
+        color: #555;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .empty-logs {
+        text-align: center;
+        padding: 40px;
+        color: #7f8c8d;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .status-created { background: #e3f2fd; color: #1976d2; }
+    .status-in_process { background: #fff3e0; color: #f57c00; }
+    .status-completed { background: #e8f5e9; color: #388e3c; }
+    .status-packed { background: #f3e5f5; color: #7b1fa2; }
+</style>
+
+<div class="um-content-wrapper">
+    <!-- Header Section -->
+    <div class="um-header-section">
+        <h1 class="um-page-title">
+            <i class="feather icon-eye"></i>
+            {{ __('stages.stage3_details_title') }} - {{ $coil->barcode }}
+        </h1>
+        <nav class="um-breadcrumb-nav">
+            <span><i class="feather icon-home"></i> {{ __('stages.dashboard') }}</span>
+            <i class="feather icon-chevron-left"></i>
+            <a href="{{ route('manufacturing.stage3.index') }}">{{ __('stages.third_phase') }}</a>
+            <i class="feather icon-chevron-left"></i>
+            <span>{{ __('stages.details') }}</span>
+        </nav>
+    </div>
+
+    <!-- Barcode Display -->
+    <div class="barcode-display">
+        <div style="font-size: 18px; opacity: 0.9; margin-bottom: 10px;">{{ __('stages.barcode_title') }}</div>
+        <div class="barcode-code">{{ $coil->barcode }}</div>
+        <button onclick="printBarcode('{{ $coil->barcode }}', '{{ $coil->color ?? '' }}', '{{ $coil->wire_size }}', {{ $coil->total_weight }})"
+                style="background: rgba(255,255,255,0.2); border: 2px solid white; color: white; padding: 12px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 15px; transition: all 0.3s;">
+            <i class="feather icon-printer"></i> {{ __('stages.print_barcode_button') }}
+        </button>
+    </div>
+
+    <!-- {{ __('stages.basic_information') }} -->
+    <div class="detail-card">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-info"></i>
+                {{ __('stages.basic_information') }}
             </div>
+            @if($coil->status == 'created')
+            <span class="status-badge status-created">{{ __('stages.stand_status_created') }}</span>
+            @elseif($coil->status == 'in_process')
+            <span class="status-badge status-in_process">{{ __('stages.stand_status_in_process') }}</span>
+            @elseif($coil->status == 'completed')
+            <span class="status-badge status-completed">{{ __('stages.stand_status_completed') }}</span>
+            @elseif($coil->status == 'packed')
+            <span class="status-badge status-packed">{{ __('stages.packed_status') }}</span>
+            @endif
         </div>
 
-        <div class="grid">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon primary">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                            <path d="M3.27 6.96L12 12.7m8.73-5.74L12 12.7"></path>
-                            <line x1="12" y1="22.7" x2="12" y2="12"></line>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">{{ __('stages.stage3_coil_information') }}</h3>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                            </svg>
-                            {{ __('stages.stage3_coil_number_label') }}
-                        </div>
-                        <div class="info-value"><span class="badge badge-info">{{ $stage3->coil_number ?? 'COIL-001' }}</span></div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="1" x2="12" y2="23"></line>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                            </svg>
-                            {{ __('stages.stage3_base_weight_label') }}
-                        </div>
-                        <div class="info-value">{{ $stage3->input_weight ?? 245 }} {{ __('stages.unit_kg') }}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <path d="M16 8l-8 8"></path>
-                            </svg>
-                            {{ __('stages.stage3_dye_color_label') }}
-                        </div>
-                        <div class="info-value">{{ $stage3->color ?? 'Red' }}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 12h18M3 6h18M3 18h18"></path>
-                            </svg>
-                            {{ __('stages.stage3_plastic_type_label') }}
-                        </div>
-                        <div class="info-value">{{ $stage3->plastic_type ?? 'PE' }}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="1" x2="12" y2="23"></line>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                            </svg>
-                            {{ __('stages.stage3_dye_weight_label') }}
-                        </div>
-                        <div class="info-value">{{ $stage3->dye_weight ?? 15 }} {{ __('stages.unit_kg') }}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="1" x2="12" y2="23"></line>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                            </svg>
-                            {{ __('stages.stage3_plastic_weight_label') }}
-                        </div>
-                        <div class="info-value">{{ $stage3->plastic_weight ?? 20 }} {{ __('stages.unit_kg') }}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="1" x2="12" y2="23"></line>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                            </svg>
-                            {{ __('stages.stage3_total_weight_label') }}
-                        </div>
-                        <div class="info-value"><strong class="text-success">{{ $stage3->total_weight ?? 250 }} {{ __('stages.unit_kg') }}</strong></div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                            {{ __('stages.stage3_waste_percentage_label') }}
-                        </div>
-                        <div class="info-value"><span class="badge badge-warning">{{ $stage3->waste_percentage ?? '3.5' }}%</span></div>
-                    </div>
-                </div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.barcode_label') }}</div>
+                <div class="info-value" style="font-size: 14px; font-family: monospace;">{{ $coil->barcode }}</div>
             </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon success">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">{{ __('stages.stage3_additional_information') }}</h3>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                            {{ __('stages.status') }}
-                        </div>
-                        <div class="info-value">
-                            <span class="status active">{{ __('stages.status_completed') }}</span>
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                            </svg>
-                            {{ __('stages.stage3_created_at_label') }}
-                        </div>
-                        <div class="info-value">{{ $stage3->created_at->format('Y-m-d H:i') ?? '2025-01-15 09:00' }}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                            </svg>
-                            {{ __('stages.stage3_updated_at_label') }}
-                        </div>
-                        <div class="info-value">{{ $stage3->updated_at->format('Y-m-d H:i') ?? '2025-01-15 15:30' }}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                            &nbsp;
-                        </div>
-                        <div class="info-value">&nbsp;</div>
-                    </div>
-                </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.parent_barcode_label') }}</div>
+                <div class="info-value" style="font-size: 14px; font-family: monospace;">{{ $coil->parent_barcode }}</div>
             </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon warning">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="8" y1="6" x2="21" y2="6"></line>
-                            <line x1="8" y1="12" x2="21" y2="12"></line>
-                            <line x1="8" y1="18" x2="21" y2="18"></line>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">{{ __('stages.stage3_notes_label') }}</h3>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-value">{{ $stage3->notes ?? __('stages.stage3_coil_ready_for_next_stage') }}</div>
-                    </div>
-                </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.color_label') }}</div>
+                <div class="info-value">{{ $coil->color ?? __('stages.not_specified') }}</div>
             </div>
-
-            <div class="card" style="margin-bottom: 20px;">
-                <div class="card-header">
-                    <div class="card-icon primary">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 11l3 3L22 4"></path>
-                            <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">{{ __('stages.stage3_activity_log') }}</h3>
-                </div>
-                <div class="card-body">
-                    <div class="schedule-grid">
-                        <div class="info-item">
-                            <div class="info-label">{{ __('stages.stage3_created_label') }}:</div>
-                            <div class="info-value">{{ $stage3->created_at->format('Y-m-d H:i') ?? '2025-01-15 09:00' }} - {{ __('stages.stage3_by_user') }}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">{{ __('stages.stage3_updated_label') }}:</div>
-                            <div class="info-value">{{ $stage3->updated_at->format('Y-m-d H:i') ?? '2025-01-15 12:30' }} - {{ __('stages.stage3_weight_updated') }}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">{{ __('stages.stage3_completed_label') }}:</div>
-                            <div class="info-value">{{ $stage3->completed_at->format('Y-m-d H:i') ?? '2025-01-15 15:30' }} - {{ __('stages.stage3_moved_to_stage4') }}</div>
-                        </div>
-                    </div>
-                </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.wire_size_label') }}</div>
+                <div class="info-value">{{ $coil->wire_size }} مم</div>
             </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon warning">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="1"></circle>
-                        <circle cx="19" cy="12" r="1"></circle>
-                        <circle cx="5" cy="12" r="1"></circle>
-                    </svg>
-                </div>
-                <h3 class="card-title">{{ __('stages.available_actions') }}</h3>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.base_weight_label') }}</div>
+                <div class="info-value" style="color: #3498db;">{{ number_format($coil->base_weight, 2) }} {{ __('stages.weight_unit') }}</div>
             </div>
-            <div class="card-body">
-                <div class="actions-grid">
-                    <a href="{{ route('manufacturing.stage2.index') }}" class="action-btn activate" style="background: linear-gradient(135deg, #9E9E9E, #757575);">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="19" y1="12" x2="5" y2="12"></line>
-                                <polyline points="12 19 5 12 12 5"></polyline>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                            <h4>⬅️ {{ __('stages.back_to_stage2') }}</h4>
-                            <p>{{ __('stages.back_to_stage2_desc') }}</p>
-                        </div>
-                    </a>
-
-                    <a href="{{ route('manufacturing.stage3.edit', $stage3->id ?? 1) }}" class="action-btn activate">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                            <h4>{{ __('stages.edit_coil') }}</h4>
-                            <p>{{ __('stages.edit_coil_details') }}</p>
-                        </div>
-                    </a>
-
-                    <a href="{{ route('manufacturing.stage4.create') }}" class="action-btn activate">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                              <h4>➡️ {{ __('stages.move_to_stage4') }}</h4>
-                            <p>{{ __('stages.move_to_stage4_desc') }}</p>
-                        </div>
-                    </a>
-                    <button type="button" class="action-btn delete">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                            <h4>{{ __('stages.delete_coil') }}</h4>
-                            <p>{{ __('stages.delete_coil_desc') }}</p>
-                        </div>
-                    </button>
-                </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.plastic_weight_label') }}</div>
+                <div class="info-value" style="color: #9b59b6;">{{ number_format($coil->plastic_weight, 2) }} {{ __('stages.weight_unit') }}</div>
             </div>
-        </div>
-
-        <!-- Navigation to Next Stage -->
-        <div class="card" style="margin-top: 20px; background: linear-gradient(135deg, #e8f5e9, #f1f8e9); border-left: 5px solid #4CAF50;">
-            <div class="card-header" style="border-bottom: 2px solid #4CAF50;">
-                <h3 class="card-title" style="color: #2e7d32;">📌 {{ __('stages.next_step') }}</h3>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.dye_weight_label') }}</div>
+                <div class="info-value" style="color: #e67e22;">{{ number_format($coil->dye_weight, 2) }} {{ __('stages.weight_unit') }}</div>
             </div>
-            <div class="card-body">
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
-                    <div>
-                        <h4 style="margin: 0 0 5px 0; color: #2e7d32;">{{ __('stages.stage4_packaging') }}</h4>
-                        <p style="margin: 0; color: #558b2f; font-size: 14px;">{{ __('stages.stage4_packaging_desc') }}</p>
-                    </div>
-                    <a href="{{ route('manufacturing.stage4.create') }}" style="padding: 12px 24px; background: #4CAF50; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(76, 175, 80, 0.3);">
-                        <span>➡️</span>
-                        <span>{{ __('stages.move_to_stage4') }}</span>
-                    </a>
-                </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.total_weight_label') }}</div>
+                <div class="info-value" style="color: #27ae60;">{{ number_format($coil->total_weight, 2) }} {{ __('stages.weight_unit') }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.waste_label') }}</div>
+                <div class="info-value" style="color: #e74c3c;">{{ number_format($coil->waste, 2) }} {{ __('stages.weight_unit') }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.plastic_type_label') }}</div>
+                <div class="info-value" style="font-size: 16px;">{{ $coil->plastic_type ?? __('stages.not_specified') }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.created_by_label') }}</div>
+                <div class="info-value" style="font-size: 16px;">{{ $coil->creator->name ?? __('stages.not_specified') }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.created_at_label') }}</div>
+                <div class="info-value" style="font-size: 16px;">{{ $coil->created_at->format('Y-m-d H:i') }}</div>
             </div>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteButtons = document.querySelectorAll('.action-btn.delete');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (confirm('⚠️ {{ __('stages.stage3_confirm_remove_lafaf') }}\n\n{{ __('stages.delete_confirmation_warning') }}')) {
-                        alert('{{ __('stages.deleted_successfully') }}');
-                    }
-                });
-            });
-        });
-    </script>
+    <!-- {{ __('stages.usage_history') }} -->
+    @if(isset($usageHistory) && $usageHistory)
+    <div class="detail-card" style="border-right-color: #27ae60;">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-activity"></i>
+                {{ __('stages.usage_history') }}
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.user_label') }}</div>
+                <div class="info-value" style="font-size: 16px;">{{ $usageHistory->user_name }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.action_type') }}</div>
+                <div class="info-value">{{ $usageHistory->action ?? __('stages.not_specified') }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.input_weight_label') }}</div>
+                <div class="info-value">{{ number_format($usageHistory->input_weight ?? 0, 2) }} {{ __('stages.weight_unit') }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.output_weight_label') }}</div>
+                <div class="info-value">{{ number_format($usageHistory->output_weight ?? 0, 2) }} {{ __('stages.weight_unit') }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.start_time_label') }}</div>
+                <div class="info-value" style="font-size: 14px;">{{ isset($usageHistory->started_at) ? \Carbon\Carbon::parse($usageHistory->started_at)->format('Y-m-d H:i') : __('stages.not_specified') }}</div>
+            </div>
+        </div>
+
+        @if(isset($usageHistory->notes) && $usageHistory->notes)
+        <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border-right: 3px solid #ffc107;">
+            <strong style="color: #856404;">📝 {{ __('stages.notes_label') }}:</strong>
+            <p style="margin: 8px 0 0 0; color: #856404;">{{ $usageHistory->notes }}</p>
+        </div>
+        @endif
+    </div>
+    @endif
+
+    <!-- {{ __('stages.tracking_logs') }} -->
+    @if(isset($trackingLogs) && $trackingLogs->count() > 0)
+    <div class="detail-card" style="border-right-color: #3498db;">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-map"></i>
+                {{ __('stages.tracking_logs') }} ({{ $trackingLogs->count() }})
+            </div>
+        </div>
+
+        @foreach($trackingLogs as $log)
+        <div class="log-item">
+            <div class="log-header">
+                <div class="log-action">
+                    <i class="feather icon-check-circle" style="color: #27ae60;"></i>
+                    {{ $log->action }} - {{ $log->stage }}
+                </div>
+                <div class="log-time">{{ \Carbon\Carbon::parse($log->created_at)->format('Y-m-d H:i') }}</div>
+            </div>
+            <div class="log-details">
+                <strong>{{ __('stages.worker_label') }}:</strong> {{ $log->worker_name ?? __('stages.not_specified') }}<br>
+                <strong>{{ __('stages.input_weight_label') }}:</strong> {{ number_format($log->input_weight, 2) }} {{ __('stages.weight_unit') }} |
+                <strong>{{ __('stages.output_weight_label') }}:</strong> {{ number_format($log->output_weight, 2) }} {{ __('stages.weight_unit') }}<br>
+                <strong>{{ __('stages.waste_label') }}:</strong> {{ number_format($log->waste_amount, 2) }} {{ __('stages.weight_unit') }} ({{ number_format($log->waste_percentage, 2) }}%)
+                @if($log->notes)
+                <br><strong>{{ __('stages.notes_label') }}:</strong> {{ $log->notes }}
+                @endif
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @endif
+
+    <!-- {{ __('stages.operation_logs') }} -->
+    @if(isset($operationLogs) && $operationLogs->count() > 0)
+    <div class="detail-card" style="border-right-color: #f39c12;">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-list"></i>
+                {{ __('stages.operation_logs') }} ({{ $operationLogs->count() }})
+            </div>
+        </div>
+
+        @foreach($operationLogs as $log)
+        <div class="log-item" style="border-right-color: #f39c12;">
+            <div class="log-header">
+                <div class="log-action">
+                    <i class="feather icon-activity" style="color: #f39c12;"></i>
+                    {{ $log->action ?? __('stages.operation_label') }}
+                </div>
+                <div class="log-time">{{ \Carbon\Carbon::parse($log->created_at)->format('Y-m-d H:i') }}</div>
+            </div>
+            <div class="log-details">
+                <strong>{{ __('stages.user_label') }}:</strong> {{ $log->user_name ?? __('stages.system_label') }}<br>
+                @if($log->description)
+                <strong>{{ __('stages.description_label') }}:</strong> {{ $log->description }}
+                @endif
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @else
+    <div class="detail-card">
+        <div class="empty-logs">
+            <i class="feather icon-inbox" style="font-size: 48px; opacity: 0.3;"></i>
+            <p>{{ __('stages.no_operations_logged') }}</p>
+        </div>
+    </div>
+    @endif
+
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 15px; margin-top: 25px;">
+        <a href="{{ route('manufacturing.stage3.index') }}" class="um-btn um-btn-primary" style="flex: 1;">
+            <i class="feather icon-arrow-right"></i> {{ __('stages.back_to_list') }}
+        </a>
+        <button onclick="printBarcode('{{ $coil->barcode }}', '{{ $coil->color ?? '' }}', '{{ $coil->wire_size }}', {{ $coil->total_weight }})"
+                class="um-btn um-btn-success" style="flex: 1;">
+            <i class="feather icon-printer"></i> {{ __('stages.print_barcode_button') }}
+        </button>
+    </div>
+</div>
+
+<!-- JsBarcode Library -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+<script>
+function printBarcode(barcode, color, wireSize, totalWeight) {
+    const printWindow = window.open('', '', 'height=650,width=850');
+    printWindow.document.write('<html dir="rtl"><head><title>' + '{{ __("stages.print_barcode_title") }}' + ' - ' + barcode + '</title>');
+    printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
+    printWindow.document.write('.barcode-container { background: white; padding: 50px; border-radius: 16px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); text-align: center; max-width: 550px; }');
+    printWindow.document.write('.title { font-size: 28px; font-weight: bold; color: #2c3e50; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 4px solid #667eea; }');
+    printWindow.document.write('.barcode-code { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 25px 0; letter-spacing: 4px; font-family: "Courier New", monospace; }');
+    printWindow.document.write('.info { margin-top: 30px; padding: 25px; background: #f8f9fa; border-radius: 10px; text-align: right; }');
+    printWindow.document.write('.info-row { margin: 12px 0; display: flex; justify-content: space-between; }');
+    printWindow.document.write('.label { color: #7f8c8d; font-size: 16px; }');
+    printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 18px; }');
+    printWindow.document.write('@media print { body { background: white; } }');
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write('<div class="barcode-container">');
+    printWindow.document.write('<div class="title">{{ __("stages.third_phase") }}</div>');
+    printWindow.document.write('<svg id="print-barcode"></svg>');
+    printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
+    printWindow.document.write('<div class="info">');
+    if (color) {
+        printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.color_label") }}:</span><span class="value">' + color + '</span></div>');
+    }
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.wire_size_label") }}:</span><span class="value">' + wireSize + ' مم</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.total_weight_label") }}:</span><span class="value">' + totalWeight + ' {{ __("stages.weight_unit") }}</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.date_label_print") }}:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+    printWindow.document.write('</div></div>');
+    printWindow.document.write('<script>');
+    printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');
+    printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };');
+    printWindow.document.write('<\/script></body></html>');
+    printWindow.document.close();
+}
+</script>
+
 @endsection

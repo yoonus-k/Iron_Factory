@@ -1,404 +1,410 @@
 @extends('master')
 
-@section('title', 'تفاصيل الكرتون')
+@section('title', __('stages.stage4_details'))
 
 @section('content')
-    <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
 
-    <div class="container">
-        <div class="page-header">
-            <div class="header-content">
-                <div class="header-left">
-                    <div class="course-icon">
-                        <i class="feather icon-package"></i>
-                    </div>
-                    <div class="header-info">
-                        <h1>كرتون رقم BOX-001</h1>
-                        <div class="badges">
-                            <span class="badge category">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M6 9l12-3"></path>
-                                    <path d="M6 9v6a2 2 0 002 2h8a2 2 0 002-2V9"></path>
-                                    <path d="M6 9l-2 12a2 2 0 002 2h12a2 2 0 002-2l-2-12"></path>
-                                </svg>
-                                المرحلة الرابعة
-                            </span>
-                            <span class="badge active">جاهز للشحن</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="header-actions">
-                    <a href="{{ route('manufacturing.stage4.edit', 1) }}" class="btn btn-edit">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                        تعديل
-                    </a>
-                    <a href="{{ route('manufacturing.stage4.index') }}" class="btn btn-back">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                            <polyline points="12 19 5 12 12 5"></polyline>
-                        </svg>
-                        العودة
-                    </a>
-                </div>
+<style>
+    .detail-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border-right: 4px solid #667eea;
+    }
+
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .detail-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .info-item {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-right: 3px solid #667eea;
+    }
+
+    .info-label {
+        font-size: 13px;
+        color: #7f8c8d;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .info-value {
+        font-size: 18px;
+        color: #2c3e50;
+        font-weight: 700;
+    }
+
+    .barcode-display {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .barcode-code {
+        font-size: 32px;
+        font-weight: 700;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 4px;
+        margin: 15px 0;
+    }
+
+    .log-item {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        border-right: 3px solid #27ae60;
+    }
+
+    .log-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .log-action {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .log-time {
+        color: #7f8c8d;
+        font-size: 13px;
+    }
+
+    .log-details {
+        color: #555;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .empty-logs {
+        text-align: center;
+        padding: 40px;
+        color: #7f8c8d;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .status-created { background: #e3f2fd; color: #1976d2; }
+    .status-in_warehouse { background: #e8f5e9; color: #388e3c; }
+    .status-delivered { background: #f3e5f5; color: #7b1fa2; }
+
+    .material-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        margin: 3px;
+    }
+</style>
+
+<div class="um-content-wrapper">
+    <!-- Header Section -->
+    <div class="um-header-section">
+        <h1 class="um-page-title">
+            <i class="feather icon-eye"></i>
+            {{ __('stages.stage4_details_title') }} - {{ $box->barcode }}
+        </h1>
+        <nav class="um-breadcrumb-nav">
+            <span><i class="feather icon-home"></i> {{ __('stages.dashboard') }}</span>
+            <i class="feather icon-chevron-left"></i>
+            <a href="{{ route('manufacturing.stage4.index') }}">{{ __('stages.fourth_phase') }}</a>
+            <i class="feather icon-chevron-left"></i>
+            <span>{{ __('stages.details') }}</span>
+        </nav>
+    </div>
+
+    <!-- Barcode Display -->
+    <div class="barcode-display">
+        <div style="font-size: 18px; opacity: 0.9; margin-bottom: 10px;">{{ __('stages.barcode_title') }}</div>
+        <div class="barcode-code">{{ $box->barcode }}</div>
+        <button onclick="printBarcode('{{ $box->barcode }}', '{{ $box->packaging_type }}', {{ $box->total_weight }}, {{ $box->coils_count }})"
+                style="background: rgba(255,255,255,0.2); border: 2px solid white; color: white; padding: 12px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 15px; transition: all 0.3s;">
+            <i class="feather icon-printer"></i> {{ __('stages.print_barcode_button') }}
+        </button>
+    </div>
+
+    <!-- {{ __('stages.basic_information') }} -->
+    <div class="detail-card">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-info"></i>
+                {{ __('stages.basic_information') }}
             </div>
+            @if($box->status == 'created')
+            <span class="status-badge status-created">{{ __('stages.stand_status_created') }}</span>
+            @elseif($box->status == 'in_warehouse')
+            <span class="status-badge status-in_warehouse">{{ __('stages.in_warehouse') }}</span>
+            @elseif($box->status == 'delivered')
+            <span class="status-badge status-delivered">{{ __('stages.delivered') }}</span>
+            @endif
         </div>
 
-        <div class="grid">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon primary">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M6 9l12-3"></path>
-                            <path d="M6 9v6a2 2 0 002 2h8a2 2 0 002-2V9"></path>
-                            <path d="M6 9l-2 12a2 2 0 002 2h12a2 2 0 002-2l-2-12"></path>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">معلومات الكرتون</h3>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                            </svg>
-                            رقم الكرتون
-                        </div>
-                        <div class="info-value"><span class="badge badge-info">BOX-001</span></div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <circle cx="12" cy="12" r="6"></circle>
-                                <circle cx="12" cy="12" r="2"></circle>
-                            </svg>
-                            عدد الكويلات
-                        </div>
-                        <div class="info-value">5</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="1" x2="12" y2="23"></line>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                            </svg>
-                            الوزن الإجمالي
-                        </div>
-                        <div class="info-value">250 كيلوغرام</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 9l12-3"></path>
-                                <path d="M6 9v6a2 2 0 002 2h8a2 2 0 002-2V9"></path>
-                            </svg>
-                            نوع التغليف
-                        </div>
-                        <div class="info-value">كرتون</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 2h12a2 2 0 012 2v16a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"></path>
-                                <line x1="12" y1="2" x2="12" y2="22"></line>
-                            </svg>
-                            الكويل المرتبط
-                        </div>
-                        <div class="info-value"><span class="badge badge-info">COIL-001</span></div>
-                    </div>
-                </div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.barcode_label') }}</div>
+                <div class="info-value" style="font-size: 14px; font-family: monospace;">{{ $box->barcode }}</div>
             </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon success">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">معلومات إضافية</h3>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                            حالة الكرتون
-                        </div>
-                        <div class="info-value">
-                            <span class="status active">جاهز للشحن</span>
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                            </svg>
-                            تاريخ الإنشاء
-                        </div>
-                        <div class="info-value">2025-01-15 09:00</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                            </svg>
-                            تاريخ التحديث
-                        </div>
-                        <div class="info-value">2025-01-15 15:30</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                            &nbsp;
-                        </div>
-                        <div class="info-value">&nbsp;</div>
-                    </div>
-                </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.parent_barcode_label') }}</div>
+                <div class="info-value" style="font-size: 14px; font-family: monospace;">{{ $box->parent_barcode }}</div>
             </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon primary">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">بيانات العميل</h3>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            اسم العميل
-                        </div>
-                        <div class="info-value">أحمد محمد علي</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                                <path d="M22 4l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 4"></path>
-                            </svg>
-                            البريد الإلكتروني
-                        </div>
-                        <div class="info-value">customer@example.com</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                            </svg>
-                            رقم الهاتف
-                        </div>
-                        <div class="info-value">+966501234567</div>
-                    </div>
-                </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.packaging_type_label') }}</div>
+                <div class="info-value">{{ $box->packaging_type == 'box' ? __('stages.box_type') : __('stages.bundle_type') }}</div>
             </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon warning">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                            <circle cx="12" cy="10" r="3"></circle>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">معلومات الشحن</h3>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
-                            عنوان الشحن
-                        </div>
-                        <div class="info-value">
-                            <span class="text-info">
-                                شارع الأمير محمد بن عبدالعزيز، الرياض 12345<br>
-                                المملكة العربية السعودية
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 9l12-3"></path>
-                                <path d="M6 9v6a2 2 0 002 2h8a2 2 0 002-2V9"></path>
-                                <path d="M6 9l-2 12a2 2 0 002 2h12a2 2 0 002-2l-2-12"></path>
-                            </svg>
-                            رقم التتبع
-                        </div>
-                        <div class="info-value"><span class="badge badge-info">TRK-2025-001234</span></div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
-                            تاريخ التسليم المتوقع
-                        </div>
-                        <div class="info-value">2025-01-25</div>
-                    </div>
-                </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.coils_count_label') }}</div>
+                <div class="info-value" style="color: #3498db;">{{ $box->coils_count }}</div>
             </div>
-
-            <div class="card" style="margin-bottom: 20px;">
-                <div class="card-header">
-                    <div class="card-icon primary">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 11l3 3L22 4"></path>
-                            <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">سجل الأنشطة</h3>
-                </div>
-                <div class="card-body">
-                    <div class="schedule-grid">
-                        <div class="info-item">
-                            <div class="info-label">تم الإنشاء:</div>
-                            <div class="info-value">2025-01-15 09:00 - بواسطة أحمد محمد</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">تم التحديث:</div>
-                            <div class="info-value">2025-01-15 12:30 - تحديث الوزن</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">تم الإكمال:</div>
-                            <div class="info-value">2025-01-15 15:30 - جاهز للشحن</div>
-                        </div>
-                    </div>
-                </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.total_weight_label') }}</div>
+                <div class="info-value" style="color: #27ae60;">{{ number_format($box->total_weight, 2) }} {{ __('stages.weight_unit') }}</div>
             </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon warning">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="1"></circle>
-                        <circle cx="19" cy="12" r="1"></circle>
-                        <circle cx="5" cy="12" r="1"></circle>
-                    </svg>
-                </div>
-                <h3 class="card-title">الإجراءات المتاحة</h3>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.waste_label') }}</div>
+                <div class="info-value" style="color: #e74c3c;">{{ number_format($box->waste, 2) }} {{ __('stages.weight_unit') }}</div>
             </div>
-            <div class="card-body">
-                <div class="actions-grid">
-                    <a href="{{ route('manufacturing.stage3.index') }}" class="action-btn activate" style="background: linear-gradient(135deg, #9E9E9E, #757575);">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="19" y1="12" x2="5" y2="12"></line>
-                                <polyline points="12 19 5 12 12 5"></polyline>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                            <h4>⬅️ عودة للمرحلة 3</h4>
-                            <p>العودة لقائمة الكويلات</p>
-                        </div>
-                    </a>
-
-                    <a href="{{ route('manufacturing.stage4.edit', 1) }}" class="action-btn activate">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                            <h4>تعديل الكرتون</h4>
-                            <p>تعديل تفاصيل الكرتون</p>
-                        </div>
-                    </a>
-
-                    <button type="button" class="action-btn activate" style="background: linear-gradient(135deg, #FF9800, #F57C00); border: none; cursor: pointer;">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                            <h4>🚚 تسليم للعميل</h4>
-                            <p>تسليم الكرتون وتحديث حالته</p>
-                        </div>
-                    </button>
-
-                    <button type="button" class="action-btn delete">
-                        <div class="action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
-                        </div>
-                        <div class="action-text">
-                            <h4>حذف الكرتون</h4>
-                            <p>حذف نهائي للكرتون من النظام</p>
-                        </div>
-                    </button>
-                </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.created_by_label') }}</div>
+                <div class="info-value" style="font-size: 16px;">{{ $box->creator->name ?? __('stages.not_specified') }}</div>
             </div>
-        </div>
-
-        <!-- Navigation - Final Stage -->
-        <div class="card" style="margin-top: 20px; background: linear-gradient(135deg, #fff3cd, #fffbea); border-left: 5px solid #FF9800;">
-            <div class="card-header" style="border-bottom: 2px solid #FF9800;">
-                <h3 class="card-title" style="color: #e65100;">📦 هذه المرحلة النهائية</h3>
-            </div>
-            <div class="card-body">
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
-                    <div>
-                        <h4 style="margin: 0 0 5px 0; color: #e65100;">الكراتين المعبأة جاهزة للشحن</h4>
-                        <p style="margin: 0; color: #e65100; font-size: 14px;">اضغط الزر أدناه لتسليم الكرتون للعميل</p>
-                    </div>
-                    <button type="button" onclick="alert('سيتم تسليم الكرتون للعميل قريباً')" style="padding: 12px 24px; background: #FF9800; color: white; border: none; border-radius: 6px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(255, 152, 0, 0.3); cursor: pointer;">
-                        <span>🚚</span>
-                        <span>تسليم للعميل</span>
-                    </button>
-                </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.created_at_label') }}</div>
+                <div class="info-value" style="font-size: 16px;">{{ $box->created_at->format('Y-m-d H:i') }}</div>
             </div>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteButtons = document.querySelectorAll('.action-btn.delete');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (confirm('⚠️ هل أنت متأكد من حذف هذا الكرتون؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
-                        alert('تم حذف الكرتون بنجاح!');
-                    }
-                });
-            });
-        });
-    </script>
+    <!-- Material Specifications -->
+    @if(isset($materials) && count($materials) > 0)
+    <div class="detail-card" style="border-right-color: #9b59b6;">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-package"></i>
+                {{ __('stages.product_specifications') }}
+            </div>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            @foreach($materials as $material)
+                @if($material->color)
+                <span class="material-badge" style="background: #e3f2fd; color: #1976d2;">
+                    <i class="feather icon-droplet" style="font-size: 10px;"></i> {{ $material->color }}
+                </span>
+                @endif
+                @if($material->material_type)
+                <span class="material-badge" style="background: #f3e5f5; color: #7b1fa2;">
+                    <i class="feather icon-layers" style="font-size: 10px;"></i> {{ $material->material_type }}
+                </span>
+                @endif
+                @if($material->wire_size)
+                <span class="material-badge" style="background: #fff3e0; color: #f57c00;">
+                    <i class="feather icon-maximize-2" style="font-size: 10px;"></i> {{ $material->wire_size }}
+                </span>
+                @endif
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    <!-- {{ __('stages.usage_history') }} -->
+    @if(isset($usageHistory) && $usageHistory)
+    <div class="detail-card" style="border-right-color: #27ae60;">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-activity"></i>
+                {{ __('stages.usage_history') }}
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.user_label') }}</div>
+                <div class="info-value" style="font-size: 16px;">{{ $usageHistory->user_name }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.action_type') }}</div>
+                <div class="info-value">{{ $usageHistory->action ?? __('stages.not_specified') }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.input_weight_label') }}</div>
+                <div class="info-value">{{ number_format($usageHistory->input_weight ?? 0, 2) }} {{ __('stages.weight_unit') }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.output_weight_label') }}</div>
+                <div class="info-value">{{ number_format($usageHistory->output_weight ?? 0, 2) }} {{ __('stages.weight_unit') }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{{ __('stages.start_time_label') }}</div>
+                <div class="info-value" style="font-size: 14px;">{{ isset($usageHistory->started_at) ? \Carbon\Carbon::parse($usageHistory->started_at)->format('Y-m-d H:i') : __('stages.not_specified') }}</div>
+            </div>
+        </div>
+
+        @if(isset($usageHistory->notes) && $usageHistory->notes)
+        <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border-right: 3px solid #ffc107;">
+            <strong style="color: #856404;">📝 {{ __('stages.notes_label') }}:</strong>
+            <p style="margin: 8px 0 0 0; color: #856404;">{{ $usageHistory->notes }}</p>
+        </div>
+        @endif
+    </div>
+    @endif
+
+    <!-- {{ __('stages.tracking_logs') }} -->
+    @if(isset($trackingLogs) && $trackingLogs->count() > 0)
+    <div class="detail-card" style="border-right-color: #3498db;">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-map"></i>
+                {{ __('stages.tracking_logs') }} ({{ $trackingLogs->count() }})
+            </div>
+        </div>
+
+        @foreach($trackingLogs as $log)
+        <div class="log-item">
+            <div class="log-header">
+                <div class="log-action">
+                    <i class="feather icon-check-circle" style="color: #27ae60;"></i>
+                    {{ $log->action }} - {{ $log->stage }}
+                </div>
+                <div class="log-time">{{ \Carbon\Carbon::parse($log->created_at)->format('Y-m-d H:i') }}</div>
+            </div>
+            <div class="log-details">
+                <strong>{{ __('stages.worker_label') }}:</strong> {{ $log->worker_name ?? __('stages.not_specified') }}<br>
+                <strong>{{ __('stages.input_weight_label') }}:</strong> {{ number_format($log->input_weight, 2) }} {{ __('stages.weight_unit') }} |
+                <strong>{{ __('stages.output_weight_label') }}:</strong> {{ number_format($log->output_weight, 2) }} {{ __('stages.weight_unit') }}<br>
+                <strong>{{ __('stages.waste_label') }}:</strong> {{ number_format($log->waste_amount, 2) }} {{ __('stages.weight_unit') }} ({{ number_format($log->waste_percentage, 2) }}%)
+                @if($log->notes)
+                <br><strong>{{ __('stages.notes_label') }}:</strong> {{ $log->notes }}
+                @endif
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @endif
+
+    <!-- {{ __('stages.operation_logs') }} -->
+    @if(isset($operationLogs) && $operationLogs->count() > 0)
+    <div class="detail-card" style="border-right-color: #f39c12;">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-list"></i>
+                {{ __('stages.operation_logs') }} ({{ $operationLogs->count() }})
+            </div>
+        </div>
+
+        @foreach($operationLogs as $log)
+        <div class="log-item" style="border-right-color: #f39c12;">
+            <div class="log-header">
+                <div class="log-action">
+                    <i class="feather icon-activity" style="color: #f39c12;"></i>
+                    {{ $log->action ?? __('stages.operation_label') }}
+                </div>
+                <div class="log-time">{{ \Carbon\Carbon::parse($log->created_at)->format('Y-m-d H:i') }}</div>
+            </div>
+            <div class="log-details">
+                <strong>{{ __('stages.user_label') }}:</strong> {{ $log->user_name ?? __('stages.system_label') }}<br>
+                @if($log->description)
+                <strong>{{ __('stages.description_label') }}:</strong> {{ $log->description }}
+                @endif
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @else
+    <div class="detail-card">
+        <div class="empty-logs">
+            <i class="feather icon-inbox" style="font-size: 48px; opacity: 0.3;"></i>
+            <p>{{ __('stages.no_operations_logged') }}</p>
+        </div>
+    </div>
+    @endif
+
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 15px; margin-top: 25px;">
+        <a href="{{ route('manufacturing.stage4.index') }}" class="um-btn um-btn-primary" style="flex: 1;">
+            <i class="feather icon-arrow-right"></i> {{ __('stages.back_to_list') }}
+        </a>
+        <button onclick="printBarcode('{{ $box->barcode }}', '{{ $box->packaging_type }}', {{ $box->total_weight }}, {{ $box->coils_count }})"
+                class="um-btn um-btn-success" style="flex: 1;">
+            <i class="feather icon-printer"></i> {{ __('stages.print_barcode_button') }}
+        </button>
+    </div>
+</div>
+
+<!-- JsBarcode Library -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+<script>
+function printBarcode(barcode, packagingType, totalWeight, coilsCount) {
+    const packagingLabel = packagingType === 'box' ? '{{ __("stages.box_type") }}' : '{{ __("stages.bundle_type") }}';
+    const printWindow = window.open('', '', 'height=650,width=850');
+    printWindow.document.write('<html dir="rtl"><head><title>' + '{{ __("stages.print_barcode_title") }}' + ' - ' + barcode + '</title>');
+    printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
+    printWindow.document.write('.barcode-container { background: white; padding: 50px; border-radius: 16px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); text-align: center; max-width: 550px; }');
+    printWindow.document.write('.title { font-size: 28px; font-weight: bold; color: #2c3e50; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 4px solid #667eea; }');
+    printWindow.document.write('.barcode-code { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 25px 0; letter-spacing: 4px; font-family: "Courier New", monospace; }');
+    printWindow.document.write('.info { margin-top: 30px; padding: 25px; background: #f8f9fa; border-radius: 10px; text-align: right; }');
+    printWindow.document.write('.info-row { margin: 12px 0; display: flex; justify-content: space-between; }');
+    printWindow.document.write('.label { color: #7f8c8d; font-size: 16px; }');
+    printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 18px; }');
+    printWindow.document.write('@media print { body { background: white; } }');
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write('<div class="barcode-container">');
+    printWindow.document.write('<div class="title">{{ __("stages.fourth_phase") }}</div>');
+    printWindow.document.write('<svg id="print-barcode"></svg>');
+    printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
+    printWindow.document.write('<div class="info">');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.packaging_type_label") }}:</span><span class="value">' + packagingLabel + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.coils_count_label") }}:</span><span class="value">' + coilsCount + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.total_weight_label") }}:</span><span class="value">' + totalWeight + ' {{ __("stages.weight_unit") }}</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.date_label_print") }}:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+    printWindow.document.write('</div></div>');
+    printWindow.document.write('<script>');
+    printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');
+    printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };');
+    printWindow.document.write('<\/script></body></html>');
+    printWindow.document.close();
+}
+</script>
+
 @endsection

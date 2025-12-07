@@ -132,12 +132,28 @@
                             <td>{{ $item->created_by_name ?? 'غير محدد' }}</td>
                             <td>{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i') }}</td>
                             <td>
-                                <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->stand_number }}', '{{ $item->material_name }}', {{ $item->output_weight }})"
-                                        class="um-btn um-btn-sm um-btn-success"
-                                        title="{{ __('stages.print_barcode_action') }}"
-                                        style="padding: 6px 12px;">
-                                    <i class="feather icon-printer"></i>
-                                </button>
+                                <div class="dropdown" style="position: relative; display: inline-block;">
+                                    <button class="um-btn um-btn-sm um-btn-primary" onclick="toggleDropdown(this)" style="padding: 6px 12px;">
+                                        <i class="feather icon-more-vertical"></i>
+                                    </button>
+                                    <div class="dropdown-menu" style="display: none; position: absolute; left: 0; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 180px; padding: 8px 0;">
+                                        <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->stand_number }}', '{{ $item->material_name }}', {{ $item->output_weight }})" class="dropdown-item" style="width: 100%; text-align: right; padding: 10px 20px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: flex-end; gap: 10px; transition: background 0.2s;">
+                                            <span>طباعة الباركود</span>
+                                            <i class="feather icon-printer" style="color: #10b981;"></i>
+                                        </button>
+                                        <a href="{{ route('manufacturing.stage2.show', $item->id) }}" class="dropdown-item" style="width: 100%; text-align: right; padding: 10px 20px; text-decoration: none; color: #2c3e50; display: flex; align-items: center; justify-content: flex-end; gap: 10px; transition: background 0.2s;">
+                                            <span>عرض التفاصيل</span>
+                                            <i class="feather icon-eye" style="color: #3b82f6;"></i>
+                                        </a>
+                                        <div style="border-top: 1px solid #eee; margin: 8px 0;"></div>
+                                        <div class="dropdown-item" style="padding: 10px 20px; color: #7f8c8d; font-size: 12px; text-align: right; cursor: default;">
+                                            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
+                                                <span>{{ $item->created_by_name ?? 'غير محدد' }}</span>
+                                                <i class="feather icon-user" style="font-size: 14px;"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                         @empty
@@ -215,12 +231,17 @@
                         </div>
                     </div>
 
-                    <div class="um-category-card-footer">
+                    <div class="um-category-card-footer" style="display: flex; gap: 8px;">
                         <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->stand_number }}', '{{ $item->material_name }}', {{ $item->output_weight }})"
                                 class="um-btn um-btn-success"
-                                style="width: 100%;">
-                            <i class="feather icon-printer"></i> {{ __('stages.print_barcode_action') }}
+                                style="flex: 1;">
+                            <i class="feather icon-printer"></i> طباعة
                         </button>
+                        <a href="{{ route('manufacturing.stage2.show', $item->id) }}"
+                           class="um-btn um-btn-primary"
+                           style="flex: 1; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                            <i class="feather icon-eye"></i> التفاصيل
+                        </a>
                     </div>
                 </div>
                 @empty
@@ -286,6 +307,30 @@
             printWindow.document.write('<\/script></body></html>');
             printWindow.document.close();
         }
+
+        function toggleDropdown(button) {
+            const dropdown = button.nextElementSibling;
+            const allDropdowns = document.querySelectorAll('.dropdown-menu');
+            allDropdowns.forEach(d => {
+                if (d !== dropdown) d.style.display = 'none';
+            });
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
+            }
+        });
+
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.background = '#f8f9fa';
+            });
+            item.addEventListener('mouseleave', function() {
+                this.style.background = 'transparent';
+            });
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
             // إخفاء التنبيهات تلقائياً بعد 5 ثواني

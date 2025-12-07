@@ -30,17 +30,39 @@ class WarehouseIntakeController extends Controller
      */
     public function create()
     {
-        $availableBoxes = Stage4Box::with(['creator', 'boxCoils'])
+        $availableBoxes = Stage4Box::with(['creator'])
             ->whereIn('status', ['packed', 'completed'])
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($box) {
+                $materials = $box->resolvedMaterials();
+
+                // دمج المواصفات في نص واحد مثل finished-product-deliveries
+                $specs = [];
+                $colors = $materials->pluck('color')->unique()->filter();
+                $materialTypes = $materials->pluck('plastic_type')->unique()->filter();
+                $wireSizes = $materials->pluck('wire_size')->unique()->filter();
+
+                if ($colors->isNotEmpty()) {
+                    $specs[] = $colors->implode(', ');
+                }
+                if ($materialTypes->isNotEmpty()) {
+                    $specs[] = $materialTypes->implode(', ');
+                }
+                if ($wireSizes->isNotEmpty()) {
+                    $specs[] = $wireSizes->implode(', ');
+                }
+
                 return [
                     'id' => $box->id,
                     'barcode' => $box->barcode,
                     'packaging_type' => $box->packaging_type,
                     'weight' => $box->total_weight ?? $box->weight ?? 0,
-                    'coils_count' => $box->boxCoils->count(),
+                    'coils_count' => $materials->count(),
+                    'colors' => $colors->values()->toArray(),
+                    'wire_sizes' => $wireSizes->values()->toArray(),
+                    'material_types' => $materialTypes->values()->toArray(),
+                    'specifications' => implode(' - ', $specs), // نص واحد للمواصفات
                     'creator' => $box->creator ? $box->creator->name : null,
                     'status' => $box->status,
                     'created_at' => optional($box->created_at)->format('Y-m-d H:i'),
@@ -183,9 +205,10 @@ class WarehouseIntakeController extends Controller
         $intakeRequest = WarehouseIntakeRequest::with([
             'requestedBy',
             'approvedBy',
-            'items.stage4Box.boxCoils'
+            'items.stage4Box'
         ])->findOrFail($id);
 
+        // إضافة معلومات المواد لكل صندوق
         return view('manufacturing::warehouse-intake.show', compact('intakeRequest'));
     }
 
@@ -300,13 +323,14 @@ class WarehouseIntakeController extends Controller
         $intakeRequest = WarehouseIntakeRequest::with([
             'requestedBy',
             'approvedBy',
-            'items.stage4Box.boxCoils'
+            'items.stage4Box'
         ])->findOrFail($id);
 
         if (!$intakeRequest->canPrint()) {
             return redirect()->back()->with('error', 'لا يمكن طباعة إذن غير معتمد');
         }
 
+        // إضافة معلومات المواد لكل صندوق
         return view('manufacturing::warehouse-intake.print', compact('intakeRequest'));
     }
 
@@ -331,4 +355,5 @@ class WarehouseIntakeController extends Controller
 
         return $prefix . str_pad($number, 4, '0', STR_PAD_LEFT);
     }
+
 }

@@ -278,6 +278,7 @@ return [
     'total_amount' => 'المبلغ الإجمالي',
 'amount'=>'المبلغ',
 'invoice_date'=>'تاريخ الفاتورة',
+'due_date' => 'تاريخ الاستحقاق',
     'date_not_specified' => 'لم يتم تحديد تاريخ',
     'payment_terms' => 'شروط الدفع',
     'general' => 'عام',

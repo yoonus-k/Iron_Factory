@@ -30,6 +30,7 @@ return [
         'remaining' => 'المتبقي',
         'raw_materials' => 'المواد الخام',
         'stores' => 'المستودع',
+        'stands' => 'الاستاندات',
         'delivery_notes' => 'أذون التسليم',
         'registration' => 'تسجيل البضاعة',
         'purchase_invoices' => 'فواتير المشتريات',

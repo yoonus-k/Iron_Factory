@@ -30,6 +30,7 @@ return [
         'remaining' => 'Remaining',
         'raw_materials' => 'Raw Materials',
         'stores' => 'Stores',
+            'stands' => 'Stands',
         'delivery_notes' => 'Delivery Notes',
         'registration' => 'Shipment Registration',
         'purchase_invoices' => 'Purchase Invoices',

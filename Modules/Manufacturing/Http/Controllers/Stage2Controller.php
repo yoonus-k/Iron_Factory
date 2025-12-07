@@ -495,7 +495,69 @@ class Stage2Controller extends Controller
      */
     public function show($id)
     {
-        return view('manufacturing::stages.stage2.show');
+        // جلب البيانات من stage2_processed
+        $record = DB::table('stage2_processed')
+            ->leftJoin('users as creator', 'stage2_processed.created_by', '=', 'creator.id')
+            ->where('stage2_processed.id', $id)
+            ->select(
+                'stage2_processed.*',
+                'creator.name as created_by_name'
+            )
+            ->first();
+
+        if (!$record) {
+            abort(404, 'السجل غير موجود');
+        }
+
+        // تحويل created_at إلى Carbon instance
+        $record->created_at = \Carbon\Carbon::parse($record->created_at);
+        
+        // إنشاء creator object
+        $record->creator = (object) ['name' => $record->created_by_name ?? 'غير محدد'];
+
+        // جلب سجل العمليات من operation_logs
+        $operationLogs = DB::table('operation_logs')
+            ->leftJoin('users', 'operation_logs.user_id', '=', 'users.id')
+            ->where(function($query) use ($id, $record) {
+                $query->where('operation_logs.table_name', 'stage2_processed')
+                      ->where('operation_logs.record_id', $id);
+            })
+            ->orWhere('operation_logs.description', 'LIKE', '%' . $record->barcode . '%')
+            ->select(
+                'operation_logs.*',
+                'users.name as user_name'
+            )
+            ->orderBy('operation_logs.created_at', 'desc')
+            ->limit(50)
+            ->get();
+
+        // جلب سجل تتبع المنتج من product_tracking
+        $trackingLogs = DB::table('product_tracking')
+            ->leftJoin('users as worker', 'product_tracking.worker_id', '=', 'worker.id')
+            ->where(function($query) use ($record) {
+                $query->where('product_tracking.barcode', $record->barcode)
+                      ->orWhere('product_tracking.input_barcode', $record->parent_barcode)
+                      ->orWhere('product_tracking.output_barcode', $record->barcode);
+            })
+            ->select(
+                'product_tracking.*',
+                'worker.name as worker_name'
+            )
+            ->orderBy('product_tracking.created_at', 'desc')
+            ->get();
+
+        // جلب سجل الاستخدام
+        $usageHistory = DB::table('stand_usage_history')
+            ->leftJoin('users', 'stand_usage_history.user_id', '=', 'users.id')
+            ->where('stand_usage_history.material_barcode', $record->parent_barcode)
+            ->select(
+                'stand_usage_history.*',
+                'users.name as user_name'
+            )
+            ->orderBy('stand_usage_history.created_at', 'desc')
+            ->first();
+
+        return view('manufacturing::stages.stage2.show', compact('record', 'operationLogs', 'trackingLogs', 'usageHistory'));
     }
 
     /**

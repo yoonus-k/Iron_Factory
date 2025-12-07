@@ -139,9 +139,9 @@
                                 <tr>
                                     <th>#</th>
                                     <th>الباركود</th>
+                                    <th>مواصفات المنتج</th>
                                     <th>نوع التغليف</th>
                                     <th>الوزن (كجم)</th>
-                                    <th>عدد اللفات</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -151,16 +151,28 @@
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td><strong class="text-primary">{{ $item->barcode }}</strong></td>
+                                    <td>
+                                        @if(isset($item->materials) && $item->materials->count() > 0)
+                                            @foreach($item->materials as $material)
+                                                <span class="badge bg-info me-1">
+                                                    @if($material->color) {{ $material->color }} @endif
+                                                    @if($material->material_type) - {{ $material->material_type }} @endif
+                                                    @if($material->wire_size) - {{ $material->wire_size }} @endif
+                                                </span>
+                                            @endforeach
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $item->packaging_type }}</td>
                                     <td><strong>{{ number_format($item->weight, 2) }} كجم</strong></td>
-                                    <td>{{ $item->stage4Box->boxCoils->count() ?? 0 }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
                             <tfoot>
                                 <tr class="table-active">
-                                    <td colspan="3" class="text-end"><strong>الإجمالي:</strong></td>
-                                    <td colspan="2"><strong class="text-success">{{ number_format($totalWeight, 2) }} كجم</strong></td>
+                                    <td colspan="4" class="text-end"><strong>الإجمالي:</strong></td>
+                                    <td><strong class="text-success">{{ number_format($totalWeight, 2) }} كجم</strong></td>
                                 </tr>
                             </tfoot>
                         </table>
