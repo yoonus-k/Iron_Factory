@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إذن صرف رقم {{ $deliveryNote->note_number ?? $deliveryNote->id }}</title>
+    <title>{{ __('app.finished_products.delivery_note') }} {{ __('app.finished_products.note_number') }}: {{ $deliveryNote->note_number ?? $deliveryNote->id }}</title>
     <style>
         * {
             margin: 0;
@@ -264,12 +264,12 @@
     <div class="print-container">
         <!-- Header -->
         <div class="header">
-            <img src="{{ asset('assets/images/logo/logo-dark.jpg') }}" alt="شعار الشركة" class="logo">
-            <h1>🏭 مصنع السلك للحديد</h1>
-            <h2>إذن صرف منتجات نهائية</h2>
-            <div class="note-number">رقم الإذن: {{ $deliveryNote->note_number ?? '#' . $deliveryNote->id }}</div>
+            <img src="{{ asset('assets/images/logo/logo-dark.jpg') }}" alt="{{ __('app.finished_products.company_logo') }}" class="logo">
+            <h1>🏭 {{ __('app.finished_products.factory_name') }}</h1>
+            <h2>{{ __('app.finished_products.delivery_note') }}</h2>
+            <div class="note-number">{{ __('app.finished_products.note_number') }}: {{ $deliveryNote->note_number ?? '#' . $deliveryNote->id }}</div>
             @if($deliveryNote->status == 'approved')
-            <div class="status-badge status-approved">✓ معتمد</div>
+            <div class="status-badge status-approved">✓ {{ __('app.finished_products.approved') }}</div>
             @endif
         </div>
 
@@ -277,65 +277,65 @@
         <div class="info-section">
             <!-- معلومات العميل -->
             <div class="info-box">
-                <h3>👤 بيانات العميل</h3>
+                <h3>👤 {{ __('app.finished_products.customer_details') }}</h3>
                 @if($deliveryNote->customer)
                 <div class="info-row">
-                    <span class="label">رمز العميل:</span>
+                    <span class="label">{{ __('app.finished_products.customer_code') }}:</span>
                     <span class="value">{{ $deliveryNote->customer->customer_code }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">الاسم:</span>
+                    <span class="label">{{ __('app.finished_products.customer_name') }}:</span>
                     <span class="value">{{ $deliveryNote->customer->name }}</span>
                 </div>
                 @if($deliveryNote->customer->company_name)
                 <div class="info-row">
-                    <span class="label">الشركة:</span>
+                    <span class="label">{{ __('app.finished_products.company') }}:</span>
                     <span class="value">{{ $deliveryNote->customer->company_name }}</span>
                 </div>
                 @endif
                 <div class="info-row">
-                    <span class="label">الهاتف:</span>
+                    <span class="label">{{ __('app.finished_products.phone') }}:</span>
                     <span class="value">{{ $deliveryNote->customer->phone }}</span>
                 </div>
                 @if($deliveryNote->customer->address)
                 <div class="info-row">
-                    <span class="label">العنوان:</span>
+                    <span class="label">{{ __('app.finished_products.address') }}:</span>
                     <span class="value">{{ $deliveryNote->customer->address }}</span>
                 </div>
                 @endif
                 @else
-                <p style="text-align: center; color: #999;">لم يتم تحديد العميل</p>
+                <p style="text-align: center; color: #999;">{{ __('app.finished_products.customer_not_set') }}</p>
                 @endif
             </div>
 
             <!-- معلومات الإذن -->
             <div class="info-box">
-                <h3>📋 معلومات الإذن</h3>
+                <h3>📋 {{ __('app.finished_products.note_info_section') }}</h3>
                 <div class="info-row">
-                    <span class="label">تاريخ الإنشاء:</span>
+                    <span class="label">{{ __('app.finished_products.creation_date') }}:</span>
                     <span class="value">{{ $deliveryNote->created_at->format('Y-m-d') }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">الوقت:</span>
+                    <span class="label">{{ __('app.finished_products.time') }}:</span>
                     <span class="value">{{ $deliveryNote->created_at->format('H:i') }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">المُنشئ:</span>
+                    <span class="label">{{ __('app.finished_products.created_by') }}:</span>
                     <span class="value">{{ $deliveryNote->recordedBy->name ?? '-' }}</span>
                 </div>
                 @if($deliveryNote->approved_at)
                 <div class="info-row">
-                    <span class="label">تاريخ الاعتماد:</span>
+                    <span class="label">{{ __('app.finished_products.approval_date') }}:</span>
                     <span class="value">{{ $deliveryNote->approved_at->format('Y-m-d H:i') }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">المعتمد:</span>
+                    <span class="label">{{ __('app.finished_products.approved_by') }}:</span>
                     <span class="value">{{ $deliveryNote->approvedBy->name ?? '-' }}</span>
                 </div>
                 @endif
                 @if($deliveryNote->print_count > 1)
                 <div class="info-row">
-                    <span class="label">نسخة رقم:</span>
+                    <span class="label">{{ __('app.finished_products.print_count') }}:</span>
                     <span class="value">{{ $deliveryNote->print_count }}</span>
                 </div>
                 @endif
@@ -346,15 +346,15 @@
         <div class="summary-boxes">
             <div class="summary-box">
                 <div class="number">{{ $deliveryNote->items->count() }}</div>
-                <div class="label">عدد الصناديق</div>
+                <div class="label">{{ __('app.finished_products.boxes_count_label') }}</div>
             </div>
             <div class="summary-box">
                 <div class="number">{{ number_format($deliveryNote->items->sum('weight'), 2) }}</div>
-                <div class="label">الوزن الإجمالي (كجم)</div>
+                <div class="label">{{ __('app.finished_products.total_weight_label') }} ({{ __('app.units.kg') }})</div>
             </div>
             <div class="summary-box">
                 <div class="number">{{ number_format($deliveryNote->items->avg('weight'), 2) }}</div>
-                <div class="label">متوسط الوزن (كجم)</div>
+                <div class="label">{{ __('app.finished_products.average_box_weight') }} ({{ __('app.units.kg') }})</div>
             </div>
         </div>
 
@@ -363,10 +363,17 @@
             <thead>
                 <tr>
                     <th style="width: 50px;">#</th>
+
                     <th>الباركود</th>
                     <th>مواصفات المنتج</th>
                     <th>نوع التغليف</th>
                     <th style="width: 120px;">الوزن (كجم)</th>
+
+                    <th>{{ __('app.finished_products.barcode') }}</th>
+                    <th>{{ __('app.finished_products.packaging_type') }}</th>
+                    <th>{{ __('app.finished_products.coils_count') }}</th>
+                    <th style="width: 120px;">{{ __('app.finished_products.weight') }} ({{ __('app.units.kg') }})</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -376,6 +383,7 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td><strong>{{ $item->barcode }}</strong></td>
+
                     <td>
                         @if(isset($item->materials) && $item->materials->count() > 0)
                             @foreach($item->materials as $material)
@@ -390,13 +398,16 @@
                         @endif
                     </td>
                     <td>{{ $item->packaging_type }}</td>
+                    <td>{{ $item->stage4Box->productType->type_name ?? '-' }}</td>
+                    <td>{{ $item->stage4Box->boxCoils->count() ?? 0 }}</td>
+
                     <td><strong>{{ number_format($item->weight, 2) }}</strong></td>
                 </tr>
                 @endforeach
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="4" style="text-align: left;">الإجمالي:</td>
+                    <td colspan="4" style="text-align: left;">{{ __('app.finished_products.total') }}:</td>
                     <td><strong>{{ number_format($totalWeight, 2) }}</strong></td>
                 </tr>
             </tfoot>
@@ -405,7 +416,7 @@
         <!-- Notes Section -->
         @if($deliveryNote->notes)
         <div class="notes-section">
-            <h3>📝 ملاحظات</h3>
+            <h3>📝 {{ __('app.finished_products.notes') }}</h3>
             <p>{{ $deliveryNote->notes }}</p>
         </div>
         @endif
@@ -414,21 +425,21 @@
         <div class="signatures">
             <div class="signature-box">
                 <div class="signature-line">
-                    <div class="title">أمين المستودع</div>
+                    <div class="title">{{ __('app.finished_products.warehouse_manager') }}</div>
                     <div class="name">{{ $deliveryNote->recordedBy->name ?? '' }}</div>
                 </div>
             </div>
 
             <div class="signature-box">
                 <div class="signature-line">
-                    <div class="title">المدير العام</div>
+                    <div class="title">{{ __('app.finished_products.general_manager') }}</div>
                     <div class="name">{{ $deliveryNote->approvedBy->name ?? '' }}</div>
                 </div>
             </div>
 
             <div class="signature-box">
                 <div class="signature-line">
-                    <div class="title">المستلم</div>
+                    <div class="title">{{ __('app.finished_products.receiver') }}</div>
                     <div class="name"></div>
                 </div>
             </div>
@@ -436,8 +447,8 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p>تم الطباعة في: {{ now()->format('Y-m-d H:i:s') }}</p>
-            <p>هذا المستند تم إنشاؤه إلكترونياً من نظام إدارة المصنع</p>
+            <p>{{ __('app.finished_products.print_date') }}: {{ now()->format('Y-m-d H:i:s') }}</p>
+            <p>{{ __('app.finished_products.system_generated_document') }}</p>
         </div>
     </div>
 

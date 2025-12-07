@@ -99,35 +99,41 @@
                     </li>
                     @endif
 
-                    @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_READ') || auth()->user()->hasPermission('WAREHOUSE_INTAKE_APPROVE'))
-                    <li class="submenu-item has-submenu">
-                        <a href="javascript:void(0)" class="submenu-toggle">
-                            <i class="fas fa-dolly"></i> طلبات إدخال المستودع
-                            <i class="fas fa-chevron-down arrow"></i>
+                    @if(auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS'))
+                    <li>
+                        <a href="{{ route('manufacturing.production.confirmations.index') }}">
+                            <i class="fas fa-check-circle"></i> {{ __('app.warehouse.production_confirmations') }}
                         </a>
-                        <ul class="submenu">
-                            @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_READ'))
-                            <li>
-                                <a href="{{ route('manufacturing.warehouse-intake.index') }}">
-                                    <i class="fas fa-list"></i> جميع الطلبات
-                                </a>
-                            </li>
-                            @endif
+                    </li>
+                    @endif
 
-                            @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_APPROVE'))
-                            <li>
-                                <a href="{{ route('manufacturing.warehouse-intake.pending-approval') }}">
-                                    <i class="fas fa-clipboard-check"></i> الطلبات المعلقة
-                                    @php
-                                        $pendingIntakeCount = \App\Models\WarehouseIntakeRequest::where('status', 'pending')->count();
-                                    @endphp
-                                    @if($pendingIntakeCount > 0)
-                                        <span class="badge badge-danger" style="margin-right: 5px;">{{ $pendingIntakeCount }}</span>
-                                    @endif
-                                </a>
-                            </li>
+                    @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_READ'))
+                    <li>
+                        <a href="{{ route('manufacturing.warehouse-intake.index') }}">
+                            <i class="fas fa-dolly"></i> {{ __('app.warehouse.intake_requests') }}
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_APPROVE'))
+                    <li>
+                        <a href="{{ route('manufacturing.warehouse-intake.pending-approval') }}">
+                            <i class="fas fa-clipboard-check"></i> {{ __('app.warehouse.approve_intake_requests') }}
+                            @php
+                                $pendingIntakeCount = \App\Models\WarehouseIntakeRequest::where('status', 'pending')->count();
+                            @endphp
+                            @if($pendingIntakeCount > 0)
+                                <span class="badge badge-danger" style="margin-right: 5px;">{{ $pendingIntakeCount }}</span>
                             @endif
-                        </ul>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_READ'))
+                    <li>
+                        <a href="{{ route('manufacturing.finished-product-deliveries.index') }}">
+                            <i class="fas fa-truck-loading"></i> {{ __('app.warehouse.product_delivery_notes') }}
+                        </a>
                     </li>
                     @endif
 
@@ -311,6 +317,7 @@
             </li>
             @endif
 
+
             <!-- تأكيدات الإنتاج -->
             @if(auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS'))
             <li>
@@ -327,21 +334,20 @@
                 auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_APPROVE') || 
                 auth()->user()->hasPermission('MENU_CUSTOMERS') || 
                 auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW'))
+
+            <!-- {{ __('app.menu.finished_products') }} -->
+            @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES') || auth()->user()->hasPermission('MENU_CUSTOMERS'))
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="التسليم والعملاء">
-                    <i class="fas fa-shipping-fast"></i>
-                    <span>التسليم والعملاء</span>
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.menu.finished_products') }}">
+                    <i class="fas fa-truck-loading"></i>
+                    <span>{{ __('app.menu.finished_products') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES'))
-                    <li class="submenu-header"><span>إذونات الصرف</span></li>
-                    @endif
-
-                    @if(auth()->user()->hasPermission('MENU_FINISHED_PRODUCT_DELIVERIES'))
                     <li>
                         <a href="{{ route('manufacturing.finished-product-deliveries.index') }}">
-                            <i class="fas fa-list"></i> جميع الإذونات
+                            <i class="fas fa-box-open"></i> {{ __('app.finished_products.delivery_notes') }}
                         </a>
                     </li>
                     @endif
@@ -349,7 +355,7 @@
                     @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_CREATE'))
                     <li>
                         <a href="{{ route('manufacturing.finished-product-deliveries.create') }}">
-                            <i class="fas fa-plus-circle"></i> إنشاء إذن صرف
+                            <i class="fas fa-plus-circle"></i> {{ __('app.finished_products.create_delivery_note') }}
                         </a>
                     </li>
                     @endif
@@ -366,32 +372,16 @@
                             @if($pendingDeliveryCount > 0)
                                 <span class="badge badge-danger" style="margin-right: 5px;">{{ $pendingDeliveryCount }}</span>
                             @endif
+
+                            <i class="fas fa-clock"></i> {{ __('app.finished_products.pending_notes') }}
                         </a>
                     </li>
                     @endif
 
                     @if(auth()->user()->hasPermission('MENU_CUSTOMERS'))
-                    <li class="submenu-header" style="margin-top: 10px;"><span>إدارة العملاء</span></li>
-                    
                     <li>
                         <a href="{{ route('customers.index') }}">
-                            <i class="fas fa-users"></i> قائمة العملاء
-                        </a>
-                    </li>
-                    @endif
-
-                    @if(auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW'))
-                    <li class="submenu-header" style="margin-top: 10px;"><span>المراحل الإنتاجية</span></li>
-                    
-                    <li>
-                        <a href="{{ route('stage-suspensions.index') }}">
-                            <i class="fas fa-pause-circle"></i> المراحل الموقوفة
-                            @php
-                                $suspendedStagesCount = \App\Models\StageSuspension::where('status', 'suspended')->count();
-                            @endphp
-                            @if($suspendedStagesCount > 0)
-                                <span class="badge badge-danger" style="margin-right: 5px;">{{ $suspendedStagesCount }}</span>
-                            @endif
+                            <i class="fas fa-users"></i> {{ __('app.customers.manage') }}
                         </a>
                     </li>
                     @endif
@@ -464,7 +454,7 @@
                     @if(auth()->user()->hasPermission('WORKERS_READ'))
                     <li>
                         <a href="{{ route('manufacturing.workers.index') }}">
-                            <i class="fas fa-user-tie"></i> إدارة العمال
+                            <i class="fas fa-user-tie"></i> {{ __('app.workers.manage') }}
                         </a>
                     </li>
                     @endif
@@ -472,7 +462,7 @@
                     @if(auth()->user()->hasPermission('WORKER_TEAMS_READ'))
                     <li>
                         <a href="{{ route('manufacturing.worker-teams.index') }}">
-                            <i class="fas fa-users-cog"></i> مجموعات العمال
+                            <i class="fas fa-users-cog"></i> {{ __('app.workers.teams') }}
                         </a>
                     </li>
                     @endif
@@ -538,7 +528,7 @@
                     @if(auth()->user()->hasPermission('REPORTS_WIP'))
                     <li>
                         <a href="{{ route('manufacturing.reports.wip') }}">
-                            <i class="fas fa-hourglass-half"></i> الأعمال غير المنتهية
+                            <i class="fas fa-hourglass-half"></i> {{ __('app.reports.wip') }}
                         </a>
                     </li>
                     @endif
@@ -546,7 +536,7 @@
                     @if(auth()->user()->hasPermission('REPORTS_SHIFT_DASHBOARD'))
                     <li>
                         <a href="{{ route('manufacturing.reports.shift-dashboard') }}">
-                            <i class="fas fa-clock"></i> ملخص الوردية
+                            <i class="fas fa-clock"></i> {{ __('app.reports.shift_summary') }}
                         </a>
                     </li>
                     @endif
@@ -554,7 +544,7 @@
                     @if(auth()->user()->hasPermission('REPORTS_STANDS_USAGE'))
                     <li>
                         <a href="{{ route('manufacturing.stands.usage-history') }}">
-                            <i class="fas fa-history"></i> تاريخ استخدام الستاندات
+                            <i class="fas fa-history"></i> {{ __('app.reports.stands_usage_history') }}
                         </a>
                     </li>
                     @endif
@@ -564,27 +554,11 @@
                     @if(auth()->user()->hasPermission('REPORTS_WORKER_PERFORMANCE'))
                     <li>
                         <a href="{{ route('manufacturing.reports.worker-performance') }}">
-                            <i class="fas fa-user-chart"></i> أداء العمال
+                            <i class="fas fa-user-chart"></i> {{ __('app.reports.worker_performance') }}
                         </a>
                     </li>
                     @endif
                 </ul>
-            </li>
-            @endif
-
-            <!-- مراقبة الهدر والمراحل الموقوفة -->
-            @if(false) {{-- Removed duplicate, now under production section --}}
-            <li>
-                <a href="{{ route('stage-suspensions.index') }}" data-tooltip="المراحل الموقوفة">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>المراحل الموقوفة</span>
-                    @php
-                        $pendingSuspensions = \DB::table('stage_suspensions')->where('status', 'suspended')->count();
-                    @endphp
-                    @if($pendingSuspensions > 0)
-                    <span class="badge bg-danger" style="margin-right: 5px;">{{ $pendingSuspensions }}</span>
-                    @endif
-                </a>
             </li>
             @endif
 
@@ -600,7 +574,7 @@
                     @if(auth()->user()->hasPermission('MENU_MANAGE_USERS') || auth()->user()->hasPermission('MANAGE_USERS_READ'))
                     <li>
                         <a href="{{ route('users.index') }}">
-                            <i class="fas fa-users"></i> {{ __('app.users.manage_users') }}
+                            <i class="fas fa-users"></i> {{ __('app.users.manage') }}
                         </a>
                     </li>
                     @endif
@@ -616,14 +590,14 @@
                     @if(auth()->user()->hasPermission('MENU_MANAGE_PERMISSIONS') || auth()->user()->hasPermission('MANAGE_PERMISSIONS_READ'))
                     <li>
                         <a href="{{ route('permissions.index') }}">
-                            <i class="fas fa-key"></i> إدارة الصلاحيات
+                            <i class="fas fa-key"></i> {{ __('app.permissions.manage') }}
                         </a>
                     </li>
                     @endif
 
                     <li>
                         <a href="/test-permissions">
-                            <i class="fas fa-vial"></i> اختبار الصلاحيات
+                            <i class="fas fa-vial"></i> {{ __('app.permissions.test') }}
                         </a>
                     </li>
                     <li>
@@ -654,7 +628,7 @@
                 <ul class="submenu">
                     @if(auth()->user()->hasPermission('SETTINGS_GENERAL'))
                     <li>
-                        <a href="{{ route('settings.index') }}">
+                        <a href="#">
                             <i class="fas fa-sliders-h"></i> {{ __('app.settings.general') }}
                         </a>
                     </li>
@@ -801,67 +775,20 @@
     .submenu li a:hover {
         background: #e5e7eb;
     }
-
-    /* Nested submenu styles */
-    .submenu .submenu-item.has-submenu > a {
-        display: flex;
-        align-items: center;
-        padding: 10px 20px 10px 52px;
-    }
-
-    .submenu .submenu-item.has-submenu > a .arrow {
-        margin-right: auto;
-        margin-left: 8px;
-        font-size: 0.75rem;
-        transition: transform 0.3s ease;
-    }
-
-    .submenu .submenu-item.has-submenu.active > a .arrow {
-        transform: rotate(180deg);
-    }
-
-    .submenu .submenu-item .submenu {
-        background: #f3f4f6;
-    }
-
-    .submenu .submenu-item .submenu li a {
-        padding: 8px 20px 8px 68px;
-        font-size: 0.85rem;
-    }
-
-    .submenu .submenu-item .submenu li a:hover {
-        background: #d1d5db;
-    }
-
-    /* Badge styles */
-    .badge {
-        display: inline-block;
-        padding: 2px 6px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        line-height: 1;
-        border-radius: 10px;
-        background-color: #ef4444;
-        color: #fff;
-    }
-
-    .badge-danger, .bg-danger {
-        background-color: #ef4444;
-    }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle main submenu toggle
-        const submenuToggles = document.querySelectorAll('.sidebar-menu > ul > .has-submenu > .submenu-toggle');
+        // Handle submenu toggle
+        const submenuToggles = document.querySelectorAll('.submenu-toggle');
 
         submenuToggles.forEach(toggle => {
             toggle.addEventListener('click', function(e) {
                 e.preventDefault();
                 const parent = this.closest('.has-submenu');
 
-                // Close other main submenus
-                document.querySelectorAll('.sidebar-menu > ul > .has-submenu').forEach(item => {
+                // Close other submenus
+                document.querySelectorAll('.has-submenu').forEach(item => {
                     if (item !== parent) {
                         item.classList.remove('active');
                     }
@@ -872,38 +799,13 @@
             });
         });
 
-        // Handle nested submenu toggle (submenu within submenu)
-        const nestedSubmenuToggles = document.querySelectorAll('.submenu .submenu-item.has-submenu > .submenu-toggle');
-
-        nestedSubmenuToggles.forEach(toggle => {
-            toggle.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation(); // Prevent parent menu from closing
-                const parent = this.closest('.submenu-item.has-submenu');
-
-                // Close other nested submenus at same level
-                const parentSubmenu = parent.closest('.submenu');
-                parentSubmenu.querySelectorAll(':scope > .submenu-item.has-submenu').forEach(item => {
-                    if (item !== parent) {
-                        item.classList.remove('active');
-                    }
-                });
-
-                // Toggle current nested submenu
-                parent.classList.toggle('active');
-            });
-        });
-
         // Keep active menu item's parent open
         const activeLink = document.querySelector('.submenu a[href="' + window.location.pathname + '"]');
         if (activeLink) {
             activeLink.classList.add('active');
-            
-            // Open all parent menus
-            let parentSubmenu = activeLink.closest('.has-submenu');
-            while (parentSubmenu) {
+            const parentSubmenu = activeLink.closest('.has-submenu');
+            if (parentSubmenu) {
                 parentSubmenu.classList.add('active');
-                parentSubmenu = parentSubmenu.parentElement.closest('.has-submenu');
             }
         }
     });
