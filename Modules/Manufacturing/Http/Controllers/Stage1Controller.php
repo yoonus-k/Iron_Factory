@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Stand;
 use App\Models\StandUsageHistory;
+use App\Services\WasteCheckService;
+use App\Helpers\SystemSettingsHelper;
 
 class Stage1Controller extends Controller
 {
@@ -124,6 +126,53 @@ class Stage1Controller extends Controller
                 throw new \Exception("الكمية المتوفرة للإنتاج ({$availableWeight} كجم) غير كافية للكمية المطلوبة ({$netWeight} كجم)");
             }
 
+            // 🔥 فحص نسبة الهدر قبل الحفظ
+            // الحساب الصحيح:
+            // inputWeight = الوزن الصافي + وزن الهدر (المادة الفعلية المستخدمة)
+            // outputWeight = الوزن الصافي (ما تبقى بعد التصنيع)
+            // waste = inputWeight - outputWeight
+            $outputWeight = $netWeight; // المادة الخارجة
+            $wasteWeight = $validated['waste_weight'] ?? 0; // الهدر
+            $materialWeight = $outputWeight + $wasteWeight; // المادة الداخلة الفعلية
+            
+            \Log::info('Waste Calculation Check', [
+                'net_weight' => $outputWeight,
+                'waste_weight' => $wasteWeight,
+                'material_weight' => $materialWeight,
+                'total_weight' => $validated['total_weight'],
+                'stand_weight' => $standWeight,
+            ]);
+            
+            $wasteCheck = WasteCheckService::checkAndSuspend(
+                stageNumber: 1,
+                batchBarcode: $validated['material_barcode'],
+                batchId: $materialBatch->id,
+                inputWeight: $materialWeight,
+                outputWeight: $outputWeight
+            );
+            $wasteData = $wasteCheck['data'] ?? [];
+
+            // تسجيل نتيجة فحص الهدر
+            \Log::info('Waste Check Result', [
+                'suspended' => $wasteCheck['suspended'] ?? false,
+                'suspension_id' => $wasteCheck['suspension_id'] ?? null,
+                'waste_percentage' => $wasteData['waste_percentage'] ?? 0,
+                'allowed_percentage' => $wasteData['allowed_percentage'] ?? 0,
+                'exceeded' => $wasteData['exceeded'] ?? false,
+                'material_weight' => $materialWeight,
+                'output_weight' => $outputWeight,
+            ]);
+
+            // تحديد الحالة بناءً على فحص الهدر
+            // إذا تجاوز الهدر، يتم الحفظ بحالة pending_approval
+            $recordStatus = $wasteCheck['suspended'] ? 'pending_approval' : 'created';
+            $suspensionId = $wasteCheck['suspension_id'] ?? null;
+
+            \Log::info('Record Status Determined', [
+                'status' => $recordStatus,
+                'will_show_alert' => $recordStatus === 'pending_approval',
+            ]);
+
             // تحديث حالة الاستاند
             $stand->update([
                 'status' => 'stage1',
@@ -160,7 +209,7 @@ class Stage1Controller extends Controller
                 'weight' => $validated['total_weight'],
                 'waste' => $validated['waste_weight'] ?? 0,
                 'remaining_weight' => $netWeight,
-                'status' => 'created',
+                'status' => $recordStatus,
                 'created_by' => $userId,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -193,6 +242,34 @@ class Stage1Controller extends Controller
             ]);
 
             DB::commit();
+
+            // إذا كانت الحالة pending_approval، نرجع استجابة خاصة
+            if ($recordStatus === 'pending_approval') {
+                return response()->json([
+                    'success' => true,
+                    'pending_approval' => true,
+                    'blocked' => true,
+                    'message' => '⛔ تم إيقاف الانتقال للمرحلة الثانية',
+                    'alert_title' => '⛔ تم إيقاف الانتقال للمرحلة الثانية',
+                    'alert_message' => sprintf(
+                        '🔴 <strong>تم حفظ الاستاند بنجاح لكن تم إيقاف الانتقال للمرحلة الثانية</strong>\n\n'.                        '📊 <strong>تفاصيل الهدر:</strong>\n'.                        '• نسبة الهدر الفعلية: <span style="color: #dc3545; font-weight: bold;">%s%%</span>\n'.                        '• النسبة المسموح بها: <span style="color: #28a745; font-weight: bold;">%s%%</span>\n\n'.                        '⏸️ <strong>الحالة:</strong> في انتظار موافقة الإدارة\n\n'.                        '⚠️ <strong>مهم:</strong> لن يمكن استخدام هذا الاستاند في المرحلة الثانية حتى تتم الموافقة عليه من قبل الإدارة.',
+                        number_format($wasteData['waste_percentage'] ?? 0, 2),
+                        number_format($wasteData['allowed_percentage'] ?? 0, 2)
+                    ),
+                    'data' => [
+                        'stand_id' => $stage1StandId,
+                        'barcode' => $stage1Barcode,
+                        'stand_number' => $stand->stand_number,
+                        'net_weight' => $netWeight,
+                        'material_name' => $materialBatch->material_name ?? 'غير محدد',
+                        'status' => 'pending_approval',
+                        'suspension_id' => $suspensionId,
+                        'waste_weight' => $wasteData['waste_weight'] ?? 0,
+                        'waste_percentage' => $wasteData['waste_percentage'] ?? 0,
+                        'allowed_percentage' => $wasteData['allowed_percentage'] ?? 0,
+                    ]
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
@@ -298,6 +375,23 @@ class Stage1Controller extends Controller
                 // جلب بيانات الاستاند
                 $stand = Stand::findOrFail($processedData['stand_id']);
 
+                // 🔥 فحص نسبة الهدر قبل الحفظ
+                // الوزن الفعلي للمادة (بدون وزن الاستاند)
+                $materialWeight = $processedData['total_weight'] - $processedData['stand_weight'];
+                $outputWeight = $processedData['net_weight'];
+                
+                $wasteCheck = WasteCheckService::checkAndSuspend(
+                    stageNumber: 1,
+                    batchBarcode: $validated['material_barcode'],
+                    batchId: $materialBatch->id,
+                    inputWeight: $materialWeight,
+                    outputWeight: $outputWeight
+                );
+                $wasteData = $wasteCheck['data'] ?? [];
+
+                // 🔥 تحديد حالة السجل: 'pending_approval' إذا تم الإيقاف، 'created' إذا كان عادي
+                $recordStatus = $wasteCheck['suspended'] ? 'pending_approval' : 'created';
+
                 // تحديث حالة الاستاند
                 $stand->update([
                     'status' => 'stage1',
@@ -354,7 +448,7 @@ class Stage1Controller extends Controller
                     'weight' => $processedData['total_weight'],
                     'waste' => $processedData['waste_weight'] ?? 0,
                     'remaining_weight' => $processedData['net_weight'],
-                    'status' => 'created',
+                    'status' => $recordStatus, // 🔥 استخدام الحالة الديناميكية
                     'created_by' => $userId,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -392,6 +486,10 @@ class Stage1Controller extends Controller
                     'usage_history_id' => $usageHistory->id,
                     'stage1_stand_id' => $stage1StandId,
                     'stage1_barcode' => $stage1Barcode,
+                    'status' => $recordStatus, // 🔥 إضافة الحالة
+                    'pending_approval' => $wasteCheck['suspended'],
+                    'waste_percentage' => $wasteData['waste_percentage'] ?? 0,
+                    'allowed_percentage' => $wasteData['allowed_percentage'] ?? 0,
                 ];
             }
 
@@ -401,6 +499,10 @@ class Stage1Controller extends Controller
 
             DB::commit();
 
+            // فحص إذا كان هناك أي سجلات في انتظار الموافقة
+            $hasPendingApproval = collect($processedRecords)->contains('pending_approval', true);
+            $pendingCount = collect($processedRecords)->where('pending_approval', true)->count();
+
             // تحضير قائمة الباركودات لعرضها
             $barcodesList = collect($processedRecords)->map(function($record) use ($materialBatch) {
                 return [
@@ -408,10 +510,12 @@ class Stage1Controller extends Controller
                     'barcode' => $record['stage1_barcode'],
                     'net_weight' => $record['net_weight'],
                     'material_name' => $materialBatch->material_name ?? 'غير محدد',
+                    'status' => $record['status'] ?? 'created',
+                    'pending_approval' => $record['pending_approval'] ?? false,
                 ];
             })->toArray();
 
-            return response()->json([
+            $response = [
                 'success' => true,
                 'message' => 'تم حفظ جميع الاستاندات بنجاح!',
                 'data' => [
@@ -421,7 +525,21 @@ class Stage1Controller extends Controller
                     'records' => $processedRecords,
                     'barcodes' => $barcodesList,
                 ]
-            ]);
+            ];
+
+            // إذا كان هناك سجلات في انتظار الموافقة، نضيف تنبيه
+            if ($hasPendingApproval) {
+                $response['has_pending_approval'] = true;
+                $response['pending_count'] = $pendingCount;
+                $response['alert_title'] = 'تم الحفظ مع تجاوز نسبة الهدر';
+                $response['alert_message'] = sprintf(
+                    '%d من %d استاند في انتظار الموافقة بسبب تجاوز نسبة الهدر المسموح بها. لن يمكن استخدامها في المرحلة الثانية حتى تتم الموافقة عليها من قبل الإدارة.',
+                    $pendingCount,
+                    count($processedRecords)
+                );
+            }
+
+            return response()->json($response);
 
         } catch (\Exception $e) {
             DB::rollBack();

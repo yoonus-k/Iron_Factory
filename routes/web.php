@@ -7,6 +7,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\SystemSettingController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -48,6 +49,21 @@ Route::middleware(['auth'])->group(function () {
     Route::post('customers/{id}/activate', [CustomerController::class, 'activate'])->name('customers.activate');
     Route::post('customers/{id}/deactivate', [CustomerController::class, 'deactivate'])->name('customers.deactivate');
     Route::get('customers/search', [CustomerController::class, 'search'])->name('customers.search');
+
+    // System Settings Routes (Read and Update only - no create/delete)
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [SystemSettingController::class, 'index'])->name('index');
+        Route::get('/edit', [SystemSettingController::class, 'edit'])->name('edit');
+        Route::put('/update', [SystemSettingController::class, 'update'])->name('update');
+    });
+
+    // Stage Suspensions Routes
+    Route::prefix('stage-suspensions')->name('stage-suspensions.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\StageSuspensionController::class, 'index'])->name('index');
+        Route::get('/{id}', [\App\Http\Controllers\StageSuspensionController::class, 'show'])->name('show');
+        Route::post('/{id}/approve', [\App\Http\Controllers\StageSuspensionController::class, 'approve'])->name('approve');
+        Route::post('/{id}/reject', [\App\Http\Controllers\StageSuspensionController::class, 'reject'])->name('reject');
+    });
 
     // Roles & Permissions Routes (Admin Only)
     Route::middleware(['role:ADMIN'])->group(function () {

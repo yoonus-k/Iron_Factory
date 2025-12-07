@@ -30,7 +30,24 @@ class WarehouseIntakeController extends Controller
      */
     public function create()
     {
-        return view('manufacturing::warehouse-intake.create');
+        $availableBoxes = Stage4Box::with(['creator', 'boxCoils'])
+            ->whereIn('status', ['packed', 'completed'])
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($box) {
+                return [
+                    'id' => $box->id,
+                    'barcode' => $box->barcode,
+                    'packaging_type' => $box->packaging_type,
+                    'weight' => $box->total_weight ?? $box->weight ?? 0,
+                    'coils_count' => $box->boxCoils->count(),
+                    'creator' => $box->creator ? $box->creator->name : null,
+                    'status' => $box->status,
+                    'created_at' => optional($box->created_at)->format('Y-m-d H:i'),
+                ];
+            });
+
+        return view('manufacturing::warehouse-intake.create', compact('availableBoxes'));
     }
 
     /**

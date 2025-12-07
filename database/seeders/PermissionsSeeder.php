@@ -309,6 +309,13 @@ class PermissionsSeeder extends Seeder
             ['name' => 'WAREHOUSE_INTAKE_PRINT', 'display_name' => 'طباعة إذن الإدخال', 'group_name' => 'إدخال المستودع', 'description' => 'طباعة إذن إدخال المستودع'],
 
             // ============================================
+            // المراحل الموقوفة - تجاوز نسبة الهدر
+            // ============================================
+            ['name' => 'STAGE_SUSPENSION_VIEW', 'display_name' => 'عرض المراحل الموقوفة', 'group_name' => 'مراقبة الهدر', 'description' => 'عرض قائمة المراحل التي تم إيقافها بسبب تجاوز نسبة الهدر'],
+            ['name' => 'STAGE_SUSPENSION_APPROVE', 'display_name' => 'الموافقة على استئناف المرحلة', 'group_name' => 'مراقبة الهدر', 'description' => 'الموافقة على استئناف المرحلة الموقوفة'],
+            ['name' => 'STAGE_SUSPENSION_REJECT', 'display_name' => 'رفض استئناف المرحلة', 'group_name' => 'مراقبة الهدر', 'description' => 'رفض طلب استئناف المرحلة الموقوفة'],
+
+            // ============================================
             // الإذونات الصادرة - منتجات نهائية
             // ============================================
             ['name' => 'MENU_FINISHED_PRODUCT_DELIVERIES', 'display_name' => 'الإذونات الصادرة', 'group_name' => 'المنتجات النهائية', 'description' => 'إظهار قائمة الإذونات الصادرة'],

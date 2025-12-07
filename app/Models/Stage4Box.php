@@ -57,4 +57,9 @@ class Stage4Box extends Model
     {
         return $this->belongsTo(Warehouse::class);
     }
+
+    public function deliveryNoteItems(): HasMany
+    {
+        return $this->hasMany(DeliveryNoteItem::class, 'stage4_box_id');
+    }
 }

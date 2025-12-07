@@ -66,6 +66,15 @@ class Stage2Controller extends Controller
                 ->first();
 
             if ($stage1Data) {
+                // 🔒 التحقق من حالة الاستاند
+                if ($stage1Data->status === 'pending_approval') {
+                    return response()->json([
+                        'success' => false,
+                        'blocked' => true,
+                        'message' => '⛔ هذا الاستاند في انتظار الموافقة ولا يمكن استخدامه في المرحلة الثانية'
+                    ], 403);
+                }
+                
                 // ✅ وُجد في المرحلة الأولى
                 return response()->json([
                     'success' => true,
@@ -158,6 +167,11 @@ class Stage2Controller extends Controller
                     throw new \Exception('لم يتم العثور على بيانات المرحلة الأولى');
                 }
                 
+                // 🔒 التحقق من حالة الاستاند
+                if ($stage1Data->status === 'pending_approval') {
+                    throw new \Exception('⛔ هذا الاستاند في انتظار الموافقة ولا يمكن استخدامه في المرحلة الثانية');
+                }
+                
                 $inputWeight = $stage1Data->remaining_weight;
                 $materialId = $stage1Data->material_id ?? null;
                 $wireSize = $stage1Data->wire_size ?? null;
@@ -169,6 +183,35 @@ class Stage2Controller extends Controller
             $wasteWeight = $validated['waste_weight'] ?? ($inputWeight * 0.03); // افتراض 3% هدر
             $outputWeight = $validated['total_weight'] ?? ($inputWeight - $wasteWeight);
             $netWeight = $validated['net_weight'] ?? $outputWeight;
+
+            // 🔥 فحص نسبة الهدر قبل الحفظ
+            $wasteCheck = \App\Services\WasteCheckService::checkAndSuspend(
+                stageNumber: 2,
+                batchBarcode: $validated['stage1_barcode'],
+                batchId: $materialId,
+                inputWeight: $inputWeight,
+                outputWeight: $outputWeight
+            );
+            $wasteData = $wasteCheck['data'] ?? [];
+
+            // تسجيل نتيجة فحص الهدر
+            \Log::info('Stage 2 Waste Check Result', [
+                'suspended' => $wasteCheck['suspended'] ?? false,
+                'suspension_id' => $wasteCheck['suspension_id'] ?? null,
+                'waste_percentage' => $wasteData['waste_percentage'] ?? 0,
+                'allowed_percentage' => $wasteData['allowed_percentage'] ?? 0,
+                'input_weight' => $inputWeight,
+                'output_weight' => $outputWeight,
+            ]);
+
+            // تحديد الحالة بناءً على فحص الهدر
+            $recordStatus = $wasteCheck['suspended'] ? 'pending_approval' : 'in_progress';
+            $suspensionId = $wasteCheck['suspension_id'] ?? null;
+
+            \Log::info('Stage 2 Record Status Determined', [
+                'status' => $recordStatus,
+                'will_show_alert' => $recordStatus === 'pending_approval',
+            ]);
 
             // توليد باركود المرحلة الثانية
             $stage2Barcode = $this->generateStageBarcode('stage2');
@@ -185,7 +228,7 @@ class Stage2Controller extends Controller
                 'waste' => $wasteWeight,
                 'remaining_weight' => $netWeight,
                 'process_details' => $validated['process_details'] ?? null,
-                'status' => 'in_progress',
+                'status' => $recordStatus, // استخدام الحالة المحددة من فحص الهدر
                 'notes' => $validated['notes'],
                 'created_by' => $userId,
                 'created_at' => now(),
@@ -230,6 +273,39 @@ class Stage2Controller extends Controller
             ]);
 
             DB::commit();
+
+            // إذا كانت الحالة pending_approval، نرجع استجابة خاصة
+            if ($recordStatus === 'pending_approval') {
+                return response()->json([
+                    'success' => true,
+                    'pending_approval' => true,
+                    'blocked' => true,
+                    'message' => '⛔ تم إيقاف الانتقال للمرحلة الثالثة',
+                    'alert_title' => '⛔ تم إيقاف الانتقال للمرحلة الثالثة',
+                    'alert_message' => sprintf(
+                        '🔴 <strong>تم حفظ المعالجة بنجاح لكن تم إيقاف الانتقال للمرحلة الثالثة</strong><br><br>'.
+                        '📊 <strong>تفاصيل الهدر:</strong><br>'.
+                        '• نسبة الهدر الفعلية: <span style="color: #dc3545; font-weight: bold;">%s%%</span><br>'.
+                        '• النسبة المسموح بها: <span style="color: #28a745; font-weight: bold;">%s%%</span><br><br>'.
+                        '⏸️ <strong>الحالة:</strong> في انتظار موافقة الإدارة<br><br>'.
+                        '⚠️ <strong>مهم:</strong> لن يمكن استخدام هذا السجل في المرحلة الثالثة حتى تتم الموافقة عليه من قبل الإدارة.',
+                        number_format($wasteData['waste_percentage'] ?? 0, 2),
+                        number_format($wasteData['allowed_percentage'] ?? 0, 2)
+                    ),
+                    'data' => [
+                        'stage2_id' => $stage2Id,
+                        'barcode' => $stage2Barcode,
+                        'stand_number' => $standNumber ?? 'غير محدد',
+                        'net_weight' => $netWeight,
+                        'material_name' => $materialName ?? 'غير محدد',
+                        'status' => 'pending_approval',
+                        'suspension_id' => $suspensionId,
+                        'waste_weight' => $wasteData['waste_weight'] ?? 0,
+                        'waste_percentage' => $wasteData['waste_percentage'] ?? 0,
+                        'allowed_percentage' => $wasteData['allowed_percentage'] ?? 0,
+                    ]
+                ]);
+            }
 
             // الحصول على اسم المادة
             $materialName = 'غير محدد';

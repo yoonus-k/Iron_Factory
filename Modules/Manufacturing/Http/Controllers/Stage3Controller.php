@@ -80,6 +80,15 @@ class Stage3Controller extends Controller
             ->first();
 
         if ($stage2) {
+            // 🔒 التحقق من حالة pending_approval
+            if ($stage2->status === 'pending_approval') {
+                return response()->json([
+                    'success' => false,
+                    'blocked' => true,
+                    'message' => '⛔ هذا السجل في انتظار الموافقة ولا يمكن استخدامه في المرحلة الثالثة'
+                ], 403);
+            }
+            
             // التحقق من أن المرحلة الثانية في حالة نشطة
             if ($stage2->status !== 'in_progress' && $stage2->status !== 'completed') {
                 return response()->json([

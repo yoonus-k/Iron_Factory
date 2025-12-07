@@ -86,8 +86,39 @@ class FinishedProductDeliveryController extends Controller
         }
 
         $customers = Customer::active()->orderBy('name')->get();
+        
+        // جلب جميع الصناديق الموجودة في المستودع فقط
+        $availableBoxes = Stage4Box::where('status', 'in_warehouse')
+            ->whereDoesntHave('deliveryNoteItems')
+            ->with(['creator', 'boxCoils.stage3Coil.stage2Record.stage1Batch.material'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function($box) {
+                return [
+                    'id' => $box->id,
+                    'barcode' => $box->barcode,
+                    'packaging_type' => $box->packaging_type,
+                    'weight' => $box->total_weight,
+                    'coils_count' => $box->coils_count,
+                    'creator' => $box->creator ? $box->creator->name : 'غير محدد',
+                    'created_at' => $box->created_at->format('Y-m-d'),
+                    // إضافة معلومات المواد من المرحلة الثالثة
+                    'materials' => $box->boxCoils->map(function($boxCoil) {
+                        $stage3 = $boxCoil->stage3Coil;
+                        if ($stage3 && $stage3->stage2Record && $stage3->stage2Record->stage1Batch) {
+                            $material = $stage3->stage2Record->stage1Batch->material;
+                            return [
+                                'color' => $material->color ?? 'غير محدد',
+                                'type' => $material->type ?? 'غير محدد',
+                                'thickness' => $material->thickness ?? 'غير محدد',
+                            ];
+                        }
+                        return null;
+                    })->filter()->unique('color')->values()
+                ];
+            });
 
-        return view('manufacturing::finished-product-deliveries.create', compact('customers'));
+        return view('manufacturing::finished-product-deliveries.create', compact('customers', 'availableBoxes'));
     }
 
     /**
