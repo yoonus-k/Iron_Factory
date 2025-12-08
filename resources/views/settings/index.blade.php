@@ -38,6 +38,96 @@
     </div>
     @endif
 
+    <!-- قسم نسب الهدر للمراحل -->
+    @php
+        $wasteSettings = $settings['waste_limits'] ?? collect();
+        $stageWasteSettings = $wasteSettings->whereIn('setting_key', [
+            'stage1_waste_percentage',
+            'stage2_waste_percentage',
+            'stage3_waste_percentage',
+            'stage4_waste_percentage'
+        ])->keyBy('setting_key');
+    @endphp
+
+    @if($stageWasteSettings->isNotEmpty())
+    <div class="card mb-4 border-warning">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="fas fa-industry me-2"></i>
+                نسب الهدر المسموح بها في المراحل الإنتاجية
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- المرحلة الأولى: الاستاندات -->
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card border-primary h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-cut fa-2x text-primary mb-3"></i>
+                            <h6 class="card-title">المرحلة الأولى</h6>
+                            <p class="text-muted small mb-2">الاستاندات</p>
+                            <div class="display-6 text-primary fw-bold">
+                                {{ $stageWasteSettings->get('stage1_waste_percentage')->setting_value ?? '3' }}%
+                            </div>
+                            <small class="text-muted">نسبة الهدر المسموح بها</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- المرحلة الثانية: المعالجة -->
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card border-success h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-cogs fa-2x text-success mb-3"></i>
+                            <h6 class="card-title">المرحلة الثانية</h6>
+                            <p class="text-muted small mb-2">المعالجة</p>
+                            <div class="display-6 text-success fw-bold">
+                                {{ $stageWasteSettings->get('stage2_waste_percentage')->setting_value ?? '3' }}%
+                            </div>
+                            <small class="text-muted">نسبة الهدر المسموح بها</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- المرحلة الثالثة: اللفائف -->
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card border-info h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-codiepie fa-2x text-info mb-3"></i>
+                            <h6 class="card-title">المرحلة الثالثة</h6>
+                            <p class="text-muted small mb-2">اللفائف</p>
+                            <div class="display-6 text-info fw-bold">
+                                {{ $stageWasteSettings->get('stage3_waste_percentage')->setting_value ?? '3' }}%
+                            </div>
+                            <small class="text-muted">نسبة الهدر المسموح بها</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- المرحلة الرابعة: التعبئة -->
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card border-danger h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-box-open fa-2x text-danger mb-3"></i>
+                            <h6 class="card-title">المرحلة الرابعة</h6>
+                            <p class="text-muted small mb-2">التعبئة</p>
+                            <div class="display-6 text-danger fw-bold">
+                                {{ $stageWasteSettings->get('stage4_waste_percentage')->setting_value ?? '3' }}%
+                            </div>
+                            <small class="text-muted">نسبة الهدر المسموح بها</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-3 mb-0">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>ملاحظة:</strong> هذه النسب تمثل الحد الأقصى المسموح به للهدر في كل مرحلة. عند تجاوز هذه النسبة، سيتم إيقاف المرحلة مؤقتاً حتى تتم الموافقة من المشرف.
+            </div>
+        </div>
+    </div>
+    @endif
+
     @forelse($settings as $category => $categorySettings)
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">

@@ -629,7 +629,7 @@
                 <ul class="submenu">
                     @if(auth()->user()->hasPermission('SETTINGS_GENERAL'))
                     <li>
-                        <a href="#">
+                        <a href="{{ route('settings.index') }}">
                             <i class="fas fa-sliders-h"></i> {{ __('app.settings.general') }}
                         </a>
                     </li>
