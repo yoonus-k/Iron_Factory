@@ -378,7 +378,7 @@
                 }
             });
 
-            // {{ __('warehouse.delete') }} {{ __('warehouse.material_information') }}
+
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
                 setTimeout(() => {

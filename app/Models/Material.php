@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\HasMultilingualContent;
 
 class Material extends Model
 {
+    use HasMultilingualContent;
     protected $fillable = [
         'warehouse_id',
         'material_type_id',
@@ -16,10 +18,6 @@ class Material extends Model
         'batch_number',
         'name_ar',
         'name_en',
-        'material_category',
-
-        'delivery_note_number',
-
         'shelf_location',
         'shelf_location_en',
         'purchase_invoice_id',
@@ -93,6 +91,12 @@ class Material extends Model
         return $this->hasMany(MaterialDetail::class);
     }
 
+    public function translations(): HasMany
+    {
+        return $this->hasMany(Translation::class, 'translatable_id')
+            ->where('translatable_type', self::class);
+    }
+
     public function operationLogs(): HasMany
     {
         return $this->hasMany(OperationLog::class, 'record_id')->where('table_name', 'materials');
@@ -104,24 +108,158 @@ class Material extends Model
     }
 
     /**
-     * الترجمة
+     * ======================================
+     * 🌍 نظام إدارة اللغات / Language Management
+     * ======================================
      */
-    public function getTypeName($locale = null)
+
+    /**
+     * علاقة الترجمات - استخدام morphMany بدلاً من hasMany
+     */
+    public function getTranslations_relation()
     {
-        $locale = $locale ?? app()->getLocale();
-        return $locale === 'ar' ? $this->material_type : $this->material_type_en ?? $this->material_type;
+        return $this->morphMany(Translation::class, 'translatable');
     }
 
-    public function getCategoryLabel($locale = null)
+    /**
+     * الحصول على ترجمة معينة
+     * @param string $key - مفتاح الحقل (name, notes, shelf_location)
+     * @param string|null $locale - اللغة (ar, en)
+     */
+    public function getTranslation($key, $locale = null)
     {
-        $categories = [
-            'raw' => ['ar' => 'خام', 'en' => 'Raw'],
-            'manufactured' => ['ar' => 'مصنع', 'en' => 'Manufactured'],
-            'finished' => ['ar' => 'جاهز', 'en' => 'Finished'],
-        ];
-
         $locale = $locale ?? app()->getLocale();
-        return $categories[$this->material_category][$locale] ?? $this->material_category;
+        
+        return Translation::getTranslation(
+            self::class,
+            $this->id,
+            $key,
+            $locale
+        );
+    }
+
+    /**
+     * حفظ/تحديث ترجمة
+     * @param string $key - مفتاح الحقل
+     * @param string $value - القيمة
+     * @param string|null $locale - اللغة
+     */
+    public function setTranslation($key, $value, $locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        
+        Translation::saveTranslation(
+            self::class,
+            $this->id,
+            $key,
+            $value,
+            $locale
+        );
+
+        return $this;
+    }
+
+    /**
+     * الحصول على كل الترجمات
+     * @param string|null $locale - اللغة
+     */
+    public function getAllTranslations($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        
+        return Translation::getTranslations(
+            self::class,
+            $this->id,
+            $locale
+        );
+    }
+
+    /**
+     * ========== Helper Methods للحقول الرئيسية ==========
+     */
+
+    /**
+     * الحصول على اسم المادة بلغة معينة
+     */
+    public function getDisplayName($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        
+        // جرب الترجمة أولاً
+        $translated = $this->getTranslation('name', $locale);
+        if ($translated) return $translated;
+        
+        // أو اعتمد على الحقول المباشرة
+        return $locale === 'ar' ? $this->name_ar : $this->name_en;
+    }
+
+    /**
+     * الحصول على الملاحظات بلغة معينة
+     */
+    public function getDisplayNotes($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        
+        $translated = $this->getTranslation('notes', $locale);
+        if ($translated) return $translated;
+        
+        return $locale === 'ar' ? $this->notes : $this->notes_en;
+    }
+
+    /**
+     * الحصول على موقع الرف بلغة معينة
+     */
+    public function getDisplayShelfLocation($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        
+        $translated = $this->getTranslation('shelf_location', $locale);
+        if ($translated) return $translated;
+        
+        return $locale === 'ar' ? $this->shelf_location : $this->shelf_location_en;
+    }
+
+    /**
+     * تعيين الاسم بلغات متعددة
+     */
+    public function setMultilingualName($nameAr, $nameEn)
+    {
+        $this->name_ar = $nameAr;
+        $this->name_en = $nameEn;
+        
+        // حفظ في جدول الترجمات أيضاً للمرجعية
+        $this->setTranslation('name', $nameAr, 'ar');
+        $this->setTranslation('name', $nameEn, 'en');
+        
+        return $this;
+    }
+
+    /**
+     * تعيين الملاحظات بلغات متعددة
+     */
+    public function setMultilingualNotes($notesAr, $notesEn)
+    {
+        $this->notes = $notesAr;
+        $this->notes_en = $notesEn;
+        
+        $this->setTranslation('notes', $notesAr, 'ar');
+        $this->setTranslation('notes', $notesEn, 'en');
+        
+        return $this;
+    }
+
+    /**
+     * تعيين موقع الرف بلغات متعددة
+     */
+    public function setMultilingualShelfLocation($locationAr, $locationEn)
+    {
+        $this->shelf_location = $locationAr;
+        $this->shelf_location_en = $locationEn;
+        
+        $this->setTranslation('shelf_location', $locationAr, 'ar');
+        $this->setTranslation('shelf_location', $locationEn, 'en');
+        
+        return $this;
     }
 
     /**
@@ -137,23 +275,5 @@ class Material extends Model
         return $this->expiry_date &&
                now()->addDays($days)->isAfter($this->expiry_date) &&
                now()->isBefore($this->expiry_date);
-    }
-
-    /**
-     * Get shelf location based on locale
-     */
-    public function getShelfLocation($locale = null)
-    {
-        $locale = $locale ?? app()->getLocale();
-        return $locale === 'ar' ? $this->shelf_location : $this->shelf_location_en ?? $this->shelf_location;
-    }
-
-    /**
-     * Get notes based on locale
-     */
-    public function getNotes($locale = null)
-    {
-        $locale = $locale ?? app()->getLocale();
-        return $locale === 'ar' ? $this->notes : $this->notes_en ?? $this->notes;
     }
 }
