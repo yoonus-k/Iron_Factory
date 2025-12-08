@@ -50,6 +50,34 @@ Route::middleware(['auth'])->group(function () {
     Route::post('customers/{id}/deactivate', [CustomerController::class, 'deactivate'])->name('customers.deactivate');
     Route::get('customers/search', [CustomerController::class, 'search'])->name('customers.search');
 
+    // Materials Routes - Redirect to Manufacturing Module
+    Route::prefix('materials')->name('materials.')->group(function () {
+        Route::get('/', function () {
+            return redirect('/manufacturing/warehouse-products');
+        })->name('index');
+        Route::get('/create', function () {
+            return redirect('/manufacturing/warehouse-products/create');
+        })->name('create');
+        Route::post('/', function () {
+            return redirect('/manufacturing/warehouse-products');
+        })->name('store');
+        Route::get('/{id}', function ($id) {
+            return redirect("/manufacturing/warehouse-products/{$id}");
+        })->name('show');
+        Route::get('/{id}/edit', function ($id) {
+            return redirect("/manufacturing/warehouse-products/{$id}/edit");
+        })->name('edit');
+        Route::put('/{id}', function ($id) {
+            return redirect("/manufacturing/warehouse-products/{$id}");
+        })->name('update');
+        Route::delete('/{id}', function ($id) {
+            return redirect('/manufacturing/warehouse-products');
+        })->name('destroy');
+        Route::post('/{id}/change-status', function ($id) {
+            return redirect("/manufacturing/warehouse-products/{$id}");
+        })->name('change-status');
+    });
+
     // System Settings Routes (Read and Update only - no create/delete)
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [SystemSettingController::class, 'index'])->name('index');
@@ -76,9 +104,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('users/{user}/impersonate', [UserController::class, 'impersonate'])->name('users.impersonate');
         Route::post('exit-impersonation', [UserController::class, 'exitImpersonation'])->name('exit-impersonation');
     });
-});;
+});
 
-// Language switching route
 Route::get('/locale/{lang}', function ($lang) {
     if (in_array($lang, config('app.available_locales', ['ar', 'en']))) {
         session(['locale' => $lang]);
