@@ -20,10 +20,21 @@ class SystemSettingsHelper
 
     /**
      * Get waste percentage for production (single value for all stages)
+     * @deprecated Use getStageWastePercentage() instead
      */
     public static function getProductionWastePercentage(): float
     {
         $value = self::get('production_waste_percentage', 3); // Default 3%
+        return (float) $value;
+    }
+
+    /**
+     * Get waste percentage for a specific stage
+     */
+    public static function getStageWastePercentage(int $stage): float
+    {
+        $key = "stage{$stage}_waste_percentage";
+        $value = self::get($key, $stage); // Default to stage number (1%, 2%, 3%, 4%)
         return (float) $value;
     }
 
@@ -35,7 +46,7 @@ class SystemSettingsHelper
         $inputWeight = max(0, $inputWeight);
         $outputWeight = max(0, min($outputWeight, $inputWeight));
         $wasteWeight = max(0, $inputWeight - $outputWeight);
-        $allowedPercentage = self::getProductionWastePercentage();
+        $allowedPercentage = self::getStageWastePercentage($stage);
         $actualWaste = $inputWeight > 0
             ? ($wasteWeight / $inputWeight) * 100
             : 0;

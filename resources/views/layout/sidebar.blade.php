@@ -510,6 +510,20 @@
                         </a>
                     </li>
                     @endif
+
+                    @if(auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW') || auth()->user()->hasPermission('STAGE_SUSPENSION_APPROVE'))
+                    <li>
+                        <a href="{{ route('stage-suspensions.index') }}">
+                            <i class="fas fa-pause-circle"></i> الموافقة على تجاوز الهدر
+                            @php
+                                $pendingSuspensionsCount = \App\Models\StageSuspension::where('status', 'suspended')->count();
+                            @endphp
+                            @if($pendingSuspensionsCount > 0)
+                                <span class="badge badge-warning" style="margin-right: 5px; background-color: #ff9800;">{{ $pendingSuspensionsCount }}</span>
+                            @endif
+                        </a>
+                    </li>
+                    @endif
                 </ul>
             </li>
             @endif

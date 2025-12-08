@@ -46,7 +46,7 @@ class WasteCheckService
                 'data' => [
                     'waste_weight' => 0,
                     'waste_percentage' => 0,
-                    'allowed_percentage' => SystemSettingsHelper::getProductionWastePercentage(),
+                    'allowed_percentage' => SystemSettingsHelper::getStageWastePercentage($stageNumber),
                     'difference' => 0,
                     'current_waste' => round($currentWaste, 2),
                     'current_input_weight' => round($inputWeight, 3),
