@@ -134,7 +134,7 @@
                         <i class="feather icon-package"></i>
                     </div>
                     <div class="header-info">
-                        <h1>{{ $material->name_ar }} ({{ $material->name_en }})</h1>
+                        <h1>{{ $material->getFullName() }}</h1>
                         <div class="badges">
                             <span class="badge badge-{{ $material->status == 'available' ? 'success' : 'warning' }}">
                                 {{ $material->status == 'available' ? __('warehouse.available') : __('warehouse.in_use') }}
@@ -241,13 +241,13 @@
 
                     <div class="info-item">
                         <div class="info-label">{{ __('warehouse.material_name') }}:</div>
-                        <div class="info-value">{{ $material->name_ar }}</div>
+                        <div class="info-value">{{ $material->getName() }}</div>
                     </div>
 
-                    @if($material->name_en)
+                    @if($material->name_ar && $material->name_en)
                     <div class="info-item">
                         <div class="info-label">{{ __('warehouse.material_name_en') }}:</div>
-                        <div class="info-value">{{ $material->name_en }}</div>
+                        <div class="info-value">{{ $material->getName('en') }}</div>
                     </div>
                     @endif
 
@@ -269,7 +269,13 @@
 
                     <div class="info-item">
                         <div class="info-label">{{ __('warehouse.delivery_note_number') }}:</div>
-                        <div class="info-value">{{ $material->delivery_note_number ?? 'N/A' }}</div>
+                        <div class="info-value">
+                            @if($material->delivery_note_number)
+                                {{ $material->delivery_note_number }}
+                            @else
+                                <span style="color: #95a5a6; font-style: italic;">{{ __('warehouse.not_specified') }}</span>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -286,7 +292,13 @@
                 <div class="card-body">
                     <div class="info-item">
                         <div class="info-label">{{ __('warehouse.invoice_number') }}:</div>
-                        <div class="info-value">{{ $material->purchaseInvoice->invoice_number ?? 'N/A' }}</div>
+                        <div class="info-value">
+                            @if($material->purchaseInvoice)
+                                {{ $material->purchaseInvoice->invoice_number }}
+                            @else
+                                <span style="color: #95a5a6; font-style: italic;">{{ __('warehouse.not_specified') }}</span>
+                            @endif
+                        </div>
                     </div>
 
 
@@ -299,7 +311,7 @@
                             @elseif($material->shelf_location_en)
                                 {{ $material->shelf_location_en }}
                             @else
-                                N/A
+                                <span style="color: #95a5a6; font-style: italic;">{{ __('warehouse.not_specified') }}</span>
                             @endif
                         </div>
                     </div>
@@ -313,12 +325,24 @@
 
                     <div class="info-item">
                         <div class="info-label">{{ __('warehouse.batch_number') }}:</div>
-                        <div class="info-value">{{ $material->batch_number ?? 'N/A' }}</div>
+                        <div class="info-value">
+                            @if($material->batch_number)
+                                {{ $material->batch_number }}
+                            @else
+                                <span style="color: #95a5a6; font-style: italic;">{{ __('warehouse.not_specified') }}</span>
+                            @endif
+                        </div>
                     </div>
 
                     <div class="info-item">
                         <div class="info-label">{{ __('warehouse.entered_by') }}:</div>
-                        <div class="info-value">{{ $material->creator->name ?? 'N/A' }}</div>
+                        <div class="info-value">
+                            @if($material->creator)
+                                {{ $material->creator->name }}
+                            @else
+                                <span style="color: #95a5a6; font-style: italic;">{{ __('warehouse.deleted_user') }}</span>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -357,7 +381,7 @@
                                 <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; background: #f8f9fa;">
                                     <div style="margin-bottom: 12px;">
                                         <h5 style="margin: 0 0 4px 0; color: #2c3e50; font-size: 14px; font-weight: 600;">
-                                            {{ $warehouse->warehouse_name ?? '-' }}
+                                            {{ $warehouse->getFullName() ?? '-' }}
                                         </h5>
                                         @if($warehouse->warehouse_code)
                                             <small style="color: #7f8c8d;">{{ $warehouse->warehouse_code }}</small>
@@ -418,7 +442,7 @@
                                     <line x1="12" y1="5" x2="12" y2="19"></line>
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
                                 </svg>
-                                إضافة كمية جديدة
+                                {{ __('warehouse.add_quantity') }}
                             </button>
                         @endif
                     </div>
@@ -872,7 +896,7 @@
                                         <input type="number" name="quantity" id="quantity" class="form-control"
                                                placeholder="{{ __('warehouse.enter_quantity') }}" step="0.01" min="0.01" required>
                                         <div class="input-group-append">
-                                           <span class="input-group-text" id="unitDisplay">{{ $material->materialDetails->first()?->getUnitName() ?? 'وحدة' }}</span>
+                                           <span class="input-group-text" id="unitDisplay">{{ $material->materialDetails->first()?->getUnitName() ?? __('warehouse.unit') }}</span>
                                         </div>
                                     </div>
                                     <small class="form-text text-muted">
@@ -882,7 +906,7 @@
                                             <line x1="12" y1="8" x2="12.01" y2="8"></line>
                                         </svg>
                                         {{ __('warehouse.total_remaining_quantity') }}: <strong style="color: #667eea;">{{ number_format($material->materialDetails->sum('remaining_weight'), 2) }}</strong>
-                                        {{ $material->materialDetails->first()?->getUnitName() ?? 'وحدة' }}
+                                        {{ $material->materialDetails->first()?->getUnitName() ?? __('warehouse.unit') }}
                                     </small>
                                 </div>
                             </div>
@@ -940,7 +964,7 @@
             return [
                 'name' => $details->first()->warehouse->warehouse_name,
                 'quantity' => $details->sum('quantity'), // ✅ الكمية من quantity field
-                'unit' => $details->first()->unit?->unit_name ?? 'وحدة'
+                'unit' => $details->first()->unit?->unit_name ?? "{{ __('warehouse.unit') }}"
             ];
         })->toArray());
 
@@ -949,7 +973,7 @@
             const unitDisplay = document.getElementById('unitDisplay');
 
             if (unitSelect.value === '') {
-                unitDisplay.textContent = 'وحدة';
+                unitDisplay.textContent = "{{ __('warehouse.unit') }}";
                 return;
             }
 
@@ -1172,7 +1196,7 @@
                                 </div>
                                 ${movement.unit_price ? `
                                 <div>
-                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">سعر الوحدة</div>
+                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">{{ __('warehouse.unit_price') }}</div>
                                     <div style="font-size: 14px; font-weight: 600; color: #27ae60;">${movement.unit_price}</div>
                                 </div>
                                 <div>
@@ -1233,8 +1257,8 @@
                     content.innerHTML = `
                         <div style="text-align: center; padding: 40px; color: #e74c3c;">
                             <i class="feather icon-alert-circle" style="font-size: 48px; margin-bottom: 15px;"></i>
-                            <p style="margin: 0; font-size: 16px; font-weight: 600;">حدث خطأ في تحميل البيانات</p>
-                            <small style="color: #95a5a6;">يرجى المحاولة مرة أخرى</small>
+                            <p style="margin: 0; font-size: 16px; font-weight: 600;">{{ __('warehouse.error_occurred') }}</p>
+                            <small style="color: #95a5a6;">{{ __('warehouse.please_select') }}</small>
                         </div>
                     `;
                 });

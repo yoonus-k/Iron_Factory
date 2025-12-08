@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إدارة المواد')
+@section('title', __('warehouse.materials_management'))
 
 @section('content')
 
@@ -230,9 +230,9 @@
                                     <span class="badge badge-primary">{{ $material->barcode ?? 'N/A' }}</span>
                                 </td>
                                 <td>
-                                    <strong>{{ $material->name_ar }}</strong><br>
-                                    @if ($material->name_en)
-                                        <small class="text-muted">{{ $material->name_en }}</small>
+                                    <strong>{{ $material->getName() }}</strong><br>
+                                    @if ($material->name_ar && $material->name_en)
+                                        <small class="text-muted">{{ $material->getName('en') }}</small>
                                     @endif
                                 </td>
                                 <td>
@@ -241,7 +241,13 @@
 
 
 
-                                <td>{{ $material->unit->unit_name ?? 'N/A' }}</td>
+                                <td>
+                                    @if($material->unit)
+                                        {{ $material->unit->unit_name }}
+                                    @else
+                                        <span style="color: #95a5a6; font-style: italic;">{{ __('warehouse.not_specified') }}</span>
+                                    @endif
+                                </td>
 
                                 <td>
 

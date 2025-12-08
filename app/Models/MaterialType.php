@@ -48,7 +48,50 @@ class MaterialType extends Model
     public function getName($locale = null)
     {
         $locale = $locale ?? app()->getLocale();
-        return $locale === 'ar' ? $this->type_name : $this->type_name_en ?? $this->type_name;
+        
+        switch ($locale) {
+            case 'ar':
+                return $this->type_name ?? $this->type_name_en ?? "N/A";
+            case 'en':
+                return $this->type_name_en ?? $this->type_name ?? "N/A";
+            default:
+                return $this->type_name_en ?? $this->type_name ?? "N/A";
+        }
+    }
+
+    /**
+     * الحصول على الاسم الكامل بصيغة (عربي - إنجليزي)
+     */
+    public function getFullName($locale = null)
+    {
+        $ar = $this->type_name ?? '';
+        $en = $this->type_name_en ?? '';
+        
+        if ($ar && $en) {
+            return "$ar ($en)";
+        } elseif ($ar) {
+            return $ar;
+        } elseif ($en) {
+            return $en;
+        }
+        return "N/A";
+    }
+
+    /**
+     * الحصول على وصف النوع حسب اللغة
+     */
+    public function getDescription($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        
+        switch ($locale) {
+            case 'ar':
+                return $this->description ?? $this->description_en;
+            case 'en':
+                return $this->description_en ?? $this->description;
+            default:
+                return $this->description_en ?? $this->description;
+        }
     }
 
     public function operationLogs(): HasMany

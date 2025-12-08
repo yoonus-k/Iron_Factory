@@ -69,7 +69,13 @@
                                         </span>
                                     </td>
                                     <td class="text-center font-weight-bold">{{ $transaction->quantity }}</td>
-                                    <td>{{ $transaction->unit->name ?? $transaction->unit->name_en ?? 'N/A' }}</td>
+                                    <td>
+                                        @if($transaction->unit)
+                                            {{ $transaction->unit->name ?? $transaction->unit->name_en }}
+                                        @else
+                                            <span style="color: #95a5a6; font-style: italic;">{{ __('warehouse.not_specified') }}</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $transaction->reference_number ?? '-' }}</td>
                                     <td>{{ $transaction->created_at->format('Y-m-d H:i') }}</td>
                                     <td>

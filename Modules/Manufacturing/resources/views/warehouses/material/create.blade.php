@@ -4,14 +4,14 @@
 
 @section('content')
 
-          <style>
+    <style>
         .form-section {
             background: white;
             padding: 24px;
             border-radius: 12px;
             margin-bottom: 20px;
             border: 1px solid #e0e0e0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .section-header {
@@ -169,6 +169,7 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -273,10 +274,8 @@
                             {{ __('warehouse.material_name') }} <span class="required">*</span>
                         </label>
                         <input type="text" name="name_ar" id="name_ar"
-                               class="form-input @error('name_ar') input-error @enderror"
-                               placeholder="{{ __('warehouse.search_materials') }}"
-                               value="{{ old('name_ar') }}"
-                               required>
+                            class="form-input @error('name_ar') input-error @enderror"
+                            placeholder="{{ __('warehouse.search_materials') }}" value="{{ old('name_ar') }}" required>
                         @error('name_ar')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -288,12 +287,12 @@
                             {{ __('warehouse.material_type') }} <span class="required">*</span>
                         </label>
                         <select name="material_type_id" id="material_type_id"
-                                class="form-input @error('material_type_id') input-error @enderror"
-                                required>
+                            class="form-input @error('material_type_id') input-error @enderror" required>
                             <option value="">{{ __('warehouse.select_material_type') }}</option>
                             @foreach ($materialTypes as $type)
-                                <option value="{{ $type->id }}" {{ old('material_type_id') == $type->id ? 'selected' : '' }}>
-                                    {{ $type->type_name }}
+                                <option value="{{ $type->id }}"
+                                    {{ old('material_type_id') == $type->id ? 'selected' : '' }}>
+                                    {{ $type->getFullName() }}
                                 </option>
                             @endforeach
                         </select>
@@ -307,20 +306,20 @@
                         <label for="unit_id" class="form-label">
                             {{ __('warehouse.unit') }} <span class="required">*</span>
                         </label>
-                        <select name="unit_id" id="unit_id"
-                                class="form-input @error('unit_id') input-error @enderror"
-                                required>
+                        <select name="unit_id" id="unit_id" class="form-input @error('unit_id') input-error @enderror"
+                            required>
                             <option value="">{{ __('warehouse.select_unit') }}</option>
                             @foreach ($units as $unit)
                                 <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
-                                    {{ $unit->unit_name }} ({{ $unit->unit_symbol }})
+                                    {{ $unit->getFullName() }}
                                 </option>
                             @endforeach
                         </select>
                         @error('unit_id')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
-                        <small style="color: #666; margin-top: 5px; display: block;">💡 {{ __('warehouse.leave_empty_if_no_change') }}</small>
+                        <small style="color: #666; margin-top: 5px; display: block;">💡
+                            {{ __('warehouse.leave_empty_if_no_change') }}</small>
                     </div>
                 </div>
 
@@ -390,5 +389,4 @@
             });
         });
     </script>
-    @endsection
-
+@endsection

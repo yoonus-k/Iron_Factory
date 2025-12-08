@@ -41,7 +41,34 @@ class Unit extends Model
     public function getName($locale = null)
     {
         $locale = $locale ?? app()->getLocale();
-        return $locale === 'ar' ? $this->unit_name : $this->unit_name_en ?? $this->unit_name;
+        
+        switch ($locale) {
+            case 'ar':
+                return $this->unit_name ?? $this->unit_name_en ?? $this->unit_symbol ?? "N/A";
+            case 'en':
+                return $this->unit_name_en ?? $this->unit_name ?? $this->unit_symbol ?? "N/A";
+            default:
+                return $this->unit_name_en ?? $this->unit_name ?? $this->unit_symbol ?? "N/A";
+        }
+    }
+
+    /**
+     * الحصول على الاسم الكامل بصيغة (عربي - إنجليزي)
+     */
+    public function getFullName($locale = null)
+    {
+        $ar = $this->unit_name ?? '';
+        $en = $this->unit_name_en ?? '';
+        $symbol = $this->unit_symbol ?? '';
+        
+        if ($ar && $en) {
+            return "$ar ($en) $symbol";
+        } elseif ($ar) {
+            return "$ar $symbol";
+        } elseif ($en) {
+            return "$en $symbol";
+        }
+        return $symbol ?? "N/A";
     }
       public function operationLogs(): HasMany
     {

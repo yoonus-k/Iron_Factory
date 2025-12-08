@@ -240,7 +240,7 @@
 
     @if ($errors->any())
         <div class="alert alert-error">
-            <strong>خطأ في البيانات:</strong>
+            <strong>{{ __('warehouse.error_in_data') }}:</strong>
             <ul style="margin: 8px 0 0 0; padding-right: 20px;">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -269,7 +269,7 @@
                         </label>
                         <input type="text" name="name_ar" id="name_ar"
                                class="form-input @error('name_ar') input-error @enderror"
-                               placeholder="أدخل اسم المادة"
+                               placeholder="{{ __('warehouse.search_materials') }}"
                                value="{{ old('name_ar', $material->name_ar) }}"
                                required>
                         @error('name_ar')
