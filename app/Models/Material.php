@@ -112,41 +112,6 @@ class Material extends Model
         return $locale === 'ar' ? $this->material_type : $this->material_type_en ?? $this->material_type;
     }
 
-    /**
-     * الحصول على الاسم حسب اللغة الحالية
-     */
-    public function getName($locale = null)
-    {
-        $locale = $locale ?? app()->getLocale();
-
-        switch ($locale) {
-            case 'ar':
-                return $this->name_ar ?? $this->name_en ?? "N/A";
-            case 'en':
-                return $this->name_en ?? $this->name_ar ?? "N/A";
-            default:
-                return $this->name_en ?? $this->name_ar ?? "N/A";
-        }
-    }
-
-    /**
-     * الحصول على الاسم الكامل بصيغة (عربي - إنجليزي)
-     */
-    public function getFullName($locale = null)
-    {
-        $ar = $this->name_ar ?? '';
-        $en = $this->name_en ?? '';
-
-        if ($ar && $en) {
-            return "$ar ($en)";
-        } elseif ($ar) {
-            return $ar;
-        } elseif ($en) {
-            return $en;
-        }
-        return "N/A";
-    }
-
     public function getCategoryLabel($locale = null)
     {
         $categories = [

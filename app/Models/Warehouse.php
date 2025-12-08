@@ -55,61 +55,19 @@ class Warehouse extends Model
     public function getName($locale = null)
     {
         $locale = $locale ?? app()->getLocale();
-        
-        switch ($locale) {
-            case 'ar':
-                return $this->warehouse_name ?? $this->warehouse_name_en ?? "N/A";
-            case 'en':
-                return $this->warehouse_name_en ?? $this->warehouse_name ?? "N/A";
-            default:
-                return $this->warehouse_name_en ?? $this->warehouse_name ?? "N/A";
-        }
-    }
-
-    /**
-     * الحصول على الاسم الكامل بصيغة (عربي - إنجليزي)
-     */
-    public function getFullName($locale = null)
-    {
-        $ar = $this->warehouse_name ?? '';
-        $en = $this->warehouse_name_en ?? '';
-        
-        if ($ar && $en) {
-            return "$ar ($en)";
-        } elseif ($ar) {
-            return $ar;
-        } elseif ($en) {
-            return $en;
-        }
-        return "N/A";
+        return $locale === 'ar' ? $this->warehouse_name : $this->warehouse_name_en ?? $this->warehouse_name;
     }
 
     public function getLocation($locale = null)
     {
         $locale = $locale ?? app()->getLocale();
-        
-        switch ($locale) {
-            case 'ar':
-                return $this->location ?? $this->location_en;
-            case 'en':
-                return $this->location_en ?? $this->location;
-            default:
-                return $this->location_en ?? $this->location;
-        }
+        return $locale === 'ar' ? $this->location : $this->location_en ?? $this->location;
     }
 
     public function getDescription($locale = null)
     {
         $locale = $locale ?? app()->getLocale();
-        
-        switch ($locale) {
-            case 'ar':
-                return $this->description ?? $this->description_en;
-            case 'en':
-                return $this->description_en ?? $this->description;
-            default:
-                return $this->description_en ?? $this->description;
-        }
+        return $locale === 'ar' ? $this->description : $this->description_en ?? $this->description;
     }
 
     public function operationLogs(): HasMany

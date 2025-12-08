@@ -134,7 +134,7 @@
                         <i class="feather icon-package"></i>
                     </div>
                     <div class="header-info">
-                        <h1>{{ $material->getFullName() }}</h1>
+                        <h1>{{ $material->name_ar }} ({{ $material->name_en }})</h1>
                         <div class="badges">
                             <span class="badge badge-{{ $material->status == 'available' ? 'success' : 'warning' }}">
                                 {{ $material->status == 'available' ? __('warehouse.available') : __('warehouse.in_use') }}
@@ -241,13 +241,13 @@
 
                     <div class="info-item">
                         <div class="info-label">{{ __('warehouse.material_name') }}:</div>
-                        <div class="info-value">{{ $material->getName() }}</div>
+                        <div class="info-value">{{ $material->name_ar }}</div>
                     </div>
 
-                    @if($material->name_ar && $material->name_en)
+                    @if($material->name_en)
                     <div class="info-item">
                         <div class="info-label">{{ __('warehouse.material_name_en') }}:</div>
-                        <div class="info-value">{{ $material->getName('en') }}</div>
+                        <div class="info-value">{{ $material->name_en }}</div>
                     </div>
                     @endif
 
@@ -381,7 +381,7 @@
                                 <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; background: #f8f9fa;">
                                     <div style="margin-bottom: 12px;">
                                         <h5 style="margin: 0 0 4px 0; color: #2c3e50; font-size: 14px; font-weight: 600;">
-                                            {{ $warehouse->getFullName() ?? '-' }}
+                                            {{ $warehouse->warehouse_name ?? '-' }}
                                         </h5>
                                         @if($warehouse->warehouse_code)
                                             <small style="color: #7f8c8d;">{{ $warehouse->warehouse_code }}</small>

@@ -292,7 +292,7 @@
                             @foreach ($materialTypes as $type)
                                 <option value="{{ $type->id }}"
                                     {{ old('material_type_id') == $type->id ? 'selected' : '' }}>
-                                    {{ $type->getFullName() }}
+                                    {{ $type->type_name }}
                                 </option>
                             @endforeach
                         </select>
@@ -311,7 +311,7 @@
                             <option value="">{{ __('warehouse.select_unit') }}</option>
                             @foreach ($units as $unit)
                                 <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
-                                    {{ $unit->getFullName() }}
+                                    {{ $unit->unit_name }} ({{ $unit->unit_symbol }})
                                 </option>
                             @endforeach
                         </select>
