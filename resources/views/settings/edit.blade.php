@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تعديل الإعدادات')
+@section('title', __('settings.edit_system_settings'))
 
 @section('content')
 <div class="container-fluid">
@@ -8,13 +8,13 @@
         <div class="col-md-8">
             <h2 class="mb-0">
                 <i class="fas fa-edit me-2"></i>
-                تعديل إعدادات النظام
+                {{ __('settings.edit_system_settings') }}
             </h2>
         </div>
         <div class="col-md-4 text-end">
             <a href="{{ route('settings.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-right me-1"></i>
-                رجوع
+                {{ __('settings.back') }}
             </a>
         </div>
     </div>
@@ -43,30 +43,30 @@
                     <div class="col-md-6">
                         @if($setting->setting_type === 'boolean')
                             <select name="settings[{{ $setting->setting_key }}]" class="form-select">
-                                <option value="1" {{ $setting->setting_value == '1' || $setting->setting_value == 'true' ? 'selected' : '' }}>نعم</option>
-                                <option value="0" {{ $setting->setting_value == '0' || $setting->setting_value == 'false' ? 'selected' : '' }}>لا</option>
+                                <option value="1" {{ $setting->setting_value == '1' || $setting->setting_value == 'true' ? 'selected' : '' }}>{{ __('settings.yes') }}</option>
+                                <option value="0" {{ $setting->setting_value == '0' || $setting->setting_value == 'false' ? 'selected' : '' }}>{{ __('settings.no') }}</option>
                             </select>
                         @elseif($setting->setting_type === 'number')
-                            <input type="number" 
-                                   name="settings[{{ $setting->setting_key }}]" 
-                                   class="form-control" 
+                            <input type="number"
+                                   name="settings[{{ $setting->setting_key }}]"
+                                   class="form-control"
                                    value="{{ $setting->setting_value }}"
                                    step="any">
                         @elseif($setting->setting_type === 'json')
-                            <textarea name="settings[{{ $setting->setting_key }}]" 
-                                      class="form-control" 
+                            <textarea name="settings[{{ $setting->setting_key }}]"
+                                      class="form-control"
                                       rows="4">{{ $setting->setting_value }}</textarea>
                         @else
-                            <input type="text" 
-                                   name="settings[{{ $setting->setting_key }}]" 
-                                   class="form-control" 
+                            <input type="text"
+                                   name="settings[{{ $setting->setting_key }}]"
+                                   class="form-control"
                                    value="{{ $setting->setting_value }}">
                         @endif
                     </div>
                     <div class="col-md-3">
                         <span class="badge bg-info">{{ $setting->setting_type }}</span>
                         @if($setting->is_public)
-                            <span class="badge bg-success">عام</span>
+                            <span class="badge bg-success">{{ __('settings.public') }}</span>
                         @endif
                     </div>
                 </div>
@@ -80,11 +80,11 @@
             <div class="card-body text-center">
                 <button type="submit" class="btn btn-success btn-lg">
                     <i class="fas fa-save me-2"></i>
-                    حفظ التغييرات
+                    {{ __('settings.save_changes') }}
                 </button>
                 <a href="{{ route('settings.index') }}" class="btn btn-secondary btn-lg">
                     <i class="fas fa-times me-2"></i>
-                    إلغاء
+                    {{ __('settings.cancel') }}
                 </a>
             </div>
         </div>

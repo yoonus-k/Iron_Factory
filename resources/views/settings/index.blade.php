@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إعدادات النظام')
+@section('title', __('settings.system_settings'))
 
 @section('content')
 <div class="container-fluid">
@@ -8,15 +8,15 @@
         <div class="col-md-8">
             <h2 class="mb-0">
                 <i class="fas fa-cog me-2"></i>
-                إعدادات النظام
+                {{ __('settings.system_settings') }}
             </h2>
-            <p class="text-muted mb-0">إدارة جميع إعدادات النظام الثابتة</p>
+            <p class="text-muted mb-0">{{ __('settings.manage_settings') }}</p>
         </div>
         <div class="col-md-4 text-end">
             @if(Auth::user()->hasPermission('SETTINGS_UPDATE'))
             <a href="{{ route('settings.edit') }}" class="btn btn-primary">
                 <i class="fas fa-edit me-1"></i>
-                تعديل الإعدادات
+                {{ __('settings.edit_settings') }}
             </a>
             @endif
         </div>
@@ -25,7 +25,7 @@
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="fas fa-check-circle me-2"></i>
-        {{ session('success') }}
+        {{ session('success') ?? __('settings.settings_updated') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
@@ -33,7 +33,7 @@
     @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         <i class="fas fa-exclamation-circle me-2"></i>
-        {{ session('error') }}
+        {{ session('error') ?? __('settings.settings_error') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
@@ -51,11 +51,11 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th width="25%">المفتاح</th>
-                            <th width="25%">القيمة</th>
-                            <th width="35%">الوصف</th>
-                            <th width="10%">النوع</th>
-                            <th width="5%">عام</th>
+                            <th width="25%">{{ __('settings.key') }}</th>
+                            <th width="25%">{{ __('settings.value') }}</th>
+                            <th width="35%">{{ __('settings.description') }}</th>
+                            <th width="10%">{{ __('settings.type') }}</th>
+                            <th width="5%">{{ __('settings.public') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -65,9 +65,9 @@
                             <td>
                                 @if($setting->setting_type === 'boolean')
                                     @if($setting->setting_value === '1' || $setting->setting_value === 'true')
-                                        <span class="badge bg-success">نعم</span>
+                                        <span class="badge bg-success">{{ __('settings.yes') }}</span>
                                     @else
-                                        <span class="badge bg-danger">لا</span>
+                                        <span class="badge bg-danger">{{ __('settings.no') }}</span>
                                     @endif
                                 @elseif($setting->setting_type === 'number')
                                     <strong class="text-primary">{{ $setting->setting_value }}</strong>
@@ -99,7 +99,7 @@
     <div class="card">
         <div class="card-body text-center py-5">
             <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-            <p class="text-muted">لا توجد إعدادات في النظام. يرجى تنفيذ Seeder لإضافة الإعدادات الافتراضية.</p>
+            <p class="text-muted">{{ __('settings.no_settings') }}</p>
         </div>
     </div>
     @endforelse

@@ -644,16 +644,16 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="fas fa-key"></i>
-                إدارة الصلاحيات
+                {{ __('permissions.manage_permissions') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('permissions.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>الأدوار والصلاحيات</span>
+                <span>{{ __('permissions.roles_and_permissions') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>الصلاحيات</span>
+                <span>{{ __('permissions.permissions') }}</span>
             </nav>
         </div>
 
@@ -684,12 +684,12 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="fas fa-key"></i>
-                    قائمة الصلاحيات
+                    {{ __('permissions.permissions_list') }}
                 </h4>
                 @if(canCreate('MANAGE_PERMISSIONS'))
                     <a href="{{ route('permissions.create') }}" class="um-btn um-btn-primary">
                         <i class="fas fa-plus"></i>
-                        إضافة صلاحية جديدة
+                        {{ __('permissions.add_new_permission_btn') }}
                     </a>
                 @endif
             </div>
@@ -700,9 +700,9 @@
                     <div class="um-filter-row">
                         <!-- Module Filter -->
                         <div class="um-form-group">
-                            <label class="form-label">تصفية حسب الوحدة:</label>
+                            <label class="form-label">{{ __('permissions.filter_by_module') }}</label>
                             <select class="um-form-control" id="moduleFilter" onchange="filterByModule()">
-                                <option value="">جميع الوحدات</option>
+                                <option value="">{{ __('permissions.all_modules') }}</option>
                                 @foreach($modules as $module)
                                     <option value="{{ $module }}" {{ request('module') == $module ? 'selected' : '' }}>{{ $module }}</option>
                                 @endforeach
@@ -713,11 +713,11 @@
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-filter"></i>
-                                تصفية
+                                {{ __('permissions.filter_btn') }}
                             </button>
                             <a href="{{ route('permissions.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-refresh-cw"></i>
-                                إعادة تعيين
+                                {{ __('permissions.reset_btn') }}
                             </a>
                         </div>
                     </div>
@@ -755,9 +755,9 @@
                                 <td>{{ $permission->roles->count() }}</td>
                                 <td>
                                     @if($permission->is_active)
-                                        <span class="badge bg-success">نشط</span>
+                                        <span class="badge bg-success">{{ __('permissions.active') }}</span>
                                     @else
-                                        <span class="badge bg-danger">غير نشط</span>
+                                        <span class="badge bg-danger">{{ __('permissions.inactive') }}</span>
                                     @endif
                                 </td>
                                 <td>
@@ -769,17 +769,17 @@
                                             @if(canUpdate('MANAGE_PERMISSIONS'))
                                                 <a href="{{ route('permissions.edit', $permission) }}" class="um-dropdown-item um-btn-edit">
                                                     <i class="feather icon-edit-2"></i>
-                                                    <span>تعديل</span>
+                                                    <span>{{ __('permissions.edit') }}</span>
                                                 </a>
                                             @endif
-                                            
+
                                             @if(canDelete('MANAGE_PERMISSIONS') && !$permission->is_system)
                                                 <form method="POST" action="{{ route('permissions.destroy', $permission) }}" style="display: inline;" class="delete-form">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="um-dropdown-item um-btn-delete" style="width: 100%; text-align: right; border: none; background: none; cursor: pointer;">
                                                         <i class="feather icon-trash-2"></i>
-                                                        <span>حذف</span>
+                                                        <span>{{ __('permissions.delete') }}</span>
                                                     </button>
                                                 </form>
                                             @endif
@@ -790,7 +790,7 @@
                         @empty
                             <tr>
                                 <td colspan="8" class="text-center text-muted">
-                                    <i class="feather icon-inbox"></i> لا توجد صلاحيات
+                                    <i class="feather icon-inbox"></i> {{ __('permissions.no_permissions') }}
                                 </td>
                             </tr>
                         @endforelse
@@ -835,12 +835,12 @@
                     e.preventDefault();
 
                     Swal.fire({
-                        title: 'تأكيد الحذف',
+                        title: '{{ __('permissions.confirm_delete') }}',
                         text: 'هل أنت متأكد من حذف هذه الصلاحية؟ هذا الإجراء لا يمكن التراجع عنه!',
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'نعم، احذف',
-                        cancelButtonText: 'إلغاء',
+                        confirmButtonText: '{{ __('permissions.yes_delete') }}',
+                        cancelButtonText: '{{ __('permissions.cancel') }}',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
@@ -887,7 +887,7 @@
             window.filterByModule = function() {
                 const module = document.getElementById('moduleFilter').value;
                 const rows = document.querySelectorAll('tbody tr[data-module]');
-                
+
                 rows.forEach(row => {
                     if (module === '' || row.dataset.module === module) {
                         row.style.display = '';

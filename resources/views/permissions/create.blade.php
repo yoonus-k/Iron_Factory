@@ -3,9 +3,9 @@
 @section('content')
 <div class="container-fluid" dir="rtl">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">إضافة صلاحية جديدة</h2>
+        <h2 class="mb-0">{{ __('permissions.add_new_permission') }}</h2>
         <a href="{{ route('permissions.index') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-right"></i> رجوع
+            <i class="fas fa-arrow-right"></i> {{ __('permissions.back') }}
         </a>
     </div>
 
@@ -21,25 +21,25 @@
 
     <form action="{{ route('permissions.store') }}" method="POST">
         @csrf
-        
+
         <div class="card">
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">اسم الصلاحية <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('permissions.permission_name') }} <span class="text-danger">*</span></label>
                         <input type="text" name="permission_name" class="form-control" value="{{ old('permission_name') }}" required>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">الاسم بالإنجليزية</label>
+                        <label class="form-label">{{ __('permissions.permission_name_en') }}</label>
                         <input type="text" name="permission_name_en" class="form-control" value="{{ old('permission_name_en') }}">
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">الكود <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('permissions.permission_code') }} <span class="text-danger">*</span></label>
                         <input type="text" name="permission_code" class="form-control" value="{{ old('permission_code') }}" required>
-                        <small class="form-text text-muted">سيتم تحويله إلى أحرف كبيرة تلقائياً</small>
+                        <small class="form-text text-muted">{{ __('permissions.code_will_be_uppercase') }}</small>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">الوحدة <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('permissions.module') }} <span class="text-danger">*</span></label>
                         <input type="text" name="module" class="form-control" value="{{ old('module') }}" list="modules" required>
                         <datalist id="modules">
                             @foreach($modules as $module)
@@ -48,7 +48,7 @@
                         </datalist>
                     </div>
                     <div class="col-12 mb-3">
-                        <label class="form-label">الوصف</label>
+                        <label class="form-label">{{ __('permissions.description') }}</label>
                         <textarea name="description" class="form-control" rows="3">{{ old('description') }}</textarea>
                     </div>
                 </div>
@@ -57,9 +57,9 @@
 
         <div class="d-flex gap-2 mt-3">
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> حفظ الصلاحية
+                <i class="fas fa-save"></i> {{ __('permissions.save_permission') }}
             </button>
-            <a href="{{ route('permissions.index') }}" class="btn btn-secondary">إلغاء</a>
+            <a href="{{ route('permissions.index') }}" class="btn btn-secondary">{{ __('permissions.cancel') }}</a>
         </div>
     </form>
 </div>
