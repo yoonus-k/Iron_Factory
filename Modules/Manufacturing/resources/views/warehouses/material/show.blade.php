@@ -134,7 +134,24 @@
                         <i class="feather icon-package"></i>
                     </div>
                     <div class="header-info">
-                        <h1>{{ $material->name_ar }} ({{ $material->name_en }})</h1>
+                        @php
+                            $locale = app()->getLocale();
+                            $nameAr = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'ar') ?? $material->name_ar ?? '-';
+                            $nameEn = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'en') ?? $material->name_en ?? '-';
+                            $nameHi = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'hi') ?? '-';
+                            $nameUr = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'ur') ?? '-';
+
+                            if($locale === 'ar') {
+                                $headerName = $nameAr;
+                            } elseif($locale === 'hi') {
+                                $headerName = $nameHi;
+                            } elseif($locale === 'ur') {
+                                $headerName = $nameUr;
+                            } else {
+                                $headerName = $nameEn;
+                            }
+                        @endphp
+                        <h1>{{ $headerName }}</h1>
                         <div class="badges">
                             <span class="badge badge-{{ $material->status == 'available' ? 'success' : 'warning' }}">
                                 {{ $material->status == 'available' ? __('warehouse.available') : __('warehouse.in_use') }}
@@ -241,13 +258,37 @@
 
                     <div class="info-item">
                         <div class="info-label">{{ __('warehouse.material_name') }}:</div>
-                        <div class="info-value">{{ $material->name_ar }}</div>
+                        <div class="info-value">
+                            @php
+                                $locale = app()->getLocale();
+                                $nameAr = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'ar') ?? $material->name_ar ?? '-';
+                                $nameEn = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'en') ?? $material->name_en ?? '-';
+                                $nameHi = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'hi') ?? '-';
+                                $nameUr = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'ur') ?? '-';
+
+                                if($locale === 'ar') {
+                                    $name = $nameAr;
+                                } elseif($locale === 'hi') {
+                                    $name = $nameHi;
+                                } elseif($locale === 'ur') {
+                                    $name = $nameUr;
+                                } else {
+                                    $name = $nameEn;
+                                }
+                            @endphp
+                            {{ $name }}
+                        </div>
                     </div>
 
-                    @if($material->name_en)
+                    @if($locale === 'ar' && $nameEn !== '-')
                     <div class="info-item">
                         <div class="info-label">{{ __('warehouse.material_name_en') }}:</div>
-                        <div class="info-value">{{ $material->name_en }}</div>
+                        <div class="info-value">{{ $nameEn }}</div>
+                    </div>
+                    @elseif($locale !== 'ar' && $nameAr !== '-')
+                    <div class="info-item">
+                        <div class="info-label">{{ __('warehouse.material_name_ar') }}:</div>
+                        <div class="info-value">{{ $nameAr }}</div>
                     </div>
                     @endif
 

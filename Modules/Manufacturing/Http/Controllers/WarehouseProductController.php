@@ -98,6 +98,9 @@ class WarehouseProductController extends Controller
             // إنشاء المادة عبر الـ Service
             $material = $this->materialService->createMaterial($validated);
 
+            // ✅ حفظ الترجمات في جدول Translation للغات الأربع
+            $this->saveTranslations($material, $validated);
+
             // إضافة الكمية الأولية إلى MaterialDetail
             if (isset($validated['warehouse_id']) && isset($validated['original_weight'])) {
                 \App\Models\MaterialDetail::create([
@@ -238,6 +241,9 @@ class WarehouseProductController extends Controller
 
             $this->materialService->updateMaterial($material, $validated);
             $newValues = $material->fresh()->toArray();
+
+            // ✅ تحديث الترجمات في جدول Translation
+            $this->saveTranslations($material, $validated);
 
             // تسجيل العملية - إجباري
             try {
@@ -604,4 +610,58 @@ $materialDetail->unit_id = $validated['unit_id']; // ✅ تحديث في Materia
 
         return $statusLabels[$status] ?? $status;
     }
+
+    /**
+     * ✅ حفظ الترجمات في جدول Translation للغات الأربع
+     * Save translations in Translation table for four languages
+     */
+    private function saveTranslations($material, $validated)
+    {
+        try {
+            $translations = [
+                'ar' => [
+                    'name' => $validated['name_ar'] ?? null,
+                    'notes' => $validated['notes'] ?? null,
+                    'shelf_location' => $validated['shelf_location'] ?? null,
+                ],
+                'en' => [
+                    'name' => $validated['name_en'] ?? null,
+                    'notes' => $validated['notes_en'] ?? null,
+                    'shelf_location' => $validated['shelf_location_en'] ?? null,
+                ],
+                'hi' => [
+                    'name' => $validated['name_hi'] ?? null,
+                    'notes' => $validated['notes_hi'] ?? null,
+                    'shelf_location' => $validated['shelf_location_hi'] ?? null,
+                ],
+                'ur' => [
+                    'name' => $validated['name_ur'] ?? null,
+                    'notes' => $validated['notes_ur'] ?? null,
+                    'shelf_location' => $validated['shelf_location_ur'] ?? null,
+                ],
+            ];
+
+            // حفظ الترجمات في جدول Translation
+            foreach ($translations as $locale => $fields) {
+                foreach ($fields as $key => $value) {
+                    if (!empty($value)) {
+                        \App\Models\Translation::saveTranslation(
+                            'App\Models\Material',
+                            $material->id,
+                            $key,
+                            $value,
+                            $locale
+                        );
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to save translations: ' . $e->getMessage(), [
+                'material_id' => $material->id,
+                'error' => $e
+            ]);
+            // لا نفشل العملية إذا فشل حفظ الترجمات
+        }
+    }
 }
+

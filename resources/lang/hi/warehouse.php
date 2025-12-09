@@ -350,7 +350,7 @@ return [
     'edit_description_and_storage' => 'प्रकार का विवरण और भंडारण शर्तें संपादित करें',
     'description_ar' => 'विवरण (अरबी)',
     'description_en' => 'विवरण (अंग्रेजी)',
-    'storage_conditions_ar' => 'भंडारण शर्तें (अरबी)',
+    'storage_conditions' => 'भंडारण शर्तें (अरबी)',
     'storage_conditions_en' => 'भंडारण शर्तें (अंग्रेजी)',
     'standard_cost' => 'मानक लागत',
     'shelf_life_days' => 'शेल्फ जीवन (दिन)',

@@ -13,10 +13,25 @@
                         <i class="feather icon-box"></i>
                     </div>
                     <div class="header-info">
-                        <h1>{{ $unit->unit_name }}</h1>
-                        @if($unit->unit_name_en)
-                            <p class="course-subtitle">{{ $unit->unit_name_en }}</p>
-                        @endif
+                        <h1>
+                            @php
+                                $nameAr = \App\Models\Translation::getTranslation('App\Models\Unit', $unit->id, 'unit_name', 'ar') ?? $unit->unit_name ?? '-';
+                                $nameEn = \App\Models\Translation::getTranslation('App\Models\Unit', $unit->id, 'unit_name', 'en') ?? $unit->unit_name_en ?? '-';
+                                $nameHi = \App\Models\Translation::getTranslation('App\Models\Unit', $unit->id, 'unit_name', 'hi') ?? '-';
+                                $nameUr = \App\Models\Translation::getTranslation('App\Models\Unit', $unit->id, 'unit_name', 'ur') ?? '-';
+
+                                if($locale === 'ar') {
+                                    $headerName = $nameAr;
+                                } elseif($locale === 'hi') {
+                                    $headerName = $nameHi;
+                                } elseif($locale === 'ur') {
+                                    $headerName = $nameUr;
+                                } else {
+                                    $headerName = $nameEn;
+                                }
+                            @endphp
+                            {{ $headerName }}
+                        </h1>
                         <div class="badges">
                             @if ($unit->is_active)
                                 <span class="badge badge-success">{{ __('warehouse.active') }}</span>
@@ -89,16 +104,34 @@
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">{{ __('warehouse.unit_name_ar') }}:</div>
-                        <div class="info-value">{{ $unit->unit_name }}</div>
-                    </div>
+                        <div class="info-label">
+                            @if($locale === 'ar')
+                                {{ __('warehouse.unit_name_ar') }}
+                            @else
+                                {{ __('warehouse.unit_name_en') }}
+                            @endif
+                            :
+                        </div>
+                        <div class="info-value">
+                            @php
+                                $nameAr = \App\Models\Translation::getTranslation('App\Models\Unit', $unit->id, 'unit_name', 'ar') ?? $unit->unit_name ?? '-';
+                                $nameEn = \App\Models\Translation::getTranslation('App\Models\Unit', $unit->id, 'unit_name', 'en') ?? $unit->unit_name_en ?? '-';
+                                $nameHi = \App\Models\Translation::getTranslation('App\Models\Unit', $unit->id, 'unit_name', 'hi') ?? '-';
+                                $nameUr = \App\Models\Translation::getTranslation('App\Models\Unit', $unit->id, 'unit_name', 'ur') ?? '-';
 
-                    @if($unit->unit_name_en)
-                    <div class="info-item">
-                        <div class="info-label">{{ __('warehouse.unit_name_en') }}:</div>
-                        <div class="info-value">{{ $unit->unit_name_en }}</div>
+                                if($locale === 'ar') {
+                                    $infoName = $nameAr;
+                                } elseif($locale === 'hi') {
+                                    $infoName = $nameHi;
+                                } elseif($locale === 'ur') {
+                                    $infoName = $nameUr;
+                                } else {
+                                    $infoName = $nameEn;
+                                }
+                            @endphp
+                            {{ $infoName }}
+                        </div>
                     </div>
-                    @endif
 
                     <div class="info-item">
                         <div class="info-label">{{ __('warehouse.unit_symbol') }}:</div>

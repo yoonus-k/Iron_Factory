@@ -349,7 +349,7 @@ return [
     'edit_description_and_storage' => 'Edit the type description and storage conditions',
     'description_ar' => 'Description (Arabic)',
     'description_en' => 'Description (English)',
-    'storage_conditions_ar' => 'Storage Conditions (Arabic)',
+    'storage_conditions' => 'Storage Conditions (Arabic)',
     'storage_conditions_en' => 'Storage Conditions (English)',
     'standard_cost' => 'Standard Cost',
     'shelf_life_days' => 'Shelf Life (Days)',

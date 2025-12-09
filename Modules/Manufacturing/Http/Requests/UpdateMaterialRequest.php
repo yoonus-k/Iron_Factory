@@ -26,18 +26,21 @@ class UpdateMaterialRequest extends FormRequest
             'batch_number' => 'nullable|string',
             'name_ar' => 'required|string|min:2|max:255',
             'name_en' => 'nullable|string|min:2|max:255',
-
-
+            'name_hi' => 'nullable|string|min:2|max:255',
+            'name_ur' => 'nullable|string|min:2|max:255',
 
             'delivery_note_number' => 'nullable|string|max:255',
-           
+
             'shelf_location' => 'nullable|string|max:255',
             'shelf_location_en' => 'nullable|string|max:255',
+            'shelf_location_hi' => 'nullable|string|max:255',
+            'shelf_location_ur' => 'nullable|string|max:255',
             'purchase_invoice_id' => 'nullable|exists:purchase_invoices,id',
 
             'notes' => 'nullable|string',
             'notes_en' => 'nullable|string',
-
+            'notes_hi' => 'nullable|string',
+            'notes_ur' => 'nullable|string',
         ];
     }
 

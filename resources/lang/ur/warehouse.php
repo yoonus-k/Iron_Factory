@@ -347,7 +347,7 @@ return [
     'edit_description_and_storage' => 'قسم کی تفصیل اور ذخیرہ کی شرائط میں ترمیم کریں',
     'description_ar' => 'تفصیل (عربی)',
     'description_en' => 'تفصیل (انگریزی)',
-    'storage_conditions_ar' => 'ذخیرہ کی شرائط (عربی)',
+    'storage_conditions' => 'ذخیرہ کی شرائط (عربی)',
     'storage_conditions_en' => 'ذخیرہ کی شرائط (انگریزی)',
     'standard_cost' => 'معیاری لاگت',
     'shelf_life_days' => 'شیلف لائف (دن)',

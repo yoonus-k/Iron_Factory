@@ -267,12 +267,68 @@
                         <label for="name_ar" class="form-label">
                             {{ __('warehouse.material_name') }} <span class="required">*</span>
                         </label>
+                        @php
+                            $locale = app()->getLocale();
+                            $nameAr = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'ar') ?? $material->name_ar ?? '';
+                        @endphp
                         <input type="text" name="name_ar" id="name_ar"
                                class="form-input @error('name_ar') input-error @enderror"
                                placeholder="{{ __('warehouse.search_materials') }}"
-                               value="{{ old('name_ar', $material->name_ar) }}"
+                               value="{{ old('name_ar', $nameAr) }}"
                                required>
                         @error('name_ar')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Field 1.1: Material Name (English) -->
+                    <div class="form-group full-width">
+                        <label for="name_en" class="form-label">
+                            {{ __('warehouse.material_name_en') }}
+                        </label>
+                        @php
+                            $nameEn = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'en') ?? $material->name_en ?? '';
+                        @endphp
+                        <input type="text" name="name_en" id="name_en"
+                               class="form-input @error('name_en') input-error @enderror"
+                               placeholder="{{ __('warehouse.material_name_en') }}"
+                               value="{{ old('name_en', $nameEn) }}">
+                        @error('name_en')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Field 1.2: Material Name (Hindi) -->
+                    <div class="form-group full-width">
+                        <label for="name_hi" class="form-label">
+                            Material Name (Hindi)
+                        </label>
+                        @php
+                            $nameHi = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'hi') ?? '';
+                        @endphp
+                        <input type="text" name="name_hi" id="name_hi"
+                               class="form-input @error('name_hi') input-error @enderror"
+                               placeholder="Material Name (Hindi)"
+                               value="{{ old('name_hi', $nameHi) }}">
+                        @error('name_hi')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Field 1.3: Material Name (Urdu) -->
+                    <div class="form-group full-width">
+                        <label for="name_ur" class="form-label">
+                            Material Name (Urdu)
+                        </label>
+                        @php
+                            $nameUr = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'ur') ?? '';
+                        @endphp
+                        <input type="text" name="name_ur" id="name_ur"
+                               class="form-input @error('name_ur') input-error @enderror"
+                               placeholder="Material Name (Urdu)"
+                               value="{{ old('name_ur', $nameUr) }}"
+                               style="direction: rtl;">
+                        @error('name_ur')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
                     </div>

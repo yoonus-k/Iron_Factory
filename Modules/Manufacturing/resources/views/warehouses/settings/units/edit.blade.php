@@ -69,7 +69,11 @@
                     <!-- اسم الوحدة -->
                     <div class="form-group">
                         <label for="unit_name" class="form-label">
-                            {{ __('warehouse.unit_name_ar') }}
+                            @if($locale === 'ar')
+                                {{ __('warehouse.unit_name_ar') }}
+                            @else
+                                {{ __('warehouse.unit_name_en') }}
+                            @endif
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -88,7 +92,13 @@
 
                     <!-- اسم الوحدة الإنجليزي -->
                     <div class="form-group">
-                        <label for="unit_name_en" class="form-label">{{ __('warehouse.unit_name_en') }}</label>
+                        <label for="unit_name_en" class="form-label">
+                            @if($locale === 'ar')
+                                {{ __('warehouse.unit_name_en') }}
+                            @else
+                                {{ __('warehouse.unit_name_ar') }}
+                            @endif
+                        </label>
                         <div class="input-wrapper">
                             <input type="text" name="unit_name_en" id="unit_name_en" class="form-input @error('unit_name_en') error @enderror"
                                    placeholder="{{ __('warehouse.example') }}: Kilogram" value="{{ old('unit_name_en', $unit->unit_name_en) }}">
@@ -171,7 +181,13 @@
 
                 <div class="form-grid">
                     <div class="form-group full-width">
-                        <label for="description" class="form-label">{{ __('warehouse.description_ar') }}</label>
+                        <label for="description" class="form-label">
+                            @if($locale === 'ar')
+                                {{ __('warehouse.description_ar') }}
+                            @else
+                                {{ __('warehouse.description_en') }}
+                            @endif
+                        </label>
                         <div class="input-wrapper">
                             <textarea name="description" id="description" class="form-input @error('description') error @enderror"
                                       placeholder="أدخل وصف الوحدة" rows="3">{{ old('description', $unit->description) }}</textarea>
@@ -182,7 +198,13 @@
                     </div>
 
                     <div class="form-group full-width">
-                        <label for="description_en" class="form-label">{{ __('warehouse.description_en') }}</label>
+                        <label for="description_en" class="form-label">
+                            @if($locale === 'ar')
+                                {{ __('warehouse.description_en') }}
+                            @else
+                                {{ __('warehouse.description_ar') }}
+                            @endif
+                        </label>
                         <div class="input-wrapper">
                             <textarea name="description_en" id="description_en" class="form-input @error('description_en') error @enderror"
                                       placeholder="Enter unit description in English" rows="3">{{ old('description_en', $unit->description_en) }}</textarea>

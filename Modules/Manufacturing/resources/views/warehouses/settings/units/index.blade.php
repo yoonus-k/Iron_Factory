@@ -117,10 +117,27 @@
                                     <span class="">{{ $unit->unit_code }}</span>
                                 </td>
                                 <td>
-                                    <strong>{{ $unit->unit_name }}</strong><br>
-                                    @if($unit->unit_name_en)
-                                        <small class="text-muted">{{ $unit->unit_name_en }}</small>
-                                    @endif
+                                    <strong>
+                                        @php
+                                            $nameAr = \App\Models\Translation::getTranslation('App\Models\Unit', $unit->id, 'unit_name', 'ar') ?? $unit->unit_name ?? '-';
+                                            $nameEn = \App\Models\Translation::getTranslation('App\Models\Unit', $unit->id, 'unit_name', 'en') ?? $unit->unit_name_en ?? '-';
+                                            $nameHi = \App\Models\Translation::getTranslation('App\Models\Unit', $unit->id, 'unit_name', 'hi') ?? '-';
+                                            $nameUr = \App\Models\Translation::getTranslation('App\Models\Unit', $unit->id, 'unit_name', 'ur') ?? '-';
+
+                                            if($locale === 'ar') {
+                                                $name = $nameAr;
+                                            } elseif($locale === 'hi') {
+                                                $name = $nameHi;
+                                            } elseif($locale === 'ur') {
+                                                $name = $nameUr;
+                                            } else {
+                                                $name = $nameEn;
+                                            }
+                                        @endphp
+                                        {{ $name }}
+                                        <br>
+
+                                    </strong>
                                 </td>
                                 <td>
                                     <span class="">{{ $unit->unit_symbol }}</span>

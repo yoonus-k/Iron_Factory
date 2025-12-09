@@ -227,16 +227,35 @@
                             <tr>
 
                                 <td>
-                                    <span class="badge badge-primary">{{ $material->barcode ?? 'N/A' }}</span>
+                                    <span class="">{{ $material->barcode ?? 'N/A' }}</span>
                                 </td>
                                 <td>
-                                    <strong>{{ $material->name_ar }}</strong><br>
+                                    <strong>
+                                        @php
+                                            $locale = app()->getLocale();
+                                            $nameAr = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'ar') ?? $material->name_ar ?? '-';
+                                            $nameEn = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'en') ?? $material->name_en ?? '-';
+                                            $nameHi = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'hi') ?? '-';
+                                            $nameUr = \App\Models\Translation::getTranslation('App\Models\Material', $material->id, 'name', 'ur') ?? '-';
+
+                                            if($locale === 'ar') {
+                                                $name = $nameAr;
+                                            } elseif($locale === 'hi') {
+                                                $name = $nameHi;
+                                            } elseif($locale === 'ur') {
+                                                $name = $nameUr;
+                                            } else {
+                                                $name = $nameEn;
+                                            }
+                                        @endphp
+                                        {{ $name }}
+                                    </strong><br>
                                     @if ($material->name_en)
                                         <small class="text-muted">{{ $material->name_en }}</small>
                                     @endif
                                 </td>
                                 <td>
-                                    <span class="badge badge-info">{{ $material->getCategoryLabel() }}</span>
+                                    <span class="">{{ $material->getCategoryLabel() }}</span>
                                 </td>
 
 

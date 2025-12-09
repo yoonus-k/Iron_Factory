@@ -117,13 +117,24 @@
                                 <td>
                                     <strong>
                                         @php
+                                            $nameAr = \App\Models\Translation::getTranslation('App\Models\MaterialType', $materialType->id, 'name', 'ar') ?? $materialType->type_name ?? '-';
+                                            $nameEn = \App\Models\Translation::getTranslation('App\Models\MaterialType', $materialType->id, 'name', 'en') ?? $materialType->type_name_en ?? '-';
+                                            $nameHi = \App\Models\Translation::getTranslation('App\Models\MaterialType', $materialType->id, 'name', 'hi') ?? '-';
+                                            $nameUr = \App\Models\Translation::getTranslation('App\Models\MaterialType', $materialType->id, 'name', 'ur') ?? '-';
+
                                             if($locale === 'ar') {
-                                                $name = \App\Models\Translation::getTranslation('App\Models\MaterialType', $materialType->id, 'name', 'ar') ?? $materialType->type_name ?? '-';
+                                                $name = $nameAr;
+                                            } elseif($locale === 'hi') {
+                                                $name = $nameHi;
+                                            } elseif($locale === 'ur') {
+                                                $name = $nameUr;
                                             } else {
-                                                $name = \App\Models\Translation::getTranslation('App\Models\MaterialType', $materialType->id, 'name', 'en') ?? $materialType->type_name_en ?? '-';
+                                                $name = $nameEn;
                                             }
                                         @endphp
                                         {{ $name }}
+                                        <br>
+
                                     </strong>
                                 </td>
                                 <td>
