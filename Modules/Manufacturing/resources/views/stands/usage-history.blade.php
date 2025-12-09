@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تاريخ استخدام الاستاندات')
+@section('title', __('stands.title.usage_history'))
 
 @section('content')
 <style>
@@ -524,9 +524,9 @@
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
             </svg>
-            تاريخ استخدام الاستاندات
+            {{ __('stands.header.usage_history') }}
         </h1>
-        <p>عرض تفصيلي لجميع عمليات استخدام الاستاندات في المصنع</p>
+        <p>{{ __('stands.stats.total_uses') }} - {{ __('stands.header.usage_history') }}</p>
     </div>
 
     <!-- Filters -->
@@ -558,22 +558,22 @@
                 </div>
 
                 <div class="filter-group">
-                    <label class="filter-label">الحالة</label>
+                    <label class="filter-label">{{ __('stands.form.status') }}</label>
                     <select name="status" class="filter-input">
-                        <option value="">الكل</option>
-                        <option value="in_use" {{ request('status') == 'in_use' ? 'selected' : '' }}>قيد الاستخدام</option>
-                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>مكتمل</option>
-                        <option value="returned" {{ request('status') == 'returned' ? 'selected' : '' }}>مرتجع</option>
+                        <option value="">{{ __('stands.filter.all_statuses') }}</option>
+                        <option value="in_use" {{ request('status') == 'in_use' ? 'selected' : '' }}>{{ __('stands.status.in_use') }}</option>
+                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>{{ __('stands.status.completed') }}</option>
+                        <option value="returned" {{ request('status') == 'returned' ? 'selected' : '' }}>{{ __('stands.status.returned') }}</option>
                     </select>
                 </div>
 
                 <div class="filter-group">
-                    <label class="filter-label">من تاريخ</label>
+                    <label class="filter-label">{{ __('stands.filter.date') }}</label>
                     <input type="date" name="date_from" value="{{ request('date_from') }}" class="filter-input">
                 </div>
 
                 <div class="filter-group">
-                    <label class="filter-label">إلى تاريخ</label>
+                    <label class="filter-label">{{ __('stands.filter.date') }}</label>
                     <input type="date" name="date_to" value="{{ request('date_to') }}" class="filter-input">
                 </div>
             </div>
@@ -616,7 +616,7 @@
                     <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
             </div>
-            <div class="stat-label">إجمالي الاستخدامات</div>
+            <div class="stat-label">{{ __('stands.stats.total_uses') }}</div>
             <div class="stat-value">{{ $totalUsages }}</div>
         </div>
 
@@ -626,7 +626,7 @@
                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                 </svg>
             </div>
-            <div class="stat-label">عدد الاستاندات المستخدمة</div>
+            <div class="stat-label">{{ __('stands.stats.active_stands') }}</div>
             <div class="stat-value">{{ $activeStands }}</div>
         </div>
 
@@ -637,7 +637,7 @@
                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                 </svg>
             </div>
-            <div class="stat-label">إجمالي الوزن (كجم)</div>
+            <div class="stat-label">{{ __('stands.form.weight') }}</div>
             <div class="stat-value">{{ number_format($totalWeight, 2) }}</div>
         </div>
 
@@ -662,7 +662,7 @@
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
-            سجل الاستخدامات
+            {{ __('stands.breadcrumb.stands') }} - {{ __('stands.stats.total_uses') }}
         </h3>
         
         @if($history->count() > 0)
@@ -670,8 +670,8 @@
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>رقم الاستاند</th>
-                    <th>عدد الاستخدامات</th>
+                    <th>{{ __('stands.form.stand_number') }}</th>
+                    <th>{{ __('stands.stats.total_uses') }}</th>
                     <th>المستخدم</th>
                     <th>باركود المادة</th>
                     <th>نوع المادة</th>
@@ -679,8 +679,8 @@
                     <th>الوزن الإجمالي</th>
                     <th>الوزن الصافي</th>
                     <th>نسبة الهدر</th>
-                    <th>الحالة</th>
-                    <th>تاريخ البدء</th>
+                    <th>{{ __('stands.form.status') }}</th>
+                    <th>{{ __('stands.form.created_at') }}</th>
                     <th>تاريخ الانتهاء</th>
                 </tr>
             </thead>

@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تفاصيل الاستاند')
+@section('title', __('stands.title.show'))
 
 @section('content')
 
@@ -9,14 +9,14 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-package"></i>
-                تفاصيل الاستاند
+                {{ __('stands.header.stand_details') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('stands.breadcrumb.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <a href="{{ route('manufacturing.stands.index') }}">الاستاندات</a>
+                <a href="{{ route('manufacturing.stands.index') }}">{{ __('stands.breadcrumb.stands') }}</a>
                 <i class="feather icon-chevron-left"></i>
                 <span>{{ $stand->stand_number }}</span>
             </nav>
@@ -49,16 +49,16 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-info"></i>
-                    معلومات الاستاند
+                    {{ __('stands.card.basic_info') }}
                 </h4>
                 <div style="display: flex; gap: 10px;">
                     <a href="{{ route('manufacturing.stands.edit', $stand->id) }}" class="um-btn um-btn-primary">
                         <i class="feather icon-edit-2"></i>
-                        تعديل
+                        {{ __('stands.btn.edit') }}
                     </a>
                     <a href="{{ route('manufacturing.stands.index') }}" class="um-btn um-btn-outline">
                         <i class="feather icon-arrow-right"></i>
-                        رجوع
+                        {{ __('stands.btn.back') }}
                     </a>
                 </div>
             </div>
@@ -71,7 +71,7 @@
                         <div class="um-info-card">
                             <h5 class="um-info-card-title">
                                 <i class="feather icon-file-text"></i>
-                                المعلومات الأساسية
+                                {{ __('stands.card.basic_info') }}
                             </h5>
                             <div class="um-info-list">
                                 <div class="um-info-item">
@@ -86,10 +86,10 @@
                                 <div class="um-info-item">
                                     <span class="um-info-label">
                                         <i class="feather icon-activity"></i>
-                                        الوزن:
+                                        {{ __('stands.form.weight') }}:
                                     </span>
                                     <span class="um-info-value">
-                                        <strong>{{ number_format($stand->weight, 2) }} كجم</strong>
+                                        <strong>{{ number_format($stand->weight, 2) }} {{ __('stands.info.weight_unit') }}</strong>
                                     </span>
                                 </div>
                                 <div class="um-info-item">
@@ -104,13 +104,13 @@
                                 <div class="um-info-item">
                                     <span class="um-info-label">
                                         <i class="feather icon-toggle-{{ $stand->is_active ? 'right' : 'left' }}"></i>
-                                        الحالة:
+                                        {{ __('stands.form.is_active') }}:
                                     </span>
                                     <span class="um-info-value">
                                         @if($stand->is_active)
-                                            <span class="um-badge um-badge-success">نشط</span>
+                                            <span class="um-badge um-badge-success">{{ __('stands.active') }}</span>
                                         @else
-                                            <span class="um-badge um-badge-secondary">غير نشط</span>
+                                            <span class="um-badge um-badge-secondary">{{ __('stands.inactive') }}</span>
                                         @endif
                                     </span>
                                 </div>
@@ -123,7 +123,7 @@
                         <div class="um-info-card">
                             <h5 class="um-info-card-title">
                                 <i class="feather icon-clock"></i>
-                                التواريخ
+                                {{ __('stands.card.dates') }}
                             </h5>
                             <div class="um-info-list">
                                 <div class="um-info-item">
@@ -167,7 +167,7 @@
                             <div class="um-info-card">
                                 <h5 class="um-info-card-title">
                                     <i class="feather icon-message-square"></i>
-                                    الملاحظات
+                                    {{ __('stands.form.notes') }}
                                 </h5>
                                 <div class="um-notes-content">
                                     {{ $stand->notes }}
@@ -182,15 +182,15 @@
             <div class="um-form-actions">
                 <a href="{{ route('manufacturing.stands.edit', $stand->id) }}" class="um-btn um-btn-primary">
                     <i class="feather icon-edit-2"></i>
-                    تعديل الاستاند
+                    {{ __('stands.btn.edit') }}
                 </a>
-                
+
                 <form action="{{ route('manufacturing.stands.toggle-status', $stand->id) }}" method="POST" style="display: inline;">
                     @csrf
                     @method('PATCH')
                     <button type="submit" class="um-btn um-btn-{{ $stand->is_active ? 'warning' : 'success' }}">
                         <i class="feather icon-{{ $stand->is_active ? 'pause' : 'play' }}-circle"></i>
-                        {{ $stand->is_active ? 'تعطيل' : 'تفعيل' }} الاستاند
+                        {{ $stand->is_active ? __('stands.btn.disable') : __('stands.btn.enable') }}
                     </button>
                 </form>
 
@@ -199,7 +199,7 @@
                     @method('DELETE')
                     <button type="submit" class="um-btn um-btn-danger">
                         <i class="feather icon-trash-2"></i>
-                        حذف الاستاند
+                        {{ __('stands.btn.delete') }}
                     </button>
                 </form>
             </div>
@@ -302,7 +302,7 @@
             if (deleteForm) {
                 deleteForm.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    if (confirm('هل أنت متأكد من حذف هذا الاستاند؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
+                    if (confirm('{{ __('stands.alert.confirm_delete') }}\n\n{{ __('stands.alert.confirm_delete_warning') }}')) {
                         this.submit();
                     }
                 });

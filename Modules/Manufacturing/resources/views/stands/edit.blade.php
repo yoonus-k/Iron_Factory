@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تعديل الاستاند')
+@section('title', __('stands.title.edit'))
 
 @section('content')
 
@@ -9,16 +9,16 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-edit-2"></i>
-                تعديل الاستاند
+                {{ __('stands.header.edit_stand') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('stands.breadcrumb.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <a href="{{ route('manufacturing.stands.index') }}">الاستاندات</a>
+                <a href="{{ route('manufacturing.stands.index') }}">{{ __('stands.breadcrumb.stands') }}</a>
                 <i class="feather icon-chevron-left"></i>
-                <span>تعديل {{ $stand->stand_number }}</span>
+                <span>{{ __('stands.breadcrumb.edit') }} {{ $stand->stand_number }}</span>
             </nav>
         </div>
 
@@ -26,7 +26,7 @@
         @if($errors->any())
             <div class="um-alert-custom um-alert-danger" role="alert">
                 <i class="feather icon-alert-circle"></i>
-                <strong>يوجد أخطاء في البيانات المدخلة:</strong>
+                <strong>{{ __('stands.alert.validation_error') }}</strong>
                 <ul style="margin: 10px 0 0 20px; padding: 0;">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -44,11 +44,11 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-edit-3"></i>
-                    تعديل بيانات الاستاند
+                    {{ __('stands.card.edit_data') }}
                 </h4>
                 <a href="{{ route('manufacturing.stands.show', $stand->id) }}" class="um-btn um-btn-outline">
                     <i class="feather icon-arrow-right"></i>
-                    رجوع
+                    {{ __('stands.btn.back') }}
                 </a>
             </div>
 
@@ -64,7 +64,7 @@
                             <div class="um-form-group">
                                 <label for="stand_number">
                                     <i class="feather icon-hash"></i>
-                                    رقم الاستاند
+                                    {{ __('stands.form.stand_number') }}
                                     <span class="um-required">*</span>
                                 </label>
                                 <input type="text" 
@@ -77,7 +77,7 @@
                                 @error('stand_number')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
-                                <small class="um-help-text">رقم الاستاند لا يمكن تعديله</small>
+                                <small class="um-help-text">{{ __('stands.help.stand_number_readonly') }}</small>
                             </div>
                         </div>
 
@@ -86,7 +86,7 @@
                             <div class="um-form-group">
                                 <label for="weight">
                                     <i class="feather icon-activity"></i>
-                                    الوزن (كجم)
+                                    {{ __('stands.form.weight') }}
                                     <span class="um-required">*</span>
                                 </label>
                                 <input type="number" 
@@ -96,7 +96,7 @@
                                        value="{{ old('weight', $stand->weight) }}"
                                        step="0.01"
                                        min="0"
-                                       placeholder="أدخل وزن الاستاند بالكيلوجرام"
+                                       placeholder="{{ __('stands.placeholder.weight') }}"
                                        required>
                                 @error('weight')
                                     <span class="invalid-feedback">{{ $message }}</span>
@@ -111,7 +111,7 @@
                             <div class="um-form-group">
                                 <label for="status">
                                     <i class="feather icon-flag"></i>
-                                    المرحلة الحالية
+                                    {{ __('stands.form.status') }}
                                     <span class="um-required">*</span>
                                 </label>
                                 <select name="status" 
@@ -119,22 +119,22 @@
                                         class="um-form-control @error('status') is-invalid @enderror"
                                         required>
                                     <option value="unused" {{ old('status', $stand->status) == 'unused' ? 'selected' : '' }}>
-                                        غير مستخدم
+                                        {{ __('stands.status.unused') }}
                                     </option>
                                     <option value="stage1" {{ old('status', $stand->status) == 'stage1' ? 'selected' : '' }}>
-                                        المرحلة الأولى
+                                        {{ __('stands.status.stage1') }}
                                     </option>
                                     <option value="stage2" {{ old('status', $stand->status) == 'stage2' ? 'selected' : '' }}>
-                                        المرحلة الثانية
+                                        {{ __('stands.status.stage2') }}
                                     </option>
                                     <option value="stage3" {{ old('status', $stand->status) == 'stage3' ? 'selected' : '' }}>
-                                        المرحلة الثالثة
+                                        {{ __('stands.status.stage3') }}
                                     </option>
                                     <option value="stage4" {{ old('status', $stand->status) == 'stage4' ? 'selected' : '' }}>
-                                        المرحلة الرابعة
+                                        {{ __('stands.status.stage4') }}
                                     </option>
                                     <option value="completed" {{ old('status', $stand->status) == 'completed' ? 'selected' : '' }}>
-                                        مكتمل
+                                        {{ __('stands.status.completed') }}
                                     </option>
                                 </select>
                                 @error('status')
@@ -148,7 +148,7 @@
                             <div class="um-form-group">
                                 <label for="is_active">
                                     <i class="feather icon-toggle-right"></i>
-                                    الحالة
+                                    {{ __('stands.form.is_active') }}
                                 </label>
                                 <div class="um-status-toggle">
                                     <label class="um-switch">
@@ -160,7 +160,7 @@
                                         <span class="um-slider"></span>
                                     </label>
                                     <span id="statusLabel" class="um-status-label">
-                                        {{ old('is_active', $stand->is_active) ? 'نشط' : 'غير نشط' }}
+                                        {{ old('is_active', $stand->is_active) ? __('stands.active') : __('stands.inactive') }}
                                     </span>
                                 </div>
                             </div>
@@ -173,18 +173,18 @@
                             <div class="um-form-group">
                                 <label for="notes">
                                     <i class="feather icon-file-text"></i>
-                                    ملاحظات
+                                    {{ __('stands.form.notes') }}
                                 </label>
                                 <textarea name="notes" 
                                           id="notes" 
                                           class="um-form-control @error('notes') is-invalid @enderror" 
                                           rows="4"
                                           maxlength="1000"
-                                          placeholder="أضف أي ملاحظات إضافية حول الاستاند...">{{ old('notes', $stand->notes) }}</textarea>
+                                          placeholder="{{ __('stands.placeholder.notes') }}">{{ old('notes', $stand->notes) }}</textarea>
                                 @error('notes')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
-                                <small class="um-help-text">الحد الأقصى 1000 حرف</small>
+                                <small class="um-help-text">{{ __('stands.help.notes') }}</small>
                             </div>
                         </div>
                     </div>
@@ -194,11 +194,11 @@
                 <div class="um-form-actions">
                     <button type="submit" class="um-btn um-btn-primary">
                         <i class="feather icon-save"></i>
-                        حفظ التعديلات
+                        {{ __('stands.btn.save_changes') }}
                     </button>
                     <a href="{{ route('manufacturing.stands.show', $stand->id) }}" class="um-btn um-btn-outline">
                         <i class="feather icon-x"></i>
-                        إلغاء
+                        {{ __('stands.btn.cancel') }}
                     </a>
                 </div>
             </form>
@@ -272,7 +272,7 @@
 
             // تحديث التسمية عند تغيير الحالة
             isActiveCheckbox.addEventListener('change', function() {
-                statusLabel.textContent = this.checked ? 'نشط' : 'غير نشط';
+                statusLabel.textContent = this.checked ? '{{ __('stands.active') }}' : '{{ __('stands.inactive') }}';
             });
         });
     </script>
