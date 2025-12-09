@@ -63,7 +63,7 @@ class Translation extends Model
     }
 
     /**
-     * الحصول على كل ترجمات record معين
+     * الحصول على ترجمات record معين بلغة محددة
      */
     public static function getTranslations($modelType, $modelId, $locale = null)
     {
@@ -73,6 +73,39 @@ class Translation extends Model
             ->where('translatable_id', $modelId)
             ->where('locale', $locale)
             ->pluck('value', 'key')
+            ->toArray();
+    }
+
+    /**
+     * الحصول على جميع الترجمات لكل اللغات المتاحة
+     */
+    public static function getAllLanguageTranslations($modelType, $modelId)
+    {
+        $translations = self::where('translatable_type', $modelType)
+            ->where('translatable_id', $modelId)
+            ->get();
+
+        $result = [];
+
+        foreach ($translations as $translation) {
+            if (!isset($result[$translation->locale])) {
+                $result[$translation->locale] = [];
+            }
+            $result[$translation->locale][$translation->key] = $translation->value;
+        }
+
+        return $result;
+    }
+
+    /**
+     * الحصول على قائمة اللغات المتاحة لـ record معين
+     */
+    public static function getAvailableLanguages($modelType, $modelId)
+    {
+        return self::where('translatable_type', $modelType)
+            ->where('translatable_id', $modelId)
+            ->distinct()
+            ->pluck('locale')
             ->toArray();
     }
 }

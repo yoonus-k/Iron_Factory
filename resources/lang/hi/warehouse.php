@@ -7,10 +7,13 @@ return [
     'add_new_material' => 'नई सामग्री जोड़ें',
     'edit_material' => 'सामग्री संपादित करें',
     'material_details' => 'सामग्री विवरण',
-
+    'unit_type' => 'इकाई प्रकार',
+'unit_name' => 'इकाई नाम',
+'unit_code' => 'इकाई कोड',
     // Navigation
     'dashboard' => 'डैशबोर्ड',
     'materials' => 'सामग्री',
+'unit_symbol' => 'इकाई प्रतीक',
     'amount' => 'राशि',
     'invoice_date' => 'चालान तारीख',
 

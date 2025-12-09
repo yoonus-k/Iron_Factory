@@ -114,7 +114,7 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>
-                                    <span class="badge badge-primary">{{ $unit->unit_code }}</span>
+                                    <span class="">{{ $unit->unit_code }}</span>
                                 </td>
                                 <td>
                                     <strong>{{ $unit->unit_name }}</strong><br>
@@ -123,7 +123,7 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <span class="badge badge-info">{{ $unit->unit_symbol }}</span>
+                                    <span class="">{{ $unit->unit_symbol }}</span>
                                 </td>
                                 <td>
                                     @php
@@ -138,13 +138,13 @@
                                             'other' => __('warehouse.other'),
                                         ];
                                     @endphp
-                                    <span class="badge badge-info">{{ $types[$unit->unit_type] ?? $unit->unit_type }}</span>
+                                    <span class="">{{ $types[$unit->unit_type] ?? $unit->unit_type }}</span>
                                 </td>
                                 <td>
                                     @if ($unit->is_active)
-                                        <span class="badge badge-success">{{ __('warehouse.active') }}</span>
+                                        <span class="">{{ __('warehouse.active') }}</span>
                                     @else
-                                        <span class="badge badge-secondary">{{ __('warehouse.inactive') }}</span>
+                                        <span class="">{{ __('warehouse.inactive') }}</span>
                                     @endif
                                 </td>
                                <td>

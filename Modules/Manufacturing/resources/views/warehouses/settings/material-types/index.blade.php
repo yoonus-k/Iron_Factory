@@ -112,13 +112,19 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>
-                                    <span class="badge badge-primary">{{ $materialType->type_code }}</span>
+                                    <span class="">{{ $materialType->type_code }}</span>
                                 </td>
                                 <td>
-                                    <strong>{{ $materialType->type_name }}</strong><br>
-                                    @if($materialType->type_name_en)
-                                        <small class="text-muted">{{ $materialType->type_name_en }}</small>
-                                    @endif
+                                    <strong>
+                                        @php
+                                            if($locale === 'ar') {
+                                                $name = \App\Models\Translation::getTranslation('App\Models\MaterialType', $materialType->id, 'name', 'ar') ?? $materialType->type_name ?? '-';
+                                            } else {
+                                                $name = \App\Models\Translation::getTranslation('App\Models\MaterialType', $materialType->id, 'name', 'en') ?? $materialType->type_name_en ?? '-';
+                                            }
+                                        @endphp
+                                        {{ $name }}
+                                    </strong>
                                 </td>
                                 <td>
                                     @php
@@ -131,7 +137,7 @@
                                             'component' => __('warehouse.component'),
                                         ];
                                     @endphp
-                                    <span class="badge badge-info">{{ $categories[$materialType->category] ?? $materialType->category }}</span>
+                                    <span class="ba">{{ $categories[$materialType->category] ?? $materialType->category }}</span>
                                 </td>
                                 <td>
                                     @if($materialType->standard_cost)
@@ -142,9 +148,9 @@
                                 </td>
                                 <td>
                                     @if ($materialType->is_active)
-                                        <span class="badge badge-success">{{ __('warehouse.active') }}</span>
+                                        <span class="">{{ __('warehouse.active') }}</span>
                                     @else
-                                        <span class="badge badge-secondary">{{ __('warehouse.inactive') }}</span>
+                                        <span class="">{{ __('warehouse.inactive') }}</span>
                                     @endif
                                 </td>
                                 <td>

@@ -67,7 +67,7 @@
                     </div>
 
                     <!-- اسم النوع -->
-                    <div class="form-group">
+                    <div class="form-group" id="type-name-group-ar" style="@if($locale !== 'ar') display: none; @endif">
                         <label for="type_name" class="form-label">
                             {{ __('warehouse.type_name_ar') }}
                             <span class="required">*</span>
@@ -78,7 +78,7 @@
                                 <line x1="4" y1="8" x2="20" y2="8"></line>
                             </svg>
                             <input type="text" name="type_name" id="type_name" class="form-input @error('type_name') error @enderror"
-                                   placeholder="{{ __('warehouse.example') }}: {{ __('warehouse.raw_material_example') }}" value="{{ old('type_name', $materialType->type_name) }}" required>
+                                   placeholder="{{ __('warehouse.example') }}: {{ __('warehouse.raw_material_example') }}" value="{{ old('type_name', $materialType->type_name ?? $translations['ar']['name'] ?? '') }}" required>
                         </div>
                         @error('type_name')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -87,15 +87,23 @@
                     </div>
 
                     <!-- اسم النوع الإنجليزي -->
-                    <div class="form-group">
-                        <label for="type_name_en" class="form-label">{{ __('warehouse.type_name_en') }}</label>
+                    <div class="form-group" id="type-name-group-en" style="@if($locale === 'ar') display: none; @endif">
+                        <label for="type_name_en" class="form-label">
+                            {{ __('warehouse.type_name_en') }}
+                            <span class="required">*</span>
+                        </label>
                         <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16v16H4z"></path>
+                                <line x1="4" y1="8" x2="20" y2="8"></line>
+                            </svg>
                             <input type="text" name="type_name_en" id="type_name_en" class="form-input @error('type_name_en') error @enderror"
-                                   placeholder="{{ __('warehouse.example') }}: {{ __('warehouse.raw_material_example_en') }}" value="{{ old('type_name_en', $materialType->type_name_en) }}">
+                                   placeholder="{{ __('warehouse.example') }}: {{ __('warehouse.raw_material_example_en') }}" value="{{ old('type_name_en', $materialType->type_name_en ?? $translations['en']['name'] ?? '') }}" required>
                         </div>
                         @error('type_name_en')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
                         @enderror
+                        <div class="error-message" id="type_name_en-error" style="display: none;"></div>
                     </div>
 
                     <!-- الفئة -->
@@ -193,11 +201,11 @@
 
                 <div class="form-grid">
                     <!-- الوصف -->
-                    <div class="form-group full-width">
+                    <div class="form-group full-width" id="description-group-ar" style="@if($locale !== 'ar') display: none; @endif">
                         <label for="description" class="form-label">{{ __('warehouse.description_ar') }}</label>
                         <div class="input-wrapper">
                             <textarea name="description" id="description" class="form-input @error('description') error @enderror"
-                                      placeholder="{{ __('warehouse.enter_description') }}" rows="3" maxlength="1000">{{ old('description', $materialType->description) }}</textarea>
+                                      placeholder="{{ __('warehouse.enter_description') }}" rows="3" maxlength="1000">{{ old('description', $materialType->description ?? $translations['ar']['description'] ?? '') }}</textarea>
                         </div>
                         @error('description')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -205,11 +213,11 @@
                     </div>
 
                     <!-- الوصف الإنجليزي -->
-                    <div class="form-group full-width">
+                    <div class="form-group full-width" id="description-group-en" style="@if($locale === 'ar') display: none; @endif">
                         <label for="description_en" class="form-label">{{ __('warehouse.description_en') }}</label>
                         <div class="input-wrapper">
                             <textarea name="description_en" id="description_en" class="form-input @error('description_en') error @enderror"
-                                      placeholder="{{ __('warehouse.enter_description_en') }}" rows="3" maxlength="1000">{{ old('description_en', $materialType->description_en) }}</textarea>
+                                      placeholder="{{ __('warehouse.enter_description_en') }}" rows="3" maxlength="1000">{{ old('description_en', $materialType->description_en ?? $translations['en']['description'] ?? '') }}</textarea>
                         </div>
                         @error('description_en')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -217,11 +225,11 @@
                     </div>
 
                     <!-- شروط التخزين -->
-                    <div class="form-group full-width">
+                    <div class="form-group full-width" id="storage-group-ar" style="@if($locale !== 'ar') display: none; @endif">
                         <label for="storage_conditions" class="form-label">{{ __('warehouse.storage_conditions_ar') }}</label>
                         <div class="input-wrapper">
                             <textarea name="storage_conditions" id="storage_conditions" class="form-input @error('storage_conditions') error @enderror"
-                                      placeholder="{{ __('warehouse.storage_conditions_example') }}" rows="2">{{ old('storage_conditions', $materialType->storage_conditions) }}</textarea>
+                                      placeholder="{{ __('warehouse.storage_conditions_example') }}" rows="2">{{ old('storage_conditions', $materialType->storage_conditions ?? $translations['ar']['storage_conditions'] ?? '') }}</textarea>
                         </div>
                         @error('storage_conditions')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -229,11 +237,11 @@
                     </div>
 
                     <!-- شروط التخزين الإنجليزية -->
-                    <div class="form-group full-width">
+                    <div class="form-group full-width" id="storage-group-en" style="@if($locale === 'ar') display: none; @endif">
                         <label for="storage_conditions_en" class="form-label">{{ __('warehouse.storage_conditions_en') }}</label>
                         <div class="input-wrapper">
                             <textarea name="storage_conditions_en" id="storage_conditions_en" class="form-input @error('storage_conditions_en') error @enderror"
-                                      placeholder="{{ __('warehouse.storage_conditions_example_en') }}" rows="2">{{ old('storage_conditions_en', $materialType->storage_conditions_en) }}</textarea>
+                                      placeholder="{{ __('warehouse.storage_conditions_example_en') }}" rows="2">{{ old('storage_conditions_en', $materialType->storage_conditions_en ?? $translations['en']['storage_conditions'] ?? '') }}</textarea>
                         </div>
                         @error('storage_conditions_en')
                             <div class="error-message" style="display: block;">{{ $message }}</div>

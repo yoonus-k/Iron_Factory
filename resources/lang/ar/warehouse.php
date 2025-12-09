@@ -654,10 +654,14 @@ return [
     'no_invoices' => 'لا توجد فواتير',
     'pending_amount' => 'المبلغ المعلق',
     'statistics' => 'الإحصائيات',
+    'unit_symbol' => 'رمز الوحدة',
 
     // Materials Report
     'materials_subtitle' => 'حالة المواد الخام والكميات المتاحة والتنبيهات',
     'total_materials' => 'إجمالي المواد',
+'unit_type' => 'نوع الوحدة',
+'unit_name' => 'اسم الوحدة',
+'unit_code' => 'رمز الوحدة',
     'low_stock' => 'مخزون منخفض',
     'materials_details' => 'تفاصيل المواد',
     'minimum_quantity' => 'الحد الأدنى',

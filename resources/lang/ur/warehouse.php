@@ -378,6 +378,10 @@ return [
     'storage_conditions_example' => 'مثال: اعتدال پسند درجہ حرارت پر رکھیں اور نمی سے دور رکھیں',
     'storage_conditions_example_en' => 'اعتدال پسند درجہ حرارت پر رکھیں اور نمی سے دور رکھیں',
     'no_records' => 'کوئی ریکارڈ نہیں',
+'unit_symbol' => 'یونٹ کا علامت',
     'unit_name_ar' => 'یونٹ کا نام (عربی)',
     'unit_name_en' => 'یونٹ کا نام (انگریزی)',
+    'unit_type' => 'یونٹ کی قسم',
+'unit_name' => 'یونٹ کا نام',
+'unit_code' => 'یونٹ کوڈ',
 ];

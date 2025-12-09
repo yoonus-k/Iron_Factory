@@ -87,14 +87,32 @@
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">{{ __('warehouse.type_name_ar') }}:</div>
-                        <div class="info-value">{{ $materialType->type_name }}</div>
+                        <div class="info-label">
+                            @if($locale === 'ar')
+                                {{ __('warehouse.type_name_ar') }}
+                            @else
+                                {{ __('warehouse.type_name_en') }}
+                            @endif
+                            :
+                        </div>
+                        <div class="info-value">
+                            @if($locale === 'ar')
+                                {{ $materialType->type_name ?? $translations['ar']['name'] ?? '-' }}
+                            @else
+                                {{ $materialType->type_name_en ?? $translations['en']['name'] ?? '-' }}
+                            @endif
+                        </div>
                     </div>
 
-                    @if($materialType->type_name_en)
+                    @if($locale === 'ar' && $materialType->type_name_en)
                     <div class="info-item">
                         <div class="info-label">{{ __('warehouse.type_name_en') }}:</div>
                         <div class="info-value">{{ $materialType->type_name_en }}</div>
+                    </div>
+                    @elseif($locale !== 'ar' && $materialType->type_name)
+                    <div class="info-item">
+                        <div class="info-label">{{ __('warehouse.type_name_ar') }}:</div>
+                        <div class="info-value">{{ $materialType->type_name }}</div>
                     </div>
                     @endif
 
@@ -154,35 +172,65 @@
                     <h3 class="card-title">{{ __('warehouse.description_and_storage') }}</h3>
                 </div>
                 <div class="card-body">
-                    @if($materialType->description)
-                    <div class="info-item">
-                        <div class="info-label">{{ __('warehouse.description_ar') }}:</div>
-                        <div class="info-value">{{ $materialType->description }}</div>
-                    </div>
+                    @if($locale === 'ar')
+                        @if($materialType->description ?? $translations['ar']['description'] ?? false)
+                        <div class="info-item">
+                            <div class="info-label">{{ __('warehouse.description_ar') }}:</div>
+                            <div class="info-value">{{ $materialType->description ?? $translations['ar']['description'] }}</div>
+                        </div>
+                        @endif
+
+                        @if($materialType->storage_conditions ?? $translations['ar']['storage_conditions'] ?? false)
+                        <div class="info-item">
+                            <div class="info-label">{{ __('warehouse.storage_conditions_ar') }}:</div>
+                            <div class="info-value">{{ $materialType->storage_conditions ?? $translations['ar']['storage_conditions'] }}</div>
+                        </div>
+                        @endif
+
+                        @if($materialType->description_en)
+                        <div class="info-item">
+                            <div class="info-label">{{ __('warehouse.description_en') }}:</div>
+                            <div class="info-value">{{ $materialType->description_en }}</div>
+                        </div>
+                        @endif
+
+                        @if($materialType->storage_conditions_en)
+                        <div class="info-item">
+                            <div class="info-label">{{ __('warehouse.storage_conditions_en') }}:</div>
+                            <div class="info-value">{{ $materialType->storage_conditions_en }}</div>
+                        </div>
+                        @endif
+                    @else
+                        @if($materialType->description_en ?? $translations['en']['description'] ?? false)
+                        <div class="info-item">
+                            <div class="info-label">{{ __('warehouse.description_en') }}:</div>
+                            <div class="info-value">{{ $materialType->description_en ?? $translations['en']['description'] }}</div>
+                        </div>
+                        @endif
+
+                        @if($materialType->storage_conditions_en ?? $translations['en']['storage_conditions'] ?? false)
+                        <div class="info-item">
+                            <div class="info-label">{{ __('warehouse.storage_conditions_en') }}:</div>
+                            <div class="info-value">{{ $materialType->storage_conditions_en ?? $translations['en']['storage_conditions'] }}</div>
+                        </div>
+                        @endif
+
+                        @if($materialType->description)
+                        <div class="info-item">
+                            <div class="info-label">{{ __('warehouse.description_ar') }}:</div>
+                            <div class="info-value">{{ $materialType->description }}</div>
+                        </div>
+                        @endif
+
+                        @if($materialType->storage_conditions)
+                        <div class="info-item">
+                            <div class="info-label">{{ __('warehouse.storage_conditions_ar') }}:</div>
+                            <div class="info-value">{{ $materialType->storage_conditions }}</div>
+                        </div>
+                        @endif
                     @endif
 
-                    @if($materialType->description_en)
-                    <div class="info-item">
-                        <div class="info-label">{{ __('warehouse.description_en') }}:</div>
-                        <div class="info-value">{{ $materialType->description_en }}</div>
-                    </div>
-                    @endif
-
-                    @if($materialType->storage_conditions)
-                    <div class="info-item">
-                        <div class="info-label">{{ __('warehouse.storage_conditions_ar') }}:</div>
-                        <div class="info-value">{{ $materialType->storage_conditions }}</div>
-                    </div>
-                    @endif
-
-                    @if($materialType->storage_conditions_en)
-                    <div class="info-item">
-                        <div class="info-label">{{ __('warehouse.storage_conditions_en') }}:</div>
-                        <div class="info-value">{{ $materialType->storage_conditions_en }}</div>
-                    </div>
-                    @endif
-
-                    @if(!$materialType->description && !$materialType->description_en && !$materialType->storage_conditions && !$materialType->storage_conditions_en)
+                    @if(!($materialType->description ?? $materialType->description_en ?? $materialType->storage_conditions ?? $materialType->storage_conditions_en ?? $translations['ar']['description'] ?? $translations['en']['description'] ?? false))
                     <p class="text-muted">{{ __('warehouse.no_additional_info') }}</p>
                     @endif
                 </div>
