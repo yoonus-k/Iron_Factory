@@ -79,6 +79,24 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('delivery-notes', DeliveryNoteController::class)
         ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_READ')
         ->names('manufacturing.delivery-notes');
+    Route::get('delivery-notes/{deliveryNote}/coils-summary', [DeliveryNoteController::class, 'coilsSummary'])
+        ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_READ')
+        ->name('manufacturing.delivery-notes.coils-summary');
+    Route::post('delivery-notes/temp/add-coil', [DeliveryNoteController::class, 'addCoilTemporary'])
+        ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_CREATE')
+        ->name('manufacturing.delivery-notes.add-coil-temp');
+    
+    // Coil Transfer Routes
+    Route::get('coils/transfer', [DeliveryNoteController::class, 'coilTransferIndex'])
+        ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_READ')
+        ->name('manufacturing.coils.transfer-index');
+    Route::post('coils/transfer', [DeliveryNoteController::class, 'transferCoilToProduction'])
+        ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_CREATE')
+        ->name('manufacturing.coils.transfer');
+    Route::get('coils/scan', [DeliveryNoteController::class, 'scanCoilBarcode'])
+        ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_READ')
+        ->name('manufacturing.coils.scan');
+    
     Route::put('delivery-notes/{id}/toggle-status', [DeliveryNoteController::class, 'toggleStatus'])
         ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_UPDATE')
         ->name('manufacturing.delivery-notes.toggle-status');

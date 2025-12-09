@@ -65,6 +65,11 @@
                             <i class="fas fa-receipt"></i> {{ __('app.warehouse.delivery_notes') }}
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('manufacturing.coils.transfer-index') }}">
+                            <i class="fas fa-exchange-alt"></i> نقل كويلات للإنتاج
+                        </a>
+                    </li>
                     @endif
 
                     @if(auth()->user()->hasPermission('MENU_WAREHOUSE_PURCHASE_INVOICES') || auth()->user()->hasPermission('WAREHOUSE_PURCHASE_INVOICES_READ'))
