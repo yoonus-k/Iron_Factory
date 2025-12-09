@@ -234,13 +234,13 @@ let lafafs = [];
 // Barcode scanner
 document.addEventListener('DOMContentLoaded', function() {
     const barcodeInput = document.getElementById('stage2Barcode');
-    
+
     if (barcodeInput) {
         console.log('✅ Barcode input found and event listener attached');
-        
+
         barcodeInput.addEventListener('keypress', function(e) {
             console.log('🔑 Key pressed:', e.key, 'Value:', this.value);
-            
+
             if (e.key === 'Enter') {
                 e.preventDefault();
                 const barcode = this.value.trim();
@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.error('❌ Barcode input not found!');
     }
-    
+
     // Auto-calculate added weight
     const totalWeightInput = document.getElementById('totalWeight');
     if (totalWeightInput) {
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedOption = this.options[this.selectedIndex];
             const colorName = selectedOption.getAttribute('data-name');
             const colorId = this.value;
-            
+
             document.getElementById('color').value = colorName || '';
             document.getElementById('colorMaterialId').value = colorId || '';
         });
@@ -278,23 +278,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function loadStage2(barcode) {
     console.log('🚀 loadStage2 called with barcode:', barcode);
-    
+
     if (!barcode) {
         alert('{{ __('stages.stage3_please_enter_barcode') }}');
         return;
     }
 
     console.log('📡 Fetching:', `/stage3/get-stage2-by-barcode/${barcode}`);
-    
+
     fetch(`/stage3/get-stage2-by-barcode/${barcode}`)
         .then(response => {
             // التعامل مع الاستجابات غير الناجحة
             if (!response.ok) {
                 return response.json().then(data => {
                     // رمي الخطأ مع البيانات الكاملة
-                    const error = { 
-                        blocked: data.blocked || false, 
-                        message: data.message || '{{ __('stages.stage3_data_not_found') }}' 
+                    const error = {
+                        blocked: data.blocked || false,
+                        message: data.message || '{{ __('stages.stage3_data_not_found') }}'
                     };
                     throw error;
                 });
@@ -318,7 +318,7 @@ function loadStage2(barcode) {
                 document.getElementById('stage2Barcode').focus();
                 return;
             }
-            
+
             if (result && !result.success) throw { message: result.message };
 
             const data = result.data;

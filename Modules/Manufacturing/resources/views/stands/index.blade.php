@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إدارة الاستاندات')
+@section('title', __('stands.title.index'))
 
 @section('content')
 
@@ -9,14 +9,14 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-package"></i>
-                إدارة الاستاندات
+                {{ __('stands.header.manage_stands') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('stands.breadcrumb.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>الاستاندات</span>
+                <span>{{ __('stands.breadcrumb.stands') }}</span>
             </nav>
         </div>
 
@@ -47,16 +47,16 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    قائمة الاستاندات
+                    {{ __('stands.card.stands_list') }}
                 </h4>
                 <div style="display: flex; gap: 10px;">
                     <a href="{{ route('manufacturing.stands.usage-history') }}" class="um-btn um-btn-info">
                         <i class="feather icon-clock"></i>
-                        تاريخ الاستخدام
+                        {{ __('stands.btn.usage_history') }}
                     </a>
                     <a href="{{ route('manufacturing.stands.create') }}" class="um-btn um-btn-primary">
                         <i class="feather icon-plus"></i>
-                        إضافة استاند جديد
+                        {{ __('stands.btn.add_new') }}
                     </a>
                 </div>
             </div>
@@ -66,30 +66,30 @@
                 <form method="GET">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث برقم الاستاند..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('stands.placeholder.search') }}" value="{{ request('search') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
-                                <option value="">جميع الحالات</option>
-                                <option value="unused" {{ request('status') == 'unused' ? 'selected' : '' }}>غير مستخدم</option>
-                                <option value="stage1" {{ request('status') == 'stage1' ? 'selected' : '' }}>المرحلة الأولى</option>
-                                <option value="stage2" {{ request('status') == 'stage2' ? 'selected' : '' }}>المرحلة الثانية</option>
-                                <option value="stage3" {{ request('status') == 'stage3' ? 'selected' : '' }}>المرحلة الثالثة</option>
-                                <option value="stage4" {{ request('status') == 'stage4' ? 'selected' : '' }}>المرحلة الرابعة</option>
-                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>مكتمل</option>
+                                <option value="">{{ __('stands.filter.all_statuses') }}</option>
+                                <option value="unused" {{ request('status') == 'unused' ? 'selected' : '' }}>{{ __('stands.status.unused') }}</option>
+                                <option value="stage1" {{ request('status') == 'stage1' ? 'selected' : '' }}>{{ __('stands.status.stage1') }}</option>
+                                <option value="stage2" {{ request('status') == 'stage2' ? 'selected' : '' }}>{{ __('stands.status.stage2') }}</option>
+                                <option value="stage3" {{ request('status') == 'stage3' ? 'selected' : '' }}>{{ __('stands.status.stage3') }}</option>
+                                <option value="stage4" {{ request('status') == 'stage4' ? 'selected' : '' }}>{{ __('stands.status.stage4') }}</option>
+                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>{{ __('stands.status.completed') }}</option>
                             </select>
                         </div>
                         <div class="um-form-group">
-                            <input type="date" name="date" class="um-form-control" placeholder="التاريخ" value="{{ request('date') }}">
+                            <input type="date" name="date" class="um-form-control" placeholder="{{ __('stands.filter.date') }}" value="{{ request('date') }}">
                         </div>
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                بحث
+                                {{ __('stands.btn.search') }}
                             </button>
                             <a href="{{ route('manufacturing.stands.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-x"></i>
-                                إعادة تعيين
+                                {{ __('stands.btn.reset') }}
                             </a>
                         </div>
                     </div>
@@ -102,12 +102,12 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>رقم الاستاند</th>
-                            <th>الوزن (كجم)</th>
-                            <th>المرحلة الحالية</th>
-                            <th>تاريخ الإنشاء</th>
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
+                            <th>{{ __('stands.form.stand_number') }}</th>
+                            <th>{{ __('stands.form.weight') }}</th>
+                            <th>{{ __('stands.form.status') }}</th>
+                            <th>{{ __('stands.form.created_at') }}</th>
+                            <th>{{ __('stands.form.is_active') }}</th>
+                            <th>{{ __('stands.breadcrumb.stands') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -129,24 +129,24 @@
                                 </td>
                                 <td>
                                     <div class="um-dropdown">
-                                        <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                        <button class="um-btn-action um-btn-dropdown" title="{{ __('stands.card.stands_list') }}">
                                             <i class="feather icon-more-vertical"></i>
                                         </button>
                                         <div class="um-dropdown-menu">
                                             <a href="{{ route('manufacturing.stands.show', $stand->id) }}" class="um-dropdown-item um-btn-view">
                                                 <i class="feather icon-eye"></i>
-                                                <span>عرض</span>
+                                                <span>{{ __('stands.btn.view') }}</span>
                                             </a>
                                             <a href="{{ route('manufacturing.stands.edit', $stand->id) }}" class="um-dropdown-item um-btn-edit">
                                                 <i class="feather icon-edit-2"></i>
-                                                <span>تعديل</span>
+                                                <span>{{ __('stands.btn.edit') }}</span>
                                             </a>
                                             <form action="{{ route('manufacturing.stands.toggle-status', $stand->id) }}" method="POST" style="display: inline;">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="um-dropdown-item um-btn-toggle">
                                                     <i class="feather icon-{{ $stand->is_active ? 'pause' : 'play' }}-circle"></i>
-                                                    <span>{{ $stand->is_active ? 'تعطيل' : 'تفعيل' }}</span>
+                                                    <span>{{ $stand->is_active ? __('stands.btn.disable') : __('stands.btn.enable') }}</span>
                                                 </button>
                                             </form>
                                             <form method="POST" action="{{ route('manufacturing.stands.destroy', $stand->id) }}" style="display: inline;" class="delete-form">
@@ -154,7 +154,7 @@
                                                 @method('DELETE')
                                                 <button type="submit" class="um-dropdown-item um-btn-delete">
                                                     <i class="feather icon-trash-2"></i>
-                                                    <span>حذف</span>
+                                                    <span>{{ __('stands.btn.delete') }}</span>
                                                 </button>
                                             </form>
                                         </div>
@@ -165,7 +165,7 @@
                             <tr>
                                 <td colspan="7" class="text-center" style="padding: 40px; color: #999;">
                                     <i class="feather icon-inbox" style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
-                                    لا توجد استاندات بعد. ابدأ بإضافة استاند جديد!
+                                    {{ __('stands.message.no_stands') }}
                                 </td>
                             </tr>
                         @endforelse
@@ -184,7 +184,7 @@
                                 </div>
                                 <div>
                                     <h6 class="um-category-name">{{ $stand->stand_number }}</h6>
-                                    <span class="um-category-id">الوزن: {{ number_format($stand->weight, 2) }} كجم</span>
+                                    <span class="um-category-id">{{ __('stands.form.weight') }}: {{ number_format($stand->weight, 2) }} {{ __('stands.info.weight_unit') }}</span>
                                 </div>
                             </div>
                             <span class="um-badge {{ $stand->status_badge }}">{{ $stand->status_name }}</span>
@@ -192,22 +192,22 @@
 
                         <div class="um-category-card-body">
                             <div class="um-info-row">
-                                <span class="um-info-label">تاريخ الإنشاء:</span>
+                                <span class="um-info-label">{{ __('stands.form.created_at') }}:</span>
                                 <span class="um-info-value">{{ $stand->created_at->format('Y-m-d') }}</span>
                             </div>
                             <div class="um-info-row">
-                                <span class="um-info-label">الحالة:</span>
+                                <span class="um-info-label">{{ __('stands.form.is_active') }}:</span>
                                 <span class="um-info-value">
                                     @if($stand->is_active)
-                                        <span class="um-badge um-badge-success">نشط</span>
+                                        <span class="um-badge um-badge-success">{{ __('stands.active') }}</span>
                                     @else
-                                        <span class="um-badge um-badge-secondary">غير نشط</span>
+                                        <span class="um-badge um-badge-secondary">{{ __('stands.inactive') }}</span>
                                     @endif
                                 </span>
                             </div>
                             @if($stand->notes)
                                 <div class="um-info-row">
-                                    <span class="um-info-label">ملاحظات:</span>
+                                    <span class="um-info-label">{{ __('stands.form.notes') }}:</span>
                                     <span class="um-info-value">{{ Str::limit($stand->notes, 50) }}</span>
                                 </div>
                             @endif
@@ -215,19 +215,19 @@
 
                         <div class="um-category-card-footer">
                             <a href="{{ route('manufacturing.stands.show', $stand->id) }}" class="um-btn um-btn-sm um-btn-outline">
-                                <i class="feather icon-eye"></i> عرض
+                                <i class="feather icon-eye"></i> {{ __('stands.btn.view') }}
                             </a>
                             <a href="{{ route('manufacturing.stands.edit', $stand->id) }}" class="um-btn um-btn-sm um-btn-primary">
-                                <i class="feather icon-edit-2"></i> تعديل
+                                <i class="feather icon-edit-2"></i> {{ __('stands.btn.edit') }}
                             </a>
                         </div>
                     </div>
                 @empty
                     <div style="text-align: center; padding: 40px; color: #999;">
                         <i class="feather icon-inbox" style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
-                        <p>لا توجد استاندات بعد</p>
+                        <p>{{ __('stands.message.no_stands_mobile') }}</p>
                         <a href="{{ route('manufacturing.stands.create') }}" class="um-btn um-btn-primary" style="margin-top: 15px;">
-                            <i class="feather icon-plus"></i> إضافة استاند جديد
+                            <i class="feather icon-plus"></i> {{ __('stands.btn.add_new') }}
                         </a>
                     </div>
                 @endforelse
@@ -238,7 +238,7 @@
                 <div class="um-pagination-section">
                     <div>
                         <p class="um-pagination-info">
-                            عرض {{ $stands->firstItem() }} إلى {{ $stands->lastItem() }} من أصل {{ $stands->total() }} استاند
+                            {{ __('stands.info.showing') }} {{ $stands->firstItem() }} {{ __('stands.info.to') }} {{ $stands->lastItem() }} {{ __('stands.info.of') }} {{ $stands->total() }} {{ __('stands.info.stand') }}
                         </p>
                     </div>
                     <div>
@@ -256,7 +256,7 @@
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    if (confirm('هل أنت متأكد من حذف هذا الاستاند؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
+                    if (confirm('{{ __('stands.alert.confirm_delete') }}\n\n{{ __('stands.alert.confirm_delete_warning') }}')) {
                         this.submit();
                     }
                 });
