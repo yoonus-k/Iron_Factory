@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\ProductTracking;
 use Modules\Manufacturing\Entities\MaterialBatch;
 use App\Models\BarcodeSetting;
+use App\Models\DeliveryNoteCoil;
+use App\Models\CoilTransfer;
 
 class DeliveryNoteController extends Controller
 {
@@ -212,6 +214,7 @@ class DeliveryNoteController extends Controller
         try {
             // التحقق من البيانات بناءً على النوع
             $type = $request->input('type', 'incoming');
+            $hasCoils = $request->has('has_coils') && $request->has_coils;
 
             // ✅ تحقق صحيح: material_id و warehouse_id للواردة، material_detail_id و warehouse_from_id للصادرة
             $validated = $request->validate([
@@ -222,17 +225,23 @@ class DeliveryNoteController extends Controller
                 'warehouse_id' => $type === 'incoming' ? 'required|exists:warehouses,id' : 'nullable|exists:warehouses,id',
                 'warehouse_from_id' => $type === 'outgoing' ? 'required|exists:warehouses,id' : 'nullable|exists:warehouses,id',
                 'coil_number' => 'nullable|string|max:100', // ✅ رقم الكويل (اختياري)
-                'quantity' => $type === 'incoming' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
+                // الكمية مطلوبة فقط إذا لم يكن هناك كويلات
+                'quantity' => ($type === 'incoming' && !$hasCoils) ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
                 'delivery_quantity' => $type === 'outgoing' ? 'required|numeric|min:0.01' : 'nullable|numeric|min:0',
                 'actual_weight' => 'nullable|numeric|min:0',
                 'weight_from_scale' => 'nullable|numeric|min:0',
                 'invoice_weight' => 'nullable|numeric|min:0',
                 'driver_name' => 'nullable|string|max:255',
                 'vehicle_number' => 'nullable|string|max:50',
+                'vehicle_plate_number' => 'nullable|string|max:50',
+                'received_from_person' => 'nullable|string|max:255',
                 'received_by' => 'nullable|exists:users,id',
                 'destination_id' => $type === 'outgoing' ? 'required|in:client,production_stage,production_transfer' : 'nullable|in:client,production_stage,production_transfer',
                 'invoice_number' => 'nullable|string|max:100',
                 'invoice_reference_number' => 'nullable|string|max:100',
+                'has_coils' => 'nullable|boolean',
+                'has_coils_data' => 'nullable|boolean',
+                'total_coils' => 'nullable|integer',
             ], [
                 'type.required' => 'نوع الأذن مطلوب',
                 'type.in' => 'نوع الأذن غير صحيح',
@@ -340,7 +349,61 @@ class DeliveryNoteController extends Controller
                     'delivered_weight' => $validated['actual_weight'] ?? $validated['quantity'], // ✅ الوزن
                     'quantity_remaining' => $validated['quantity'], // ✅ الكمية المتبقية
                     'quantity_used' => 0, // ✅ لم تُستخدم بعد
+                    'vehicle_plate_number' => $request->vehicle_plate_number,
+                    'received_from_person' => $request->received_from_person,
                 ]);
+
+                // ✅ حفظ الكويلات من الجلسة إذا تم تفعيلها
+                if ($request->has_coils || $request->has_coils_data == '1') {
+                    $tempCoils = session('temp_coils', []);
+                    
+                    if (!empty($tempCoils)) {
+                        $totalCoilWeight = 0;
+                        $coilIndex = 1;
+                        
+                        foreach ($tempCoils as $tempCoil) {
+                            // التأكد من أن الكويل ينتمي لنفس المستودع والمادة
+                            if (isset($tempCoil['warehouse_id']) && isset($tempCoil['material_id']) &&
+                                $tempCoil['warehouse_id'] == $validated['warehouse_id'] 
+                                && $tempCoil['material_id'] == $validated['material_id']) {
+                                
+                                $coilWeight = (float) $tempCoil['coil_weight'];
+                                $totalCoilWeight += $coilWeight;
+
+                                // توليد باركود نهائي للكويل
+                                $finalBarcode = \App\Models\DeliveryNoteCoil::generateBarcode($deliveryNote, $coilIndex);
+
+                                \App\Models\DeliveryNoteCoil::create([
+                                    'delivery_note_id' => $deliveryNote->id,
+                                    'coil_number' => $tempCoil['coil_number'],
+                                    'coil_weight' => $coilWeight,
+                                    'remaining_weight' => $coilWeight,
+                                    'coil_barcode' => $finalBarcode,
+                                    'status' => 'available',
+                                ]);
+
+                                $coilIndex++;
+                            }
+                        }
+
+                        if ($coilIndex > 1) {
+                            // تحديث عدد الكويلات في DeliveryNote
+                            $deliveryNote->update([
+                                'total_coils' => $coilIndex - 1,
+                                'has_coils' => true,
+                            ]);
+
+                            // مسح الكويلات المؤقتة من الجلسة
+                            session()->forget('temp_coils');
+
+                            Log::info('✅ تم حفظ الكويلات بنجاح من الجلسة', [
+                                'delivery_note_id' => $deliveryNote->id,
+                                'total_coils' => $coilIndex - 1,
+                                'total_weight' => $totalCoilWeight,
+                            ]);
+                        }
+                    }
+                }
 
                 // ✅ إنشاء سجل التسجيل في RegistrationLog
                 RegistrationLog::create([
@@ -579,7 +642,13 @@ class DeliveryNoteController extends Controller
                 ? 'تم إضافة أذن التسليم الواردة بنجاح - رقم الأذن: ' . $deliveryNote->note_number
                 : 'تم إضافة أذن التسليم الصادرة بنجاح - رقم الأذن: ' . $deliveryNote->note_number;
 
-            // For incoming delivery notes, redirect to registration page
+            // For incoming delivery notes with coils, redirect to coils summary page
+            if ($type === 'incoming' && $request->has_coils) {
+                return redirect()->route('manufacturing.delivery-notes.coils-summary', $deliveryNote)
+                    ->with('success', $successMessage . ' - تم حفظ ' . $deliveryNote->total_coils . ' كويل');
+            }
+
+            // For incoming delivery notes without coils, redirect to registration page
             if ($type === 'incoming') {
                 return redirect()->route('manufacturing.warehouse.registration.create', $deliveryNote)
                     ->with('success', $successMessage);
@@ -597,6 +666,87 @@ class DeliveryNoteController extends Controller
             return redirect()->back()
                 ->with('error', 'حدث خطأ أثناء إضافة أذن التسليم: ' . $e->getMessage())
                 ->withInput();
+        }
+    }
+
+    /**
+     * عرض صفحة ملخص الكويلات بعد إنشاء أذن التوريد
+     */
+    public function coilsSummary(DeliveryNote $deliveryNote)
+    {
+        // التأكد من أن الأذن تحتوي على كويلات
+        if (!$deliveryNote->has_coils || $deliveryNote->coils->isEmpty()) {
+            return redirect()->route('manufacturing.delivery-notes.show', $deliveryNote)
+                ->with('warning', 'هذه الشحنة لا تحتوي على كويلات');
+        }
+
+        // تحميل العلاقات المطلوبة مع pagination للكويلات
+        $deliveryNote->load(['warehouse', 'material']);
+        
+        // استخدام pagination للكويلات لتحسين الأداء
+        $coils = $deliveryNote->coils()->paginate(50);
+
+        return view('manufacturing::warehouses.delivery-notes.coils-summary', compact('deliveryNote', 'coils'));
+    }
+
+    /**
+     * إضافة كويل مؤقت في الجلسة وتوليد باركود حقيقي له
+     */
+    public function addCoilTemporary(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'warehouse_id' => 'required|exists:warehouses,id',
+                'material_id' => 'required|exists:materials,id',
+                'coil_number' => 'nullable|string|max:100',
+                'coil_weight' => 'required|numeric|min:0.001',
+            ]);
+
+            // جلب الكويلات المؤقتة من الجلسة
+            $tempCoils = session('temp_coils', []);
+            
+            // حساب الرقم التسلسلي للكويل
+            $coilIndex = count($tempCoils) + 1;
+            
+            // توليد رقم الكويل
+            $coilNumber = !empty($validated['coil_number']) 
+                ? trim($validated['coil_number']) 
+                : "COIL-" . time() . "-" . $coilIndex;
+            
+            // توليد باركود حقيقي فريد
+            $timestamp = now()->format('YmdHis');
+            $coilBarcode = "COIL-{$timestamp}-{$coilIndex}";
+            
+            // إضافة الكويل للمصفوفة المؤقتة
+            $newCoil = [
+                'id' => uniqid('temp_', true),
+                'coil_number' => $coilNumber,
+                'coil_weight' => (float) $validated['coil_weight'],
+                'coil_barcode' => $coilBarcode,
+                'warehouse_id' => $validated['warehouse_id'],
+                'material_id' => $validated['material_id'],
+                'created_at' => now()->toDateTimeString(),
+            ];
+            
+            $tempCoils[] = $newCoil;
+            
+            // حفظ في الجلسة
+            session(['temp_coils' => $tempCoils]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'تم إضافة الكويل بنجاح',
+                'coil' => $newCoil,
+                'total_coils' => count($tempCoils),
+                'total_weight' => array_sum(array_column($tempCoils, 'coil_weight')),
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error adding temporary coil: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء إضافة الكويل: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -1290,4 +1440,381 @@ class DeliveryNoteController extends Controller
                 ->with('error', 'حدث خطأ: ' . $e->getMessage());
         }
     }
+
+    /**
+     * عرض صفحة نقل الكويلات للإنتاج
+     */
+    public function coilTransferIndex()
+    {
+        // جلب الكويلات المتاحة فقط
+        $availableCoils = \App\Models\DeliveryNoteCoil::with(['deliveryNote.material', 'deliveryNote.warehouse'])
+            ->whereIn('status', ['available', 'partially_used'])
+            ->where('remaining_weight', '>', 0)
+            ->orderBy('created_at', 'desc')
+            ->paginate(50);
+
+        // جلب المراحل الإنتاجية
+        $productionStages = \App\Models\ProductionStage::where('is_active', true)
+            ->orderBy('stage_order')
+            ->get();
+
+        // جلب المستخدمين (العمال)
+        $users = \App\Models\User::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        return view('manufacturing::warehouses.delivery-notes.coil-transfer', compact('availableCoils', 'productionStages', 'users'));
+    }
+
+    /**
+     * البحث عن كويل بالباركود عبر AJAX
+     */
+    public function scanCoilBarcode(Request $request)
+    {
+        try {
+            $barcode = $request->input('barcode');
+            
+            $coil = \App\Models\DeliveryNoteCoil::with(['deliveryNote.material', 'deliveryNote.warehouse'])
+                ->where('coil_barcode', $barcode)
+                ->first();
+
+            if (!$coil) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'الباركود غير موجود'
+                ], 404);
+            }
+
+            if ($coil->remaining_weight <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'هذا الكويل مستخدم بالكامل'
+                ], 400);
+            }
+
+            return response()->json([
+                'success' => true,
+                'coil' => [
+                    'id' => $coil->id,
+                    'coil_number' => $coil->coil_number,
+                    'coil_barcode' => $coil->coil_barcode,
+                    'coil_weight' => $coil->coil_weight,
+                    'remaining_weight' => $coil->remaining_weight,
+                    'status' => $coil->status,
+                    'material_name' => $coil->deliveryNote->material->material_name ?? 'غير محدد',
+                    'warehouse_name' => $coil->deliveryNote->warehouse->warehouse_name ?? 'غير محدد',
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error scanning coil barcode: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ في البحث'
+            ], 500);
+        }
+    }
+
+    /**
+     * نقل كويلات للإنتاج (دعم متعدد)
+     */
+    public function transferCoilToProduction(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'coils' => 'required|array|min:1',
+                'coils.*.coil_id' => 'required|exists:delivery_note_coils,id',
+                'coils.*.transfer_weight' => 'required|numeric|min:0.001',
+                'production_stage' => 'required|string|exists:production_stages,stage_code',
+                'assigned_to' => 'required|exists:users,id',
+                'notes' => 'nullable|string|max:500',
+            ], [
+                'coils.required' => 'يجب اختيار كويل واحد على الأقل',
+                'production_stage.required' => 'يجب اختيار المرحلة الإنتاجية',
+                'assigned_to.required' => 'يجب اختيار الموظف المستلم',
+            ]);
+
+            \DB::beginTransaction();
+            
+            // Get BarcodeSetting for production barcodes
+            $barcodeSetting = \App\Models\BarcodeSetting::where('type', 'raw_material')->first();
+            if (!$barcodeSetting) {
+                throw new \Exception('إعدادات الباركود للمواد الخام غير موجودة!');
+            }
+
+            $transfers = [];
+            $productionBarcodes = [];
+            $warehouseBarcodes = [];
+            $confirmations = [];
+
+            foreach ($validated['coils'] as $coilData) {
+                $coil = \App\Models\DeliveryNoteCoil::with(['deliveryNote.materialDetail', 'deliveryNote.material'])->findOrFail($coilData['coil_id']);
+                $transferWeight = (float)$coilData['transfer_weight'];
+
+                // التحقق من الوزن المتاح
+                if ($transferWeight > $coil->remaining_weight) {
+                    \DB::rollBack();
+                    return redirect()->back()
+                        ->with('error', "الوزن المطلوب للكويل {$coil->coil_number} أكبر من الوزن المتبقي");
+                }
+
+                $isFullTransfer = abs($transferWeight - $coil->remaining_weight) < 0.001;
+                $deliveryNote = $coil->deliveryNote;
+
+                // توليد باركود الإنتاج من barcode_settings (نوع production أو coil)
+                // محاولة استخدام نوع 'production' أولاً، وإلا 'coil'
+                $productionBarcodeSetting = \App\Models\BarcodeSetting::where('type', 'production')
+                    ->where('is_active', true)
+                    ->first();
+                
+                if (!$productionBarcodeSetting) {
+                    $productionBarcodeSetting = \App\Models\BarcodeSetting::where('type', 'coil')
+                        ->where('is_active', true)
+                        ->first();
+                }
+                
+                if ($productionBarcodeSetting) {
+                    // استخدام نفس منطق barcode_settings بالضبط
+                    $nextNumber = $productionBarcodeSetting->current_number + 1;
+                    $numberStr = str_pad($nextNumber, $productionBarcodeSetting->padding, '0', STR_PAD_LEFT);
+                    $productionBarcode = str_replace(
+                        ['{prefix}', '{year}', '{number}'],
+                        [$productionBarcodeSetting->prefix, $productionBarcodeSetting->year, $numberStr],
+                        $productionBarcodeSetting->format
+                    );
+                    $productionBarcodeSetting->current_number = $nextNumber;
+                    $productionBarcodeSetting->save();
+                } else {
+                    // Fallback: استخدام تنسيق بسيط بدون PROD
+                    $productionBarcode = $coil->coil_number . '-' . now()->format('YmdHis');
+                }
+                
+                $productionBarcodes[] = [
+                    'barcode' => $productionBarcode,
+                    'coil_number' => $coil->coil_number,
+                    'weight' => $transferWeight
+                ];
+
+                // توليد باركود المستودع إذا كان نقل جزئي
+                $warehouseBarcode = null;
+                $remainingBatch = null;
+                if (!$isFullTransfer) {
+                    $nextNumber2 = $barcodeSetting->getNextNumber();
+                    $warehouseBarcode = $barcodeSetting->generateBarcode($nextNumber2);
+                    
+                    $warehouseBarcodes[] = [
+                        'barcode' => $warehouseBarcode,
+                        'coil_number' => $coil->coil_number,
+                        'weight' => $coil->remaining_weight - $transferWeight
+                    ];
+
+                    // إنشاء دفعة جديدة للكمية المتبقية في المستودع
+                    if ($deliveryNote && $deliveryNote->materialDetail) {
+                        $remainingBatch = \Modules\Manufacturing\Entities\MaterialBatch::create([
+                            'material_id' => $deliveryNote->material_id,
+                            'unit_id' => $deliveryNote->materialDetail->unit_id,
+                            'batch_code' => $warehouseBarcode,
+                            'coil_number' => $coil->coil_number,
+                            'initial_quantity' => $coil->remaining_weight - $transferWeight,
+                            'available_quantity' => $coil->remaining_weight - $transferWeight,
+                            'batch_date' => now()->toDateString(),
+                            'warehouse_id' => $deliveryNote->warehouse_id,
+                            'status' => 'available',
+                            'notes' => 'كمية متبقية من الكويل: ' . $coil->coil_barcode,
+                        ]);
+                    }
+                }
+
+                // إنشاء دفعة للكمية المنقولة للإنتاج
+                $productionBatch = null;
+                if ($deliveryNote) {
+                    // محاولة الحصول على unit_id من عدة مصادر
+                    $unitId = null;
+                    if ($deliveryNote->materialDetail && $deliveryNote->materialDetail->unit_id) {
+                        $unitId = $deliveryNote->materialDetail->unit_id;
+                    } elseif ($deliveryNote->unit_id) {
+                        $unitId = $deliveryNote->unit_id;
+                    } elseif ($deliveryNote->material && $deliveryNote->material->unit_id) {
+                        $unitId = $deliveryNote->material->unit_id;
+                    } else {
+                        // البحث في material_batches عن أي دفعة للمادة نفسها
+                        $existingBatch = \Modules\Manufacturing\Entities\MaterialBatch::where('material_id', $deliveryNote->material_id)
+                            ->whereNotNull('unit_id')
+                            ->first();
+                        if ($existingBatch) {
+                            $unitId = $existingBatch->unit_id;
+                        } else {
+                            // استخدام الوحدة الافتراضية (كجم)
+                            $unitId = 1; // افتراضياً الوحدة 1 = كجم
+                        }
+                    }
+                    
+                    $productionBatch = \Modules\Manufacturing\Entities\MaterialBatch::create([
+                        'material_id' => $deliveryNote->material_id,
+                        'unit_id' => $unitId,
+                        'batch_code' => $productionBarcode, // ✅ استخدام الباركود المولد سابقاً
+                        'coil_number' => $coil->coil_number,
+                        'initial_quantity' => $transferWeight,
+                        'available_quantity' => $transferWeight,
+                        'batch_date' => now()->toDateString(),
+                        'warehouse_id' => null, // في الإنتاج الآن
+                        'status' => 'in_production',
+                        'notes' => 'منقول للإنتاج من الكويل: ' . $coil->coil_barcode,
+                    ]);
+                }
+
+                // خصم الوزن من MaterialDetail (المستودع)
+                if ($deliveryNote && $deliveryNote->materialDetail) {
+                    $materialDetail = $deliveryNote->materialDetail;
+                    
+                    $qtyInMaterialDetail = $materialDetail->quantity ?? 0;
+                    if ($qtyInMaterialDetail >= $transferWeight) {
+                        $materialDetail->reduceOutgoingQuantity($transferWeight);
+                        
+                        Log::info("تم خصم {$transferWeight} كجم من المستودع للكويل {$coil->coil_number}", [
+                            'material_detail_id' => $materialDetail->id,
+                            'coil_id' => $coil->id,
+                            'transfer_weight' => $transferWeight,
+                            'remaining_in_warehouse' => $materialDetail->quantity
+                        ]);
+                    }
+                    
+                    // تحديث quantity_used في DeliveryNote
+                    $deliveryNote->quantity_used = ($deliveryNote->quantity_used ?? 0) + $transferWeight;
+                    $deliveryNote->save();
+                }
+                
+                // إنشاء سجل النقل
+                $transfer = \App\Models\CoilTransfer::create([
+                    'coil_id' => $coil->id,
+                    'transfer_weight' => $transferWeight,
+                    'production_barcode' => $productionBarcode,
+                    'warehouse_barcode' => $warehouseBarcode,
+                    'transferred_by' => auth()->id(),
+                    'transferred_at' => now(),
+                    'notes' => $validated['notes'] ?? null,
+                ]);
+
+                // تحديث الكويل
+                $coil->remaining_weight -= $transferWeight;
+                
+                if ($coil->remaining_weight <= 0) {
+                    $coil->status = 'fully_used';
+                } else {
+                    $coil->status = 'partially_used';
+                }
+                
+                $coil->save();
+
+                // تسجيل التتبع في ProductTracking
+                \App\Models\ProductTracking::create([
+                    'barcode' => $productionBarcode,
+                    'stage' => $validated['production_stage'],
+                    'action' => 'transferred_to_production',
+                    'input_barcode' => $coil->coil_barcode,
+                    'output_barcode' => $productionBarcode,
+                    'input_weight' => $transferWeight,
+                    'output_weight' => $transferWeight,
+                    'waste_amount' => 0,
+                    'waste_percentage' => 0,
+                    'worker_id' => $validated['assigned_to'],
+                    'notes' => '🏭 نقل كويل للإنتاج: ' . $coil->coil_number . ' (' . $transferWeight . ' كجم) - المرحلة: ' . $validated['production_stage'],
+                    'metadata' => json_encode([
+                        'action_type' => $isFullTransfer ? 'full_transfer_to_production' : 'partial_transfer_to_production',
+                        'original_coil_barcode' => $coil->coil_barcode,
+                        'coil_id' => $coil->id,
+                        'transfer_id' => $transfer->id,
+                        'production_stage' => $validated['production_stage'],
+                        'assigned_to' => $validated['assigned_to'],
+                        'transferred_weight' => $transferWeight,
+                        'remaining_weight' => $coil->remaining_weight,
+                        'warehouse_barcode' => $warehouseBarcode,
+                    ]),
+                ]);
+
+                // ✅ إنشاء سجل تأكيد الإنتاج (نظام الموافقة)
+                $confirmation = \App\Models\ProductionConfirmation::create([
+                    'delivery_note_id' => $deliveryNote->id,
+                    'batch_id' => $productionBatch ? $productionBatch->id : null, // ✅ حفظ batch_id إذا كان موجوداً
+                    'stage_code' => $validated['production_stage'],
+                    'assigned_to' => $validated['assigned_to'],
+                    'status' => 'pending', // في انتظار الموافقة
+                    'actual_received_quantity' => $transferWeight, // ✅ استخدام العمود الصحيح
+                    'notes' => 'نقل كويل: ' . $coil->coil_number . ' - باركود: ' . $productionBarcode . ' | الوزن: ' . $transferWeight . ' كجم | المرحلة: ' . $validated['production_stage'] . ' | كويل ID: ' . $coil->id . ' | كويل باركود: ' . $coil->coil_barcode . ($warehouseBarcode ? ' | باركود مستودع: ' . $warehouseBarcode : ''),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+
+                $confirmations[] = $confirmation;
+
+                // ✅ إرسال إشعار للموظف المستلم
+                $stage = \App\Models\ProductionStage::getByCode($validated['production_stage']);
+                $assignedUser = \App\Models\User::find($validated['assigned_to']);
+                
+                \App\Models\Notification::create([
+                    'user_id' => $validated['assigned_to'],
+                    'type' => 'production_transfer',
+                    'title' => '🔔 طلب استلام كويل جديد',
+                    'message' => "تم نقل كويل {$coil->coil_number} بكمية {$transferWeight} كجم إلى مرحلة {$stage?->stage_name}. يرجى تأكيد الاستلام من صفحة التأكيدات المعلقة. الباركود: {$productionBarcode}",
+                    'icon' => 'fas fa-box',
+                    'color' => 'warning',
+                    'action_type' => 'transfer',
+                    'model_type' => 'ProductionConfirmation',
+                    'model_id' => $confirmation->id,
+                    'created_by' => auth()->id(),
+                    'action_url' => route('manufacturing.production.confirmations.pending'),
+                ]);
+
+                // تسجيل حركة المواد
+                \App\Models\MaterialMovement::create([
+                    'movement_number' => \App\Models\MaterialMovement::generateMovementNumber(),
+                    'movement_type' => 'to_production',
+                    'source' => 'production',
+                    'delivery_note_id' => $deliveryNote->id,
+                    'material_detail_id' => $deliveryNote->material_detail_id,
+                    'material_id' => $deliveryNote->material_id,
+                    'batch_id' => $productionBatch ? $productionBatch->id : null,
+                    'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
+                    'quantity' => $transferWeight,
+                    'from_warehouse_id' => $deliveryNote->warehouse_id,
+                    'destination' => 'الإنتاج - ' . ($stage?->stage_name ?? ''),
+                    'description' => '🏭 نقل كويل للإنتاج',
+                    'notes' => "نقل كويل {$coil->coil_number} | باركود الإنتاج: {$productionBarcode}",
+                    'reference_number' => $coil->coil_barcode,
+                    'created_by' => auth()->id(),
+                    'movement_date' => now(),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'status' => 'completed',
+                ]);
+
+                $transfers[] = $transfer;
+                
+                // ✅ تحديث DeliveryNote بأحدث مرحلة وموظف وباركود الإنتاج (في حال نقل متعدد، يتم حفظ آخر واحد)
+                $deliveryNote->production_barcode = $productionBarcode; // ✅ مهم جداً للبحث في المرحلة الأولى
+                $deliveryNote->production_stage = $validated['production_stage'];
+                $deliveryNote->production_stage_name = $stage?->stage_name;
+                $deliveryNote->assigned_to = $validated['assigned_to'];
+                $deliveryNote->save();
+            }
+
+            \DB::commit();
+
+            // ✅ رسالة نجاح مع عدد التأكيدات المعلقة
+            $confirmationsCount = count($confirmations);
+            $message = "تم نقل {$confirmationsCount} كويل للإنتاج بنجاح. في انتظار تأكيد الموظف المستلم.";
+
+            return redirect()->back()
+                ->with('success', $message)
+                ->with('production_barcodes', $productionBarcodes)
+                ->with('warehouse_barcodes', $warehouseBarcodes)
+                ->with('confirmations_count', $confirmationsCount);
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            Log::error('Error transferring coils to production: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'حدث خطأ: ' . $e->getMessage());
+        }
+    }
 }
+

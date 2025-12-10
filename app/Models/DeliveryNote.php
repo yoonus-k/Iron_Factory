@@ -75,6 +75,11 @@ class DeliveryNote extends Model
         'rejected_at',
         'rejection_reason',
         'actual_received_quantity',
+        // ========== حقول الكويلات ==========
+        'vehicle_plate_number', // ✅ رقم لوحة السيارة
+        'received_from_person', // ✅ اسم الشخص المستلم منه
+        'total_coils', // ✅ عدد الكويلات
+        'has_coils', // ✅ هل يحتوي على كويلات
     ];
 
     protected $casts = [
@@ -190,6 +195,33 @@ class DeliveryNote extends Model
     public function transferredBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'transferred_by');
+    }
+
+    /**
+     * Get all coils for this delivery note
+     */
+    public function coils(): HasMany
+    {
+        return $this->hasMany(DeliveryNoteCoil::class, 'delivery_note_id');
+    }
+
+    /**
+     * Get available coils (not fully used)
+     */
+    public function availableCoils(): HasMany
+    {
+        return $this->hasMany(DeliveryNoteCoil::class, 'delivery_note_id')
+            ->whereIn('status', ['available', 'partially_used'])
+            ->where('remaining_weight', '>', 0);
+    }
+
+    /**
+     * Get fully used coils
+     */
+    public function usedCoils(): HasMany
+    {
+        return $this->hasMany(DeliveryNoteCoil::class, 'delivery_note_id')
+            ->where('status', 'fully_used');
     }
 
     /**

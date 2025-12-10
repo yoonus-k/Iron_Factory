@@ -3,6 +3,8 @@
 @section('title', __('delivery_notes.new_delivery_note'))
 
 @section('content')
+<!-- مكتبة JsBarcode لتوليد باركود قابل للمسح -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <style>
     .simple-container {
         max-width: 900px;
@@ -178,6 +180,28 @@
         background: #7f8c8d;
     }
 
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
     .helper-text {
         background: #e8f5e9;
         border-right: 4px solid #4caf50;
@@ -316,12 +340,91 @@
                 </select>
             </div>
 
-            <div class="form-group-simple">
-                <label class="label-simple">⚖️ {{ __('delivery_notes.quantity') }} <span class="required-mark">*</span></label>
-                <input type="number" name="quantity" class="input-simple" placeholder="{{ __('delivery_notes.enter_quantity_placeholder') }}" step="0.01" min="0.01" required>
+            <div class="form-group-simple" id="quantityField">
+                <label class="label-simple">⚖️ {{ __('delivery_notes.quantity') }} <span class="required-mark" id="quantityRequired">*</span></label>
+                <input type="number" name="quantity" id="totalQuantity" class="input-simple" placeholder="{{ __('delivery_notes.enter_quantity_placeholder') }}" step="0.01" min="0.01" required>
                 <div class="helper-text">
                     ✓ {{ __('delivery_notes.will_be_registered_automatically') }}
                 </div>
+            </div>
+
+            <!-- قسم الكويلات -->
+            <div class="form-group-simple">
+                <label class="label-simple" style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="hasCoilsCheckbox" name="has_coils" value="1" style="width: auto; height: 20px;">
+                    <span>🎲 هل الشحنة تحتوي على كويلات متعددة؟</span>
+                </label>
+                <input type="hidden" id="hasCoilsData" name="has_coils_data" value="0">
+                <div class="helper-text">
+                    ✓ فعّل هذا الخيار إذا كانت الشحنة مقسمة إلى عدة كويلات بأوزان مختلفة (سيتم حساب الكمية الإجمالية تلقائياً)
+                </div>
+            </div>
+
+            <div id="coilsSection" style="display: none; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 10px; border: 2px dashed #667eea;">
+                <h4 style="color: #667eea; margin-bottom: 20px;">📦 إدارة الكويلات</h4>
+                
+                <!-- زر إضافة كويل جديد -->
+                <div id="addCoilBtnContainer" style="margin-bottom: 20px;">
+                    <button type="button" id="showCoilFormBtn" class="btn-submit" style="background: #4caf50; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        ➕ إضافة كويل جديد
+                    </button>
+                </div>
+                
+                <!-- نموذج إضافة كويل واحد (مخفي افتراضياً) -->
+                <div id="coilFormContainer" style="display: none; background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ddd;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 120px 120px; gap: 15px; align-items: end;">
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">🔢 رقم الكويل</label>
+                            <input type="text" id="newCoilNumber" class="input-simple" placeholder="اتركه فارغاً للتوليد التلقائي">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">⚖️ الوزن (كجم) <span style="color: red;">*</span></label>
+                            <input type="number" id="newCoilWeight" class="input-simple" placeholder="أدخل الوزن" step="0.001" min="0.001">
+                        </div>
+                        <div>
+                            <button type="button" id="addCoilBtn" onclick="return false;" class="btn-submit" style="width: 100%; margin: 0; padding: 10px; background: #4caf50;">
+                                ✓ حفظ
+                            </button>
+                        </div>
+                        <div>
+                            <button type="button" id="cancelCoilBtn" class="btn-submit" style="width: 100%; margin: 0; padding: 10px; background: #95a5a6;">
+                                ✕ إلغاء
+                            </button>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 5px;">
+                        <small style="color: #1565c0;">
+                            💡 <strong>نصيحة:</strong> اضغط Enter بعد إدخال الوزن للحفظ السريع، سيتم توليد الباركود فوراً
+                        </small>
+                    </div>
+                </div>
+
+                <!-- قائمة الكويلات المضافة -->
+                <div id="coilsListContainer" style="margin-top: 20px;">
+                    <h5 style="color: #555; margin-bottom: 15px;">الكويلات المضافة:</h5>
+                    <div id="coilsList"></div>
+                </div>
+                
+                <div style="margin-top: 15px; padding: 15px; background: #e8f5e9; border-radius: 8px;" id="coilsSummary">
+                    <strong>📊 ملخص الكويلات:</strong>
+                    <div style="margin-top: 10px;">
+                        <div>عدد الكويلات: <span id="summaryCoilCount">0</span></div>
+                        <div style="font-size: 18px; font-weight: bold; color: #2e7d32;">إجمالي الوزن: <span id="summaryTotalWeight">0</span> كجم</div>
+                    </div>
+                </div>
+
+                <input type="hidden" id="totalCoils" name="total_coils" value="0">
+            </div>
+
+            <!-- حقول إضافية -->
+            <div class="form-group-simple">
+                <label class="label-simple">🚗 رقم لوحة السيارة (اختياري)</label>
+                <input type="text" name="vehicle_plate_number" class="input-simple" placeholder="مثال: ABC-1234">
+            </div>
+
+            <div class="form-group-simple">
+                <label class="label-simple">👤 اسم الشخص المستلم منه (اختياري)</label>
+                <input type="text" name="received_from_person" class="input-simple" placeholder="أدخل اسم الشخص">
             </div>
         </div>
 
@@ -380,7 +483,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const typeRadios = document.querySelectorAll('input[name="type"]');
     const incomingCard = document.getElementById('incomingCard');
     const outgoingCard = document.getElementById('outgoingCard');
+    const hasCoilsCheckbox = document.getElementById('hasCoilsCheckbox');
+    const coilsSection = document.getElementById('coilsSection');
+    const totalQuantityInput = document.getElementById('totalQuantity');
+    const newCoilNumberInput = document.getElementById('newCoilNumber');
+    const newCoilWeightInput = document.getElementById('newCoilWeight');
+    const addCoilBtn = document.getElementById('addCoilBtn');
+    const coilsList = document.getElementById('coilsList');
+    const totalCoilsInput = document.getElementById('totalCoils');
+    const warehouseSelect = document.getElementById('warehouseSelect');
+    const materialSelect = document.getElementById('materialSelect');
+    const showCoilFormBtn = document.getElementById('showCoilFormBtn');
+    const coilFormContainer = document.getElementById('coilFormContainer');
+    const cancelCoilBtn = document.getElementById('cancelCoilBtn');
+    const addCoilBtnContainer = document.getElementById('addCoilBtnContainer');
 
+    let coilsData = []; // مصفوفة لتخزين بيانات الكويلات
+    
+    // إظهار نموذج إضافة كويل
+    showCoilFormBtn.addEventListener('click', function() {
+        coilFormContainer.style.display = 'block';
+        addCoilBtnContainer.style.display = 'none';
+        newCoilNumberInput.focus();
+    });
+    
+    // إلغاء وإخفاء نموذج الكويل
+    cancelCoilBtn.addEventListener('click', function() {
+        coilFormContainer.style.display = 'none';
+        addCoilBtnContainer.style.display = 'block';
+        newCoilNumberInput.value = '';
+        newCoilWeightInput.value = '';
+    });
+
+    // Toggle between incoming and outgoing
     typeRadios.forEach(radio => {
         radio.addEventListener('change', function() {
             if (this.value === 'incoming') {
@@ -406,6 +541,278 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Toggle coils section
+    hasCoilsCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            coilsSection.style.display = 'block';
+            totalQuantityInput.readOnly = true;
+            totalQuantityInput.required = false;
+            totalQuantityInput.style.backgroundColor = '#f0f0f0';
+            totalQuantityInput.placeholder = 'سيتم الحساب تلقائياً من الكويلات';
+            document.getElementById('quantityRequired').style.display = 'none';
+            document.getElementById('hasCoilsData').value = '1';
+        } else {
+            coilsSection.style.display = 'none';
+            coilsData = [];
+            renderCoilsList();
+            totalQuantityInput.readOnly = false;
+            totalQuantityInput.required = true;
+            totalQuantityInput.style.backgroundColor = '';
+            totalQuantityInput.placeholder = '{{ __('delivery_notes.enter_quantity_placeholder') }}';
+            document.getElementById('quantityRequired').style.display = 'inline';
+            document.getElementById('hasCoilsData').value = '0';
+        }
+    });
+
+    // إضافة كويل جديد عبر AJAX
+    addCoilBtn.addEventListener('click', function() {
+        const weight = parseFloat(newCoilWeightInput.value);
+        const warehouseId = warehouseSelect.value;
+        const materialId = materialSelect.value;
+        
+        if (!warehouseId) {
+            alert('⚠️ يرجى اختيار المستودع أولاً');
+            warehouseSelect.focus();
+            return;
+        }
+        
+        if (!materialId) {
+            alert('⚠️ يرجى اختيار المادة أولاً');
+            materialSelect.focus();
+            return;
+        }
+        
+        if (!weight || weight <= 0) {
+            alert('⚠️ يرجى إدخال وزن صحيح للكويل');
+            newCoilWeightInput.focus();
+            return;
+        }
+
+        // تعطيل الزر أثناء الحفظ
+        addCoilBtn.disabled = true;
+        addCoilBtn.innerHTML = '⏳ جاري الحفظ...';
+
+        // إرسال AJAX لحفظ الكويل وتوليد الباركود
+        fetch('{{ route("manufacturing.delivery-notes.add-coil-temp") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({
+                warehouse_id: warehouseId,
+                material_id: materialId,
+                coil_number: newCoilNumberInput.value.trim() || null,
+                coil_weight: weight
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // إضافة الكويل للقائمة المحلية
+                coilsData.push(data.coil);
+                
+                // مسح الحقول وإخفاء النموذج
+                newCoilNumberInput.value = '';
+                newCoilWeightInput.value = '';
+                coilFormContainer.style.display = 'none';
+                addCoilBtnContainer.style.display = 'block';
+
+                // تحديث القائمة
+                renderCoilsList();
+                updateSummary();
+                
+                // إظهار رسالة نجاح
+                showSuccessMessage('✅ تم إضافة الكويل بنجاح وتوليد الباركود');
+            } else {
+                alert('❌ ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('❌ حدث خطأ أثناء حفظ الكويل');
+        })
+        .finally(() => {
+            // إعادة تفعيل الزر
+            addCoilBtn.disabled = false;
+            addCoilBtn.innerHTML = '➕ إضافة';
+        });
+    });
+
+    // رسالة نجاح مؤقتة
+    function showSuccessMessage(message) {
+        const msgDiv = document.createElement('div');
+        msgDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4caf50; color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999; animation: slideIn 0.3s;';
+        msgDiv.textContent = message;
+        document.body.appendChild(msgDiv);
+        setTimeout(() => {
+            msgDiv.style.animation = 'slideOut 0.3s';
+            setTimeout(() => msgDiv.remove(), 300);
+        }, 3000);
+    }
+
+    // Enter key للإضافة السريعة
+    newCoilWeightInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addCoilBtn.click();
+        }
+    });
+    
+    newCoilNumberInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            newCoilWeightInput.focus(); // الانتقال إلى حقل الوزن
+        }
+    });
+
+    // عرض قائمة الكويلات
+    function renderCoilsList() {
+        if (coilsData.length === 0) {
+            coilsList.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">لم يتم إضافة أي كويلات بعد</p>';
+            return;
+        }
+
+        let html = '';
+        coilsData.forEach((coil, index) => {
+            html += `
+                <div class="coil-item" style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; display: grid; grid-template-columns: 40px 1fr 1fr 2fr 80px 80px; gap: 10px; align-items: center;">
+                    <div style="font-weight: bold; color: #667eea;">#${index + 1}</div>
+                    <div>
+                        <small style="color: #777;">رقم الكويل</small>
+                        <div style="font-weight: 600;">${coil.coil_number}</div>
+                    </div>
+                    <div>
+                        <small style="color: #777;">الوزن</small>
+                        <div style="font-weight: 600; color: #2e7d32;">${parseFloat(coil.coil_weight).toFixed(3)} كجم</div>
+                    </div>
+                    <div>
+                        <small style="color: #777;">الباركود</small>
+                        <svg class="coil-barcode-svg" data-barcode="${coil.coil_barcode}" style="max-width: 100%;"></svg>
+                        <div style="font-size: 9px; font-family: monospace; color: #555; text-align: center;">${coil.coil_barcode}</div>
+                    </div>
+                    <button type="button" onclick="printCoilBarcode('${coil.coil_number}', ${coil.coil_weight}, '${coil.coil_barcode}')" class="btn-print" style="background: #4caf50; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">
+                        🖨️ طباعة
+                    </button>
+                    <button type="button" onclick="removeCoil('${coil.id}')" class="btn-remove" style="background: #f44336; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">
+                        🗑️ حذف
+                    </button>
+                </div>
+            `;
+        });
+
+        coilsList.innerHTML = html;
+        
+        // توليد الباركودات
+        setTimeout(function() {
+            document.querySelectorAll('.coil-barcode-svg').forEach(function(svg) {
+                const code = svg.getAttribute('data-barcode');
+                try {
+                    JsBarcode(svg, code, {
+                        format: "CODE128",
+                        width: 1.5,
+                        height: 40,
+                        displayValue: false,
+                        margin: 2
+                    });
+                } catch (e) {
+                    console.error('Error generating barcode:', e);
+                }
+            });
+        }, 100);
+    }
+
+    // حذف كويل
+    window.removeCoil = function(coilId) {
+        if (confirm('هل أنت متأكد من حذف هذا الكويل؟')) {
+            coilsData = coilsData.filter(c => c.id !== coilId);
+            renderCoilsList();
+            updateSummary();
+        }
+    };
+
+    // طباعة باركود كويل
+    window.printCoilBarcode = function(coilNumber, weight, barcode) {
+        const printWindow = window.open('', '_blank', 'width=400,height=300');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>طباعة باركود - ${coilNumber}</title>
+                <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        margin: 0;
+                        padding: 20px;
+                    }
+                    .barcode-container {
+                        text-align: center;
+                        border: 2px solid #000;
+                        padding: 20px;
+                        background: white;
+                    }
+                    .info {
+                        margin: 10px 0;
+                        font-size: 14px;
+                    }
+                    @media print {
+                        body { padding: 0; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="barcode-container">
+                    <h3>🏭 مصنع الحديد</h3>
+                    <div class="info"><strong>رقم الكويل:</strong> ${coilNumber}</div>
+                    <div class="info"><strong>الوزن:</strong> ${weight.toFixed(3)} كجم</div>
+                    <svg id="printBarcode"></svg>
+                    <div class="info" style="font-size: 11px; color: #666;">تاريخ الطباعة: ${new Date().toLocaleString('ar-EG')}</div>
+                </div>
+                <script>
+                    JsBarcode("#printBarcode", "${barcode}", {
+                        format: "CODE128",
+                        width: 2,
+                        height: 80,
+                        displayValue: true,
+                        fontSize: 14,
+                        margin: 10
+                    });
+                    window.onload = function() {
+                        window.print();
+                        setTimeout(function() { window.close(); }, 100);
+                    };
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    };
+
+    // تحديث الملخص
+    function updateSummary() {
+        const totalCoils = coilsData.length;
+        const totalWeight = coilsData.reduce((sum, coil) => sum + parseFloat(coil.coil_weight), 0);
+
+        document.getElementById('summaryCoilCount').textContent = totalCoils;
+        document.getElementById('summaryTotalWeight').textContent = totalWeight.toFixed(3);
+        totalCoilsInput.value = totalCoils;
+
+        // تحديث حقل الكمية الإجمالي
+        if (hasCoilsCheckbox.checked) {
+            totalQuantityInput.value = totalWeight.toFixed(3);
+        }
+        
+        // تحديث حقل has_coils_data
+        if (totalCoils > 0) {
+            document.getElementById('hasCoilsData').value = '1';
+        }
+    }
 
     const warehouseFromSelect = document.getElementById('warehouseFromSelect');
     const materialDetailSelect = document.getElementById('materialDetailSelect');
