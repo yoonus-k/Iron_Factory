@@ -85,7 +85,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('delivery-notes/temp/add-coil', [DeliveryNoteController::class, 'addCoilTemporary'])
         ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_CREATE')
         ->name('manufacturing.delivery-notes.add-coil-temp');
-    
+
     // Coil Transfer Routes
     Route::get('coils/transfer', [DeliveryNoteController::class, 'coilTransferIndex'])
         ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_READ')
@@ -96,7 +96,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('coils/scan', [DeliveryNoteController::class, 'scanCoilBarcode'])
         ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_READ')
         ->name('manufacturing.coils.scan');
-    
+
     Route::put('delivery-notes/{id}/toggle-status', [DeliveryNoteController::class, 'toggleStatus'])
         ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_UPDATE')
         ->name('manufacturing.delivery-notes.toggle-status');
@@ -363,6 +363,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reports/stage1-management', [\Modules\Manufacturing\Http\Controllers\Stage1ManagementReportController::class, 'index'])
             ->middleware('permission:STAGE1_STANDS_READ')
             ->name('manufacturing.reports.stage1-management');
+
+        // ========== تقرير إدارة المرحلة الثانية ==========
+        Route::get('reports/stage2-management', [\Modules\Manufacturing\Http\Controllers\Stage2ManagementReportController::class, 'index'])
+            ->middleware('permission:STAGE2_PROCESSED_READ')
+            ->name('manufacturing.reports.stage2-management');
+
+        // ========== تقرير إدارة المرحلة الثالثة ==========
+        Route::get('reports/stage3-management', [\Modules\Manufacturing\Http\Controllers\Stage3ManagementReportController::class, 'index'])
+            ->middleware('permission:STAGE3_COILS_READ')
+            ->name('manufacturing.reports.stage3-management');
     });
 
     // Production Stages Routes

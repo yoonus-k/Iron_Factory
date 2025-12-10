@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'page_title' => 'تقرير ادارة المرحلة الاولى',
+    'system_name' => 'نظام ادارة الانتاج المتكامل - Iron Factory',
+    'current_report' => 'التقرير الحالي',
+    'total_stands' => 'اجمالي الاستاندات',
+    'unit_stand' => 'استاند',
+    'today' => 'اليوم',
+    'completed_stands' => 'الاستاندات المكتملة',
+    'ready_for_stage2' => 'جاهزة للمرحلة الثانية',
+    'pending_stands' => 'الاستاندات المعلقة',
+    'due_to_waste' => 'بسبب تجاوز الهدر',
+    'total_input_weight' => 'اجمالي المادة الداخلة',
+    'unit_kg' => 'كجم',
+    'output_weight' => 'الوزن الصافي الخارج',
+    'total_waste' => 'اجمالي الهدر',
+    'highest_waste' => 'اعلى نسبة هدر',
+    'lowest_waste' => 'ادنى نسبة هدر',
+    'active_workers' => 'عدد العمال النشطين',
+    'unit_worker' => 'عامل',
+    'avg_daily_production' => 'متوسط الاداء اليومي',
+    'unit_per_day' => 'استاند/يوم',
+    'compliance_rate' => 'معدل الالتزام',
+    'percent_sign' => '%',
+];

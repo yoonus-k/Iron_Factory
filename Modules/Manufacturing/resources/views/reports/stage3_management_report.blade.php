@@ -1,62 +1,490 @@
 
 @extends('master')
 
-@section('title', __('stage1_report.page_title'))
-
-
+@section('title', 'تقرير إدارة المرحلة الثالثة')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('assets/css/stage1-report.css') }}">
+
+<style>
+    :root {
+        --primary: #0b5fa5;
+        --success: #27ae60;
+        --warning: #f39c12;
+        --danger: #e74c3c;
+        --info: #3498db;
+        --light: #ecf0f1;
+        --dark: #2c3e50;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        background: #f5f6fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .report-container {
+        max-width: 1400px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    /* Header */
+    .report-header {
+        background: linear-gradient(135deg, var(--primary) 0%, #2a9fd6 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(11, 95, 165, 0.2);
+    }
+
+    .report-header h1 {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .report-header p {
+        margin: 10px 0 0 0;
+        opacity: 0.9;
+        font-size: 16px;
+    }
+
+    .report-date {
+        text-align: right;
+        font-size: 14px;
+        opacity: 0.8;
+    }
+
+    /* KPI Cards */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .kpi-card {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-top: 4px solid var(--primary);
+        transition: all 0.3s ease;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .kpi-card.success {
+        border-top-color: var(--success);
+    }
+
+    .kpi-card.warning {
+        border-top-color: var(--warning);
+    }
+
+    .kpi-card.danger {
+        border-top-color: var(--danger);
+    }
+
+    .kpi-card.info {
+        border-top-color: var(--info);
+    }
+
+    .kpi-icon {
+        font-size: 32px;
+        margin-bottom: 10px;
+    }
+
+    .kpi-label {
+        font-size: 13px;
+        color: #7f8c8d;
+        font-weight: 600;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .kpi-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 5px;
+    }
+
+    .kpi-unit {
+        font-size: 13px;
+        color: #95a5a6;
+    }
+
+    .kpi-change {
+        font-size: 12px;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--light);
+    }
+
+    .kpi-change.positive {
+        color: var(--success);
+    }
+
+    .kpi-change.negative {
+        color: var(--danger);
+    }
+
+    /* Section */
+    .report-section {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--light);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .section-title i {
+        color: var(--primary);
+        font-size: 24px;
+    }
+
+    /* Table */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+
+    .data-table thead {
+        background: #f8f9fa;
+        border-bottom: 2px solid var(--light);
+    }
+
+    .data-table th {
+        padding: 12px 15px;
+        text-align: right;
+        font-weight: 600;
+        color: var(--dark);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .data-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--light);
+        font-size: 14px;
+    }
+
+    .data-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    .data-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .status-created {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .status-in_process {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+
+    .status-completed {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .status-pending_approval {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .status-consumed {
+        background: #eeeeee;
+        color: #616161;
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+        height: 8px;
+        background: #ecf0f1;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+        background: linear-gradient(90deg, var(--success), #27ae60);
+    }
+
+    .progress-fill.warning {
+        background: linear-gradient(90deg, var(--warning), #e67e22);
+    }
+
+    .progress-fill.danger {
+        background: linear-gradient(90deg, var(--danger), #c0392b);
+    }
+
+    /* Waste Level */
+    .waste-level {
+        display: inline-block;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .waste-level.safe {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .waste-level.warning {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+
+    .waste-level.critical {
+        background: #ffebee;
+        color: #d32f2f;
+    }
+
+    /* Stat Row */
+    .stat-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .stat-item {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-right: 3px solid var(--primary);
+    }
+
+    .stat-item.success {
+        border-right-color: var(--success);
+    }
+
+    .stat-item.warning {
+        border-right-color: var(--warning);
+    }
+
+    .stat-item.danger {
+        border-right-color: var(--danger);
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #7f8c8d;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    /* Alert */
+    .alert {
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        border-right: 4px solid;
+    }
+
+    .alert-success {
+        background: #e8f5e9;
+        border-right-color: var(--success);
+        color: #388e3c;
+    }
+
+    .alert-warning {
+        background: #fff3e0;
+        border-right-color: var(--warning);
+        color: #f57c00;
+    }
+
+    .alert-danger {
+        background: #ffebee;
+        border-right-color: var(--danger);
+        color: #d32f2f;
+    }
+
+    .alert-info {
+        background: #e3f2fd;
+        border-right-color: var(--info);
+        color: #1976d2;
+    }
+
+    /* Chart Container */
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-top: 20px;
+    }
+
+    /* Two Column Layout */
+    .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .two-column {
+            grid-template-columns: 1fr;
+        }
+
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .report-header h1 {
+            font-size: 24px;
+        }
+    }
+
+    /* Badge */
+    .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .badge-primary {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .badge-success {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .badge-warning {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+
+    .badge-danger {
+        background: #ffebee;
+        color: #d32f2f;
+    }
+
+    /* Print Styles */
+    @media print {
+        .report-container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .report-section {
+            page-break-inside: avoid;
+            box-shadow: none;
+            border: 1px solid #ddd;
+        }
+
+        .kpi-card {
+            page-break-inside: avoid;
+        }
+    }
+</style>
+
 <div class="report-container">
     <!-- Header -->
     <div class="report-header">
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
             <div>
                 <h1>
-                    <i class="fas fa-chart-line"></i>
-                    {{ __('stage1_report.page_title') }}
+                    <i class="fas fa-palette"></i>
+                    تقرير إدارة المرحلة الثالثة
                 </h1>
-                <p>🏭 {{ __('stage1_report.system_name') }}</p>
+                <p>🏭 نظام إدارة الإنتاج المتكامل - Iron Factory</p>
             </div>
             <div class="report-date">
                 <div style="font-weight: 600; margin-bottom: 5px;">{{ date('Y-m-d H:i') }}</div>
-                <div style="font-size: 12px;">{{ __('stage1_report.current_report') }}</div>
+                <div style="font-size: 12px;">التقرير الحالي</div>
             </div>
         </div>
     </div>
 
     <!-- KPI Cards -->
     <div class="kpi-grid">
-        <!-- إجمالي الاستاندات -->
+        <!-- إجمالي الملفات -->
         <div class="kpi-card success">
-            <div class="kpi-icon">📦</div>
-            <div class="kpi-label">{{ __('stage1_report.total_stands') }}</div>
+            <div class="kpi-icon">📄</div>
+            <div class="kpi-label">إجمالي الملفات</div>
             <div class="kpi-value">{{ $totalStands ?? 0 }}</div>
-            <div class="kpi-unit">{{ __('stage1_report.unit_stand') }}</div>
+            <div class="kpi-unit">ملف</div>
             <div class="kpi-change positive">
-                ↑ {{ $standsToday ?? 0 }} {{ __('stage1_report.today') }}
+                ↑ {{ $standsToday ?? 0 }} اليوم
             </div>
         </div>
 
-        <!-- الاستاندات المكتملة -->
+        <!-- الملفات المكتملة -->
         <div class="kpi-card success">
             <div class="kpi-icon">✅</div>
-            <div class="kpi-label">الاستاندات المكتملة</div>
+            <div class="kpi-label">الملفات المكتملة</div>
             <div class="kpi-value">{{ $completedStands ?? 0 }}</div>
             <div class="kpi-unit">{{ $completionRate ?? 0 }}%</div>
             <div class="kpi-change positive">
-                ✓ جاهزة للمرحلة الثانية
+                ✓ مجهزة للتسليم
             </div>
         </div>
 
-        <!-- الاستاندات المعلقة -->
+        <!-- الملفات المعلقة -->
         <div class="kpi-card warning">
             <div class="kpi-icon">⏸️</div>
-            <div class="kpi-label">الاستاندات المعلقة</div>
+            <div class="kpi-label">الملفات المعلقة</div>
             <div class="kpi-value">{{ $pendingStands ?? 0 }}</div>
             <div class="kpi-unit">في انتظار الموافقة</div>
             <div class="kpi-change">
-                ⚠️ بسبب تجاوز الهدر
+                ⚠️ بسبب مشاكل في التلوين
             </div>
         </div>
 
@@ -67,7 +495,7 @@
             <div class="kpi-value">{{ $totalInputWeight ?? 0 }}</div>
             <div class="kpi-unit">كجم</div>
             <div class="kpi-change">
-                🏭 من المستودع
+                🏭 من المرحلة الثانية
             </div>
         </div>
 
@@ -78,7 +506,7 @@
             <div class="kpi-value">{{ $totalOutputWeight ?? 0 }}</div>
             <div class="kpi-unit">كجم</div>
             <div class="kpi-change positive">
-                ✓ جاهز للمرحلة الثانية
+                ✓ جاهز للتسليم
             </div>
         </div>
 
@@ -153,7 +581,7 @@
     @if($pendingStands > 0)
     <div class="alert alert-warning">
         <i class="fas fa-exclamation-triangle"></i>
-        <strong>تنبيه:</strong> هناك {{ $pendingStands }} استاند في انتظار الموافقة بسبب تجاوز نسبة الهدر المسموحة
+        <strong>تنبيه:</strong> هناك {{ $pendingStands }} ملف في انتظار الموافقة بسبب مشاكل في التلوين
     </div>
     @endif
 
@@ -167,7 +595,7 @@
     @if($avgWastePercentage < 5)
     <div class="alert alert-success">
         <i class="fas fa-check-circle"></i>
-        <strong>ممتاز:</strong> متوسط نسبة الهدر في المرحلة الأولى في المستوى الأمثل ({{ $avgWastePercentage }}%)
+        <strong>ممتاز:</strong> متوسط نسبة الخطأ في المرحلة الثالثة في المستوى الأمثل ({{ $avgWastePercentage }}%)
     </div>
     @endif
 
@@ -195,19 +623,7 @@
                         <option value="created" {{ ($filters['status'] ?? '') === 'created' ? 'selected' : '' }}>إنشاء جديد</option>
                         <option value="in_process" {{ ($filters['status'] ?? '') === 'in_process' ? 'selected' : '' }}>قيد المعالجة</option>
                         <option value="completed" {{ ($filters['status'] ?? '') === 'completed' ? 'selected' : '' }}>مكتمل</option>
-                        <option value="pending_approval" {{ ($filters['status'] ?? '') === 'pending_approval' ? 'selected' : '' }}>في انتظار موافقة</option>
-                        <option value="consumed" {{ ($filters['status'] ?? '') === 'consumed' ? 'selected' : '' }}>مستهلك</option>
-                    </select>
-                </div>
-
-                <!-- التصفية بالمادة -->
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">🏭 المادة</label>
-                    <select name="material_id" class="um-form-control" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 100%;">
-                        <option value="">-- الكل --</option>
-                        @foreach($materials as $material)
-                        <option value="{{ $material->id }}" {{ ($filters['material_id'] ?? '') == $material->id ? 'selected' : '' }}>{{ $material->name_ar }}</option>
-                        @endforeach
+                        <option value="packed" {{ ($filters['status'] ?? '') === 'packed' ? 'selected' : '' }}>مغلف</option>
                     </select>
                 </div>
 
@@ -293,8 +709,7 @@
                         <th>#</th>
                         <th>الباركود</th>
                         <th>المادة</th>
-
-                        <th>وزن الاستاند</th>
+                        <th>الملف</th>
                         <th>الوزن الكلي</th>
                         <th>الوزن الصافي</th>
                         <th>الهدر</th>
@@ -310,14 +725,13 @@
                         <td>{{ $index + 1 }}</td>
                         <td><strong>{{ $record->barcode ?? '-' }}</strong></td>
                         <td>{{ $record->material_name ?? '-' }}</td>
-
-                        <td style="text-align: center;">{{ number_format($record->weight - $record->remaining_weight + 0, 2) ?? 0 }} كجم</td>
+                        <td>{{ $record->stand_number ?? '-' }}</td>
                         <td style="text-align: center;">{{ $record->weight ?? 0 }} كجم</td>
                         <td style="text-align: center;">{{ $record->remaining_weight ?? 0 }} كجم</td>
                         <td style="text-align: center;">{{ $record->waste ?? 0 }} كجم</td>
                         <td style="text-align: center;">
                             @php
-                                $wastePerc = $record->weight > 0 ? round(($record->waste / $record->weight) * 100, 2) : 0;
+                                $wastePerc = $record->weight > 0 ? round((($record->weight - $record->remaining_weight) / $record->weight) * 100, 2) : 0;
                                 $wasteClass = $wastePerc > 12 ? 'critical' : ($wastePerc > 8 ? 'warning' : 'safe');
                             @endphp
                             <span class="waste-level {{ $wasteClass }}">{{ $wastePerc }}%</span>
@@ -354,7 +768,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="12" style="text-align: center; padding: 30px; color: #7f8c8d;">
+                        <td colspan="11" style="text-align: center; padding: 30px; color: #7f8c8d;">
                             <i class="fas fa-inbox"></i> لا توجد سجلات تطابق معايير البحث
                         </td>
                     </tr>
@@ -491,7 +905,6 @@
                         <th>#</th>
                         <th>الباركود</th>
                         <th>المادة</th>
-                        <th>وزن الاستاند</th>
                         <th>الوزن الصافي</th>
                         <th>الهدر</th>
                         <th>النسبة %</th>
@@ -506,12 +919,11 @@
                         <td>{{ $index + 1 }}</td>
                         <td><strong>{{ $record->barcode ?? '-' }}</strong></td>
                         <td>{{ $record->material_name ?? '-' }}</td>
-                        <td style="text-align: center;">{{ number_format($record->weight - $record->remaining_weight + 0, 2) ?? 0 }} كجم</td>
                         <td>{{ $record->remaining_weight ?? 0 }} كجم</td>
                         <td>{{ $record->waste ?? 0 }} كجم</td>
                         <td>
                             @php
-                                $wastePerc = $record->weight > 0 ? round(($record->waste / $record->weight) * 100, 2) : 0;
+                                $wastePerc = $record->waste_percentage ?? 0;
                                 $class = $wastePerc > 12 ? 'critical' : ($wastePerc > 8 ? 'warning' : 'safe');
                             @endphp
                             <span class="waste-level {{ $class }}">{{ $wastePerc }}%</span>
@@ -532,7 +944,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" style="text-align: center; padding: 20px; color: #7f8c8d;">
+                        <td colspan="9" style="text-align: center; padding: 20px; color: #7f8c8d;">
                             <i class="fas fa-inbox"></i> لا توجد سجلات حتى الآن
                         </td>
                     </tr>
@@ -543,7 +955,7 @@
         @else
         <div style="text-align: center; padding: 40px; color: #7f8c8d;">
             <i class="fas fa-chart-line" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
-            <p>لا توجد بيانات في المرحلة الأولى حتى الآن</p>
+            <p>لا توجد بيانات في المرحلة الثالثة حتى الآن</p>
         </div>
         @endif
     </div>
@@ -577,7 +989,7 @@
 
         <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-right: 3px solid var(--primary);">
             <h4 style="margin-top: 0; color: var(--dark);">📊 ملخص جودة الإنتاج</h4>
-            <p>متوسط نسبة الهدر في المرحلة الأولى: <strong>{{ $avgWastePercentage ?? 0 }}%</strong></p>
+            <p>متوسط نسبة الخطأ في المرحلة الثالثة: <strong>{{ $avgWastePercentage ?? 0 }}%</strong></p>
 
             <p style="margin-bottom: 0;">
                 @if(($avgWastePercentage ?? 0) < 8)
@@ -602,15 +1014,15 @@
             <div style="text-align: center;">
                 <div style="font-size: 28px; color: var(--primary); font-weight: 700;">{{ $totalInputWeight ?? 0 }} كجم</div>
                 <div style="color: #7f8c8d; font-size: 13px; margin-top: 5px;">المادة الداخلة</div>
-                <div style="color: #95a5a6; font-size: 11px;">من المستودع</div>
+                <div style="color: #95a5a6; font-size: 11px;">من المرحلة الثانية</div>
             </div>
 
             <div style="font-size: 32px; color: #bdc3c7;">→</div>
 
             <div style="text-align: center;">
                 <div style="font-size: 28px; color: var(--success); font-weight: 700;">{{ $totalOutputWeight ?? 0 }} كجم</div>
-                <div style="color: #7f8c8d; font-size: 13px; margin-top: 5px;">المادة الصافية</div>
-                <div style="color: #95a5a6; font-size: 11px;">المرحلة الثانية</div>
+                <div style="color: #7f8c8d; font-size: 13px; margin-top: 5px;">المنتجات النهائية</div>
+                <div style="color: #95a5a6; font-size: 11px;">جاهز للتسليم</div>
             </div>
 
             <div style="font-size: 32px; color: #bdc3c7;">→</div>

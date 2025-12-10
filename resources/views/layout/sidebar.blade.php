@@ -584,7 +584,23 @@
                     @if(auth()->user()->hasPermission('STAGE1_STANDS_READ'))
                     <li>
                         <a href="{{ route('manufacturing.reports.stage1-management') }}">
-                            <i class="fas fa-cut"></i> 📊 تقرير المرحلة الأولى
+                            <i class="fas fa-toolbox"></i> 📊 تقرير المرحلة الأولى
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('STAGE2_PROCESSED_READ'))
+                    <li>
+                        <a href="{{ route('manufacturing.reports.stage2-management') }}">
+                            <i class="fas fa-cogs"></i> ⚙️ تقرير المرحلة الثانية
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('STAGE3_COILS_READ'))
+                    <li>
+                        <a href="{{ route('manufacturing.reports.stage3-management') }}">
+                            <i class="fas fa-palette"></i> 🎨 تقرير المرحلة الثالثة
                         </a>
                     </li>
                     @endif

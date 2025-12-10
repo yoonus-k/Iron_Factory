@@ -250,7 +250,7 @@
 
         @keyframes spin {
             from {
-                transform: rotate(0deg);
+                transform: rotate(0deg);waste
             }
             to {
                 transform: rotate(360deg);
