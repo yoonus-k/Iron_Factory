@@ -703,16 +703,29 @@ class Stage1Controller extends Controller
     public function getMaterialByBarcode($barcode)
     {
         try {
-            // 🔒 خطوة 1: التحقق من الموافقة على الباركود للمرحلة الأولى
-            $confirmation = DB::table('production_confirmations')
-                ->join('delivery_notes', 'production_confirmations.delivery_note_id', '=', 'delivery_notes.id')
-                ->where('delivery_notes.production_barcode', $barcode)
-                ->where('production_confirmations.stage_code', 'stage_1')
+            // 🔒 خطوة 1: البحث عن الـ batch بالباركود
+            $batch = DB::table('material_batches')
+                ->join('materials', 'material_batches.material_id', '=', 'materials.id')
+                ->join('units', 'material_batches.unit_id', '=', 'units.id')
+                ->where('material_batches.batch_code', $barcode)
                 ->select(
-                    'production_confirmations.*',
-                    'delivery_notes.production_barcode',
-                    'delivery_notes.batch_id'
+                    'material_batches.*',
+                    'materials.name_ar as material_name',
+                    'units.unit_symbol'
                 )
+                ->first();
+
+            if (!$batch) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '❌ الباركود غير موجود في النظام'
+                ], 404);
+            }
+
+            // 🔒 خطوة 2: التحقق من وجود ProductionConfirmation للـ batch_id والمرحلة الأولى
+            $confirmation = DB::table('production_confirmations')
+                ->where('batch_id', $batch->id)
+                ->where('stage_code', 'stage_1')
                 ->first();
 
             // التحقق من وجود الموافقة
@@ -745,48 +758,7 @@ class Stage1Controller extends Controller
                 ], 403);
             }
 
-            // ✅ الباركود مؤكد، نتابع جلب البيانات
-            
-            // البحث عن الباركود في جدول barcodes أولاً
-            $barcodeRecord = DB::table('barcodes')
-                ->where('barcode', $barcode)
-                ->where('reference_table', 'material_batches')
-                ->first();
-
-            if (!$barcodeRecord) {
-                // إذا لم يوجد في جدول barcodes، نبحث مباشرة في material_batches.batch_code
-                $batch = DB::table('material_batches')
-                    ->join('materials', 'material_batches.material_id', '=', 'materials.id')
-                    ->join('units', 'material_batches.unit_id', '=', 'units.id')
-                    ->where('material_batches.batch_code', $barcode)
-                    ->select(
-                        'material_batches.*',
-                        'materials.name_ar as material_name',
-                        'units.unit_symbol'
-                    )
-                    ->first();
-            } else {
-                // إذا وُجد في جدول barcodes، نجلب البيانات باستخدام reference_id
-                $batch = DB::table('material_batches')
-                    ->join('materials', 'material_batches.material_id', '=', 'materials.id')
-                    ->join('units', 'material_batches.unit_id', '=', 'units.id')
-                    ->where('material_batches.id', $barcodeRecord->reference_id)
-                    ->select(
-                        'material_batches.*',
-                        'materials.name_ar as material_name',
-                        'units.unit_symbol'
-                    )
-                    ->first();
-            }
-
-            if (!$batch) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'الباركود غير موجود في النظام'
-                ], 404);
-            }
-
-            // حساب الكمية المنقولة للإنتاج (to_production)
+            // ✅ الباركود مؤكد، نحسب الكمية المنقولة للإنتاج
             $transferredToProduction = DB::table('material_movements')
                 ->where('batch_id', $batch->id)
                 ->where('movement_type', 'to_production')

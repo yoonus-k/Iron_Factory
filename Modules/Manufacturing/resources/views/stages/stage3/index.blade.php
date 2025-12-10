@@ -112,7 +112,12 @@
                                     {{ $item->barcode }}
                                 </code>
                             </td>
-                            <td>{{ number_format($item->total_weight, 2) }} {{ __('stages.unit_kg') }}</td>
+                            <td>
+                                <strong style="color: #1976d2;">{{ number_format($item->net_weight ?? $item->total_weight, 2) }}</strong> {{ __('stages.unit_kg') }}
+                                @if($item->wrapping_weight)
+                                <br><small style="color: #7f8c8d;">إجمالي: {{ number_format($item->total_weight, 2) }} | لفاف: {{ number_format($item->wrapping_weight, 2) }}</small>
+                                @endif
+                            </td>
                             <td>{{ $item->color }}</td>
                             <td>{{ $item->plastic_type }}</td>
                             <td>
@@ -131,7 +136,7 @@
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
-                                        <button type="button" class="um-dropdown-item" onclick="printBarcode('{{ $item->barcode }}', '{{ $item->color ?? '' }}', '{{ $item->wire_size }}', {{ $item->total_weight }})" style="color: #27ae60;">
+                                        <button type="button" class="um-dropdown-item" onclick="printBarcode('{{ $item->barcode }}', '{{ $item->color ?? '' }}', '{{ $item->wire_size }}', {{ $item->net_weight ?? $item->total_weight }})" style="color: #27ae60;">
                                             <i class="feather icon-printer"></i>
                                             <span>{{ __('stages.print_barcode_button') }}</span>
                                         </button>
@@ -187,7 +192,12 @@
                     <div class="um-category-card-body">
                         <div class="um-info-row">
                             <span class="um-info-label">{{ __('stages.stage3_weight_header') }}:</span>
-                            <span class="um-info-value">{{ number_format($item->total_weight, 2) }} {{ __('stages.unit_kg') }}</span>
+                            <span class="um-info-value">
+                                <strong style="color: #1976d2;">{{ number_format($item->net_weight ?? $item->total_weight, 2) }} {{ __('stages.unit_kg') }}</strong>
+                                @if($item->wrapping_weight)
+                                <br><small style="color: #7f8c8d;">(إجمالي: {{ number_format($item->total_weight, 2) }})</small>
+                                @endif
+                            </span>
                         </div>
                         <div class="um-info-row">
                             <span class="um-info-label">{{ __('stages.stage3_color_header') }}:</span>
@@ -208,7 +218,7 @@
                             <i class="feather icon-eye"></i>
                             {{ __('stages.view_details') }}
                         </a>
-                        <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->color ?? '' }}', '{{ $item->wire_size }}', {{ $item->total_weight }})" class="um-btn um-btn-success um-btn-sm">
+                        <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->color ?? '' }}', '{{ $item->wire_size }}', {{ $item->net_weight ?? $item->total_weight }})" class="um-btn um-btn-success um-btn-sm">
                             <i class="feather icon-printer"></i>
                             {{ __('stages.print_barcode_button') }}
                         </button>

@@ -6,6 +6,7 @@ use Modules\Manufacturing\Http\Controllers\Stage2Controller;
 use Modules\Manufacturing\Http\Controllers\Stage3Controller;
 use Modules\Manufacturing\Http\Controllers\Stage4Controller;
 use Modules\Manufacturing\Http\Controllers\StandsController;
+use Modules\Manufacturing\Http\Controllers\WrappingController;
 use Modules\Manufacturing\Http\Controllers\ProductTrackingController;
 use Modules\Manufacturing\Http\Controllers\WorkInProgressController;
 use Modules\Manufacturing\Http\Controllers\WorkerPerformanceController;
@@ -31,6 +32,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('stands/usage-history', [StandsController::class, 'usageHistory'])->name('manufacturing.stands.usage-history');
     Route::patch('stands/{id}/toggle-status', [StandsController::class, 'toggleStatus'])->name('manufacturing.stands.toggle-status');
     Route::resource('stands', StandsController::class)->names('manufacturing.stands');
+
+    // Wrappings Management Routes (اللفافات)
+    Route::get('wrappings/{id}/get', [WrappingController::class, 'getWrapping'])->name('manufacturing.wrappings.get');
+    Route::resource('wrappings', WrappingController::class)->names('manufacturing.wrappings');
 
     // Stage 1 Additional Routes
     Route::get('stage1/barcode/scan', [Stage1Controller::class, 'barcodeScan'])->name('manufacturing.stage1.barcode-scan');

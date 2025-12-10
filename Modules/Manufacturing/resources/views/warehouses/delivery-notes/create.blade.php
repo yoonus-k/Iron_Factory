@@ -48,6 +48,28 @@
     .card-title {
         font-size: 20px;
         font-weight: bold;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
         color: #2c3e50;
         margin-bottom: 20px;
         padding-bottom: 15px;
@@ -677,26 +699,29 @@ document.addEventListener('DOMContentLoaded', function() {
         let html = '';
         coilsData.forEach((coil, index) => {
             html += `
-                <div class="coil-item" style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; display: grid; grid-template-columns: 40px 1fr 1fr 2fr 80px 80px; gap: 10px; align-items: center;">
+                <div class="coil-item" id="coil-${coil.id}" style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; display: grid; grid-template-columns: 40px 1fr 1fr 2fr 70px 70px 70px; gap: 10px; align-items: center;">
                     <div style="font-weight: bold; color: #667eea;">#${index + 1}</div>
                     <div>
                         <small style="color: #777;">رقم الكويل</small>
-                        <div style="font-weight: 600;">${coil.coil_number}</div>
+                        <div style="font-weight: 600;" class="coil-number-display">${coil.coil_number}</div>
                     </div>
                     <div>
                         <small style="color: #777;">الوزن</small>
-                        <div style="font-weight: 600; color: #2e7d32;">${parseFloat(coil.coil_weight).toFixed(3)} كجم</div>
+                        <div style="font-weight: 600; color: #2e7d32;" class="coil-weight-display">${parseFloat(coil.coil_weight).toFixed(3)} كجم</div>
                     </div>
                     <div>
                         <small style="color: #777;">الباركود</small>
                         <svg class="coil-barcode-svg" data-barcode="${coil.coil_barcode}" style="max-width: 100%;"></svg>
                         <div style="font-size: 9px; font-family: monospace; color: #555; text-align: center;">${coil.coil_barcode}</div>
                     </div>
-                    <button type="button" onclick="printCoilBarcode('${coil.coil_number}', ${coil.coil_weight}, '${coil.coil_barcode}')" class="btn-print" style="background: #4caf50; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">
-                        🖨️ طباعة
+                    <button type="button" onclick="editCoil('${coil.id}')" class="btn-edit" style="background: #2196f3; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;" title="تعديل">
+                        ✏️
                     </button>
-                    <button type="button" onclick="removeCoil('${coil.id}')" class="btn-remove" style="background: #f44336; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">
-                        🗑️ حذف
+                    <button type="button" onclick="printCoilBarcode('${coil.coil_number}', ${coil.coil_weight}, '${coil.coil_barcode}')" class="btn-print" style="background: #4caf50; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;" title="طباعة">
+                        🖨️
+                    </button>
+                    <button type="button" onclick="removeCoil('${coil.id}')" class="btn-remove" style="background: #f44336; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;" title="حذف">
+                        🗑️
                     </button>
                 </div>
             `;
@@ -723,14 +748,103 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
     }
 
+    // تعديل كويل
+    window.editCoil = function(coilId) {
+        const coil = coilsData.find(c => c.id === coilId);
+        if (!coil) return;
+
+        const newNumber = prompt('تعديل رقم الكويل:', coil.coil_number);
+        if (newNumber === null) return; // ألغى المستخدم
+
+        const newWeight = prompt('تعديل الوزن (كجم):', coil.coil_weight);
+        if (newWeight === null) return; // ألغى المستخدم
+
+        const weight = parseFloat(newWeight);
+        if (isNaN(weight) || weight <= 0) {
+            alert('⚠️ يرجى إدخال وزن صحيح');
+            return;
+        }
+
+        // إرسال AJAX لتحديث الكويل في الجلسة
+        fetch('{{ route("manufacturing.delivery-notes.update-coil-temp") }}', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({
+                coil_id: coilId,
+                coil_number: newNumber.trim(),
+                coil_weight: weight
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // تحديث البيانات المحلية
+                coil.coil_number = newNumber.trim();
+                coil.coil_weight = weight;
+                
+                renderCoilsList();
+                updateSummary();
+                
+                showSuccessMessage('✅ تم تعديل الكويل بنجاح');
+            } else {
+                alert('❌ ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('❌ حدث خطأ أثناء تعديل الكويل');
+        });
+    };
+
     // حذف كويل
     window.removeCoil = function(coilId) {
-        if (confirm('هل أنت متأكد من حذف هذا الكويل؟')) {
-            coilsData = coilsData.filter(c => c.id !== coilId);
-            renderCoilsList();
-            updateSummary();
-        }
+        if (!confirm('هل أنت متأكد من حذف هذا الكويل؟')) return;
+
+        // إرسال AJAX لحذف الكويل من الجلسة
+        fetch('{{ route("manufacturing.delivery-notes.delete-coil-temp") }}', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({
+                coil_id: coilId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // حذف من البيانات المحلية
+                coilsData = coilsData.filter(c => c.id !== coilId);
+                renderCoilsList();
+                updateSummary();
+                
+                showSuccessMessage('✅ تم حذف الكويل بنجاح');
+            } else {
+                alert('❌ ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('❌ حدث خطأ أثناء حذف الكويل');
+        });
     };
+
+    // دالة لإظهار رسالة نجاح
+    function showSuccessMessage(message) {
+        const msgDiv = document.createElement('div');
+        msgDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4caf50; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; animation: slideIn 0.3s ease-out;';
+        msgDiv.textContent = message;
+        document.body.appendChild(msgDiv);
+        
+        setTimeout(() => {
+            msgDiv.style.animation = 'slideOut 0.3s ease-in';
+            setTimeout(() => msgDiv.remove(), 300);
+        }, 3000);
+    }
 
     // طباعة باركود كويل
     window.printCoilBarcode = function(coilNumber, weight, barcode) {

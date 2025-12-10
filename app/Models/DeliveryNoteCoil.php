@@ -99,22 +99,30 @@ class DeliveryNoteCoil extends Model
      */
     public static function generateBarcode(DeliveryNote $deliveryNote, int $coilNumber): string
     {
-        // محاولة جلب إعدادات الباركود للكويلات
-        $barcodeSetting = \App\Models\BarcodeSetting::where('type', 'coil')
+        // محاولة جلب إعدادات الباركود للكويلات (نوع raw_material)
+        $barcodeSetting = \App\Models\BarcodeSetting::where('type', 'raw_material')
             ->where('is_active', true)
             ->first();
 
         if ($barcodeSetting) {
-            $year = date('Y');
-            $nextNumber = $barcodeSetting->current_number + 1;
-            $numberStr = str_pad($nextNumber, $barcodeSetting->padding, '0', STR_PAD_LEFT);
+            // زيادة الرقم التسلسلي في قاعدة البيانات (مطابق لـ generateStageBarcode)
+            \DB::table('barcode_settings')
+                ->where('id', $barcodeSetting->id)
+                ->increment('current_number');
+            
+            // جلب الرقم الجديد
+            $newNumber = $barcodeSetting->current_number + 1;
+            
+            // تطبيق الـ padding
+            $paddedNumber = str_pad($newNumber, $barcodeSetting->padding, '0', STR_PAD_LEFT);
+            
+            // توليد الباركود وفقاً للصيغة (استخدام year من الإعدادات)
             $barcode = str_replace(
                 ['{prefix}', '{year}', '{number}'],
-                [$barcodeSetting->prefix, $year, $numberStr],
+                [$barcodeSetting->prefix, $barcodeSetting->year, $paddedNumber],
                 $barcodeSetting->format
             );
-            $barcodeSetting->current_number = $nextNumber;
-            $barcodeSetting->save();
+            
             return $barcode;
         }
 

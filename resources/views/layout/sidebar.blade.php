@@ -51,6 +51,14 @@
                     </li>
                     @endif
 
+                    @if(auth()->user()->hasPermission('MENU_STAGE3_COILS') || auth()->user()->hasPermission('STAGE3_COILS_READ'))
+                    <li>
+                        <a href="{{ route('manufacturing.wrappings.index') }}">
+                            <i class="fas fa-tape"></i> اللفافات
+                        </a>
+                    </li>
+                    @endif
+
                     @if(auth()->user()->hasPermission('MENU_WAREHOUSE_STORES') || auth()->user()->hasPermission('WAREHOUSE_STORES_READ'))
                     <li>
                         <a href="{{ route('manufacturing.warehouses.index') }}">

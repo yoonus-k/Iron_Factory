@@ -22,6 +22,9 @@ class Stage3Coil extends Model
         'dye_weight',
         'plastic_weight',
         'total_weight',
+        'net_weight',
+        'wrapping_id',
+        'wrapping_weight',
         'color',
         'color_en',
         'waste',
@@ -39,6 +42,8 @@ class Stage3Coil extends Model
         'dye_weight' => 'float',
         'plastic_weight' => 'float',
         'total_weight' => 'float',
+        'net_weight' => 'float',
+        'wrapping_weight' => 'float',
         'waste' => 'float',
         'completed_at' => 'datetime',
         'created_at' => 'datetime',
@@ -53,6 +58,11 @@ class Stage3Coil extends Model
     public function stage2(): BelongsTo
     {
         return $this->belongsTo(Stage2Processed::class, 'stage2_id');
+    }
+
+    public function wrapping(): BelongsTo
+    {
+        return $this->belongsTo(Wrapping::class, 'wrapping_id');
     }
 
     public function creator(): BelongsTo

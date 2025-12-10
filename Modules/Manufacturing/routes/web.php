@@ -85,6 +85,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('delivery-notes/temp/add-coil', [DeliveryNoteController::class, 'addCoilTemporary'])
         ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_CREATE')
         ->name('manufacturing.delivery-notes.add-coil-temp');
+    Route::put('delivery-notes/temp/update-coil', [DeliveryNoteController::class, 'updateCoilTemporary'])
+        ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_CREATE')
+        ->name('manufacturing.delivery-notes.update-coil-temp');
+    Route::delete('delivery-notes/temp/delete-coil', [DeliveryNoteController::class, 'deleteCoilTemporary'])
+        ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_CREATE')
+        ->name('manufacturing.delivery-notes.delete-coil-temp');
     
     // Coil Transfer Routes
     Route::get('coils/transfer', [DeliveryNoteController::class, 'coilTransferIndex'])
@@ -576,5 +582,7 @@ Route::middleware(['auth'])->group(function () {
             ->middleware('permission:FINISHED_PRODUCT_DELIVERIES_PRINT')
             ->name('print');
     });
+
+
 
 }); // End of Authentication Middleware

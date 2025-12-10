@@ -129,22 +129,35 @@ class ProductionConfirmation extends Model
             'status' => 'confirmed',
             'confirmed_by' => $userId,
             'confirmed_at' => now(),
-            'actual_received_quantity' => $actualQuantity ?? $this->deliveryNote->quantity,
+            'actual_received_quantity' => $actualQuantity ?? $this->actual_received_quantity,
             'notes' => $notes,
-        ]);
-
-        // تحديث حالة أذن التسليم
-        $this->deliveryNote->update([
-            'transfer_status' => 'confirmed',
-            'confirmed_by' => $userId,
-            'confirmed_at' => now(),
-            'actual_received_quantity' => $actualQuantity ?? $this->deliveryNote->quantity,
         ]);
 
         // تحديث حالة الدفعة
         if ($this->batch) {
             $this->batch->update([
                 'status' => 'in_production',
+            ]);
+        }
+        
+        // تحديث حالة أذن التسليم فقط إذا تم تأكيد جميع الكويلات
+        $this->updateDeliveryNoteStatusIfAllConfirmed();
+    }
+    
+    /**
+     * تحديث حالة أذن التسليم إذا تم تأكيد جميع الكويلات
+     */
+    private function updateDeliveryNoteStatusIfAllConfirmed()
+    {
+        // التحقق من جميع التأكيدات المرتبطة بنفس أذن التسليم
+        $allConfirmations = self::where('delivery_note_id', $this->delivery_note_id)->get();
+        $allConfirmed = $allConfirmations->every(fn($c) => $c->status === 'confirmed');
+        
+        if ($allConfirmed) {
+            $this->deliveryNote->update([
+                'transfer_status' => 'confirmed',
+                'confirmed_by' => $this->confirmed_by,
+                'confirmed_at' => $this->confirmed_at,
             ]);
         }
     }
@@ -161,7 +174,7 @@ class ProductionConfirmation extends Model
             'rejection_reason' => $reason,
         ]);
 
-        // تحديث حالة أذن التسليم
+        // تحديث حالة أذن التسليم (فقط إذا كانت جميع الكويلات مرفوضة)
         $this->deliveryNote->update([
             'transfer_status' => 'rejected',
             'rejected_by' => $userId,
@@ -169,10 +182,34 @@ class ProductionConfirmation extends Model
             'rejection_reason' => $reason,
         ]);
 
-        // إرجاع الكمية للمستودع
+        // ✅ إرجاع الكمية للمستودع (MaterialDetail)
+        if ($this->deliveryNote && $this->deliveryNote->materialDetail) {
+            $materialDetail = $this->deliveryNote->materialDetail;
+            
+            // إضافة الكمية المرفوضة مرة أخرى للمستودع
+            $rejectedQuantity = $this->actual_received_quantity ?? $this->deliveryNote->quantity;
+            $materialDetail->quantity += $rejectedQuantity;
+            $materialDetail->save();
+            
+            \Log::info("تم إرجاع {$rejectedQuantity} كجم للمستودع بعد رفض الكويل", [
+                'confirmation_id' => $this->id,
+                'material_detail_id' => $materialDetail->id,
+                'previous_quantity' => $materialDetail->quantity - $rejectedQuantity,
+                'new_quantity' => $materialDetail->quantity,
+            ]);
+        }
+
+        // ✅ إرجاع الكمية للـ batch وتغيير حالته
         if ($this->batch) {
-            $this->batch->increment('available_quantity', $this->deliveryNote->quantity);
+            $rejectedQuantity = $this->actual_received_quantity ?? $this->deliveryNote->quantity;
+            $this->batch->increment('available_quantity', $rejectedQuantity);
             $this->batch->update(['status' => 'available']);
+            
+            \Log::info("تم إرجاع {$rejectedQuantity} كجم للـ batch بعد رفض الكويل", [
+                'confirmation_id' => $this->id,
+                'batch_id' => $this->batch->id,
+                'batch_code' => $this->batch->batch_code,
+            ]);
         }
     }
 }
