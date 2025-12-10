@@ -340,6 +340,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reports/wip/stats', [\Modules\Manufacturing\Http\Controllers\WorkInProgressController::class, 'stats'])
             ->middleware('permission:MENU_WAREHOUSE_REPORTS')
             ->name('manufacturing.reports.wip.stats');
+
+        // ========== تقرير إدارة المرحلة الأولى ==========
+        Route::get('reports/stage1-management', [\Modules\Manufacturing\Http\Controllers\Stage1ManagementReportController::class, 'index'])
+            ->middleware('permission:STAGE1_STANDS_READ')
+            ->name('manufacturing.reports.stage1-management');
     });
 
     // Production Stages Routes

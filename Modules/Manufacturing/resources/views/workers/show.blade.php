@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', __('workers.worker_details') . ' - ' . $worker->name)
+@section('title', __('shifts-workers.worker_details') . ' - ' . $worker->name)
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
@@ -369,18 +369,18 @@
                     </div>
                     <div class="header-info">
                         <h1>{{ $worker->name }}</h1>
-                        <p><strong>{{ __('workers.code') }}:</strong> {{ $worker->worker_code }} | <strong>{{ __('workers.job') }}:</strong> {{ $worker->position_name }}</p>
+                        <p><strong>{{ __('shifts-workers.code') }}:</strong> {{ $worker->worker_code }} | <strong>{{ __('shifts-workers.job') }}:</strong> {{ $worker->position_name }}</p>
                     </div>
                 </div>
                 <div class="header-actions">
                     @can('WORKERS_UPDATE')
-                    <a href="{{ route('manufacturing.workers.edit', $worker->id) }}" class="action-btn view">
+                    <a href="{{ route('manufacturing.shifts-workers.edit', $worker->id) }}" class="action-btn view">
                         <i class="feather icon-edit-2"></i> {{ __('app.buttons.edit') }}
                     </a>
                     @endcan
                     @can('WORKERS_READ')
-                    <a href="{{ route('manufacturing.workers.index') }}" class="btn-back">
-                        <i class="feather icon-arrow-right"></i> {{ __('workers.back') }}
+                    <a href="{{ route('manufacturing.shifts-workers.index') }}" class="btn-back">
+                        <i class="feather icon-arrow-right"></i> {{ __('shifts-workers.back') }}
                     </a>
                     @endcan
                 </div>
@@ -394,28 +394,28 @@
                     <div class="card-icon primary">
                         <i class="feather icon-user-check"></i>
                     </div>
-                    <h3 class="card-title">{{ __('workers.basic_information') }}</h3>
+                    <h3 class="card-title">{{ __('shifts-workers.basic_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <label>{{ __('workers.worker_name') }}</label>
+                        <label>{{ __('shifts-workers.worker_name') }}</label>
                         <div class="value">{{ $worker->name }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>{{ __('workers.worker_code') }}</label>
+                        <label>{{ __('shifts-workers.worker_code') }}</label>
                         <div class="value"><code style="background: white; padding: 6px 10px; border-radius: 4px;">{{ $worker->worker_code }}</code></div>
                     </div>
 
                     <div class="info-item">
-                        <label>{{ __('workers.position') }}</label>
+                        <label>{{ __('shifts-workers.position') }}</label>
                         <div class="value">
                             <span class="status-badge active">{{ $worker->position_name }}</span>
                         </div>
                     </div>
 
                     <div class="info-item">
-                        <label>{{ __('workers.national_id') }}</label>
+                        <label>{{ __('shifts-workers.national_id') }}</label>
                         <div class="value">{{ $worker->national_id ?? '-' }}</div>
                     </div>
                 </div>
@@ -426,26 +426,26 @@
                     <div class="card-icon success">
                         <i class="feather icon-phone"></i>
                     </div>
-                    <h3 class="card-title">{{ __('workers.contact_information') }}</h3>
+                    <h3 class="card-title">{{ __('shifts-workers.contact_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <label>{{ __('workers.phone') }}</label>
+                        <label>{{ __('shifts-workers.phone') }}</label>
                         <div class="value">{{ $worker->phone ?? '-' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>{{ __('workers.email') }}</label>
+                        <label>{{ __('shifts-workers.email') }}</label>
                         <div class="value">{{ $worker->email ?? '-' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>{{ __('workers.emergency_contact') }}</label>
+                        <label>{{ __('shifts-workers.emergency_contact') }}</label>
                         <div class="value">{{ $worker->emergency_contact ?? '-' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>{{ __('workers.emergency_phone') }}</label>
+                        <label>{{ __('shifts-workers.emergency_phone') }}</label>
                         <div class="value">{{ $worker->emergency_phone ?? '-' }}</div>
                     </div>
                 </div>
@@ -456,21 +456,21 @@
                     <div class="card-icon warning">
                         <i class="feather icon-briefcase"></i>
                     </div>
-                    <h3 class="card-title">{{ __('workers.work_information') }}</h3>
+                    <h3 class="card-title">{{ __('shifts-workers.work_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <label>{{ __('workers.hourly_rate') }}</label>
-                        <div class="value">{{ number_format($worker->hourly_rate, 2) }} {{ __('workers.currency') }}</div>
+                        <label>{{ __('shifts-workers.hourly_rate') }}</label>
+                        <div class="value">{{ number_format($worker->hourly_rate, 2) }} {{ __('shifts-workers.currency') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>{{ __('workers.hire_date') }}</label>
+                        <label>{{ __('shifts-workers.hire_date') }}</label>
                         <div class="value">{{ $worker->hire_date?->format('Y-m-d') ?? '-' }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>{{ __('workers.shift_preference') }}</label>
+                        <label>{{ __('shifts-workers.shift_preference') }}</label>
                         <div class="value">{{ $worker->shift_preference_name }}</div>
                     </div>
 
@@ -478,7 +478,7 @@
                         <label>{{ __('app.status.status') }}</label>
                         <div class="value">
                             <span class="status-badge {{ $worker->is_active ? 'active' : 'inactive' }}">
-                                {{ $worker->is_active ? __('workers.active') : __('workers.inactive') }}
+                                {{ $worker->is_active ? __('shifts-workers.active') : __('shifts-workers.inactive') }}
                             </span>
                         </div>
                     </div>
@@ -494,29 +494,29 @@
                         <div class="card-icon primary">
                             <i class="feather icon-calendar"></i>
                         </div>
-                        <h3 class="card-title">{{ __('workers.shift_history') }}</h3>
+                        <h3 class="card-title">{{ __('shifts-workers.shift_history') }}</h3>
                     </div>
                     <div class="card-body">
                         <!-- Filters -->
-                        <form method="GET" action="{{ route('manufacturing.workers.show', $worker->id) }}" class="mb-4" style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                        <form method="GET" action="{{ route('manufacturing.shifts-workers.show', $worker->id) }}" class="mb-4" style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
                                 <div>
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">{{ __('workers.shift_types.shift_type') }}</label>
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">{{ __('shifts-workers.shift_types.shift_type') }}</label>
                                     <select name="shift_type" class="form-control" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
                                         <option value="">{{ __('app.all') }} {{ __('app.types') }}</option>
-                                        <option value="morning" {{ request('shift_type') == 'morning' ? 'selected' : '' }}>{{ __('workers.shift_types.morning') }}</option>
-                                        <option value="evening" {{ request('shift_type') == 'evening' ? 'selected' : '' }}>{{ __('workers.shift_types.evening') }}</option>
-                                        <option value="night" {{ request('shift_type') == 'night' ? 'selected' : '' }}>{{ __('workers.shift_types.night') }}</option>
+                                        <option value="morning" {{ request('shift_type') == 'morning' ? 'selected' : '' }}>{{ __('shifts-workers.shift_types.morning') }}</option>
+                                        <option value="evening" {{ request('shift_type') == 'evening' ? 'selected' : '' }}>{{ __('shifts-workers.shift_types.evening') }}</option>
+                                        <option value="night" {{ request('shift_type') == 'night' ? 'selected' : '' }}>{{ __('shifts-workers.shift_types.night') }}</option>
                                     </select>
                                 </div>
 
                                 <div>
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">{{ __('workers.from_date') }}</label>
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">{{ __('shifts-workers.from_date') }}</label>
                                     <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
                                 </div>
 
                                 <div>
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">{{ __('workers.to_date') }}</label>
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">{{ __('shifts-workers.to_date') }}</label>
                                     <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
                                 </div>
 
@@ -537,11 +537,11 @@
                                 <table>
                                     <thead>
                                         <tr>
-                                            <th>{{ __('workers.shift_number') }}</th>
-                                            <th>{{ __('workers.date') }}</th>
-                                            <th>{{ __('workers.type') }}</th>
-                                            <th>{{ __('workers.time') }}</th>
-                                            <th>{{ __('workers.stage') }}</th>
+                                            <th>{{ __('shifts-workers.shift_number') }}</th>
+                                            <th>{{ __('shifts-workers.date') }}</th>
+                                            <th>{{ __('shifts-workers.type') }}</th>
+                                            <th>{{ __('shifts-workers.time') }}</th>
+                                            <th>{{ __('shifts-workers.stage') }}</th>
                                             <th>{{ __('app.status.status') }}</th>
                                             <th>{{ __('app.actions') }}</th>
                                         </tr>
@@ -554,9 +554,9 @@
                                                 <td>
                                                     @php
                                                         $typeLabel = match($shift->shift_type ?? null) {
-                                                            'morning' => __('workers.shift_types.morning'),
-                                                            'evening' => __('workers.shift_types.evening'),
-                                                            'night' => __('workers.shift_types.night'),
+                                                            'morning' => __('shifts-workers.shift_types.morning'),
+                                                            'evening' => __('shifts-workers.shift_types.evening'),
+                                                            'night' => __('shifts-workers.shift_types.night'),
                                                             default => $shift->shift_type ?? '-'
                                                         };
                                                         $typeColor = match($shift->shift_type ?? null) {
@@ -571,14 +571,14 @@
                                                     </span>
                                                 </td>
                                                 <td>{{ $shift->start_time }} - {{ $shift->end_time }}</td>
-                                                <td>{{ __('workers.stage') }} {{ $shift->stage_number ?? '-' }}</td>
+                                                <td>{{ __('shifts-workers.stage') }} {{ $shift->stage_number ?? '-' }}</td>
                                                 <td>
                                                     @php
                                                         $statusLabel = match($shift->status ?? null) {
-                                                            'scheduled' => __('workers.shift_statuses.scheduled'),
-                                                            'active' => __('workers.shift_statuses.active'),
-                                                            'completed' => __('workers.shift_statuses.completed'),
-                                                            'cancelled' => __('workers.shift_statuses.cancelled'),
+                                                            'scheduled' => __('shifts-workers.shift_statuses.scheduled'),
+                                                            'active' => __('shifts-workers.shift_statuses.active'),
+                                                            'completed' => __('shifts-workers.shift_statuses.completed'),
+                                                            'cancelled' => __('shifts-workers.shift_statuses.cancelled'),
                                                             default => $shift->status ?? '-'
                                                         };
                                                         $statusBg = match($shift->status ?? null) {
@@ -602,7 +602,7 @@
                                                 </td>
                                                 <td>
                                                     <button type="button" class="view-shift-btn" onclick="viewShiftDetails({{ $shift->id }})">
-                                                        <i class="feather icon-eye"></i> {{ __('workers.show_details') }}
+                                                        <i class="feather icon-eye"></i> {{ __('shifts-workers.show_details') }}
                                                     </button>
                                                 </td>
                                             </tr>
@@ -618,8 +618,8 @@
                         @else
                             <div class="empty-state">
                                 <i class="feather icon-inbox"></i>
-                                <p><strong>{{ __('workers.no_shifts') }}</strong></p>
-                                <small>{{ __('workers.no_shifts_assigned') }}</small>
+                                <p><strong>{{ __('shifts-workers.no_shifts') }}</strong></p>
+                                <small>{{ __('shifts-workers.no_shifts_assigned') }}</small>
                             </div>
                         @endif
                     </div>
@@ -650,13 +650,13 @@
                         <div id="movementDetailsContent" style="padding: 25px;">
                             <div style="text-align: center; padding: 40px;">
                                 <div class="spinner-border text-primary" role="status">
-                                    <span class="sr-only">{{ __('workers.loading') }}</span>
+                                        <span class="sr-only">{{ __('workers.loading') }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
             document.body.appendChild(modal);
 
             const modalElement = document.getElementById('movementDetailsModal');
@@ -744,7 +744,7 @@
                         ${shift.notes ? `
                         <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-right: 4px solid #f39c12; margin-bottom: 20px;">
                             <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #856404; font-weight: 700;">
-                                <i class="feather icon-file-text"></i> {{ __('workers.notes') }}
+                                <i class="feather icon-file-text"></i> {{ __('shifts-workers.notes') }}
                             </h4>
                             <p style="margin: 0; color: #856404; font-size: 13px;">${shift.notes}</p>
                         </div>

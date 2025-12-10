@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', __('workers.add_new_worker'))
+@section('title', __('shifts-workers.add_new_worker'))
 
 @section('content')
 
@@ -46,16 +46,16 @@
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
-                {{ __('workers.add_new_worker') }}
+                {{ __('shifts-workers.add_new_worker') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
                     <i class="feather icon-home"></i> {{ __('menu.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>{{ __('workers.workers') }}</span>
+                <span>{{ __('shifts-workers.workers') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>{{ __('workers.add_new_worker') }}</span>
+                <span>{{ __('shifts-workers.add_new_worker') }}</span>
             </nav>
         </div>
 
@@ -71,17 +71,18 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
-                            </div>
+                            </svg>
+                        </div>
                             <div>
-                                <h3 class="section-title">{{ __('workers.basic_information') }}</h3>
-                                <p class="section-subtitle">{{ __('workers.basic_info_desc') }}</p>
+                                <h3 class="section-title">{{ __('shifts-workers.basic_information') }}</h3>
+                                <p class="section-subtitle">{{ __('shifts-workers.basic_info_desc') }}</p>
                             </div>
                         </div>
 
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="worker_code" class="form-label">
-                                {{ __('workers.worker_code') }}
+                                {{ __('shifts-workers.worker_code') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-group-with-button">
@@ -95,7 +96,7 @@
                                     </svg>
                                     <input type="text" name="worker_code" id="worker_code"
                                         class="form-input"
-                                        value="{{ old('worker_code') }}" placeholder="{{ __('workers.enter_worker_code') }}" required>
+                                        value="{{ old('worker_code') }}" placeholder="{{ __('shifts-workers.enter_worker_code') }}" required>
                                 </div>
                                 <button type="button" class="btn-generate" onclick="generateWorkerCode()" id="generateBtn">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -103,7 +104,7 @@
                                         <polyline points="1 20 1 14 7 14"></polyline>
                                         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                                     </svg>
-                                    {{ __('workers.generate') }}
+                                    {{ __('shifts-workers.generate') }}
 
                                 </button>
                             </div>
@@ -111,7 +112,7 @@
 
                         <div class="form-group">
                             <label for="name" class="form-label">
-                                {{ __('workers.worker_name') }}
+                                {{ __('shifts-workers.worker_name') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -122,13 +123,13 @@
                                 </svg>
                                 <input type="text" name="name" id="name"
                                     class="form-input"
-                                    value="{{ old('name') }}" placeholder="{{ __('workers.enter_worker_name') }}" required>
+                                    value="{{ old('name') }}" placeholder="{{ __('shifts-workers.enter_worker_name') }}" required>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="national_id" class="form-label">
-                                {{ __('workers.national_id') }}
+                                {{ __('shifts-workers.national_id') }}
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -138,14 +139,14 @@
                                 </svg>
                                 <input type="text" name="national_id" id="national_id"
                                     class="form-input"
-                                    value="{{ old('national_id') }}" placeholder="{{ __('workers.enter_national_id') }}">
+                                    value="{{ old('national_id') }}" placeholder="{{ __('shifts-workers.enter_national_id') }}">
 
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="phone" class="form-label">
-                                {{ __('workers.phone') }}
+                                {{ __('shifts-workers.phone') }}
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -154,14 +155,14 @@
                                 </svg>
                                 <input type="text" name="phone" id="phone"
                                     class="form-input"
-                                    value="{{ old('phone') }}" placeholder="{{ __('workers.enter_phone') }}">
+                                    value="{{ old('phone') }}" placeholder="{{ __('shifts-workers.enter_phone') }}">
 
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="email" class="form-label">
-                                {{ __('workers.email') }}
+                                {{ __('shifts-workers.email') }}
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -171,14 +172,14 @@
                                 </svg>
                                 <input type="email" name="email" id="email"
                                     class="form-input"
-                                    value="{{ old('email') }}" placeholder="{{ __('workers.enter_email') }}">
+                                    value="{{ old('email') }}" placeholder="{{ __('shifts-workers.enter_email') }}">
 
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="position" class="form-label">
-                                {{ __('workers.position') }}
+                                {{ __('shifts-workers.position') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -191,7 +192,7 @@
                                 </svg>
                                 <select name="role_id" id="position"
                                     class="form-input" required>
-                                    <option value="">{{ __('workers.select_position') }}</option>
+                                    <option value="">{{ __('shifts-workers.select_position') }}</option>
                                     @foreach($roles as $role)
                                     <option value="{{ $role->id }}" data-role-code="{{ $role->role_code }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
                                         {{ $role->role_name }}
@@ -214,8 +215,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">{{ __('workers.work_information') }}</h3>
-                            <p class="section-subtitle">{{ __('workers.work_info_desc') }}</p>
+                            <h3 class="section-title">{{ __('shifts-workers.work_information') }}</h3>
+                            <p class="section-subtitle">{{ __('shifts-workers.work_info_desc') }}</p>
                         </div>
                     </div>
 
@@ -225,7 +226,7 @@
 
                         <div class="form-group">
                             <label for="hourly_rate" class="form-label">
-                                {{ __('workers.hourly_rate') }} (IQD)
+                                {{ __('shifts-workers.hourly_rate') }} (IQD)
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -236,13 +237,13 @@
                                 </svg>
                                 <input type="number" name="hourly_rate" id="hourly_rate"
                                     class="form-input"
-                                    value="{{ old('hourly_rate', 0) }}" step="0.01" min="0" placeholder="{{ __('workers.enter_hourly_rate') }}" required>
+                                    value="{{ old('hourly_rate', 0) }}" step="0.01" min="0" placeholder="{{ __('shifts-workers.enter_hourly_rate') }}" required>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="hire_date" class="form-label">
-                                {{ __('workers.hire_date') }}
+                                {{ __('shifts-workers.hire_date') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -260,16 +261,16 @@
                         </div>
 
                         <div class="form-group full-width">
-                            <label class="form-label">{{ __('workers.allowed_stages') }}</label>
+                            <label class="form-label">{{ __('shifts-workers.allowed_stages') }}</label>
                             <div class="workers-selection">
                                 @for($i = 1; $i <= 4; $i++)
                                 <div class="worker-item">
                                     <input type="checkbox" id="stage{{ $i }}" name="allowed_stages[]" value="{{ $i }}"
                                         {{ (is_array(old('allowed_stages')) && in_array($i, old('allowed_stages'))) ? 'checked' : '' }}>
-                                    <label for="stage{{ $i }}">{{ __('workers.stage') }} {{ $i }}</label>
+                                    <label for="stage{{ $i }}">{{ __('shifts-workers.stage') }} {{ $i }}</label>
                                 </div>
                                 @endfor
-                                <p class="text-muted" style="margin-top: 10px;">{{ __('workers.leave_empty_for_all_stages') }}</p>
+                                <p class="text-muted" style="margin-top: 10px;">{{ __('shifts-workers.leave_empty_for_all_stages') }}</p>
                             </div>
                         </div>
 
@@ -283,7 +284,7 @@
                                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                                         </svg>
-                                        {{ __('workers.enable') }} {{ __('workers.worker') }}
+                                        {{ __('shifts-workers.enable') }} {{ __('shifts-workers.worker') }}
                                     </span>
                                 </label>
                             </div>
@@ -301,8 +302,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">{{ __('workers.account_management') }}</h3>
-                            <p class="section-subtitle">{{ __('workers.account_info_desc') }}</p>
+                            <h3 class="section-title">{{ __('shifts-workers.account_management') }}</h3>
+                            <p class="section-subtitle">{{ __('shifts-workers.account_info_desc') }}</p>
                         </div>
                     </div>
 
@@ -310,7 +311,7 @@
                         <div class="form-group full-width">
                             <div id="permissionsContainer" class="permissions-list">
                                 <p class="text-muted" style="text-align: center; padding: 20px;">
-                                    <i class="feather icon-info"></i> {{ __('workers.select_position_first') }} {{ __('workers.to_view_permissions') }}
+                                    <i class="feather icon-info"></i> {{ __('shifts-workers.select_position_first') }} {{ __('shifts-workers.to_view_permissions') }}
                                 </p>
                             </div>
                         </div>
@@ -327,15 +328,15 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">{{ __('workers.user_account_management') }}</h3>
-                            <p class="section-subtitle">{{ __('workers.user_account_desc') }}</p>
+                            <h3 class="section-title">{{ __('shifts-workers.user_account_management') }}</h3>
+                            <p class="section-subtitle">{{ __('shifts-workers.user_account_desc') }}</p>
                         </div>
                     </div>
 
                     <div class="form-grid">
                         <div class="form-group full-width">
                             <label for="allow_system_access" class="form-label">
-                                {{ __('workers.system_access') }}?
+                                {{ __('shifts-workers.system_access') }}?
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -347,9 +348,9 @@
                                 </svg>
                                 <select name="allow_system_access" id="allow_system_access"
                                     class="form-input" onchange="toggleUserAccountFields()">
-                                    <option value="no" {{ old('allow_system_access') == 'no' ? 'selected' : '' }}>{{ __('workers.worker_only') }}</option>
-                                    <option value="existing" {{ old('allow_system_access') == 'existing' ? 'selected' : '' }}>{{ __('workers.link_existing_account') }}</option>
-                                    <option value="new" {{ old('allow_system_access') == 'new' ? 'selected' : '' }}>{{ __('workers.create_new_account') }}</option>
+                                    <option value="no" {{ old('allow_system_access') == 'no' ? 'selected' : '' }}>{{ __('shifts-workers.worker_only') }}</option>
+                                    <option value="existing" {{ old('allow_system_access') == 'existing' ? 'selected' : '' }}>{{ __('shifts-workers.link_existing_account') }}</option>
+                                    <option value="new" {{ old('allow_system_access') == 'new' ? 'selected' : '' }}>{{ __('shifts-workers.create_new_account') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -357,7 +358,7 @@
                         <!-- Existing User Selection -->
                         <div id="existing_user_section" class="form-group full-width" style="display: none;">
                             <label for="user_id" class="form-label">
-                                {{ __('workers.select_user') }}
+                                {{ __('shifts-workers.select_user') }}
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -369,7 +370,7 @@
                                 </svg>
                                 <select name="user_id" id="user_id"
                                     class="form-input">
-                                    <option value="">{{ __('workers.select_user') }}</option>
+                                    <option value="">{{ __('shifts-workers.select_user') }}</option>
                                     @foreach($availableUsers as $user)
                                     <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
                                         {{ $user->name }} ({{ $user->email }})
@@ -377,7 +378,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <small class="text-muted">{{ __('workers.users_without_worker_file') }}</small>
+                            <small class="text-muted">{{ __('shifts-workers.users_without_worker_file') }}</small>
                         </div>
 
                         <!-- New User Creation Fields -->
@@ -385,7 +386,7 @@
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="new_username" class="form-label">
-                                        {{ __('workers.username') }}
+                                        {{ __('shifts-workers.username') }}
                                         <span class="required">*</span>
                                     </label>
                                     <div class="input-wrapper">
@@ -396,15 +397,15 @@
                                         </svg>
                                         <input type="text" name="new_username" id="new_username"
                                             class="form-input"
-                                            value="{{ old('new_username') }}" placeholder="{{ __('workers.enter_username') }}">
+                                            value="{{ old('new_username') }}" placeholder="{{ __('shifts-workers.enter_username') }}">
 
                                     </div>
-                                    <small class="text-muted">{{ __('workers.username_desc') }}</small>
+                                    <small class="text-muted">{{ __('shifts-workers.username_desc') }}</small>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="new_email" class="form-label">
-                                        {{ __('workers.email') }}
+                                        {{ __('shifts-workers.email') }}
                                         <span class="required">*</span>
                                     </label>
                                     <div class="input-wrapper">
@@ -423,7 +424,7 @@
 
                             <div class="alert alert-warning" style="margin-top: 15px;">
                                 <i data-feather="alert-triangle"></i>
-                                <strong>{{ __('workers.note') }}:</strong> {{ __('workers.password_will_be_sent') }}
+                                <strong>{{ __('shifts-workers.note') }}:</strong> {{ __('shifts-workers.password_will_be_sent') }}
 
                             </div>
                         </div>
@@ -440,15 +441,15 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">{{ __('workers.additional_information') }}</h3>
-                            <p class="section-subtitle">{{ __('workers.additional_info_desc') }}</p>
+                            <h3 class="section-title">{{ __('shifts-workers.additional_information') }}</h3>
+                            <p class="section-subtitle">{{ __('shifts-workers.additional_info_desc') }}</p>
                         </div>
                     </div>
 
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="emergency_contact" class="form-label">
-                                {{ __('workers.emergency_contact') }}
+                                {{ __('shifts-workers.emergency_contact') }}
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -460,14 +461,14 @@
                                 </svg>
                                 <input type="text" name="emergency_contact" id="emergency_contact"
                                     class="form-input"
-                                    value="{{ old('emergency_contact') }}" placeholder="{{ __('workers.enter_emergency_contact') }}">
+                                    value="{{ old('emergency_contact') }}" placeholder="{{ __('shifts-workers.enter_emergency_contact') }}">
 
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="emergency_phone" class="form-label">
-                                {{ __('workers.emergency_phone') }}
+                                {{ __('shifts-workers.emergency_phone') }}
                             </label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -476,13 +477,13 @@
                                 </svg>
                                 <input type="text" name="emergency_phone" id="emergency_phone"
                                     class="form-input"
-                                    value="{{ old('emergency_phone') }}" placeholder="{{ __('workers.enter_emergency_phone') }}">
+                                    value="{{ old('emergency_phone') }}" placeholder="{{ __('shifts-workers.enter_emergency_phone') }}">
 
                             </div>
                         </div>
 
                         <div class="form-group full-width">
-                            <label for="notes" class="form-label">{{ __('workers.notes') }}</label>
+                            <label for="notes" class="form-label">{{ __('shifts-workers.notes') }}</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2">
@@ -494,7 +495,7 @@
                                     <line x1="3" y1="18" x2="3.01" y2="18"></line>
                                 </svg>
                                 <textarea name="notes" id="notes" rows="4"
-                                    class="form-input" placeholder="{{ __('workers.enter_notes') }}">{{ old('notes') }}</textarea>
+                                    class="form-input" placeholder="{{ __('shifts-workers.enter_notes') }}">{{ old('notes') }}</textarea>
 
                             </div>
                         </div>
@@ -508,7 +509,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        {{ __('workers.save') }} {{ __('workers.worker') }}
+                        {{ __('shifts-workers.save') }} {{ __('shifts-workers.worker') }}
                     </button>
 
                     <a href="{{ route('manufacturing.workers.index') }}" class="btn-cancel">

@@ -21,7 +21,7 @@ class Stage1Controller extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         // Query base
         $query = DB::table('stage1_stands')
             ->join('materials', 'stage1_stands.material_id', '=', 'materials.id')
@@ -34,7 +34,7 @@ class Stage1Controller extends Controller
 
         // إذا لم يكن لديه صلاحية رؤية جميع العمليات، يعرض فقط عملياته
         $viewingAll = $user->hasPermission('VIEW_ALL_STAGE1_OPERATIONS');
-        
+
         if (!$viewingAll) {
             $query->where('stage1_stands.created_by', $user->id);
         }
@@ -77,14 +77,14 @@ class Stage1Controller extends Controller
 
             $userId = Auth::id();
             $materialId = $validated['material_id'];
-            
+
             // جلب بيانات الاستاند لحساب الوزن الصافي إذا لم يُرسل
             $stand = Stand::findOrFail($validated['stand_id']);
-            
+
             // حساب stand_weight و net_weight إذا لم يتم إرسالهما (بسبب الصلاحيات)
             $standWeight = $validated['stand_weight'] ?? $stand->weight;
             $netWeight = $validated['net_weight'] ?? ($validated['total_weight'] - $standWeight);
-            
+
             // البحث عن الباركود في جدول barcodes
             $barcodeRecord = DB::table('barcodes')
                 ->where('barcode', $validated['material_barcode'])
@@ -121,7 +121,7 @@ class Stage1Controller extends Controller
                 ->sum('remaining_weight');
 
             $availableWeight = $transferredToProduction - $usedInStage1;
-            
+
             if ($availableWeight < $netWeight) {
                 throw new \Exception("الكمية المتوفرة للإنتاج ({$availableWeight} كجم) غير كافية للكمية المطلوبة ({$netWeight} كجم)");
             }
@@ -134,7 +134,7 @@ class Stage1Controller extends Controller
             $outputWeight = $netWeight; // المادة الخارجة
             $wasteWeight = $validated['waste_weight'] ?? 0; // الهدر
             $materialWeight = $outputWeight + $wasteWeight; // المادة الداخلة الفعلية
-            
+
             \Log::info('Waste Calculation Check', [
                 'net_weight' => $outputWeight,
                 'waste_weight' => $wasteWeight,
@@ -142,7 +142,7 @@ class Stage1Controller extends Controller
                 'total_weight' => $validated['total_weight'],
                 'stand_weight' => $standWeight,
             ]);
-            
+
             $wasteCheck = WasteCheckService::checkAndSuspend(
                 stageNumber: 1,
                 batchBarcode: $validated['material_barcode'],
@@ -199,7 +199,7 @@ class Stage1Controller extends Controller
 
             // حفظ في جدول stage1_stands
             $stage1Barcode = $this->generateStageBarcode('stage1');
-            
+
             $stage1StandId = DB::table('stage1_stands')->insertGetId([
                 'barcode' => $stage1Barcode,
                 'parent_barcode' => $validated['material_barcode'],
@@ -287,7 +287,7 @@ class Stage1Controller extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ: ' . $e->getMessage()
@@ -320,7 +320,7 @@ class Stage1Controller extends Controller
 
             $userId = Auth::id();
             $materialId = $validated['material_id'];
-            
+
             // البحث عن الباركود في جدول barcodes
             $barcodeRecord = DB::table('barcodes')
                 ->where('barcode', $validated['material_barcode'])
@@ -363,12 +363,12 @@ class Stage1Controller extends Controller
 
             // الكمية المتاحة للاستخدام = المنقولة للإنتاج - المستخدمة
             $availableWeight = $transferredToProduction - $usedInStage1;
-            
+
             if ($availableWeight < $totalNetWeightNeeded) {
                 throw new \Exception("الكمية المتوفرة للإنتاج ({$availableWeight} كجم) غير كافية للكمية المطلوبة ({$totalNetWeightNeeded} كجم)");
             }
 
-            
+
             $processedRecords = [];
 
             foreach ($validated['processed_stands'] as $processedData) {
@@ -379,7 +379,7 @@ class Stage1Controller extends Controller
                 // الوزن الفعلي للمادة (بدون وزن الاستاند)
                 $materialWeight = $processedData['total_weight'] - $processedData['stand_weight'];
                 $outputWeight = $processedData['net_weight'];
-                
+
                 $wasteCheck = WasteCheckService::checkAndSuspend(
                     stageNumber: 1,
                     batchBarcode: $validated['material_barcode'],
@@ -438,7 +438,7 @@ class Stage1Controller extends Controller
 
                 // حفظ في جدول stage1_stands
                 $stage1Barcode = $this->generateStageBarcode('stage1');
-                
+
                 $stage1StandId = DB::table('stage1_stands')->insertGetId([
                     'barcode' => $stage1Barcode,
                     'parent_barcode' => $validated['material_barcode'],
@@ -543,7 +543,7 @@ class Stage1Controller extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ: ' . $e->getMessage()
@@ -746,7 +746,7 @@ class Stage1Controller extends Controller
             }
 
             // ✅ الباركود مؤكد، نتابع جلب البيانات
-            
+
             // البحث عن الباركود في جدول barcodes أولاً
             $barcodeRecord = DB::table('barcodes')
                 ->where('barcode', $barcode)

@@ -573,6 +573,16 @@
                         </a>
                     </li>
                     @endif
+
+                    <li class="submenu-header" style="margin-top: 10px;"><span>تقارير المراحل</span></li>
+
+                    @if(auth()->user()->hasPermission('STAGE1_STANDS_READ'))
+                    <li>
+                        <a href="{{ route('manufacturing.reports.stage1-management') }}">
+                            <i class="fas fa-cut"></i> 📊 تقرير المرحلة الأولى
+                        </a>
+                    </li>
+                    @endif
                 </ul>
             </li>
             @endif

@@ -6,7 +6,7 @@
 <style>
     /* استيراد الخطوط */
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap');
-    
+
     /* المتغيرات */
     :root {
         --primary-color: #0066B2;
@@ -541,7 +541,7 @@
             <div class="filters-grid">
                 <div class="filter-group">
                     <label class="filter-label">رقم الاستاند</label>
-                    <input type="text" name="stand_number" value="{{ request('stand_number') }}" 
+                    <input type="text" name="stand_number" value="{{ request('stand_number') }}"
                            placeholder="مثال: ST-001" class="filter-input">
                 </div>
 
@@ -664,7 +664,7 @@
             </svg>
             {{ __('stands.breadcrumb.stands') }} - {{ __('stands.stats.total_uses') }}
         </h3>
-        
+
         @if($history->count() > 0)
         <table class="history-table">
             <thead>

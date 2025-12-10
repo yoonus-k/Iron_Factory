@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', __('worker-teams.edit_team'))
+@section('title', __('shifts-workers.edit_team'))
 
 @section('content')
 
@@ -31,14 +31,14 @@
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
-            {{ __('worker-teams.edit_team') }}
+            {{ __('shifts-workers.edit_team') }}
         </h1>
         <nav class="um-breadcrumb-nav">
-            <span><i class="feather icon-home"></i> {{ __('worker-teams.dashboard') }}</span>
+            <span><i class="feather icon-home"></i> {{ __('shifts-workers.dashboard') }}</span>
             <i class="feather icon-chevron-left"></i>
-            <span>{{ __('worker-teams.worker_teams') }}</span>
+            <span>{{ __('shifts-workers.worker_teams') }}</span>
             <i class="feather icon-chevron-left"></i>
-            <span>{{ __('worker-teams.edit_team') }}</span>
+            <span>{{ __('shifts-workers.edit_team') }}</span>
         </nav>
     </div>
 
@@ -57,15 +57,15 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">{{ __('worker-teams.team_code_label') }}</h3>
-                        <p class="section-subtitle">{{ __('worker-teams.team_updated_successfully') }}</p>
+                        <h3 class="section-title">{{ __('shifts-workers.team_code_label') }}</h3>
+                        <p class="section-subtitle">{{ __('shifts-workers.team_updated_successfully') }}</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="team_code" class="form-label">
-                            {{ __('worker-teams.team_code_label') }}
+                            {{ __('shifts-workers.team_code_label') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-group-with-button">
@@ -87,7 +87,7 @@
 
                     <div class="form-group">
                         <label for="name" class="form-label">
-                            {{ __('worker-teams.team_name_label') }}
+                            {{ __('shifts-workers.team_name_label') }}
                             <span class="required">*</span>
                         </label>
                         <div class="input-wrapper">
@@ -105,7 +105,7 @@
                     </div>
 
                     <div class="form-group full-width">
-                        <label for="description" class="form-label">{{ __('worker-teams.description_label') }}</label>
+                        <label for="description" class="form-label">{{ __('shifts-workers.description_label') }}</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="8" y1="6" x2="21" y2="6"></line>
@@ -114,7 +114,7 @@
                             </svg>
                             <textarea name="description" id="description" rows="3"
                                 class="form-input @error('description') is-invalid @enderror"
-                                placeholder="{{ __('worker-teams.description_label') }}">{{ old('description', $team->description) }}</textarea>
+                                placeholder="{{ __('shifts-workers.description_label') }}">{{ old('description', $team->description) }}</textarea>
                         </div>
                         @error('description')
                             <span class="error-message">{{ $message }}</span>
@@ -133,19 +133,19 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="section-title">{{ __('worker-teams.workers_label') }}</h3>
-                        <p class="section-subtitle">{{ __('worker-teams.description_label') }}</p>
+                        <h3 class="section-title">{{ __('shifts-workers.workers_label') }}</h3>
+                        <p class="section-subtitle">{{ __('shifts-workers.description_label') }}</p>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group full-width">
                         <div class="workers-selection-header">
-                            <label class="form-label">{{ __('worker-teams.workers_label') }}</label>
+                            <label class="form-label">{{ __('shifts-workers.workers_label') }}</label>
                             <div class="selection-actions">
-                                <button type="button" class="btn-select-all">{{ __('worker-teams.select_all') }}</button>
-                                <button type="button" class="btn-deselect-all">{{ __('worker-teams.deselect_all') }}</button>
-                                <span class="selected-count">{{ __('worker-teams.showing') }}: <strong id="selectedCount">{{ count(old('workers', $team->worker_ids ?? [])) }}</strong></span>
+                                <button type="button" class="btn-select-all">{{ __('shifts-workers.select_all') }}</button>
+                                <button type="button" class="btn-deselect-all">{{ __('shifts-workers.deselect_all') }}</button>
+                                <span class="selected-count">{{ __('shifts-workers.showing') }}: <strong id="selectedCount">{{ count(old('workers', $team->worker_ids ?? [])) }}</strong></span>
                             </div>
                         </div>
 
@@ -159,11 +159,11 @@
                                            {{ in_array($worker->id, old('workers', $team->worker_ids ?? [])) ? 'checked' : '' }}
                                            class="worker-checkbox">
                                     <label for="worker_{{ $worker->id }}">
-                                        {{ $worker->name }} - {{ $worker->email ?? __('worker-teams.not_specified') }}
+                                        {{ $worker->name }} - {{ $worker->email ?? __('shifts-workers.not_specified') }}
                                     </label>
                                 </div>
                             @empty
-                                <p style="color: #999; text-align: center;">{{ __('worker-teams.no_workers') }}</p>
+                                <p style="color: #999; text-align: center;">{{ __('shifts-workers.no_workers') }}</p>
                             @endforelse
                         </div>
                         @error('workers')
@@ -189,7 +189,7 @@
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                    {{ __('worker-teams.cancel') }}
+                    {{ __('shifts-workers.cancel') }}
                 </a>
                 @endif
             </div>
