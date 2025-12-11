@@ -158,6 +158,9 @@ class FinishedProductDeliveryController extends Controller
 
         $validated = $request->validate([
             'customer_id' => 'nullable|exists:customers,id',
+            'driver_name' => 'nullable|string|max:255',
+            'vehicle_number' => 'nullable|string|max:100',
+            'city' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
             'boxes' => 'required|array|min:1',
             'boxes.*.box_id' => 'required|exists:stage4_boxes,id',
@@ -169,10 +172,10 @@ class FinishedProductDeliveryController extends Controller
         ]);
 
         try {
-            DB::beginTransaction();
-
-            // توليد رقم إذن فريد
+            // توليد رقم إذن فريد قبل Transaction
             $noteNumber = $this->generateDeliveryNoteNumber();
+            
+            DB::beginTransaction();
 
             // إنشاء إذن الصرف
             $deliveryNote = DeliveryNote::create([
@@ -181,6 +184,9 @@ class FinishedProductDeliveryController extends Controller
                 'status' => DeliveryNoteStatus::PENDING,
                 'prepared_by' => Auth::id(),
                 'customer_id' => $validated['customer_id'] ?? null,
+                'driver_name' => $validated['driver_name'] ?? null,
+                'vehicle_number' => $validated['vehicle_number'] ?? null,
+                'city' => $validated['city'] ?? null,
                 'notes' => $validated['notes'] ?? null,
                 'source_type' => 'stage4',
                 'source_id' => null, // يمكن استخدامه لاحقاً للربط بمرحلة معينة
@@ -233,8 +239,11 @@ class FinishedProductDeliveryController extends Controller
 
             // تسجيل حركة خروج في material_movements
             if ($warehouseId) {
+                // توليد رقم الحركة مسبقاً
+                $movementNumber = 'MV' . now()->format('Ymd') . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+                
                 MaterialMovement::create([
-                    'movement_number' => MaterialMovement::generateMovementNumber(),
+                    'movement_number' => $movementNumber,
                     'movement_type' => 'outgoing',
                     'source' => 'production',
                     'from_warehouse_id' => $warehouseId,

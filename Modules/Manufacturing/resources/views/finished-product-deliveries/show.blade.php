@@ -69,6 +69,55 @@
                 </div>
             </div>
 
+            <!-- معلومات التوصيل -->
+            @if($deliveryNote->driver_name || $deliveryNote->vehicle_number || $deliveryNote->city)
+            <div class="card mb-4 border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-truck me-2"></i>
+                        معلومات التوصيل
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @if($deliveryNote->driver_name)
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="text-muted small">
+                                    <i class="bi bi-person-badge me-1"></i>
+                                    اسم السائق
+                                </label>
+                                <div><strong>{{ $deliveryNote->driver_name }}</strong></div>
+                            </div>
+                        </div>
+                        @endif
+                        @if($deliveryNote->vehicle_number)
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="text-muted small">
+                                    <i class="bi bi-card-text me-1"></i>
+                                    رقم اللوحة
+                                </label>
+                                <div><strong>{{ $deliveryNote->vehicle_number }}</strong></div>
+                            </div>
+                        </div>
+                        @endif
+                        @if($deliveryNote->city)
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="text-muted small">
+                                    <i class="bi bi-geo-alt me-1"></i>
+                                    المدينة/الوجهة
+                                </label>
+                                <div><strong>{{ $deliveryNote->city }}</strong></div>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <!-- بيانات العميل -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">

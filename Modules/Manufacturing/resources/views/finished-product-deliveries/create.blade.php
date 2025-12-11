@@ -202,6 +202,20 @@
     <form id="deliveryForm" method="POST" action="{{ route('manufacturing.finished-product-deliveries.store') }}">
         @csrf
 
+        @php
+            $materialTypes = collect($availableBoxes)->flatMap(function ($box) {
+                return collect($box['materials'] ?? [])->pluck('type');
+            })->filter(function ($value) {
+                return $value && $value !== 'غير محدد';
+            })->unique()->sort()->values();
+
+            $materialColors = collect($availableBoxes)->flatMap(function ($box) {
+                return collect($box['materials'] ?? [])->pluck('color');
+            })->filter(function ($value) {
+                return $value && $value !== 'غير محدد';
+            })->unique()->sort()->values();
+        @endphp
+
         <div class="row">
             <!-- قسم البحث واختيار الصناديق -->
             <div class="col-md-8">
@@ -230,6 +244,38 @@
                                     <i class="bi bi-x-circle me-1"></i>
                                     {{ __('app.buttons.clear') }}
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- بحث حسب الصنف واللون والعدد -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">الصنف</label>
+                                <select id="filterMaterialType" class="form-select">
+                                    <option value="">{{ __('app.buttons.all') }}</option>
+                                    @foreach($materialTypes as $type)
+                                        <option value="{{ $type }}">{{ $type }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">اللون</label>
+                                <select id="filterColor" class="form-select">
+                                    <option value="">{{ __('app.buttons.all') }}</option>
+                                    @foreach($materialColors as $color)
+                                        <option value="{{ $color }}">{{ $color }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">العدد</label>
+                                <div class="input-group">
+                                    <input type="number" id="selectQuantity" class="form-control" min="1" value="1">
+                                    <button type="button" id="addByTypeColor" class="btn btn-success">
+                                        <i class="bi bi-plus-circle me-1"></i>
+                                        إضافة
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -281,6 +327,44 @@
                                 @endforeach
                             </select>
                             <small class="text-muted">{{ __('app.finished_products.customer_note_on_approval') }}</small>
+                        </div>
+
+                        <!-- معلومات التوصيل -->
+                        <div class="card mb-3 border-info">
+                            <div class="card-header bg-info bg-opacity-10">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-truck me-2"></i>
+                                    معلومات التوصيل (اختياري)
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <!-- اسم السائق -->
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="bi bi-person-badge me-1"></i>
+                                        اسم السائق
+                                    </label>
+                                    <input type="text" name="driver_name" class="form-control" placeholder="أدخل اسم السائق">
+                                </div>
+
+                                <!-- رقم اللوحة -->
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="bi bi-card-text me-1"></i>
+                                        رقم اللوحة
+                                    </label>
+                                    <input type="text" name="vehicle_number" class="form-control" placeholder="أدخل رقم اللوحة">
+                                </div>
+
+                                <!-- المدينة -->
+                                <div class="mb-0">
+                                    <label class="form-label">
+                                        <i class="bi bi-geo-alt me-1"></i>
+                                        المدينة/الوجهة
+                                    </label>
+                                    <input type="text" name="city" class="form-control" placeholder="أدخل المدينة أو الوجهة">
+                                </div>
+                            </div>
                         </div>
 
                         <!-- الملاحظات -->
@@ -369,6 +453,7 @@
 $(document).ready(function() {
     let selectedBoxes = [];
     let currentBoxes = [];
+    const allAvailableBoxes = @json($availableBoxes);
 
     // البحث عند الضغط على Enter
     $('#searchBarcode').on('keypress', function(e) {
@@ -447,6 +532,92 @@ $(document).ready(function() {
                 Swal.fire('{{ __("app.finished_products.error") }}', '{{ __("app.finished_products.failed_load_boxes") }}', 'error');
             }
         });
+    });
+
+    // تحديث قائمة الألوان حسب الصنف
+    $('#filterMaterialType').on('change', function() {
+        const selectedType = $(this).val();
+        const colorsSet = new Set();
+
+        allAvailableBoxes.forEach(box => {
+            (box.materials || []).forEach(m => {
+                if ((!selectedType || m.type === selectedType) && m.color && m.color !== 'غير محدد') {
+                    colorsSet.add(m.color);
+                }
+            });
+        });
+
+        const $colorSelect = $('#filterColor');
+        $colorSelect.empty();
+        $colorSelect.append('<option value="">{{ __('app.buttons.all') }}</option>');
+        Array.from(colorsSet).sort().forEach(color => {
+            $colorSelect.append(`<option value="${color}">${color}</option>`);
+        });
+    });
+
+    // إضافة صناديق حسب الصنف واللون والعدد
+    function addBoxesByTypeColor() {
+        const materialType = $('#filterMaterialType').val();
+        const color = $('#filterColor').val();
+        let quantity = parseInt($('#selectQuantity').val(), 10) || 0;
+
+        if (!materialType && !color) {
+            Swal.fire('تنبيه', 'اختر الصنف أو اللون أولاً', 'warning');
+            return;
+        }
+
+        if (quantity <= 0) {
+            Swal.fire('تنبيه', 'الرجاء إدخال عدد صحيح أكبر من صفر', 'warning');
+            return;
+        }
+
+        const matching = allAvailableBoxes.filter(box => {
+            if (selectedBoxes.some(b => b.id === box.id)) {
+                return false;
+            }
+
+            const materials = box.materials || [];
+            if (materials.length === 0) {
+                return false;
+            }
+
+            return materials.some(m => {
+                const typeOk = materialType ? m.type === materialType : true;
+                const colorOk = color ? m.color === color : true;
+                return typeOk && colorOk;
+            });
+        });
+
+        if (matching.length === 0) {
+            Swal.fire('معلومة', 'لا توجد صناديق مطابقة لهذه المواصفات حالياً', 'info');
+            return;
+        }
+
+        const toAdd = matching.slice(0, quantity);
+        toAdd.forEach(box => {
+            selectedBoxes.push(box);
+        });
+
+        updateSummary();
+
+        Swal.fire({
+            icon: 'success',
+            title: 'تم الإضافة',
+            text: `تمت إضافة ${toAdd.length} صندوق/كراتين بناءً على الصنف واللون`,
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }
+
+    $('#addByTypeColor').on('click', function() {
+        addBoxesByTypeColor();
+    });
+
+    $('#selectQuantity').on('keypress', function(e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            addBoxesByTypeColor();
+        }
     });
 
     // عرض الصناديق
@@ -643,17 +814,19 @@ $(document).ready(function() {
     }
     
     // إظهار/إخفاء الشريط الثابت عند التمرير
-    let summaryCardTop = $('.summary-card').offset().top;
     $(window).on('scroll', function() {
-        let scrollTop = $(window).scrollTop();
-        let windowHeight = $(window).height();
-        let summaryCardBottom = summaryCardTop + $('.summary-card').outerHeight();
-        
-        // إظهار الشريط عندما يكون زر الحفظ خارج الشاشة
-        if (scrollTop + windowHeight < summaryCardBottom || scrollTop > summaryCardTop + 200) {
-            $('#stickyBar').addClass('show');
-        } else {
-            $('#stickyBar').removeClass('show');
+        let submitBtn = $('#submitBtn');
+        if (submitBtn.length > 0) {
+            let submitBtnTop = submitBtn.offset().top;
+            let scrollTop = $(window).scrollTop();
+            let windowHeight = $(window).height();
+            
+            // إظهار الشريط عندما يكون زر الحفظ خارج الشاشة
+            if (scrollTop + windowHeight < submitBtnTop || scrollTop > submitBtnTop + 200) {
+                $('#stickyBar').addClass('show');
+            } else {
+                $('#stickyBar').removeClass('show');
+            }
         }
     });
     
@@ -738,7 +911,7 @@ $(document).ready(function() {
                         text: response.message,
                         confirmButtonText: '{{ __("app.finished_products.view_note") }}'
                     }).then(() => {
-                        window.location.href = `/finished-product-deliveries/${response.delivery_note_id}`;
+                        window.location.href = "{{ route('manufacturing.finished-product-deliveries.show', ':id') }}".replace(':id', response.delivery_note_id);
                     });
                 }
             },

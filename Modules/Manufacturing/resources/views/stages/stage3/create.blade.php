@@ -577,6 +577,15 @@ function addLafaf(button = null) {
     });
 }
 
+function escapeAttribute(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
 function renderLafafs() {
     const list = document.getElementById('lafafList');
     document.getElementById('lafafCount').textContent = lafafs.length;
@@ -596,7 +605,17 @@ function renderLafafs() {
         return;
     }
 
-    list.innerHTML = lafafs.map(item => `
+    list.innerHTML = lafafs.map(item => {
+        const totalWeight = typeof item.total_weight === 'number' ? item.total_weight : parseFloat(item.total_weight) || 0;
+        const wrappingWeight = typeof item.wrapping_weight === 'number' ? item.wrapping_weight : parseFloat(item.wrapping_weight) || 0;
+        const netWeight = typeof item.net_weight === 'number' ? item.net_weight : parseFloat(item.net_weight) || totalWeight;
+        const addedWeight = typeof item.added_weight === 'number' ? item.added_weight : parseFloat(item.added_weight) || 0;
+        const barcodeAttr = escapeAttribute(item.barcode || '');
+        const coilAttr = escapeAttribute(item.coil_number || '');
+        const materialAttr = escapeAttribute(item.material_name || '');
+        const colorAttr = escapeAttribute(item.color || '');
+
+        return `
         <div class="lafaf-item">
             <div class="lafaf-info" style="flex:1;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
@@ -608,22 +627,31 @@ function renderLafafs() {
                 <small style="display:block; line-height:1.6;">
                     <strong>{{ __('stages.material_label') }}:</strong> ${item.material_name} |
                     <strong>{{ __('stages.barcode_label') }}:</strong> <code style="background:#f8f9fa; padding:2px 6px; border-radius:4px; font-family:monospace;">${item.barcode}</code><br>
-                    <strong>الوزن الإجمالي:</strong> ${item.total_weight} {{ __('stages.kg_unit') }} |
-                    <strong>وزن اللفاف:</strong> ${item.wrapping_weight || 0} {{ __('stages.kg_unit') }} |
-                    <strong>الوزن الصافي:</strong> ${item.net_weight} {{ __('stages.kg_unit') }}<br>
-                    <strong>{{ __('stages.stage3_added_weight_label') }}:</strong> ${item.added_weight} {{ __('stages.kg_unit') }} |
+                    <strong>الوزن الإجمالي:</strong> ${totalWeight.toFixed(3)} {{ __('stages.kg_unit') }} |
+                    <strong>وزن اللفاف:</strong> ${wrappingWeight.toFixed(3)} {{ __('stages.kg_unit') }} |
+                    <strong>الوزن الصافي:</strong> ${netWeight.toFixed(3)} {{ __('stages.kg_unit') }}<br>
+                    <strong>{{ __('stages.stage3_added_weight_label') }}:</strong> ${addedWeight.toFixed(3)} {{ __('stages.kg_unit') }} |
                     <strong>{{ __('stages.stage3_color_label') }}:</strong> ${item.color}
                     ${item.plastic_type ? ' | <strong>{{ __('stages.stage3_plastic_type_label') }}:</strong> ' + item.plastic_type : ''}
                     ${item.notes ? '<br>📝 <strong>{{ __('stages.stage3_notes_label') }}:</strong> ' + item.notes : ''}
                 </small>
             </div>
             <div style="display:flex; gap:8px;">
-                <button class="btn-print" onclick="printLafafBarcode('${item.barcode}', '${item.coil_number}', '${item.material_name}', ${item.net_weight}, '${item.color}')">
+                <button class="btn-print"
+                        data-barcode="${barcodeAttr}"
+                        data-coil="${coilAttr}"
+                        data-material="${materialAttr}"
+                        data-net="${netWeight.toFixed(3)}"
+                        data-total="${totalWeight.toFixed(3)}"
+                        data-wrapping="${wrappingWeight.toFixed(3)}"
+                        data-color="${colorAttr}"
+                        onclick="handlePrintClick(event)">
                     <i class="fas fa-print"></i> {{ __('stages.stage3_print_barcode') }}
                 </button>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function finishOperation() {
@@ -654,7 +682,28 @@ function clearForm() {
     }
 }
 
-function printLafafBarcode(barcode, coilNumber, materialName, netWeight, color) {
+function handlePrintClick(event) {
+    const button = event.currentTarget;
+    printLafafBarcode(
+        button.dataset.barcode || '',
+        button.dataset.coil || '',
+        button.dataset.material || '',
+        button.dataset.net || '0',
+        button.dataset.total || '0',
+        button.dataset.wrapping || '0',
+        button.dataset.color || ''
+    );
+}
+
+function printLafafBarcode(barcode, coilNumber, materialName, netWeight, totalWeight, wrappingWeight, color) {
+    const numericNet = Number(netWeight || 0);
+    const numericTotal = Number(totalWeight || netWeight || 0);
+    const numericWrap = Number(wrappingWeight || 0);
+
+    const cleanNet = numericNet.toFixed(3);
+    const cleanTotal = numericTotal.toFixed(3);
+    const cleanWrap = numericWrap.toFixed(3);
+
     const printWindow = window.open('', '', 'height=650,width=850');
     printWindow.document.write('<html dir="rtl"><head><title>{{ __('stages.stage3_print_barcode') }} - ' + coilNumber + '</title>');
     printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
@@ -677,7 +726,13 @@ function printLafafBarcode(barcode, coilNumber, materialName, netWeight, color) 
     printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
     printWindow.document.write('<div class="info">');
     printWindow.document.write('<div class="info-row"><span class="label">{{ __('stages.material_label') }}:</span><span class="value">' + materialName + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">الوزن الصافي:</span><span class="value">' + netWeight + ' {{ __('stages.kg_unit') }}</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">الوزن الصافي (بعد خصم اللفاف):</span><span class="value">' + cleanNet + ' {{ __('stages.kg_unit') }}</span></div>');
+    if (numericWrap > 0) {
+        printWindow.document.write('<div class="info-row"><span class="label">{{ __('stages.total_weight_label') }}:</span><span class="value">' + cleanTotal + ' {{ __('stages.kg_unit') }}</span></div>');
+        printWindow.document.write('<div class="info-row"><span class="label">وزن اللفاف:</span><span class="value">' + cleanWrap + ' {{ __('stages.kg_unit') }}</span></div>');
+    } else {
+        printWindow.document.write('<div class="info-row"><span class="label">{{ __('stages.total_weight_label') }}:</span><span class="value">' + cleanTotal + ' {{ __('stages.kg_unit') }}</span></div>');
+    }
     printWindow.document.write('<div class="info-row"><span class="label">{{ __('stages.stage3_color_label') }}:</span><span class="value">' + color + '</span></div>');
     printWindow.document.write('<div class="info-row"><span class="label">{{ __('stages.date_label_print') }}:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
     printWindow.document.write('</div></div>');
@@ -715,6 +770,7 @@ function showToast(message, type = 'info') {
 window.addLafaf = addLafaf;
 window.clearForm = clearForm;
 window.finishOperation = finishOperation;
+window.handlePrintClick = handlePrintClick;
 </script>
 
 @endsection

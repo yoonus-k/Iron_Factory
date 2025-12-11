@@ -264,16 +264,22 @@ $(document).ready(function() {
         
         // إظهار ملخص الطلب
         const card = $(this).closest('.card');
-        const boxesCount = card.find('.badge.bg-primary').text().split(' ')[0];
-        const totalWeight = card.find('.badge.bg-info').text().split(' ')[0];
-        
+        const boxesCount = card.find('h4.text-primary').text().trim();
+        const totalWeightText = card.find('h4.text-success').text().trim();
+        const totalWeight = totalWeightText.split(' ')[0];
+
+        // عنوان الملخص مع رقم الطلب باستخدام الترجمة
+        const summaryTemplate = @json(__('warehouse_intake.request_summary', ['number' => ':number']));
+        const summaryTitle = summaryTemplate.replace(':number', requestNumber);
+
         $('#request-summary').removeClass('d-none').html(`
-            <strong>{{ __('warehouse_intake.request_summary', ['number' => ${requestNumber}]) }}</strong><br>
-            <i class="bi bi-box-seam me-1"></i> {{ __('warehouse_intake.boxes_count') }}: <strong>${boxesCount}</strong><br>
-            <i class="bi bi-file-earmark-bar-graph me-1"></i> {{ __('warehouse_intake.total_weight') }}: <strong>${totalWeight} {{ __('warehouse_intake.kg') }}</strong>
-        <strong>{{ __('warehouse_intake.pending_review_count', ['count' => $pendingRequests->total()]) }}</strong>
+            <strong>${summaryTitle}</strong><br>
+            <i class="bi bi-box-seam me-1"></i> {{ __('warehouse_intake.boxes_count_label') }}: <strong>${boxesCount}</strong><br>
+            <i class="bi bi-file-earmark-bar-graph me-1"></i> {{ __('warehouse_intake.total_weight_label') }}: <strong>${totalWeight} {{ __('warehouse_intake.kg') }}</strong>
+        `);
         
         $('#approveModal').modal('show');
+    });
 
     // تأكيد الاعتماد
     $('#approveForm').on('submit', function(e) {
@@ -311,7 +317,7 @@ $(document).ready(function() {
                 Swal.fire('{{ __('warehouse_intake.error') }}', xhr.responseJSON?.error || '{{ __('warehouse_intake.request_approval_failed') }}', 'error');
             }
         });
-    }
+    });
 
     // فتح modal الرفض
     $(document).on('click', '.reject-btn', function() {
@@ -323,7 +329,7 @@ $(document).ready(function() {
         $('#rejectModal').modal('show');
     });
 
-    // {{ __('warehouse_intake.confirm_rejection') }}
+    // تأكيد الرفض
     $('#rejectForm').on('submit', function(e) {
         e.preventDefault();
         
