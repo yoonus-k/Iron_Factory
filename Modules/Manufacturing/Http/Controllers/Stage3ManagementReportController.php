@@ -185,7 +185,7 @@ class Stage3ManagementReportController extends Controller
         // ========== ACTIVE WORKERS ==========
         $stage3ActiveWorkers = $stage3Records->filter(function ($record) {
             if (!$record->created_at) return false;
-            $createdDate = is_string($record->created_at) ? strtotime($record->created_at) : strtotime($record->created_at);
+            $createdDate = is_string($record->created_at) ? strtotime($record->created_at) : $record->created_at->timestamp;
             $weekAgoTime = now()->subDays(7)->timestamp;
             return $createdDate >= $weekAgoTime;
         })->pluck('created_by')->unique()->count();

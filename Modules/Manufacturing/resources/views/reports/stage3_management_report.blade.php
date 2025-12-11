@@ -1,439 +1,9 @@
-
 @extends('master')
 
-@section('title', 'تقرير إدارة المرحلة الثالثة')
+@section('title', __('stage3_report.page_title'))
 
 @section('content')
-
-<style>
-    :root {
-        --primary: #0b5fa5;
-        --success: #27ae60;
-        --warning: #f39c12;
-        --danger: #e74c3c;
-        --info: #3498db;
-        --light: #ecf0f1;
-        --dark: #2c3e50;
-    }
-
-    * {
-        box-sizing: border-box;
-    }
-
-    body {
-        background: #f5f6fa;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    .report-container {
-        max-width: 1400px;
-        margin: 30px auto;
-        padding: 20px;
-    }
-
-    /* Header */
-    .report-header {
-        background: linear-gradient(135deg, var(--primary) 0%, #2a9fd6 100%);
-        color: white;
-        padding: 30px;
-        border-radius: 12px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(11, 95, 165, 0.2);
-    }
-
-    .report-header h1 {
-        margin: 0;
-        font-size: 32px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .report-header p {
-        margin: 10px 0 0 0;
-        opacity: 0.9;
-        font-size: 16px;
-    }
-
-    .report-date {
-        text-align: right;
-        font-size: 14px;
-        opacity: 0.8;
-    }
-
-    /* KPI Cards */
-    .kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-    }
-
-    .kpi-card {
-        background: white;
-        padding: 25px;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        border-top: 4px solid var(--primary);
-        transition: all 0.3s ease;
-    }
-
-    .kpi-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-    }
-
-    .kpi-card.success {
-        border-top-color: var(--success);
-    }
-
-    .kpi-card.warning {
-        border-top-color: var(--warning);
-    }
-
-    .kpi-card.danger {
-        border-top-color: var(--danger);
-    }
-
-    .kpi-card.info {
-        border-top-color: var(--info);
-    }
-
-    .kpi-icon {
-        font-size: 32px;
-        margin-bottom: 10px;
-    }
-
-    .kpi-label {
-        font-size: 13px;
-        color: #7f8c8d;
-        font-weight: 600;
-        margin-bottom: 8px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .kpi-value {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 5px;
-    }
-
-    .kpi-unit {
-        font-size: 13px;
-        color: #95a5a6;
-    }
-
-    .kpi-change {
-        font-size: 12px;
-        margin-top: 10px;
-        padding-top: 10px;
-        border-top: 1px solid var(--light);
-    }
-
-    .kpi-change.positive {
-        color: var(--success);
-    }
-
-    .kpi-change.negative {
-        color: var(--danger);
-    }
-
-    /* Section */
-    .report-section {
-        background: white;
-        padding: 25px;
-        border-radius: 10px;
-        margin-bottom: 25px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-
-    .section-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 2px solid var(--light);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .section-title i {
-        color: var(--primary);
-        font-size: 24px;
-    }
-
-    /* Table */
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px;
-    }
-
-    .data-table thead {
-        background: #f8f9fa;
-        border-bottom: 2px solid var(--light);
-    }
-
-    .data-table th {
-        padding: 12px 15px;
-        text-align: right;
-        font-weight: 600;
-        color: var(--dark);
-        font-size: 13px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .data-table td {
-        padding: 12px 15px;
-        border-bottom: 1px solid var(--light);
-        font-size: 14px;
-    }
-
-    .data-table tbody tr:hover {
-        background: #f8f9fa;
-    }
-
-    .data-table tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    /* Status Badge */
-    .status-badge {
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        text-align: center;
-    }
-
-    .status-created {
-        background: #e3f2fd;
-        color: #1976d2;
-    }
-
-    .status-in_process {
-        background: #fff3e0;
-        color: #f57c00;
-    }
-
-    .status-completed {
-        background: #e8f5e9;
-        color: #388e3c;
-    }
-
-    .status-pending_approval {
-        background: #f3e5f5;
-        color: #7b1fa2;
-    }
-
-    .status-consumed {
-        background: #eeeeee;
-        color: #616161;
-    }
-
-    /* Progress Bar */
-    .progress-bar {
-        height: 8px;
-        background: #ecf0f1;
-        border-radius: 4px;
-        overflow: hidden;
-        margin-top: 10px;
-    }
-
-    .progress-fill {
-        height: 100%;
-        border-radius: 4px;
-        transition: width 0.3s ease;
-        background: linear-gradient(90deg, var(--success), #27ae60);
-    }
-
-    .progress-fill.warning {
-        background: linear-gradient(90deg, var(--warning), #e67e22);
-    }
-
-    .progress-fill.danger {
-        background: linear-gradient(90deg, var(--danger), #c0392b);
-    }
-
-    /* Waste Level */
-    .waste-level {
-        display: inline-block;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    .waste-level.safe {
-        background: #e8f5e9;
-        color: #388e3c;
-    }
-
-    .waste-level.warning {
-        background: #fff3e0;
-        color: #f57c00;
-    }
-
-    .waste-level.critical {
-        background: #ffebee;
-        color: #d32f2f;
-    }
-
-    /* Stat Row */
-    .stat-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-bottom: 20px;
-    }
-
-    .stat-item {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 8px;
-        border-right: 3px solid var(--primary);
-    }
-
-    .stat-item.success {
-        border-right-color: var(--success);
-    }
-
-    .stat-item.warning {
-        border-right-color: var(--warning);
-    }
-
-    .stat-item.danger {
-        border-right-color: var(--danger);
-    }
-
-    .stat-label {
-        font-size: 12px;
-        color: #7f8c8d;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-
-    .stat-value {
-        font-size: 20px;
-        font-weight: 700;
-        color: var(--dark);
-    }
-
-    /* Alert */
-    .alert {
-        padding: 15px 20px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        border-right: 4px solid;
-    }
-
-    .alert-success {
-        background: #e8f5e9;
-        border-right-color: var(--success);
-        color: #388e3c;
-    }
-
-    .alert-warning {
-        background: #fff3e0;
-        border-right-color: var(--warning);
-        color: #f57c00;
-    }
-
-    .alert-danger {
-        background: #ffebee;
-        border-right-color: var(--danger);
-        color: #d32f2f;
-    }
-
-    .alert-info {
-        background: #e3f2fd;
-        border-right-color: var(--info);
-        color: #1976d2;
-    }
-
-    /* Chart Container */
-    .chart-container {
-        position: relative;
-        height: 300px;
-        margin-top: 20px;
-    }
-
-    /* Two Column Layout */
-    .two-column {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-    }
-
-    @media (max-width: 768px) {
-        .two-column {
-            grid-template-columns: 1fr;
-        }
-
-        .kpi-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .report-header h1 {
-            font-size: 24px;
-        }
-    }
-
-    /* Badge */
-    .badge {
-        display: inline-block;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    .badge-primary {
-        background: #e3f2fd;
-        color: #1976d2;
-    }
-
-    .badge-success {
-        background: #e8f5e9;
-        color: #388e3c;
-    }
-
-    .badge-warning {
-        background: #fff3e0;
-        color: #f57c00;
-    }
-
-    .badge-danger {
-        background: #ffebee;
-        color: #d32f2f;
-    }
-
-    /* Print Styles */
-    @media print {
-        .report-container {
-            max-width: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        .report-section {
-            page-break-inside: avoid;
-            box-shadow: none;
-            border: 1px solid #ddd;
-        }
-
-        .kpi-card {
-            page-break-inside: avoid;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('assets/css/stage1-report.css') }}">
 
 <div class="report-container">
     <!-- Header -->
@@ -442,13 +12,13 @@
             <div>
                 <h1>
                     <i class="fas fa-palette"></i>
-                    تقرير إدارة المرحلة الثالثة
+                    {{ __('stage3_report.page_title') }}
                 </h1>
-                <p>🏭 نظام إدارة الإنتاج المتكامل - Iron Factory</p>
+                <p>🏭 {{ __('stage3_report.system_name') }}</p>
             </div>
             <div class="report-date">
                 <div style="font-weight: 600; margin-bottom: 5px;">{{ date('Y-m-d H:i') }}</div>
-                <div style="font-size: 12px;">التقرير الحالي</div>
+                <div style="font-size: 12px;">{{ __('stage3_report.current_report') }}</div>
             </div>
         </div>
     </div>
@@ -457,145 +27,145 @@
     <div class="kpi-grid">
         <!-- إجمالي الملفات -->
         <div class="kpi-card success">
-            <div class="kpi-icon">📄</div>
-            <div class="kpi-label">إجمالي الملفات</div>
-            <div class="kpi-value">{{ $totalStands ?? 0 }}</div>
-            <div class="kpi-unit">ملف</div>
+            <div class="kpi-icon">📦</div>
+            <div class="kpi-label">{{ __('stage3_report.total_files') }}</div>
+            <div class="kpi-value">{{ $stage3Total ?? 0 }}</div>
+            <div class="kpi-unit">{{ __('stage3_report.unit_file') }}</div>
             <div class="kpi-change positive">
-                ↑ {{ $standsToday ?? 0 }} اليوم
+                ↑ {{ $stage3Today ?? 0 }} {{ __('stage3_report.today') }}
             </div>
         </div>
 
         <!-- الملفات المكتملة -->
         <div class="kpi-card success">
             <div class="kpi-icon">✅</div>
-            <div class="kpi-label">الملفات المكتملة</div>
-            <div class="kpi-value">{{ $completedStands ?? 0 }}</div>
-            <div class="kpi-unit">{{ $completionRate ?? 0 }}%</div>
+            <div class="kpi-label">{{ __('stage3_report.completed_files') }}</div>
+            <div class="kpi-value">{{ $stage3CompletedCount ?? 0 }}</div>
+            <div class="kpi-unit">{{ $stage3CompletionRate ?? 0 }}%</div>
             <div class="kpi-change positive">
-                ✓ مجهزة للتسليم
+                ✓ {{ __('stage3_report.ready_for_delivery') }}
             </div>
         </div>
 
-        <!-- الملفات المعلقة -->
+        <!-- الملفات المعبأة -->
         <div class="kpi-card warning">
-            <div class="kpi-icon">⏸️</div>
-            <div class="kpi-label">الملفات المعلقة</div>
-            <div class="kpi-value">{{ $pendingStands ?? 0 }}</div>
-            <div class="kpi-unit">في انتظار الموافقة</div>
+            <div class="kpi-icon">📦</div>
+            <div class="kpi-label">{{ __('stage3_report.packed_files') }}</div>
+            <div class="kpi-value">{{ $stage3StatusPacked ?? 0 }}</div>
+            <div class="kpi-unit">{{ __('stage3_report.ready_for_shipping') }}</div>
             <div class="kpi-change">
-                ⚠️ بسبب مشاكل في التلوين
+                ⚠️ {{ __('stage3_report.ready_for_shipping') }}
             </div>
         </div>
 
-        <!-- إجمالي المادة الداخلة -->
+        <!-- إجمالي وزن القاعدة -->
         <div class="kpi-card info">
             <div class="kpi-icon">📥</div>
-            <div class="kpi-label">إجمالي المادة الداخلة</div>
-            <div class="kpi-value">{{ $totalInputWeight ?? 0 }}</div>
-            <div class="kpi-unit">كجم</div>
+            <div class="kpi-label">{{ __('stage3_report.total_base_weight') }}</div>
+            <div class="kpi-value">{{ $stage3TotalBaseWeight ?? 0 }}</div>
+            <div class="kpi-unit">{{ __('stage3_report.unit_kg') }}</div>
             <div class="kpi-change">
-                🏭 من المرحلة الثانية
+                🏭 {{ __('stage3_report.from_stage2') }}
             </div>
         </div>
 
-        <!-- الوزن الصافي الخارج -->
+        <!-- الوزن الكلي النهائي -->
         <div class="kpi-card success">
             <div class="kpi-icon">📤</div>
-            <div class="kpi-label">الوزن الصافي الخارج</div>
-            <div class="kpi-value">{{ $totalOutputWeight ?? 0 }}</div>
-            <div class="kpi-unit">كجم</div>
+            <div class="kpi-label">{{ __('stage3_report.total_final_weight') }}</div>
+            <div class="kpi-value">{{ $stage3TotalWeight ?? 0 }}</div>
+            <div class="kpi-unit">{{ __('stage3_report.unit_kg') }}</div>
             <div class="kpi-change positive">
-                ✓ جاهز للتسليم
+                ✓ {{ __('stage3_report.ready_for_delivery') }}
             </div>
         </div>
 
         <!-- إجمالي الهدر -->
         <div class="kpi-card danger">
             <div class="kpi-icon">♻️</div>
-            <div class="kpi-label">إجمالي الهدر</div>
-            <div class="kpi-value">{{ $totalWaste ?? 0 }}</div>
-            <div class="kpi-unit">كجم</div>
+            <div class="kpi-label">{{ __('stage3_report.total_waste') }}</div>
+            <div class="kpi-value">{{ $stage3TotalWaste ?? 0 }}</div>
+            <div class="kpi-unit">{{ __('stage3_report.unit_kg') }}</div>
             <div class="kpi-change">
-                📊 متوسط: {{ $avgWastePercentage ?? 0 }}%
+                📊 {{ __('stage3_report.average') }}: {{ $stage3AvgWastePercentage ?? 0 }}%
             </div>
         </div>
 
         <!-- أعلى نسبة هدر -->
         <div class="kpi-card danger">
             <div class="kpi-icon">⚠️</div>
-            <div class="kpi-label">أعلى نسبة هدر</div>
-            <div class="kpi-value">{{ $maxWastePercentage ?? 0 }}%</div>
-            <div class="kpi-unit">Stand: {{ $maxWasteBarcode ?? '-' }}</div>
+            <div class="kpi-label">{{ __('stage3_report.highest_waste') }}</div>
+            <div class="kpi-value">{{ $stage3MaxWastePercentage ?? 0 }}%</div>
+            <div class="kpi-unit">{{ __('stage3_report.file_label') }}: {{ $stage3MaxWasteBarcode ?? '-' }}</div>
             <div class="kpi-change negative">
-                🔴 تنبيه
+                🔴 {{ __('stage3_report.alert_attention') }}
             </div>
         </div>
 
         <!-- أقل نسبة هدر -->
         <div class="kpi-card success">
             <div class="kpi-icon">🎯</div>
-            <div class="kpi-label">أقل نسبة هدر</div>
-            <div class="kpi-value">{{ $minWastePercentage ?? 0 }}%</div>
-            <div class="kpi-unit">Stand: {{ $minWasteBarcode ?? '-' }}</div>
+            <div class="kpi-label">{{ __('stage3_report.lowest_waste') }}</div>
+            <div class="kpi-value">{{ $stage3MinWastePercentage ?? 0 }}%</div>
+            <div class="kpi-unit">{{ __('stage3_report.file_label') }}: {{ $stage3MinWasteBarcode ?? '-' }}</div>
             <div class="kpi-change positive">
-                ✓ ممتاز
+                ✓ {{ __('stage3_report.excellent') }}
             </div>
         </div>
 
         <!-- عدد العمال -->
         <div class="kpi-card info">
             <div class="kpi-icon">👥</div>
-            <div class="kpi-label">عدد العمال النشطين</div>
-            <div class="kpi-value">{{ $activeWorkers ?? 0 }}</div>
-            <div class="kpi-unit">عامل</div>
+            <div class="kpi-label">{{ __('stage3_report.active_workers') }}</div>
+            <div class="kpi-value">{{ $stage3ActiveWorkers ?? 0 }}</div>
+            <div class="kpi-unit">{{ __('stage3_report.unit_worker') }}</div>
             <div class="kpi-change">
-                👨‍🔧 في هذه الفترة
+                👨‍🔧 {{ __('stage3_report.in_this_period') }}
             </div>
         </div>
 
         <!-- متوسط الأداء اليومي -->
         <div class="kpi-card success">
             <div class="kpi-icon">📈</div>
-            <div class="kpi-label">متوسط أداء يومي</div>
-            <div class="kpi-value">{{ $avgDailyProduction ?? 0 }}</div>
-            <div class="kpi-unit">استاند/يوم</div>
+            <div class="kpi-label">{{ __('stage3_report.avg_daily_production') }}</div>
+            <div class="kpi-value">{{ $stage3AvgDailyProduction ?? 0 }}</div>
+            <div class="kpi-unit">{{ __('stage3_report.unit_per_day') }}</div>
             <div class="kpi-change positive">
-                ↑ نمو إيجابي
+                ↑ {{ __('stage3_report.positive_growth') }}
             </div>
         </div>
 
-        <!-- معدل الالتزام -->
+        <!-- كفاءة الإنتاج -->
         <div class="kpi-card success">
             <div class="kpi-icon">✓</div>
-            <div class="kpi-label">معدل الالتزام بالجودة</div>
-            <div class="kpi-value">{{ $complianceRate ?? 0 }}%</div>
-            <div class="kpi-unit">استاندات مقبولة</div>
+            <div class="kpi-label">{{ __('stage3_report.production_efficiency') }}</div>
+            <div class="kpi-value">{{ $stage3ProductionEfficiency ?? 0 }}%</div>
+            <div class="kpi-unit">{{ __('stage3_report.efficiency_rate') }}</div>
             <div class="kpi-change positive">
-                ✓ ممتاز
+                ✓ {{ __('stage3_report.excellent') }}
             </div>
         </div>
     </div>
 
     <!-- Alerts Section -->
-    @if($pendingStands > 0)
+    @if(($stage3StatusInProcess ?? 0) > 0)
     <div class="alert alert-warning">
         <i class="fas fa-exclamation-triangle"></i>
-        <strong>تنبيه:</strong> هناك {{ $pendingStands }} ملف في انتظار الموافقة بسبب مشاكل في التلوين
+        <strong>{{ __('stage3_report.alert_warning') }}:</strong> {{ __('stage3_report.coloring_issues_msg', ['count' => $stage3StatusInProcess ?? 0]) }}
     </div>
     @endif
 
-    @if($maxWastePercentage > 15)
+    @if(($stage3MaxWastePercentage ?? 0) > 15)
     <div class="alert alert-danger">
         <i class="fas fa-alert-circle"></i>
-        <strong>خطر:</strong> تم اكتشاف استاند بنسبة هدر عالية جداً ({{ $maxWastePercentage }}%) - يتطلب مراجعة فورية
+        <strong>{{ __('stage3_report.alert_danger') }}:</strong> {{ __('stage3_report.high_waste_detected') }} ({{ $stage3MaxWastePercentage }}%) - {{ __('stage3_report.requires_review') }}
     </div>
     @endif
 
-    @if($avgWastePercentage < 5)
+    @if(($stage3AvgWastePercentage ?? 0) < 5)
     <div class="alert alert-success">
         <i class="fas fa-check-circle"></i>
-        <strong>ممتاز:</strong> متوسط نسبة الخطأ في المرحلة الثالثة في المستوى الأمثل ({{ $avgWastePercentage }}%)
+        <strong>{{ __('stage3_report.alert_success') }}:</strong> {{ __('stage3_report.optimal_error_level') }} ({{ $stage3AvgWastePercentage }}%)
     </div>
     @endif
 
@@ -603,36 +173,36 @@
     <div class="report-section">
         <div class="section-title">
             <i class="fas fa-filter"></i>
-            البحث والتصفية
+            {{ __('stage3_report.filters') }}
         </div>
 
-        <form method="GET" action="{{ route('manufacturing.reports.stage1-management') }}" style="margin-top: 15px;">
+        <form method="GET" action="{{ route('manufacturing.reports.stage3-management') }}" style="margin-top: 15px;">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
 
                 <!-- البحث بالباركود -->
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">🔍 البحث بالباركود</label>
-                    <input type="text" name="search" class="um-form-control" placeholder="مثلاً: ST1-001" value="{{ $filters['search'] ?? '' }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 100%;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">🔍 {{ __('stage3_report.search_barcode') }}</label>
+                    <input type="text" name="search" class="um-form-control" placeholder="{{ __('stage3_report.barcode_placeholder') }}" value="{{ $filters['search'] ?? '' }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 100%;">
                 </div>
 
                 <!-- التصفية بالحالة -->
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">📊 الحالة</label>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">📊 {{ __('stage3_report.status_label') }}</label>
                     <select name="status" class="um-form-control" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 100%;">
-                        <option value="">-- الكل --</option>
-                        <option value="created" {{ ($filters['status'] ?? '') === 'created' ? 'selected' : '' }}>إنشاء جديد</option>
-                        <option value="in_process" {{ ($filters['status'] ?? '') === 'in_process' ? 'selected' : '' }}>قيد المعالجة</option>
-                        <option value="completed" {{ ($filters['status'] ?? '') === 'completed' ? 'selected' : '' }}>مكتمل</option>
-                        <option value="packed" {{ ($filters['status'] ?? '') === 'packed' ? 'selected' : '' }}>مغلف</option>
+                        <option value="">{{ __('stage3_report.all_statuses') }}</option>
+                        <option value="created" {{ ($filters['status'] ?? '') === 'created' ? 'selected' : '' }}>{{ __('stage3_report.status_created') }}</option>
+                        <option value="in_process" {{ ($filters['status'] ?? '') === 'in_process' ? 'selected' : '' }}>{{ __('stage3_report.status_in_process') }}</option>
+                        <option value="completed" {{ ($filters['status'] ?? '') === 'completed' ? 'selected' : '' }}>{{ __('stage3_report.status_completed') }}</option>
+                        <option value="packed" {{ ($filters['status'] ?? '') === 'packed' ? 'selected' : '' }}>{{ __('stage3_report.status_packed') }}</option>
                     </select>
                 </div>
 
                 <!-- التصفية بالعامل -->
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">👤 العامل</label>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">👤 {{ __('stage3_report.worker_label') }}</label>
                     <select name="worker_id" class="um-form-control" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 100%;">
-                        <option value="">-- الكل --</option>
-                        @foreach($workers as $worker)
+                        <option value="">{{ __('stage3_report.all_workers') }}</option>
+                        @foreach($stage3Workers as $worker)
                         <option value="{{ $worker->id }}" {{ ($filters['worker_id'] ?? '') == $worker->id ? 'selected' : '' }}>{{ $worker->name }}</option>
                         @endforeach
                     </select>
@@ -640,44 +210,44 @@
 
                 <!-- من التاريخ -->
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">📅 من التاريخ</label>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">📅 {{ __('stage3_report.from_date') }}</label>
                     <input type="date" name="from_date" class="um-form-control" value="{{ $filters['from_date'] ?? '' }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 100%;">
                 </div>
 
                 <!-- إلى التاريخ -->
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">📅 إلى التاريخ</label>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">📅 {{ __('stage3_report.to_date') }}</label>
                     <input type="date" name="to_date" class="um-form-control" value="{{ $filters['to_date'] ?? '' }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 100%;">
                 </div>
 
                 <!-- مستوى الهدر -->
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">⚠️ مستوى الهدر</label>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">⚠️ {{ __('stage3_report.waste_level_label') }}</label>
                     <select name="waste_level" class="um-form-control" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 100%;">
-                        <option value="">-- الكل --</option>
-                        <option value="safe" {{ ($filters['waste_level'] ?? '') === 'safe' ? 'selected' : '' }}>آمن (0-8%)</option>
-                        <option value="warning" {{ ($filters['waste_level'] ?? '') === 'warning' ? 'selected' : '' }}>تحذير (8-15%)</option>
-                        <option value="critical" {{ ($filters['waste_level'] ?? '') === 'critical' ? 'selected' : '' }}>حرج (>15%)</option>
+                        <option value="">{{ __('stage3_report.all_levels') }}</option>
+                        <option value="safe" {{ ($filters['waste_level'] ?? '') === 'safe' ? 'selected' : '' }}>{{ __('stage3_report.waste_safe') }}</option>
+                        <option value="warning" {{ ($filters['waste_level'] ?? '') === 'warning' ? 'selected' : '' }}>{{ __('stage3_report.waste_warning') }}</option>
+                        <option value="critical" {{ ($filters['waste_level'] ?? '') === 'critical' ? 'selected' : '' }}>{{ __('stage3_report.waste_critical') }}</option>
                     </select>
                 </div>
 
                 <!-- الترتيب -->
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">🔄 ترتيب حسب</label>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">🔄 {{ __('stage3_report.sort_by_label') }}</label>
                     <select name="sort_by" class="um-form-control" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 100%;">
-                        <option value="created_at" {{ request('sort_by', 'created_at') === 'created_at' ? 'selected' : '' }}>التاريخ</option>
-                        <option value="weight" {{ request('sort_by') === 'weight' ? 'selected' : '' }}>الوزن الكلي</option>
-                        <option value="waste" {{ request('sort_by') === 'waste' ? 'selected' : '' }}>الهدر</option>
-                        <option value="barcode" {{ request('sort_by') === 'barcode' ? 'selected' : '' }}>الباركود</option>
+                        <option value="created_at" {{ request('sort_by', 'created_at') === 'created_at' ? 'selected' : '' }}>{{ __('stage3_report.sort_by_date') }}</option>
+                        <option value="weight" {{ request('sort_by') === 'weight' ? 'selected' : '' }}>{{ __('stage3_report.sort_by_weight') }}</option>
+                        <option value="waste" {{ request('sort_by') === 'waste' ? 'selected' : '' }}>{{ __('stage3_report.sort_by_waste') }}</option>
+                        <option value="barcode" {{ request('sort_by') === 'barcode' ? 'selected' : '' }}>{{ __('stage3_report.sort_by_barcode') }}</option>
                     </select>
                 </div>
 
                 <!-- ترتيب تصاعدي/تنازلي -->
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">📈 الاتجاه</label>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--dark);">📈 {{ __('stage3_report.direction_label') }}</label>
                     <select name="sort_order" class="um-form-control" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 100%;">
-                        <option value="desc" {{ request('sort_order', 'desc') === 'desc' ? 'selected' : '' }}>تنازلي (الأحدث أولاً)</option>
-                        <option value="asc" {{ request('sort_order') === 'asc' ? 'selected' : '' }}>تصاعدي</option>
+                        <option value="desc" {{ request('sort_order', 'desc') === 'desc' ? 'selected' : '' }}>{{ __('stage3_report.descending') }}</option>
+                        <option value="asc" {{ request('sort_order') === 'asc' ? 'selected' : '' }}>{{ __('stage3_report.ascending') }}</option>
                     </select>
                 </div>
             </div>
@@ -685,10 +255,10 @@
             <!-- أزرار الإجراء -->
             <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <button type="submit" class="um-btn um-btn-primary" style="padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                    <i class="fas fa-search"></i> بحث وتصفية
+                    <i class="fas fa-search"></i> {{ __('stage3_report.search_button') }}
                 </button>
-                <a href="{{ route('manufacturing.reports.stage1-management') }}" class="um-btn um-btn-outline" style="padding: 10px 20px; background: #ecf0f1; color: var(--dark); border: none; border-radius: 6px; cursor: pointer; font-weight: 600; text-decoration: none; display: inline-block;">
-                    <i class="fas fa-redo"></i> إعادة تعيين
+                <a href="{{ route('manufacturing.reports.stage3-management') }}" class="um-btn um-btn-outline" style="padding: 10px 20px; background: #ecf0f1; color: var(--dark); border: none; border-radius: 6px; cursor: pointer; font-weight: 600; text-decoration: none; display: inline-block;">
+                    <i class="fas fa-redo"></i> {{ __('stage3_report.reset_filters') }}
                 </a>
             </div>
         </form>
@@ -698,40 +268,40 @@
     <div class="report-section">
         <div class="section-title">
             <i class="fas fa-table"></i>
-            جميع السجلات ({{ $allRecords->count() }} سجل)
+            {{ __('stage3_report.all_files') }} ({{ $stage3Records->count() }} {{ __('stage3_report.file_count') }})
         </div>
 
-        @if($allRecords && count($allRecords) > 0)
+        @if($stage3Records && count($stage3Records) > 0)
         <div style="overflow-x: auto; margin-top: 15px;">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>الباركود</th>
-                        <th>المادة</th>
-                        <th>الملف</th>
-                        <th>الوزن الكلي</th>
-                        <th>الوزن الصافي</th>
-                        <th>الهدر</th>
-                        <th>نسبة الهدر</th>
-                        <th>الحالة</th>
-                        <th>العامل</th>
-                        <th>التاريخ</th>
+                        <th>{{ __('stage3_report.table_no') }}</th>
+                        <th>{{ __('stage3_report.table_barcode') }}</th>
+                        <th>{{ __('stage3_report.table_color') }}</th>
+                        <th>{{ __('stage3_report.table_coil_number') }}</th>
+                        <th>{{ __('stage3_report.table_total_weight') }}</th>
+                        <th>{{ __('stage3_report.table_net_weight') }}</th>
+                        <th>{{ __('stage3_report.table_waste') }}</th>
+                        <th>{{ __('stage3_report.table_waste_percentage') }}</th>
+                        <th>{{ __('stage3_report.table_status') }}</th>
+                        <th>{{ __('stage3_report.table_worker') }}</th>
+                        <th>{{ __('stage3_report.table_date') }}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($allRecords as $index => $record)
+                    @forelse($stage3Records as $index => $record)
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td><strong>{{ $record->barcode ?? '-' }}</strong></td>
-                        <td>{{ $record->material_name ?? '-' }}</td>
-                        <td>{{ $record->stand_number ?? '-' }}</td>
-                        <td style="text-align: center;">{{ $record->weight ?? 0 }} كجم</td>
-                        <td style="text-align: center;">{{ $record->remaining_weight ?? 0 }} كجم</td>
-                        <td style="text-align: center;">{{ $record->waste ?? 0 }} كجم</td>
+                        <td>{{ $record->color ?? '-' }}</td>
+                        <td>{{ $record->coil_number ?? '-' }}</td>
+                        <td style="text-align: center;">{{ $record->total_weight ?? 0 }} {{ __('stage3_report.unit_kg') }}</td>
+                        <td style="text-align: center;">{{ round(($record->total_weight ?? 0) - ($record->waste ?? 0), 2) }} {{ __('stage3_report.unit_kg') }}</td>
+                        <td style="text-align: center;">{{ $record->waste ?? 0 }} {{ __('stage3_report.unit_kg') }}</td>
                         <td style="text-align: center;">
                             @php
-                                $wastePerc = $record->weight > 0 ? round((($record->weight - $record->remaining_weight) / $record->weight) * 100, 2) : 0;
+                                $wastePerc = ($record->total_weight ?? 0) > 0 ? round((($record->waste ?? 0) / ($record->total_weight ?? 0)) * 100, 2) : 0;
                                 $wasteClass = $wastePerc > 12 ? 'critical' : ($wastePerc > 8 ? 'warning' : 'safe');
                             @endphp
                             <span class="waste-level {{ $wasteClass }}">{{ $wastePerc }}%</span>
@@ -739,15 +309,13 @@
                         <td style="text-align: center;">
                             <span class="status-badge status-{{ $record->status ?? 'created' }}">
                                 @if($record->status === 'created')
-                                    إنشاء جديد
+                                    {{ __('stage3_report.status_created') }}
                                 @elseif($record->status === 'in_process')
-                                    قيد المعالجة
+                                    {{ __('stage3_report.status_in_process') }}
                                 @elseif($record->status === 'completed')
-                                    مكتمل
-                                @elseif($record->status === 'pending_approval')
-                                    في انتظار موافقة
-                                @elseif($record->status === 'consumed')
-                                    مستهلك
+                                    {{ __('stage3_report.status_completed') }}
+                                @elseif($record->status === 'packed')
+                                    {{ __('stage3_report.status_packed') }}
                                 @else
                                     {{ $record->status }}
                                 @endif
@@ -769,7 +337,7 @@
                     @empty
                     <tr>
                         <td colspan="11" style="text-align: center; padding: 30px; color: #7f8c8d;">
-                            <i class="fas fa-inbox"></i> لا توجد سجلات تطابق معايير البحث
+                            <i class="fas fa-inbox"></i> {{ __('stage3_report.no_records_found') }}
                         </td>
                     </tr>
                     @endforelse
@@ -779,7 +347,7 @@
         @else
         <div style="text-align: center; padding: 40px; color: #7f8c8d;">
             <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
-            <p>لا توجد سجلات</p>
+            <p>{{ __('stage3_report.no_records') }}</p>
         </div>
         @endif
     </div>
@@ -788,31 +356,31 @@
     <div class="report-section">
         <div class="section-title">
             <i class="fas fa-bar-chart"></i>
-            إحصائيات مفصلة
+            {{ __('stage3_report.detailed_statistics') }}
         </div>
 
         <div class="stat-row">
             <div class="stat-item success">
-                <div class="stat-label">معدل الإتمام</div>
-                <div class="stat-value">{{ $completionRate ?? 0 }}%</div>
+                <div class="stat-label">{{ __('stage3_report.completion_rate') }}</div>
+                <div class="stat-value">{{ $stage3CompletionRate ?? 0 }}%</div>
                 <div class="progress-bar">
-                    <div class="progress-fill" style="width: {{ $completionRate ?? 0 }}%"></div>
+                    <div class="progress-fill" style="width: {{ $stage3CompletionRate ?? 0 }}%"></div>
                 </div>
             </div>
 
             <div class="stat-item">
-                <div class="stat-label">معدل الهدر</div>
-                <div class="stat-value">{{ $avgWastePercentage ?? 0 }}%</div>
+                <div class="stat-label">{{ __('stage3_report.waste_rate') }}</div>
+                <div class="stat-value">{{ $stage3AvgWastePercentage ?? 0 }}%</div>
                 <div class="progress-bar">
-                    <div class="progress-fill {{ $avgWastePercentage > 12 ? 'danger' : ($avgWastePercentage > 8 ? 'warning' : '') }}" style="width: {{ min($avgWastePercentage ?? 0, 100) }}%"></div>
+                    <div class="progress-fill {{ ($stage3AvgWastePercentage ?? 0) > 12 ? 'danger' : (($stage3AvgWastePercentage ?? 0) > 8 ? 'warning' : '') }}" style="width: {{ min($stage3AvgWastePercentage ?? 0, 100) }}%"></div>
                 </div>
             </div>
 
             <div class="stat-item success">
-                <div class="stat-label">كفاءة الإنتاج</div>
-                <div class="stat-value">{{ $productionEfficiency ?? 0 }}%</div>
+                <div class="stat-label">{{ __('stage3_report.production_efficiency') }}</div>
+                <div class="stat-value">{{ $stage3ProductionEfficiency ?? 0 }}%</div>
                 <div class="progress-bar">
-                    <div class="progress-fill" style="width: {{ $productionEfficiency ?? 0 }}%"></div>
+                    <div class="progress-fill" style="width: {{ $stage3ProductionEfficiency ?? 0 }}%"></div>
                 </div>
             </div>
         </div>
@@ -822,32 +390,32 @@
     <div class="report-section">
         <div class="section-title">
             <i class="fas fa-pie-chart"></i>
-            توزيع حالات الاستاندات
+            {{ __('stage3_report.status_distribution') }}
         </div>
 
         <div class="stat-row">
             <div class="stat-item">
-                <div class="stat-label">إنشاء جديد</div>
-                <div class="stat-value" style="color: #3498db;">{{ $statusCreated ?? 0 }}</div>
-                <small style="color: #7f8c8d;">{{ round(($statusCreated ?? 0) / max($totalStands, 1) * 100) }}%</small>
+                <div class="stat-label">{{ __('stage3_report.created') }}</div>
+                <div class="stat-value" style="color: #3498db;">{{ $stage3StatusCreated ?? 0 }}</div>
+                <small style="color: #7f8c8d;">{{ round(($stage3StatusCreated ?? 0) / max($stage3Total, 1) * 100) }}%</small>
             </div>
 
             <div class="stat-item warning">
-                <div class="stat-label">قيد المعالجة</div>
-                <div class="stat-value" style="color: #f39c12;">{{ $statusInProcess ?? 0 }}</div>
-                <small style="color: #7f8c8d;">{{ round(($statusInProcess ?? 0) / max($totalStands, 1) * 100) }}%</small>
+                <div class="stat-label">{{ __('stage3_report.in_process') }}</div>
+                <div class="stat-value" style="color: #f39c12;">{{ $stage3StatusInProcess ?? 0 }}</div>
+                <small style="color: #7f8c8d;">{{ round(($stage3StatusInProcess ?? 0) / max($stage3Total, 1) * 100) }}%</small>
             </div>
 
             <div class="stat-item success">
-                <div class="stat-label">مكتمل</div>
-                <div class="stat-value" style="color: #27ae60;">{{ $statusCompleted ?? 0 }}</div>
-                <small style="color: #7f8c8d;">{{ round(($statusCompleted ?? 0) / max($totalStands, 1) * 100) }}%</small>
+                <div class="stat-label">{{ __('stage3_report.completed') }}</div>
+                <div class="stat-value" style="color: #27ae60;">{{ $stage3StatusCompleted ?? 0 }}</div>
+                <small style="color: #7f8c8d;">{{ round(($stage3StatusCompleted ?? 0) / max($stage3Total, 1) * 100) }}%</small>
             </div>
 
             <div class="stat-item">
-                <div class="stat-label">في انتظار موافقة</div>
-                <div class="stat-value" style="color: #8e44ad;">{{ $statusPending ?? 0 }}</div>
-                <small style="color: #7f8c8d;">{{ round(($statusPending ?? 0) / max($totalStands, 1) * 100) }}%</small>
+                <div class="stat-label">{{ __('stage3_report.packed') }}</div>
+                <div class="stat-value" style="color: #8e44ad;">{{ $stage3StatusPacked ?? 0 }}</div>
+                <small style="color: #7f8c8d;">{{ round(($stage3StatusPacked ?? 0) / max($stage3Total, 1) * 100) }}%</small>
             </div>
         </div>
     </div>
@@ -856,34 +424,34 @@
     <div class="report-section">
         <div class="section-title">
             <i class="fas fa-trophy"></i>
-            أفضل الأداء
+            {{ __('stage3_report.top_performers') }}
         </div>
 
         <div class="two-column">
             <!-- Best Worker -->
             <div>
-                <h4 style="margin-bottom: 15px; color: var(--dark);">🏆 أفضل عامل</h4>
+                <h4 style="margin-bottom: 15px; color: var(--dark);">🏆 {{ __('stage3_report.best_worker') }}</h4>
                 <div class="stat-item success">
-                    <div class="stat-label">الاسم</div>
-                    <div class="stat-value" style="font-size: 18px;">{{ $bestWorkerName ?? 'غير متوفر' }}</div>
+                    <div class="stat-label">{{ __('stage3_report.name') }}</div>
+                    <div class="stat-value" style="font-size: 18px;">{{ $stage3BestWorkerName ?? __('stage3_report.not_available') }}</div>
                     <hr style="margin: 10px 0; border: none; border-top: 1px solid var(--light);">
-                    <div class="stat-label">عدد الاستاندات</div>
-                    <div class="stat-value" style="font-size: 18px;">{{ $bestWorkerCount ?? 0 }}</div>
-                    <div class="stat-label" style="margin-top: 10px;">متوسط الهدر</div>
-                    <div class="stat-value" style="font-size: 18px;">{{ $bestWorkerAvgWaste ?? 0 }}%</div>
+                    <div class="stat-label">{{ __('stage3_report.stands_count') }}</div>
+                    <div class="stat-value" style="font-size: 18px;">{{ $stage3BestWorkerCount ?? 0 }}</div>
+                    <div class="stat-label" style="margin-top: 10px;">{{ __('stage3_report.avg_waste') }}</div>
+                    <div class="stat-value" style="font-size: 18px;">{{ $stage3BestWorkerAvgWaste ?? 0 }}%</div>
                 </div>
             </div>
 
             <!-- Best Stand -->
             <div>
-                <h4 style="margin-bottom: 15px; color: var(--dark);">⭐ أفضل استاند</h4>
+                <h4 style="margin-bottom: 15px; color: var(--dark);">⭐ {{ __('stage3_report.best_stand') }}</h4>
                 <div class="stat-item success">
-                    <div class="stat-label">رقم الاستاند</div>
-                    <div class="stat-value" style="font-size: 18px;">{{ $bestStandNumber ?? 'غير متوفر' }}</div>
+                    <div class="stat-label">{{ __('stage3_report.stand_number') }}</div>
+                    <div class="stat-value" style="font-size: 18px;">{{ $bestStandNumber ?? __('stage3_report.not_available') }}</div>
                     <hr style="margin: 10px 0; border: none; border-top: 1px solid var(--light);">
-                    <div class="stat-label">نسبة الهدر</div>
+                    <div class="stat-label">{{ __('stage3_report.waste_percentage') }}</div>
                     <div class="stat-value" style="font-size: 18px;">{{ $bestStandWaste ?? 0 }}%</div>
-                    <div class="stat-label" style="margin-top: 10px;">عدد الاستخدامات</div>
+                    <div class="stat-label" style="margin-top: 10px;">{{ __('stage3_report.usage_count') }}</div>
                     <div class="stat-value" style="font-size: 18px;">{{ $bestStandUsageCount ?? 0 }}</div>
                 </div>
             </div>
@@ -894,41 +462,55 @@
     <div class="report-section">
         <div class="section-title">
             <i class="fas fa-list"></i>
-            آخر 10 سجلات
+            {{ __('stage3_report.last_10_records') }}
         </div>
 
-        @if($recentRecords && count($recentRecords) > 0)
+        @if($stage3Records && count($stage3Records) > 0)
         <div style="overflow-x: auto;">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>الباركود</th>
-                        <th>المادة</th>
-                        <th>الوزن الصافي</th>
-                        <th>الهدر</th>
-                        <th>النسبة %</th>
-                        <th>الحالة</th>
-                        <th>العامل</th>
-                        <th>التاريخ</th>
+                        <th>{{ __('stage3_report.table_no') }}</th>
+                        <th>{{ __('stage3_report.table_barcode') }}</th>
+                        <th>{{ __('stage3_report.table_color') }}</th>
+                        <th>{{ __('stage3_report.table_net_weight') }}</th>
+                        <th>{{ __('stage3_report.table_waste') }}</th>
+                        <th>{{ __('stage3_report.table_waste_percentage') }}</th>
+                        <th>{{ __('stage3_report.table_status') }}</th>
+                        <th>{{ __('stage3_report.table_worker') }}</th>
+                        <th>{{ __('stage3_report.table_date') }}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($recentRecords as $index => $record)
+                    @forelse($stage3Records as $index => $record)
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td><strong>{{ $record->barcode ?? '-' }}</strong></td>
-                        <td>{{ $record->material_name ?? '-' }}</td>
-                        <td>{{ $record->remaining_weight ?? 0 }} كجم</td>
-                        <td>{{ $record->waste ?? 0 }} كجم</td>
+                        <td>{{ $record->color ?? '-' }}</td>
+                        <td>{{ round(($record->total_weight ?? 0) - ($record->waste ?? 0), 2) }} {{ __('stage3_report.unit_kg') }}</td>
+                        <td>{{ $record->waste ?? 0 }} {{ __('stage3_report.unit_kg') }}</td>
                         <td>
                             @php
-                                $wastePerc = $record->waste_percentage ?? 0;
+                                $wastePerc = ($record->total_weight ?? 0) > 0 ? round((($record->waste ?? 0) / ($record->total_weight ?? 0)) * 100, 2) : 0;
                                 $class = $wastePerc > 12 ? 'critical' : ($wastePerc > 8 ? 'warning' : 'safe');
                             @endphp
                             <span class="waste-level {{ $class }}">{{ $wastePerc }}%</span>
                         </td>
-                        <td><span class="status-badge status-{{ $record->status ?? 'created' }}">{{ ucfirst($record->status ?? 'created') }}</span></td>
+                        <td>
+                            <span class="status-badge status-{{ $record->status ?? 'created' }}">
+                                @if($record->status === 'created')
+                                    {{ __('stage3_report.status_created') }}
+                                @elseif($record->status === 'in_process')
+                                    {{ __('stage3_report.status_in_process') }}
+                                @elseif($record->status === 'completed')
+                                    {{ __('stage3_report.status_completed') }}
+                                @elseif($record->status === 'packed')
+                                    {{ __('stage3_report.status_packed') }}
+                                @else
+                                    {{ $record->status }}
+                                @endif
+                            </span>
+                        </td>
                         <td>{{ $record->created_by_name ?? '-' }}</td>
                         <td>
                             @if ($record->created_at)
@@ -945,7 +527,7 @@
                     @empty
                     <tr>
                         <td colspan="9" style="text-align: center; padding: 20px; color: #7f8c8d;">
-                            <i class="fas fa-inbox"></i> لا توجد سجلات حتى الآن
+                            <i class="fas fa-inbox"></i> {{ __('stage3_report.no_records_yet') }}
                         </td>
                     </tr>
                     @endforelse
@@ -955,7 +537,7 @@
         @else
         <div style="text-align: center; padding: 40px; color: #7f8c8d;">
             <i class="fas fa-chart-line" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
-            <p>لا توجد بيانات في المرحلة الثالثة حتى الآن</p>
+            <p>{{ __('stage3_report.no_data_yet') }}</p>
         </div>
         @endif
     </div>
@@ -964,40 +546,40 @@
     <div class="report-section">
         <div class="section-title">
             <i class="fas fa-eye"></i>
-            تحليل الهدر
+            {{ __('stage3_report.waste_analysis') }}
         </div>
 
         <div class="stat-row">
             <div class="stat-item success">
-                <div class="stat-label">الهدر المقبول (0-8%)</div>
-                <div class="stat-value" style="color: #27ae60;">{{ $acceptableWaste ?? 0 }}</div>
-                <small style="color: #7f8c8d;">استاند</small>
+                <div class="stat-label">{{ __('stage3_report.acceptable_waste') }}</div>
+                <div class="stat-value" style="color: #27ae60;">{{ $stage3AcceptableWaste ?? 0 }}</div>
+                <small style="color: #7f8c8d;">{{ __('stage3_report.stands') }}</small>
             </div>
 
             <div class="stat-item warning">
-                <div class="stat-label">الهدر التحذيري (8-15%)</div>
-                <div class="stat-value" style="color: #f39c12;">{{ $warningWaste ?? 0 }}</div>
-                <small style="color: #7f8c8d;">استاند - يتطلب ملاحظة</small>
+                <div class="stat-label">{{ __('stage3_report.warning_waste') }}</div>
+                <div class="stat-value" style="color: #f39c12;">{{ $stage3WarningWaste ?? 0 }}</div>
+                <small style="color: #7f8c8d;">{{ __('stage3_report.stands') }} - {{ __('stage3_report.requires_attention') }}</small>
             </div>
 
             <div class="stat-item danger">
-                <div class="stat-label">الهدر الحرج (>15%)</div>
-                <div class="stat-value" style="color: #e74c3c;">{{ $criticalWaste ?? 0 }}</div>
-                <small style="color: #7f8c8d;">استاند - يتطلب متابعة</small>
+                <div class="stat-label">{{ __('stage3_report.critical_waste') }}</div>
+                <div class="stat-value" style="color: #e74c3c;">{{ $stage3CriticalWaste ?? 0 }}</div>
+                <small style="color: #7f8c8d;">{{ __('stage3_report.stands') }} - {{ __('stage3_report.requires_follow_up') }}</small>
             </div>
         </div>
 
         <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-right: 3px solid var(--primary);">
-            <h4 style="margin-top: 0; color: var(--dark);">📊 ملخص جودة الإنتاج</h4>
-            <p>متوسط نسبة الخطأ في المرحلة الثالثة: <strong>{{ $avgWastePercentage ?? 0 }}%</strong></p>
+            <h4 style="margin-top: 0; color: var(--dark);">📊 {{ __('stage3_report.quality_summary') }}</h4>
+            <p>{{ __('stage3_report.avg_error_label') }}: <strong>{{ $avgWastePercentage ?? 0 }}%</strong></p>
 
             <p style="margin-bottom: 0;">
                 @if(($avgWastePercentage ?? 0) < 8)
-                    <span class="badge badge-success">✓ ممتاز - الأداء أفضل من المتوقع</span>
+                    <span class="badge badge-success">✓ {{ __('stage3_report.performance_excellent') }}</span>
                 @elseif(($avgWastePercentage ?? 0) < 12)
-                    <span class="badge badge-warning">⚠️ جيد - ضمن الحدود المقبولة</span>
+                    <span class="badge badge-warning">⚠️ {{ __('stage3_report.performance_good') }}</span>
                 @else
-                    <span class="badge badge-danger">⚠️ تحذير - يتطلب مراجعة</span>
+                    <span class="badge badge-danger">⚠️ {{ __('stage3_report.performance_warning') }}</span>
                 @endif
             </p>
         </div>
@@ -1007,30 +589,30 @@
     <div class="report-section">
         <div class="section-title">
             <i class="fas fa-arrow-right"></i>
-            تتبع تدفق المادة
+            {{ __('stage3_report.material_flow') }}
         </div>
 
         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
             <div style="text-align: center;">
-                <div style="font-size: 28px; color: var(--primary); font-weight: 700;">{{ $totalInputWeight ?? 0 }} كجم</div>
-                <div style="color: #7f8c8d; font-size: 13px; margin-top: 5px;">المادة الداخلة</div>
-                <div style="color: #95a5a6; font-size: 11px;">من المرحلة الثانية</div>
+                <div style="font-size: 28px; color: var(--primary); font-weight: 700;">{{ $stage3TotalBaseWeight ?? 0 }} {{ __('stage3_report.unit_kg') }}</div>
+                <div style="color: #7f8c8d; font-size: 13px; margin-top: 5px;">{{ __('stage3_report.input_material') }}</div>
+                <div style="color: #95a5a6; font-size: 11px;">{{ __('stage3_report.warehouse_label') }}</div>
             </div>
 
             <div style="font-size: 32px; color: #bdc3c7;">→</div>
 
             <div style="text-align: center;">
-                <div style="font-size: 28px; color: var(--success); font-weight: 700;">{{ $totalOutputWeight ?? 0 }} كجم</div>
-                <div style="color: #7f8c8d; font-size: 13px; margin-top: 5px;">المنتجات النهائية</div>
-                <div style="color: #95a5a6; font-size: 11px;">جاهز للتسليم</div>
+                <div style="font-size: 28px; color: var(--success); font-weight: 700;">{{ $stage3TotalWeight ?? 0 }} {{ __('stage3_report.unit_kg') }}</div>
+                <div style="color: #7f8c8d; font-size: 13px; margin-top: 5px;">{{ __('stage3_report.final_products') }}</div>
+                <div style="color: #95a5a6; font-size: 11px;">{{ __('stage3_report.ready_for_delivery_label') }}</div>
             </div>
 
             <div style="font-size: 32px; color: #bdc3c7;">→</div>
 
             <div style="text-align: center;">
-                <div style="font-size: 28px; color: var(--danger); font-weight: 700;">{{ $totalWaste ?? 0 }} كجم</div>
-                <div style="color: #7f8c8d; font-size: 13px; margin-top: 5px;">الهدر</div>
-                <div style="color: #95a5a6; font-size: 11px;">{{ round(($totalWaste ?? 0) / max($totalInputWeight, 1) * 100) }}%</div>
+                <div style="font-size: 28px; color: var(--danger); font-weight: 700;">{{ $stage3TotalWaste ?? 0 }} {{ __('stage3_report.unit_kg') }}</div>
+                <div style="color: #7f8c8d; font-size: 13px; margin-top: 5px;">{{ __('stage3_report.waste_kg') }}</div>
+                <div style="color: #95a5a6; font-size: 11px;">{{ round(($stage3TotalWaste ?? 0) / max($stage3TotalBaseWeight, 1) * 100) }}%</div>
             </div>
         </div>
     </div>
@@ -1039,39 +621,39 @@
     <div class="report-section">
         <div class="section-title">
             <i class="fas fa-history"></i>
-            سجل العمليات اليومية (Timeline)
+            {{ __('stage3_report.daily_operations') }}
         </div>
 
-        @if($dailyOperations && count($dailyOperations) > 0)
+        @if($stage3DailyOperations && count($stage3DailyOperations) > 0)
         <div style="overflow-x: auto;">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>التاريخ</th>
-                        <th>عدد الاستاندات</th>
-                        <th>إجمالي الكمية الداخلة</th>
-                        <th>إجمالي الكمية الخارجة</th>
-                        <th>إجمالي الهدر</th>
-                        <th>متوسط نسبة الهدر</th>
-                        <th>الاستاندات المكتملة</th>
-                        <th>الاستاندات المعلقة</th>
+                        <th>{{ __('stage3_report.date') }}</th>
+                        <th>{{ __('stage3_report.count') }}</th>
+                        <th>{{ __('stage3_report.total_input') }}</th>
+                        <th>{{ __('stage3_report.total_output') }}</th>
+                        <th>{{ __('stage3_report.daily_waste') }}</th>
+                        <th>{{ __('stage3_report.daily_avg_waste') }}</th>
+                        <th>{{ __('stage3_report.daily_completed') }}</th>
+                        <th>{{ __('stage3_report.daily_packed') }}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($dailyOperations as $day)
+                    @forelse($stage3DailyOperations as $day)
                     <tr>
                         <td><strong>{{ $day['date'] }}</strong></td>
                         <td style="text-align: center;">
                             <span class="badge badge-primary">{{ $day['count'] }}</span>
                         </td>
                         <td style="text-align: center;">
-                            <span style="color: var(--primary); font-weight: 600;">{{ $day['total_input'] }} كجم</span>
+                            <span style="color: var(--primary); font-weight: 600;">{{ $day['total_base_weight'] }} {{ __('stage3_report.unit_kg') }}</span>
                         </td>
                         <td style="text-align: center;">
-                            <span style="color: var(--success); font-weight: 600;">{{ $day['total_output'] }} كجم</span>
+                            <span style="color: var(--success); font-weight: 600;">{{ $day['total_weight'] }} {{ __('stage3_report.unit_kg') }}</span>
                         </td>
                         <td style="text-align: center;">
-                            <span style="color: var(--danger); font-weight: 600;">{{ $day['total_waste'] }} كجم</span>
+                            <span style="color: var(--danger); font-weight: 600;">{{ $day['total_waste'] }} {{ __('stage3_report.unit_kg') }}</span>
                         </td>
                         <td style="text-align: center;">
                             @php
@@ -1083,13 +665,13 @@
                             <span class="status-badge status-completed">{{ $day['completed'] }}</span>
                         </td>
                         <td style="text-align: center;">
-                            <span class="status-badge status-pending_approval">{{ $day['pending'] }}</span>
+                            <span class="status-badge status-packed">{{ $day['packed'] }}</span>
                         </td>
                     </tr>
                     @empty
                     <tr>
                         <td colspan="8" style="text-align: center; padding: 20px; color: #7f8c8d;">
-                            <i class="fas fa-inbox"></i> لا توجد بيانات يومية
+                            <i class="fas fa-inbox"></i> {{ __('stage3_report.no_daily_data') }}
                         </td>
                     </tr>
                     @endforelse
@@ -1099,7 +681,7 @@
         @else
         <div style="text-align: center; padding: 40px; color: #7f8c8d;">
             <i class="fas fa-history" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
-            <p>لا توجد بيانات يومية</p>
+            <p>{{ __('stage3_report.no_daily_data') }}</p>
         </div>
         @endif
     </div>
@@ -1108,34 +690,34 @@
     <div class="report-section">
         <div class="section-title">
             <i class="fas fa-chart-area"></i>
-            تراكم العمليات (Cumulative)
+            {{ __('stage3_report.cumulative_progress') }}
         </div>
 
-        @if($cumulativeData && count($cumulativeData) > 0)
+        @if($stage3CumulativeData && count($stage3CumulativeData) > 0)
         <div style="overflow-x: auto;">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>التاريخ</th>
-                        <th>إجمالي كمي الداخلة (منذ البداية)</th>
-                        <th>إجمالي الكمية المنجزة</th>
-                        <th>إجمالي الهدر (منذ البداية)</th>
-                        <th>نسبة الإنجاز</th>
-                        <th>نسبة الهدر الإجمالية</th>
+                        <th>{{ __('stage3_report.date') }}</th>
+                        <th>{{ __('stage3_report.cumulative_base_weight') }}</th>
+                        <th>{{ __('stage3_report.cumulative_total_weight') }}</th>
+                        <th>{{ __('stage3_report.cumulative_waste') }}</th>
+                        <th>{{ __('stage3_report.completion_percentage') }}</th>
+                        <th>{{ __('stage3_report.waste_percentage_label') }}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($cumulativeData as $day)
+                    @forelse($stage3CumulativeData as $day)
                     <tr>
                         <td><strong>{{ $day['date'] }}</strong></td>
                         <td style="text-align: center;">
-                            <span style="color: var(--primary); font-weight: 600;">{{ $day['cumulative_input'] }} كجم</span>
+                            <span style="color: var(--primary); font-weight: 600;">{{ $day['cumulative_base_weight'] }} {{ __('stage3_report.unit_kg') }}</span>
                         </td>
                         <td style="text-align: center;">
-                            <span style="color: var(--success); font-weight: 600;">{{ $day['cumulative_output'] }} كجم</span>
+                            <span style="color: var(--success); font-weight: 600;">{{ $day['cumulative_total_weight'] }} {{ __('stage3_report.unit_kg') }}</span>
                         </td>
                         <td style="text-align: center;">
-                            <span style="color: var(--danger); font-weight: 600;">{{ $day['cumulative_waste'] }} كجم</span>
+                            <span style="color: var(--danger); font-weight: 600;">{{ $day['cumulative_waste'] }} {{ __('stage3_report.unit_kg') }}</span>
                         </td>
                         <td style="text-align: center;">
                             <div class="progress-bar" style="width: 100px; margin: 0 auto;">
@@ -1154,7 +736,7 @@
                     @empty
                     <tr>
                         <td colspan="6" style="text-align: center; padding: 20px; color: #7f8c8d;">
-                            <i class="fas fa-inbox"></i> لا توجد بيانات تراكمية
+                            <i class="fas fa-inbox"></i> {{ __('stage3_report.no_cumulative_data') }}
                         </td>
                     </tr>
                     @endforelse
@@ -1164,7 +746,7 @@
         @else
         <div style="text-align: center; padding: 40px; color: #7f8c8d;">
             <i class="fas fa-chart-area" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
-            <p>لا توجد بيانات تراكمية</p>
+            <p>{{ __('stage3_report.no_cumulative_data') }}</p>
         </div>
         @endif
     </div>
@@ -1172,17 +754,17 @@
     <!-- Print Button -->
     <div style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
         <button onclick="window.print()" class="btn btn-primary" style="padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">
-            <i class="fas fa-print"></i> طباعة التقرير
+            <i class="fas fa-print"></i> {{ __('stage3_report.print_report') }}
         </button>
         <button onclick="window.history.back()" class="btn btn-secondary" style="padding: 10px 20px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; margin-right: 10px;">
-            <i class="fas fa-arrow-left"></i> رجوع
+            <i class="fas fa-arrow-left"></i> {{ __('stage3_report.back') }}
         </button>
     </div>
 
     <!-- Footer -->
     <div style="text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--light);">
-        <p>تم إنشاء هذا التقرير من قبل نظام إدارة الإنتاج المتكامل - Iron Factory</p>
-        <p>© 2025 جميع الحقوق محفوظة</p>
+        <p>{{ __('stage3_report.generated_by') }}</p>
+        <p>{{ __('stage3_report.copyright') }} {{ __('stage3_report.footer_text') }}</p>
     </div>
 </div>
 

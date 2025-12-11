@@ -382,6 +382,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reports/stage3-management', [\Modules\Manufacturing\Http\Controllers\Stage3ManagementReportController::class, 'index'])
             ->middleware('permission:STAGE3_COILS_READ')
             ->name('manufacturing.reports.stage3-management');
+
+        // ========== تقرير إدارة المرحلة الرابعة ==========
+        Route::get('reports/stage4-management', [\Modules\Manufacturing\Http\Controllers\Stage4ManagementReportController::class, 'index'])
+            ->middleware('permission:STAGE4_PACKAGING_READ')
+            ->name('manufacturing.reports.stage4-management');
     });
 
     // Production Stages Routes

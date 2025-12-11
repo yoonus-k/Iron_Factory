@@ -8,6 +8,7 @@ use Modules\Manufacturing\Http\Controllers\Stage4Controller;
 use Modules\Manufacturing\Http\Controllers\StandsController;
 use Modules\Manufacturing\Http\Controllers\WrappingController;
 use Modules\Manufacturing\Http\Controllers\ProductTrackingController;
+use Modules\Manufacturing\Http\Controllers\ProductTrackingReportController;
 use Modules\Manufacturing\Http\Controllers\WorkInProgressController;
 use Modules\Manufacturing\Http\Controllers\WorkerPerformanceController;
 use Modules\Manufacturing\Http\Controllers\ShiftDashboardController;
@@ -67,7 +68,7 @@ Route::middleware(['auth'])->group(function () {
     // ============================================
     // Production Reports Routes
     // ============================================
-    
+
     // Work In Progress Report (الأعمال غير المنتهية)
     Route::get('reports/wip', [WorkInProgressController::class, 'index'])->name('manufacturing.reports.wip');
     Route::get('reports/wip/stats', [WorkInProgressController::class, 'stats'])->name('manufacturing.reports.wip.stats');
@@ -82,5 +83,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('reports/shift-dashboard', [ShiftDashboardController::class, 'index'])->name('manufacturing.reports.shift-dashboard');
     Route::get('reports/shift-dashboard/night-summary', [ShiftDashboardController::class, 'nightShiftSummary'])->name('manufacturing.reports.night-shift-summary');
     Route::get('reports/shift-dashboard/live-stats', [ShiftDashboardController::class, 'liveStats'])->name('manufacturing.reports.live-stats');
+
+    // Product Tracking Report (تقرير التتبع الشامل)
+    Route::get('reports/product-tracking', [ProductTrackingReportController::class, 'index'])->name('manufacturing.reports.product-tracking');
 
 }); // End of Authentication Middleware

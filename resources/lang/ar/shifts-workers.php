@@ -808,5 +808,216 @@ return [
     'no_records' => 'لا توجد سجلات',
     'showing' => 'عرض',
     'to' => 'إلى',
-    'of' => 'من'
+    'of' => 'من',
+    // Shift Dashboard Report Translations
+    'shift_detailed_report' => 'تقرير الورديات المفصل',
+    'live_shift' => 'وردية مباشرة',
+    'print_report' => 'اطبع التقرير',
+    'date_filter' => 'التاريخ:',
+    'shift_filter' => 'الوردية:',
+    'morning_shift_time' => 'صباحية (6 ص - 6 م)',
+    'evening_shift_time' => 'مسائية (6 م - 6 ص)',
+    'last_update' => 'آخر تحديث:',
+    'now' => 'الآن',
+    'minutes_ago' => 'منذ {minutes} دقيقة',
+    'one_minute_ago' => 'منذ دقيقة',
+
+    // Shift Information Card
+    'shift_info' => 'معلومات الوردية',
+    'shift_code_label' => 'كود الوردية:',
+    'supervisor_name_label' => 'المشرف:',
+    'workers_count_label' => 'عدد العمال:',
+    'shift_status_label' => 'حالة الوردية:',
+    'notes_label' => 'ملاحظات:',
+
+    // WIP Alert
+    'wip_alert_title' => 'تنبيه: قطع قيد التشغيل',
+    'wip_alert_message' => 'يوجد {count} قطعة عالقة في مراحل الإنتاج. يرجى المتابعة.',
+    'pieces_in_progress' => 'قطعة قيد التشغيل',
+    'please_follow_up' => 'يرجى المتابعة',
+
+    // Main Statistics
+    'total_items_produced' => 'إجمالي القطع المنتجة',
+    'total_output' => 'إجمالي الإنتاج',
+    'waste_percentage' => 'نسبة الهدر',
+    'overall_efficiency' => 'الكفاءة الإجمالية',
+    'kilogram' => 'كيلوجرام',
+    'kg' => 'كجم',
+    'pieces' => 'قطعة',
+    'pieces_count' => '{count} قطعة',
+
+    // Stage Efficiency
+    'stage_efficiency_details' => 'تفاصيل كفاءة المراحل',
+    'items_produced' => 'القطع المنتجة:',
+    'output_label' => 'الإنتاج:',
+    'waste_label' => 'الهدر:',
+    'workers_count_short' => 'عدد العمال:',
+    'average_per_worker' => 'متوسط/عامل:',
+    'production_rate' => 'معدل الإنتاج:',
+    'pieces_per_hour' => 'قطعة/ساعة',
+    'efficiency_excellent' => 'ممتاز',
+    'efficiency_good' => 'جيد',
+    'efficiency_average' => 'متوسط',
+    'efficiency_poor' => 'ضعيف',
+
+    // Charts
+    'hourly_productivity' => 'إنتاجية الساعة',
+    'stage_distribution' => 'توزيع الإنتاج حسب كل مرحلة',
+    'pieces_count_chart' => 'عدد القطع',
+
+    // Top Performers
+    'top_performers' => 'الأداء المتميز في هذه الوردية',
+    'worker_stats_format' => '{items} قطعة • {output} كيلوجرام • هدر {waste}%',
+    'efficiency_label' => 'الكفاءة',
+    'no_data_for_shift' => 'لا توجد بيانات لهذه الوردية',
+
+    // Worker Attendance
+    'worker_attendance' => 'حضور العمال ({count} عامل)',
+    'attendance_table_headers' => [
+        'number' => '#',
+        'name' => 'الاسم',
+        'code' => 'الرمز',
+        'position' => 'المنصب',
+        'stages' => 'المراحل',
+        'pieces' => 'القطع',
+        'output_kg' => 'الإنتاج (كجم)',
+        'waste_kg' => 'الهدر (كجم)',
+        'efficiency' => 'الكفاءة',
+        'hours' => 'الساعات',
+    ],
+    'stage_label' => 'مرحلة {number}',
+    'hours_short' => 'س',
+    'no_attendance_data' => 'لا توجد بيانات للحضور',
+
+    // Shift Handovers Section
+    'shift_handovers_list' => 'نقل الورديات ({count})',
+    'items_transferred' => '{count} قطعة تم نقلها',
+    'handover_time_label' => 'الوقت: {time}',
+    'approved_status' => 'موافق عليه',
+    'pending_status' => 'قيد الانتظار',
+    'from_to_format' => '{from} → {to}',
+
+    // Active Teams Section
+    'active_teams_list' => 'الفرق العاملة ({count})',
+    'team_members' => 'الأعضاء:',
+    'total_team_production' => 'الإنتاج الإجمالي:',
+    'average_per_member' => 'المتوسط لكل عضو:',
+    'active_members_format' => '{active} / {total}',
+
+    // Comparison Changes
+    'change_up' => 'زيادة',
+    'change_down' => 'انخفاض',
+    'change_neutral' => 'ثابت',
+    'compared_to_previous' => 'مقارنة بالوردية السابقة',
+    'percentage_change' => '{value}%',
+
+    // Filter and Actions
+    'date_colon' => 'التاريخ:',
+    'shift_colon' => 'الوردية:',
+    'apply' => 'تطبيق',
+    'refresh_data' => 'تحديث البيانات',
+
+    // Time Formats
+    'time_format_12h' => 'h:i A',
+    'time_format_24h' => 'H:i',
+    'date_format' => 'd/m/Y',
+    'datetime_format' => 'd/m/Y H:i',
+
+    // Print Specific
+    'report_generated_at' => 'تم إنشاء التقرير في: {datetime}',
+    'page_number' => 'صفحة {number}',
+
+    // Empty States
+    'no_shift_data' => 'لا توجد بيانات للوردية',
+    'no_teams_active' => 'لا توجد فرق عاملة حالياً',
+    'no_handovers_recorded' => 'لم يتم تسجيل نقلات',
+    'no_workers_present' => 'لا يوجد عمال حاضرون',
+
+    // Additional Stats Labels
+    'total_working_hours' => 'إجمالي ساعات العمل',
+    'average_items_per_hour' => 'متوسط القطع بالساعة',
+    'total_stages_active' => 'المراحل النشطة',
+    'completion_rate' => 'معدل الإنجاز',
+
+    // Quality Indicators
+    'quality_level' => 'مستوى الجودة',
+    'defect_rate' => 'معدل العيوب',
+    'acceptance_rate' => 'معدل القبول',
+    'rejection_rate' => 'معدل الرفض',
+
+    // Performance Indicators
+    'performance_excellent' => 'أداء ممتاز',
+    'performance_good' => 'أداء جيد',
+    'performance_average' => 'أداء متوسط',
+    'performance_needs_improvement' => 'يحتاج تحسين',
+
+    // Team Performance
+    'team_efficiency' => 'كفاءة الفريق',
+    'team_productivity' => 'إنتاجية الفريق',
+    'team_members_count' => 'عدد أعضاء الفريق',
+
+    // Additional Dashboard Elements
+    'shift_progress' => 'تقدم الوردية',
+    'time_elapsed' => 'الوقت المنقضي',
+    'time_remaining' => 'الوقت المتبقي',
+    'shift_completion' => 'إنجاز الوردية',
+    'target_achievement' => 'تحقيق الهدف',
+    'below_target' => 'أقل من الهدف',
+    'above_target' => 'أعلى من الهدف',
+    'on_target' => 'على الهدف',
+
+    // Error Messages
+    'data_load_error' => 'حدث خطأ في تحميل البيانات',
+    'chart_render_error' => 'حدث خطأ في عرض الرسم البياني',
+    'refresh_error' => 'حدث خطأ في التحديث',
+    'filter_error' => 'حدث خطأ في تطبيق الفلاتر',
+
+    // Success Messages
+    'data_refreshed' => 'تم تحديث البيانات بنجاح',
+    'report_printed' => 'تم طباعة التقرير',
+    'filters_applied' => 'تم تطبيق الفلاتر',
+
+    // Additional Helper Text
+    'click_to_view_details' => 'انقر لعرض التفاصيل',
+    'hover_for_more_info' => 'مرر للمزيد من المعلومات',
+    'double_click_to_expand' => 'انقر مرتين للتوسيع',
+    'drag_to_reorder' => 'اسحب لإعادة الترتيب',
+
+    // Export Options
+    'export_to_excel' => 'تصدير إلى Excel',
+    'export_to_pdf' => 'تصدير إلى PDF',
+    'export_to_csv' => 'تصدير إلى CSV',
+    'download_report' => 'تحميل التقرير',
+    'share_report' => 'مشاركة التقرير',
+
+    // Additional Time References
+    'seconds_ago' => 'منذ {seconds} ثانية',
+    'hours_ago' => 'منذ {hours} ساعة',
+    'days_ago' => 'منذ {days} يوم',
+    'just_now' => 'الآن',
+
+    // Shift Comparison
+    'previous_shift' => 'الوردية السابقة',
+    'current_shift' => 'الوردية الحالية',
+    'next_shift' => 'الوردية التالية',
+    'shift_comparison' => 'مقارنة الورديات',
+    'compare_with' => 'مقارنة مع',
+
+    // Additional Badges and Labels
+    'critical_level' => 'مستوى حرج',
+    'warning_level' => 'مستوى تحذير',
+    'normal_level' => 'مستوى عادي',
+    'optimal_level' => 'مستوى مثالي',
+
+    // Loading States
+    'loading_data' => 'جاري تحميل البيانات...',
+    'loading_chart' => 'جاري تحميل الرسم البياني...',
+    'processing_data' => 'جاري معالجة البيانات...',
+    'generating_report' => 'جاري إنشاء التقرير...',
+
+    // Tooltips
+    'tooltip_efficiency' => 'نسبة الإنتاج الفعلي إلى المتوقع',
+    'tooltip_waste' => 'كمية الخامات المهدرة',
+    'tooltip_output' => 'الوزن الإجمالي للإنتاج',
+    'tooltip_items' => 'عدد القطع المنتجة',
 ];

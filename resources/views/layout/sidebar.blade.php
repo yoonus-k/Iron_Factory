@@ -551,7 +551,6 @@
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
-                    <li class="submenu-header"><span>{{ __('app.reports.production_report') }}</span></li>
 
                     @if(auth()->user()->hasPermission('REPORTS_WIP'))
                     <li>
@@ -577,7 +576,6 @@
                     </li>
                     @endif
 
-                    <li class="submenu-header" style="margin-top: 10px;"><span>{{ __('app.reports.efficiency_report') }}</span></li>
 
                     @if(auth()->user()->hasPermission('REPORTS_WORKER_PERFORMANCE'))
                     <li>
@@ -587,7 +585,6 @@
                     </li>
                     @endif
 
-                    <li class="submenu-header" style="margin-top: 10px;"><span>تقارير المراحل</span></li>
 
                     @if(auth()->user()->hasPermission('STAGE1_STANDS_READ'))
                     <li>
@@ -612,6 +609,22 @@
                         </a>
                     </li>
                     @endif
+
+                    @if(auth()->user()->hasPermission('STAGE4_PACKAGING_READ'))
+                    <li>
+                        <a href="{{ route('manufacturing.reports.stage4-management') }}">
+                            <i class="fas fa-box-open"></i> 📦 تقرير المرحلة الرابعة
+                        </a>
+                    </li>
+                    @endif
+
+
+                    <li>
+                        <a href="{{ route('manufacturing.reports.product-tracking') }}">
+                            <i class="fas fa-barcode"></i> 🔍 تقرير التتبع الشامل
+                        </a>
+                    </li>
+
                 </ul>
             </li>
             @endif

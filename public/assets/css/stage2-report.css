@@ -1,4 +1,4 @@
-/* Stage1 Management Report Styles */
+/* Stage2 Management Report Styles */
 
 :root {
     --primary: #0b5fa5;
@@ -207,12 +207,12 @@ body {
     text-align: center;
 }
 
-.status-created {
+.status-started {
     background: #e3f2fd;
     color: #1976d2;
 }
 
-.status-in_process {
+.status-in_progress {
     background: #fff3e0;
     color: #f57c00;
 }
@@ -222,14 +222,9 @@ body {
     color: #388e3c;
 }
 
-.status-pending_approval {
+.status-consumed {
     background: #f3e5f5;
     color: #7b1fa2;
-}
-
-.status-consumed {
-    background: #eeeeee;
-    color: #616161;
 }
 
 /* Progress Bar */
@@ -435,5 +430,4 @@ body {
     .data-table td {
         padding: 8px 10px;
     }
-
 }

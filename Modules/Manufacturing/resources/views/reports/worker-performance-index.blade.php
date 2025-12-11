@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تقرير أداء العمال')
+@section('title', __('worker_performance.page_title'))
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('assets/css/shift-dashboard.css') }}">
@@ -268,9 +268,9 @@
                 <circle cx="8.5" cy="7" r="4"></circle>
                 <polyline points="17 11 19 13 23 9"></polyline>
             </svg>
-            تقرير أداء العمال
+            {{ __('worker_performance.page_title') }}
         </h1>
-        <p>تحليل شامل لأداء العمال وإنتاجيتهم في جميع المراحل</p>
+        <p>{{ __('worker_performance.page_subtitle') }}</p>
     </div>
 
     <!-- الإحصائيات العامة -->
@@ -278,7 +278,7 @@
         <div class="stat-card primary">
             <div class="stat-header">
                 <div>
-                    <div class="stat-title">إجمالي العمال</div>
+                    <div class="stat-title">{{ __('worker_performance.total_workers') }}</div>
                     <p class="stat-value">{{ $overallStats['total_workers'] }}</p>
                 </div>
                 <div class="stat-icon primary">
@@ -295,7 +295,7 @@
         <div class="stat-card success">
             <div class="stat-header">
                 <div>
-                    <div class="stat-title">إجمالي القطع المنتجة</div>
+                    <div class="stat-title">{{ __('worker_performance.total_items_produced') }}</div>
                     <p class="stat-value">{{ number_format($overallStats['total_items']) }}</p>
                 </div>
                 <div class="stat-icon success">
@@ -309,7 +309,7 @@
         <div class="stat-card warning">
             <div class="stat-header">
                 <div>
-                    <div class="stat-title">إجمالي الإنتاج (كجم)</div>
+                    <div class="stat-title">{{ __('worker_performance.total_production_kg') }}</div>
                     <p class="stat-value">{{ number_format($overallStats['total_output'], 2) }}</p>
                 </div>
                 <div class="stat-icon warning">
@@ -324,7 +324,7 @@
         <div class="stat-card success">
             <div class="stat-header">
                 <div>
-                    <div class="stat-title">متوسط الكفاءة</div>
+                    <div class="stat-title">{{ __('worker_performance.average_efficiency') }}</div>
                     <p class="stat-value">{{ number_format($overallStats['avg_efficiency'], 1) }}%</p>
                 </div>
                 <div class="stat-icon success">
@@ -344,38 +344,38 @@
                     <circle cx="11" cy="11" r="8"></circle>
                     <path d="m21 21-4.35-4.35"></path>
                 </svg>
-                فلترة البيانات
+                {{ __('worker_performance.filter_data') }}
             </h3>
         </div>
         <form method="GET" action="{{ route('manufacturing.reports.worker-performance') }}">
             <div class="filters-grid">
                 <div class="filter-group">
-                    <label class="control-label">من تاريخ</label>
+                    <label class="control-label">{{ __('worker_performance.from_date') }}</label>
                     <input type="date" name="date_from" value="{{ $dateFrom }}" class="select-input">
                 </div>
 
                 <div class="filter-group">
-                    <label class="control-label">إلى تاريخ</label>
+                    <label class="control-label">{{ __('worker_performance.to_date') }}</label>
                     <input type="date" name="date_to" value="{{ $dateTo }}" class="select-input">
                 </div>
 
                 <div class="filter-group">
-                    <label class="control-label">نوع الوردية</label>
+                    <label class="control-label">{{ __('worker_performance.shift_type') }}</label>
                     <select name="shift_type" class="select-input">
-                        <option value="">جميع الورديات</option>
-                        <option value="morning" {{ request('shift_type') == 'morning' ? 'selected' : '' }}>الفترة الأولى (صباحي)</option>
-                        <option value="evening" {{ request('shift_type') == 'evening' ? 'selected' : '' }}>الفترة الثانية (مسائي)</option>
+                        <option value="">{{ __('worker_performance.all_shifts') }}</option>
+                        <option value="morning" {{ request('shift_type') == 'morning' ? 'selected' : '' }}>{{ __('worker_performance.morning_shift') }}</option>
+                        <option value="evening" {{ request('shift_type') == 'evening' ? 'selected' : '' }}>{{ __('worker_performance.evening_shift') }}</option>
                     </select>
                 </div>
 
                 <div class="filter-group">
-                    <label class="control-label">المرحلة</label>
+                    <label class="control-label">{{ __('worker_performance.stage') }}</label>
                     <select name="stage" class="select-input">
-                        <option value="">جميع المراحل</option>
-                        <option value="1" {{ request('stage') == '1' ? 'selected' : '' }}>المرحلة 1</option>
-                        <option value="2" {{ request('stage') == '2' ? 'selected' : '' }}>المرحلة 2</option>
-                        <option value="3" {{ request('stage') == '3' ? 'selected' : '' }}>المرحلة 3</option>
-                        <option value="4" {{ request('stage') == '4' ? 'selected' : '' }}>المرحلة 4</option>
+                        <option value="">{{ __('worker_performance.all_stages') }}</option>
+                        <option value="1" {{ request('stage') == '1' ? 'selected' : '' }}>{{ __('worker_performance.stage_1') }}</option>
+                        <option value="2" {{ request('stage') == '2' ? 'selected' : '' }}>{{ __('worker_performance.stage_2') }}</option>
+                        <option value="3" {{ request('stage') == '3' ? 'selected' : '' }}>{{ __('worker_performance.stage_3') }}</option>
+                        <option value="4" {{ request('stage') == '4' ? 'selected' : '' }}>{{ __('worker_performance.stage_4') }}</option>
                     </select>
                 </div>
             </div>
@@ -387,14 +387,14 @@
                         <circle cx="11" cy="11" r="8"></circle>
                         <path d="m21 21-4.35-4.35"></path>
                     </svg>
-                    بحث
+                    {{ __('worker_performance.search') }}
                 </button>
                 <a href="{{ route('manufacturing.reports.worker-performance') }}" class="reset-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="1 4 1 10 7 10"></polyline>
                         <path d="M3.51 9A9 9 0 0 1 5.64 5.64"></path>
                     </svg>
-                    إعادة تعيين
+                    {{ __('worker_performance.reset') }}
                 </a>
                 @endcan
             </div>
@@ -406,14 +406,14 @@
         <table class="workers-table">
             <thead>
                 <tr>
-                    <th>الترتيب</th>
-                    <th>اسم العامل</th>
-                    <th>إجمالي القطع</th>
-                    <th>الإنتاج (كجم)</th>
-                    <th>الهدر (كجم)</th>
-                    <th>نسبة الهدر</th>
-                    <th>الكفاءة</th>
-                    <th>تفاصيل</th>
+                    <th>{{ __('worker_performance.rank') }}</th>
+                    <th>{{ __('worker_performance.worker_name') }}</th>
+                    <th>{{ __('worker_performance.total_pieces') }}</th>
+                    <th>{{ __('worker_performance.production_kg') }}</th>
+                    <th>{{ __('worker_performance.waste_kg') }}</th>
+                    <th>{{ __('worker_performance.waste_percentage') }}</th>
+                    <th>{{ __('worker_performance.efficiency') }}</th>
+                    <th>{{ __('worker_performance.details') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -439,7 +439,7 @@
                         </td>
                         <td>
                             <a href="{{ route('manufacturing.reports.worker-performance.show', $worker['worker_id']) }}?date_from={{ $dateFrom }}&date_to={{ $dateTo }}" class="btn-view" onclick="event.stopPropagation()">
-                                عرض التفاصيل
+                                {{ __('worker_performance.view_details') }}
                             </a>
                         </td>
                     </tr>
@@ -450,7 +450,7 @@
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
-                            <p style="margin: 0; font-size: 1rem;">لا توجد بيانات للفترة المحددة</p>
+                            <p style="margin: 0; font-size: 1rem;">{{ __('worker_performance.no_data_period') }}</p>
                         </td>
                     </tr>
                 @endforelse
@@ -466,10 +466,10 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                 </svg>
-                الأكثر كفاءة
+                {{ __('worker_performance.most_efficient') }}
             </h3>
             <p>{{ $overallStats['top_performer']['worker_name'] }}</p>
-            <div class="detail">كفاءة: {{ number_format($overallStats['top_performer']['totals']['efficiency'], 1) }}%</div>
+            <div class="detail">{{ __('worker_performance.efficiency_label') }}: {{ number_format($overallStats['top_performer']['totals']['efficiency'], 1) }}%</div>
         </div>
 
         <div class="performer-card productivity">
@@ -477,10 +477,10 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
                 </svg>
-                الأكثر إنتاجية
+                {{ __('worker_performance.most_productive') }}
             </h3>
             <p>{{ $overallStats['most_productive']['worker_name'] }}</p>
-            <div class="detail">{{ number_format($overallStats['most_productive']['totals']['items']) }} قطعة</div>
+            <div class="detail">{{ number_format($overallStats['most_productive']['totals']['items']) }} {{ __('worker_performance.pieces_label') }}</div>
         </div>
     </div>
     @endif
