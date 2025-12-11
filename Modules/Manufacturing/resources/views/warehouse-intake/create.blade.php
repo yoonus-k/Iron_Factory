@@ -10,10 +10,12 @@
         gap: 10px;
         align-items: center;
         justify-content: space-between;
-    
+    }
+
     .intake-header h2 {
         margin: 0;
-    
+    }
+
     .summary-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: #fff;
@@ -22,32 +24,38 @@
         box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
         position: sticky;
         top: 20px;
-    
+    }
+
     .summary-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
         gap: 16px;
-    
+    }
+
     .summary-item {
         background: rgba(255,255,255,0.17);
         border-radius: 12px;
         padding: 16px;
         text-align: center;
-    
+    }
+
     .summary-number {
         font-size: 2rem;
         font-weight: 700;
         display: block;
-    
+    }
+
     .boxes-table-wrapper {
         border-radius: 16px;
         background: #fff;
         box-shadow: 0 8px 20px rgba(0,0,0,0.05);
         overflow: hidden;
-    
+    }
+
     .table {
         margin-bottom: 0;
-    
+    }
+
     .table thead th {
         background: #f5f7fa;
         border-bottom: 2px solid #dee2e6;
@@ -55,40 +63,48 @@
         font-weight: 600;
         font-size: 0.95rem;
         color: #2c3e50;
-    
+    }
+
     .table tbody tr {
         transition: all 0.2s ease;
         border-bottom: 1px solid #f0f0f0;
-    
+    }
+
     .table tbody tr:hover {
         background: linear-gradient(to right, #f8f9ff, #ffffff);
         transform: translateX(-2px);
         box-shadow: 2px 0 8px rgba(102, 126, 234, 0.1);
-    
+    }
+
     .table tbody tr:last-child {
         border-bottom: none;
-    
+    }
+
     .table tbody td {
         vertical-align: middle;
         padding: 16px 12px;
         color: #495057;
-    
+    }
+
     .table tbody td strong {
         color: #2c3e50;
         font-size: 1.05rem;
-    
+    }
+
     .btn-danger {
         transition: all 0.2s ease;
-    
+    }
+
     .btn-danger:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-    
+    }
+
     .empty-state {
         padding: 40px;
         text-align: center;
         color: #90a4ae;
-    
+    }
 </style>
 
 <div class="container-fluid">
@@ -203,8 +219,8 @@
     const resetBtn = document.getElementById('resetSelection');
 
     function formatWeight(weight) {
-        return (parseFloat(weight || 0).toFixed(2));
-    
+        return parseFloat(weight || 0).toFixed(2);
+    }
 
     function renderBoxes() {
         if (!tableBody) return;
@@ -221,106 +237,114 @@
                 </tr>`;
             selectedCountEl.textContent = '0';
             totalWeightEl.textContent = '0.00';
-            submitBtn.disabled = true;
+            if (submitBtn) submitBtn.disabled = true;
             return;
-        
+        }
 
         const rows = selectedBoxes.map(box => {
-            const specsHtml = box.specifications 
-                ? `<span class="badge bg-info me-1">${box.specifications}</span>` 
+            const specsHtml = box.specifications
+                ? `<span class="badge bg-info me-1">${box.specifications}</span>`
                 : '<span style="color: #999;">-</span>';
-            
+
             return `
-            <tr>
-                <td><strong>${box.barcode}</strong></td>
-                <td>${box.packaging_type || '-'}</td>
-                <td>${specsHtml}</td>
-                <td>${formatWeight(box.weight)}</td>
-                <td>${box.creator || '{{ __('warehouse_intake.not_specified') }}'}</td>
-                <td>${box.created_at || '{{ __('warehouse_intake.not_available') }}'}</td>
-                <td class="text-end">
-                    <button type="button" class="btn btn-sm btn-danger" data-remove-box="${box.id}" title="{{ __('warehouse_intake.remove') }}">
-                        <i class="bi bi-trash-fill me-1"></i>
-                        {{ __('warehouse_intake.remove') }}
-                    </button>
-                </td>
-            </tr>
-        `}).join('');
+                <tr>
+                    <td><strong>${box.barcode}</strong></td>
+                    <td>${box.packaging_type || '-'}</td>
+                    <td>${specsHtml}</td>
+                    <td>${formatWeight(box.weight)}</td>
+                    <td>${box.creator || '{{ __('warehouse_intake.not_specified') }}'}</td>
+                    <td>${box.created_at || '{{ __('warehouse_intake.not_available') }}'}</td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-danger" data-remove-box="${box.id}" title="{{ __('warehouse_intake.remove') }}">
+                            <i class="bi bi-trash-fill me-1"></i>
+                            {{ __('warehouse_intake.remove') }}
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
 
         tableBody.innerHTML = rows;
         const totalWeight = selectedBoxes.reduce((sum, box) => sum + parseFloat(box.weight || 0), 0);
         selectedCountEl.textContent = selectedBoxes.length;
         totalWeightEl.textContent = formatWeight(totalWeight);
-        submitBtn.disabled = false;
-    
+        if (submitBtn) submitBtn.disabled = false;
+    }
 
-    document.addEventListener('click', function(e) {
+    // إزالة صندوق من الاختيار
+    document.addEventListener('click', function (e) {
         const target = e.target.closest('[data-remove-box]');
         if (!target) return;
         const boxId = parseInt(target.getAttribute('data-remove-box'));
         selectedBoxes = selectedBoxes.filter(box => box.id !== boxId);
         renderBoxes();
-    
+    });
 
+    // إعادة تعيين الاختيار
     if (resetBtn) {
-        resetBtn.addEventListener('click', function() {
+        resetBtn.addEventListener('click', function () {
             selectedBoxes = [...allBoxes];
             renderBoxes();
-        
-    
+        });
+    }
 
+    // العرض الأولي
     renderBoxes();
 
-    document.getElementById('intakeForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        if (selectedBoxes.length === 0) {
-            Swal.fire('{{ __('warehouse_intake.alert') }}', '{{ __('warehouse_intake.no_boxes_selected') }}', 'warning');
-            return;
-        
+    const intakeForm = document.getElementById('intakeForm');
+    if (intakeForm && submitBtn) {
+        intakeForm.addEventListener('submit', function (e) {
+            e.preventDefault();
 
-        const formData = new FormData(this);
-        selectedBoxes.forEach((box, index) => {
-            formData.append(`boxes[${index}][box_id]`, box.id);
-            formData.append(`boxes[${index}][barcode]`, box.barcode);
-        
+            if (selectedBoxes.length === 0) {
+                Swal.fire('{{ __('warehouse_intake.alert') }}', '{{ __('warehouse_intake.no_boxes_selected') }}', 'warning');
+                return;
+            }
 
-        const originalText = submitBtn.innerHTML;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i> {{ __('warehouse_intake.sending') }}';
+            const formData = new FormData(this);
+            selectedBoxes.forEach((box, index) => {
+                formData.append(`boxes[${index}][box_id]`, box.id);
+                formData.append(`boxes[${index}][barcode]`, box.barcode);
+            });
 
-        fetch(this.action, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json'
-            
-            body: formData
-        
-        .then(async response => {
-            const data = await response.json();
-            if (!response.ok) {
-                const validation = data?.errors ? Object.values(data.errors).flat().join(' ') : null;
-                const message = validation || data?.error || '{{ __('warehouse_intake.request_creation_failed') }}';
-                throw new Error(message);
-            
-            return data;
-        
-        .then(data => {
-            Swal.fire({
-                icon: 'success',
-                title: '{{ __('warehouse_intake.request_created_success') }}'
-                html: `<p>${data.message}</p><p class="mb-0"><strong>{{ __('warehouse_intake.request_number') }}:</strong> ${data.request_number}</p>`
-                confirmButtonText: '{{ __('warehouse_intake.view_request') }}'
-            }).then(() => {
-                window.location.href = `/warehouse-intake/${data.request_id}`;
-            
-        
-        .catch(error => {
-            Swal.fire({ icon: 'error', title: '{{ __('warehouse_intake.error') }}', text: error.message });
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-        
-    
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i> {{ __('warehouse_intake.sending') }}';
+
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok) {
+                        const validation = data && data.errors ? Object.values(data.errors).flat().join(' ') : null;
+                        const message = validation || (data && data.error) || '{{ __('warehouse_intake.request_creation_failed') }}';
+                        throw new Error(message);
+                    }
+                    return data;
+                })
+                .then(data => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '{{ __('warehouse_intake.request_created_success') }}',
+                        html: `<p>${data.message}</p><p class="mb-0"><strong>{{ __('warehouse_intake.request_number') }}:</strong> ${data.request_number}</p>`,
+                        confirmButtonText: '{{ __('warehouse_intake.view_request') }}'
+                    }).then(() => {
+                        window.location.href = `/warehouse-intake/${data.request_id}`;
+                    });
+                })
+                .catch(error => {
+                    Swal.fire({ icon: 'error', title: '{{ __('warehouse_intake.error') }}', text: error.message });
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                });
+        });
+    }
 </script>
 @endif
 @endpush

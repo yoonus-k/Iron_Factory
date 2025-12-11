@@ -58,9 +58,10 @@ class Stage3Controller extends Controller
     public function create()
     {
         // جلب قائمة الألوان (الصبغات) من المواد
+        // نعتمد على type_code = 'DYE' لضمان عدم ظهور مواد أخرى مثل البلاستيك حتى لو حدثت أخطاء في الأسماء
         $colors = DB::table('materials')
             ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
-            ->where('material_types.type_name', 'صبغة')
+            ->where('material_types.type_code', 'DYE')
             ->where('materials.status', 'available')
             ->select('materials.id', 'materials.name_ar', 'materials.barcode')
             ->orderBy('materials.name_ar')

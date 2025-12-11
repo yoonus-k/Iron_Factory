@@ -40,6 +40,7 @@ class DeliveryNote extends Model
         'supplier_id', // المورد (للواردة)
         'customer_id', // ✅ العميل (للإذونات الصادرة)
         'destination_id', // الوجهة (للصادرة)
+        'city', // ✅ المدينة
         'invoice_number', // رقم الفاتورة
         'invoice_reference_number', // رقم مرجع الفاتورة
         'is_active',

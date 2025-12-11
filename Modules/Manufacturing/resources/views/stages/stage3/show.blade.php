@@ -147,7 +147,7 @@
     <div class="barcode-display">
         <div style="font-size: 18px; opacity: 0.9; margin-bottom: 10px;">{{ __('stages.barcode_title') }}</div>
         <div class="barcode-code">{{ $coil->barcode }}</div>
-        <button onclick="printBarcode('{{ $coil->barcode }}', '{{ $coil->color ?? '' }}', '{{ $coil->wire_size }}', {{ $coil->total_weight }})"
+        <button onclick="printBarcode('{{ $coil->barcode }}', '{{ $coil->color ?? '' }}', '{{ $coil->wire_size }}', {{ $coil->net_weight ?? $coil->total_weight }}, {{ $coil->total_weight }}, {{ $coil->wrapping_weight ?? 0 }})"
                 style="background: rgba(255,255,255,0.2); border: 2px solid white; color: white; padding: 12px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 15px; transition: all 0.3s;">
             <i class="feather icon-printer"></i> {{ __('stages.print_barcode_button') }}
         </button>
@@ -201,8 +201,11 @@
                 <div class="info-value" style="color: #e67e22;">{{ number_format($coil->dye_weight, 2) }} {{ __('stages.weight_unit') }}</div>
             </div>
             <div class="info-item">
-                <div class="info-label">{{ __('stages.total_weight_label') }}</div>
-                <div class="info-value" style="color: #27ae60;">{{ number_format($coil->total_weight, 2) }} {{ __('stages.weight_unit') }}</div>
+                <div class="info-label">الوزن الصافي (بعد خصم اللفاف)</div>
+                <div class="info-value" style="color: #27ae60;">{{ number_format($coil->net_weight ?? $coil->total_weight, 2) }} {{ __('stages.weight_unit') }}</div>
+                @if($coil->wrapping_weight)
+                <small style="color: #7f8c8d; font-weight: 400; display:block; margin-top:4px;">{{ __('stages.total_weight_label') }}: {{ number_format($coil->total_weight, 2) }} {{ __('stages.weight_unit') }} | وزن اللفاف: {{ number_format($coil->wrapping_weight, 2) }} {{ __('stages.weight_unit') }}</small>
+                @endif
             </div>
             <div class="info-item">
                 <div class="info-label">{{ __('stages.waste_label') }}</div>
@@ -340,7 +343,7 @@
         <a href="{{ route('manufacturing.stage3.index') }}" class="um-btn um-btn-primary" style="flex: 1;">
             <i class="feather icon-arrow-right"></i> {{ __('stages.back_to_list') }}
         </a>
-        <button onclick="printBarcode('{{ $coil->barcode }}', '{{ $coil->color ?? '' }}', '{{ $coil->wire_size }}', {{ $coil->total_weight }})"
+        <button onclick="printBarcode('{{ $coil->barcode }}', '{{ $coil->color ?? '' }}', '{{ $coil->wire_size }}', {{ $coil->net_weight ?? $coil->total_weight }}, {{ $coil->total_weight }}, {{ $coil->wrapping_weight ?? 0 }})"
                 class="um-btn um-btn-success" style="flex: 1;">
             <i class="feather icon-printer"></i> {{ __('stages.print_barcode_button') }}
         </button>
@@ -351,7 +354,10 @@
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
 <script>
-function printBarcode(barcode, color, wireSize, totalWeight) {
+function printBarcode(barcode, color, wireSize, netWeight, totalWeight, wrappingWeight) {
+    const cleanNet = Number(netWeight || 0).toFixed(2);
+    const cleanTotal = Number(totalWeight || 0).toFixed(2);
+    const cleanWrap = Number(wrappingWeight || 0).toFixed(2);
     const printWindow = window.open('', '', 'height=650,width=850');
     printWindow.document.write('<html dir="rtl"><head><title>' + '{{ __("stages.print_barcode_title") }}' + ' - ' + barcode + '</title>');
     printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
@@ -375,7 +381,13 @@ function printBarcode(barcode, color, wireSize, totalWeight) {
         printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.color_label") }}:</span><span class="value">' + color + '</span></div>');
     }
     printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.wire_size_label") }}:</span><span class="value">' + wireSize + ' مم</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.total_weight_label") }}:</span><span class="value">' + totalWeight + ' {{ __("stages.weight_unit") }}</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">الوزن الصافي (بعد خصم اللفاف):</span><span class="value">' + cleanNet + ' {{ __("stages.weight_unit") }}</span></div>');
+    if (cleanWrap > 0) {
+        printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.total_weight_label") }}:</span><span class="value">' + cleanTotal + ' {{ __("stages.weight_unit") }}</span></div>');
+        printWindow.document.write('<div class="info-row"><span class="label">وزن اللفاف:</span><span class="value">' + cleanWrap + ' {{ __("stages.weight_unit") }}</span></div>');
+    } else {
+        printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.total_weight_label") }}:</span><span class="value">' + cleanTotal + ' {{ __("stages.weight_unit") }}</span></div>');
+    }
     printWindow.document.write('<div class="info-row"><span class="label">{{ __("stages.date_label_print") }}:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
     printWindow.document.write('</div></div>');
     printWindow.document.write('<script>');

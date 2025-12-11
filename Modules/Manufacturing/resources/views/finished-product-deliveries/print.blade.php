@@ -342,6 +342,39 @@
             </div>
         </div>
 
+        <!-- Delivery Information -->
+        @if($deliveryNote->driver_name || $deliveryNote->vehicle_number || $deliveryNote->city)
+        <div class="info-section">
+            <div class="info-box" style="border-color: #17a2b8;">
+                <h3>🚚 معلومات التوصيل</h3>
+                @if($deliveryNote->driver_name)
+                <div class="info-row">
+                    <span class="label">اسم السائق:</span>
+                    <span class="value">{{ $deliveryNote->driver_name }}</span>
+                </div>
+                @endif
+                @if($deliveryNote->vehicle_number)
+                <div class="info-row">
+                    <span class="label">رقم اللوحة:</span>
+                    <span class="value">{{ $deliveryNote->vehicle_number }}</span>
+                </div>
+                @endif
+                @if($deliveryNote->city)
+                <div class="info-row">
+                    <span class="label">المدينة/الوجهة:</span>
+                    <span class="value">{{ $deliveryNote->city }}</span>
+                </div>
+                @endif
+            </div>
+        </div>
+        @else
+        <div style="margin-bottom: 20px;"></div>
+        @endif
+
+        <!-- Return to normal flow -->
+        <div style="clear: both;">
+        </div>
+
         <!-- Summary Boxes -->
         <div class="summary-boxes">
             <div class="summary-box">
