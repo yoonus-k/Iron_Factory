@@ -67,10 +67,10 @@
                                     {{ __('stands.form.stand_number') }}
                                     <span class="um-required">*</span>
                                 </label>
-                                <input type="text" 
-                                       name="stand_number" 
-                                       id="stand_number" 
-                                       class="um-form-control @error('stand_number') is-invalid @enderror" 
+                                <input type="text"
+                                       name="stand_number"
+                                       id="stand_number"
+                                       class="um-form-control @error('stand_number') is-invalid @enderror"
                                        value="{{ old('stand_number', $stand->stand_number) }}"
                                        readonly
                                        style="background-color: #f5f5f5;">
@@ -89,10 +89,10 @@
                                     {{ __('stands.form.weight') }}
                                     <span class="um-required">*</span>
                                 </label>
-                                <input type="number" 
-                                       name="weight" 
-                                       id="weight" 
-                                       class="um-form-control @error('weight') is-invalid @enderror" 
+                                <input type="number"
+                                       name="weight"
+                                       id="weight"
+                                       class="um-form-control @error('weight') is-invalid @enderror"
                                        value="{{ old('weight', $stand->weight) }}"
                                        step="0.01"
                                        min="0"
@@ -114,8 +114,8 @@
                                     {{ __('stands.form.status') }}
                                     <span class="um-required">*</span>
                                 </label>
-                                <select name="status" 
-                                        id="status" 
+                                <select name="status"
+                                        id="status"
                                         class="um-form-control @error('status') is-invalid @enderror"
                                         required>
                                     <option value="unused" {{ old('status', $stand->status) == 'unused' ? 'selected' : '' }}>
@@ -152,9 +152,9 @@
                                 </label>
                                 <div class="um-status-toggle">
                                     <label class="um-switch">
-                                        <input type="checkbox" 
-                                               name="is_active" 
-                                               id="is_active" 
+                                        <input type="checkbox"
+                                               name="is_active"
+                                               id="is_active"
                                                value="1"
                                                {{ old('is_active', $stand->is_active) ? 'checked' : '' }}>
                                         <span class="um-slider"></span>
@@ -175,9 +175,9 @@
                                     <i class="feather icon-file-text"></i>
                                     {{ __('stands.form.notes') }}
                                 </label>
-                                <textarea name="notes" 
-                                          id="notes" 
-                                          class="um-form-control @error('notes') is-invalid @enderror" 
+                                <textarea name="notes"
+                                          id="notes"
+                                          class="um-form-control @error('notes') is-invalid @enderror"
                                           rows="4"
                                           maxlength="1000"
                                           placeholder="{{ __('stands.placeholder.notes') }}">{{ old('notes', $stand->notes) }}</textarea>

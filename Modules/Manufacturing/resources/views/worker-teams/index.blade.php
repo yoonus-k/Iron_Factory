@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', __('worker-teams.manage_worker_teams'))
+@section('title', __('shifts-workers.manage_worker_teams'))
 
 @section('content')
 
@@ -9,14 +9,14 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-users"></i>
-                {{ __('worker-teams.manage_worker_teams') }}
+                {{ __('shifts-workers.manage_worker_teams') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> {{ __('worker-teams.dashboard') }}
+                    <i class="feather icon-home"></i> {{ __('shifts-workers.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>{{ __('worker-teams.worker_teams') }}</span>
+                <span>{{ __('shifts-workers.worker_teams') }}</span>
             </nav>
         </div>
 
@@ -50,12 +50,12 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    {{ __('worker-teams.worker_teams_list') }}
+                    {{ __('shifts-workers.worker_teams_list') }}
                 </h4>
                 @if(auth()->user()->hasPermission('WORKER_TEAMS_CREATE'))
                 <a href="{{ route('manufacturing.worker-teams.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>
-                    {{ __('worker-teams.add_new_team') }}
+                    {{ __('shifts-workers.add_new_team') }}
                 </a>
                 @endif
             </div>
@@ -65,23 +65,23 @@
                 <form method="GET" action="{{ route('manufacturing.worker-teams.index') }}">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('worker-teams.search_placeholder') }}" value="{{ request('search') }}">
+                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('shifts-workers.search_placeholder') }}" value="{{ request('search') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="is_active" class="um-form-control">
-                                <option value="">{{ __('worker-teams.all_statuses') }}</option>
-                                <option value="1" {{ request('is_active') == '1' ? 'selected' : '' }}>{{ __('worker-teams.active') }}</option>
-                                <option value="0" {{ request('is_active') == '0' ? 'selected' : '' }}>{{ __('worker-teams.inactive') }}</option>
+                                <option value="">{{ __('shifts-workers.all_statuses') }}</option>
+                                <option value="1" {{ request('is_active') == '1' ? 'selected' : '' }}>{{ __('shifts-workers.active') }}</option>
+                                <option value="0" {{ request('is_active') == '0' ? 'selected' : '' }}>{{ __('shifts-workers.inactive') }}</option>
                             </select>
                         </div>
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                {{ __('worker-teams.search_action') }}
+                                {{ __('shifts-workers.search_action') }}
                             </button>
                             <a href="{{ route('manufacturing.worker-teams.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-x"></i>
-                                {{ __('worker-teams.reset_action') }}
+                                {{ __('shifts-workers.reset_action') }}
                             </a>
                         </div>
                     </div>
@@ -94,13 +94,13 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>{{ __('worker-teams.team_code') }}</th>
-                            <th>{{ __('worker-teams.team_name') }}</th>
-                            <th>{{ __('worker-teams.workers_count') }}</th>
-                            <th>{{ __('worker-teams.supervisor') }}</th>
-                            <th>{{ __('worker-teams.created_date') }}</th>
-                            <th>{{ __('worker-teams.status') }}</th>
-                            <th>{{ __('worker-teams.actions') }}</th>
+                            <th>{{ __('shifts-workers.team_code') }}</th>
+                            <th>{{ __('shifts-workers.team_name') }}</th>
+                            <th>{{ __('shifts-workers.workers_count') }}</th>
+                            <th>{{ __('shifts-workers.supervisor') }}</th>
+                            <th>{{ __('shifts-workers.created_date') }}</th>
+                            <th>{{ __('shifts-workers.status') }}</th>
+                            <th>{{ __('shifts-workers.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -114,32 +114,32 @@
                             <td>{{ $team->created_at->format('Y-m-d') }}</td>
                             <td>
                                 <span class="um-badge um-badge-{{ $team->is_active ? 'success' : 'secondary' }}">
-                                    {{ $team->is_active ? __('worker-teams.active') : __('worker-teams.inactive') }}
+                                    {{ $team->is_active ? __('shifts-workers.active') : __('shifts-workers.inactive') }}
                                 </span>
                             </td>
                             <td>
                                 <div class="um-dropdown">
-                                    <button class="um-btn-action um-btn-dropdown" title="{{ __('worker-teams.actions') }}">
+                                    <button class="um-btn-action um-btn-dropdown" title="{{ __('shifts-workers.actions') }}">
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
                                         @if (auth()->user()->hasPermission('WORKER_TEAMS_READ'))
                                         <a href="{{ route('manufacturing.worker-teams.show', $team->id) }}" class="um-dropdown-item um-btn-view">
                                             <i class="feather icon-eye"></i>
-                                            <span>{{ __('worker-teams.view') }}</span>
+                                            <span>{{ __('shifts-workers.view') }}</span>
                                         </a>
                                         @endif
                                         @if (auth()->user()->hasPermission('WORKER_TEAMS_UPDATE'))
                                         <a href="{{ route('manufacturing.worker-teams.edit', $team->id) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
-                                            <span>{{ __('worker-teams.edit') }}</span>
+                                            <span>{{ __('shifts-workers.edit') }}</span>
                                         </a>
                                         <form method="POST" action="{{ route('manufacturing.worker-teams.toggle-status', $team->id) }}" style="display: inline;">
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit" class="um-dropdown-item um-btn-toggle">
                                                 <i class="feather icon-{{ $team->is_active ? 'pause' : 'play' }}-circle"></i>
-                                                <span>{{ $team->is_active ? __('worker-teams.disable') : __('worker-teams.activate') }}</span>
+                                                <span>{{ $team->is_active ? __('shifts-workers.disable') : __('shifts-workers.activate') }}</span>
                                             </button>
                                         </form>
                                         @endif
@@ -150,7 +150,7 @@
                                             @method('DELETE')
                                             <button type="submit" class="um-dropdown-item um-btn-delete">
                                                 <i class="feather icon-trash-2"></i>
-                                                <span>{{ __('worker-teams.delete') }}</span>
+                                                <span>{{ __('shifts-workers.delete') }}</span>
                                             </button>
                                         </form>
                                         @endif
@@ -163,7 +163,7 @@
                         <tr>
                             <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
                                 <i class="feather icon-users" style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
-                                {{ __('worker-teams.no_teams') }}
+                                {{ __('shifts-workers.no_teams') }}
                             </td>
                         </tr>
                         @endforelse
@@ -186,21 +186,21 @@
                             </div>
                         </div>
                         <span class="um-badge um-badge-{{ $team->is_active ? 'success' : 'secondary' }}">
-                            {{ $team->is_active ? __('worker-teams.active') : __('worker-teams.inactive') }}
+                            {{ $team->is_active ? __('shifts-workers.active') : __('shifts-workers.inactive') }}
                         </span>
                     </div>
 
                     <div class="um-category-card-body">
                         <div class="um-info-row">
-                            <span class="um-info-label">{{ __('worker-teams.workers_count_label') }}</span>
-                            <span class="um-info-value">{{ $team->workers_count ?? 0 }} {{ __('worker-teams.worker') }}</span>
+                            <span class="um-info-label">{{ __('shifts-workers.workers_count_label') }}</span>
+                            <span class="um-info-value">{{ $team->workers_count ?? 0 }} {{ __('shifts-workers.worker') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">{{ __('worker-teams.supervisor_label_mobile') }}</span>
-                            <span class="um-info-value">{{ $team->supervisor->name ?? __('worker-teams.not_specified') }}</span>
+                            <span class="um-info-label">{{ __('shifts-workers.supervisor_label_mobile') }}</span>
+                            <span class="um-info-value">{{ $team->supervisor->name ?? __('shifts-workers.not_specified') }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">{{ __('worker-teams.creation_date_label') }}</span>
+                            <span class="um-info-label">{{ __('shifts-workers.creation_date_label') }}</span>
                             <span class="um-info-value">{{ $team->created_at->format('Y-m-d') }}</span>
                         </div>
                     </div>
@@ -208,11 +208,11 @@
                     <div class="um-category-card-footer">
                         <a href="{{ route('manufacturing.worker-teams.show', $team->id) }}" class="um-btn um-btn-sm um-btn-primary">
                             <i class="feather icon-eye" style="font-size: 14px;"></i>
-                            {{ __('worker-teams.view') }}
+                            {{ __('shifts-workers.view') }}
                         </a>
                         <a href="{{ route('manufacturing.worker-teams.edit', $team->id) }}" class="um-btn um-btn-sm um-btn-secondary">
                             <i class="feather icon-edit-2" style="font-size: 14px;"></i>
-                            {{ __('worker-teams.edit') }}
+                            {{ __('shifts-workers.edit') }}
                         </a>
                     </div>
                 </div>
@@ -223,7 +223,7 @@
             <div class="um-pagination-section">
                 <div>
                     <p class="um-pagination-info">
-                        {{ __('worker-teams.showing') }} {{ $teams->firstItem() ?? 0 }} {{ __('worker-teams.to') }} {{ $teams->lastItem() ?? 0 }} {{ __('worker-teams.of') }} {{ $teams->total() }} {{ __('worker-teams.team') }}
+                        {{ __('shifts-workers.showing') }} {{ $teams->firstItem() ?? 0 }} {{ __('shifts-workers.to') }} {{ $teams->lastItem() ?? 0 }} {{ __('shifts-workers.of') }} {{ $teams->total() }} {{ __('shifts-workers.team') }}
                     </p>
                 </div>
                 <div>
@@ -235,18 +235,18 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // {{ __('worker-teams.confirm_delete') }}
+            // {{ __('shifts-workers.confirm_delete') }}
             const deleteForms = document.querySelectorAll('.delete-form');
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    if (confirm('{{ __('worker-teams.confirm_delete') }}')) {
+                    if (confirm('{{ __('shifts-workers.confirm_delete') }}')) {
                         form.submit();
                     }
                 });
             });
 
-            // {{ __('worker-teams.auto_hide_alerts') }}
+            // {{ __('shifts-workers.auto_hide_alerts') }}
             const alerts = document.querySelectorAll('.um-alert-custom');
             alerts.forEach(alert => {
                 setTimeout(() => {

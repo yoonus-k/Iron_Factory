@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', __('worker-teams.team_details') . ' - ' . $team->name)
+@section('title', __('shifts-workers.team_details') . ' - ' . $team->name)
 
 @section('content')
     <style>
@@ -286,18 +286,18 @@
                     </div>
                     <div class="header-info">
                         <h1>{{ $team->name }}</h1>
-                        <p><strong>{{ __('worker-teams.team_code_label') }}:</strong> {{ $team->team_code }}</p>
+                        <p><strong>{{ __('shifts-workers.team_code_label') }}:</strong> {{ $team->team_code }}</p>
                     </div>
                 </div>
                 <div class="header-actions">
                     @can('WORKER_TEAMS_UPDATE')
                     <a href="{{ route('manufacturing.worker-teams.edit', $team->id) }}" class="action-btn view">
-                        <i class="feather icon-edit-2"></i> {{ __('worker-teams.edit') }}
+                        <i class="feather icon-edit-2"></i> {{ __('shifts-workers.edit') }}
                     </a>
                     @endcan
                     @can('WORKER_TEAMS_READ')
                     <a href="{{ route('manufacturing.worker-teams.index') }}" class="btn-back">
-                        <i class="feather icon-arrow-right"></i> {{ __('worker-teams.back') }}
+                        <i class="feather icon-arrow-right"></i> {{ __('shifts-workers.back') }}
                     </a>
                     @endcan
                 </div>
@@ -311,28 +311,28 @@
                     <div class="card-icon primary">
                         <i class="feather icon-info"></i>
                     </div>
-                    <h3 class="card-title">{{ __('worker-teams.team_code_label') }}</h3>
+                    <h3 class="card-title">{{ __('shifts-workers.team_code_label') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <label>{{ __('worker-teams.team_name_label') }}</label>
+                        <label>{{ __('shifts-workers.team_name_label') }}</label>
                         <div class="value">{{ $team->name }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>{{ __('worker-teams.team_code_label') }}</label>
+                        <label>{{ __('shifts-workers.team_code_label') }}</label>
                         <div class="value"><code style="background: white; padding: 6px 10px; border-radius: 4px;">{{ $team->team_code }}</code></div>
                     </div>
 
                     <div class="info-item">
-                        <label>{{ __('worker-teams.workers_count') }}</label>
+                        <label>{{ __('shifts-workers.workers_count') }}</label>
                         <div class="value">
-                            <span class="status-badge active">{{ $team->workers_count }} {{ __('worker-teams.worker') }}</span>
+                            <span class="status-badge active">{{ $team->workers_count }} {{ __('shifts-workers.worker') }}</span>
                         </div>
                     </div>
 
                     <div class="info-item">
-                        <label>{{ __('worker-teams.created_date') }}</label>
+                        <label>{{ __('shifts-workers.created_date') }}</label>
                         <div class="value">{{ $team->created_at->format('Y-m-d H:i') }}</div>
                     </div>
                 </div>
@@ -343,19 +343,19 @@
                     <div class="card-icon success">
                         <i class="feather icon-file-text"></i>
                     </div>
-                    <h3 class="card-title">{{ __('worker-teams.description_label') }}</h3>
+                    <h3 class="card-title">{{ __('shifts-workers.description_label') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <label>{{ __('worker-teams.description_label') }}</label>
-                        <div class="value">{{ $team->description ?? __('worker-teams.not_specified') }}</div>
+                        <label>{{ __('shifts-workers.description_label') }}</label>
+                        <div class="value">{{ $team->description ?? __('shifts-workers.not_specified') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <label>{{ __('worker-teams.status') }}</label>
+                        <label>{{ __('shifts-workers.status') }}</label>
                         <div class="value">
                             <span class="status-badge {{ $team->is_active ? 'active' : 'inactive' }}">
-                                {{ $team->is_active ? __('worker-teams.active') : __('worker-teams.inactive') }}
+                                {{ $team->is_active ? __('shifts-workers.active') : __('shifts-workers.inactive') }}
                             </span>
                         </div>
                     </div>
@@ -371,7 +371,7 @@
                         <div class="card-icon warning">
                             <i class="feather icon-user"></i>
                         </div>
-                        <h3 class="card-title">{{ __('worker-teams.workers_label') }}</h3>
+                        <h3 class="card-title">{{ __('shifts-workers.workers_label') }}</h3>
                     </div>
                     <div class="card-body">
                         @if($workers->count() > 0)
@@ -383,17 +383,17 @@
                                         </div>
                                         <div class="worker-info">
                                             <div class="worker-name">{{ $worker->name }}</div>
-                                            <div class="worker-email">{{ $worker->email ?? __('worker-teams.not_specified') }}</div>
+                                            <div class="worker-email">{{ $worker->email ?? __('shifts-workers.not_specified') }}</div>
                                         </div>
-                                        <span class="worker-badge">{{ __('worker-teams.worker') }}</span>
+                                        <span class="worker-badge">{{ __('shifts-workers.worker') }}</span>
                                     </div>
                                 @endforeach
                             </div>
                         @else
                             <div class="empty-state">
                                 <i class="feather icon-users"></i>
-                                <p><strong>{{ __('worker-teams.no_workers') }}</strong></p>
-                                <small>{{ __('worker-teams.no_workers') }}</small>
+                                <p><strong>{{ __('shifts-workers.no_workers') }}</strong></p>
+                                <small>{{ __('shifts-workers.no_workers') }}</small>
                             </div>
                         @endif
                     </div>

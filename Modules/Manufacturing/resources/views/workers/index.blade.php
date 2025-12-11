@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', __('workers.workers_management'))
+@section('title', __('shifts-workers.workers_management'))
 
 @section('content')
 
@@ -9,14 +9,14 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-users"></i>
-                {{ __('workers.workers_management') }}
+                {{ __('shifts-workers.workers_management') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
                     <i class="feather icon-home"></i> {{ __('app.menu.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>{{ __('workers.workers') }}</span>
+                <span>{{ __('shifts-workers.workers') }}</span>
             </nav>
         </div>
 
@@ -49,12 +49,12 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    {{ __('workers.workers') }} {{ __('workers.list') }}
+                    {{ __('shifts-workers.workers') }} {{ __('shifts-workers.list') }}
                 </h4>
                 @if(auth()->user()->hasPermission('WORKERS_CREATE'))
                 <a href="{{ route('manufacturing.workers.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>
-                    {{ __('workers.add_worker') }}
+                    {{ __('shifts-workers.add_worker') }}
                 </a>
                 @endif
        </div>
@@ -64,22 +64,22 @@
                 <form method="GET" action="{{ route('manufacturing.workers.index') }}">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('app.buttons.search') }} ({{ __('workers.worker_name') }}, {{ __('workers.worker_code') }}, {{ __('workers.national_id') }}...)" value="{{ request('search') }}">
+                            <input type="text" name="search" class="um-form-control" placeholder="{{ __('app.buttons.search') }} ({{ __('shifts-workers.worker_name') }}, {{ __('shifts-workers.worker_code') }}, {{ __('shifts-workers.national_id') }}...)" value="{{ request('search') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="position" class="um-form-control">
-                                <option value="">{{ __('workers.all') }} {{ __('workers.positions') }}</option>
-                                <option value="worker" {{ request('position') == 'worker' ? 'selected' : '' }}>{{ __('workers.worker') }}</option>
-                                <option value="supervisor" {{ request('position') == 'supervisor' ? 'selected' : '' }}>{{ __('workers.supervisor') }}</option>
-                                <option value="technician" {{ request('position') == 'technician' ? 'selected' : '' }}>{{ __('workers.technician') }}</option>
-                                <option value="quality_inspector" {{ request('position') == 'quality_inspector' ? 'selected' : '' }}>{{ __('workers.quality_inspector') }}</option>
+                                <option value="">{{ __('shifts-workers.all') }} {{ __('shifts-workers.positions') }}</option>
+                                <option value="worker" {{ request('position') == 'worker' ? 'selected' : '' }}>{{ __('shifts-workers.worker') }}</option>
+                                <option value="supervisor" {{ request('position') == 'supervisor' ? 'selected' : '' }}>{{ __('shifts-workers.supervisor') }}</option>
+                                <option value="technician" {{ request('position') == 'technician' ? 'selected' : '' }}>{{ __('shifts-workers.technician') }}</option>
+                                <option value="quality_inspector" {{ request('position') == 'quality_inspector' ? 'selected' : '' }}>{{ __('shifts-workers.quality_inspector') }}</option>
                             </select>
                         </div>
                         <div class="um-form-group">
                             <select name="is_active" class="um-form-control">
-                                <option value="">{{ __('workers.all') }} {{ __('workers.status') }}</option>
-                                <option value="1" {{ request('is_active') == '1' ? 'selected' : '' }}>{{ __('workers.active') }}</option>
-                                <option value="0" {{ request('is_active') == '0' ? 'selected' : '' }}>{{ __('workers.inactive') }}</option>
+                                <option value="">{{ __('shifts-workers.all') }} {{ __('shifts-workers.status') }}</option>
+                                <option value="1" {{ request('is_active') == '1' ? 'selected' : '' }}>{{ __('shifts-workers.active') }}</option>
+                                <option value="0" {{ request('is_active') == '0' ? 'selected' : '' }}>{{ __('shifts-workers.inactive') }}</option>
                             </select>
                         </div>
                         <div class="um-filter-actions">
@@ -102,14 +102,14 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>{{ __('workers.code') }}</th>
-                            <th>{{ __('workers.name') }}</th>
-                            <th>{{ __('workers.job') }}</th>
-                            <th>{{ __('workers.phone') }}</th>
-                            <th>{{ __('workers.shift_pref') }}</th>
-                            <th>{{ __('workers.salary_hour') }}</th>
-                            <th>{{ __('workers.status') }}</th>
-                            <th>{{ __('workers.actions') }}</th>
+                            <th>{{ __('shifts-workers.code') }}</th>
+                            <th>{{ __('shifts-workers.name') }}</th>
+                            <th>{{ __('shifts-workers.job') }}</th>
+                            <th>{{ __('shifts-workers.phone') }}</th>
+                            <th>{{ __('shifts-workers.shift_pref') }}</th>
+                            <th>{{ __('shifts-workers.salary_hour') }}</th>
+                            <th>{{ __('shifts-workers.status') }}</th>
+                            <th>{{ __('shifts-workers.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -125,10 +125,10 @@
                             </td>
                             <td>{{ $worker->phone ?? '-' }}</td>
                             <td>{{ $worker->shift_preference_name }}</td>
-                            <td>{{ number_format($worker->hourly_rate, 2) }} {{ __('workers.currency') }}</td>
+                            <td>{{ number_format($worker->hourly_rate, 2) }} {{ __('shifts-workers.currency') }}</td>
                             <td>
                                 <span class="um-badge um-badge-{{ $worker->is_active ? 'success' : 'secondary' }}">
-                                    {{ $worker->is_active ? __('workers.active') : __('workers.inactive') }}
+                                    {{ $worker->is_active ? __('shifts-workers.active') : __('shifts-workers.inactive') }}
                                 </span>
                             </td>
                             <td>
@@ -153,7 +153,7 @@
                                             @method('PATCH')
                                             <button type="submit" class="um-dropdown-item um-btn-toggle">
                                                 <i class="feather icon-{{ $worker->is_active ? 'pause' : 'play' }}-circle"></i>
-                                                <span>{{ $worker->is_active ? __('workers.disable') : __('workers.enable') }}</span>
+                                                <span>{{ $worker->is_active ? __('shifts-workers.disable') : __('shifts-workers.enable') }}</span>
                                             </button>
                                         </form>
                                         @endif
@@ -177,7 +177,7 @@
                         <tr>
                             <td colspan="9" style="text-align: center; padding: 40px; color: #999;">
                                 <i class="feather icon-users" style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
-                                {{ __('workers.no_workers_found') }}
+                                {{ __('shifts-workers.no_workers_found') }}
                             </td>
                         </tr>
                         @endforelse
@@ -195,25 +195,25 @@
                             <small style="color: #999;">{{ $worker->name }}</small>
                         </div>
                         <span class="um-badge um-badge-{{ $worker->is_active ? 'success' : 'secondary' }}">
-                            {{ $worker->is_active ? __('workers.active') : __('workers.inactive') }}
+                            {{ $worker->is_active ? __('shifts-workers.active') : __('shifts-workers.inactive') }}
                         </span>
                     </div>
                     <div class="um-category-card-body">
                         <div class="um-info-row">
-                            <span class="um-info-label">{{ __('workers.job') }}:</span>
+                            <span class="um-info-label">{{ __('shifts-workers.job') }}:</span>
                             <span class="um-info-value um-badge um-badge-info">{{ $worker->position_name }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">{{ __('workers.phone') }}:</span>
+                            <span class="um-info-label">{{ __('shifts-workers.phone') }}:</span>
                             <span class="um-info-value">{{ $worker->phone ?? '-' }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">{{ __('workers.shift_pref') }}:</span>
+                            <span class="um-info-label">{{ __('shifts-workers.shift_pref') }}:</span>
                             <span class="um-info-value">{{ $worker->shift_preference_name }}</span>
                         </div>
                         <div class="um-info-row">
-                            <span class="um-info-label">{{ __('workers.salary_hour') }}:</span>
-                            <span class="um-info-value">{{ number_format($worker->hourly_rate, 2) }} {{ __('workers.currency') }}</span>
+                            <span class="um-info-label">{{ __('shifts-workers.salary_hour') }}:</span>
+                            <span class="um-info-value">{{ number_format($worker->hourly_rate, 2) }} {{ __('shifts-workers.currency') }}</span>
                         </div>
                     </div>
                     <div class="um-category-card-footer">
@@ -234,7 +234,7 @@
                 @empty
                 <div style="text-align: center; padding: 40px; color: #999;">
                     <i class="feather icon-users" style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
-                    {{ __('workers.no_workers_found') }}
+                    {{ __('shifts-workers.no_workers_found') }}
                 </div>
                 @endforelse
             </div>
@@ -244,7 +244,7 @@
             <div class="um-pagination-section">
                 <div>
                     <p class="um-pagination-info">
-                        {{ __('app.showing') }} {{ $workers->firstItem() ?? 0 }} {{ __('app.to') }} {{ $workers->lastItem() ?? 0 }} {{ __('app.of') }} {{ $workers->total() }} {{ __('workers.workers') }}
+                        {{ __('app.showing') }} {{ $workers->firstItem() ?? 0 }} {{ __('app.to') }} {{ $workers->lastItem() ?? 0 }} {{ __('app.of') }} {{ $workers->total() }} {{ __('shifts-workers.workers') }}
                     </p>
                 </div>
                 <div>
@@ -401,18 +401,18 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // {{ __('workers.confirm_delete') }}
+            // {{ __('shifts-workers.confirm_delete') }}
             const deleteForms = document.querySelectorAll('.delete-form');
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    if (confirm('{{ __('workers.confirm_delete') }}')) {
+                    if (confirm('{{ __('shifts-workers.confirm_delete') }}')) {
                         form.submit();
                     }
                 });
             });
 
-            // {{ __('workers.auto_hide_alerts') }}
+            // {{ __('shifts-workers.auto_hide_alerts') }}
             const alerts = document.querySelectorAll('.um-alert-custom');
             alerts.forEach(alert => {
                 setTimeout(() => {

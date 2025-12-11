@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', __('workers.edit_worker'))
+@section('title', __('shifts-workers..edit_worker'))
 
 @section('content')
 
@@ -46,14 +46,14 @@
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
-                {{ __('workers.edit_worker') }}
+                {{ __('shifts-workers..edit_worker') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
                     <i class="feather icon-home"></i> {{ __('app.menu.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>{{ __('workers.workers') }}</span>
+                <span>{{ __('shifts-workers..shifts-workers.') }}</span>
                 <i class="feather icon-chevron-left"></i>
                 <span>{{ __('app.buttons.edit') }}: {{ $worker->name }}</span>
             </nav>
@@ -61,7 +61,7 @@
 
         <!-- Form Card -->
         <div class="form-card">
-            <form method="POST" action="{{ route('manufacturing.workers.update', $worker->id) }}" id="workerForm">
+            <form method="POST" action="{{ route('manufacturing.shifts-workers..update', $worker->id) }}" id="workerForm">
                 @csrf
                 @method('PUT')
 
@@ -75,15 +75,15 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">{{ __('workers.basic_information') }}</h3>
-                            <p class="section-subtitle">{{ __('workers.basic_info_desc') }}</p>
+                            <h3 class="section-title">{{ __('shifts-workers..basic_information') }}</h3>
+                            <p class="section-subtitle">{{ __('shifts-workers..basic_info_desc') }}</p>
                         </div>
                     </div>
 
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="worker_code" class="form-label">
-                                {{ __('workers.worker_code') }}
+                                {{ __('shifts-workers..worker_code') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -97,7 +97,7 @@
 
                         <div class="form-group">
                             <label for="name" class="form-label">
-                                {{ __('workers.worker_name') }}
+                                {{ __('shifts-workers..worker_name') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -111,7 +111,7 @@
 
                         <div class="form-group">
                             <label for="national_id" class="form-label">
-                                {{ __('workers.national_id') }}
+                                {{ __('shifts-workers..national_id') }}
                             </label>
                             <div class="input-wrapper">
                                 <input type="text" id="national_id" name="national_id" class="form-input"
@@ -124,7 +124,7 @@
 
                         <div class="form-group">
                             <label for="phone" class="form-label">
-                                {{ __('workers.phone') }}
+                                {{ __('shifts-workers..phone') }}
                             </label>
                             <div class="input-wrapper">
                                 <input type="tel" id="phone" name="phone" class="form-input"
@@ -137,7 +137,7 @@
 
                         <div class="form-group">
                             <label for="email" class="form-label">
-                                {{ __('workers.email') }}
+                                {{ __('shifts-workers..email') }}
                             </label>
                             <div class="input-wrapper">
                                 <input type="email" id="email" name="email" class="form-input"
@@ -150,12 +150,12 @@
 
                         <div class="form-group">
                             <label for="position" class="form-label">
-                                {{ __('workers.position') }}
+                                {{ __('shifts-workers..position') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
                                 <select id="position" name="role_id" class="form-input" required>
-                                    <option value="">{{ __('workers.select_position') }}</option>
+                                    <option value="">{{ __('shifts-workers..select_position') }}</option>
                                     @foreach($roles as $role)
                                     <option value="{{ $role->id }}" data-role-code="{{ $role->role_code }}" {{ old('role_id', $worker->user?->role_id ?? collect($roles)->firstWhere('role_code', strtoupper($worker->position))?->id) == $role->id ? 'selected' : '' }}>
                                         {{ $role->role_name }}
@@ -180,8 +180,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">{{ __('workers.work_information') }}</h3>
-                            <p class="section-subtitle">{{ __('workers.work_info_desc') }}</p>
+                            <h3 class="section-title">{{ __('shifts-workers..work_information') }}</h3>
+                            <p class="section-subtitle">{{ __('shifts-workers..work_info_desc') }}</p>
                         </div>
                     </div>
 
@@ -190,7 +190,7 @@
 
                         <div class="form-group">
                             <label for="hourly_rate" class="form-label">
-                                {{ __('workers.hourly_rate') }}
+                                {{ __('shifts-workers..hourly_rate') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -204,7 +204,7 @@
 
                         <div class="form-group">
                             <label for="hire_date" class="form-label">
-                                {{ __('workers.hire_date') }}
+                                {{ __('shifts-workers..hire_date') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -217,27 +217,27 @@
                         </div>
 
                         <div class="form-group full-width">
-                            <label class="form-label">{{ __('workers.allowed_stages') }}</label>
-                            <div class="workers-selection">
+                            <label class="form-label">{{ __('shifts-workers..allowed_stages') }}</label>
+                            <div class="shifts-workers.-selection">
                                 <label class="checkbox-label">
                                     <input type="checkbox" name="allowed_stages[]" value="1"
                                            {{ in_array(1, old('allowed_stages', $worker->allowed_stages ?? [])) ? 'checked' : '' }}>
-                                    <span>{{ __('workers.stage_1') }} - {{ __('app.reception') }}</span>
+                                    <span>{{ __('shifts-workers..stage_1') }} - {{ __('app.reception') }}</span>
                                 </label>
                                 <label class="checkbox-label">
                                     <input type="checkbox" name="allowed_stages[]" value="2"
                                            {{ in_array(2, old('allowed_stages', $worker->allowed_stages ?? [])) ? 'checked' : '' }}>
-                                    <span>{{ __('workers.stage_2') }} - {{ __('app.preparation') }}</span>
+                                    <span>{{ __('shifts-workers..stage_2') }} - {{ __('app.preparation') }}</span>
                                 </label>
                                 <label class="checkbox-label">
                                     <input type="checkbox" name="allowed_stages[]" value="3"
                                            {{ in_array(3, old('allowed_stages', $worker->allowed_stages ?? [])) ? 'checked' : '' }}>
-                                    <span>{{ __('workers.stage_3') }} - {{ __('app.processing') }}</span>
+                                    <span>{{ __('shifts-workers..stage_3') }} - {{ __('app.processing') }}</span>
                                 </label>
                                 <label class="checkbox-label">
                                     <input type="checkbox" name="allowed_stages[]" value="4"
                                            {{ in_array(4, old('allowed_stages', $worker->allowed_stages ?? [])) ? 'checked' : '' }}>
-                                    <span>{{ __('workers.stage_4') }} - {{ __('app.packaging') }}</span>
+                                    <span>{{ __('shifts-workers..stage_4') }} - {{ __('app.packaging') }}</span>
                                 </label>
                             </div>
                             @error('allowed_stages')
@@ -248,7 +248,7 @@
                         <div class="form-group full-width">
                             <div class="switch-group">
                                 <label for="is_active" class="form-label">
-                                    <span>{{ __('workers.worker_status') }}</span>
+                                    <span>{{ __('shifts-workers..worker_status') }}</span>
                                 </label>
                                 <div class="toggle-switch">
                                     <input type="hidden" name="is_active" value="0">
@@ -256,7 +256,7 @@
                                            {{ old('is_active', $worker->is_active) ? 'checked' : '' }} class="toggle-input">
                                     <label for="is_active" class="toggle-label">
                                         <span class="toggle-inner"></span>
-                                        <span class="toggle-switch-label">{{ $worker->is_active ? __('workers.active') : __('workers.inactive') }}</span>
+                                        <span class="toggle-switch-label">{{ $worker->is_active ? __('shifts-workers..active') : __('workers.inactive') }}</span>
                                     </label>
                                 </div>
                             </div>
@@ -274,8 +274,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">{{ __('workers.account_management') }}</h3>
-                            <p class="section-subtitle">{{ __('workers.account_info_desc') }}</p>
+                            <h3 class="section-title">{{ __('shifts-workers.account_management') }}</h3>
+                            <p class="section-subtitle">{{ __('shifts-workers.account_info_desc') }}</p>
                         </div>
                     </div>
 
@@ -283,7 +283,7 @@
                         <div class="form-group full-width">
                             <div id="permissionsContainer" class="permissions-list">
                                 <p class="text-muted" style="text-align: center; padding: 20px;">
-                                    <i class="feather icon-info"></i> {{ __('workers.loading_permissions') }}
+                                    <i class="feather icon-info"></i> {{ __('shifts-workers.loading_permissions') }}
                                 </p>
                             </div>
                         </div>
@@ -299,8 +299,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">{{ __('workers.user_account_management') }}</h3>
-                            <p class="section-subtitle">{{ __('workers.user_account_desc') }}</p>
+                            <h3 class="section-title">{{ __('shifts-workers.user_account_management') }}</h3>
+                            <p class="section-subtitle">{{ __('shifts-workers.user_account_desc') }}</p>
                         </div>
                     </div>
 
@@ -309,30 +309,30 @@
                         <div class="form-group full-width">
                             <div class="alert alert-info">
                                 <i class="feather icon-info"></i>
-                                <strong>{{ __('workers.note') }}:</strong> {{ __('workers.current_user_info') }}
+                                <strong>{{ __('shifts-workers.note') }}:</strong> {{ __('shifts-workers.current_user_info') }}
                                 <br>
-                                <strong>{{ __('workers.username') }}:</strong> {{ $worker->user->username }}
+                                <strong>{{ __('shifts-workers.username') }}:</strong> {{ $worker->user->username }}
                                 <br>
-                                <strong>{{ __('workers.email') }}:</strong> {{ $worker->user->email }}
+                                <strong>{{ __('shifts-workers.email') }}:</strong> {{ $worker->user->email }}
                                 <br>
-                                <strong>{{ __('workers.current_role') }}:</strong> {{ $worker->user->roleRelation?->role_name ?? __('workers.without_role') }}
+                                <strong>{{ __('shifts-workers.current_role') }}:</strong> {{ $worker->user->roleRelation?->role_name ?? __('shifts-workers.without_role') }}
                             </div>
                         </div>
 
                         <div class="form-group full-width">
                             <label for="user_id" class="form-label">
-                                {{ __('workers.change_user_account') }}
+                                {{ __('shifts-workers.change_user_account') }}
                             </label>
                             <div class="input-wrapper">
                                 <select id="user_id" name="user_id" class="form-input">
-                                    <option value="">{{ __('app.without') }} {{ __('workers.user_account') }}</option>
+                                    <option value="">{{ __('app.without') }} {{ __('shifts-workers.user_account') }}</option>
                                     @foreach($availableUsers as $user)
                                     <option value="{{ $user->id }}" {{ $worker->user_id === $user->id ? 'selected' : '' }}>
                                         {{ $user->username }} ({{ $user->email }})
                                     </option>
                                     @endforeach
                                 </select>
-                                <small class="text-muted">{{ __('workers.role_will_be_updated') }}</small>
+                                <small class="text-muted">{{ __('shifts-workers.role_will_be_updated') }}</small>
                             </div>
                             @error('user_id')
                             <span class="error-message">{{ $message }}</span>
@@ -341,13 +341,13 @@
                         @else
                         <div class="form-group full-width">
                             <label for="allow_system_access_edit" class="form-label">
-                                {{ __('workers.system_access') }}?
+                                {{ __('shifts-workers.system_access') }}?
                             </label>
                             <div class="input-wrapper">
                                 <select id="allow_system_access_edit" name="allow_system_access" class="form-input" onchange="toggleUserAccountFieldsEdit()">
-                                    <option value="no" {{ old('allow_system_access') == 'no' ? 'selected' : '' }}>{{ __('workers.worker_only') }}</option>
-                                    <option value="existing" {{ old('allow_system_access') == 'existing' ? 'selected' : '' }}>{{ __('workers.link_existing_account') }}</option>
-                                    <option value="new" {{ old('allow_system_access') == 'new' ? 'selected' : '' }}>{{ __('workers.create_new_account') }}</option>
+                                    <option value="no" {{ old('allow_system_access') == 'no' ? 'selected' : '' }}>{{ __('shifts-workers.worker_only') }}</option>
+                                    <option value="existing" {{ old('allow_system_access') == 'existing' ? 'selected' : '' }}>{{ __('shifts-workers.link_existing_account') }}</option>
+                                    <option value="new" {{ old('allow_system_access') == 'new' ? 'selected' : '' }}>{{ __('shifts-workers.create_new_account') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -355,11 +355,11 @@
                         <!-- Existing User Selection -->
                         <div id="existing_user_section_edit" class="form-group full-width" style="display: none;">
                             <label for="user_id" class="form-label">
-                                {{ __('workers.select_user') }}
+                                {{ __('shifts-workers.select_user') }}
                             </label>
                             <div class="input-wrapper">
                                 <select id="user_id" name="user_id" class="form-input">
-                                    <option value="">{{ __('workers.select_user') }} --</option>
+                                    <option value="">{{ __('shifts-workers.select_user') }} --</option>
                                     @foreach($availableUsers as $user)
                                     <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
                                         {{ $user->username }} ({{ $user->email }})
@@ -367,7 +367,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <small class="text-muted">{{ __('workers.users_without_worker_file') }}</small>
+                            <small class="text-muted">{{ __('shifts-workers.users_without_worker_file') }}</small>
                         </div>
 
                         <!-- New User Creation Fields -->
@@ -375,19 +375,19 @@
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="new_username_edit" class="form-label">
-                                        {{ __('workers.username') }}
+                                        {{ __('shifts-workers.username') }}
                                         <span class="required">*</span>
                                     </label>
                                     <div class="input-wrapper">
                                         <input type="text" name="new_username" id="new_username_edit" class="form-input"
-                                            value="{{ old('new_username') }}" placeholder="{{ __('workers.enter_username') }}">
+                                            value="{{ old('new_username') }}" placeholder="{{ __('shifts-workers.enter_username') }}">
                                     </div>
-                                    <small class="text-muted">{{ __('workers.username_desc') }}</small>
+                                    <small class="text-muted">{{ __('shifts-workers.username_desc') }}</small>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="new_email_edit" class="form-label">
-                                        {{ __('workers.email') }}
+                                        {{ __('shifts-workers.email') }}
                                         <span class="required">*</span>
                                     </label>
                                     <div class="input-wrapper">
@@ -399,7 +399,7 @@
 
                             <div class="alert alert-warning" style="margin-top: 15px;">
                                 <i data-feather="alert-triangle"></i>
-                                <strong>{{ __('workers.note') }}:</strong> {{ __('workers.password_will_be_sent') }}
+                                <strong>{{ __('shifts-workers.note') }}:</strong> {{ __('shifts-workers.password_will_be_sent') }}
                             </div>
                         </div>
                         @endif
@@ -416,15 +416,15 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">{{ __('workers.additional_information') }}</h3>
-                            <p class="section-subtitle">{{ __('workers.additional_info_desc') }}</p>
+                            <h3 class="section-title">{{ __('shifts-workers.additional_information') }}</h3>
+                            <p class="section-subtitle">{{ __('shifts-workers.additional_info_desc') }}</p>
                         </div>
                     </div>
 
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="emergency_contact" class="form-label">
-                                {{ __('workers.emergency_contact') }}
+                                {{ __('shifts-workers.emergency_contact') }}
                             </label>
                             <div class="input-wrapper">
                                 <input type="text" id="emergency_contact" name="emergency_contact" class="form-input"
@@ -437,7 +437,7 @@
 
                         <div class="form-group">
                             <label for="emergency_phone" class="form-label">
-                                {{ __('workers.emergency_phone') }}
+                                {{ __('shifts-workers.emergency_phone') }}
                             </label>
                             <div class="input-wrapper">
                                 <input type="tel" id="emergency_phone" name="emergency_phone" class="form-input"
@@ -449,7 +449,7 @@
                         </div>
 
                         <div class="form-group full-width">
-                            <label for="notes" class="form-label">{{ __('workers.notes') }}</label>
+                            <label for="notes" class="form-label">{{ __('shifts-workers.notes') }}</label>
                             <div class="input-wrapper">
                                 <textarea id="notes" name="notes" class="form-input" rows="4">{{ old('notes', $worker->notes) }}</textarea>
                                 @error('notes')
@@ -467,7 +467,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        {{ __('workers.save_changes') }}
+                        {{ __('shifts-workers.save_changes') }}
                     </button>
 
                     <a href="{{ route('manufacturing.workers.index') }}" class="btn-cancel">
