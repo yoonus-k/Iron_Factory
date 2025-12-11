@@ -433,6 +433,216 @@ return [
     'note' => 'टिप्पणी',
     'to_view_permissions' => 'अनुमतियां देखने के लिए',
     'enable' => 'सक्षम करें',
+    'shift_detailed_report' => 'विस्तृत शिफ्ट रिपोर्ट',
+    'live_shift' => 'लाइव शिफ्ट',
+    'print_report' => 'रिपोर्ट प्रिंट करें',
+    'date_filter' => 'तारीख:',
+    'shift_filter' => 'शिफ्ट:',
+    'morning_shift_time' => 'सुबह (6 AM - 6 PM)',
+    'evening_shift_time' => 'शाम (6 PM - 6 AM)',
+    'last_update' => 'अंतिम अपडेट:',
+    'now' => 'अभी',
+    'minutes_ago' => '{minutes} मिनट पहले',
+    'one_minute_ago' => '1 मिनट पहले',
+
+    // Shift Information Card
+    'shift_info' => 'शिफ्ट जानकारी',
+    'shift_code_label' => 'शिफ्ट कोड:',
+    'supervisor_name_label' => 'पर्यवेक्षक:',
+    'workers_count_label' => 'कर्मचारियों की संख्या:',
+    'shift_status_label' => 'शिफ्ट स्थिति:',
+    'notes_label' => 'नोट्स:',
+
+    // WIP Alert
+    'wip_alert_title' => 'चेतावनी: कार्य प्रगति में',
+    'wip_alert_message' => 'उत्पादन चरणों में {count} वस्तुएं फंसी हुई हैं। कृपया फॉलो अप करें।',
+    'pieces_in_progress' => 'प्रगति में वस्तुएं',
+    'please_follow_up' => 'कृपया फॉलो अप करें',
+
+    // Main Statistics
+    'total_items_produced' => 'कुल उत्पादित वस्तुएं',
+    'total_output' => 'कुल उत्पादन',
+    'waste_percentage' => 'अपशिष्ट प्रतिशत',
+    'overall_efficiency' => 'समग्र दक्षता',
+    'kilogram' => 'किलोग्राम',
+    'kg' => 'कि.ग्रा.',
+    'pieces' => 'वस्तुएं',
+    'pieces_count' => '{count} वस्तुएं',
+
+    // Stage Efficiency
+    'stage_efficiency_details' => 'चरण दक्षता विवरण',
+    'items_produced' => 'उत्पादित वस्तुएं:',
+    'output_label' => 'उत्पादन:',
+    'waste_label' => 'अपशिष्ट:',
+    'workers_count_short' => 'कर्मचारी:',
+    'average_per_worker' => 'औसत/कर्मचारी:',
+    'production_rate' => 'उत्पादन दर:',
+    'pieces_per_hour' => 'वस्तुएं/घंटा',
+    'efficiency_excellent' => 'उत्कृष्ट',
+    'efficiency_good' => 'अच्छा',
+    'efficiency_average' => 'औसत',
+    'efficiency_poor' => 'कमजोर',
+
+    // Charts
+    'hourly_productivity' => 'प्रति घंटा उत्पादकता',
+    'stage_distribution' => 'चरणवार उत्पादन वितरण',
+    'pieces_count_chart' => 'वस्तुओं की संख्या',
+
+    // Top Performers
+    'top_performers' => 'इस शिफ्ट में शीर्ष प्रदर्शनकर्ता',
+    'worker_stats_format' => '{items} वस्तुएं • {output} कि.ग्रा. • {waste}% अपशिष्ट',
+    'efficiency_label' => 'दक्षता',
+    'no_data_for_shift' => 'इस शिफ्ट के लिए कोई डेटा उपलब्ध नहीं',
+
+    // Worker Attendance
+    'worker_attendance' => 'कर्मचारी उपस्थिति ({count} कर्मचारी)',
+    'attendance_table_headers' => [
+        'number' => '#',
+        'name' => 'नाम',
+        'code' => 'कोड',
+        'position' => 'पद',
+        'stages' => 'चरण',
+        'pieces' => 'वस्तुएं',
+        'output_kg' => 'उत्पादन (कि.ग्रा.)',
+        'waste_kg' => 'अपशिष्ट (कि.ग्रा.)',
+        'efficiency' => 'दक्षता',
+        'hours' => 'घंटे',
+    ],
+    'stage_label' => 'चरण {number}',
+    'hours_short' => 'घं.',
+    'no_attendance_data' => 'उपस्थिति डेटा उपलब्ध नहीं',
+
+    // Shift Handovers Section
+    'shift_handovers_list' => 'शिफ्ट हस्तांतरण ({count})',
+    'items_transferred' => '{count} वस्तुएं स्थानांतरित',
+    'handover_time_label' => 'समय: {time}',
+    'approved_status' => 'स्वीकृत',
+    'pending_status' => 'लंबित',
+    'from_to_format' => '{from} → {to}',
+
+    // Active Teams Section
+    'active_teams_list' => 'सक्रिय टीमें ({count})',
+    'team_members' => 'सदस्य:',
+    'total_team_production' => 'कुल उत्पादन:',
+    'average_per_member' => 'औसत प्रति सदस्य:',
+    'active_members_format' => '{active} / {total}',
+
+    // Comparison Changes
+    'change_up' => 'वृद्धि',
+    'change_down' => 'कमी',
+    'change_neutral' => 'स्थिर',
+    'compared_to_previous' => 'पिछली शिफ्ट से तुलना',
+    'percentage_change' => '{value}%',
+
+    // Filter and Actions
+    'date_colon' => 'तारीख:',
+    'shift_colon' => 'शिफ्ट:',
+    'apply' => 'लागू करें',
+    'refresh_data' => 'डेटा रिफ्रेश करें',
+
+    // Time Formats
+    'time_format_12h' => 'h:i A',
+    'time_format_24h' => 'H:i',
+    'date_format' => 'd/m/Y',
+    'datetime_format' => 'd/m/Y H:i',
+
+    // Print Specific
+    'report_generated_at' => 'रिपोर्ट उत्पन्न की गई: {datetime}',
+    'page_number' => 'पृष्ठ {number}',
+
+    // Empty States
+    'no_shift_data' => 'शिफ्ट डेटा उपलब्ध नहीं',
+    'no_teams_active' => 'वर्तमान में कोई सक्रिय टीम नहीं',
+    'no_handovers_recorded' => 'कोई हस्तांतरण रिकॉर्ड नहीं',
+    'no_workers_present' => 'कोई कर्मचारी उपस्थित नहीं',
+
+    // Additional Stats Labels
+    'total_working_hours' => 'कुल कार्य घंटे',
+    'average_items_per_hour' => 'औसत वस्तुएं प्रति घंटा',
+    'total_stages_active' => 'सक्रिय चरण',
+    'completion_rate' => 'पूर्णता दर',
+
+    // Quality Indicators
+    'quality_level' => 'गुणवत्ता स्तर',
+    'defect_rate' => 'दोष दर',
+    'acceptance_rate' => 'स्वीकृति दर',
+    'rejection_rate' => 'अस्वीकृति दर',
+
+    // Performance Indicators
+    'performance_excellent' => 'उत्कृष्ट प्रदर्शन',
+    'performance_good' => 'अच्छा प्रदर्शन',
+    'performance_average' => 'औसत प्रदर्शन',
+    'performance_needs_improvement' => 'सुधार की आवश्यकता',
+
+    // Team Performance
+    'team_efficiency' => 'टीम दक्षता',
+    'team_productivity' => 'टीम उत्पादकता',
+    'team_members_count' => 'टीम सदस्यों की संख्या',
+
+    // Additional Dashboard Elements
+    'shift_progress' => 'शिफ्ट प्रगति',
+    'time_elapsed' => 'बीता हुआ समय',
+    'time_remaining' => 'शेष समय',
+    'shift_completion' => 'शिफ्ट पूर्णता',
+    'target_achievement' => 'लक्ष्य उपलब्धि',
+    'below_target' => 'लक्ष्य से नीचे',
+    'above_target' => 'लक्ष्य से ऊपर',
+    'on_target' => 'लक्ष्य पर',
+
+    // Error Messages
+    'data_load_error' => 'डेटा लोड करने में त्रुटि',
+    'chart_render_error' => 'चार्ट प्रदर्शित करने में त्रुटि',
+    'refresh_error' => 'रिफ्रेश करने में त्रुटि',
+    'filter_error' => 'फ़िल्टर लागू करने में त्रुटि',
+
+    // Success Messages
+    'data_refreshed' => 'डेटा सफलतापूर्वक रिफ्रेश हो गया',
+    'report_printed' => 'रिपोर्ट प्रिंट हो गई',
+    'filters_applied' => 'फ़िल्टर लागू हो गए',
+
+    // Additional Helper Text
+    'click_to_view_details' => 'विवरण देखने के लिए क्लिक करें',
+    'hover_for_more_info' => 'अधिक जानकारी के लिए होवर करें',
+    'double_click_to_expand' => 'विस्तार के लिए डबल क्लिक करें',
+    'drag_to_reorder' => 'पुनः क्रम के लिए खींचें',
+
+    // Export Options
+    'export_to_excel' => 'Excel में निर्यात करें',
+    'export_to_pdf' => 'PDF में निर्यात करें',
+    'export_to_csv' => 'CSV में निर्यात करें',
+    'download_report' => 'रिपोर्ट डाउनलोड करें',
+    'share_report' => 'रिपोर्ट साझा करें',
+
+    // Additional Time References
+    'seconds_ago' => '{seconds} सेकंड पहले',
+    'hours_ago' => '{hours} घंटे पहले',
+    'days_ago' => '{days} दिन पहले',
+    'just_now' => 'अभी',
+
+    // Shift Comparison
+    'previous_shift' => 'पिछली शिफ्ट',
+    'current_shift' => 'वर्तमान शिफ्ट',
+    'next_shift' => 'अगली शिफ्ट',
+    'shift_comparison' => 'शिफ्ट तुलना',
+    'compare_with' => 'तुलना करें',
+
+    // Additional Badges and Labels
+    'critical_level' => 'गंभीर स्तर',
+    'warning_level' => 'चेतावनी स्तर',
+    'normal_level' => 'सामान्य स्तर',
+    'optimal_level' => 'इष्टतम स्तर',
+
+    // Loading States
+    'loading_data' => 'डेटा लोड हो रहा है...',
+    'loading_chart' => 'चार्ट लोड हो रहा है...',
+    'processing_data' => 'डेटा प्रोसेस हो रहा है...',
+    'generating_report' => 'रिपोर्ट तैयार हो रही है...',
+
+    // Tooltips
+    'tooltip_efficiency' => 'वास्तविक और अपेक्षित उत्पादन का अनुपात',
+    'tooltip_waste' => 'बर्बाद सामग्री की मात्रा',
+    'tooltip_output' => 'उत्पादन का कुल वजन',
+    'tooltip_items' => 'उत्पादित वस्तुओं की संख्या',
 
     // Page titles
     'search_shifts' => 'शिफ्ट खोजें...',

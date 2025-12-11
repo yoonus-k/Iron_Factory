@@ -525,7 +525,216 @@ return [
 
 // Empty state
 'no_shifts_found' => 'No active shifts currently',
+'shift_detailed_report' => 'Detailed Shift Report',
+    'live_shift' => 'Live Shift',
+    'print_report' => 'Print Report',
+    'date_filter' => 'Date:',
+    'shift_filter' => 'Shift:',
+    'morning_shift_time' => 'Morning (6 AM - 6 PM)',
+    'evening_shift_time' => 'Evening (6 PM - 6 AM)',
+    'last_update' => 'Last Update:',
+    'now' => 'Now',
+    'minutes_ago' => '{minutes} minutes ago',
+    'one_minute_ago' => '1 minute ago',
 
+    // Shift Information Card
+    'shift_info' => 'Shift Information',
+    'shift_code_label' => 'Shift Code:',
+    'supervisor_name_label' => 'Supervisor:',
+    'workers_count_label' => 'Workers Count:',
+    'shift_status_label' => 'Shift Status:',
+    'notes_label' => 'Notes:',
+
+    // WIP Alert
+    'wip_alert_title' => 'Alert: Work In Progress',
+    'wip_alert_message' => 'There are {count} pieces stuck in production stages. Please follow up.',
+    'pieces_in_progress' => 'Pieces in Progress',
+    'please_follow_up' => 'Please Follow Up',
+
+    // Main Statistics
+    'total_items_produced' => 'Total Items Produced',
+    'total_output' => 'Total Output',
+    'waste_percentage' => 'Waste Percentage',
+    'overall_efficiency' => 'Overall Efficiency',
+    'kilogram' => 'Kilogram',
+    'kg' => 'kg',
+    'pieces' => 'Pieces',
+    'pieces_count' => '{count} Pieces',
+
+    // Stage Efficiency
+    'stage_efficiency_details' => 'Stage Efficiency Details',
+    'items_produced' => 'Items Produced:',
+    'output_label' => 'Output:',
+    'waste_label' => 'Waste:',
+    'workers_count_short' => 'Workers:',
+    'average_per_worker' => 'Average/Worker:',
+    'production_rate' => 'Production Rate:',
+    'pieces_per_hour' => 'pieces/hour',
+    'efficiency_excellent' => 'Excellent',
+    'efficiency_good' => 'Good',
+    'efficiency_average' => 'Average',
+    'efficiency_poor' => 'Poor',
+
+    // Charts
+    'hourly_productivity' => 'Hourly Productivity',
+    'stage_distribution' => 'Production Distribution by Stage',
+    'pieces_count_chart' => 'Pieces Count',
+
+    // Top Performers
+    'top_performers' => 'Top Performers in This Shift',
+    'worker_stats_format' => '{items} pieces • {output} kg • {waste}% waste',
+    'efficiency_label' => 'Efficiency',
+    'no_data_for_shift' => 'No data available for this shift',
+
+    // Worker Attendance
+    'worker_attendance' => 'Worker Attendance ({count} workers)',
+    'attendance_table_headers' => [
+        'number' => '#',
+        'name' => 'Name',
+        'code' => 'Code',
+        'position' => 'Position',
+        'stages' => 'Stages',
+        'pieces' => 'Pieces',
+        'output_kg' => 'Output (kg)',
+        'waste_kg' => 'Waste (kg)',
+        'efficiency' => 'Efficiency',
+        'hours' => 'Hours',
+    ],
+    'stage_label' => 'Stage {number}',
+    'hours_short' => 'h',
+    'no_attendance_data' => 'No attendance data available',
+
+    // Shift Handovers Section
+    'shift_handovers_list' => 'Shift Handovers ({count})',
+    'items_transferred' => '{count} items transferred',
+    'handover_time_label' => 'Time: {time}',
+    'approved_status' => 'Approved',
+    'pending_status' => 'Pending',
+    'from_to_format' => '{from} → {to}',
+
+    // Active Teams Section
+    'active_teams_list' => 'Active Teams ({count})',
+    'team_members' => 'Members:',
+    'total_team_production' => 'Total Production:',
+    'average_per_member' => 'Average per Member:',
+    'active_members_format' => '{active} / {total}',
+
+    // Comparison Changes
+    'change_up' => 'Increase',
+    'change_down' => 'Decrease',
+    'change_neutral' => 'Stable',
+    'compared_to_previous' => 'Compared to Previous Shift',
+    'percentage_change' => '{value}%',
+
+    // Filter and Actions
+    'date_colon' => 'Date:',
+    'shift_colon' => 'Shift:',
+    'apply' => 'Apply',
+    'refresh_data' => 'Refresh Data',
+
+    // Time Formats
+    'time_format_12h' => 'h:i A',
+    'time_format_24h' => 'H:i',
+    'date_format' => 'd/m/Y',
+    'datetime_format' => 'd/m/Y H:i',
+
+    // Print Specific
+    'report_generated_at' => 'Report generated at: {datetime}',
+    'page_number' => 'Page {number}',
+
+    // Empty States
+    'no_shift_data' => 'No shift data available',
+    'no_teams_active' => 'No active teams currently',
+    'no_handovers_recorded' => 'No handovers recorded',
+    'no_workers_present' => 'No workers present',
+
+    // Additional Stats Labels
+    'total_working_hours' => 'Total Working Hours',
+    'average_items_per_hour' => 'Average Items per Hour',
+    'total_stages_active' => 'Active Stages',
+    'completion_rate' => 'Completion Rate',
+
+    // Quality Indicators
+    'quality_level' => 'Quality Level',
+    'defect_rate' => 'Defect Rate',
+    'acceptance_rate' => 'Acceptance Rate',
+    'rejection_rate' => 'Rejection Rate',
+
+    // Performance Indicators
+    'performance_excellent' => 'Excellent Performance',
+    'performance_good' => 'Good Performance',
+    'performance_average' => 'Average Performance',
+    'performance_needs_improvement' => 'Needs Improvement',
+
+    // Team Performance
+    'team_efficiency' => 'Team Efficiency',
+    'team_productivity' => 'Team Productivity',
+    'team_members_count' => 'Team Members Count',
+
+    // Additional Dashboard Elements
+    'shift_progress' => 'Shift Progress',
+    'time_elapsed' => 'Time Elapsed',
+    'time_remaining' => 'Time Remaining',
+    'shift_completion' => 'Shift Completion',
+    'target_achievement' => 'Target Achievement',
+    'below_target' => 'Below Target',
+    'above_target' => 'Above Target',
+    'on_target' => 'On Target',
+
+    // Error Messages
+    'data_load_error' => 'Error loading data',
+    'chart_render_error' => 'Error rendering chart',
+    'refresh_error' => 'Error refreshing data',
+    'filter_error' => 'Error applying filters',
+
+    // Success Messages
+    'data_refreshed' => 'Data refreshed successfully',
+    'report_printed' => 'Report printed',
+    'filters_applied' => 'Filters applied',
+
+    // Additional Helper Text
+    'click_to_view_details' => 'Click to view details',
+    'hover_for_more_info' => 'Hover for more information',
+    'double_click_to_expand' => 'Double click to expand',
+    'drag_to_reorder' => 'Drag to reorder',
+
+    // Export Options
+    'export_to_excel' => 'Export to Excel',
+    'export_to_pdf' => 'Export to PDF',
+    'export_to_csv' => 'Export to CSV',
+    'download_report' => 'Download Report',
+    'share_report' => 'Share Report',
+
+    // Additional Time References
+    'seconds_ago' => '{seconds} seconds ago',
+    'hours_ago' => '{hours} hours ago',
+    'days_ago' => '{days} days ago',
+    'just_now' => 'Just Now',
+
+    // Shift Comparison
+    'previous_shift' => 'Previous Shift',
+    'current_shift' => 'Current Shift',
+    'next_shift' => 'Next Shift',
+    'shift_comparison' => 'Shift Comparison',
+    'compare_with' => 'Compare with',
+
+    // Additional Badges and Labels
+    'critical_level' => 'Critical Level',
+    'warning_level' => 'Warning Level',
+    'normal_level' => 'Normal Level',
+    'optimal_level' => 'Optimal Level',
+
+    // Loading States
+    'loading_data' => 'Loading data...',
+    'loading_chart' => 'Loading chart...',
+    'processing_data' => 'Processing data...',
+    'generating_report' => 'Generating report...',
+
+    // Tooltips
+    'tooltip_efficiency' => 'Ratio of actual to expected production',
+    'tooltip_waste' => 'Amount of wasted materials',
+    'tooltip_output' => 'Total weight of production',
+    'tooltip_items' => 'Number of items produced',
 // Confirmations
 'confirm_complete' => 'Are you sure you want to complete this shift?',
     'enable' => 'Enable',
