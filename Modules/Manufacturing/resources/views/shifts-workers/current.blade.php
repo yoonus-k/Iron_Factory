@@ -134,6 +134,12 @@
                                             <span>{{ __('shifts-workers.view_details') }}</span>
                                         </a>
                                         @endif
+                                        @if(auth()->user()->hasPermission('SHIFT_HANDOVERS_CREATE'))
+                                        <a href="{{ route('manufacturing.shift-handovers.end-shift', ['stage_number' => $shift->stage_number]) }}" class="um-dropdown-item um-btn-edit">
+                                            <i class="feather icon-log-out"></i>
+                                            <span>{{ __('shifts-workers.end_shift_with_handover') }}</span>
+                                        </a>
+                                        @endif
                                         @if(auth()->user()->hasPermission(''))
                                         <form action="{{ route('manufacturing.shifts-workers.complete', $shift->id) }}" method="POST" style="display: inline;">
                                             @csrf
@@ -204,6 +210,12 @@
                         <a href="{{ route('manufacturing.shifts-workers.show', $shift->id) }}" class="um-btn um-btn-sm um-btn-primary">
                             <i class="feather icon-eye"></i>
                             {{ __('shifts-workers.view_details') }}
+                        </a>
+                        @endif
+                        @if(auth()->user()->hasPermission('SHIFT_HANDOVERS_CREATE'))
+                        <a href="{{ route('manufacturing.shift-handovers.end-shift', ['stage_number' => $shift->stage_number]) }}" class="um-btn um-btn-sm um-btn-info">
+                            <i class="feather icon-log-out"></i>
+                            {{ __('shifts-workers.end_shift_with_handover') }}
                         </a>
                         @endif
                         @if(auth()->user()->hasPermission(''))

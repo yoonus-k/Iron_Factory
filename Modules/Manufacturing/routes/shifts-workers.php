@@ -118,6 +118,27 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:SHIFT_HANDOVERS_READ')
         ->name('manufacturing.shift-handovers.api.history');
 
+    // New Routes for Pending Work Handover
+    Route::get('shift-handovers/end-shift', [ShiftHandoverController::class, 'endShift'])
+        ->middleware('permission:SHIFT_HANDOVERS_CREATE')
+        ->name('manufacturing.shift-handovers.end-shift');
+
+    Route::post('shift-handovers/store-end-shift', [ShiftHandoverController::class, 'storeEndShift'])
+        ->middleware('permission:SHIFT_HANDOVERS_CREATE')
+        ->name('manufacturing.shift-handovers.store-end-shift');
+
+    Route::post('shift-handovers/{id}/acknowledge', [ShiftHandoverController::class, 'acknowledge'])
+        ->middleware('permission:SHIFT_HANDOVERS_READ')
+        ->name('manufacturing.shift-handovers.acknowledge');
+
+    Route::get('shift-handovers/my-pending-work', [ShiftHandoverController::class, 'myPendingWork'])
+        ->middleware('permission:SHIFT_HANDOVERS_READ')
+        ->name('manufacturing.shift-handovers.my-pending-work');
+
+    Route::post('shift-handovers/collect-pending-work', [ShiftHandoverController::class, 'collectPendingWork'])
+        ->middleware('permission:SHIFT_HANDOVERS_READ')
+        ->name('manufacturing.shift-handovers.collect-pending-work');
+
     Route::resource('shift-handovers', ShiftHandoverController::class)
         ->middleware('permission:SHIFT_HANDOVERS_READ')
         ->names('manufacturing.shift-handovers');

@@ -18,7 +18,7 @@ class Stage4Controller extends Controller
     public function index()
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-        
+
         // Query base
         $query = DB::table('stage4_boxes')
             ->leftJoin('material_details', 'stage4_boxes.material_id', '=', 'material_details.id')
@@ -32,7 +32,7 @@ class Stage4Controller extends Controller
 
         // إذا لم يكن لديه صلاحية رؤية جميع العمليات، يعرض فقط عملياته
         $viewingAll = $user->hasPermission('VIEW_ALL_STAGE4_OPERATIONS');
-        
+
         if (!$viewingAll) {
             $query->where('stage4_boxes.created_by', $user->id);
         }
@@ -71,7 +71,7 @@ class Stage4Controller extends Controller
     public function getByBarcode($barcode)
     {
         \Log::info('Stage4 getByBarcode called', ['barcode' => $barcode]);
-        
+
         // المصدر الأول: باركود المرحلة الثالثة (ST3-XXX)
         $lafaf = DB::table('stage3_coils')
             ->leftJoin('stage2_processed', 'stage3_coils.stage2_id', '=', 'stage2_processed.id')
@@ -88,7 +88,7 @@ class Stage4Controller extends Controller
 
         if ($lafaf) {
             \Log::info('Stage4: Found in stage3_coils', ['lafaf_id' => $lafaf->id]);
-            
+
             // التحقق من أن اللفاف ليس معبأ بالفعل
             if ($lafaf->status === 'packed') {
                 return response()->json([
@@ -105,7 +105,7 @@ class Stage4Controller extends Controller
         }
 
         \Log::info('Stage4: Not found in stage3_coils, checking warehouse_direct');
-        
+
         // المصدر الثاني: باركود من المخزن مباشرة للمرحلة الرابعة
         $confirmation = DB::table('production_confirmations')
             ->join('delivery_notes', 'production_confirmations.delivery_note_id', '=', 'delivery_notes.id')
@@ -136,7 +136,7 @@ class Stage4Controller extends Controller
         }
 
         \Log::warning('Stage4: Barcode not found in any source', ['barcode' => $barcode]);
-        
+
         // لم يتم العثور على الباركود في أي من المصدرين
         return response()->json([
             'success' => false,
@@ -223,7 +223,7 @@ class Stage4Controller extends Controller
             // إنشاء الكراتين
             foreach ($boxes as $index => $box) {
                 $barcode = $this->generateStageBarcode('stage4');
-                
+
                 $boxId = DB::table('stage4_boxes')->insertGetId([
                     'barcode' => $barcode,
                     'parent_barcode' => $request->lafaf_barcode,
@@ -241,13 +241,13 @@ class Stage4Controller extends Controller
 
                 $boxIds[] = $boxId;
                 $boxBarcodes[] = $barcode;
-                
+
                 // جمع معلومات الباركود للعرض
                 $materialName = DB::table('materials')
                     ->join('material_details', 'materials.id', '=', 'material_details.material_id')
                     ->where('material_details.id', $lafaf->material_id)
                     ->value('materials.name_ar');
-                    
+
                 $barcodeInfoArray[] = [
                     'barcode' => $barcode,
                     'box_number' => 'كرتون ' . ($index + 1),
@@ -296,9 +296,9 @@ class Stage4Controller extends Controller
                         'box_index' => $index + 1,
                         'barcode' => $barcode
                     ]);
-                    
+
                     $this->deductCartonFromWarehouse($carton->id, 1);
-                    
+
                     \Log::info("Stage4: Carton deducted successfully", [
                         'carton_id' => $carton->id,
                         'box_index' => $index + 1
@@ -337,6 +337,26 @@ class Stage4Controller extends Controller
                     'status' => 'packed',
                     'updated_at' => now()
                 ]);
+
+            // 🔥 تسجيل العمال في نظام تتبع العمال لكل صندوق
+            try {
+                $trackingService = app(\App\Services\WorkerTrackingService::class);
+                foreach ($boxBarcodes as $index => $boxBarcode) {
+                    $trackingService->assignWorkerToStage(
+                        stageType: \App\Models\WorkerStageHistory::STAGE_4_BOXES,
+                        stageRecordId: DB::table('stage4_boxes')->where('barcode', $boxBarcode)->value('id'),
+                        workerId: auth()->id() ?? 1,
+                        barcode: $boxBarcode,
+                        statusBefore: 'created',
+                        assignedBy: auth()->id() ?? 1
+                    );
+                }
+            } catch (\Exception $e) {
+                \Log::error('Failed to register worker tracking for Stage4', [
+                    'error' => $e->getMessage(),
+                    'worker_id' => auth()->id(),
+                ]);
+            }
 
             DB::commit();
 
@@ -458,9 +478,9 @@ class Stage4Controller extends Controller
                     'barcode' => $barcode,
                     'box_number' => $boxNumber
                 ]);
-                
+
                 $this->deductCartonFromWarehouse($carton->id, 1);
-                
+
                 \Log::info("Stage4 storeSingle: Carton deducted successfully", [
                     'carton_id' => $carton->id,
                     'barcode' => $barcode
@@ -649,7 +669,7 @@ class Stage4Controller extends Controller
         if ($materialDetail->quantity >= $remainingToDeduct) {
             // الكمية كافية في هذا السجل
             $newQuantity = $materialDetail->quantity - $remainingToDeduct;
-            
+
             DB::table('material_details')
                 ->where('id', $materialDetail->id)
                 ->update([
@@ -659,7 +679,7 @@ class Stage4Controller extends Controller
 
             // تسجيل الحركة
             $movementNumber = 'MOV-' . date('Ymd') . '-' . str_pad(DB::table('material_movements')->count() + 1, 6, '0', STR_PAD_LEFT);
-            
+
             DB::table('material_movements')->insert([
                 'movement_number' => $movementNumber,
                 'movement_type' => 'to_production',
@@ -682,7 +702,7 @@ class Stage4Controller extends Controller
         } else {
             // الكمية غير كافية، نحتاج سجلات إضافية
             $deducted = $materialDetail->quantity;
-            
+
             DB::table('material_details')
                 ->where('id', $materialDetail->id)
                 ->update([
@@ -692,7 +712,7 @@ class Stage4Controller extends Controller
 
             // تسجيل الحركة
             $movementNumber = 'MOV-' . date('Ymd') . '-' . str_pad(DB::table('material_movements')->count() + 1, 6, '0', STR_PAD_LEFT);
-            
+
             DB::table('material_movements')->insert([
                 'movement_number' => $movementNumber,
                 'movement_type' => 'to_production',

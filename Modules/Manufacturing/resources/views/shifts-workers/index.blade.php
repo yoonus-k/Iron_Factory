@@ -49,13 +49,41 @@
                     <i class="feather icon-list"></i>
                     {{ __('shifts-workers.workers_list') }}
                 </h4>
-                <div style="display: flex; gap: 10px;">
-@if(auth()->user()->hasPermission('SHIFT_HANDOVERS_READ'))
-                    <a href="{{ route('manufacturing.shift-handovers.index') }}" class="um-btn um-btn-primary">
-                        <i class="feather icon-exchange-2"></i>
-                        {{ __('shifts-workers.shift_handovers') }}
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                    @if(auth()->user()->hasPermission('SHIFT_HANDOVERS_READ'))
+                    <!-- زر جميع التسليمات -->
+                    <a href="{{ route('manufacturing.shift-handovers.index') }}" class="um-btn um-btn-info" style="display: flex; align-items: center; gap: 8px;">
+                        <i class="feather icon-list"></i>
+                        {{ __('shifts-workers.all_handovers') }}
+                    </a>
+
+                    <!-- زر أشغالي المعلقة -->
+                    <a href="{{ route('manufacturing.shift-handovers.my-pending-work') }}" class="um-btn um-btn-warning" style="display: flex; align-items: center; gap: 8px; position: relative;">
+                        <i class="feather icon-inbox"></i>
+                        {{ __('shifts-workers.my_pending_work') }}
+                        @php
+                            $pendingCount = \App\Models\ShiftHandover::where('to_user_id', auth()->id())
+                                ->whereNull('acknowledged_at')
+                                ->count();
+                        @endphp
+                        @if($pendingCount > 0)
+                        <span style="position: absolute; top: -8px; right: -8px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; min-width: 20px; text-align: center;">{{ $pendingCount }}</span>
+                        @endif
+                    </a>
+
+                    <!-- زر الموافقات المعلقة -->
+                    <a href="{{ route('manufacturing.shift-handovers.index', ['approval_status' => 'pending']) }}" class="um-btn um-btn-secondary" style="display: flex; align-items: center; gap: 8px; position: relative;">
+                        <i class="feather icon-clock"></i>
+                        {{ __('shifts-workers.pending_approvals') }}
+                        @php
+                            $approvalCount = \App\Models\ShiftHandover::where('supervisor_approved', false)->count();
+                        @endphp
+                        @if($approvalCount > 0)
+                        <span style="position: absolute; top: -8px; right: -8px; background: #ffc107; color: #212529; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; min-width: 20px; text-align: center;">{{ $approvalCount }}</span>
+                        @endif
                     </a>
                     @endif
+
                     @if(auth()->user()->hasPermission('SHIFTS_CREATE'))
                     <a href="{{ route('manufacturing.shifts-workers.create') }}" class="um-btn um-btn-primary">
                         <i class="feather icon-plus"></i>

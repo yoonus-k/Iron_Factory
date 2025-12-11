@@ -27,7 +27,22 @@
                         </div>
                     </div>
                 </div>
-                <div class="header-actions">
+                <div class="header-actions" style="display: flex; gap: 10px;">
+                    @if($handover->to_user_id == Auth::id() && !$handover->isAcknowledged())
+                    <form action="{{ route('manufacturing.shift-handovers.acknowledge', $handover->id) }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="feather icon-check"></i>
+                            {{ __('shifts-workers.acknowledge_handover') }}
+                        </button>
+                    </form>
+                    @endif
+                    @if($handover->isAcknowledged())
+                    <span class="badge" style="background: #28a745; color: white; padding: 10px 20px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                        <i class="feather icon-check-circle"></i>
+                        {{ __('shifts-workers.acknowledged') }}
+                    </span>
+                    @endif
                     <a href="{{ route('manufacturing.shift-handovers.index') }}" class="btn btn-back">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -181,6 +196,72 @@
                         </div>
                         <div class="info-value">{{ $handover->updated_at->format('Y-m-d H:i:s') }}</div>
                     </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- Acknowledgment Info Card -->
+            @if($handover->isAcknowledged())
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);">
+                        <i class="feather icon-check-circle"></i>
+                    </div>
+                    <h3 class="card-title">{{ __('shifts-workers.acknowledged') }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            {{ __('shifts-workers.acknowledged_by') }}
+                        </div>
+                        <div class="info-value" style="color: #28a745;">{{ $handover->acknowledgedBy->name ?? __('shifts-workers.none') }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            {{ __('shifts-workers.acknowledged_at') }}
+                        </div>
+                        <div class="info-value">{{ $handover->acknowledged_at->format('Y-m-d H:i:s') }}</div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- Pending Work Count Badge -->
+            @if($handover->hasPendingItems())
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <i class="feather icon-alert-circle"></i>
+                    </div>
+                    <h3 class="card-title">{{ __('shifts-workers.pending_work') }}</h3>
+                </div>
+                <div class="card-body" style="text-align: center;">
+                    <div style="display: inline-flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 15px 30px; border-radius: 50px;">
+                        <i class="feather icon-package" style="font-size: 2rem;"></i>
+                        <div style="text-align: left;">
+                            <div style="font-size: 2rem; font-weight: bold;">{{ $handover->pending_items_count }}</div>
+                            <div style="opacity: 0.9; font-size: 0.875rem;">{{ __('shifts-workers.pending_items_count') }}</div>
+                        </div>
+                    </div>
+                    @if($handover->auto_collected)
+                    <div style="margin-top: 15px;">
+                        <span class="badge" style="background: #17a2b8; color: white; padding: 8px 16px; border-radius: 20px;">
+                            <i class="feather icon-cpu"></i>
+                            {{ __('shifts-workers.auto_collected') }}
+                        </span>
+                    </div>
+                    @endif
                 </div>
             </div>
             @endif

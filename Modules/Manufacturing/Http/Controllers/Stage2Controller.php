@@ -17,7 +17,7 @@ class Stage2Controller extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         // Query base
         $query = DB::table('stage2_processed')
             ->leftJoin('stage1_stands', 'stage2_processed.stage1_id', '=', 'stage1_stands.id')
@@ -33,7 +33,7 @@ class Stage2Controller extends Controller
 
         // إذا لم يكن لديه صلاحية رؤية جميع العمليات، يعرض فقط عملياته
         $viewingAll = $user->hasPermission('VIEW_ALL_STAGE2_OPERATIONS');
-        
+
         if (!$viewingAll) {
             $query->where('stage2_processed.created_by', $user->id);
         }
@@ -74,7 +74,7 @@ class Stage2Controller extends Controller
                         'message' => '⛔ هذا الاستاند في انتظار الموافقة ولا يمكن استخدامه في المرحلة الثانية'
                     ], 403);
                 }
-                
+
                 // ✅ وُجد في المرحلة الأولى
                 return response()->json([
                     'success' => true,
@@ -148,7 +148,7 @@ class Stage2Controller extends Controller
 
             $userId = Auth::id();
             $source = $validated['source'] ?? 'stage1';
-            
+
             // جلب البيانات حسب المصدر
             if ($source === 'warehouse_direct') {
                 // المصدر من المخزن مباشرة - استخدام البيانات المرسلة
@@ -166,19 +166,19 @@ class Stage2Controller extends Controller
                 if (!$stage1Data) {
                     throw new \Exception('لم يتم العثور على بيانات المرحلة الأولى');
                 }
-                
+
                 // 🔒 التحقق من حالة الاستاند
                 if ($stage1Data->status === 'pending_approval') {
                     throw new \Exception('⛔ هذا الاستاند في انتظار الموافقة ولا يمكن استخدامه في المرحلة الثانية');
                 }
-                
+
                 $inputWeight = $stage1Data->remaining_weight;
                 $materialId = $stage1Data->material_id ?? null;
                 $wireSize = $stage1Data->wire_size ?? null;
                 $standNumber = $stage1Data->stand_number ?? 'غير محدد';
                 $stage1Id = $validated['stage1_id'];
             }
-            
+
             // حساب الأوزان
             $wasteWeight = $validated['waste_weight'] ?? ($inputWeight * 0.03); // افتراض 3% هدر
             $outputWeight = $validated['total_weight'] ?? ($inputWeight - $wasteWeight);
@@ -255,7 +255,7 @@ class Stage2Controller extends Controller
                 'input_weight' => $inputWeight,
                 'output_weight' => $netWeight,
                 'waste_amount' => $wasteWeight,
-                'waste_percentage' => $inputWeight > 0 ? 
+                'waste_percentage' => $inputWeight > 0 ?
                     ($wasteWeight / $inputWeight * 100) : 0,
                 'worker_id' => $userId,
                 'shift_id' => null,
@@ -271,6 +271,25 @@ class Stage2Controller extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+
+            // 🔥 تسجيل العامل في نظام تتبع العمال
+            try {
+                $trackingService = app(\App\Services\WorkerTrackingService::class);
+                $trackingService->assignWorkerToStage(
+                    stageType: \App\Models\WorkerStageHistory::STAGE_2_PROCESSED,
+                    stageRecordId: $stage2Id,
+                    workerId: $userId,
+                    barcode: $stage2Barcode,
+                    statusBefore: $recordStatus,
+                    assignedBy: $userId
+                );
+            } catch (\Exception $e) {
+                \Log::error('Failed to register worker tracking for Stage2', [
+                    'error' => $e->getMessage(),
+                    'stage2_id' => $stage2Id,
+                    'worker_id' => $userId,
+                ]);
+            }
 
             DB::commit();
 
@@ -330,7 +349,7 @@ class Stage2Controller extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ: ' . $e->getMessage()
@@ -356,7 +375,7 @@ class Stage2Controller extends Controller
             DB::beginTransaction();
 
             $userId = Auth::id();
-            
+
             // جلب بيانات المرحلة الأولى
             $stage1Data = DB::table('stage1_stands')
                 ->where('id', $validated['stage1_id'])
@@ -406,7 +425,7 @@ class Stage2Controller extends Controller
                 'input_weight' => $stage1Data->remaining_weight,
                 'output_weight' => $validated['net_weight'],
                 'waste_amount' => $validated['waste_weight'] ?? 0,
-                'waste_percentage' => $stage1Data->remaining_weight > 0 ? 
+                'waste_percentage' => $stage1Data->remaining_weight > 0 ?
                     (($validated['waste_weight'] ?? 0) / $stage1Data->remaining_weight * 100) : 0,
                 'worker_id' => $userId,
                 'shift_id' => null,
@@ -450,7 +469,7 @@ class Stage2Controller extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ: ' . $e->getMessage()
@@ -511,7 +530,7 @@ class Stage2Controller extends Controller
 
         // تحويل created_at إلى Carbon instance
         $record->created_at = \Carbon\Carbon::parse($record->created_at);
-        
+
         // إنشاء creator object
         $record->creator = (object) ['name' => $record->created_by_name ?? 'غير محدد'];
 

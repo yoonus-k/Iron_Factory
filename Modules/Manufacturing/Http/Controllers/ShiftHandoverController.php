@@ -6,6 +6,8 @@ use App\Models\ShiftHandover;
 use App\Models\ShiftAssignment;
 use App\Models\User;
 use App\Models\Worker;
+use App\Services\ShiftHandoverService;
+use App\Notifications\PendingWorkHandoverNotification;
 use App\Traits\StoresNotifications;
 use App\Checks\ShiftHandoverPermissionsCheck;
 use Illuminate\Http\Request;
@@ -17,6 +19,13 @@ use Illuminate\Support\Facades\Validator;
 class ShiftHandoverController extends Controller
 {
     use StoresNotifications;
+
+    protected $handoverService;
+
+    public function __construct(ShiftHandoverService $handoverService)
+    {
+        $this->handoverService = $handoverService;
+    }
 
     public function index(Request $request)
     {
@@ -281,5 +290,244 @@ class ShiftHandoverController extends Controller
     public function destroy(ShiftHandover $shiftHandover)
     {
         //
+    }
+
+    /**
+     * عرض صفحة إنهاء الشفت مع الأشغال المعلقة
+     */
+    public function endShift(Request $request)
+    {
+        $userId = Auth::id();
+        $stageNumber = $request->input('stage_number');
+
+        if (!$stageNumber) {
+            return redirect()->back()
+                ->with('error', __('shifts-workers.stage_number') . ' ' . __('shifts-workers.required'));
+        }
+
+        // جمع الأشغال المعلقة تلقائياً
+        $pendingItems = $this->handoverService->collectPendingWork($userId, $stageNumber);
+
+        // البحث عن الشفت الحالي
+        $currentShift = ShiftAssignment::where('user_id', $userId)
+            ->where('stage_number', $stageNumber)
+            ->where('status', ShiftAssignment::STATUS_ACTIVE)
+            ->first();
+
+        if (!$currentShift) {
+            return redirect()->back()
+                ->with('error', __('shifts-workers.no_active_shift'));
+        }
+
+        // البحث عن عامل الشفت التالي
+        $nextShiftWorker = $this->handoverService->findNextShiftWorker(
+            $userId,
+            $stageNumber,
+            $currentShift->shift_type
+        );
+
+        return view('manufacturing::shift-handovers.end-shift', compact(
+            'pendingItems',
+            'currentShift',
+            'nextShiftWorker',
+            'stageNumber'
+        ));
+    }
+
+    /**
+     * حفظ تسليم الوردية مع الأشغال المعلقة
+     */
+    public function storeEndShift(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'to_user_id' => 'required|exists:users,id',
+            'stage_number' => 'required|integer|between:1,4',
+            'pending_items' => 'required|json',
+            'notes' => 'nullable|string|max:1000',
+            'notes_en' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput()
+                ->with('error', __('shifts-workers.validation_error'));
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $userId = Auth::id();
+            $toUserId = $request->to_user_id;
+            $stageNumber = $request->stage_number;
+            $pendingItems = json_decode($request->pending_items, true);
+
+            // البحث عن الشفت الحالي
+            $currentShift = ShiftAssignment::where('user_id', $userId)
+                ->where('stage_number', $stageNumber)
+                ->where('status', ShiftAssignment::STATUS_ACTIVE)
+                ->first();
+
+            if (!$currentShift) {
+                DB::rollBack();
+                return redirect()->back()
+                    ->with('error', __('shifts-workers.no_active_shift'));
+            }
+
+            // إنشاء سجل تسليم الوردية
+            $handover = ShiftHandover::create([
+                'from_user_id' => $userId,
+                'to_user_id' => $toUserId,
+                'stage_number' => $stageNumber,
+                'shift_assignment_id' => $currentShift->id,
+                'handover_items' => $pendingItems,
+                'auto_collected' => true,
+                'pending_items_count' => count($pendingItems),
+                'notes' => $request->notes,
+                'notes_en' => $request->notes_en,
+                'handover_time' => now(),
+                'supervisor_approved' => false,
+            ]);
+
+            // تحويل الأشغال المعلقة للعامل الجديد
+            $transferred = $this->handoverService->transferPendingWork(
+                $pendingItems,
+                $toUserId,
+                $stageNumber
+            );
+
+            if (!$transferred) {
+                DB::rollBack();
+                return redirect()->back()
+                    ->with('error', __('shifts-workers.transfer_failed'));
+            }
+
+            // إرسال إشعار للعامل الجديد
+            $toUser = User::find($toUserId);
+            if ($toUser) {
+                $toUser->notify(new PendingWorkHandoverNotification($handover, count($pendingItems)));
+            }
+
+            // تسجيل الإشعارات
+            $fromUser = Auth::user();
+            $this->storeNotification(
+                'shift_handover_with_pending_work',
+                __('shifts-workers.shift_handover'),
+                __('shifts-workers.handover_created_successfully') . ' - ' . count($pendingItems) . ' ' . __('shifts-workers.pending_items_count'),
+                'info',
+                'fas fa-exchange-alt',
+                route('manufacturing.shift-handovers.show', $handover->id)
+            );
+
+            DB::commit();
+
+            return redirect()->route('manufacturing.shift-handovers.show', $handover->id)
+                ->with('success', __('shifts-workers.handover_created_successfully'));
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withInput()
+                ->with('error', __('shifts-workers.error') . ': ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * استلام الوردية من قبل العامل الجديد
+     */
+    public function acknowledge($id)
+    {
+        try {
+            $handover = ShiftHandover::findOrFail($id);
+
+            // التحقق من أن المستخدم هو المستلم
+            if ($handover->to_user_id != Auth::id()) {
+                return redirect()->back()
+                    ->with('error', __('shifts-workers.unauthorized'));
+            }
+
+            // التحقق من عدم الاستلام مسبقاً
+            if ($handover->isAcknowledged()) {
+                return redirect()->back()
+                    ->with('warning', __('shifts-workers.already_acknowledged'));
+            }
+
+            // تسجيل الاستلام
+            $handover->acknowledge(Auth::id());
+
+            // إشعار
+            $this->storeNotification(
+                'shift_handover_acknowledged',
+                __('shifts-workers.acknowledge_handover'),
+                __('shifts-workers.handover_acknowledged_successfully'),
+                'success',
+                'fas fa-check-circle',
+                route('manufacturing.shift-handovers.show', $handover->id)
+            );
+
+            return redirect()->route('manufacturing.shift-handovers.show', $handover->id)
+                ->with('success', __('shifts-workers.handover_acknowledged_successfully'));
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', __('shifts-workers.error') . ': ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * عرض الأشغال المعلقة للمستخدم الحالي
+     */
+    public function myPendingWork()
+    {
+        $userId = Auth::id();
+
+        // الحصول على إحصائيات الأشغال المعلقة
+        $stats = $this->handoverService->getPendingWorkStats($userId);
+
+        // الحصول على التسليمات غير المستلمة
+        $pendingHandovers = ShiftHandover::where('to_user_id', $userId)
+            ->whereNull('acknowledged_at')
+            ->with(['fromUser', 'shiftAssignment'])
+            ->orderBy('handover_time', 'desc')
+            ->get();
+
+        return view('manufacturing::shift-handovers.my-pending-work', compact('stats', 'pendingHandovers'));
+    }
+
+    /**
+     * جمع الأشغال المعلقة (AJAX)
+     */
+    public function collectPendingWork(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'stage_number' => 'required|integer|between:1,4',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => __('shifts-workers.validation_error'),
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $userId = Auth::id();
+            $stageNumber = $request->stage_number;
+
+            $pendingItems = $this->handoverService->collectPendingWork($userId, $stageNumber);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'items' => $pendingItems,
+                    'count' => count($pendingItems),
+                ],
+                'message' => __('shifts-workers.pending_work_collected')
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('shifts-workers.error') . ': ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
