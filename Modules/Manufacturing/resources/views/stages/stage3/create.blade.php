@@ -149,8 +149,28 @@
 
             <div class="form-group">
                 <label>{{ __('stages.stage3_total_weight_label') }} <span style="color:#e74c3c;">*</span></label>
-                <input type="number" id="totalWeight" class="form-control" placeholder="{{ __('stages.stage3_example_weight') }}" step="0.01">
+                <input type="number" id="totalWeight" class="form-control" placeholder="{{ __('stages.stage3_example_weight') }}" step="0.01" oninput="calculateNetWeight()">
                 <small style="color: #7f8c8d; display: block; margin-top: 5px;">{{ __('stages.stage3_total_weight_note') }}</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>اللفاف</label>
+                <select id="wrappingSelect" class="form-select" style="padding:10px 12px; border-radius:8px; border:1.5px solid #e7eef5;" onchange="onWrappingChange()">
+                    <option value="">-- بدون لفاف --</option>
+                    @foreach($wrappings as $wrapping)
+                        <option value="{{ $wrapping->id }}" data-weight="{{ $wrapping->weight }}">{{ $wrapping->wrapping_number }} - {{ $wrapping->weight }} كجم</option>
+                    @endforeach
+                </select>
+                <input type="hidden" id="wrappingId" value="">
+                <input type="hidden" id="wrappingWeight" value="0">
+            </div>
+
+            <div class="form-group">
+                <label>الوزن الصافي (بعد خصم اللفاف)</label>
+                <input type="number" id="netWeight" class="form-control" readonly style="background: #e3f2fd; font-weight: 600; color: #1976d2;">
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;">يتم الحساب تلقائياً: الوزن الكلي - وزن اللفاف</small>
             </div>
         </div>
 
@@ -395,12 +415,23 @@ function loadStage2(barcode) {
 function calculateAddedWeight() {
     const inputWeight = parseFloat(document.getElementById('inputWeight').value) || 0;
     const totalWeight = parseFloat(document.getElementById('totalWeight').value) || 0;
+    const wrappingWeight = parseFloat(document.getElementById('wrappingWeight').value) || 0;
+    
+    console.log('🔢 حساب الوزن المضاف:');
+    console.log('   وزن الدخول:', inputWeight);
+    console.log('   الوزن الكلي:', totalWeight);
+    console.log('   وزن اللفاف:', wrappingWeight);
+    
+    // حساب الوزن الصافي أولاً
+    const netWeight = totalWeight - wrappingWeight;
+    console.log('   الوزن الصافي:', netWeight);
 
-    if (totalWeight > 0 && inputWeight > 0) {
-        const addedWeight = totalWeight - inputWeight;
+    if (netWeight > 0 && inputWeight > 0) {
+        const addedWeight = netWeight - inputWeight;
+        console.log('   الوزن المضاف:', addedWeight);
 
         if (addedWeight < 0) {
-            showToast('{{ __('stages.stage3_total_weight_must_exceed_input') }}', 'error');
+            showToast('الوزن الصافي يجب أن يكون أكبر من وزن الدخول', 'error');
             document.getElementById('addedWeight').value = '';
             return;
         }
@@ -408,6 +439,42 @@ function calculateAddedWeight() {
         document.getElementById('addedWeight').value = addedWeight.toFixed(3);
     } else {
         document.getElementById('addedWeight').value = '';
+    }
+    
+    // Also calculate net weight when total weight changes
+    calculateNetWeight();
+}
+
+function onWrappingChange() {
+    const select = document.getElementById('wrappingSelect');
+    const selectedOption = select.options[select.selectedIndex];
+    
+    console.log('🎁 تم تغيير اللفاف:', selectedOption.text);
+    
+    if (selectedOption.value) {
+        const wrappingWeight = parseFloat(selectedOption.dataset.weight) || 0;
+        document.getElementById('wrappingId').value = selectedOption.value;
+        document.getElementById('wrappingWeight').value = wrappingWeight;
+        console.log('   وزن اللفاف المختار:', wrappingWeight);
+    } else {
+        document.getElementById('wrappingId').value = '';
+        document.getElementById('wrappingWeight').value = '0';
+        console.log('   تم إلغاء اللفاف');
+    }
+    
+    calculateNetWeight();
+    calculateAddedWeight();
+}
+
+function calculateNetWeight() {
+    const totalWeight = parseFloat(document.getElementById('totalWeight').value) || 0;
+    const wrappingWeight = parseFloat(document.getElementById('wrappingWeight').value) || 0;
+    
+    if (totalWeight > 0) {
+        const netWeight = totalWeight - wrappingWeight;
+        document.getElementById('netWeight').value = netWeight.toFixed(3);
+    } else {
+        document.getElementById('netWeight').value = '';
     }
 }
 
@@ -423,6 +490,8 @@ function addLafaf(button = null) {
     const colorMaterialId = document.getElementById('colorMaterialId').value;
     const plasticType = document.getElementById('plasticType').value.trim();
     const notes = document.getElementById('notes').value.trim();
+    const wrappingId = document.getElementById('wrappingId').value;
+    const wrappingWeight = parseFloat(document.getElementById('wrappingWeight').value) || 0;
 
     if (!totalWeight || !color) {
         alert('{{ __('stages.stage3_fill_required_fields') }}');
@@ -431,9 +500,10 @@ function addLafaf(button = null) {
 
     const inputWeight = parseFloat(document.getElementById('inputWeight').value) || 0;
     const totalWeightNum = parseFloat(totalWeight);
+    const netWeight = totalWeightNum - wrappingWeight;
 
-    if (totalWeightNum <= inputWeight) {
-        alert('{{ __('stages.stage3_total_weight_must_exceed_input') }}');
+    if (netWeight <= inputWeight) {
+        alert('الوزن الصافي (بعد خصم اللفاف) يجب أن يكون أكبر من وزن الدخول');
         return;
     }
 
@@ -444,6 +514,8 @@ function addLafaf(button = null) {
         material_id: currentStage2.material_id || null,
         input_weight: inputWeight,
         total_weight: totalWeightNum,
+        wrapping_id: wrappingId || null,
+        wrapping_weight: wrappingWeight,
         color: color,
         plastic_type: plasticType,
         notes: notes
@@ -465,6 +537,7 @@ function addLafaf(button = null) {
     })
     .then(response => response.json())
     .then(result => {
+        console.log('📦 Response من السيرفر:', result);
         if (result.success) {
             const lafaf = {
                 id: result.data.lafaf_id,
@@ -472,6 +545,8 @@ function addLafaf(button = null) {
                 coil_number: result.data.coil_number,
                 material_name: result.data.material_name,
                 total_weight: result.data.total_weight,
+                net_weight: result.data.net_weight,
+                wrapping_weight: result.data.wrapping_weight,
                 input_weight: result.data.input_weight,
                 added_weight: result.data.added_weight,
                 color: result.data.color,
@@ -479,6 +554,8 @@ function addLafaf(button = null) {
                 notes: notes,
                 saved: true
             };
+            
+            console.log('📝 اللفاف المضاف:', lafaf);
 
             lafafs.push(lafaf);
             renderLafafs();
@@ -531,7 +608,9 @@ function renderLafafs() {
                 <small style="display:block; line-height:1.6;">
                     <strong>{{ __('stages.material_label') }}:</strong> ${item.material_name} |
                     <strong>{{ __('stages.barcode_label') }}:</strong> <code style="background:#f8f9fa; padding:2px 6px; border-radius:4px; font-family:monospace;">${item.barcode}</code><br>
-                    <strong>{{ __('stages.stage3_total_weight_label') }}:</strong> ${item.total_weight} {{ __('stages.kg_unit') }} |
+                    <strong>الوزن الإجمالي:</strong> ${item.total_weight} {{ __('stages.kg_unit') }} |
+                    <strong>وزن اللفاف:</strong> ${item.wrapping_weight || 0} {{ __('stages.kg_unit') }} |
+                    <strong>الوزن الصافي:</strong> ${item.net_weight} {{ __('stages.kg_unit') }}<br>
                     <strong>{{ __('stages.stage3_added_weight_label') }}:</strong> ${item.added_weight} {{ __('stages.kg_unit') }} |
                     <strong>{{ __('stages.stage3_color_label') }}:</strong> ${item.color}
                     ${item.plastic_type ? ' | <strong>{{ __('stages.stage3_plastic_type_label') }}:</strong> ' + item.plastic_type : ''}
@@ -539,7 +618,7 @@ function renderLafafs() {
                 </small>
             </div>
             <div style="display:flex; gap:8px;">
-                <button class="btn-print" onclick="printLafafBarcode('${item.barcode}', '${item.coil_number}', '${item.material_name}', ${item.total_weight}, '${item.color}')">
+                <button class="btn-print" onclick="printLafafBarcode('${item.barcode}', '${item.coil_number}', '${item.material_name}', ${item.net_weight}, '${item.color}')">
                     <i class="fas fa-print"></i> {{ __('stages.stage3_print_barcode') }}
                 </button>
             </div>
@@ -562,6 +641,10 @@ function finishOperation() {
 function clearForm() {
     document.getElementById('totalWeight').value = '';
     document.getElementById('addedWeight').value = '';
+    document.getElementById('netWeight').value = '';
+    document.getElementById('wrappingSelect').selectedIndex = 0;
+    document.getElementById('wrappingId').value = '';
+    document.getElementById('wrappingWeight').value = '0';
     document.getElementById('color').value = '';
     document.getElementById('plasticType').value = '';
     document.getElementById('notes').value = '';
@@ -571,7 +654,7 @@ function clearForm() {
     }
 }
 
-function printLafafBarcode(barcode, coilNumber, materialName, totalWeight, color) {
+function printLafafBarcode(barcode, coilNumber, materialName, netWeight, color) {
     const printWindow = window.open('', '', 'height=650,width=850');
     printWindow.document.write('<html dir="rtl"><head><title>{{ __('stages.stage3_print_barcode') }} - ' + coilNumber + '</title>');
     printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
@@ -594,7 +677,7 @@ function printLafafBarcode(barcode, coilNumber, materialName, totalWeight, color
     printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
     printWindow.document.write('<div class="info">');
     printWindow.document.write('<div class="info-row"><span class="label">{{ __('stages.material_label') }}:</span><span class="value">' + materialName + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">{{ __('stages.stage3_total_weight_label') }}:</span><span class="value">' + totalWeight + ' {{ __('stages.kg_unit') }}</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">الوزن الصافي:</span><span class="value">' + netWeight + ' {{ __('stages.kg_unit') }}</span></div>');
     printWindow.document.write('<div class="info-row"><span class="label">{{ __('stages.stage3_color_label') }}:</span><span class="value">' + color + '</span></div>');
     printWindow.document.write('<div class="info-row"><span class="label">{{ __('stages.date_label_print') }}:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
     printWindow.document.write('</div></div>');

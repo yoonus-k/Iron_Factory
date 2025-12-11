@@ -868,6 +868,7 @@ class WarehouseRegistrationController extends Controller
                 'stage_code' => $validated['production_stage'],
                 'assigned_to' => $validated['assigned_to'],
                 'status' => 'pending',
+                'actual_received_quantity' => $transferQuantity, // ✅ حفظ الكمية المنقولة فعلياً
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ]);

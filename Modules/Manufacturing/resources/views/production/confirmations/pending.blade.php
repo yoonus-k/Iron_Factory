@@ -56,7 +56,7 @@
                                         </td>
                                         <td class="text-center">{{ $confirmation->batch?->material?->name ?? __('app.production_confirmations.table.not_specified') }}</td>
                                         <td class="text-center">
-                                            <strong class="text-success">{{ number_format($confirmation->deliveryNote?->quantity ?? 0, 2) }}</strong>
+                                            <strong class="text-success">{{ number_format($confirmation->actual_received_quantity ?? 0, 2) }}</strong>
                                             <small class="text-muted">{{ __('app.units.kg') }}</small>
                                         </td>
                                         <td class="text-center">
@@ -486,7 +486,7 @@ document.getElementById('rejectForm').addEventListener('submit', function(e) {
                                             </td>
 
                                             <td class="text-center">
-                                                <span class="fw-bold">{{ number_format($confirmation->deliveryNote->quantity, 2) }}</span>
+                                                <span class="fw-bold">{{ number_format($confirmation->actual_received_quantity ?? 0, 2) }}</span>
                                                 <small class="text-muted d-block">كجم</small>
                                             </td>
 

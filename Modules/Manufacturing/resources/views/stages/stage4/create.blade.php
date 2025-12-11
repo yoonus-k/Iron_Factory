@@ -105,6 +105,7 @@
             <div class="info-item">
                 <div class="info-label">{{ __('stages.stage4_box_weight_label') }}</div>
                 <div class="info-value" id="displayWeight">-</div>
+                <small id="displayWeightDetails" style="display:block; color:#7f8c8d; font-weight:400; margin-top:4px;"></small>
             </div>
         </div>
     </div>
@@ -267,11 +268,17 @@ function loadLafaf(barcode) {
 
             const source = result.source || 'stage3';
 
+            const netWeight = parseFloat(data.net_weight ?? data.total_weight ?? 0);
+            const totalWeight = parseFloat(data.total_weight ?? netWeight);
+            const wrappingWeight = parseFloat(data.wrapping_weight ?? data.wrapping_weight_db ?? 0);
+
             currentLafaf = {
                 id: data.id || null,
                 barcode: data.barcode,
                 coil_number: data.coil_number || 'غير محدد',
-                total_weight: parseFloat(data.total_weight),
+                total_weight: totalWeight,
+                net_weight: netWeight,
+                wrapping_weight: wrappingWeight,
                 color: data.color || 'غير محدد',
                 plastic_type: data.plastic_type || 'غير محدد',
                 material_id: data.material_id,
@@ -285,11 +292,20 @@ function loadLafaf(barcode) {
             document.getElementById('displayBarcode').textContent = currentLafaf.barcode;
             document.getElementById('displayMaterial').textContent = currentLafaf.material_name;
             document.getElementById('displayColor').textContent = currentLafaf.color;
-            document.getElementById('displayWeight').textContent = currentLafaf.total_weight + ' كجم';
+            document.getElementById('displayWeight').textContent = currentLafaf.net_weight.toFixed(3) + ' كجم';
+            const weightDetails = document.getElementById('displayWeightDetails');
+            if (weightDetails) {
+                weightDetails.textContent = currentLafaf.wrapping_weight
+                    ? `إجمالي: ${currentLafaf.total_weight.toFixed(3)} كجم | لفاف: ${currentLafaf.wrapping_weight.toFixed(3)} كجم`
+                    : '';
+            }
             document.getElementById('lafafDisplay').classList.add('active');
 
             // Update summary
-            document.getElementById('summaryLafaf').textContent = currentLafaf.total_weight.toFixed(3) + ' كجم';
+            document.getElementById('summaryLafaf').textContent = currentLafaf.net_weight.toFixed(3) + ' كجم';
+
+            // Pre-fill totalBoxesWeight with net weight
+            document.getElementById('totalBoxesWeight').value = currentLafaf.net_weight.toFixed(3);
 
             // Focus on box weight
             document.getElementById('boxWeight').focus();

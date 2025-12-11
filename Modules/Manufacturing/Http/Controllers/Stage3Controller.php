@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\Stage3Coil;
 
@@ -25,6 +26,7 @@ class Stage3Controller extends Controller
             ->leftJoin('stage2_processed', 'stage3_coils.stage2_id', '=', 'stage2_processed.id')
             ->leftJoin('stage1_stands', 'stage3_coils.stage1_id', '=', 'stage1_stands.id')
             ->leftJoin('materials', 'stage3_coils.material_id', '=', 'materials.id')
+            ->leftJoin('wrappings', 'stage3_coils.wrapping_id', '=', 'wrappings.id')
             ->leftJoin('users', 'stage3_coils.created_by', '=', 'users.id')
             ->select(
                 'stage3_coils.*',
@@ -32,6 +34,8 @@ class Stage3Controller extends Controller
                 'stage1_stands.barcode as stage1_barcode',
                 'stage1_stands.stand_number',
                 'materials.name_ar as material_name',
+                'wrappings.wrapping_number',
+                'wrappings.weight as wrapping_weight_db',
                 'users.name as created_by_name'
             );
 
@@ -69,7 +73,10 @@ class Stage3Controller extends Controller
             ->where('materials.status', 'available')
             ->first();
 
-        return view('manufacturing::stages.stage3.create', compact('colors', 'plastic'));
+        // جلب اللفافات النشطة
+        $wrappings = \App\Models\Wrapping::active()->orderBy('wrapping_number')->get();
+
+        return view('manufacturing::stages.stage3.create', compact('colors', 'plastic', 'wrappings'));
     }
 
     /**
@@ -168,6 +175,8 @@ class Stage3Controller extends Controller
             'material_id' => 'nullable|integer',
             'input_weight' => 'nullable|numeric|min:0',
             'total_weight' => 'required|numeric|min:0.001',
+            'wrapping_id' => 'nullable|exists:wrappings,id',
+            'wrapping_weight' => 'nullable|numeric|min:0',
             'color' => 'required|string|max:100',
             'plastic_type' => 'nullable|string|max:100',
             'notes' => 'nullable|string'
@@ -185,6 +194,13 @@ class Stage3Controller extends Controller
             DB::beginTransaction();
 
             $source = $request->source ?? 'stage2';
+            \Log::info('Stage3 storeSingle incoming', [
+                'stage2_barcode' => $request->stage2_barcode,
+                'total_weight' => $request->total_weight,
+                'wrapping_id' => $request->wrapping_id,
+                'wrapping_weight' => $request->wrapping_weight,
+                'input_weight' => $request->input_weight,
+            ]);
             
             // جلب البيانات حسب المصدر
             if ($source === 'warehouse_direct') {
@@ -212,13 +228,24 @@ class Stage3Controller extends Controller
             }
 
             $totalWeight = $request->total_weight;
+            $wrappingWeight = $request->wrapping_weight ?? 0;
+            
+            // حساب الوزن الصافي (بعد خصم وزن اللفاف)
+            $netWeight = $totalWeight - $wrappingWeight;
+            \Log::info('Stage3 storeSingle weights calc', [
+                'total' => $totalWeight,
+                'wrapping' => $wrappingWeight,
+                'net' => $netWeight,
+                'input' => $inputWeight,
+            ]);
 
-            if ($totalWeight <= $inputWeight) {
-                throw new \Exception('الوزن الكامل يجب أن يكون أكبر من وزن الدخول');
+            if ($netWeight <= $inputWeight) {
+                throw new \Exception('الوزن الصافي يجب أن يكون أكبر من وزن الدخول');
             }
 
-            $addedWeight = $totalWeight - $inputWeight;
-            $plasticWeight = $addedWeight; // الوزن الزائد كله من البلاستيك
+            // البلاستيك المضاف = الوزن الصافي - وزن الدخول
+            $addedWeight = $netWeight - $inputWeight;
+            $plasticWeight = $addedWeight;
             $dyeWeight = 0; // الصبغة لا يتم خصمها
 
             // 🔍 التحقق من كمية البلاستيك في المستودع
@@ -256,6 +283,9 @@ class Stage3Controller extends Controller
                 'input_weight' => $inputWeight,
                 'base_weight' => $inputWeight,
                 'total_weight' => $totalWeight,
+                'net_weight' => $netWeight,
+                'wrapping_id' => $request->wrapping_id,
+                'wrapping_weight' => $wrappingWeight,
                 'dye_weight' => $dyeWeight,
                 'plastic_weight' => $plasticWeight,
                 'color' => $request->color,
@@ -326,6 +356,8 @@ class Stage3Controller extends Controller
                     'coil_number' => 'LF-' . date('Ymd') . '-' . str_pad($lafafCount, 4, '0', STR_PAD_LEFT),
                     'material_name' => $materialName,
                     'total_weight' => $totalWeight,
+                    'net_weight' => $netWeight,
+                    'wrapping_weight' => $wrappingWeight,
                     'input_weight' => $inputWeight,
                     'added_weight' => $addedWeight,
                     'color' => $request->color,

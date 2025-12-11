@@ -123,7 +123,11 @@
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 4px solid #27ae60;">
                         <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">{{ __('app.production_confirmations.final_weight') }}</div>
                         <div style="font-weight: bold; color: #27ae60; font-size: 20px;">
-                            @if($confirmation->deliveryNote?->quantity)
+                            @if($confirmation->actual_received_quantity)
+                                {{ number_format($confirmation->actual_received_quantity, 2) }}
+                            @elseif($confirmation->batch?->initial_quantity)
+                                {{ number_format($confirmation->batch->initial_quantity, 2) }}
+                            @elseif($confirmation->deliveryNote?->quantity)
                                 {{ number_format($confirmation->deliveryNote->quantity, 2) }}
                             @else
                                 <span style="color: #e74c3c;">{{ __('app.production_confirmations.table.data_unavailable') }}</span>

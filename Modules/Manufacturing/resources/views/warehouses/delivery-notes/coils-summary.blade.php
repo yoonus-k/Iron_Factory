@@ -7,238 +7,265 @@
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <style>
     .summary-container {
-        max-width: 1200px;
+        max-width: 1400px;
         margin: 0 auto;
         padding: 20px;
     }
 
-    .summary-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 30px;
+    /* Header Section */
+    .page-header {
+        background: white;
         border-radius: 15px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        padding: 25px 30px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border-right: 5px solid #667eea;
     }
 
-    .summary-header h1 {
-        margin: 0 0 15px 0;
-        font-size: 28px;
+    .page-header h1 {
+        margin: 0 0 10px 0;
+        font-size: 24px;
+        color: #2c3e50;
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 12px;
     }
 
-    .summary-info {
+    .page-header .subtitle {
+        color: #7f8c8d;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    /* Info Cards */
+    .info-cards {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-top: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 25px;
     }
 
-    .info-item {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 15px;
-        border-radius: 10px;
-        backdrop-filter: blur(10px);
-    }
-
-    .info-label {
-        font-size: 12px;
-        opacity: 0.9;
-        margin-bottom: 5px;
-    }
-
-    .info-value {
-        font-size: 18px;
-        font-weight: bold;
-    }
-
-    .coils-grid {
-        display: grid;
-        gap: 15px;
-    }
-
-    .coil-card {
+    .info-card {
         background: white;
         border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        display: grid;
-        grid-template-columns: 60px 1fr 1fr 1fr 1fr 120px 120px;
-        gap: 15px;
-        align-items: center;
-        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border-top: 4px solid #667eea;
+        transition: all 0.3s;
     }
 
-    .coil-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+    .info-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 
-    .coil-number {
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 50%;
+    .info-card-header {
         display: flex;
         align-items: center;
-        justify-content: center;
-        font-weight: bold;
+        gap: 10px;
+        margin-bottom: 12px;
+        color: #7f8c8d;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .info-card-icon {
         font-size: 20px;
     }
 
-    .coil-detail {
+    .info-card-value {
+        font-size: 26px;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
         display: flex;
-        flex-direction: column;
-    }
-
-    .detail-label {
-        font-size: 11px;
-        color: #777;
-        text-transform: uppercase;
-        margin-bottom: 3px;
-    }
-
-    .detail-value {
-        font-size: 15px;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .barcode-display {
-        font-family: 'Courier New', monospace;
-        font-size: 12px;
-        background: #f5f5f5;
-        padding: 8px;
-        border-radius: 5px;
-        border: 1px dashed #999;
-        text-align: center;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        text-align: center;
-    }
-
-    .status-available {
-        background: #e8f5e9;
-        color: #2e7d32;
-    }
-
-    .status-partial {
-        background: #fff3e0;
-        color: #ef6c00;
-    }
-
-    .status-used {
-        background: #ffebee;
-        color: #c62828;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 25px;
     }
 
     .btn {
-        padding: 10px 20px;
+        padding: 12px 24px;
         border: none;
-        border-radius: 8px;
+        border-radius: 10px;
         cursor: pointer;
         font-weight: 600;
+        font-size: 14px;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        transition: all 0.2s;
+        transition: all 0.3s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
-    .btn-print {
-        background: #4caf50;
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .btn-secondary {
+        background: #ecf0f1;
+        color: #2c3e50;
+    }
+
+    .btn-secondary:hover {
+        background: #bdc3c7;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
     }
 
-    .btn-print:hover {
-        background: #45a049;
-        transform: scale(1.05);
-    }
-
-    .btn-transfer {
-        background: #2196f3;
+    .btn-success {
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
         color: white;
     }
 
-    .btn-transfer:hover {
-        background: #1976d2;
-        transform: scale(1.05);
-    }
-
-    .btn-back {
-        background: #757575;
+    .btn-warning {
+        background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
         color: white;
-        margin-bottom: 20px;
     }
 
-    .btn-back:hover {
-        background: #616161;
-    }
-
-    .btn-print-all {
-        background: #ff9800;
-        color: white;
-        margin-bottom: 20px;
-        margin-right: 10px;
-    }
-
-    .btn-print-all:hover {
-        background: #f57c00;
-    }
-
-    .stats-section {
+    /* Coils Table */
+    .coils-section {
         background: white;
         border-radius: 12px;
         padding: 25px;
-        margin-bottom: 25px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 20px;
-        margin-top: 15px;
-    }
-
-    .stat-item {
-        text-align: center;
-        padding: 20px;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        border-radius: 10px;
-    }
-
-    .stat-value {
-        font-size: 32px;
+    .section-title {
+        font-size: 18px;
         font-weight: bold;
-        color: #667eea;
-        margin-bottom: 5px;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #ecf0f1;
     }
 
-    .stat-label {
+    .coils-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .coils-table thead th {
+        background: #f8f9fa;
+        padding: 15px;
+        text-align: right;
         font-size: 13px;
-        color: #666;
+        font-weight: 600;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        border: none;
     }
 
-    /* مؤشر التحميل للباركودات */
+    .coils-table thead th:first-child {
+        border-radius: 10px 0 0 10px;
+    }
+
+    .coils-table thead th:last-child {
+        border-radius: 0 10px 10px 0;
+    }
+
+    .coils-table tbody tr {
+        background: white;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .coils-table tbody tr:hover {
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .coils-table tbody td {
+        padding: 18px 15px;
+        border-top: 1px solid #ecf0f1;
+        border-bottom: 1px solid #ecf0f1;
+    }
+
+    .coils-table tbody td:first-child {
+        border-right: 1px solid #ecf0f1;
+        border-radius: 10px 0 0 10px;
+    }
+
+    .coils-table tbody td:last-child {
+        border-left: 1px solid #ecf0f1;
+        border-radius: 0 10px 10px 0;
+    }
+
+    .coil-number-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .barcode-cell {
+        text-align: center;
+    }
+
+    .barcode-code {
+        font-family: 'Courier New', monospace;
+        font-size: 11px;
+        color: #7f8c8d;
+        margin-top: 5px;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-available {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-partial {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-used {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .btn-sm {
+        padding: 8px 16px;
+        font-size: 13px;
+        border-radius: 8px;
+    }
+
     .barcode-loading {
         display: inline-block;
-        width: 150px;
-        height: 60px;
+        width: 120px;
+        height: 50px;
         background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
         background-size: 200% 100%;
         animation: loading 1.5s infinite;
-        border-radius: 4px;
+        border-radius: 6px;
     }
 
     @keyframes loading {
@@ -247,141 +274,171 @@
     }
 
     @media print {
-        .no-print {
-            display: none !important;
-        }
-        
-        .coil-card {
-            page-break-inside: avoid;
-            margin-bottom: 20px;
-        }
+        .no-print { display: none !important; }
+        .coils-table tbody tr { page-break-inside: avoid; }
     }
 </style>
 
 <div class="summary-container">
-    <!-- Header -->
-    <div class="summary-header">
+    <!-- Page Header -->
+    <div class="page-header">
         <h1>
-            <span>📦</span>
-            <span>كويلات الشحنة - أذن توريد رقم {{ $deliveryNote->id }}</span>
+            <span style="font-size: 28px;">📦</span>
+            كويلات الشحنة - أذن توريد رقم {{ $deliveryNote->id }}
         </h1>
-        <div class="summary-info">
-            <div class="info-item">
-                <div class="info-label">📅 تاريخ التوريد</div>
-                <div class="info-value">{{ $deliveryNote->delivery_date }}</div>
+        <p class="subtitle">عرض وإدارة جميع الكويلات المرتبطة بأذن التوريد</p>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="info-cards">
+        <div class="info-card">
+            <div class="info-card-header">
+                <span class="info-card-icon">📅</span>
+                <span>تاريخ التوريد</span>
             </div>
-            <div class="info-item">
-                <div class="info-label">🏭 المستودع</div>
-                <div class="info-value">{{ $deliveryNote->warehouse->warehouse_name ?? 'غير محدد' }}</div>
+            <div class="info-card-value">{{ $deliveryNote->delivery_date }}</div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-card-header">
+                <span class="info-card-icon">🏭</span>
+                <span>المستودع</span>
             </div>
-            <div class="info-item">
-                <div class="info-label">📦 المادة</div>
-                <div class="info-value">{{ $deliveryNote->material->name_ar ?? 'غير محدد' }}</div>
+            <div class="info-card-value" style="font-size: 20px;">{{ $deliveryNote->warehouse->warehouse_name ?? 'غير محدد' }}</div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-card-header">
+                <span class="info-card-icon">📦</span>
+                <span>المادة</span>
             </div>
-            <div class="info-item">
-                <div class="info-label">⚖️ الكمية الإجمالية</div>
-                <div class="info-value">{{ number_format($deliveryNote->quantity, 3) }} كجم</div>
+            <div class="info-card-value" style="font-size: 20px;">{{ $deliveryNote->material->name_ar ?? 'غير محدد' }}</div>
+        </div>
+        
+        <div class="info-card" style="border-top-color: #4caf50;">
+            <div class="info-card-header">
+                <span class="info-card-icon">⚖️</span>
+                <span>الكمية الإجمالية</span>
             </div>
+            <div class="info-card-value" style="color: #4caf50;">{{ number_format($deliveryNote->quantity, 2) }} <span style="font-size: 18px;">كجم</span></div>
+        </div>
+        
+        <div class="info-card" style="border-top-color: #2196f3;">
+            <div class="info-card-header">
+                <span class="info-card-icon">🔢</span>
+                <span>عدد الكويلات</span>
+            </div>
+            <div class="info-card-value" style="color: #2196f3;">{{ $deliveryNote->coils()->count() }}</div>
+        </div>
+        
+        <div class="info-card" style="border-top-color: #ff9800;">
+            <div class="info-card-header">
+                <span class="info-card-icon">📊</span>
+                <span>الوزن المتبقي</span>
+            </div>
+            <div class="info-card-value" style="color: #ff9800;">{{ number_format($deliveryNote->coils()->sum('remaining_weight'), 2) }} <span style="font-size: 18px;">كجم</span></div>
         </div>
     </div>
 
     <!-- Action Buttons -->
-    <div class="no-print" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-        <a href="{{ route('manufacturing.delivery-notes.index') }}" class="btn btn-back">
-            ← العودة إلى القائمة
+    <div class="action-buttons no-print">
+        <a href="{{ route('manufacturing.delivery-notes.index') }}" class="btn btn-secondary">
+            <span>←</span>
+            <span>العودة للقائمة</span>
         </a>
-        <a href="{{ route('manufacturing.coils.transfer-index') }}" class="btn btn-primary" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: white; text-decoration: none;">
-            🔄 نقل كويلات للإنتاج
+        
+        <a href="{{ route('manufacturing.coils.transfer-index') }}" class="btn btn-success">
+            <span>🔄</span>
+            <span>نقل كويلات للإنتاج</span>
         </a>
-        <button onclick="printAllBarcodes()" class="btn btn-print-all">
-            🖨️ طباعة جميع الباركودات
+        
+        <button onclick="printAllBarcodes()" class="btn btn-warning">
+            <span>🖨️</span>
+            <span>طباعة جميع الباركودات</span>
         </button>
     </div>
 
-    <!-- Statistics -->
-    <div class="stats-section no-print">
-        <h3 style="margin: 0 0 15px 0; color: #333;">📊 إحصائيات الكويلات</h3>
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-value">{{ $deliveryNote->coils()->count() }}</div>
-                <div class="stat-label">إجمالي الكويلات</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ number_format($deliveryNote->coils()->sum('coil_weight'), 3) }}</div>
-                <div class="stat-label">إجمالي الوزن (كجم)</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ $deliveryNote->coils()->where('status', 'available')->count() }}</div>
-                <div class="stat-label">كويلات متاحة</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ number_format($deliveryNote->coils()->sum('remaining_weight'), 3) }}</div>
-                <div class="stat-label">الوزن المتبقي (كجم)</div>
-            </div>
+    <!-- Coils Table -->
+    <div class="coils-section">
+        <div class="section-title">
+            <span style="font-size: 22px;">📋</span>
+            <span>قائمة الكويلات ({{ $coils->total() }} كويل)</span>
         </div>
-    </div>
 
-    <!-- Coils List -->
-    <div class="coils-grid">
-        @forelse($coils as $index => $coil)
-            <div class="coil-card" id="coil-{{ $coil->id }}">
-                <div class="coil-number">#{{ ($coils->currentPage() - 1) * $coils->perPage() + $index + 1 }}</div>
-                
-                <div class="coil-detail">
-                    <div class="detail-label">🔢 رقم الكويل</div>
-                    <div class="detail-value">{{ $coil->coil_number }}</div>
-                </div>
+        <table class="coils-table">
+            <thead>
+                <tr>
+                    <th style="width: 80px; text-align: center;">#</th>
+                    <th>رقم الكويل</th>
+                    <th style="text-align: center;">الوزن الأصلي</th>
+                    <th style="text-align: center;">الوزن المتبقي</th>
+                    <th style="text-align: center;">الباركود</th>
+                    <th style="text-align: center;">الحالة</th>
+                    <th style="text-align: center; width: 150px;">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($coils as $index => $coil)
+                    <tr id="coil-{{ $coil->id }}">
+                        <td style="text-align: center;">
+                            <div class="coil-number-badge">#{{ ($coils->currentPage() - 1) * $coils->perPage() + $index + 1 }}</div>
+                        </td>
+                        
+                        <td>
+                            <strong style="font-size: 15px; color: #2c3e50;">{{ $coil->coil_number }}</strong>
+                        </td>
+                        
+                        <td style="text-align: center;">
+                            <strong style="color: #7f8c8d;">{{ number_format($coil->coil_weight, 3) }}</strong> كجم
+                        </td>
+                        
+                        <td style="text-align: center;">
+                            <strong style="color: #27ae60; font-size: 16px;">{{ number_format($coil->remaining_weight, 3) }}</strong> كجم
+                        </td>
+                        
+                        <td class="barcode-cell">
+                            <div style="position: relative; display: inline-block;">
+                                <div class="barcode-loading" style="position: absolute; top: 0; left: 50%; transform: translateX(-50%);"></div>
+                                <svg class="barcode" data-barcode="{{ $coil->coil_barcode }}" style="display: none; max-width: 150px;"></svg>
+                            </div>
+                            <div class="barcode-code">{{ $coil->coil_barcode }}</div>
+                        </td>
+                        
+                        <td style="text-align: center;">
+                            @if($coil->status === 'available')
+                                <span class="status-badge status-available">✓ متاح</span>
+                            @elseif($coil->status === 'partially_used')
+                                <span class="status-badge status-partial">⚡ مستخدم جزئياً</span>
+                            @else
+                                <span class="status-badge status-used">✕ مستخدم بالكامل</span>
+                            @endif
+                        </td>
+                        
+                        <td style="text-align: center;">
+                            <button onclick="printCoilBarcode({{ $coil->id }})" class="btn btn-success btn-sm" title="طباعة الباركود">
+                                🖨️
+                            </button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #7f8c8d;">
+                            <div style="font-size: 48px; opacity: 0.3; margin-bottom: 10px;">📦</div>
+                            <p style="margin: 0; font-size: 16px;">لا توجد كويلات مسجلة لهذا الأذن</p>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
 
-                <div class="coil-detail">
-                    <div class="detail-label">⚖️ الوزن الأصلي</div>
-                    <div class="detail-value">{{ number_format($coil->coil_weight, 3) }} كجم</div>
-                </div>
-
-                <div class="coil-detail">
-                    <div class="detail-label">📊 الوزن المتبقي</div>
-                    <div class="detail-value" style="color: #2e7d32;">{{ number_format($coil->remaining_weight, 3) }} كجم</div>
-                </div>
-
-                <div class="coil-detail">
-                    <div class="detail-label">📟 الباركود</div>
-                    <div style="position: relative;">
-                        <div class="barcode-loading" style="position: absolute; top: 0; left: 0;"></div>
-                        <svg class="barcode" data-barcode="{{ $coil->coil_barcode }}" style="display: none;"></svg>
-                    </div>
-                    <div style="font-size: 10px; text-align: center; margin-top: 5px; font-family: monospace;">{{ $coil->coil_barcode }}</div>
-                </div>
-
-                <div class="coil-detail">
-                    <div class="detail-label">📌 الحالة</div>
-                    <div>
-                        @if($coil->status === 'available')
-                            <span class="status-badge status-available">✓ متاح</span>
-                        @elseif($coil->status === 'partially_used')
-                            <span class="status-badge status-partial">⚡ مستخدم جزئياً</span>
-                        @else
-                            <span class="status-badge status-used">✗ مستخدم بالكامل</span>
-                        @endif
-                    </div>
-                </div>
-
-                <button onclick="printCoilBarcode({{ $coil->id }})" class="btn btn-print no-print">
-                    🖨️ طباعة
-                </button>
+        <!-- Pagination -->
+        @if($coils->hasPages())
+            <div style="margin-top: 25px; display: flex; justify-content: center;">
+                {{ $coils->links() }}
             </div>
-        @empty
-            <div style="text-align: center; padding: 60px; background: white; border-radius: 12px;">
-                <div style="font-size: 64px; margin-bottom: 20px;">📦</div>
-                <h3 style="color: #999; margin: 0;">لا توجد كويلات مسجلة لهذه الشحنة</h3>
-            </div>
-        @endforelse
+        @endif
     </div>
-
-    <!-- Pagination Links -->
-    @if($coils->hasPages())
-        <div class="no-print" style="margin-top: 30px; display: flex; justify-content: center;">
-            {{ $coils->links() }}
-        </div>
-    @endif
+</div>
 </div>
 
 <script>
@@ -431,11 +488,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // طباعة باركود كويل واحد
 function printCoilBarcode(coilId) {
-    const coilCard = document.getElementById('coil-' + coilId);
-    const coilNumber = coilCard.querySelector('.detail-value').textContent;
-    const weight = coilCard.querySelectorAll('.detail-value')[1].textContent;
-    const barcodeSvg = coilCard.querySelector('.barcode');
-    const barcodeText = barcodeSvg.getAttribute('data-barcode');
+    const row = document.getElementById('coil-' + coilId);
+    const coilNumber = row.querySelector('td:nth-child(2) strong').textContent;
+    const weight = row.querySelector('td:nth-child(3) strong').textContent;
+    const barcodeText = row.querySelector('.barcode').getAttribute('data-barcode');
 
     const printWindow = window.open('', '_blank', 'width=400,height=300');
     printWindow.document.write(`
@@ -446,36 +502,69 @@ function printCoilBarcode(coilId) {
             <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
             <style>
                 body {
-                    font-family: Arial, sans-serif;
+                    font-family: 'Arial', sans-serif;
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     height: 100vh;
                     margin: 0;
                     padding: 20px;
+                    background: #f5f5f5;
                 }
                 .barcode-container {
                     text-align: center;
-                    border: 2px solid #000;
-                    padding: 20px;
+                    border: 3px solid #2c3e50;
+                    padding: 30px;
                     background: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                }
+                .company-name {
+                    font-size: 22px;
+                    font-weight: bold;
+                    color: #2c3e50;
+                    margin-bottom: 15px;
                 }
                 .info {
-                    margin: 10px 0;
-                    font-size: 14px;
+                    margin: 12px 0;
+                    font-size: 16px;
+                    color: #34495e;
+                }
+                .info strong {
+                    color: #2c3e50;
+                }
+                .barcode-wrapper {
+                    margin: 20px 0;
+                    padding: 15px;
+                    background: #f8f9fa;
+                    border-radius: 8px;
+                }
+                .footer {
+                    font-size: 11px;
+                    color: #7f8c8d;
+                    margin-top: 15px;
+                    padding-top: 15px;
+                    border-top: 1px solid #ecf0f1;
                 }
                 @media print {
-                    body { padding: 0; }
+                    body { 
+                        padding: 0;
+                        background: white;
+                    }
                 }
             </style>
         </head>
         <body>
             <div class="barcode-container">
-                <h3>🏭 مصنع الحديد</h3>
+                <div class="company-name">🏭 مصنع الحديد</div>
                 <div class="info"><strong>رقم الكويل:</strong> ${coilNumber}</div>
-                <div class="info"><strong>الوزن:</strong> ${weight}</div>
-                <svg id="printBarcode"></svg>
-                <div class="info" style="font-size: 11px; color: #666;">تاريخ الطباعة: ${new Date().toLocaleString('ar-EG')}</div>
+                <div class="info"><strong>الوزن:</strong> ${weight} كجم</div>
+                <div class="barcode-wrapper">
+                    <svg id="printBarcode"></svg>
+                </div>
+                <div class="footer">
+                    تاريخ الطباعة: ${new Date().toLocaleString('ar-EG')}
+                </div>
             </div>
             <script>
                 JsBarcode("#printBarcode", "${barcodeText}", {

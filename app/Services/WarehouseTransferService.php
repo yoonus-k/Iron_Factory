@@ -97,8 +97,6 @@ class WarehouseTransferService
         string $notes = null
     ): bool {
         try {
-            DB::beginTransaction();
-
             // تحميل العلاقات المطلوبة بشكل قوي
             $deliveryNote->load(['materialDetail', 'materialDetail.unit']);
 
@@ -160,9 +158,7 @@ class WarehouseTransferService
                 throw new Exception('لا يوجد سجل مستودع (MaterialDetail) مرتبط بهذه الأذن');
             }
 
-            DB::commit();
-
-            Log::info("تم نقل بضاعة للإنتاج من أذن التسليم #{$deliveryNote->id}", [
+            Log::info("تم خصم من المستودع بنجاح", [
                 'delivery_note_id' => $deliveryNote->id,
                 'material_id' => $deliveryNote->material_id,
                 'material_detail_id' => $materialDetail->id,
@@ -177,8 +173,7 @@ class WarehouseTransferService
 
             return true;
         } catch (Exception $e) {
-            DB::rollBack();
-            Log::error("خطأ في نقل البضاعة للإنتاج: " . $e->getMessage(), [
+            Log::error("خطأ في خصم الكمية من المستودع: " . $e->getMessage(), [
                 'delivery_note_id' => $deliveryNote->id,
                 'quantity' => $quantity,
                 'error' => $e->getTraceAsString()

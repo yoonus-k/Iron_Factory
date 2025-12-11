@@ -41,35 +41,37 @@
                 </span>
                 <span class="detail-value">
                     @php
-                        $weight = null;
-                        
-                        // أولاً: نحاول أخذ الكمية المنقولة من DeliveryNote نفسه
-                        if ($confirmation->deliveryNote && isset($confirmation->deliveryNote->quantity_used)) {
-                            // إذا تم نقل جزء فقط، نعرض الكمية المنقولة
-                            $lastTransferQuantity = $confirmation->deliveryNote->quantity_used;
-                            if ($lastTransferQuantity > 0) {
-                                $weight = $lastTransferQuantity;
+                        $weight = $confirmation->actual_received_quantity;
+
+                        // أولاً: نعرض الكمية المستلمة فعلياً إن وجدت
+                        if (is_null($weight) || $weight <= 0) {
+                            // ثانياً: نحاول أخذ الكمية المنقولة من DeliveryNote نفسه
+                            if ($confirmation->deliveryNote && isset($confirmation->deliveryNote->quantity_used)) {
+                                $lastTransferQuantity = $confirmation->deliveryNote->quantity_used;
+                                if ($lastTransferQuantity > 0) {
+                                    $weight = $lastTransferQuantity;
+                                }
                             }
                         }
-                        
-                        // ثانياً: نحاول أخذ الوزن من MaterialBatch
-                        if (!$weight && $confirmation->deliveryNote?->materialBatch) {
+
+                        // ثالثاً: نحاول أخذ الوزن من MaterialBatch
+                        if ((is_null($weight) || $weight <= 0) && $confirmation->deliveryNote?->materialBatch) {
                             $weight = $confirmation->deliveryNote->materialBatch->initial_quantity 
                                 ?? $confirmation->deliveryNote->materialBatch->available_quantity;
                         }
-                        
-                        // ثالثاً: نحاول أخذ الوزن من Batch المرتبط بالتأكيد
-                        if (!$weight && $confirmation->batch) {
+
+                        // رابعاً: نحاول أخذ الوزن من Batch المرتبط بالتأكيد
+                        if ((is_null($weight) || $weight <= 0) && $confirmation->batch) {
                             $weight = $confirmation->batch->initial_quantity 
                                 ?? $confirmation->batch->available_quantity;
                         }
-                        
-                        // رابعاً: نحاول أخذ الكمية من DeliveryNote
-                        if (!$weight && $confirmation->deliveryNote) {
+
+                        // خامساً: نحاول أخذ الكمية من DeliveryNote كحل أخير
+                        if ((is_null($weight) || $weight <= 0) && $confirmation->deliveryNote) {
                             $weight = $confirmation->deliveryNote->quantity 
                                 ?? $confirmation->deliveryNote->actual_weight;
                         }
-                        
+
                         $displayWeight = $weight ? number_format($weight, 2) : 'غير محدد';
                     @endphp
                     {{ $displayWeight }} @if($weight) كجم @endif

@@ -206,12 +206,14 @@ class Stage4Controller extends Controller
             }
 
             // التحقق من أن مجموع أوزان الكراتين يساوي وزن اللفاف تقريباً
-            $lafafWeight = $lafaf->total_weight;
+            $lafafWeight = $lafaf->net_weight ?? $lafaf->total_weight;
+            $displayLafafWeight = $lafafWeight;
+            $displayTotalWeight = $lafaf->total_weight;
             $difference = abs($lafafWeight - $totalBoxesWeight);
             $tolerance = $lafafWeight * 0.02; // تسامح 2%
 
             if ($difference > $tolerance) {
-                throw new \Exception("مجموع أوزان الكراتين ({$totalBoxesWeight} كجم) لا يساوي وزن اللفاف ({$lafafWeight} كجم)");
+                throw new \Exception("مجموع أوزان الكراتين ({$totalBoxesWeight} كجم) لا يساوي الوزن الصافي للَّفاف ({$displayLafafWeight} كجم)" . ($displayTotalWeight && $displayTotalWeight != $displayLafafWeight ? " - إجمالي اللفاف {$displayTotalWeight} كجم" : ''));
             }
 
             $boxIds = [];
