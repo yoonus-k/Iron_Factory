@@ -412,6 +412,63 @@
             document.getElementById('handover_to_user_id').value = '';
             document.getElementById('handover_stage_number').value = '';
             document.getElementById('handover_notes').value = '';
+            document.getElementById('handover_team_id').value = '';
+            document.getElementById('handover_team_workers').value = '';
+            // Reset to team tab
+            switchHandoverTab('team');
+            resetHandoverTeamSelection();
+        }
+
+        // Handover Tab Switching
+        function switchHandoverTab(tab) {
+            const teamTab = document.getElementById('team-tab');
+            const individualTab = document.getElementById('individual-tab');
+            const teamSelection = document.getElementById('team-selection');
+            const individualSelection = document.getElementById('individual-selection');
+
+            if (tab === 'team') {
+                teamTab.classList.add('active');
+                individualTab.classList.remove('active');
+                teamSelection.classList.add('active');
+                teamSelection.style.display = 'block';
+                individualSelection.classList.remove('active');
+                individualSelection.style.display = 'none';
+                document.getElementById('handover_to_user_id').value = '';
+            } else {
+                individualTab.classList.add('active');
+                teamTab.classList.remove('active');
+                individualSelection.classList.add('active');
+                individualSelection.style.display = 'block';
+                teamSelection.classList.remove('active');
+                teamSelection.style.display = 'none';
+                resetHandoverTeamSelection();
+            }
+        }
+
+        // Select Handover Team
+        function selectHandoverTeam(teamId, workerIds) {
+            // Remove selected class from all team cards
+            document.querySelectorAll('.team-card-small').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Add selected class to clicked card
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('selected');
+            }
+
+            // Set hidden fields
+            document.getElementById('handover_team_id').value = teamId;
+            document.getElementById('handover_team_workers').value = JSON.stringify(workerIds);
+        }
+
+        // Reset Team Selection
+        function resetHandoverTeamSelection() {
+            document.querySelectorAll('.team-card-small').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.getElementById('handover_team_id').value = '';
+            document.getElementById('handover_team_workers').value = '';
         }
 
         // Close modal when clicking outside
@@ -468,7 +525,7 @@
 
     <!-- Handover Modal -->
     <div id="handoverModal" class="modal" style="display: none;">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">
                 <h3>{{ __('shifts-workers.shift_handover') }}</h3>
                 <button class="close-btn" onclick="closeHandoverModal()">×</button>
@@ -481,18 +538,64 @@
                         <input type="text" class="form-control" id="handover_shift_code" readonly style="background: #f5f5f5;">
                         <input type="hidden" id="handover_shift_id" name="shift_id">
                     </div>
+
+                    <!-- اختيار المجموعة أو العامل الواحد -->
                     <div class="form-group">
-                        <label for="handover_to_user_id">{{ __('shifts-workers.handover_to_worker') }}</label>
-                        <select id="handover_to_user_id" name="to_user_id" class="form-control" required>
-                            <option value="">-- {{ __('shifts-workers.select_worker') }} --</option>
-                            @foreach($shifts as $shift)
-                                @if($shift->supervisor)
-                                    <option value="{{ $shift->supervisor->id }}">{{ $shift->supervisor->name }}</option>
-                                @endif
-                            @endforeach
-                        </select>
+                        <label style="font-weight: 600; margin-bottom: 15px; display: block;">
+                            <i class="feather icon-users" style="margin-right: 8px;"></i>
+                            اختر طريقة النقل:
+                        </label>
+
+                        <div class="selection-tabs" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                            <button type="button" class="tab-btn active" onclick="switchHandoverTab('team')" id="team-tab">
+                                <i class="feather icon-users"></i> نقل المجموعة
+                            </button>
+                            <button type="button" class="tab-btn" onclick="switchHandoverTab('individual')" id="individual-tab">
+                                <i class="feather icon-user"></i> نقل عامل واحد
+                            </button>
+                        </div>
+
+                        <!-- Team Selection -->
+                        <div id="team-selection" class="tab-content active">
+                            <div class="teams-grid-small">
+                                @forelse($teams as $team)
+                                    <div class="team-card-small" onclick="selectHandoverTeam({{ $team['id'] }}, {{ json_encode($team['worker_ids']) }})">
+                                        <div class="team-header-small">
+                                            <div class="team-icon-small">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="9" cy="7" r="4"></circle>
+                                                </svg>
+                                            </div>
+                                            <span class="team-name-small">{{ $team['name'] }}</span>
+                                        </div>
+                                        <div class="team-info-small">
+                                            <small>المسؤول: {{ $team['manager_name'] }}</small>
+                                            <small>{{ $team['workers_count'] }} عامل</small>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <p style="color: #999;">لا توجد مجموعات متاحة</p>
+                                @endforelse
+                            </div>
+                            <input type="hidden" id="handover_team_id" name="team_id">
+                            <input type="hidden" id="handover_team_workers" name="team_worker_ids">
+                        </div>
+
+                        <!-- Individual Selection -->
+                        <div id="individual-selection" class="tab-content" style="display: none;">
+                            <select id="handover_to_user_id" name="to_user_id" class="form-control">
+                                <option value="">-- اختر عامل --</option>
+                                @foreach($shifts as $shift)
+                                    @if($shift->supervisor)
+                                        <option value="{{ $shift->supervisor->id }}">{{ $shift->supervisor->name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
+
+                    <div class="form-group" style="margin-top: 20px;">
                         <label for="handover_stage_number">{{ __('shifts-workers.stage_number') }}</label>
                         <select id="handover_stage_number" name="stage_number" class="form-control" required>
                             <option value="">{{ __('shifts-workers.select_stage') }}</option>
@@ -502,6 +605,7 @@
                             <option value="4">{{ __('shifts-workers.stage_fourth') }}</option>
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label for="handover_notes">{{ __('shifts-workers.handover_notes') }}</label>
                         <textarea
@@ -518,6 +622,8 @@
                     <button type="submit" class="btn btn-info" style="background: #17a2b8; color: white;">{{ __('shifts-workers.handover_confirm') }}</button>
                 </div>
             </form>
+        </div>
+    </div>
         </div>
     </div>
 
@@ -820,6 +926,119 @@
             .um-mobile-view {
                 display: none;
             }
+        }
+
+        /* Handover Modal Styles */
+        .selection-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #666;
+        }
+
+        .tab-btn:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: #f0f9ff;
+        }
+
+        .tab-btn.active {
+            border-color: #3b82f6;
+            background: #3b82f6;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .teams-grid-small {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .team-card-small {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .team-card-small:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .team-card-small.selected {
+            border-color: #10b981;
+            background: #f0fdf4;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+        }
+
+        .team-header-small {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .team-icon-small {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .team-icon-small svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .team-name-small {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .team-info-small {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 12px;
+        }
+
+        .team-info-small small {
+            color: #666;
         }
     </style>
 

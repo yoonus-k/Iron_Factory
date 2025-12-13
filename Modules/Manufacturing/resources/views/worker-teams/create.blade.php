@@ -113,6 +113,33 @@
                         @enderror
                     </div>
 
+                    <div class="form-group">
+                        <label for="manager_id" class="form-label">
+                            المسؤول عن المجموعة
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <select name="manager_id" id="manager_id"
+                                class="form-input @error('manager_id') is-invalid @enderror" required>
+                                <option value="">اختر المسؤول</option>
+                                @foreach($managers as $manager)
+                                <option value="{{ $manager->id }}" {{ old('manager_id') == $manager->id ? 'selected' : '' }}>
+                                    {{ $manager->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @error('manager_id')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
+
                     <div class="form-group full-width">
                         <label for="description" class="form-label">{{ __('shifts-workers.description_label') }}</label>
                         <div class="input-wrapper">
@@ -143,7 +170,7 @@
                     </div>
                     <div>
                         <h3 class="section-title">{{ __('shifts-workers.workers_label') }}</h3>
-                        <p class="section-subtitle">{{ __('shifts-workers.description_label') }}</p>
+                        <p class="section-subtitle">اختر العمال من الجدول</p>
                     </div>
                 </div>
 
@@ -152,28 +179,51 @@
                         <div class="workers-selection-header">
                             <label class="form-label">{{ __('shifts-workers.workers_label') }}</label>
                             <div class="selection-actions">
-                                <button type="button" class="btn-select-all">{{ __('shifts-workers.select_all') }}</button>
-                                <button type="button" class="btn-deselect-all">{{ __('shifts-workers.deselect_all') }}</button>
-                                <span class="selected-count">{{ __('shifts-workers.showing') }}: <strong id="selectedCount">0</strong></span>
+                                <span class="selected-count">المختارين: <strong id="selectedCount">0</strong></span>
+                                <button type="button" class="btn-select-action" onclick="toggleAllWorkers(true)">اختر الكل</button>
+                                <button type="button" class="btn-select-action cancel" onclick="toggleAllWorkers(false)">إلغاء الاختيار</button>
                             </div>
                         </div>
 
-                        <div class="workers-selection" style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px;">
-                            @forelse($workers as $worker)
-                                <div class="worker-item">
-                                    <input type="checkbox"
-                                           id="worker_{{ $worker->id }}"
-                                           name="workers[]"
-                                           value="{{ $worker->id }}"
-                                           {{ in_array($worker->id, old('workers', [])) ? 'checked' : '' }}
-                                           class="worker-checkbox">
-                                    <label for="worker_{{ $worker->id }}">
-                                        {{ $worker->name }} - {{ $worker->email ?? __('shifts-workers.not_specified') }}
-                                    </label>
-                                </div>
-                            @empty
-                                <p style="color: #999; text-align: center;">{{ __('shifts-workers.no_workers') }}</p>
-                            @endforelse
+                        <div class="workers-table-wrapper">
+                            @if($workers->count() > 0)
+                            <table class="workers-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px; text-align: center;">
+                                            <input type="checkbox" id="selectAllWorkers" onchange="toggleAllWorkers(this.checked)">
+                                        </th>
+                                        <th>اسم العامل</th>
+                                        <th>البريد الإلكتروني</th>
+                                        <th>الهاتف</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($workers as $worker)
+                                    <tr>
+                                        <td style="text-align: center;">
+                                            <input type="checkbox"
+                                                   id="worker_{{ $worker->id }}"
+                                                   name="workers[]"
+                                                   value="{{ $worker->id }}"
+                                                   class="worker-checkbox"
+                                                   {{ in_array($worker->id, old('workers', [])) ? 'checked' : '' }}
+                                                   onchange="updateWorkerCount()">
+                                        </td>
+                                        <td>
+                                            <label for="worker_{{ $worker->id }}" style="margin: 0; cursor: pointer; font-weight: 500;">
+                                                {{ $worker->name }}
+                                            </label>
+                                        </td>
+                                        <td>{{ $worker->email ?? '-' }}</td>
+                                        <td>{{ $worker->phone ?? '-' }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            @else
+                            <p style="color: #999; text-align: center; padding: 20px;">لا توجد عمال متاحة</p>
+                            @endif
                         </div>
                         @error('workers')
                             <span class="error-message">{{ $message }}</span>
@@ -210,6 +260,115 @@
             display: flex;
             gap: 10px;
             align-items: flex-start;
+        }
+
+        /* Worker Table Styles */
+        .workers-table-wrapper {
+            overflow-x: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .workers-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .workers-table thead {
+            background: #f5f5f5;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .workers-table thead tr th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .workers-table tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: background-color 0.2s;
+        }
+
+        .workers-table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .workers-table tbody tr td {
+            padding: 12px 15px;
+            color: #555;
+        }
+
+        .workers-table input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .workers-table label {
+            cursor: pointer;
+            color: #333;
+        }
+
+        .workers-selection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .selection-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .selected-count {
+            font-size: 13px;
+            color: #64748b;
+            padding: 6px 10px;
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        .selected-count strong {
+            color: #3b82f6;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .btn-select-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 14px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .btn-select-action:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-select-action.cancel {
+            background: #ef4444;
+        }
+
+        .btn-select-action.cancel:hover {
+            background: #dc2626;
         }
 
         .btn-generate {
@@ -389,6 +548,34 @@
     </style>
 
     <script>
+        // Update worker count
+        function updateWorkerCount() {
+            const count = document.querySelectorAll('.worker-checkbox:checked').length;
+            document.getElementById('selectedCount').textContent = count;
+            updateSelectAllState();
+        }
+
+        // Toggle all workers
+        function toggleAllWorkers(checked) {
+            const checkboxes = document.querySelectorAll('.worker-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = checked;
+            });
+            updateWorkerCount();
+        }
+
+        // Update select all checkbox state
+        function updateSelectAllState() {
+            const selectAllCheckbox = document.getElementById('selectAllWorkers');
+            const checkboxes = document.querySelectorAll('.worker-checkbox');
+            const checkedCount = document.querySelectorAll('.worker-checkbox:checked').length;
+
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = checkedCount === checkboxes.length && checkboxes.length > 0;
+                selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+            }
+        }
+
         // Auto-generate team code
         document.getElementById('generateCodeBtn').addEventListener('click', async function() {
             const button = this;
@@ -405,7 +592,7 @@
                     <polyline points="1 20 1 14 7 14"></polyline>
                     <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                 </svg>
-{{ __('shifts-workers.generating') }}
+جاري التوليد...
             `;
 
             try {
@@ -422,7 +609,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        {{ __('worker-teams.code_generated_success') }}
+                        تم التوليد بنجاح
                     `;
 
                     // Reset after 2 seconds
@@ -443,10 +630,10 @@
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                    {{ __('worker-teams.code_generation_failed') }}
+                    فشل التوليد
                 `;
 
-                alert('{{ __('worker-teams.code_generation_error') }}');
+                alert('حدث خطأ في توليد الكود');
 
                 // Reset after 2 seconds
                 setTimeout(() => {
@@ -457,15 +644,9 @@
             }
         });
 
-        // Select/Deselect All
-        document.querySelector('.btn-select-all').addEventListener('click', function() {
-            document.querySelectorAll('.worker-checkbox').forEach(cb => cb.checked = true);
-            updateSelectedCount();
-        });
-
-        document.querySelector('.btn-deselect-all').addEventListener('click', function() {
-            document.querySelectorAll('.worker-checkbox').forEach(cb => cb.checked = false);
-            updateSelectedCount();
+        // Initialize worker count on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateWorkerCount();
         });
 
         // Update selected workers count

@@ -55,7 +55,27 @@ class ShiftsWorkersController extends Controller
                 ->count(),
         ];
 
-        return view('manufacturing::shifts-workers.index', compact('shifts', 'stats'));
+        // Get active worker teams with their manager and workers
+        $teams = \App\Models\WorkerTeam::where('is_active', true)
+            ->orderBy('name')
+            ->get()
+            ->map(function($team) {
+                // Get manager name if exists
+                $manager = $team->manager;
+                $managerName = $manager ? $manager->name : 'لا يوجد مسؤول';
+
+                return [
+                    'id' => $team->id,
+                    'name' => $team->name,
+                    'code' => $team->team_code,
+                    'manager_id' => $team->manager_id,
+                    'manager_name' => $managerName,
+                    'worker_ids' => $team->worker_ids ?? [],
+                    'workers_count' => count($team->worker_ids ?? [])
+                ];
+            });
+
+        return view('manufacturing::shifts-workers.index', compact('shifts', 'stats', 'teams'));
     }
 
     /**
@@ -63,20 +83,53 @@ class ShiftsWorkersController extends Controller
      */
     public function create()
     {
-        // Get all users who can work in shifts (workers and supervisors)
-        $workers = User::where('is_active', true)
-            ->orderBy('name')
-            ->get();
+        // Get all workers from workers table
+        $workersFromTable = \App\Models\Worker::orderBy('name')->get();
+
+        // Get all users
+        $usersWorkers = User::orderBy('name')->get();
+
+        // Merge workers and users, removing duplicates by id
+        $workers = collect();
+
+        // Add workers from workers table
+        foreach ($workersFromTable as $worker) {
+            $workers->push($worker);
+        }
+
+        // Add users that are not already in workers
+        foreach ($usersWorkers as $user) {
+            if (!$workers->contains('id', $user->id)) {
+                $workers->push($user);
+            }
+        }
+
+        // Sort by name
+        $workers = $workers->sortBy('name')->values();
 
         // Get supervisors (users with supervisor role or permission)
-        $supervisors = User::where('is_active', true)
-            ->orderBy('name')
+        $supervisors = User::orderBy('name')
             ->get();
 
-        // Get active worker teams
+        // Get active worker teams with their manager and workers
         $teams = \App\Models\WorkerTeam::where('is_active', true)
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(function($team) {
+                // Get manager name if exists
+                $manager = $team->manager;
+                $managerName = $manager ? $manager->name : 'لا يوجد مسؤول';
+
+                return [
+                    'id' => $team->id,
+                    'name' => $team->name,
+                    'code' => $team->team_code,
+                    'manager_id' => $team->manager_id,
+                    'manager_name' => $managerName,
+                    'worker_ids' => $team->worker_ids ?? [],
+                    'workers_count' => count($team->worker_ids ?? [])
+                ];
+            });
 
         return view('manufacturing::shifts-workers.create', compact('workers', 'supervisors', 'teams'));
     }
@@ -97,7 +150,7 @@ class ShiftsWorkersController extends Controller
             'notes' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
             'workers' => 'nullable|array',
-            'workers.*' => 'exists:users,id'
+            'workers.*' => 'exists:workers,id'
         ]);
 
         if ($validator->fails()) {
@@ -110,7 +163,10 @@ class ShiftsWorkersController extends Controller
         try {
             DB::beginTransaction();
 
+            // جلب العمال من جدول Workers
             $workerIds = $request->input('workers', []);
+            $workerIds = array_filter($workerIds); // إزالة القيم الفارغة
+            $workerIds = array_values($workerIds); // إعادة ترتيب المفاتيح
 
             $shift = ShiftAssignment::create([
                 'shift_code' => $request->shift_code,
@@ -125,7 +181,7 @@ class ShiftsWorkersController extends Controller
                 'notes' => $request->notes,
                 'is_active' => $request->input('is_active', true),
                 'total_workers' => count($workerIds),
-                'worker_ids' => $workerIds,
+                'worker_ids' => $workerIds, // حفظ كمصفوفة من Worker IDs
             ]);
 
             // Store notification
@@ -154,10 +210,23 @@ class ShiftsWorkersController extends Controller
     public function show($id)
     {
         $shift = ShiftAssignment::with(['user', 'supervisor'])->findOrFail($id);
-        $workers = $shift->workers();
+        $workers = $shift->workers(); // يجلب من جدول Workers
+
+        // جلب الفريق إن وجد
+        $team = null;
+        $teamManager = null;
+        if ($shift->worker_ids && count($shift->worker_ids) > 0) {
+            $team = \App\Models\WorkerTeam::whereJsonContains('worker_ids', $shift->worker_ids)
+                ->first();
+
+            // جلب مسول الفريق من جدول العمال
+            if ($team && $team->manager_id) {
+                $teamManager = \App\Models\Worker::find($team->manager_id);
+            }
+        }
 
         return response()
-            ->view('manufacturing::shifts-workers.show', compact('shift', 'workers'))
+            ->view('manufacturing::shifts-workers.show', compact('shift', 'workers', 'team', 'teamManager'))
             ->header('Content-Type', 'text/html; charset=UTF-8');
     }
 
@@ -181,20 +250,53 @@ class ShiftsWorkersController extends Controller
     {
         $shift = ShiftAssignment::findOrFail($id);
 
-        // Get all users who can work in shifts
-        $workers = User::where('is_active', true)
-            ->orderBy('name')
-            ->get();
+        // Get all workers from workers table
+        $workersFromTable = \App\Models\Worker::orderBy('name')->get();
+
+        // Get all users
+        $usersWorkers = User::orderBy('name')->get();
+
+        // Merge workers and users, removing duplicates by id
+        $workers = collect();
+
+        // Add workers from workers table
+        foreach ($workersFromTable as $worker) {
+            $workers->push($worker);
+        }
+
+        // Add users that are not already in workers
+        foreach ($usersWorkers as $user) {
+            if (!$workers->contains('id', $user->id)) {
+                $workers->push($user);
+            }
+        }
+
+        // Sort by name
+        $workers = $workers->sortBy('name')->values();
 
         // Get supervisors
-        $supervisors = User::where('is_active', true)
-            ->orderBy('name')
+        $supervisors = User::orderBy('name')
             ->get();
 
-        // Get active worker teams
+        // Get active worker teams with their manager and workers
         $teams = \App\Models\WorkerTeam::where('is_active', true)
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(function($team) {
+                // Get manager name if exists
+                $manager = $team->manager;
+                $managerName = $manager ? $manager->name : 'لا يوجد مسؤول';
+
+                return [
+                    'id' => $team->id,
+                    'name' => $team->name,
+                    'code' => $team->team_code,
+                    'manager_id' => $team->manager_id,
+                    'manager_name' => $managerName,
+                    'worker_ids' => $team->worker_ids ?? [],
+                    'workers_count' => count($team->worker_ids ?? [])
+                ];
+            });
 
         return view('manufacturing::shifts-workers.edit', compact('shift', 'workers', 'supervisors', 'teams'));
     }
@@ -216,7 +318,7 @@ class ShiftsWorkersController extends Controller
             'end_time' => 'required|date_format:H:i',
             'notes' => 'nullable|string|max:1000',
             'workers' => 'nullable|array',
-            'workers.*' => 'exists:users,id'
+            'workers.*' => 'exists:workers,id'
         ]);
 
         if ($validator->fails()) {
@@ -229,7 +331,10 @@ class ShiftsWorkersController extends Controller
         try {
             DB::beginTransaction();
 
+            // جلب العمال من جدول Workers
             $workerIds = $request->input('workers', []);
+            $workerIds = array_filter($workerIds); // إزالة القيم الفارغة
+            $workerIds = array_values($workerIds); // إعادة ترتيب المفاتيح
 
             $shift->update([
                 'shift_code' => $request->shift_code,
@@ -242,7 +347,7 @@ class ShiftsWorkersController extends Controller
                 'end_time' => $request->end_time,
                 'notes' => $request->notes,
                 'total_workers' => count($workerIds),
-                'worker_ids' => $workerIds,
+                'worker_ids' => $workerIds, // حفظ كمصفوفة من Worker IDs
             ]);
 
             DB::commit();

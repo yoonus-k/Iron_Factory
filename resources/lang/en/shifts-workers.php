@@ -838,4 +838,15 @@ return [
     'required' => 'Required',
     'all_handovers' => 'All Handovers',
     'pending_approvals' => 'Pending Approvals',
+
+    // System Access
+    'system_access' => 'System Access',
+    'system_access_options' => 'Access Options',
+    'with_system_access' => 'Using System',
+    'without_system_access' => 'Not Using System',
+    'has_access' => 'Has Access',
+    'no_access' => 'No Access',
+    'total_workers' => 'Total Workers',
+    'all_workers' => 'All Workers',
 ];
+

@@ -130,19 +130,59 @@ class WorkerTrackingController extends Controller
     /**
      * لوحة التحكم - نظرة عامة
      */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
-        // Get active workers per stage
-        $stage1Active = $this->trackingService->getActiveWorkersForStage(WorkerStageHistory::STAGE_1_STANDS);
-        $stage2Active = $this->trackingService->getActiveWorkersForStage(WorkerStageHistory::STAGE_2_PROCESSED);
-        $stage3Active = $this->trackingService->getActiveWorkersForStage(WorkerStageHistory::STAGE_3_COILS);
-        $stage4Active = $this->trackingService->getActiveWorkersForStage(WorkerStageHistory::STAGE_4_BOXES);
+        // If AJAX request, return data
+        if ($request->get('ajax')) {
+            $activeWorkers = WorkerStageHistory::with(['worker', 'workerTeam'])
+                ->where('is_active', true)
+                ->get()
+                ->map(function($history) {
+                    return [
+                        'worker_name' => $history->worker ? $history->worker->name : ($history->workerTeam ? $history->workerTeam->name : 'N/A'),
+                        'stage_type' => $history->stage_type,
+                        'stage_record_id' => $history->stage_record_id,
+                        'barcode' => $history->barcode,
+                        'started_at' => $history->started_at,
+                    ];
+                });
 
-        return view('manufacturing::worker-tracking.dashboard', compact(
-            'stage1Active',
-            'stage2Active',
-            'stage3Active',
-            'stage4Active'
-        ));
+            $recentCompleted = WorkerStageHistory::with(['worker', 'workerTeam'])
+                ->where('is_active', false)
+                ->whereNotNull('ended_at')
+                ->orderBy('ended_at', 'desc')
+                ->limit(10)
+                ->get()
+                ->map(function($history) {
+                    return [
+                        'worker_name' => $history->worker ? $history->worker->name : ($history->workerTeam ? $history->workerTeam->name : 'N/A'),
+                        'stage_type' => $history->stage_type,
+                        'started_at' => $history->started_at,
+                        'ended_at' => $history->ended_at,
+                        'duration_minutes' => $history->duration_minutes,
+                    ];
+                });
+
+            $today = now()->startOfDay();
+            $todayHistory = WorkerStageHistory::whereDate('started_at', '>=', $today)->get();
+
+            $stats = [
+                'activeWorkers' => WorkerStageHistory::where('is_active', true)->count(),
+                'stagesInProgress' => WorkerStageHistory::where('is_active', true)
+                    ->distinct('stage_type', 'stage_record_id')
+                    ->count(),
+                'avgDurationToday' => $todayHistory->where('is_active', false)->avg('duration_minutes') ?? 0,
+                'totalWorkMinutesToday' => $todayHistory->sum('duration_minutes') ?? 0,
+            ];
+
+            return response()->json([
+                'activeWorkers' => $activeWorkers,
+                'recentCompleted' => $recentCompleted,
+                'stats' => $stats,
+            ]);
+        }
+
+        // Return view for normal page load
+        return view('manufacturing::worker-tracking.dashboard');
     }
 }

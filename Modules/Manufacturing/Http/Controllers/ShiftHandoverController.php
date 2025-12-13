@@ -68,7 +68,27 @@ class ShiftHandoverController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('manufacturing::shift-handovers.create', compact('users'));
+        // Get active worker teams with their manager and workers
+        $teams = \App\Models\WorkerTeam::where('is_active', true)
+            ->orderBy('name')
+            ->get()
+            ->map(function($team) {
+                // Get manager name if exists
+                $manager = $team->manager;
+                $managerName = $manager ? $manager->name : 'لا يوجد مسؤول';
+
+                return [
+                    'id' => $team->id,
+                    'name' => $team->name,
+                    'code' => $team->team_code,
+                    'manager_id' => $team->manager_id,
+                    'manager_name' => $managerName,
+                    'worker_ids' => $team->worker_ids ?? [],
+                    'workers_count' => count($team->worker_ids ?? [])
+                ];
+            });
+
+        return view('manufacturing::shift-handovers.create', compact('users', 'teams'));
     }
 
     /**
@@ -77,18 +97,32 @@ class ShiftHandoverController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'to_user_id' => 'required|exists:users,id',
             'notes' => 'nullable|string|max:1000',
         ];
 
         // إذا كان النقل من الـ index (من الـ shift_id)
         if ($request->filled('shift_id')) {
             $rules['shift_id'] = 'required|exists:shift_assignments,id';
+            $rules['stage_number'] = 'required|integer|between:1,4';
+
+            // إما team_id أو to_user_id
+            if (!$request->filled('team_id') && !$request->filled('to_user_id')) {
+                return redirect()->back()
+                    ->with('error', 'يرجى اختيار مجموعة أو عامل للنقل إليه');
+            }
+
+            if ($request->filled('team_id')) {
+                $rules['team_id'] = 'required|exists:worker_teams,id';
+                $rules['team_worker_ids'] = 'required|json';
+            } else {
+                $rules['to_user_id'] = 'required|exists:users,id';
+            }
         } else {
             // النقل من صفحة create (الطريقة العادية)
-            $rules['from_user_id'] = 'required|exists:users,id|different:to_user_id';
+            $rules['from_user_id'] = 'required|exists:users,id';
             $rules['stage_number'] = 'required|integer|between:1,4';
             $rules['handover_items'] = 'nullable|array';
+            $rules['to_user_id'] = 'required|exists:users,id|different:from_user_id';
         }
 
         $validator = Validator::make($request->all(), $rules);
@@ -101,17 +135,58 @@ class ShiftHandoverController extends Controller
         try {
             DB::beginTransaction();
 
-            $toUser = User::findOrFail($request->to_user_id);
-
             if ($request->filled('shift_id')) {
                 // النقل من الـ index
                 $shift = ShiftAssignment::findOrFail($request->shift_id);
                 $fromUser = $shift->user;
-                $stageNumber = $shift->stage_number;
+                $stageNumber = $request->stage_number;
                 $activeShift = $shift;
+
+                // إذا كان نقل مجموعة
+                if ($request->filled('team_id')) {
+                    $team = \App\Models\WorkerTeam::findOrFail($request->team_id);
+                    $workerIds = json_decode($request->team_worker_ids, true) ?? [];
+
+                    // نقل الوردية لكل عامل في المجموعة
+                    foreach ($workerIds as $workerId) {
+                        $toUser = User::findOrFail($workerId);
+
+                        ShiftHandover::create([
+                            'from_user_id' => $fromUser->id,
+                            'to_user_id' => $toUser->id,
+                            'stage_number' => $stageNumber,
+                            'handover_items' => [],
+                            'notes' => $request->notes . " - نقل من المجموعة: " . $team->name,
+                            'handover_time' => now(),
+                            'supervisor_approved' => false,
+                        ]);
+
+                        $activeShift->update(['user_id' => $toUser->id]);
+                    }
+
+                    $message = 'تم نقل الوردية لجميع أعضاء المجموعة بنجاح';
+                } else {
+                    // نقل فردي
+                    $toUser = User::findOrFail($request->to_user_id);
+
+                    $handover = ShiftHandover::create([
+                        'from_user_id' => $fromUser->id,
+                        'to_user_id' => $toUser->id,
+                        'stage_number' => $stageNumber,
+                        'handover_items' => [],
+                        'notes' => $request->notes,
+                        'handover_time' => now(),
+                        'supervisor_approved' => false,
+                    ]);
+
+                    $activeShift->update(['user_id' => $request->to_user_id]);
+
+                    $message = 'تم نقل الوردية بنجاح';
+                }
             } else {
                 // النقل من صفحة create
                 $fromUser = User::findOrFail($request->from_user_id);
+                $toUser = User::findOrFail($request->to_user_id);
                 $stageNumber = $request->stage_number;
 
                 $activeShift = ShiftAssignment::where('user_id', $request->from_user_id)
@@ -124,36 +199,29 @@ class ShiftHandoverController extends Controller
                     return redirect()->back()
                         ->with('error', 'لا توجد وردية نشطة للعامل الأول في هذه المرحلة');
                 }
+
+                $handover = ShiftHandover::create([
+                    'from_user_id' => $fromUser->id,
+                    'to_user_id' => $toUser->id,
+                    'stage_number' => $stageNumber,
+                    'handover_items' => $request->handover_items ?? [],
+                    'notes' => $request->notes,
+                    'handover_time' => now(),
+                    'supervisor_approved' => false,
+                ]);
+
+                $activeShift->update(['user_id' => $request->to_user_id]);
+
+                $message = 'تم نقل الوردية بنجاح';
             }
-
-            $handover = ShiftHandover::create([
-                'from_user_id' => $fromUser->id,
-                'to_user_id' => $request->to_user_id,
-                'stage_number' => $stageNumber,
-                'handover_items' => $request->handover_items ?? [],
-                'notes' => $request->notes,
-                'handover_time' => now(),
-                'supervisor_approved' => false,
-            ]);
-
-            $activeShift->update(['user_id' => $request->to_user_id]);
 
             $this->storeNotification(
                 'shift_handover_sent',
                 'نقل وردية',
-                'نقل وردية من ' . $fromUser->name . ' الى ' . $toUser->name,
+                'نقل وردية من ' . $fromUser->name . ' الى ' . $toUser->name ?? 'المجموعة',
                 'info',
                 'fas fa-exchange-alt',
-                route('manufacturing.shift-handovers.show', $handover->id)
-            );
-
-            $this->storeNotification(
-                'shift_handover_received',
-                'استقبال وردية',
-                'استقبال وردية من ' . $fromUser->name,
-                'success',
-                'fas fa-inbox',
-                route('manufacturing.shift-handovers.show', $handover->id)
+                route('manufacturing.shift-handovers.index')
             );
 
             DB::commit();
@@ -163,7 +231,7 @@ class ShiftHandoverController extends Controller
                 : route('manufacturing.shift-handovers.index');
 
             return redirect($redirectTo)
-                ->with('success', 'تم نقل الوردية بنجاح');
+                ->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollBack();

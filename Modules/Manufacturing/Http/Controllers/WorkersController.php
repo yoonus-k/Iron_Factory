@@ -46,6 +46,15 @@ class WorkersController extends Controller
             $query->where('is_active', $request->is_active);
         }
 
+        // Filter by system access
+        if ($request->filled('system_access')) {
+            if ($request->system_access === 'with_access') {
+                $query->whereNotNull('user_id');
+            } elseif ($request->system_access === 'without_access') {
+                $query->whereNull('user_id');
+            }
+        }
+
         // Search
         if ($request->filled('search')) {
             $search = $request->search;
@@ -63,6 +72,8 @@ class WorkersController extends Controller
         $stats = [
             'total' => Worker::count(),
             'active' => Worker::where('is_active', true)->count(),
+            'with_system_access' => Worker::whereNotNull('user_id')->count(),
+            'without_system_access' => Worker::whereNull('user_id')->count(),
             'supervisors' => Worker::where('position', Worker::POSITION_SUPERVISOR)->where('is_active', true)->count(),
             'workers' => Worker::where('position', Worker::POSITION_WORKER)->where('is_active', true)->count(),
         ];

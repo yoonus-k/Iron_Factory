@@ -92,7 +92,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('delivery-notes/temp/delete-coil', [DeliveryNoteController::class, 'deleteCoilTemporary'])
         ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_CREATE')
         ->name('manufacturing.delivery-notes.delete-coil-temp');
-    
+
 
 
     // Coil Transfer Routes
@@ -478,6 +478,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('shift-handovers/api/history', [ShiftHandoverController::class, 'getHandoverHistory'])
         ->middleware('permission:SHIFT_HANDOVERS_READ')
         ->name('manufacturing.shift-handovers.api.history');
+
+    // Worker Tracking Routes
+    require __DIR__ . '/worker-tracking.php';
 
     // Quality Management Routes
     Route::get('quality', [QualityController::class, 'index'])

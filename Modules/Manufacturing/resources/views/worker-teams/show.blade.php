@@ -287,6 +287,12 @@
                     <div class="header-info">
                         <h1>{{ $team->name }}</h1>
                         <p><strong>{{ __('shifts-workers.team_code_label') }}:</strong> {{ $team->team_code }}</p>
+                        @if($team->manager)
+                        <p style="margin: 8px 0 0 0; color: #3498db;">
+                            <strong>المسؤول:</strong> {{ $team->manager->name }}
+                        </p>
+                        @endif
+
                     </div>
                 </div>
                 <div class="header-actions">
@@ -359,6 +365,37 @@
                             </span>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon primary">
+                        <i class="feather icon-briefcase"></i>
+                    </div>
+                    <h3 class="card-title">المسؤول عن المجموعة</h3>
+                </div>
+                <div class="card-body">
+                    @if($team->manager)
+                    <div class="info-item">
+                        <label>اسم المسؤول</label>
+                        <div class="value">{{ $team->manager->name }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <label>البريد الإلكتروني</label>
+                        <div class="value">{{ $team->manager->email ?? __('shifts-workers.not_specified') }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <label>الهاتف</label>
+                        <div class="value">{{ $team->manager->phone ?? __('shifts-workers.not_specified') }}</div>
+                    </div>
+                    @else
+                    <div class="empty-state" style="padding: 20px;">
+                        <p style="margin: 0; color: #7f8c8d;">لا يوجد مسؤول معين</p>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>

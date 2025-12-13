@@ -1108,5 +1108,16 @@ return [
     'required' => 'مطلوب',
     'all_handovers' => 'جميع التسليمات',
     'pending_approvals' => 'الموافقات المعلقة',
+
+    // System Access
+    'system_access' => 'الوصول للنظام',
+    'system_access_options' => 'خيارات الوصول',
+    'with_system_access' => 'يستخدمون النظام',
+    'without_system_access' => 'لا يستخدمون النظام',
+    'has_access' => 'لديه وصول',
+    'no_access' => 'بدون وصول',
+    'total_workers' => 'إجمالي العمال',
+    'all_workers' => 'جميع العمال',
 ];
+
 

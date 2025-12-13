@@ -225,30 +225,56 @@
                     <div class="form-grid">
                         <!-- اختيار المجموعة -->
                         <div class="form-group full-width">
-                            <label for="team_id" class="form-label">
-                                {{ __('shifts-workers.select_worker_team') }}
+                            <label class="form-label">
+                                <i class="feather icon-users" style="margin-right: 5px;"></i>
+                                مجموعات العمال المتاحة
                             </label>
-                            <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                </svg>
-                                <select name="team_id" id="team_id" class="form-input" onchange="loadTeamWorkers()">
-                                    <option value="">{{ __('shifts-workers.select_team_or_manual') }}</option>
-                                    @foreach($teams as $team)
-                                    <option value="{{ $team->id }}"
-                                            data-workers-count="{{ $team->workers_count }}">
-                                        {{ $team->name }} ({{ $team->workers_count }} {{ __('shifts-workers.workers') }})
-                                    </option>
-                                    @endforeach
-                                </select>
+                            <div class="teams-grid">
+                                @forelse($teams as $team)
+                                    <div class="team-card" onclick="selectTeam({{ $team['id'] }}, {{ json_encode($team['worker_ids']) }})">
+                                        <div class="team-card-header">
+                                            <div class="team-icon">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="9" cy="7" r="4"></circle>
+                                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                                </svg>
+                                            </div>
+                                            <div class="team-title">{{ $team['name'] }}</div>
+                                        </div>
+                                        <div class="team-card-body">
+                                            <div class="team-info-row">
+                                                <span class="info-label">الكود:</span>
+                                                <span class="info-value">{{ $team['code'] }}</span>
+                                            </div>
+                                            <div class="team-info-row">
+                                                <span class="info-label">المسؤول:</span>
+                                                <span class="info-value">{{ $team['manager_name'] }}</span>
+                                            </div>
+                                            <div class="team-info-row">
+                                                <span class="info-label">عدد العمال:</span>
+                                                <span class="info-value badge">{{ $team['workers_count'] }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="team-card-footer">
+                                            <button type="button" class="btn-select-team">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                                </svg>
+                                                اختيار هذه المجموعة
+                                            </button>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <p style="color: #999; padding: 20px;">لا توجد مجموعات عمال متاحة</p>
+                                @endforelse
                             </div>
-                            <small class="text-muted">
-                                <i class="feather icon-info"></i>
-                                {{ __('shifts-workers.team_selection_info') }}
-                            </small>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="form-group full-width" style="margin: 30px 0; text-align: center;">
+                            <div class="divider-with-text">أو</div>
                         </div>
 
                         <div class="form-group full-width">
@@ -261,23 +287,49 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="workers-selection">
-                                @forelse($workers as $worker)
-                                    <div class="worker-item">
-                                        <input type="checkbox"
-                                               id="worker_{{ $worker->id }}"
-                                               name="workers[]"
-                                               value="{{ $worker->id }}"
-                                               class="worker-checkbox"
-                                               {{ in_array($worker->id, old('workers', $shift->worker_ids ?? [])) ? 'checked' : '' }}
-                                               onchange="updateWorkersCount()">
-                                        <label for="worker_{{ $worker->id }}">
-                                            {{ $worker->name }}
-                                        </label>
-                                    </div>
-                                @empty
-                                    <p style="color: #999;">{{ __('shifts-workers.no_workers_available') }}</p>
-                                @endforelse
+                            <div class="workers-table-wrapper">
+                                @if($workers->count() > 0)
+                                <table class="workers-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px; text-align: center;">
+                                                <input type="checkbox" id="selectAllWorkers" onchange="toggleAllWorkers(this)">
+                                            </th>
+                                            <th>{{ __('shifts-workers.worker_name') }}</th>
+                                            <th>{{ __('shifts-workers.worker_id') }}</th>
+                                            <th>الحالة</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($workers as $worker)
+                                        <tr>
+                                            <td style="text-align: center;">
+                                                <input type="checkbox"
+                                                       id="worker_{{ $worker->id }}"
+                                                       name="workers[]"
+                                                       value="{{ $worker->id }}"
+                                                       class="worker-checkbox"
+                                                       {{ in_array($worker->id, old('workers', $shift->worker_ids ?? [])) ? 'checked' : '' }}
+                                                       onchange="updateWorkersCount()">
+                                            </td>
+                                            <td>
+                                                <label for="worker_{{ $worker->id }}" style="margin: 0; cursor: pointer;">
+                                                    {{ $worker->name }}
+                                                </label>
+                                            </td>
+                                            <td>{{ $worker->id }}</td>
+                                            <td>
+                                                <span class="worker-status {{ $worker->is_active ? 'active' : 'inactive' }}">
+                                                    {{ $worker->is_active ? 'نشط' : 'غير نشط' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                                @else
+                                <p style="color: #999; text-align: center; padding: 20px;">{{ __('shifts-workers.no_workers_available') }}</p>
+                                @endif
                             </div>
                             @error('workers')
                                 <span class="error-message">{{ $message }}</span>
@@ -454,6 +506,44 @@
             }
         }
 
+        // Select a team from the card and load its workers
+        function selectTeam(teamId, workerIds) {
+            // First, clear all selected workers
+            document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+
+            // Remove selected class from all team cards
+            document.querySelectorAll('.team-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Add selected class to clicked card
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('selected');
+            }
+
+            // Select workers from the team
+            if (workerIds && workerIds.length > 0) {
+                workerIds.forEach(workerId => {
+                    const checkbox = document.querySelector(`input[name="workers"][value="${workerId}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+            }
+
+            updateWorkersCount();
+
+            // Scroll to workers table
+            setTimeout(() => {
+                const workersTable = document.querySelector('.workers-table-wrapper');
+                if (workersTable) {
+                    workersTable.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 300);
+        }
+
         // Clear all selected workers
         function clearAllWorkers() {
             document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
@@ -467,6 +557,28 @@
         function updateWorkersCount() {
             const count = document.querySelectorAll('.worker-checkbox:checked').length;
             document.getElementById('selectedWorkersCount').textContent = count;
+            updateSelectAllState();
+        }
+
+        // Toggle all workers
+        function toggleAllWorkers(selectAllCheckbox) {
+            const checkboxes = document.querySelectorAll('.worker-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            updateWorkersCount();
+        }
+
+        // Update select all checkbox state
+        function updateSelectAllState() {
+            const selectAllCheckbox = document.getElementById('selectAllWorkers');
+            const checkboxes = document.querySelectorAll('.worker-checkbox');
+            const checkedCount = document.querySelectorAll('.worker-checkbox:checked').length;
+
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = checkedCount === checkboxes.length && checkboxes.length > 0;
+                selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+            }
         }
 
         // تحديث الأوقات عند تحميل الصفحة
@@ -477,6 +589,219 @@
     </script>
 
     <style>
+        /* Teams Grid Styles */
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .team-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .team-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .team-card.selected {
+            border-color: #10b981;
+            background: #f0fdf4;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+        }
+
+        .team-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .team-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .team-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .team-title {
+            font-weight: 600;
+            font-size: 16px;
+            flex: 1;
+        }
+
+        .team-card-body {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .team-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .team-info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .info-value.badge {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .team-card-footer {
+            padding: 12px 15px;
+            background: #f9f9f9;
+        }
+
+        .btn-select-team {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-select-team:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-select-team svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .divider-with-text {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+            color: #999;
+            font-weight: 600;
+        }
+
+        .divider-with-text::before,
+        .divider-with-text::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .workers-table-wrapper {
+            overflow-x: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .workers-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .workers-table thead {
+            background: #f5f5f5;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .workers-table thead tr th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .workers-table tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: background-color 0.2s;
+        }
+
+        .workers-table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .workers-table tbody tr td {
+            padding: 12px 15px;
+            color: #555;
+        }
+
+        .workers-table input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .workers-table label {
+            cursor: pointer;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .worker-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .worker-status.active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .worker-status.inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
         .workers-selection-header {
             display: flex;
             justify-content: space-between;

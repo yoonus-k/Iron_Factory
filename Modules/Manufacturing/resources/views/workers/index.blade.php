@@ -82,6 +82,17 @@
                                 <option value="0" {{ request('is_active') == '0' ? 'selected' : '' }}>{{ __('shifts-workers.inactive') }}</option>
                             </select>
                         </div>
+                        <div class="um-form-group">
+                            <select name="system_access" class="um-form-control">
+                                <option value="">{{ __('shifts-workers.all') }} {{ __('shifts-workers.system_access_options') }}</option>
+                                <option value="with_access" {{ request('system_access') === 'with_access' ? 'selected' : '' }}>
+                                    ✓ {{ __('shifts-workers.with_system_access') }}
+                                </option>
+                                <option value="without_access" {{ request('system_access') === 'without_access' ? 'selected' : '' }}>
+                                    ✗ {{ __('shifts-workers.without_system_access') }}
+                                </option>
+                            </select>
+                        </div>
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
@@ -96,6 +107,22 @@
                 </form>
             </div>
 
+            <!-- Statistics Cards -->
+            <div class="um-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                <div class="um-stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.2);">
+                    <div style="font-size: 12px; opacity: 0.9; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">{{ __('shifts-workers.total_workers') }}</div>
+                    <div style="font-size: 32px; font-weight: 700;">{{ $stats['total'] }}</div>
+                </div>
+                <div class="um-stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);">
+                    <div style="font-size: 12px; opacity: 0.9; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">🔐 {{ __('shifts-workers.with_system_access') }}</div>
+                    <div style="font-size: 32px; font-weight: 700;">{{ $stats['with_system_access'] }}</div>
+                </div>
+                <div class="um-stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(245, 158, 11, 0.2);">
+                    <div style="font-size: 12px; opacity: 0.9; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">👤 {{ __('shifts-workers.without_system_access') }}</div>
+                    <div style="font-size: 32px; font-weight: 700;">{{ $stats['without_system_access'] }}</div>
+                </div>
+            </div>
+
             <!-- Table - Desktop View -->
             <div class="um-table-responsive um-desktop-view">
                 <table class="um-table">
@@ -108,6 +135,7 @@
                             <th>{{ __('shifts-workers.phone') }}</th>
                             <th>{{ __('shifts-workers.shift_pref') }}</th>
                             <th>{{ __('shifts-workers.salary_hour') }}</th>
+                            <th>{{ __('shifts-workers.system_access') }}</th>
                             <th>{{ __('shifts-workers.status') }}</th>
                             <th>{{ __('shifts-workers.actions') }}</th>
                         </tr>
@@ -126,6 +154,19 @@
                             <td>{{ $worker->phone ?? '-' }}</td>
                             <td>{{ $worker->shift_preference_name }}</td>
                             <td>{{ number_format($worker->hourly_rate, 2) }} {{ __('shifts-workers.currency') }}</td>
+                            <td>
+                                @if($worker->user_id)
+                                    <span class="um-badge um-badge-success" style="background-color: #d1fae5; color: #065f46;">
+                                        <i class="feather icon-check-circle" style="width: 14px; height: 14px; margin-right: 4px;"></i>
+                                        {{ __('shifts-workers.has_access') }}
+                                    </span>
+                                @else
+                                    <span class="um-badge um-badge-warning" style="background-color: #fef3c7; color: #92400e;">
+                                        <i class="feather icon-x-circle" style="width: 14px; height: 14px; margin-right: 4px;"></i>
+                                        {{ __('shifts-workers.no_access') }}
+                                    </span>
+                                @endif
+                            </td>
                             <td>
                                 <span class="um-badge um-badge-{{ $worker->is_active ? 'success' : 'secondary' }}">
                                     {{ $worker->is_active ? __('shifts-workers.active') : __('shifts-workers.inactive') }}
@@ -214,6 +255,20 @@
                         <div class="um-info-row">
                             <span class="um-info-label">{{ __('shifts-workers.salary_hour') }}:</span>
                             <span class="um-info-value">{{ number_format($worker->hourly_rate, 2) }} {{ __('shifts-workers.currency') }}</span>
+                        </div>
+                        <div class="um-info-row">
+                            <span class="um-info-label">{{ __('shifts-workers.system_access') }}:</span>
+                            <span class="um-info-value">
+                                @if($worker->user_id)
+                                    <span class="um-badge um-badge-success" style="background-color: #d1fae5; color: #065f46; font-size: 11px;">
+                                        ✓ {{ __('shifts-workers.has_access') }}
+                                    </span>
+                                @else
+                                    <span class="um-badge um-badge-warning" style="background-color: #fef3c7; color: #92400e; font-size: 11px;">
+                                        ✗ {{ __('shifts-workers.no_access') }}
+                                    </span>
+                                @endif
+                            </span>
                         </div>
                     </div>
                     <div class="um-category-card-footer">

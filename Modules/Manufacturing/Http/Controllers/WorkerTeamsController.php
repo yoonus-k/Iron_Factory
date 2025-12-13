@@ -17,14 +17,14 @@ class WorkerTeamsController extends Controller
     public function index()
     {
         $teams = WorkerTeam::latest()->paginate(15);
-        
+
         // حساب الإحصائيات
         $stats = [
             'total' => WorkerTeam::count(),
             'active' => WorkerTeam::where('is_active', true)->count(),
             'workers' => 0, // سيتم حسابها لاحقاً عند إضافة جدول الأعضاء
         ];
-        
+
         return view('manufacturing::worker-teams.index', compact('teams', 'stats'));
     }
 
@@ -33,8 +33,34 @@ class WorkerTeamsController extends Controller
      */
     public function create()
     {
-        $workers = User::where('is_active', true)->get();
-        return view('manufacturing::worker-teams.create', compact('workers'));
+        // Get all workers from workers table
+        $workersFromTable = \App\Models\Worker::orderBy('name')->get();
+
+        // Get all users
+        $usersWorkers = User::orderBy('name')->get();
+
+        // Merge workers and users, removing duplicates by id
+        $workers = collect();
+
+        // Add workers from workers table
+        foreach ($workersFromTable as $worker) {
+            $workers->push($worker);
+        }
+
+        // Add users that are not already in workers
+        foreach ($usersWorkers as $user) {
+            if (!$workers->contains('id', $user->id)) {
+                $workers->push($user);
+            }
+        }
+
+        // Sort by name
+        $workers = $workers->sortBy('name')->values();
+
+        // Get managers (all users)
+        $managers = User::orderBy('name')->get();
+
+        return view('manufacturing::worker-teams.create', compact('workers', 'managers'));
     }
 
     /**
@@ -44,22 +70,22 @@ class WorkerTeamsController extends Controller
     {
         $prefix = 'TEAM';
         $date = now()->format('Ymd');
-        
+
         // Get the last team code for today
         $lastTeam = WorkerTeam::whereDate('created_at', today())
             ->where('team_code', 'like', "$prefix-$date-%")
             ->orderBy('team_code', 'desc')
             ->first();
-        
+
         if ($lastTeam) {
             $lastNumber = (int) substr($lastTeam->team_code, -3);
             $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
         } else {
             $newNumber = '001';
         }
-        
+
         $teamCode = "$prefix-$date-$newNumber";
-        
+
         return response()->json(['team_code' => $teamCode]);
     }
 
@@ -72,6 +98,7 @@ class WorkerTeamsController extends Controller
             'team_code' => 'required|string|max:50|unique:worker_teams,team_code',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
+            'manager_id' => 'required|exists:users,id',
             'workers' => 'required|array|min:1',
             'workers.*' => 'exists:users,id'
         ]);
@@ -87,11 +114,12 @@ class WorkerTeamsController extends Controller
             DB::beginTransaction();
 
             $workerIds = $request->input('workers', []);
-            
+
             $team = WorkerTeam::create([
                 'team_code' => $request->team_code,
                 'name' => $request->name,
                 'description' => $request->description,
+                'manager_id' => $request->manager_id,
                 'worker_ids' => $workerIds,
                 'workers_count' => count($workerIds),
                 'is_active' => true,
@@ -129,9 +157,35 @@ class WorkerTeamsController extends Controller
     public function edit($id)
     {
         $team = WorkerTeam::findOrFail($id);
-        $workers = User::where('is_active', true)->get();
 
-        return view('manufacturing::worker-teams.edit', compact('team', 'workers'));
+        // Get all workers from workers table
+        $workersFromTable = \App\Models\Worker::orderBy('name')->get();
+
+        // Get all users
+        $usersWorkers = User::orderBy('name')->get();
+
+        // Merge workers and users, removing duplicates by id
+        $workers = collect();
+
+        // Add workers from workers table
+        foreach ($workersFromTable as $worker) {
+            $workers->push($worker);
+        }
+
+        // Add users that are not already in workers
+        foreach ($usersWorkers as $user) {
+            if (!$workers->contains('id', $user->id)) {
+                $workers->push($user);
+            }
+        }
+
+        // Sort by name
+        $workers = $workers->sortBy('name')->values();
+
+        // Get managers (all users)
+        $managers = User::orderBy('name')->get();
+
+        return view('manufacturing::worker-teams.edit', compact('team', 'workers', 'managers'));
     }
 
     /**
@@ -145,6 +199,7 @@ class WorkerTeamsController extends Controller
             'team_code' => 'required|string|max:50|unique:worker_teams,team_code,' . $id,
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
+            'manager_id' => 'required|exists:users,id',
             'workers' => 'required|array|min:1',
             'workers.*' => 'exists:users,id'
         ]);
@@ -165,6 +220,7 @@ class WorkerTeamsController extends Controller
                 'team_code' => $request->team_code,
                 'name' => $request->name,
                 'description' => $request->description,
+                'manager_id' => $request->manager_id,
                 'worker_ids' => $workerIds,
                 'workers_count' => count($workerIds),
             ]);

@@ -13,6 +13,7 @@ class WorkerTeam extends Model
         'team_code',
         'name',
         'description',
+        'manager_id',
         'worker_ids',
         'workers_count',
         'is_active',
@@ -33,7 +34,15 @@ class WorkerTeam extends Model
         if (!$this->worker_ids) {
             return collect();
         }
-        return User::whereIn('id', $this->worker_ids)->get();
+        return \App\Models\Worker::whereIn('id', $this->worker_ids)->get();
+    }
+
+    /**
+     * Get team manager
+     */
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
     }
 
     /**

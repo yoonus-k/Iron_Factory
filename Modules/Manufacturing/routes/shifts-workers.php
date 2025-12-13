@@ -5,7 +5,7 @@ use Modules\Manufacturing\Http\Controllers\ShiftsWorkersController;
 use Modules\Manufacturing\Http\Controllers\WorkersController;
 use Modules\Manufacturing\Http\Controllers\WorkerTeamsController;
 use Modules\Manufacturing\Http\Controllers\ShiftHandoverController;
-use Modules\Manufacturing\Http\Controllers\PendingWorkController;
+// use Modules\Manufacturing\Http\Controllers\PendingWorkController;
 
 /*
 |--------------------------------------------------------------------------
@@ -143,25 +143,25 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:SHIFT_HANDOVERS_READ')
         ->names('manufacturing.shift-handovers');
 
-    // Pending Work Items Routes
-    Route::post('pending-work/{id}/mark-in-progress', [PendingWorkController::class, 'markInProgress'])
-        ->middleware('permission:PENDING_WORK_UPDATE')
-        ->name('manufacturing.pending-work.mark-in-progress');
+    // Pending Work Items Routes (Commented out - Controller not found)
+    // Route::post('pending-work/{id}/mark-in-progress', [PendingWorkController::class, 'markInProgress'])
+    //     ->middleware('permission:PENDING_WORK_UPDATE')
+    //     ->name('manufacturing.pending-work.mark-in-progress');
 
-    Route::post('pending-work/{id}/mark-completed', [PendingWorkController::class, 'markCompleted'])
-        ->middleware('permission:PENDING_WORK_UPDATE')
-        ->name('manufacturing.pending-work.mark-completed');
+    // Route::post('pending-work/{id}/mark-completed', [PendingWorkController::class, 'markCompleted'])
+    //     ->middleware('permission:PENDING_WORK_UPDATE')
+    //     ->name('manufacturing.pending-work.mark-completed');
 
-    Route::post('pending-work/{id}/assign', [PendingWorkController::class, 'assign'])
-        ->middleware('permission:PENDING_WORK_UPDATE')
-        ->name('manufacturing.pending-work.assign');
+    // Route::post('pending-work/{id}/assign', [PendingWorkController::class, 'assign'])
+    //     ->middleware('permission:PENDING_WORK_UPDATE')
+    //     ->name('manufacturing.pending-work.assign');
 
-    Route::get('pending-work/api/dashboard', [PendingWorkController::class, 'getDashboardData'])
-        ->middleware('permission:PENDING_WORK_READ')
-        ->name('manufacturing.pending-work.api.dashboard');
+    // Route::get('pending-work/api/dashboard', [PendingWorkController::class, 'getDashboardData'])
+    //     ->middleware('permission:PENDING_WORK_READ')
+    //     ->name('manufacturing.pending-work.api.dashboard');
 
-    Route::resource('pending-work', PendingWorkController::class)
-        ->middleware('permission:PENDING_WORK_READ')
-        ->names('manufacturing.pending-work');
+    // Route::resource('pending-work', PendingWorkController::class)
+    //     ->middleware('permission:PENDING_WORK_READ')
+    //     ->names('manufacturing.pending-work');
 
 });

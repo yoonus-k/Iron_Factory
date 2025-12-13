@@ -26,6 +26,7 @@ return [
     'transfer_work' => 'Transfer Work',
     'end_session' => 'End Session',
     'view_history' => 'View History',
+    'view_full_history' => 'View Full History',
     'search_by_barcode' => 'Search by Barcode',
     'transfer_to_another_worker' => 'Transfer to Another Worker',
 
@@ -38,6 +39,7 @@ return [
     'total_teams' => 'Total Teams',
     'total_hours' => 'Total Hours',
     'average_session_time' => 'Average Session Time',
+    'average_session_minutes' => 'Average Minutes',
     'stages_worked' => 'Stages Worked',
 
     // Stage Names
@@ -45,6 +47,10 @@ return [
     'stage_2_processed' => 'Stage 2 - Processed',
     'stage_3_coils' => 'Stage 3 - Coils',
     'stage_4_boxes' => 'Stage 4 - Boxes',
+    'stage1' => 'Stage 1',
+    'stage2' => 'Stage 2',
+    'stage3' => 'Stage 3',
+    'stage4' => 'Stage 4',
 
     // Messages
     'no_history_found' => 'No History Found',
@@ -85,10 +91,6 @@ return [
     'loading' => 'Loading...',
     'no_completed_sessions' => 'No Completed Sessions',
     'dashboard_refreshed' => 'Dashboard Refreshed',
-    'stage1' => 'Stage 1',
-    'stage2' => 'Stage 2',
-    'stage3' => 'Stage 3',
-    'stage4' => 'Stage 4',
 
     // Time Format
     'hours' => 'Hours',

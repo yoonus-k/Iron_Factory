@@ -64,7 +64,7 @@ class ShiftAssignment extends Model
         if (!$this->worker_ids) {
             return collect();
         }
-        return User::whereIn('id', $this->worker_ids)->get();
+        return \App\Models\Worker::whereIn('id', $this->worker_ids)->get();
     }
 
     public function getShiftTypeNameAttribute(): string
