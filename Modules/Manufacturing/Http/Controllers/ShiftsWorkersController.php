@@ -150,7 +150,7 @@ class ShiftsWorkersController extends Controller
             'notes' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
             'workers' => 'nullable|array',
-            'workers.*' => 'exists:workers,id'
+            'workers.*' => 'exists:users,id'
         ]);
 
         if ($validator->fails()) {
@@ -163,10 +163,7 @@ class ShiftsWorkersController extends Controller
         try {
             DB::beginTransaction();
 
-            // جلب العمال من جدول Workers
             $workerIds = $request->input('workers', []);
-            $workerIds = array_filter($workerIds); // إزالة القيم الفارغة
-            $workerIds = array_values($workerIds); // إعادة ترتيب المفاتيح
 
             $shift = ShiftAssignment::create([
                 'shift_code' => $request->shift_code,
@@ -181,7 +178,7 @@ class ShiftsWorkersController extends Controller
                 'notes' => $request->notes,
                 'is_active' => $request->input('is_active', true),
                 'total_workers' => count($workerIds),
-                'worker_ids' => $workerIds, // حفظ كمصفوفة من Worker IDs
+                'worker_ids' => $workerIds,
             ]);
 
             // Store notification
@@ -318,7 +315,7 @@ class ShiftsWorkersController extends Controller
             'end_time' => 'required|date_format:H:i',
             'notes' => 'nullable|string|max:1000',
             'workers' => 'nullable|array',
-            'workers.*' => 'exists:workers,id'
+            'workers.*' => 'exists:users,id'
         ]);
 
         if ($validator->fails()) {
@@ -331,10 +328,7 @@ class ShiftsWorkersController extends Controller
         try {
             DB::beginTransaction();
 
-            // جلب العمال من جدول Workers
             $workerIds = $request->input('workers', []);
-            $workerIds = array_filter($workerIds); // إزالة القيم الفارغة
-            $workerIds = array_values($workerIds); // إعادة ترتيب المفاتيح
 
             $shift->update([
                 'shift_code' => $request->shift_code,
@@ -347,7 +341,7 @@ class ShiftsWorkersController extends Controller
                 'end_time' => $request->end_time,
                 'notes' => $request->notes,
                 'total_workers' => count($workerIds),
-                'worker_ids' => $workerIds, // حفظ كمصفوفة من Worker IDs
+                'worker_ids' => $workerIds,
             ]);
 
             DB::commit();
