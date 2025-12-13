@@ -55,7 +55,7 @@ class ShiftOperationLog extends Model
     /**
      * العلاقات
      */
-    
+
     /**
      * Get the shift that this log belongs to
      */
@@ -86,7 +86,7 @@ class ShiftOperationLog extends Model
     ) {
         try {
             $user = auth()->user();
-            
+
             return self::create([
                 'shift_id' => $shift->id,
                 'user_id' => $user?->id,

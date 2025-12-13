@@ -14,6 +14,8 @@ class ShiftAssignment extends Model
         'supervisor_id',
         'team_id',
         'stage_number',
+        'stage_record_barcode',
+        'stage_record_id',
         'shift_date',
         'start_time',
         'end_time',

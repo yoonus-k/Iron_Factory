@@ -23,6 +23,10 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:SHIFTS_READ')
         ->name('manufacturing.shifts-workers.generate-code');
 
+    Route::get('shifts-workers/get-stage-records', [ShiftsWorkersController::class, 'getStageRecords'])
+        ->middleware('permission:SHIFTS_READ')
+        ->name('manufacturing.shifts-workers.get-stage-records');
+
     Route::get('shifts-workers/team/{teamId}/details', [ShiftsWorkersController::class, 'getTeamDetails'])
         ->middleware('permission:SHIFT_WORKERS_READ')
         ->name('manufacturing.shifts-workers.team-details');
