@@ -144,13 +144,14 @@ class ShiftsWorkersController extends Controller
             'shift_date' => 'required|date',
             'shift_type' => 'required|in:morning,evening',
             'supervisor_id' => 'required|exists:users,id',
+            'team_id' => 'nullable|exists:worker_teams,id',
             'stage_number' => 'nullable|integer|between:0,4',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i',
             'notes' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
             'workers' => 'nullable|array',
-            'workers.*' => 'exists:users,id'
+            'workers.*' => 'exists:workers,id'
         ]);
 
         if ($validator->fails()) {
@@ -164,12 +165,21 @@ class ShiftsWorkersController extends Controller
             DB::beginTransaction();
 
             $workerIds = $request->input('workers', []);
+            $teamId = $request->input('team_id');
+
+            // Ensure worker_ids is an array and clean it
+            if (!is_array($workerIds)) {
+                $workerIds = [];
+            }
+            $workerIds = array_filter($workerIds);
+            $workerIds = array_values($workerIds);
 
             $shift = ShiftAssignment::create([
                 'shift_code' => $request->shift_code,
                 'shift_type' => $request->shift_type,
-                'user_id' => $request->supervisor_id, // Main user is supervisor
+                'user_id' => $request->supervisor_id,
                 'supervisor_id' => $request->supervisor_id,
+                'team_id' => $teamId,
                 'stage_number' => $request->stage_number,
                 'shift_date' => $request->shift_date,
                 'start_time' => $request->start_time,
@@ -198,6 +208,7 @@ class ShiftsWorkersController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'حدث خطأ أثناء إنشاء الوردية: ' . $e->getMessage());
+
         }
     }
 
@@ -206,24 +217,20 @@ class ShiftsWorkersController extends Controller
      */
     public function show($id)
     {
-        $shift = ShiftAssignment::with(['user', 'supervisor'])->findOrFail($id);
-        $workers = $shift->workers(); // يجلب من جدول Workers
+        $shift = ShiftAssignment::with(['user', 'supervisor', 'team'])->findOrFail($id);
+        $workers = $shift->workers(); // استدعاء الدالة لجلب العمال
 
         // جلب الفريق إن وجد
-        $team = null;
-        $teamManager = null;
-        if ($shift->worker_ids && count($shift->worker_ids) > 0) {
-            $team = \App\Models\WorkerTeam::whereJsonContains('worker_ids', $shift->worker_ids)
-                ->first();
+        $team = $shift->team;
 
-            // جلب مسول الفريق من جدول العمال
-            if ($team && $team->manager_id) {
-                $teamManager = \App\Models\Worker::find($team->manager_id);
-            }
+        // جلب المسول من supervisor_id
+        $supervisor = null;
+        if ($shift->supervisor_id) {
+            $supervisor = \App\Models\User::find($shift->supervisor_id);
         }
 
         return response()
-            ->view('manufacturing::shifts-workers.show', compact('shift', 'workers', 'team', 'teamManager'))
+            ->view('manufacturing::shifts-workers.show', compact('shift', 'workers', 'team', 'supervisor'))
             ->header('Content-Type', 'text/html; charset=UTF-8');
     }
 
@@ -310,12 +317,13 @@ class ShiftsWorkersController extends Controller
             'shift_date' => 'required|date',
             'shift_type' => 'required|in:morning,evening',
             'supervisor_id' => 'required|exists:users,id',
+            'team_id' => 'nullable|exists:worker_teams,id',
             'stage_number' => 'nullable|integer|between:0,4',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i',
             'notes' => 'nullable|string|max:1000',
             'workers' => 'nullable|array',
-            'workers.*' => 'exists:users,id'
+            'workers.*' => 'exists:workers,id'
         ]);
 
         if ($validator->fails()) {
@@ -329,12 +337,21 @@ class ShiftsWorkersController extends Controller
             DB::beginTransaction();
 
             $workerIds = $request->input('workers', []);
+            $teamId = $request->input('team_id');
+
+            // Ensure worker_ids is an array and clean it
+            if (!is_array($workerIds)) {
+                $workerIds = [];
+            }
+            $workerIds = array_filter($workerIds);
+            $workerIds = array_values($workerIds);
 
             $shift->update([
                 'shift_code' => $request->shift_code,
                 'shift_type' => $request->shift_type,
                 'user_id' => $request->supervisor_id,
                 'supervisor_id' => $request->supervisor_id,
+                'team_id' => $teamId,
                 'stage_number' => $request->stage_number ?? 0,
                 'shift_date' => $request->shift_date,
                 'start_time' => $request->start_time,
@@ -585,4 +602,33 @@ class ShiftsWorkersController extends Controller
 
         return response()->json(['shift_code' => $code]);
     }
+
+    /**
+     * Get team details with supervisor information
+     */
+    public function getTeamDetails($teamId)
+    {
+        try {
+            $team = \App\Models\WorkerTeam::with('manager')->findOrFail($teamId);
+
+            return response()->json([
+                'success' => true,
+                'team' => [
+                    'id' => $team->id,
+                    'name' => $team->name,
+                    'code' => $team->team_code,
+                    'manager_id' => $team->manager_id,
+                    'manager_name' => $team->manager ? $team->manager->name : 'لا يوجد مسؤول',
+                    'worker_ids' => $team->worker_ids ?? [],
+                    'workers_count' => count($team->worker_ids ?? [])
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'الفريق غير موجود'
+            ], 404);
+        }
+    }
 }
+

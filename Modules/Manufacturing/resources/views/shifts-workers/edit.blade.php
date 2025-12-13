@@ -115,6 +115,8 @@
                             @enderror
                         </div>
 
+                        <input type="hidden" id="team_id" name="team_id" value="{{ $shift->team_id ?? '' }}">
+
                         <div class="form-group">
                             <label for="supervisor_id" class="form-label">
                                 {{ __('shifts-workers.shift_supervisor') }}
@@ -508,6 +510,9 @@
 
         // Select a team from the card and load its workers
         function selectTeam(teamId, workerIds) {
+            // Store team ID in hidden field
+            document.getElementById('team_id').value = teamId;
+
             // First, clear all selected workers
             document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
                 checkbox.checked = false;
@@ -523,10 +528,13 @@
                 event.currentTarget.classList.add('selected');
             }
 
+            // Load team supervisor and workers from server
+            loadTeamSupervisor(teamId);
+
             // Select workers from the team
             if (workerIds && workerIds.length > 0) {
                 workerIds.forEach(workerId => {
-                    const checkbox = document.querySelector(`input[name="workers"][value="${workerId}"]`);
+                    const checkbox = document.getElementById(`worker_${workerId}`);
                     if (checkbox) {
                         checkbox.checked = true;
                     }
@@ -550,6 +558,10 @@
                 checkbox.checked = false;
             });
             document.getElementById('team_id').value = '';
+            // Remove selected class from all team cards
+            document.querySelectorAll('.team-card').forEach(card => {
+                card.classList.remove('selected');
+            });
             updateWorkersCount();
         }
 
@@ -845,5 +857,117 @@
             border-color: #f87171;
         }
     </style>
+
+    <script>
+        // تحديث أوقات الوردية حسب النوع
+        function updateShiftTimes() {
+            const shiftType = document.getElementById('shift_type').value;
+            const startTimeInput = document.getElementById('start_time');
+            const endTimeInput = document.getElementById('end_time');
+
+            if (shiftType === 'morning') {
+                startTimeInput.value = '06:00';
+                endTimeInput.value = '18:00';
+            } else if (shiftType === 'evening') {
+                startTimeInput.value = '18:00';
+                endTimeInput.value = '06:00';
+            }
+        }
+
+        // Clear all selected workers
+        function clearAllWorkers() {
+            document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            document.getElementById('team_id').value = '';
+            updateWorkersCount();
+        }
+
+        // Update the count of selected workers
+        function updateWorkersCount() {
+            const count = document.querySelectorAll('.worker-checkbox:checked').length;
+            document.getElementById('selectedWorkersCount').textContent = count;
+            updateSelectAllState();
+        }
+
+        // Toggle all workers
+        function toggleAllWorkers(selectAllCheckbox) {
+            const checkboxes = document.querySelectorAll('.worker-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            updateWorkersCount();
+        }
+
+        // Update select all checkbox state
+        function updateSelectAllState() {
+            const selectAllCheckbox = document.getElementById('selectAllWorkers');
+            const checkboxes = document.querySelectorAll('.worker-checkbox');
+            const checkedCount = document.querySelectorAll('.worker-checkbox:checked').length;
+
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = checkedCount === checkboxes.length && checkboxes.length > 0;
+                selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+            }
+        }
+
+        // Load team supervisor when team is selected
+        async function loadTeamSupervisor(teamId) {
+            if (!teamId) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/manufacturing/shifts-workers/team/${teamId}/details`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.team) {
+                    // Auto-populate supervisor if team has a manager
+                    if (data.team.manager_id) {
+                        const supervisorSelect = document.getElementById('supervisor_id');
+                        const option = Array.from(supervisorSelect.options).find(opt => opt.value == data.team.manager_id);
+                        if (option) {
+                            supervisorSelect.value = data.team.manager_id;
+                            supervisorSelect.dispatchEvent(new Event('change'));
+                        }
+                    }
+
+                    // Auto-populate workers from team
+                    document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+
+                    if (data.team.worker_ids && data.team.worker_ids.length > 0) {
+                        data.team.worker_ids.forEach(workerId => {
+                            const checkbox = document.getElementById(`worker_${workerId}`);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                            }
+                        });
+                    }
+
+                    updateWorkersCount();
+                }
+            } catch (error) {
+                console.error('Error loading team supervisor:', error);
+            }
+        }
+
+        // تحديث الأوقات عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            updateShiftTimes();
+            updateWorkersCount();
+        });
+    </script>
 
 @endsection

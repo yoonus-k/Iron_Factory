@@ -126,7 +126,13 @@
                             </svg>
                             {{ __('shifts-workers.supervisor') }}
                         </div>
-                        <div class="info-value">{{ $shift->supervisor->name ?? __('shifts-workers.not_specified') }}</div>
+                        <div class="info-value">
+                            @if($supervisor)
+                                <strong>{{ $supervisor->name }}</strong>
+                            @else
+                                {{ __('shifts-workers.not_specified') }}
+                            @endif
+                        </div>
                     </div>
 
                     <div class="info-item">
@@ -220,74 +226,40 @@
                     </div>
                     <h3 class="card-title">
                         @if($team)
-                            {{ __('shifts-workers.team') }}: {{ $team->name }} ({{ $workers->count() }} {{ __('shifts-workers.workers') }})
+                            {{ __('shifts-workers.team') }}: <strong>{{ $team->name }}</strong> ({{ $workers->count() }} {{ __('shifts-workers.workers') }})
                         @else
                             {{ __('shifts-workers.shift_workers_list', ['count' => $workers->count()]) }}
                         @endif
                     </h3>
                 </div>
                 <div class="card-body">
-                    @if($workers->count() > 0)
+                    @if($workers && $workers->count() > 0)
                         @if($team)
                             <!-- عرض الفريق مع المسول -->
-                            <div class="team-display-card">
-                                <div class="team-header-section">
-                                    <div class="team-info-box">
-                                        <div class="team-icon">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                                <circle cx="9" cy="7" r="4"></circle>
-                                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                                        </div>
-                                        <div>
-                                            <p class="team-label">{{ __('shifts-workers.team_name') }}</p>
-                                            <h3 class="team-value">{{ $team->name }}</h3>
-                                            <p class="team-code">{{ $team->team_code }}</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="supervisor-info-box">
-                                        <div class="supervisor-icon">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                                <circle cx="9" cy="7" r="4"></circle>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p class="supervisor-label">{{ __('shifts-workers.team_manager') }}</p>
-                                            <h3 class="supervisor-value">{{ $teamManager->name ?? ($team->manager->name ?? 'غير محدد') }}</h3>
-                                        </div>
-                                    </div>
+                            <div class="team-members-section">
+                                <div style="margin-bottom: 20px;">
+                                    <h3 style="font-size: 20px; font-weight: 700; color: #1f2937; margin: 0 0 8px 0;">
+                                        المجموعة: <strong>{{ $team->name }}</strong>
+                                    </h3>
+                                    <h4 style="font-size: 16px; font-weight: 600; color: #6b7280; margin: 0;">
+                                        المسول: <strong style="color: #1f2937;">{{ $supervisor->name ?? 'غير محدد' }}</strong>
+                                    </h4>
                                 </div>
 
-                                <!-- قائمة أعضاء الفريق -->
-                                <div class="team-members-section">
-                                    <h4 class="members-title">أعضاء الفريق ({{ $workers->count() }})</h4>
-                                    <div class="workers-grid">
+                                    <div class="workers-list-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
                                         @foreach($workers as $index => $worker)
-                                            <div class="worker-card">
-                                                <div class="worker-card-header">
-                                                    <div class="worker-number">{{ $index + 1 }}</div>
-                                                    <div class="worker-avatar">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                                            <circle cx="12" cy="7" r="4"></circle>
-                                                        </svg>
+                                            <div class="card">
+                                                <div class="card-body" style="display: flex; gap: 16px; align-items: flex-start; padding: 16px;">
+                                                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 14px;">{{ $index + 1 }}</div>
+                                                    <div style="flex: 1;">
+                                                        <h5 style="margin: 0 0 6px 0; font-weight: 700; color: #1f2937; font-size: 14px;">{{ $worker->name }}</h5>
+                                                        @if($worker->email)
+                                                            <p style="margin: 0 0 4px 0; color: #6b7280; font-size: 13px;">{{ $worker->email }}</p>
+                                                        @endif
+                                                        @if($worker->worker_code)
+                                                            <p style="margin: 0; color: #9ca3af; font-size: 12px; text-transform: uppercase; font-weight: 600;">{{ $worker->worker_code }}</p>
+                                                        @endif
                                                     </div>
-                                                </div>
-                                                <div class="worker-card-body">
-                                                    <h5 class="worker-name">{{ $worker->name }}</h5>
-                                                    @if($worker->email)
-                                                        <p class="worker-email">{{ $worker->email }}</p>
-                                                    @endif
-                                                    @if($worker->worker_code)
-                                                        <p class="worker-code">{{ $worker->worker_code }}</p>
-                                                    @endif
-                                                </div>
-                                                <div class="worker-card-footer">
-                                                    <span class="status-badge assigned">{{ __('shifts-workers.assigned') }}</span>
                                                 </div>
                                             </div>
                                         @endforeach
@@ -297,7 +269,7 @@
                         @else
                             <!-- عرض العمال الفرديين -->
                             <div class="workers-list">
-                                @foreach($workers as $worker)
+                                @foreach($workers as $index => $worker)
                                     <div class="worker-item">
                                         <div class="worker-info">
                                             <div class="worker-avatar">
@@ -454,309 +426,8 @@
         </div>
     </div>
 
-    <style>
-        .shift-quick-info {
-            display: flex;
-            gap: 20px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-            font-size: 13px;
-        }
 
-        .supervisor-info,
-        .end-time-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 8px 12px;
-            border-radius: 6px;
-            color: #fff;
-            font-weight: 500;
-        }
-
-        .supervisor-info svg,
-        .end-time-info svg {
-            flex-shrink: 0;
-            opacity: 0.9;
-        }
-
-        .supervisor-info strong,
-        .end-time-info strong {
-            font-weight: 600;
-            margin-right: 4px;
-        }
-
-        /* Team Display Styles */
-        .team-display-card {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .team-header-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .team-info-box,
-        .supervisor-info-box {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-            transition: all 0.3s ease;
-        }
-
-        .team-info-box:hover,
-        .supervisor-info-box:hover {
-            border-color: #3b82f6;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-        }
-
-        .team-icon,
-        .supervisor-icon {
-            width: 48px;
-            height: 48px;
-            min-width: 48px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
-
-        .supervisor-icon {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-
-        .team-icon svg,
-        .supervisor-icon svg {
-            width: 24px;
-            height: 24px;
-        }
-
-        .team-label,
-        .supervisor-label {
-            font-size: 12px;
-            color: #999;
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-        }
-
-        .team-value,
-        .supervisor-value {
-            font-size: 16px;
-            font-weight: 700;
-            margin: 5px 0 3px 0;
-            color: #333;
-        }
-
-        .team-code {
-            font-size: 12px;
-            color: #666;
-            margin: 0;
-            font-weight: 500;
-        }
-
-        .team-members-section {
-            margin-top: 20px;
-        }
-
-        .members-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .members-title::before {
-            content: '';
-            width: 4px;
-            height: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 2px;
-        }
-
-        .workers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-        }
-
-        .worker-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .worker-card:hover {
-            border-color: #3b82f6;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .worker-card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .worker-number {
-            font-size: 20px;
-            font-weight: 700;
-            min-width: 32px;
-            height: 32px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .worker-avatar {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .worker-avatar svg {
-            width: 24px;
-            height: 24px;
-        }
-
-        .worker-card-body {
-            padding: 15px;
-            flex-grow: 1;
-        }
-
-        .worker-name {
-            font-size: 14px;
-            font-weight: 700;
-            margin: 0 0 8px 0;
-            color: #333;
-        }
-
-        .worker-email {
-            font-size: 12px;
-            color: #666;
-            margin: 0 0 5px 0;
-            word-break: break-all;
-        }
-
-        .worker-code {
-            font-size: 11px;
-            color: #999;
-            margin: 0;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .worker-card-footer {
-            padding: 10px 15px;
-            border-top: 1px solid #f0f0f0;
-            background: #f9f9f9;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .status-badge.assigned {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        @media (max-width: 1024px) {
-            .team-header-section {
-                grid-template-columns: 1fr;
-            }
-
-            .workers-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            }
-        }
-
-        @media (max-width: 768px) {
-            .shift-quick-info {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .supervisor-info,
-            .end-time-info {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .team-display-card {
-                padding: 15px;
-            }
-
-            .team-header-section {
-                gap: 12px;
-                margin-bottom: 18px;
-                padding-bottom: 15px;
-            }
-
-            .team-info-box,
-            .supervisor-info-box {
-                padding: 12px;
-                gap: 10px;
-            }
-
-            .team-icon,
-            .supervisor-icon {
-                width: 40px;
-                height: 40px;
-            }
-
-            .team-value,
-            .supervisor-value {
-                font-size: 14px;
-            }
-
-            .workers-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .worker-card-header {
-                padding: 12px;
-            }
-
-            .worker-card-body {
-                padding: 12px;
-            }
-        }
-    </style>
 @endsection
+
+
+

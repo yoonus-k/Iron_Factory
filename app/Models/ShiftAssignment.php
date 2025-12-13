@@ -12,6 +12,7 @@ class ShiftAssignment extends Model
         'shift_type',
         'user_id',
         'supervisor_id',
+        'team_id',
         'stage_number',
         'shift_date',
         'start_time',
@@ -59,12 +60,70 @@ class ShiftAssignment extends Model
         return $this->belongsTo(User::class, 'supervisor_id');
     }
 
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\WorkerTeam::class, 'team_id');
+    }
+
     public function workers()
     {
-        if (!$this->worker_ids) {
+        // Ensure worker_ids is an array
+        $workerIds = $this->worker_ids;
+
+        // Check if it's empty or invalid
+        if (!$workerIds || (is_array($workerIds) && empty($workerIds))) {
             return collect();
         }
-        return \App\Models\Worker::whereIn('id', $this->worker_ids)->get();
+
+        // Make sure it's an array
+        if (!is_array($workerIds)) {
+            $workerIds = json_decode($workerIds, true);
+            if (!is_array($workerIds)) {
+                return collect();
+            }
+        }
+
+        // Filter out null/empty values
+        $workerIds = array_filter($workerIds);
+
+        if (empty($workerIds)) {
+            return collect();
+        }
+
+        return \App\Models\Worker::whereIn('id', $workerIds)->get();
+    }
+
+    /**
+     * Ensure worker_ids is always an array when retrieved
+     */
+    public function getWorkerIdsAttribute($value)
+    {
+        if (is_null($value) || $value === '' || $value === '0' || $value === 0) {
+            return [];
+        }
+
+        if (is_array($value)) {
+            return $value;
+        }
+
+        $decoded = json_decode($value, true);
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    /**
+     * Ensure worker_ids is always stored as JSON when set
+     */
+    public function setWorkerIdsAttribute($value)
+    {
+        if (is_null($value) || $value === '' || $value === '0' || $value === 0) {
+            $this->attributes['worker_ids'] = json_encode([]);
+        } elseif (is_array($value)) {
+            // Filter out empty values and reset keys
+            $filtered = array_filter($value);
+            $this->attributes['worker_ids'] = json_encode(array_values($filtered));
+        } else {
+            $this->attributes['worker_ids'] = json_encode([]);
+        }
     }
 
     public function getShiftTypeNameAttribute(): string

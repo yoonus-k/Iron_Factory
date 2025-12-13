@@ -230,12 +230,12 @@
         <div class="detail-header">
             <div class="detail-title">
                 <i class="feather icon-users"></i>
-                {{ __('manufacturing::worker-tracking.worker_tracking') }}
+                {{ __('worker-tracking.worker_tracking') }}
             </div>
             <a href="{{ route('worker-tracking.stage-history', ['stageType' => 'stage4_boxes', 'stageRecordId' => $box->id]) }}"
                class="um-btn um-btn-sm um-btn-info">
                 <i class="feather icon-history"></i>
-                {{ __('manufacturing::worker-tracking.view_history') }}
+                {{ __('worker-tracking.view_history') }}
             </a>
         </div>
 
@@ -243,17 +243,17 @@
         <div style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">{{ __('manufacturing::worker-tracking.current_worker') }}</div>
+                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">{{ __('worker-tracking.current_worker') }}</div>
                     <div style="font-size: 24px; font-weight: 700;">{{ $currentWorker->worker_name }}</div>
                     <div style="margin-top: 8px; opacity: 0.95;">
                         <i class="feather icon-clock"></i>
-                        {{ __('manufacturing::worker-tracking.started_at') }}: {{ $currentWorker->started_at->format('Y-m-d H:i') }}
+                        {{ __('worker-tracking.started_at') }}: {{ $currentWorker->started_at->format('Y-m-d H:i') }}
                         <span style="margin: 0 10px;">•</span>
                         {{ $currentWorker->started_at->diffForHumans() }}
                     </div>
                 </div>
                 <div style="text-align: center; background: rgba(255,255,255,0.2); padding: 15px 25px; border-radius: 8px;">
-                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">{{ __('manufacturing::worker-tracking.work_duration') }}</div>
+                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">{{ __('worker-tracking.work_duration') }}</div>
                     <div style="font-size: 28px; font-weight: 700;">{{ $currentWorker->formatted_duration }}</div>
                 </div>
             </div>
@@ -261,26 +261,26 @@
         @else
         <div class="alert alert-info" style="margin-bottom: 20px;">
             <i class="feather icon-info"></i>
-            {{ __('manufacturing::worker-tracking.no_current_worker') }}
+            {{ __('worker-tracking.no_current_worker') }}
         </div>
         @endif
 
         <div class="info-grid">
             <div class="info-item" style="border-right-color: #9b59b6;">
-                <div class="info-label">{{ __('manufacturing::worker-tracking.total_sessions') }}</div>
+                <div class="info-label">{{ __('worker-tracking.total_sessions') }}</div>
                 <div class="info-value" style="color: #9b59b6;">{{ $stats['total_sessions'] }}</div>
             </div>
             <div class="info-item" style="border-right-color: #9b59b6;">
-                <div class="info-label">{{ __('manufacturing::worker-tracking.total_workers') }}</div>
+                <div class="info-label">{{ __('worker-tracking.total_workers') }}</div>
                 <div class="info-value" style="color: #9b59b6;">{{ $stats['total_workers'] }}</div>
             </div>
             <div class="info-item" style="border-right-color: #9b59b6;">
-                <div class="info-label">{{ __('manufacturing::worker-tracking.total_hours') }}</div>
+                <div class="info-label">{{ __('worker-tracking.total_hours') }}</div>
                 <div class="info-value" style="color: #9b59b6;">{{ number_format($stats['total_hours'], 1) }}</div>
             </div>
             <div class="info-item" style="border-right-color: #9b59b6;">
-                <div class="info-label">{{ __('manufacturing::worker-tracking.average_session_time') }}</div>
-                <div class="info-value" style="color: #9b59b6;">{{ number_format($stats['average_session_minutes'] ?? 0, 0) }} {{ __('manufacturing::worker-tracking.minutes') }}</div>
+                <div class="info-label">{{ __('worker-tracking.average_session_time') }}</div>
+                <div class="info-value" style="color: #9b59b6;">{{ number_format($stats['average_session_minutes'] ?? 0, 0) }} {{ __('worker-tracking.minutes') }}</div>
             </div>
         </div>
     </div>

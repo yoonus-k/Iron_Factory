@@ -149,6 +149,8 @@
                             <small class="text-muted">{{ __('shifts-workers.shift_coverage_info') }}</small>
                         </div>
 
+                        <input type="hidden" id="team_id" name="team_id" value="">
+
                         <div class="form-group">
                             <label for="supervisor_id" class="form-label">
                                 {{ __('shifts-workers.shift_supervisor') }}
@@ -163,7 +165,7 @@
                                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                                 </svg>
                                 <select name="supervisor_id" id="supervisor_id"
-                                    class="form-input" required>
+                                    class="form-input">
                                     <option value="">{{ __('shifts-workers.select_supervisor') }}</option>
                                     @foreach($supervisors as $supervisor)
                                     <option value="{{ $supervisor->id }}" {{ old('supervisor_id') == $supervisor->id ? 'selected' : '' }}>
@@ -954,6 +956,9 @@ async function loadTeamWorkers() {
 
 // Select a team from the card and load its workers
 function selectTeam(teamId, workerIds) {
+    // Store team ID in hidden field
+    document.getElementById('team_id').value = teamId;
+
     // First, clear all selected workers
     document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
         checkbox.checked = false;
@@ -969,10 +974,13 @@ function selectTeam(teamId, workerIds) {
         event.currentTarget.classList.add('selected');
     }
 
+    // Load team supervisor and workers from server
+    loadTeamSupervisor(teamId);
+
     // Select workers from the team
     if (workerIds && workerIds.length > 0) {
         workerIds.forEach(workerId => {
-            const checkbox = document.querySelector(`input[name="workers"][value="${workerId}"]`);
+            const checkbox = document.getElementById(`worker_${workerId}`);
             if (checkbox) {
                 checkbox.checked = true;
             }
@@ -996,6 +1004,10 @@ function clearAllWorkers() {
         checkbox.checked = false;
     });
     document.getElementById('team_id').value = '';
+    // Remove selected class from all team cards
+    document.querySelectorAll('.team-card').forEach(card => {
+        card.classList.remove('selected');
+    });
     updateWorkersCount();
 }
 
@@ -1024,6 +1036,62 @@ function updateSelectAllState() {
     if (selectAllCheckbox) {
         selectAllCheckbox.checked = checkedCount === checkboxes.length && checkboxes.length > 0;
         selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+    }
+}
+
+// Load team supervisor when team is selected
+async function loadTeamSupervisor(teamId) {
+    if (!teamId) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/manufacturing/shifts-workers/team/${teamId}/details`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success && data.team) {
+            // Auto-populate supervisor if team has a manager
+            if (data.team.manager_id) {
+                // Find the supervisor select and set to manager
+                const supervisorSelect = document.getElementById('supervisor_id');
+                const option = Array.from(supervisorSelect.options).find(opt => opt.value == data.team.manager_id);
+                if (option) {
+                    supervisorSelect.value = data.team.manager_id;
+                    // Trigger change event to update any dependent fields
+                    supervisorSelect.dispatchEvent(new Event('change'));
+                }
+            }
+
+            // Auto-populate workers from team
+            // First, uncheck all workers
+            document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+
+            // Then check workers from the team
+            if (data.team.worker_ids && data.team.worker_ids.length > 0) {
+                data.team.worker_ids.forEach(workerId => {
+                    const checkbox = document.getElementById(`worker_${workerId}`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+            }
+
+            updateWorkersCount();
+        }
+    } catch (error) {
+        console.error('Error loading team supervisor:', error);
     }
 }
 </script>
