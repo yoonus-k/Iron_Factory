@@ -176,8 +176,28 @@
                             </div>
                         </div>
 
-                        <!-- المرحلة مرتبطة بالعامل وليس بالوردية -->
-                        <input type="hidden" name="stage_number" value="0">
+                        <!-- المرحلة -->
+                        <div class="form-group">
+                            <label for="stage_number" class="form-label">
+                                <i class="feather icon-layers"></i>
+                                {{ __('shifts-workers.stage_number') }} (اختياري)
+                            </label>
+                            <div class="input-wrapper">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                </svg>
+                                <select name="stage_number" id="stage_number" class="form-input">
+                                    <option value="0">-- لم تحدد المرحلة بعد --</option>
+                                    <option value="1" {{ old('stage_number') == 1 ? 'selected' : '' }}>المرحلة 1 - الأستندات</option>
+                                    <option value="2" {{ old('stage_number') == 2 ? 'selected' : '' }}>المرحلة 2 - المعالجة</option>
+                                    <option value="3" {{ old('stage_number') == 3 ? 'selected' : '' }}>المرحلة 3 - الملفات</option>
+                                    <option value="4" {{ old('stage_number') == 4 ? 'selected' : '' }}>المرحلة 4 - الصناديق</option>
+                                </select>
+                            </div>
+                        </div>
 
                         <div class="form-group">
                             <label for="start_time" class="form-label">

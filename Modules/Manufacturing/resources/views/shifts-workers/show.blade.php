@@ -53,6 +53,18 @@
                             </svg>
                             {{ __('shifts-workers.edit') }}
                         </a>
+
+                        <a href="{{ route('manufacturing.shifts-workers.transfer', $shift->id) }}" class="btn btn-transfer" style="background-color: #f59e0b; color: white; border: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="1" y1="4" x2="23" y2="4"></line>
+                                <line x1="1" y1="10" x2="23" y2="10"></line>
+                                <line x1="1" y1="16" x2="23" y2="16"></line>
+                                <line x1="1" y1="22" x2="23" y2="22"></line>
+                                <polyline points="4 7 10 7 10 13"></polyline>
+                                <polyline points="20 17 14 17 14 11"></polyline>
+                            </svg>
+                            نقل الوردية
+                        </a>
                     @endif
                     <a href="{{ route('manufacturing.shifts-workers.index') }}" class="btn btn-back">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -257,7 +269,26 @@
                                                             <p style="margin: 0 0 4px 0; color: #6b7280; font-size: 13px;">{{ $worker->email }}</p>
                                                         @endif
                                                         @if($worker->worker_code)
-                                                            <p style="margin: 0; color: #9ca3af; font-size: 12px; text-transform: uppercase; font-weight: 600;">{{ $worker->worker_code }}</p>
+                                                            <p style="margin: 0 0 4px 0; color: #9ca3af; font-size: 12px; text-transform: uppercase; font-weight: 600;">{{ $worker->worker_code }}</p>
+                                                        @endif
+
+                                                        <!-- تحديد المرحلة -->
+                                                        @if($shift->status == 'active' || $shift->status == 'scheduled')
+                                                            <div style="margin-top: 8px;">
+                                                                <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 4px;">المرحلة:</label>
+                                                                <select class="stage-select" data-worker-id="{{ $worker->id }}" style="width: 100%; padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
+                                                                    <option value="">-- حدد المرحلة --</option>
+                                                                    <option value="1" @if($worker->assigned_stage == 1) selected @endif>المرحلة 1 - الأستندات</option>
+                                                                    <option value="2" @if($worker->assigned_stage == 2) selected @endif>المرحلة 2 - المعالجة</option>
+                                                                    <option value="3" @if($worker->assigned_stage == 3) selected @endif>المرحلة 3 - الملفات</option>
+                                                                    <option value="4" @if($worker->assigned_stage == 4) selected @endif>المرحلة 4 - الصناديق</option>
+                                                                </select>
+                                                            </div>
+                                                        @else
+                                                            <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 12px;">
+                                                                <strong>المرحلة:</strong>
+                                                                {{ $worker->assigned_stage ? 'المرحلة ' . $worker->assigned_stage : 'غير محددة' }}
+                                                            </p>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -426,6 +457,81 @@
         </div>
     </div>
 
+<script>
+    // تحديث المرحلة للعامل
+    document.querySelectorAll('.stage-select').forEach(select => {
+        select.addEventListener('change', async function() {
+            const workerId = this.getAttribute('data-worker-id');
+            const stageNumber = this.value;
+
+            if (!stageNumber) {
+                alert('يرجى اختيار مرحلة');
+                return;
+            }
+
+            try {
+                const response = await fetch('{{ route("manufacturing.shifts-workers.assign-stage-to-worker", $shift->id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        worker_id: workerId,
+                        stage_number: stageNumber
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // عرض رسالة نجاح
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: #10b981;
+                        color: white;
+                        padding: 15px 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                        z-index: 1000;
+                        animation: slideIn 0.3s ease;
+                    `;
+                    notification.innerHTML = `<strong>✓</strong> ${data.message}`;
+                    document.body.appendChild(notification);
+
+                    // إزالة الرسالة بعد 3 ثواني
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 3000);
+                } else {
+                    alert('خطأ: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('حدث خطأ في تحديث المرحلة');
+            }
+        });
+    });
+
+    // إضافة animation CSS
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
 
 @endsection
 

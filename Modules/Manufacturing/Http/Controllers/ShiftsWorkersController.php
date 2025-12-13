@@ -191,6 +191,26 @@ class ShiftsWorkersController extends Controller
                 'worker_ids' => $workerIds,
             ]);
 
+            // Log the shift creation
+            $supervisor = User::find($request->supervisor_id);
+            \App\Models\ShiftOperationLog::logOperation(
+                $shift,
+                \App\Models\ShiftOperationLog::OPERATION_CREATE,
+                oldData: [],
+                newData: [
+                    'shift_code' => $shift->shift_code,
+                    'supervisor_id' => $supervisor->id,
+                    'supervisor_name' => $supervisor->name,
+                    'shift_type' => $shift->shift_type,
+                    'stage_number' => $shift->stage_number,
+                    'workers_count' => count($workerIds),
+                    'worker_ids' => $workerIds,
+                    'shift_date' => $shift->shift_date->format('Y-m-d'),
+                ],
+                description: "تم إنشاء وردية جديدة {$shift->shift_code}",
+                stageNumber: (string) $request->stage_number
+            );
+
             // Store notification
             $this->notifyCreate(
                 'وردية',
@@ -336,6 +356,15 @@ class ShiftsWorkersController extends Controller
         try {
             DB::beginTransaction();
 
+            // Save old data for logging
+            $oldData = [
+                'supervisor_id' => $shift->supervisor_id,
+                'supervisor_name' => $shift->supervisor?->name,
+                'stage_number' => $shift->stage_number,
+                'workers_count' => $shift->total_workers,
+                'worker_ids' => $shift->worker_ids,
+            ];
+
             $workerIds = $request->input('workers', []);
             $teamId = $request->input('team_id');
 
@@ -360,6 +389,23 @@ class ShiftsWorkersController extends Controller
                 'total_workers' => count($workerIds),
                 'worker_ids' => $workerIds,
             ]);
+
+            // Log the update
+            $newSupervisor = User::find($request->supervisor_id);
+            \App\Models\ShiftOperationLog::logOperation(
+                $shift,
+                \App\Models\ShiftOperationLog::OPERATION_UPDATE,
+                oldData: $oldData,
+                newData: [
+                    'supervisor_id' => $request->supervisor_id,
+                    'supervisor_name' => $newSupervisor?->name,
+                    'stage_number' => $request->stage_number ?? 0,
+                    'workers_count' => count($workerIds),
+                    'worker_ids' => $workerIds,
+                ],
+                description: "تم تحديث الوردية {$shift->shift_code}",
+                stageNumber: (string) ($request->stage_number ?? 0)
+            );
 
             DB::commit();
 
@@ -628,6 +674,287 @@ class ShiftsWorkersController extends Controller
                 'success' => false,
                 'message' => 'الفريق غير موجود'
             ], 404);
+        }
+    }
+
+    /**
+     * عرض صفحة نقل الوردية
+     */
+    public function transferView($id)
+    {
+        $currentShift = ShiftAssignment::with(['user', 'supervisor', 'team'])->findOrFail($id);
+        $workers = $currentShift->workers();
+        $supervisor = $currentShift->supervisor;
+
+        // جلب الورديات السابقة
+        $previousShifts = ShiftAssignment::where('id', '!=', $id)
+            ->where('shift_date', $currentShift->shift_date)
+            ->with(['user', 'supervisor'])
+            ->orderBy('end_time', 'desc')
+            ->get();
+
+        // جلب كل المسؤولين المتاحين
+        $supervisors = User::orderBy('name')->get();
+
+        // جلب كل العمال
+        $allWorkers = \App\Models\Worker::orderBy('name')->get();
+
+        return view('manufacturing::shifts-workers.transfer', compact(
+            'currentShift',
+            'workers',
+            'supervisor',
+            'previousShifts',
+            'supervisors',
+            'allWorkers'
+        ));
+    }
+
+    /**
+     * حفظ نقل الوردية
+     */
+    public function transferStore(Request $request, $id)
+    {
+        try {
+            // تنظيف البيانات أولاً
+            $supervisorId = (int) $request->input('new_supervisor_id');
+
+            $newWorkers = $request->input('new_workers', []);
+            if (is_string($newWorkers)) {
+                $newWorkers = json_decode($newWorkers, true) ?? [];
+            }
+            if (!is_array($newWorkers)) {
+                $newWorkers = [];
+            }
+            // تحويل إلى integers
+            $newWorkers = array_map(function($w) {
+                return (int) $w;
+            }, $newWorkers);
+            $newWorkers = array_filter($newWorkers);
+            $newWorkers = array_values($newWorkers);
+
+            $validator = Validator::make([
+                'new_supervisor_id' => $supervisorId,
+                'new_workers' => $newWorkers,
+                'transfer_notes' => $request->transfer_notes,
+            ], [
+                'new_supervisor_id' => 'required|integer|exists:users,id',
+                'new_workers' => 'array',
+                'new_workers.*' => 'integer|exists:workers,id',
+                'transfer_notes' => 'nullable|string|max:1000',
+            ], [
+                'new_supervisor_id.required' => 'المسؤول الجديد مطلوب',
+                'new_supervisor_id.integer' => 'المسؤول يجب أن يكون رقماً',
+                'new_supervisor_id.exists' => 'المسؤول المختار غير موجود',
+                'new_workers.array' => 'العمال يجب أن يكونوا مصفوفة',
+                'new_workers.*.integer' => 'كل عامل يجب أن يكون رقماً',
+                'new_workers.*.exists' => 'أحد العمال المختارين غير موجود',
+            ]);
+
+            if ($validator->fails()) {
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput()
+                    ->with('error', 'خطأ في البيانات: ' . implode(', ', $validator->errors()->all()));
+            }
+
+            DB::beginTransaction();
+
+            $shift = ShiftAssignment::findOrFail($id);
+
+            // حفظ البيانات القديمة
+            $oldData = [
+                'supervisor_id' => $shift->supervisor_id,
+                'supervisor_name' => $shift->supervisor ? $shift->supervisor->name : 'لا يوجد',
+                'workers_count' => $shift->total_workers,
+                'worker_ids' => $shift->worker_ids,
+            ];
+
+            // استخدام newWorkers المنظفة
+            $newWorkerIds = $newWorkers;
+
+            $shift->update([
+                'supervisor_id' => $supervisorId,
+                'user_id' => $supervisorId,
+                'worker_ids' => $newWorkerIds,
+                'total_workers' => count($newWorkerIds),
+                'notes' => ($shift->notes ?? '') . "\n[نقل وردية] " . ($request->transfer_notes ?? ''),
+            ]);
+
+            // تسجيل عملية النقل
+            $newSupervisor = User::find($supervisorId);
+            
+            \App\Models\ShiftOperationLog::logOperation(
+                $shift,
+                \App\Models\ShiftOperationLog::OPERATION_TRANSFER,
+                oldData: [
+                    'supervisor_id' => $oldData['supervisor_id'],
+                    'supervisor_name' => $oldData['supervisor_name'],
+                    'workers_count' => $oldData['workers_count'],
+                    'worker_ids' => $oldData['worker_ids'],
+                ],
+                newData: [
+                    'supervisor_id' => $supervisorId,
+                    'supervisor_name' => $newSupervisor?->name,
+                    'workers_count' => count($newWorkerIds),
+                    'worker_ids' => $newWorkerIds,
+                ],
+                description: "تم نقل الوردية من {$oldData['supervisor_name']} إلى {$newSupervisor?->name}",
+                notes: $request->transfer_notes ?? ''
+            );
+
+            // إرسال إشعار
+            $this->sendNotification(
+                $shift,
+                'shift_transferred',
+                "تم نقل الوردية بنجاح",
+                "تم نقل الوردية من {$oldData['supervisor_name']} إلى {$newSupervisor?->name}",
+                $supervisorId
+            );
+
+            DB::commit();
+
+            return redirect()->route('manufacturing.shifts-workers.show', $shift->id)
+                ->with('success', 'تم نقل الوردية بنجاح');
+
+        } catch (\Exception $e) {
+            if (DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
+            \Log::error('Shift Transfer Error', [
+                'shift_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'حدث خطأ أثناء نقل الوردية: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * جلب تفاصيل نقل الوردية (JSON API)
+     */
+    public function getHandoverDetails($id)
+    {
+        try {
+            $shift = ShiftAssignment::with(['supervisor'])->findOrFail($id);
+
+            $workers = \App\Models\Worker::whereIn('id', $shift->worker_ids ?? [])->get();
+
+            return response()->json([
+                'success' => true,
+                'shift' => [
+                    'id' => $shift->id,
+                    'shift_code' => $shift->shift_code,
+                    'shift_date' => $shift->shift_date->format('Y-m-d'),
+                    'shift_type' => $shift->shift_type,
+                    'stage_number' => $shift->stage_number,
+                    'start_time' => $shift->start_time,
+                    'end_time' => $shift->end_time,
+                    'supervisor' => [
+                        'id' => $shift->supervisor_id,
+                        'name' => $shift->supervisor ? $shift->supervisor->name : 'لا يوجد',
+                    ],
+                    'workers' => $workers->map(function($worker) {
+                        return [
+                            'id' => $worker->id,
+                            'name' => $worker->name,
+                            'position' => $worker->position,
+                            'assigned_stage' => $worker->assigned_stage,
+                        ];
+                    }),
+                    'total_workers' => count($workers),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'الوردية غير موجودة'
+            ], 404);
+        }
+    }
+
+    /**
+     * تحديد المرحلة للعامل من الوردية
+     */
+    public function assignStageToWorker(Request $request, $shiftId)
+    {
+        $validator = Validator::make($request->all(), [
+            'worker_id' => 'required|exists:workers,id',
+            'stage_number' => 'required|integer|between:1,4',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'بيانات غير صحيحة'
+            ], 422);
+        }
+
+        try {
+            $shift = ShiftAssignment::findOrFail($shiftId);
+
+            // تحديث المرحلة للعامل
+            $worker = \App\Models\Worker::findOrFail($request->worker_id);
+            $worker->update(['assigned_stage' => $request->stage_number]);
+
+            // تسجيل العملية
+            \Log::info('Worker Stage Assignment', [
+                'worker_id' => $worker->id,
+                'worker_name' => $worker->name,
+                'shift_id' => $shift->id,
+                'shift_code' => $shift->shift_code,
+                'assigned_stage' => $request->stage_number,
+                'assigned_by' => auth()->user()->name,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم تعيين المرحلة للعامل بنجاح',
+                'worker' => [
+                    'id' => $worker->id,
+                    'name' => $worker->name,
+                    'assigned_stage' => $worker->assigned_stage,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Helper method to send notifications
+     */
+    private function sendNotification($shift, $type, $title, $message, $userId = null)
+    {
+        try {
+            $user = $userId ? User::find($userId) : auth()->user();
+            
+            if (!$user) {
+                return;
+            }
+
+            // Store notification
+            $notification = [
+                'type' => $type,
+                'title' => $title,
+                'message' => $message,
+                'shift_id' => $shift->id,
+                'shift_code' => $shift->shift_code,
+                'read_at' => null,
+            ];
+
+            $user->notifications()->create($notification);
+
+        } catch (\Exception $e) {
+            \Log::error('Failed to send notification', [
+                'error' => $e->getMessage(),
+                'shift_id' => $shift->id,
+            ]);
         }
     }
 }

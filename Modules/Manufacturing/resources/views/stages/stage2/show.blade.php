@@ -226,7 +226,98 @@
         \App\Models\WorkerStageHistory::STAGE_2_PROCESSED,
         $processed->id
     );
+
+    // جلب الوردية الحالية للمرحلة
+    $currentShift = \App\Models\ShiftAssignment::where('status', 'active')
+        ->where('stage_number', 2)
+        ->latest('created_at')
+        ->first();
     @endphp
+
+    <!-- Current Shift Section -->
+    @if($currentShift)
+    <div class="detail-card" style="border-right-color: #3498db; background: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(41, 128, 185, 0.05) 100%);">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-briefcase"></i>
+                الوردية الحالية
+            </div>
+            <a href="{{ route('manufacturing.shifts-workers.show', $currentShift->id) }}" class="um-btn um-btn-sm um-btn-info">
+                <i class="feather icon-external-link"></i>
+                عرض تفاصيل الوردية
+            </a>
+        </div>
+
+        <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <div>
+                    <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">رقم الوردية</div>
+                    <div style="font-size: 20px; font-weight: 700;">{{ $currentShift->shift_code }}</div>
+                </div>
+                <div>
+                    <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">المسؤول</div>
+                    <div style="font-size: 20px; font-weight: 700;">
+                        <i class="feather icon-user"></i>
+                        {{ $currentShift->supervisor->name ?? 'لم يحدد' }}
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">فترة العمل</div>
+                    <div style="font-size: 20px; font-weight: 700;">
+                        {{ $currentShift->shift_type == 'morning' ? 'الفترة الأولى' : 'الفترة الثانية' }}
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">عدد العمال</div>
+                    <div style="font-size: 20px; font-weight: 700;">{{ count($currentShift->worker_ids ?? []) }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workers in Current Shift -->
+        @if(count($currentShift->worker_ids ?? []) > 0)
+        <div style="margin-top: 20px;">
+            <h5 style="font-size: 16px; font-weight: 700; margin-bottom: 15px; color: #2c3e50;">العمال في هذه الوردية:</h5>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                @php
+                $shiftWorkers = \App\Models\Worker::whereIn('id', $currentShift->worker_ids ?? [])->get();
+                @endphp
+                @foreach($shiftWorkers as $worker)
+                <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 12px; transition: all 0.3s;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;">
+                            {{ substr($worker->name, 0, 1) }}
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #2c3e50;">{{ $worker->name }}</div>
+                            <div style="font-size: 12px; color: #7f8c8d;">{{ $worker->worker_code }}</div>
+                            @if($worker->assigned_stage)
+                            <div style="font-size: 12px; color: #3498db; font-weight: 600; margin-top: 4px;">
+                                المرحلة: {{ $worker->assigned_stage }}
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+    </div>
+    @else
+    <div class="detail-card" style="border-right-color: #95a5a6; background: linear-gradient(135deg, rgba(149, 165, 166, 0.05) 0%, rgba(127, 140, 141, 0.05) 100%);">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-briefcase"></i>
+                الوردية الحالية
+            </div>
+        </div>
+        <div class="alert alert-warning" style="margin: 0;">
+            <i class="feather icon-alert-circle"></i>
+            لا توجد وردية نشطة للمرحلة 2 حالياً
+        </div>
+    </div>
+    @endif
 
     <div class="detail-card" style="border-right-color: #9b59b6;">
         <div class="detail-header">

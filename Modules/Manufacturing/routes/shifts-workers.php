@@ -55,6 +55,24 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:SHIFTS_UPDATE')
         ->name('manufacturing.shifts-workers.resume');
 
+    // Shift Transfer Routes - نقل الوردية
+    Route::get('shifts-workers/{id}/transfer', [ShiftsWorkersController::class, 'transferView'])
+        ->middleware('permission:SHIFTS_UPDATE')
+        ->name('manufacturing.shifts-workers.transfer');
+
+    Route::post('shifts-workers/{id}/transfer-store', [ShiftsWorkersController::class, 'transferStore'])
+        ->middleware('permission:SHIFTS_UPDATE')
+        ->name('manufacturing.shifts-workers.transfer-store');
+
+    Route::get('shifts-workers/{id}/handover-details', [ShiftsWorkersController::class, 'getHandoverDetails'])
+        ->middleware('permission:SHIFTS_UPDATE')
+        ->name('manufacturing.shifts-workers.handover-details');
+
+    // Add stage to worker route - تحديد المرحلة للعامل
+    Route::post('shifts-workers/{shiftId}/assign-stage-to-worker', [ShiftsWorkersController::class, 'assignStageToWorker'])
+        ->middleware('permission:SHIFTS_UPDATE')
+        ->name('manufacturing.shifts-workers.assign-stage-to-worker');
+
     Route::resource('shifts-workers', ShiftsWorkersController::class)
         ->middleware('permission:SHIFT_WORKERS_READ')
         ->names('manufacturing.shifts-workers');

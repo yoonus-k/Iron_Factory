@@ -20,6 +20,7 @@ class Worker extends Model
         'email',
         'position',
         'allowed_stages',
+        'assigned_stage',
         'hourly_rate',
         'shift_preference',
         'is_active',

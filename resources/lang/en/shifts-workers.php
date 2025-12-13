@@ -126,6 +126,18 @@ return [
     'shift_code_placeholder' => 'Enter shift code',
     'select_shift_code' => '-- Select Shift --',
 
+    // Transfer shift
+    'transfer_shift' => 'Transfer Shift',
+    'transfer_shift_description' => 'Transfer shift to another supervisor and workers',
+    'current_data' => 'Current Data',
+    'new_data' => 'New Data',
+    'new_supervisor' => 'New Supervisor',
+    'new_workers' => 'New Workers',
+    'transfer_notes' => 'Transfer Notes',
+    'confirm_transfer' => 'Confirm Transfer',
+    'workers_selected' => 'Selected: {count} workers',
+    'supervisor_selected' => 'Supervisor selected: {name}',
+
     // Actions and buttons
     'save_shift' => 'Save Shift',
     'save_changes' => 'Save Changes',
