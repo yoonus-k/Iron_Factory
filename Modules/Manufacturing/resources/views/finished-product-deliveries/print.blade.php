@@ -395,18 +395,12 @@
         <table class="items-table">
             <thead>
                 <tr>
-                    <th style="width: 50px;">#</th>
-
-                    <th>الباركود</th>
-                    <th>مواصفات المنتج</th>
-                    <th>نوع التغليف</th>
-                    <th style="width: 120px;">الوزن (كجم)</th>
-
+                    <th style="width: 50px;">{{ __('app.finished_products.item_number') }}</th>
                     <th>{{ __('app.finished_products.barcode') }}</th>
+                    <th>{{ __('app.finished_products.materials') }}</th>
                     <th>{{ __('app.finished_products.packaging_type') }}</th>
                     <th>{{ __('app.finished_products.coils_count') }}</th>
                     <th style="width: 120px;">{{ __('app.finished_products.weight') }} ({{ __('app.units.kg') }})</th>
-
                 </tr>
             </thead>
             <tbody>
@@ -416,31 +410,35 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td><strong>{{ $item->barcode }}</strong></td>
-
-                    <td>
+                    <td style="text-align: right;">
                         @if(isset($item->materials) && $item->materials->count() > 0)
                             @foreach($item->materials as $material)
-                                <span style="display:inline-block; padding:2px 6px; background:#e3f2fd; border-radius:4px; font-size:11px; margin:1px;">
-                                    @if($material->color) {{ $material->color }} @endif
-                                    @if($material->material_type) - {{ $material->material_type }} @endif
-                                    @if($material->wire_size) - {{ $material->wire_size }} @endif
+                                <span style="display:inline-block; padding:3px 8px; background:#e3f2fd; border-radius:4px; font-size:11px; margin:2px;">
+                                    @if($material->material_type)
+                                        <strong>{{ $material->material_type }}</strong>
+                                    @endif
+                                    @if($material->color)
+                                        - لون: {{ $material->color }}
+                                    @endif
+                                    @if($material->wire_size)
+                                        - قياس: {{ $material->wire_size }}
+                                    @endif
                                 </span>
+                                @if(!$loop->last)<br>@endif
                             @endforeach
                         @else
-                            <span style="color:#999;">-</span>
+                            <span style="color:#999;">{{ __('app.finished_products.no_materials_info') }}</span>
                         @endif
                     </td>
                     <td>{{ $item->packaging_type }}</td>
-                    <td>{{ $item->stage4Box->productType->type_name ?? '-' }}</td>
-                    <td>{{ $item->stage4Box->boxCoils->count() ?? 0 }}</td>
-
+                    <td>{{ $item->stage4Box->coils_count ?? 0 }}</td>
                     <td><strong>{{ number_format($item->weight, 2) }}</strong></td>
                 </tr>
                 @endforeach
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="4" style="text-align: left;">{{ __('app.finished_products.total') }}:</td>
+                    <td colspan="5" style="text-align: left;"><strong>{{ __('app.finished_products.total') }}:</strong></td>
                     <td><strong>{{ number_format($totalWeight, 2) }}</strong></td>
                 </tr>
             </tfoot>

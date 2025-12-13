@@ -270,6 +270,17 @@ return [
         'general_manager' => 'المدير العام',
         'receiver' => 'المستلم',
         'average_box_weight' => 'متوسط وزن الصندوق',
+        'delivery_information' => 'معلومات التوصيل',
+        'driver_name' => 'اسم السائق',
+        'vehicle_number' => 'رقم اللوحة',
+        'city' => 'المدينة',
+        'destination' => 'الوجهة',
+        'status' => 'الحالة',
+        'material_type' => 'نوع المادة',
+        'color' => 'اللون',
+        'wire_size' => 'قياس السلك',
+        'materials' => 'المواد',
+        'no_materials_info' => 'لا توجد معلومات المواد',
     ],
 
     // العملاء

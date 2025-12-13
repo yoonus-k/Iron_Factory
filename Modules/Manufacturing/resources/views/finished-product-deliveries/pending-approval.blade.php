@@ -21,28 +21,28 @@
     </div>
 
     @if($deliveryNotes->count() > 0)
-    <div class="alert alert-warning mb-4">
+    <div class="alert alert-warning border-0 shadow-sm mb-4">
         <i class="bi bi-exclamation-triangle me-2"></i>
         <strong>{{ __('app.finished_products.pending_count') }} {{ $deliveryNotes->total() }}</strong>
     </div>
 
     @foreach($deliveryNotes as $note)
-    <div class="card mb-4 border-warning">
-        <div class="card-header bg-warning">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-warning bg-opacity-10 border-0">
             <div class="row align-items-center">
                 <div class="col-md-8">
-                    <h5 class="mb-0">
+                    <h5 class="mb-1 text-warning">
                         <i class="bi bi-file-earmark-text me-2"></i>
-                        {{ __('app.finished_products.note_number') }}: {{ $note->note_number ?? '#' . $note->id }}
+                        {{ __('app.finished_products.note_number') }}: <strong>{{ $note->note_number ?? '#' . $note->id }}</strong>
                     </h5>
                     <small class="text-muted">
-                        {{ __('app.finished_products.approval_note') }}: <strong>{{ $note->recordedBy->name ?? '-' }}</strong> -
+                        {{ __('app.finished_products.approval_note') }}: <strong>{{ $note->recordedBy->name ?? '-' }}</strong> •
                         {{ $note->created_at->diffForHumans() }}
                     </small>
                 </div>
                 <div class="col-md-4 text-end">
                     <a href="{{ route('manufacturing.finished-product-deliveries.show', $note->id) }}"
-                       class="btn btn-sm btn-info" target="_blank">
+                       class="btn btn-sm btn-info shadow-sm" target="_blank">
                         <i class="bi bi-eye me-1"></i>
                         {{ __('app.finished_products.view_full_details') }}
                     </a>
@@ -53,62 +53,78 @@
             <div class="row">
                 <!-- معلومات الإذن -->
                 <div class="col-md-6">
-                    <h6 class="text-muted mb-3">{{ __('app.finished_products.note_info_section') }}</h6>
+                    <h6 class="text-muted mb-3">
+                        <i class="bi bi-info-circle me-1"></i>
+                        {{ __('app.finished_products.note_info_section') }}
+                    </h6>
 
-                    <div class="mb-3">
-                        <label class="text-muted small">{{ __('app.finished_products.current_customer') }}</label>
-                        <div>
-                            @if($note->customer)
-                                <strong class="text-success">
-                                    <i class="bi bi-check-circle me-1"></i>
-                                    {{ $note->customer->name }} ({{ $note->customer->customer_code }})
-                                </strong>
-                            @else
-                                <span class="text-warning">
-                                    <i class="bi bi-exclamation-circle me-1"></i>
-                                    {{ __('app.finished_products.customer_warning') }}
-                                </span>
-                            @endif
+                    <div class="p-3 bg-light rounded mb-3">
+                        <small class="text-muted d-block mb-1">{{ __('app.finished_products.current_customer') }}</small>
+                        @if($note->customer)
+                            <strong class="text-success">
+                                <i class="bi bi-check-circle me-1"></i>
+                                {{ $note->customer->name }} ({{ $note->customer->customer_code }})
+                            </strong>
+                        @else
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-exclamation-circle me-1"></i>
+                                {{ __('app.finished_products.customer_warning') }}
+                            </span>
+                        @endif
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded text-center">
+                                <i class="bi bi-box-seam text-info fs-4"></i>
+                                <div class="mt-2">
+                                    <small class="text-muted d-block">{{ __('app.finished_products.boxes_count_label') }}</small>
+                                    <strong class="fs-5">{{ $note->items->count() }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded text-center">
+                                <i class="bi bi-weight text-success fs-4"></i>
+                                <div class="mt-2">
+                                    <small class="text-muted d-block">{{ __('app.finished_products.total_weight_label') }}</small>
+                                    <strong class="fs-5 text-success">{{ number_format($note->items->sum('weight'), 2) }}</strong>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="text-muted small">{{ __('app.finished_products.boxes_count_label') }}</label>
-                        <div><strong>{{ $note->items->count() }} {{ __('app.finished_products.boxes') }}</strong></div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="text-muted small">{{ __('app.finished_products.total_weight_label') }}</label>
-                        <div><strong class="text-primary">{{ number_format($note->items->sum('weight'), 2) }} {{ __('app.units.kg') }}</strong></div>
-                    </div>
-
                     @if($note->notes)
-                    <div class="mb-3">
-                        <label class="text-muted small">{{ __('app.finished_products.notes') }}</label>
-                        <div class="alert alert-light py-2">{{ $note->notes }}</div>
+                    <div class="alert alert-info border-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <strong>{{ __('app.finished_products.notes') }}:</strong>
+                        <div class="mt-1">{{ $note->notes }}</div>
                     </div>
                     @endif
                 </div>
 
                 <!-- الصناديق -->
                 <div class="col-md-6">
-                    <h6 class="text-muted mb-3">{{ __('app.finished_products.boxes') }}</h6>
+                    <h6 class="text-muted mb-3">
+                        <i class="bi bi-box-seam me-1"></i>
+                        {{ __('app.finished_products.boxes') }}
+                    </h6>
 
-                    <div style="max-height: 300px; overflow-y: auto;">
-                        <table class="table table-sm table-bordered">
-                            <thead class="table-light">
+                    <div class="border rounded" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light sticky-top">
                                 <tr>
                                     <th>{{ __('app.finished_products.barcode') }}</th>
                                     <th>{{ __('app.finished_products.packaging_type') }}</th>
-                                    <th>{{ __('app.finished_products.weight') }}</th>
+                                    <th class="text-end">{{ __('app.finished_products.weight') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($note->items as $item)
                                 <tr>
-                                    <td><small><strong>{{ $item->barcode }}</strong></small></td>
-                                    <td><small>{{ $item->stage4Box->productType->type_name ?? '-' }}</small></td>
-                                    <td><small><strong>{{ number_format($item->weight, 2) }}</strong></small></td>
+                                    <td><small><strong class="text-primary">{{ $item->barcode }}</strong></small></td>
+                                    <td><small><span class="badge bg-secondary">{{ $item->packaging_type }}</span></small></td>
+                                    <td class="text-end"><small><strong>{{ number_format($item->weight, 2) }}</strong></small></td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -118,15 +134,15 @@
             </div>
 
             <!-- نموذج اختيار العميل والإجراءات -->
-            <hr>
-            <div class="row">
+            <hr class="my-4">
+            <div class="row g-3">
                 <div class="col-md-8">
-                    <div class="mb-3">
-                        <label class="form-label">
-                            <i class="bi bi-person-check me-1"></i>
+                    <div class="p-3 border border-primary rounded">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-person-check me-1 text-primary"></i>
                             {{ __('app.finished_products.select_confirm_customer') }} <span class="text-danger">*</span>
                         </label>
-                        <select class="form-select customer-select" data-note-id="{{ $note->id }}">
+                        <select class="form-select form-select-lg shadow-sm customer-select" data-note-id="{{ $note->id }}">
                             <option value="">-- {{ __('app.buttons.select') }} --</option>
                             @foreach($customers ?? [] as $customer)
                             <option value="{{ $customer->id }}" {{ $note->customer_id == $customer->id ? 'selected' : '' }}>
@@ -137,12 +153,12 @@
                     </div>
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
-                    <div class="btn-group w-100" role="group">
-                        <button type="button" class="btn btn-success approve-btn" data-note-id="{{ $note->id }}">
+                    <div class="d-grid gap-2 w-100">
+                        <button type="button" class="btn btn-success btn-lg shadow-sm approve-btn" data-note-id="{{ $note->id }}">
                             <i class="bi bi-check-circle me-1"></i>
                             {{ __('app.finished_products.approve') }}
                         </button>
-                        <button type="button" class="btn btn-danger reject-btn" data-note-id="{{ $note->id }}">
+                        <button type="button" class="btn btn-danger shadow-sm reject-btn" data-note-id="{{ $note->id }}">
                             <i class="bi bi-x-circle me-1"></i>
                             {{ __('app.finished_products.reject') }}
                         </button>
