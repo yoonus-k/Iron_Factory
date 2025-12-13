@@ -463,6 +463,14 @@
                     </li>
                     @endif
 
+                    @if(auth()->user()->hasPermission('SHIFTS_UPDATE'))
+                    <li>
+                        <a href="{{ route('manufacturing.shift-handovers.index') }}">
+                            <i class="fas fa-exchange-alt"></i> طلبات نقل الوردية
+                        </a>
+                    </li>
+                    @endif
+
 
                     @if(auth()->user()->hasPermission('WORKERS_READ'))
                     <li>

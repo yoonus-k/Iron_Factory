@@ -41,6 +41,16 @@
         opacity: 0.95;
     }
 
+    .transfer-info-box {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 15px;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
     .transfer-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -318,6 +328,11 @@
             <strong>التاريخ:</strong> {{ $currentShift->shift_date->format('Y-m-d') }} |
             <strong>النوع:</strong> {{ $currentShift->shift_type == 'morning' ? 'الفترة الأولى' : 'الفترة الثانية' }}
         </p>
+        <div class="transfer-info-box">
+            <i class="feather icon-info"></i>
+            <strong>⚠️ لاحظ:</strong> عند إرسال طلب النقل، سيتم انتظار موافقة المسؤول الجديد قبل نقل الوردية فعلياً.
+            سيتم تسجيل جميع العمال المنقولين وتتبعهم في النظام.
+        </div>
     </div>
 
     <!-- Messages -->
@@ -411,6 +426,25 @@
                 @enderror
             </div>
 
+            <!-- Team Selection (Optional) -->
+            <div class="form-group">
+                <label for="team_id">
+                    <i class="feather icon-users"></i>
+                    اختر مجموعة عمال (اختياري)
+                </label>
+                <select id="team_id" onchange="loadTeamWorkers()">
+                    <option value="">-- اختر مجموعة عمال --</option>
+                    @foreach($teams as $team)
+                        <option value="{{ $team->id }}" data-workers="{{ json_encode($team->worker_ids ?? []) }}">
+                            {{ $team->name }}
+                        </option>
+                    @endforeach
+                </select>
+                <small style="color: #6b7280; margin-top: 5px; display: block;">
+                    اختر مجموعة عمال لتحميل جميع عمالها تلقائياً
+                </small>
+            </div>
+
             <!-- New Workers Selection -->
             <div class="form-group">
                 <label>
@@ -448,6 +482,11 @@
 
         <form method="POST" action="{{ route('manufacturing.shifts-workers.transfer-store', $currentShift->id) }}" id="finalForm">
             @csrf
+
+            <!-- Hidden fields for stage information -->
+            <input type="hidden" name="stage_number" value="{{ $currentShift->stage_number }}">
+            <input type="hidden" name="stage_record_id" value="{{ $currentShift->stage_record_id }}">
+            <input type="hidden" name="stage_record_barcode" value="{{ $currentShift->stage_record_barcode }}">
 
             <div class="form-group">
                 <label for="transfer_notes">أضف ملاحظات (اختياري):</label>
@@ -488,6 +527,32 @@
 
     // تحديث العد عند تحميل الصفحة
     updateSelectedCount();
+
+    // تحميل عمال المجموعة
+    function loadTeamWorkers() {
+        const teamSelect = document.getElementById('team_id');
+        const selectedOption = teamSelect.options[teamSelect.selectedIndex];
+        const teamWorkersJson = selectedOption.getAttribute('data-workers');
+
+        if (!teamWorkersJson) {
+            // إذا لم يتم اختيار مجموعة، لا نفعل شيء
+            return;
+        }
+
+        try {
+            const teamWorkerIds = JSON.parse(teamWorkersJson) || [];
+
+            // اختيار عمال المجموعة وإلغاء الآخرين
+            document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
+                const workerId = parseInt(checkbox.value);
+                checkbox.checked = teamWorkerIds.includes(workerId);
+            });
+
+            updateSelectedCount();
+        } catch (error) {
+            console.error('Error parsing team workers:', error);
+        }
+    }
 
     function submitTransfer() {
         const supervisorId = document.getElementById('new_supervisor_id').value;

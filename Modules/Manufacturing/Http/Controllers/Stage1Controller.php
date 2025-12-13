@@ -241,17 +241,32 @@ class Stage1Controller extends Controller
                 'updated_at' => now(),
             ]);
 
-            // 🔥 تسجيل العامل في نظام تتبع العمال
+            // 🔥 تسجيل تتبع العامل - من ShiftAssignment.worker_ids بدلاً من WorkerStageHistory
             try {
-                $trackingService = app(\App\Services\WorkerTrackingService::class);
-                $trackingService->assignWorkerToStage(
-                    stageType: \App\Models\WorkerStageHistory::STAGE_1_STANDS,
-                    stageRecordId: $stage1StandId,
-                    workerId: $userId,
-                    barcode: $stage1Barcode,
-                    statusBefore: $recordStatus,
-                    assignedBy: $userId
-                );
+                // جلب الوردية الحالية للعامل
+                $currentShift = \App\Models\ShiftAssignment::where('user_id', $userId)
+                    ->where('status', 'active')
+                    ->first();
+
+                if ($currentShift) {
+                    // تسجيل تتبع العامل في جدول operation_logs بدلاً من WorkerStageHistory
+                    DB::table('operation_logs')->insert([
+                        'operation_type' => 'worker_stage_assignment',
+                        'user_id' => $userId,
+                        'description' => 'تعيين العامل للمرحلة الأولى - الاستاند',
+                        'model_type' => 'Stage1Stand',
+                        'model_id' => $stage1StandId,
+                        'metadata' => json_encode([
+                            'barcode' => $stage1Barcode,
+                            'shift_id' => $currentShift->id,
+                            'shift_code' => $currentShift->shift_code,
+                            'supervisor_id' => $currentShift->supervisor_id,
+                            'status_before' => $recordStatus,
+                        ]),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
             } catch (\Exception $e) {
                 \Log::error('Failed to register worker tracking for Stage1', [
                     'error' => $e->getMessage(),
@@ -473,6 +488,11 @@ class Stage1Controller extends Controller
                     'updated_at' => now(),
                 ]);
 
+                // جلب الوردية الحالية من ShiftAssignment
+                $currentShift = \App\Models\ShiftAssignment::where('user_id', $userId)
+                    ->where('status', 'active')
+                    ->first();
+
                 // تسجيل التتبع في product_tracking
                 DB::table('product_tracking')->insert([
                     'barcode' => $stage1Barcode,
@@ -485,7 +505,7 @@ class Stage1Controller extends Controller
                     'waste_amount' => $processedData['waste_weight'] ?? 0,
                     'waste_percentage' => $processedData['waste_percentage'] ?? 0,
                     'worker_id' => $userId,
-                    'shift_id' => null, // يمكن إضافة الوردية لاحقاً
+                    'shift_id' => $currentShift?->id, // من ShiftAssignment
                     'notes' => $processedData['notes'],
                     'metadata' => json_encode([
                         'stand_id' => $stand->id,
@@ -494,6 +514,8 @@ class Stage1Controller extends Controller
                         'batch_id' => $materialBatch->id,
                         'batch_code' => $materialBatch->batch_code,
                         'wire_size' => $processedData['wire_size'] ?? 0,
+                        'shift_code' => $currentShift?->shift_code,
+                        'supervisor_id' => $currentShift?->supervisor_id,
                     ]),
                     'created_at' => now(),
                     'updated_at' => now(),

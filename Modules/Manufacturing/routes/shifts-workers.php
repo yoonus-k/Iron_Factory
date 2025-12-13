@@ -23,6 +23,11 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:SHIFTS_READ')
         ->name('manufacturing.shifts-workers.generate-code');
 
+    // طلبات النقل المعلقة
+    Route::get('shift-handovers', [ShiftsWorkersController::class, 'handoversIndex'])
+        ->middleware('permission:SHIFTS_UPDATE')
+        ->name('manufacturing.shift-handovers.index');
+
     Route::get('shifts-workers/get-stage-records', [ShiftsWorkersController::class, 'getStageRecords'])
         ->middleware('permission:SHIFTS_READ')
         ->name('manufacturing.shifts-workers.get-stage-records');
@@ -59,14 +64,15 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:SHIFTS_UPDATE')
         ->name('manufacturing.shifts-workers.resume');
 
-    // Shift Transfer Routes - نقل الوردية
-    Route::get('shifts-workers/{id}/transfer', [ShiftsWorkersController::class, 'transferView'])
+    // الموافقة على نقل الوردية
+    Route::post('shift-handovers/{handoverId}/acknowledge', [ShiftsWorkersController::class, 'acknowledgeTransfer'])
         ->middleware('permission:SHIFTS_UPDATE')
-        ->name('manufacturing.shifts-workers.transfer');
+        ->name('manufacturing.shift-handovers.acknowledge');
 
-    Route::post('shifts-workers/{id}/transfer-store', [ShiftsWorkersController::class, 'transferStore'])
+    // رفض نقل الوردية
+    Route::post('shift-handovers/{handoverId}/reject', [ShiftsWorkersController::class, 'rejectTransfer'])
         ->middleware('permission:SHIFTS_UPDATE')
-        ->name('manufacturing.shifts-workers.transfer-store');
+        ->name('manufacturing.shift-handovers.reject');
 
     Route::get('shifts-workers/{id}/handover-details', [ShiftsWorkersController::class, 'getHandoverDetails'])
         ->middleware('permission:SHIFTS_UPDATE')
@@ -76,6 +82,37 @@ Route::middleware(['auth'])->group(function () {
     Route::post('shifts-workers/{shiftId}/assign-stage-to-worker', [ShiftsWorkersController::class, 'assignStageToWorker'])
         ->middleware('permission:SHIFTS_UPDATE')
         ->name('manufacturing.shifts-workers.assign-stage-to-worker');
+
+    // API Routes للحصول على بيانات المسؤول والعمال
+    Route::get('shifts-workers/get-supervisor/{supervisorId}', [ShiftsWorkersController::class, 'getSupervisor'])
+        ->middleware('permission:SHIFTS_READ')
+        ->name('manufacturing.shifts-workers.get-supervisor');
+
+    Route::post('shifts-workers/get-workers', [ShiftsWorkersController::class, 'getWorkers'])
+        ->middleware('permission:SHIFTS_READ')
+        ->name('manufacturing.shifts-workers.get-workers');
+
+    // الحصول على العمال الحاليين في الاستاند من الوردية
+    Route::get('stands/{standId}/current-workers', [ShiftsWorkersController::class, 'getStandWorkers'])
+        ->middleware('permission:SHIFTS_READ')
+        ->name('manufacturing.stands.current-workers');
+
+    // نقل العمال من استاند لآخر مع التسجيل في ShiftHandover
+    Route::post('stands/{standId}/transfer-workers', [ShiftsWorkersController::class, 'transferStandWorkers'])
+        ->middleware('permission:SHIFTS_UPDATE')
+        ->name('manufacturing.stands.transfer-workers');
+    Route::get('stands/{standId}/current-workers', [ShiftsWorkersController::class, 'getStandWorkers'])
+        ->middleware('permission:SHIFTS_READ')
+        ->name('manufacturing.stands.current-workers');
+
+    // نقل الوردية - Transfer shift routes
+    Route::get('shifts-workers/{id}/transfer', [ShiftsWorkersController::class, 'transferView'])
+        ->middleware('permission:SHIFTS_UPDATE')
+        ->name('manufacturing.shifts-workers.transfer');
+
+    Route::post('shifts-workers/{id}/transfer-store', [ShiftsWorkersController::class, 'transferStore'])
+        ->middleware('permission:SHIFTS_UPDATE')
+        ->name('manufacturing.shifts-workers.transfer-store');
 
     Route::resource('shifts-workers', ShiftsWorkersController::class)
         ->middleware('permission:SHIFT_WORKERS_READ')

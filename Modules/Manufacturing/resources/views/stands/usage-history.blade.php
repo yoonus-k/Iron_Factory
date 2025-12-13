@@ -673,6 +673,8 @@
                     <th>{{ __('stands.form.stand_number') }}</th>
                     <th>{{ __('stands.stats.total_uses') }}</th>
                     <th>المستخدم</th>
+                    <th>المسؤول</th>
+                    <th>الوردية</th>
                     <th>باركود المادة</th>
                     <th>نوع المادة</th>
                     <th>مقاس السلك</th>
@@ -711,6 +713,28 @@
                             {{ $record->user->name }}
                         @else
                             <span style="color: var(--gray-500);">غير محدد</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if($record->supervisor)
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <strong style="color: #9b59b6;">{{ $record->supervisor->name }}</strong>
+                        @else
+                            <span style="color: var(--gray-500);">-</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if($record->shift)
+                            <span style="background: #e3f2fd; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; color: #1976d2;">
+                                {{ $record->shift->shift_code }}
+                            </span>
+                        @else
+                            <span style="color: var(--gray-500);">-</span>
                         @endif
                     </td>
                     <td>{{ $record->material_barcode ?? '-' }}</td>

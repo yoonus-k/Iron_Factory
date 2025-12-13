@@ -32,4 +32,20 @@ Route::middleware(['auth'])->prefix('worker-tracking')->name('worker-tracking.')
     // Available Workers (AJAX)
     Route::get('available-workers', [WorkerTrackingController::class, 'availableWorkers'])
         ->name('available-workers');
+
+    // Current Shift Data (AJAX)
+    Route::get('current-shift', [WorkerTrackingController::class, 'currentShift'])
+        ->name('current-shift');
+
+    // Previous Shift Workers (AJAX)
+    Route::get('previous-shift-workers', [WorkerTrackingController::class, 'previousShiftWorkers'])
+        ->name('previous-shift-workers');
+
+    // Transfer Stage to Different Shift
+    Route::post('transfer-stage-to-shift', [WorkerTrackingController::class, 'transferStageToShift'])
+        ->name('transfer-stage-to-shift');
+
+    // Get Available Shifts for Transfer
+    Route::get('available-shifts', [WorkerTrackingController::class, 'getAvailableShifts'])
+        ->name('available-shifts');
 });

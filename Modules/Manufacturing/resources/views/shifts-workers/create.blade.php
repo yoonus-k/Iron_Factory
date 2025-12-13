@@ -317,7 +317,7 @@
                             </label>
                             <div class="teams-grid">
                                 @forelse($teams as $team)
-                                    <div class="team-card" onclick="selectTeam({{ $team['id'] }}, {{ json_encode($team['worker_ids']) }})">
+                                    <div class="team-card" onclick="selectTeam({{ $team['id'] }}, {{ json_encode($team['worker_ids']) }}, {{ $team['manager_id'] }}, '{{ $team['manager_name'] }}')">
                                         <div class="team-card-header">
                                             <div class="team-icon">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1047,9 +1047,14 @@ async function loadTeamWorkers() {
 }
 
 // Select a team from the card and load its workers
-function selectTeam(teamId, workerIds) {
+function selectTeam(teamId, workerIds, managerId, managerName) {
     // Store team ID in hidden field
     document.getElementById('team_id').value = teamId;
+
+    // تعيين المسؤول تلقائياً
+    if (managerId) {
+        document.getElementById('supervisor_id').value = managerId;
+    }
 
     // First, clear all selected workers
     document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
@@ -1065,9 +1070,6 @@ function selectTeam(teamId, workerIds) {
     if (event && event.currentTarget) {
         event.currentTarget.classList.add('selected');
     }
-
-    // Load team supervisor and workers from server
-    loadTeamSupervisor(teamId);
 
     // Select workers from the team
     if (workerIds && workerIds.length > 0) {
@@ -1132,61 +1134,6 @@ function updateSelectAllState() {
 }
 
 // Load team supervisor when team is selected
-async function loadTeamSupervisor(teamId) {
-    if (!teamId) {
-        return;
-    }
-
-    try {
-        const response = await fetch(`/manufacturing/shifts-workers/team/${teamId}/details`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (data.success && data.team) {
-            // Auto-populate supervisor if team has a manager
-            if (data.team.manager_id) {
-                // Find the supervisor select and set to manager
-                const supervisorSelect = document.getElementById('supervisor_id');
-                const option = Array.from(supervisorSelect.options).find(opt => opt.value == data.team.manager_id);
-                if (option) {
-                    supervisorSelect.value = data.team.manager_id;
-                    // Trigger change event to update any dependent fields
-                    supervisorSelect.dispatchEvent(new Event('change'));
-                }
-            }
-
-            // Auto-populate workers from team
-            // First, uncheck all workers
-            document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
-                checkbox.checked = false;
-            });
-
-            // Then check workers from the team
-            if (data.team.worker_ids && data.team.worker_ids.length > 0) {
-                data.team.worker_ids.forEach(workerId => {
-                    const checkbox = document.getElementById(`worker_${workerId}`);
-                    if (checkbox) {
-                        checkbox.checked = true;
-                    }
-                });
-            }
-
-            updateWorkersCount();
-        }
-    } catch (error) {
-        console.error('Error loading team supervisor:', error);
-    }
-}
-
 // Store available barcodes globally
 let availableBarcodes = [];
 
