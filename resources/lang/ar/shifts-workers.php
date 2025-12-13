@@ -127,6 +127,18 @@ return [
     'shift_code_placeholder' => 'أدخل رقم الوردية',
     'select_shift_code' => '-- اختر الوردية --',
 
+    // نقل الوردية
+    'transfer_shift' => 'نقل الوردية',
+    'transfer_shift_description' => 'نقل الوردية إلى مسؤول وعمال آخرين',
+    'current_data' => 'البيانات الحالية',
+    'new_data' => 'البيانات الجديدة',
+    'new_supervisor' => 'المسؤول الجديد',
+    'new_workers' => 'العمال الجدد',
+    'transfer_notes' => 'ملاحظات النقل',
+    'confirm_transfer' => 'تأكيد النقل',
+    'workers_selected' => 'تم التحديد: {count} عامل',
+    'supervisor_selected' => 'المسؤول المحدد: {name}',
+
     // Actions and buttons
     'save_shift' => 'حفظ الوردية',
     'save_changes' => 'حفظ التغييرات',

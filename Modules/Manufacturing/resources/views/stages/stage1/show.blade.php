@@ -222,7 +222,98 @@
         \App\Models\WorkerStageHistory::STAGE_1_STANDS,
         $stand->id
     );
+
+    // جلب الوردية الحالية للمرحلة
+    $currentShift = \App\Models\ShiftAssignment::where('status', 'active')
+        ->where('stage_number', 1)
+        ->latest('created_at')
+        ->first();
     @endphp
+
+    <!-- Current Shift Section -->
+    @if($currentShift)
+    <div class="detail-card" style="border-right-color: #3498db; background: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(41, 128, 185, 0.05) 100%);">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-briefcase"></i>
+                الوردية الحالية
+            </div>
+            <a href="{{ route('manufacturing.shifts-workers.show', $currentShift->id) }}" class="um-btn um-btn-sm um-btn-info">
+                <i class="feather icon-external-link"></i>
+                عرض تفاصيل الوردية
+            </a>
+        </div>
+
+        <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <div>
+                    <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">رقم الوردية</div>
+                    <div style="font-size: 20px; font-weight: 700;">{{ $currentShift->shift_code }}</div>
+                </div>
+                <div>
+                    <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">المسؤول</div>
+                    <div style="font-size: 20px; font-weight: 700;">
+                        <i class="feather icon-user"></i>
+                        {{ $currentShift->supervisor->name ?? 'لم يحدد' }}
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">فترة العمل</div>
+                    <div style="font-size: 20px; font-weight: 700;">
+                        {{ $currentShift->shift_type == 'morning' ? 'الفترة الأولى' : 'الفترة الثانية' }}
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">عدد العمال</div>
+                    <div style="font-size: 20px; font-weight: 700;">{{ count($currentShift->worker_ids ?? []) }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workers in Current Shift -->
+        @if(count($currentShift->worker_ids ?? []) > 0)
+        <div style="margin-top: 20px;">
+            <h5 style="font-size: 16px; font-weight: 700; margin-bottom: 15px; color: #2c3e50;">العمال في هذه الوردية:</h5>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                @php
+                $shiftWorkers = \App\Models\Worker::whereIn('id', $currentShift->worker_ids ?? [])->get();
+                @endphp
+                @foreach($shiftWorkers as $worker)
+                <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 12px; transition: all 0.3s;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;">
+                            {{ substr($worker->name, 0, 1) }}
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #2c3e50;">{{ $worker->name }}</div>
+                            <div style="font-size: 12px; color: #7f8c8d;">{{ $worker->worker_code }}</div>
+                            @if($worker->assigned_stage)
+                            <div style="font-size: 12px; color: #3498db; font-weight: 600; margin-top: 4px;">
+                                المرحلة: {{ $worker->assigned_stage }}
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+    </div>
+    @else
+    <div class="detail-card" style="border-right-color: #95a5a6; background: linear-gradient(135deg, rgba(149, 165, 166, 0.05) 0%, rgba(127, 140, 141, 0.05) 100%);">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-briefcase"></i>
+                الوردية الحالية
+            </div>
+        </div>
+        <div class="alert alert-warning" style="margin: 0;">
+            <i class="feather icon-alert-circle"></i>
+            لا توجد وردية نشطة للمرحلة 1 حالياً
+        </div>
+    </div>
+    @endif
 
     <div class="detail-card" style="border-right-color: #9b59b6;">
         <div class="detail-header">
@@ -281,6 +372,173 @@
                 <div class="info-value" style="color: #9b59b6;">{{ number_format($stats['average_session_minutes'] ?? 0, 0) }} {{ __('worker-tracking.minutes') }}</div>
             </div>
         </div>
+    </div>
+
+    <!-- Workers in Stage Section -->
+    <div class="detail-card" style="border-right-color: #27ae60;">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-users"></i>
+                العمال في المرحلة 1
+            </div>
+        </div>
+
+        @php
+        // جلب جميع العمال الحاليين في المرحلة 1
+        $workersInStage = \App\Models\WorkerStageHistory::where('stage_type', 'stage1_stands')
+            ->where('stage_record_id', $stand->id)
+            ->where('is_active', true)
+            ->whereNull('ended_at')
+            ->orderBy('started_at', 'desc')
+            ->get();
+        @endphp
+
+        @if($workersInStage->count() > 0)
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                <thead style="background: #f5f5f5; border-bottom: 2px solid #e0e0e0;">
+                    <tr>
+                        <th style="padding: 12px; text-align: right; font-weight: 600; color: #333;">اسم العامل</th>
+                        <th style="padding: 12px; text-align: right; font-weight: 600; color: #333;">الوردية</th>
+                        <th style="padding: 12px; text-align: right; font-weight: 600; color: #333;">وقت البدء</th>
+                        <th style="padding: 12px; text-align: right; font-weight: 600; color: #333;">المدة</th>
+                        <th style="padding: 12px; text-align: right; font-weight: 600; color: #333;">الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($workersInStage as $history)
+                    <tr style="border-bottom: 1px solid #f0f0f0; transition: background 0.2s;">
+                        <td style="padding: 12px; color: #333; font-weight: 600;">
+                            {{ $history->worker_name }}
+                        </td>
+                        <td style="padding: 12px; color: #666;">
+                            <span style="display: inline-block; background: #e3f2fd; padding: 4px 12px; border-radius: 20px; font-size: 12px; color: #0066B2;">
+                                {{ $history->shift_code ?? 'غير محددة' }}
+                            </span>
+                        </td>
+                        <td style="padding: 12px; color: #666; font-size: 13px;">
+                            {{ $history->started_at->format('Y-m-d H:i') }}
+                        </td>
+                        <td style="padding: 12px; color: #666; font-weight: 600;">
+                            {{ $history->formatted_duration }}
+                        </td>
+                        <td style="padding: 12px;">
+                            <span style="display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                                background: #d4edda; color: #155724;">
+                                جاري
+                            </span>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @else
+        <div style="text-align: center; padding: 30px; color: #999;">
+            <i class="feather icon-inbox" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+            <p style="margin: 0;">لا يوجد عمال في هذه المرحلة حالياً</p>
+        </div>
+        @endif
+    </div>
+
+    <!-- Transfer History Section -->
+    <div class="detail-card" style="border-right-color: #e74c3c;">
+        <div class="detail-header">
+            <div class="detail-title">
+                <i class="feather icon-repeat"></i>
+                سجل النقل والتعديلات (اعتماداً على الوردية)
+            </div>
+        </div>
+
+        @php
+        // جلب سجل العمليات المتعلقة بهذه الوردية
+        $transferLogs = \App\Models\ShiftOperationLog::where('stage_number', 1)
+            ->whereIn('operation_type', ['transfer', 'create', 'update', 'assign_stage'])
+            ->orderBy('created_at', 'desc')
+            ->limit(15)
+            ->get();
+        @endphp
+
+        @if($transferLogs->count() > 0)
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead style="background: #f5f5f5; border-bottom: 2px solid #e0e0e0;">
+                    <tr>
+                        <th style="padding: 10px; text-align: right; font-weight: 600; color: #333;">التاريخ والوقت</th>
+                        <th style="padding: 10px; text-align: right; font-weight: 600; color: #333;">نوع العملية</th>
+                        <th style="padding: 10px; text-align: right; font-weight: 600; color: #333;">الوصف</th>
+                        <th style="padding: 10px; text-align: right; font-weight: 600; color: #333;">مصدر النقل (الوردية)</th>
+                        <th style="padding: 10px; text-align: right; font-weight: 600; color: #333;">المسؤول من/إلى</th>
+                        <th style="padding: 10px; text-align: right; font-weight: 600; color: #333;">عدد العمال</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($transferLogs as $log)
+                    <tr style="border-bottom: 1px solid #f0f0f0; transition: background 0.2s;">
+                        <td style="padding: 10px; color: #666; font-size: 12px; white-space: nowrap;">
+                            {{ $log->created_at->format('Y-m-d H:i') }}
+                        </td>
+                        <td style="padding: 10px;">
+                            <span style="display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+                                background: {{ $log->operation_type === 'transfer' ? '#fff3cd' : '#d1ecf1' }};
+                                color: {{ $log->operation_type === 'transfer' ? '#856404' : '#0c5460' }};">
+                                {{ $log->getOperationTypeLabel() }}
+                            </span>
+                        </td>
+                        <td style="padding: 10px; color: #555; max-width: 200px; word-break: break-word; font-size: 12px;">
+                            {{ $log->description ?? '-' }}
+                        </td>
+                        <td style="padding: 10px; color: #0066B2; font-weight: 600; font-size: 12px;">
+                            @if($log->shift)
+                            <a href="{{ route('manufacturing.shifts-workers.show', $log->shift->id) }}" style="color: #0066B2; text-decoration: none;">
+                                {{ $log->shift->shift_code }}
+                            </a>
+                            @else
+                            -
+                            @endif
+                        </td>
+                        <td style="padding: 10px; font-size: 12px;">
+                            @if($log->old_data && $log->new_data)
+                            <span style="color: #e74c3c; font-weight: 600;">{{ $log->old_data['supervisor_name'] ?? '-' }}</span>
+                            <span style="color: #999; margin: 0 5px;">→</span>
+                            <span style="color: #27ae60; font-weight: 600;">{{ $log->new_data['supervisor_name'] ?? '-' }}</span>
+                            @else
+                            -
+                            @endif
+                        </td>
+                        <td style="padding: 10px; font-weight: 600; color: #0066B2;">
+                            {{ $log->new_data['workers_count'] ?? '-' }} عامل
+                        </td>
+                    </tr>
+                    @if($log->old_data && $log->new_data && $log->operation_type === 'transfer')
+                    <tr style="background: #f9f9f9; border-bottom: 1px solid #f0f0f0;">
+                        <td colspan="6" style="padding: 10px; color: #666; font-size: 12px;">
+                            <strong style="color: #e74c3c;">البيانات السابقة:</strong>
+                            عدد العمال: <span style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">{{ $log->old_data['workers_count'] ?? '-' }}</span>
+
+                            <span style="margin: 0 15px; color: #ccc;">|</span>
+
+                            <strong style="color: #27ae60;">البيانات الجديدة:</strong>
+                            عدد العمال: <span style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">{{ $log->new_data['workers_count'] ?? '-' }}</span>
+
+                            @if($log->notes)
+                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e0e0e0;">
+                                <strong>ملاحظات:</strong> {{ $log->notes }}
+                            </div>
+                            @endif
+                        </td>
+                    </tr>
+                    @endif
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @else
+        <div style="text-align: center; padding: 30px; color: #999;">
+            <i class="feather icon-inbox" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+            <p style="margin: 0;">لا يوجد نقل أو تعديلات حالياً</p>
+        </div>
+        @endif
     </div>
 
     <!-- {{ __('stages.usage_history') }} -->
@@ -409,6 +667,83 @@
             <i class="feather icon-printer"></i> {{ __('stages.print_barcode_button') }}
         </button>
     </div>
+</div>
+
+<!-- Operation Logs Section -->
+<div class="detail-card" style="border-right-color: #10b981;">
+    <div class="detail-header">
+        <div class="detail-title">
+            <i class="feather icon-activity"></i>
+            سجل العمليات
+        </div>
+    </div>
+
+    @php
+    $logs = \App\Models\ShiftOperationLog::where('stage_number', 1)
+        ->orderBy('created_at', 'desc')
+        ->limit(20)
+        ->get();
+    @endphp
+
+    @if($logs->count() > 0)
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <thead style="background: #f5f5f5; border-bottom: 2px solid #e0e0e0;">
+                <tr>
+                    <th style="padding: 12px; text-align: right; font-weight: 600; color: #333;">التاريخ والوقت</th>
+                    <th style="padding: 12px; text-align: right; font-weight: 600; color: #333;">العملية</th>
+                    <th style="padding: 12px; text-align: right; font-weight: 600; color: #333;">الوصف</th>
+                    <th style="padding: 12px; text-align: right; font-weight: 600; color: #333;">المستخدم</th>
+                    <th style="padding: 12px; text-align: right; font-weight: 600; color: #333;">الحالة</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($logs as $log)
+                <tr style="border-bottom: 1px solid #f0f0f0; transition: background 0.2s;">
+                    <td style="padding: 12px; color: #666;">
+                        {{ $log->created_at->format('Y-m-d H:i') }}
+                    </td>
+                    <td style="padding: 12px; color: #666;">
+                        {{ $log->getOperationTypeLabel() }}
+                    </td>
+                    <td style="padding: 12px; color: #555; max-width: 300px; word-break: break-word;">
+                        {{ $log->description ?? '-' }}
+                    </td>
+                    <td style="padding: 12px; color: #666;">
+                        {{ $log->user?->name ?? 'نظام' }}
+                    </td>
+                    <td style="padding: 12px;">
+                        <span style="display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                            background: {{ $log->status === 'completed' ? '#d4edda' : ($log->status === 'failed' ? '#f8d7da' : '#fff3cd') }};
+                            color: {{ $log->status === 'completed' ? '#155724' : ($log->status === 'failed' ? '#721c24' : '#856404') }};">
+                            {{ $log->getStatusLabel() }}
+                        </span>
+                    </td>
+                </tr>
+                @if($log->old_data || $log->new_data)
+                <tr style="background: #f9f9f9; border-bottom: 1px solid #f0f0f0;">
+                    <td colspan="5" style="padding: 12px; color: #666; font-size: 13px;">
+                        @if($log->old_data)
+                        <strong>البيانات السابقة:</strong>
+                        <pre style="background: white; padding: 8px; border-radius: 4px; overflow-x: auto; font-size: 12px;">{{ json_encode($log->old_data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) }}</pre>
+                        @endif
+                        @if($log->new_data)
+                        <strong>البيانات الجديدة:</strong>
+                        <pre style="background: white; padding: 8px; border-radius: 4px; overflow-x: auto; font-size: 12px;">{{ json_encode($log->new_data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) }}</pre>
+                        @endif
+                    </td>
+                </tr>
+                @endif
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    @else
+    <div style="text-align: center; padding: 40px; color: #999;">
+        <i class="feather icon-inbox" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+        <p style="margin: 0;">لا توجد عمليات مسجلة حالياً</p>
+    </div>
+    @endif
 </div>
 
 <!-- JsBarcode Library -->
