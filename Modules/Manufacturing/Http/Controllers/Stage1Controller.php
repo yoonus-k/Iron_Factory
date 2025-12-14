@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Stand;
 use App\Models\StandUsageHistory;
-use App\Models\ShiftAssignment;
-use App\Models\ShiftHandover;
-use App\Models\Worker;
 use App\Services\WasteCheckService;
 use App\Helpers\SystemSettingsHelper;
 
@@ -244,40 +241,6 @@ class Stage1Controller extends Controller
                 'updated_at' => now(),
             ]);
 
-            // 🔥 تسجيل تتبع العامل - من ShiftAssignment.worker_ids بدلاً من WorkerStageHistory
-            try {
-                // جلب الوردية الحالية للعامل
-                $currentShift = \App\Models\ShiftAssignment::where('user_id', $userId)
-                    ->where('status', 'active')
-                    ->first();
-
-                if ($currentShift) {
-                    // تسجيل تتبع العامل في جدول operation_logs بدلاً من WorkerStageHistory
-                    DB::table('operation_logs')->insert([
-                        'operation_type' => 'worker_stage_assignment',
-                        'user_id' => $userId,
-                        'description' => 'تعيين العامل للمرحلة الأولى - الاستاند',
-                        'model_type' => 'Stage1Stand',
-                        'model_id' => $stage1StandId,
-                        'metadata' => json_encode([
-                            'barcode' => $stage1Barcode,
-                            'shift_id' => $currentShift->id,
-                            'shift_code' => $currentShift->shift_code,
-                            'supervisor_id' => $currentShift->supervisor_id,
-                            'status_before' => $recordStatus,
-                        ]),
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
-            } catch (\Exception $e) {
-                \Log::error('Failed to register worker tracking for Stage1', [
-                    'error' => $e->getMessage(),
-                    'stand_id' => $stage1StandId,
-                    'worker_id' => $userId,
-                ]);
-            }
-
             DB::commit();
 
             // إذا كانت الحالة pending_approval، نرجع استجابة خاصة
@@ -491,11 +454,6 @@ class Stage1Controller extends Controller
                     'updated_at' => now(),
                 ]);
 
-                // جلب الوردية الحالية من ShiftAssignment
-                $currentShift = \App\Models\ShiftAssignment::where('user_id', $userId)
-                    ->where('status', 'active')
-                    ->first();
-
                 // تسجيل التتبع في product_tracking
                 DB::table('product_tracking')->insert([
                     'barcode' => $stage1Barcode,
@@ -508,7 +466,7 @@ class Stage1Controller extends Controller
                     'waste_amount' => $processedData['waste_weight'] ?? 0,
                     'waste_percentage' => $processedData['waste_percentage'] ?? 0,
                     'worker_id' => $userId,
-                    'shift_id' => $currentShift?->id, // من ShiftAssignment
+                    'shift_id' => null, // يمكن إضافة الوردية لاحقاً
                     'notes' => $processedData['notes'],
                     'metadata' => json_encode([
                         'stand_id' => $stand->id,
@@ -517,8 +475,6 @@ class Stage1Controller extends Controller
                         'batch_id' => $materialBatch->id,
                         'batch_code' => $materialBatch->batch_code,
                         'wire_size' => $processedData['wire_size'] ?? 0,
-                        'shift_code' => $currentShift?->shift_code,
-                        'supervisor_id' => $currentShift?->supervisor_id,
                     ]),
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -698,93 +654,62 @@ class Stage1Controller extends Controller
             ->orderBy('stand_usage_history.created_at', 'desc')
             ->first();
 
-        // 🔥 جلب بيانات الورديات والعمال - من جدول shift_handovers
-
-        // جلب آخر handover (النقل الأخير) - هذا يمثل الوردية الحالية
-        $currentHandover = \App\Models\ShiftHandover::where('stage_number', 1)
-            ->with(['toUser', 'fromUser', 'approver'])
-            ->orderBy('created_at', 'desc')
+        // جلب الوردية الحالية للمرحلة
+        $currentShift = DB::table('shift_assignments')
+            ->leftJoin('users', 'shift_assignments.user_id', '=', 'users.id')
+            ->leftJoin('users as supervisors', 'shift_assignments.supervisor_id', '=', 'supervisors.id')
+            ->where('shift_assignments.stage_record_id', $id)
+            ->where('shift_assignments.stage_number', 1)
+            ->where('shift_assignments.status', 'active')
+            ->select(
+                'shift_assignments.*',
+                'users.name as worker_name',
+                'supervisors.name as supervisor_name'
+            )
             ->first();
 
-        $currentShiftAssignment = null;
-        $currentShiftWorkers = collect();
-        $currentHandoverData = null;
+        // جلب الورديات السابقة للمرحلة
+        $previousShifts = DB::table('shift_handovers')
+            ->leftJoin('users as from_user', 'shift_handovers.from_user_id', '=', 'from_user.id')
+            ->leftJoin('users as to_user', 'shift_handovers.to_user_id', '=', 'to_user.id')
+            ->where('shift_handovers.stage_number', 1)
+            ->where(function($query) use ($id) {
+                $query->where('shift_handovers.handover_items', 'LIKE', '%"stage_record_id":' . $id . '%')
+                      ->orWhere('shift_handovers.notes', 'LIKE', '%' . $id . '%');
+            })
+            ->select(
+                'shift_handovers.*',
+                'from_user.name as from_user_name',
+                'to_user.name as to_user_name'
+            )
+            ->orderBy('shift_handovers.handover_time', 'desc')
+            ->limit(10)
+            ->get();
 
-        if ($currentHandover) {
-            // جلب الوردية المنقول إليها (to_shift) من الـ handover
-            $currentShiftAssignment = \App\Models\ShiftAssignment::find($currentHandover->to_shift_id);
-
-            if ($currentShiftAssignment) {
-                $currentShiftAssignment->load('supervisor');
-                // جلب العمال من الوردية الحالية
-                $currentShiftWorkers = \App\Models\Worker::whereIn('id', $currentShiftAssignment->worker_ids ?? [])->get();
-            }
-
-            $currentHandoverData = $currentHandover;
-        }
-
-        // إذا لم نجد handover، جلب آخر وردية نشطة كبديل
-        if (!$currentShiftAssignment) {
-            $currentShiftAssignment = \App\Models\ShiftAssignment::where('stage_number', 1)
-                ->where('status', 'active')
-                ->with(['supervisor'])
-                ->latest('created_at')
-                ->first();
-
-            if ($currentShiftAssignment) {
-                $currentShiftWorkers = \App\Models\Worker::whereIn('id', $currentShiftAssignment->worker_ids ?? [])->get();
-            }
-        }
-
-        // جلب الوردية السابقة - ثاني أحدث handover
-        $previousHandover = \App\Models\ShiftHandover::where('stage_number', 1)
-            ->with(['toUser', 'fromUser', 'approver'])
-            ->orderBy('created_at', 'desc')
-            ->skip(1)
-            ->first();
-
-        $previousShift = null;
-        $previousShiftWorkers = collect();
-        $previousHandoverData = null;
-
-        if ($previousHandover) {
-            // جلب الوردية الأصلية (from_shift) من الـ handover السابق
-            $previousShift = \App\Models\ShiftAssignment::find($previousHandover->from_shift_id);
-
-            if ($previousShift) {
-                $previousShift->load('supervisor');
-                $previousShiftWorkers = \App\Models\Worker::whereIn('id', $previousShift->worker_ids ?? [])->get();
-            } else {
-                // إذا لم نجد from_shift، جلب الوردية المنقول إليها (to_shift)
-                $previousShift = \App\Models\ShiftAssignment::find($previousHandover->to_shift_id);
-                if ($previousShift) {
-                    $previousShift->load('supervisor');
-                    $previousShiftWorkers = \App\Models\Worker::whereIn('id', $previousShift->worker_ids ?? [])->get();
-                }
-            }
-
-            $previousHandoverData = $previousHandover;
-        }
-
-        // إذا لم نجد handover سابقة، جلب ثاني أحدث وردية كبديل
-        if (!$previousShift) {
-            $previousShift = \App\Models\ShiftAssignment::where('stage_number', 1)
-                ->with(['supervisor'])
-                ->latest('created_at')
-                ->offset(1)
-                ->limit(1)
-                ->first();
-
-            if ($previousShift) {
-                $previousShiftWorkers = \App\Models\Worker::whereIn('id', $previousShift->worker_ids ?? [])->get();
-            }
-        }
+        // جلب الورديات المتاحة للنقل إليها
+        $availableShifts = DB::table('shift_assignments')
+            ->leftJoin('users', 'shift_assignments.user_id', '=', 'users.id')
+            ->leftJoin('users as supervisors', 'shift_assignments.supervisor_id', '=', 'supervisors.id')
+            ->where('shift_assignments.stage_number', 1)
+            ->where('shift_assignments.status', 'active')
+            ->when($currentShift, function($query) use ($currentShift) {
+                return $query->where('shift_assignments.id', '!=', $currentShift->id);
+            })
+            ->select(
+                'shift_assignments.*',
+                'users.name as worker_name',
+                'supervisors.name as supervisor_name'
+            )
+            ->get();
 
         return view('manufacturing::stages.stage1.show', compact(
-            'stand', 'operationLogs', 'trackingLogs', 'usageHistory',
-            'currentShiftAssignment', 'previousShift',
-            'currentShiftWorkers', 'previousShiftWorkers',
-            'currentHandoverData', 'previousHandoverData'
+            'stand',
+            'operationLogs',
+            'trackingLogs',
+            'usageHistory',
+            'currentShift',
+            'previousShifts',
+            'availableShifts'
         ));
     }
 
@@ -834,29 +759,16 @@ class Stage1Controller extends Controller
     public function getMaterialByBarcode($barcode)
     {
         try {
-            // 🔒 خطوة 1: البحث عن الـ batch بالباركود
-            $batch = DB::table('material_batches')
-                ->join('materials', 'material_batches.material_id', '=', 'materials.id')
-                ->join('units', 'material_batches.unit_id', '=', 'units.id')
-                ->where('material_batches.batch_code', $barcode)
-                ->select(
-                    'material_batches.*',
-                    'materials.name_ar as material_name',
-                    'units.unit_symbol'
-                )
-                ->first();
-
-            if (!$batch) {
-                return response()->json([
-                    'success' => false,
-                    'message' => '❌ الباركود غير موجود في النظام'
-                ], 404);
-            }
-
-            // 🔒 خطوة 2: التحقق من وجود ProductionConfirmation للـ batch_id والمرحلة الأولى
+            // 🔒 خطوة 1: التحقق من الموافقة على الباركود للمرحلة الأولى
             $confirmation = DB::table('production_confirmations')
-                ->where('batch_id', $batch->id)
-                ->where('stage_code', 'stage_1')
+                ->join('delivery_notes', 'production_confirmations.delivery_note_id', '=', 'delivery_notes.id')
+                ->where('delivery_notes.production_barcode', $barcode)
+                ->where('production_confirmations.stage_code', 'stage_1')
+                ->select(
+                    'production_confirmations.*',
+                    'delivery_notes.production_barcode',
+                    'delivery_notes.batch_id'
+                )
                 ->first();
 
             // التحقق من وجود الموافقة
@@ -889,7 +801,48 @@ class Stage1Controller extends Controller
                 ], 403);
             }
 
-            // ✅ الباركود مؤكد، نحسب الكمية المنقولة للإنتاج
+            // ✅ الباركود مؤكد، نتابع جلب البيانات
+
+            // البحث عن الباركود في جدول barcodes أولاً
+            $barcodeRecord = DB::table('barcodes')
+                ->where('barcode', $barcode)
+                ->where('reference_table', 'material_batches')
+                ->first();
+
+            if (!$barcodeRecord) {
+                // إذا لم يوجد في جدول barcodes، نبحث مباشرة في material_batches.batch_code
+                $batch = DB::table('material_batches')
+                    ->join('materials', 'material_batches.material_id', '=', 'materials.id')
+                    ->join('units', 'material_batches.unit_id', '=', 'units.id')
+                    ->where('material_batches.batch_code', $barcode)
+                    ->select(
+                        'material_batches.*',
+                        'materials.name_ar as material_name',
+                        'units.unit_symbol'
+                    )
+                    ->first();
+            } else {
+                // إذا وُجد في جدول barcodes، نجلب البيانات باستخدام reference_id
+                $batch = DB::table('material_batches')
+                    ->join('materials', 'material_batches.material_id', '=', 'materials.id')
+                    ->join('units', 'material_batches.unit_id', '=', 'units.id')
+                    ->where('material_batches.id', $barcodeRecord->reference_id)
+                    ->select(
+                        'material_batches.*',
+                        'materials.name_ar as material_name',
+                        'units.unit_symbol'
+                    )
+                    ->first();
+            }
+
+            if (!$batch) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'الباركود غير موجود في النظام'
+                ], 404);
+            }
+
+            // حساب الكمية المنقولة للإنتاج (to_production)
             $transferredToProduction = DB::table('material_movements')
                 ->where('batch_id', $batch->id)
                 ->where('movement_type', 'to_production')

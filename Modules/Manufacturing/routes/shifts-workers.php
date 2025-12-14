@@ -181,6 +181,15 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:SHIFT_HANDOVERS_READ')
         ->name('manufacturing.shift-handovers.api.history');
 
+    // نقل المرحلة - Transfer Stage Routes
+    Route::post('shift-handovers/transfer-stage-store', [ShiftHandoverController::class, 'transferStageStore'])
+        ->middleware('permission:SHIFT_HANDOVERS_CREATE')
+        ->name('manufacturing.shift-handovers.transfer-stage-store');
+
+    Route::post('shift-handovers/transfer-workers-store', [ShiftHandoverController::class, 'transferWorkersStore'])
+        ->middleware('permission:SHIFT_HANDOVERS_CREATE')
+        ->name('manufacturing.shift-handovers.transfer-workers-store');
+
     // New Routes for Pending Work Handover
     Route::get('shift-handovers/end-shift', [ShiftHandoverController::class, 'endShift'])
         ->middleware('permission:SHIFT_HANDOVERS_CREATE')
@@ -201,6 +210,33 @@ Route::middleware(['auth'])->group(function () {
     Route::post('shift-handovers/collect-pending-work', [ShiftHandoverController::class, 'collectPendingWork'])
         ->middleware('permission:SHIFT_HANDOVERS_READ')
         ->name('manufacturing.shift-handovers.collect-pending-work');
+
+    // نقل المرحلة (الستاند) من وردية لأخرى
+    Route::get('shift-handovers/transfer-stage', [ShiftHandoverController::class, 'transferStageView'])
+        ->middleware('permission:SHIFT_HANDOVERS_CREATE')
+        ->name('manufacturing.shift-handovers.transfer-stage');
+
+    Route::post('shift-handovers/transfer-stage/store', [ShiftHandoverController::class, 'transferStageStore'])
+        ->middleware('permission:SHIFT_HANDOVERS_CREATE')
+        ->name('manufacturing.shift-handovers.transfer-stage-store');
+
+    // نقل العمال من وردية لأخرى
+    Route::get('shift-handovers/transfer-workers', [ShiftHandoverController::class, 'transferWorkersView'])
+        ->middleware('permission:SHIFT_HANDOVERS_CREATE')
+        ->name('manufacturing.shift-handovers.transfer-workers');
+
+    Route::post('shift-handovers/transfer-workers/store', [ShiftHandoverController::class, 'transferWorkersStore'])
+        ->middleware('permission:SHIFT_HANDOVERS_CREATE')
+        ->name('manufacturing.shift-handovers.transfer-workers-store');
+
+    // API Routes للحصول على بيانات النقل
+    Route::get('shift-handovers/api/available-shifts', [ShiftHandoverController::class, 'getAvailableShifts'])
+        ->middleware('permission:SHIFT_HANDOVERS_READ')
+        ->name('manufacturing.shift-handovers.api.available-shifts');
+
+    Route::get('shift-handovers/api/active-workers', [ShiftHandoverController::class, 'getActiveWorkers'])
+        ->middleware('permission:SHIFT_HANDOVERS_READ')
+        ->name('manufacturing.shift-handovers.api.active-workers');
 
     Route::resource('shift-handovers', ShiftHandoverController::class)
         ->middleware('permission:SHIFT_HANDOVERS_READ')
