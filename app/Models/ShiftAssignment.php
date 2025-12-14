@@ -26,6 +26,9 @@ class ShiftAssignment extends Model
         'is_active',
         'total_workers',
         'worker_ids',
+        'individual_worker_ids',
+        'team_worker_ids',
+        'team_groups',
         'completed_at',
         'suspended_at',
         'resumed_at',
@@ -34,6 +37,9 @@ class ShiftAssignment extends Model
     protected $casts = [
         'shift_date' => 'date',
         'worker_ids' => 'array',
+        'individual_worker_ids' => 'array',
+        'team_worker_ids' => 'array',
+        'team_groups' => 'array',
         'is_active' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -65,6 +71,14 @@ class ShiftAssignment extends Model
     public function team(): BelongsTo
     {
         return $this->belongsTo(\App\Models\WorkerTeam::class, 'team_id');
+    }
+
+    /**
+     * الحصول على سجل النقل
+     */
+    public function transferHistory()
+    {
+        return $this->hasMany(ShiftTransferHistory::class, 'shift_id');
     }
 
     public function workers()
@@ -179,5 +193,131 @@ class ShiftAssignment extends Model
     public function scopeByStage($query, $stageNumber)
     {
         return $query->where('stage_number', $stageNumber);
+    }
+
+    /**
+     * الحصول على العمال الأفراد فقط
+     */
+    public function getIndividualWorkers()
+    {
+        $workerIds = $this->individual_worker_ids ?? [];
+        if (empty($workerIds)) {
+            return collect();
+        }
+        return Worker::whereIn('id', $workerIds)->get();
+    }
+
+    /**
+     * الحصول على عمال المجموعات فقط
+     */
+    public function getTeamWorkers()
+    {
+        $workerIds = $this->team_worker_ids ?? [];
+        if (empty($workerIds)) {
+            return collect();
+        }
+        return Worker::whereIn('id', $workerIds)->get();
+    }
+
+    /**
+     * الحصول على مجموعات العمال مع البيانات الكاملة
+     */
+    public function getWorkerTeams()
+    {
+        $groups = $this->team_groups ?? [];
+        if (empty($groups)) {
+            return collect();
+        }
+
+        $teamIds = array_map(function($group) {
+            return $group['team_id'] ?? null;
+        }, $groups);
+
+        $teamIds = array_filter($teamIds);
+
+        if (empty($teamIds)) {
+            return collect();
+        }
+
+        return WorkerTeam::whereIn('id', $teamIds)->get();
+    }
+
+    /**
+     * إضافة عمال أفراد
+     */
+    public function addIndividualWorkers(array $workerIds)
+    {
+        $current = $this->individual_worker_ids ?? [];
+        $this->individual_worker_ids = array_values(array_unique(array_merge($current, $workerIds)));
+        return $this;
+    }
+
+    /**
+     * إضافة مجموعة عمال
+     */
+    public function addWorkerTeam(int $teamId, array $workerIds, string $teamName = '')
+    {
+        $current = $this->team_groups ?? [];
+
+        $teamData = [
+            'team_id' => $teamId,
+            'team_name' => $teamName,
+            'worker_ids' => $workerIds,
+            'added_at' => now()->format('Y-m-d H:i:s'),
+        ];
+
+        $current[] = $teamData;
+        $this->team_groups = $current;
+
+        // إضافة العمال أيضاً إلى قائمة team_worker_ids
+        $teamWorkerIds = $this->team_worker_ids ?? [];
+        $this->team_worker_ids = array_values(array_unique(array_merge($teamWorkerIds, $workerIds)));
+
+        return $this;
+    }
+
+    /**
+     * إزالة عمال أفراد
+     */
+    public function removeIndividualWorkers(array $workerIds)
+    {
+        $current = $this->individual_worker_ids ?? [];
+        $this->individual_worker_ids = array_values(array_diff($current, $workerIds));
+        return $this;
+    }
+
+    /**
+     * إزالة مجموعة عمال
+     */
+    public function removeWorkerTeam(int $teamId)
+    {
+        $current = $this->team_groups ?? [];
+
+        $workerIdsToRemove = [];
+        $filtered = array_filter($current, function($group) use ($teamId, &$workerIdsToRemove) {
+            if ($group['team_id'] === $teamId) {
+                $workerIdsToRemove = $group['worker_ids'] ?? [];
+                return false;
+            }
+            return true;
+        });
+
+        $this->team_groups = array_values($filtered);
+
+        // إزالة العمال من team_worker_ids أيضاً
+        $teamWorkerIds = $this->team_worker_ids ?? [];
+        $this->team_worker_ids = array_values(array_diff($teamWorkerIds, $workerIdsToRemove));
+
+        return $this;
+    }
+
+    /**
+     * حساب إجمالي العمال من جميع المصادر
+     */
+    public function getTotalWorkersCount(): int
+    {
+        $individual = count($this->individual_worker_ids ?? []);
+        $team = count($this->team_worker_ids ?? []);
+        return $individual + $team;
     }
 }

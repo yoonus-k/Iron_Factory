@@ -518,18 +518,15 @@ return [
 
     // Navigation
     'worker_teams' => 'مجموعات العمال',
-    'dashboard' => 'لوحة التحكم',
 
     // Statistics
     'total_teams' => 'إجمالي المجموعات',
     'active_teams' => 'مجموعات نشطة',
-    'total_workers' => 'إجمالي العمال',
     'avg_workers_per_team' => 'متوسط العمال/المجموعة',
 
     // Table headers
     'team_code' => 'كود المجموعة',
     'team_name' => 'اسم المجموعة',
-    'workers_count' => 'عدد العمال',
     'supervisor' => 'المسؤول',
     'created_date' => 'تاريخ الإنشاء',
     'status' => 'الحالة',

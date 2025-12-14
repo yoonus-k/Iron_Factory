@@ -692,23 +692,107 @@ class Stage1Controller extends Controller
             )
             ->first();
 
+        // جلب العمال الحاليين مع المسؤول للوردية الحالية
+        $currentShiftWorkers = null;
+        $currentShiftSupervisor = null;
+        if ($currentShift) {
+            // جلب المسؤول للوردية الحالية
+            $currentShiftSupervisor = DB::table('users')
+                ->where('id', $currentShift->supervisor_id)
+                ->first();
+
+            // جلب العمال من shift_assignments أولاً (من worker_ids)
+            $shiftAssignment = \App\Models\ShiftAssignment::find($currentShift->id);
+            if ($shiftAssignment) {
+                $currentShiftWorkers = $shiftAssignment->workers(); // يجلب من worker_ids
+            } else {
+                $currentShiftWorkers = collect();
+            }
+
+            // إذا لم نجد عمال من shift_assignments، جرب من worker_stage_history
+            if (!$currentShiftWorkers || $currentShiftWorkers->count() == 0) {
+                $currentShiftWorkers = DB::table('worker_stage_history')
+                    ->leftJoin('users', 'worker_stage_history.worker_id', '=', 'users.id')
+                    ->leftJoin('worker_teams', 'worker_stage_history.worker_team_id', '=', 'worker_teams.id')
+                    ->where('worker_stage_history.stage_type', 'stage1_stands')
+                    ->where('worker_stage_history.stage_record_id', $id)
+                    ->where('worker_stage_history.shift_assignment_id', $currentShift->id)
+                    ->select(
+                        'worker_stage_history.id',
+                        'worker_stage_history.worker_type',
+                        'worker_stage_history.worker_id',
+                        'worker_stage_history.worker_team_id',
+                        'worker_stage_history.started_at',
+                        'worker_stage_history.ended_at',
+                        'worker_stage_history.duration_minutes',
+                        'users.name as worker_name',
+                        'worker_teams.name as team_name'
+                    )
+                    ->orderBy('worker_stage_history.started_at', 'desc')
+                    ->get();
+            }
+        }
+
         // جلب الورديات السابقة للمرحلة
-        $previousShifts = DB::table('shift_handovers')
-            ->leftJoin('users as from_user', 'shift_handovers.from_user_id', '=', 'from_user.id')
-            ->leftJoin('users as to_user', 'shift_handovers.to_user_id', '=', 'to_user.id')
-            ->where('shift_handovers.stage_number', 1)
-            ->where(function($query) use ($id) {
-                $query->where('shift_handovers.handover_items', 'LIKE', '%"stage_record_id":' . $id . '%')
-                      ->orWhere('shift_handovers.notes', 'LIKE', '%' . $id . '%');
-            })
+        $previousShifts = DB::table('shift_assignments')
+            ->leftJoin('users', 'shift_assignments.user_id', '=', 'users.id')
+            ->leftJoin('users as supervisors', 'shift_assignments.supervisor_id', '=', 'supervisors.id')
+            ->where('shift_assignments.stage_record_id', $id)
+            ->where('shift_assignments.stage_number', 1)
+            ->where('shift_assignments.status', '!=', 'active')
             ->select(
-                'shift_handovers.*',
-                'from_user.name as from_user_name',
-                'to_user.name as to_user_name'
+                'shift_assignments.*',
+                'users.name as worker_name',
+                'supervisors.name as supervisor_name'
             )
-            ->orderBy('shift_handovers.handover_time', 'desc')
+            ->orderBy('shift_assignments.created_at', 'desc')
             ->limit(10)
             ->get();
+
+        // جلب العمال والمسؤولين لكل وردية سابقة
+        $previousShiftsData = [];
+        foreach ($previousShifts as $shift) {
+            // جلب العمال من shift_assignments
+            $shiftAssignmentModel = \App\Models\ShiftAssignment::find($shift->id);
+            $workers = [];
+
+            if ($shiftAssignmentModel) {
+                $workers = $shiftAssignmentModel->workers(); // يجلب من worker_ids
+            }
+
+            // إذا لم نجد عمال من worker_ids، جرب من worker_stage_history
+            if (!$workers || $workers->count() == 0) {
+                $workers = DB::table('worker_stage_history')
+                    ->leftJoin('users', 'worker_stage_history.worker_id', '=', 'users.id')
+                    ->leftJoin('worker_teams', 'worker_stage_history.worker_team_id', '=', 'worker_teams.id')
+                    ->where('worker_stage_history.stage_type', 'stage1_stands')
+                    ->where('worker_stage_history.stage_record_id', $id)
+                    ->where('worker_stage_history.shift_assignment_id', $shift->id)
+                    ->select(
+                        'worker_stage_history.id',
+                        'worker_stage_history.worker_type',
+                        'worker_stage_history.worker_id',
+                        'worker_stage_history.worker_team_id',
+                        'worker_stage_history.started_at',
+                        'worker_stage_history.ended_at',
+                        'worker_stage_history.duration_minutes',
+                        'users.name as worker_name',
+                        'worker_teams.name as team_name'
+                    )
+                    ->orderBy('worker_stage_history.started_at', 'desc')
+                    ->get();
+            }
+
+            $supervisor = DB::table('users')
+                ->where('id', $shift->supervisor_id)
+                ->first();
+
+            $previousShiftsData[] = [
+                'shift' => $shift,
+                'workers' => $workers,
+                'supervisor' => $supervisor
+            ];
+        }
 
         // جلب الورديات المتاحة للنقل إليها
         $availableShifts = DB::table('shift_assignments')
@@ -732,7 +816,10 @@ class Stage1Controller extends Controller
             'trackingLogs',
             'usageHistory',
             'currentShift',
+            'currentShiftWorkers',
+            'currentShiftSupervisor',
             'previousShifts',
+            'previousShiftsData',
             'availableShifts'
         ));
     }

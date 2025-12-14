@@ -26,6 +26,31 @@
         </div>
         @endif
 
+        <!-- عرض جميع أخطاء التحقق -->
+        @if($errors->any())
+        <div class="error-summary-box" role="alert">
+            <div class="error-summary-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <strong>يوجد {{ $errors->count() }} خطأ في البيانات المدخلة:</strong>
+            </div>
+            <ul class="error-list">
+                @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="error-close-btn" onclick="this.parentElement.style.display='none'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        @endif
+
         <h1 class="um-page-title">
             <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -64,50 +89,21 @@
                 </div>
 
                 <div class="form-grid">
-                    <div class="form-group">
-                        <label for="team_code" class="form-label">
-                            {{ __('shifts-workers.team_code_label') }}
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-group-with-button">
-                            <div class="input-wrapper" style="flex: 1;">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                </svg>
-                                <input type="text" name="team_code" id="team_code"
-                                    class="form-input @error('team_code') is-invalid @enderror"
-                                    value="{{ old('team_code') }}" placeholder="{{ __('shifts-workers.team_code_label') }}" required readonly>
-                            </div>
-                            <button type="button" id="generateCodeBtn" class="btn-generate">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="23 4 23 10 17 10"></polyline>
-                                    <polyline points="1 20 1 14 7 14"></polyline>
-                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                                </svg>
-                                {{ __('shifts-workers.generate') }}
-                            </button>
-                        </div>
-                        @error('team_code')
-                            <span class="error-message">{{ $message }}</span>
-                        @enderror
-                    </div>
+                    <!-- الكود يتولد تلقائيًا - مخفي -->
+                    <input type="hidden" name="team_code" id="team_code" value="{{ old('team_code') }}">
 
                     <div class="form-group">
                         <label for="name" class="form-label">
-                            {{ __('shifts-workers.team_name_label') }}
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-left: 5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="9" cy="7" r="4"></circle>
                             </svg>
-                            <input type="text" name="name" id="name"
-                                class="form-input @error('name') is-invalid @enderror"
-                                value="{{ old('name') }}" placeholder="{{ __('shifts-workers.team_name_label') }}" required>
-                        </div>
+                            اسم المجموعة
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" name="name" id="name"
+                            class="form-input-simple @error('name') is-invalid @enderror"
+                            value="{{ old('name') }}" placeholder="مثال: فريق الإنتاج أ" required autofocus>
                         @error('name')
                             <span class="error-message">{{ $message }}</span>
                         @enderror
@@ -115,43 +111,41 @@
 
                     <div class="form-group">
                         <label for="manager_id" class="form-label">
-                            المسؤول عن المجموعة
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-left: 5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="9" cy="7" r="4"></circle>
                                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                             </svg>
-                            <select name="manager_id" id="manager_id"
-                                class="form-input @error('manager_id') is-invalid @enderror" required>
-                                <option value="">اختر المسؤول</option>
-                                @foreach($managers as $manager)
-                                <option value="{{ $manager->id }}" {{ old('manager_id') == $manager->id ? 'selected' : '' }}>
-                                    {{ $manager->name }}
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
+                            المشرف المسؤول
+                            <span class="required">*</span>
+                        </label>
+                        <select name="manager_id" id="manager_id"
+                            class="form-input-simple @error('manager_id') is-invalid @enderror" required>
+                            <option value="">-- اختر المشرف --</option>
+                            @foreach($managers as $manager)
+                            <option value="{{ $manager->id }}" {{ old('manager_id') == $manager->id ? 'selected' : '' }}>
+                                {{ $manager->name }}
+                            </option>
+                            @endforeach
+                        </select>
                         @error('manager_id')
                             <span class="error-message">{{ $message }}</span>
                         @enderror
                     </div>
 
-                    <div class="form-group full-width">
-                        <label for="description" class="form-label">{{ __('shifts-workers.description_label') }}</label>
-                        <div class="input-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <div class="form-group full-width" style="margin-top: 10px;">
+                        <label for="description" class="form-label" style="font-size: 13px; color: #666;">
+                            <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-left: 5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="8" y1="6" x2="21" y2="6"></line>
                                 <line x1="8" y1="12" x2="21" y2="12"></line>
                                 <line x1="8" y1="18" x2="21" y2="18"></line>
                             </svg>
-                            <textarea name="description" id="description" rows="3"
-                                class="form-input @error('description') is-invalid @enderror"
-                                placeholder="{{ __('shifts-workers.description_label') }}">{{ old('description') }}</textarea>
-                        </div>
+                            ملاحظات (اختياري)
+                        </label>
+                        <textarea name="description" id="description" rows="2"
+                            class="form-input-simple @error('description') is-invalid @enderror"
+                            placeholder="أي ملاحظات إضافية عن المجموعة...">{{ old('description') }}</textarea>
                         @error('description')
                             <span class="error-message">{{ $message }}</span>
                         @enderror
@@ -176,54 +170,47 @@
 
                 <div class="form-grid">
                     <div class="form-group full-width">
-                        <div class="workers-selection-header">
-                            <label class="form-label">{{ __('shifts-workers.workers_label') }}</label>
-                            <div class="selection-actions">
-                                <span class="selected-count">المختارين: <strong id="selectedCount">0</strong></span>
-                                <button type="button" class="btn-select-action" onclick="toggleAllWorkers(true)">اختر الكل</button>
-                                <button type="button" class="btn-select-action cancel" onclick="toggleAllWorkers(false)">إلغاء الاختيار</button>
+                        <div class="simple-info-box">
+                            <svg style="width: 20px; height: 20px; color: #3b82f6;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            <div>
+                                <strong>اختر العمال بسهولة:</strong> حدد من القائمة أدناه
                             </div>
                         </div>
 
-                        <div class="workers-table-wrapper">
-                            @if($workers->count() > 0)
-                            <table class="workers-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 50px; text-align: center;">
-                                            <input type="checkbox" id="selectAllWorkers" onchange="toggleAllWorkers(this.checked)">
-                                        </th>
-                                        <th>اسم العامل</th>
-                                        <th>البريد الإلكتروني</th>
-                                        <th>الهاتف</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($workers as $worker)
-                                    <tr>
-                                        <td style="text-align: center;">
-                                            <input type="checkbox"
-                                                   id="worker_{{ $worker->id }}"
-                                                   name="workers[]"
-                                                   value="{{ $worker->id }}"
-                                                   class="worker-checkbox"
-                                                   {{ in_array($worker->id, old('workers', [])) ? 'checked' : '' }}
-                                                   onchange="updateWorkerCount()">
-                                        </td>
-                                        <td>
-                                            <label for="worker_{{ $worker->id }}" style="margin: 0; cursor: pointer; font-weight: 500;">
-                                                {{ $worker->name }}
-                                            </label>
-                                        </td>
-                                        <td>{{ $worker->email ?? '-' }}</td>
-                                        <td>{{ $worker->phone ?? '-' }}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                            @else
-                            <p style="color: #999; text-align: center; padding: 20px;">لا توجد عمال متاحة</p>
-                            @endif
+                        <div class="workers-selection-header">
+                            <div class="selected-count">
+                                <strong id="selectedCount">0</strong> عامل محدد
+                            </div>
+                            <div class="selection-actions">
+                                <button type="button" class="btn-select-action" onclick="toggleAllWorkers(true)">
+                                    ✓ تحديد الكل
+                                </button>
+                                <button type="button" class="btn-select-action cancel" onclick="toggleAllWorkers(false)">
+                                    ✗ إلغاء الكل
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="workers-simple-list">
+                            @forelse($workers as $worker)
+                            <label class="worker-simple-item">
+                                <input type="checkbox" name="workers[]" value="{{ $worker->id }}"
+                                    class="worker-checkbox" onchange="updateWorkerCount()"
+                                    {{ in_array($worker->id, old('workers', [])) ? 'checked' : '' }}>
+                                <div class="worker-info">
+                                    <div class="worker-name">{{ $worker->name }}</div>
+                                    <div class="worker-meta">{{ $worker->worker_code }} - {{ $worker->role->role_name ?? 'عامل' }}</div>
+                                </div>
+                            </label>
+                            @empty
+                            <div class="text-muted" style="text-align: center; padding: 30px; color: #999;">
+                                لا يوجد عمال متاحين
+                            </div>
+                            @endforelse
                         </div>
                         @error('workers')
                             <span class="error-message">{{ $message }}</span>
@@ -256,6 +243,238 @@
     </div>
 
     <style>
+        /* صندوق عرض الأخطاء */
+        .error-summary-box {
+            position: relative;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #ef4444;
+            border-right: 6px solid #dc2626;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-summary-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #991b1b;
+            margin-bottom: 14px;
+            font-size: 16px;
+        }
+
+        .error-summary-header svg {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .error-list {
+            margin: 0;
+            padding: 0;
+            padding-right: 30px;
+            list-style: none;
+        }
+
+        .error-list li {
+            position: relative;
+            padding: 10px 0;
+            padding-right: 24px;
+            color: #7f1d1d;
+            font-size: 14px;
+            line-height: 1.6;
+            border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .error-list li:last-child {
+            border-bottom: none;
+        }
+
+        .error-list li:before {
+            content: "✕";
+            position: absolute;
+            right: 0;
+            top: 10px;
+            width: 18px;
+            height: 18px;
+            background: #dc2626;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .error-close-btn {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(220, 38, 38, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .error-close-btn:hover {
+            background: #dc2626;
+            transform: rotate(90deg);
+        }
+
+        .error-close-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke: #dc2626;
+        }
+
+        .error-close-btn:hover svg {
+            stroke: white;
+        }
+
+        /* تمييز الحقول التي بها أخطاء */
+        .form-input-simple.is-invalid,
+        .form-input-simple:invalid {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .error-message {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 6px;
+            font-weight: 500;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .error-message:before {
+            content: "⚠";
+            font-size: 14px;
+        }
+
+        /* تبسيط تصميم الحقول */
+        .form-input-simple {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.2s;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-input-simple:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #ef4444;
+            margin-right: 3px;
+        }
+
+        /* صندوق معلومات بسيط */
+        .simple-info-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #eff6ff;
+            border-right: 4px solid #3b82f6;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #1e40af;
+        }
+
+        /* قائمة العمال المبسطة */
+        .workers-simple-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+            margin-top: 10px;
+        }
+
+        .worker-simple-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .worker-simple-item:hover {
+            background: #f9fafb;
+        }
+
+        .worker-simple-item:last-child {
+            border-bottom: none;
+        }
+
+        .worker-simple-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+
+        .worker-info {
+            flex: 1;
+        }
+
+        .worker-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 3px;
+            font-size: 14px;
+        }
+
+        .worker-meta {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
         .input-group-with-button {
             display: flex;
             gap: 10px;
@@ -548,11 +767,65 @@
     </style>
 
     <script>
+        // التمرير التلقائي لصندوق الأخطاء عند وجود أخطاء
+        document.addEventListener('DOMContentLoaded', function() {
+            const errorBox = document.querySelector('.error-summary-box');
+            if (errorBox) {
+                // التمرير للأخطاء
+                errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // إضافة تأثير وميض للفت الانتباه
+                let blinkCount = 0;
+                const blinkInterval = setInterval(() => {
+                    errorBox.style.opacity = errorBox.style.opacity === '0.7' ? '1' : '0.7';
+                    blinkCount++;
+                    if (blinkCount >= 4) {
+                        clearInterval(blinkInterval);
+                        errorBox.style.opacity = '1';
+                    }
+                }, 300);
+
+                // تمييز الحقول التي بها أخطاء
+                const invalidInputs = document.querySelectorAll('.is-invalid');
+                invalidInputs.forEach(input => {
+                    input.addEventListener('focus', function() {
+                        this.classList.add('fixing-error');
+                        const errorMsg = this.parentElement.querySelector('.error-message');
+                        if (errorMsg) {
+                            errorMsg.style.fontWeight = 'bold';
+                        }
+                    });
+
+                    input.addEventListener('blur', function() {
+                        this.classList.remove('fixing-error');
+                        const errorMsg = this.parentElement.querySelector('.error-message');
+                        if (errorMsg) {
+                            errorMsg.style.fontWeight = 'normal';
+                        }
+                    });
+                });
+            }
+
+            // التمرير للحقل الأول الذي به خطأ عند الضغط على خطأ معين
+            const errorList = document.querySelectorAll('.error-list li');
+            errorList.forEach((errorItem, index) => {
+                errorItem.style.cursor = 'pointer';
+                errorItem.addEventListener('click', function() {
+                    const invalidInput = document.querySelectorAll('.is-invalid')[index];
+                    if (invalidInput) {
+                        invalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        setTimeout(() => {
+                            invalidInput.focus();
+                        }, 500);
+                    }
+                });
+            });
+        });
+
         // Update worker count
         function updateWorkerCount() {
             const count = document.querySelectorAll('.worker-checkbox:checked').length;
             document.getElementById('selectedCount').textContent = count;
-            updateSelectAllState();
         }
 
         // Toggle all workers
@@ -564,109 +837,26 @@
             updateWorkerCount();
         }
 
-        // Update select all checkbox state
-        function updateSelectAllState() {
-            const selectAllCheckbox = document.getElementById('selectAllWorkers');
-            const checkboxes = document.querySelectorAll('.worker-checkbox');
-            const checkedCount = document.querySelectorAll('.worker-checkbox:checked').length;
-
-            if (selectAllCheckbox) {
-                selectAllCheckbox.checked = checkedCount === checkboxes.length && checkboxes.length > 0;
-                selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
-            }
-        }
-
-        // Auto-generate team code
-        document.getElementById('generateCodeBtn').addEventListener('click', async function() {
-            const button = this;
-            const icon = button.querySelector('svg');
+        // Auto-generate team code on page load
+        async function autoGenerateCode() {
             const codeInput = document.getElementById('team_code');
-
-            // Add loading state
-            button.disabled = true;
-            button.classList.add('loading');
-            const originalText = button.innerHTML;
-            button.innerHTML = `
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="23 4 23 10 17 10"></polyline>
-                    <polyline points="1 20 1 14 7 14"></polyline>
-                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                </svg>
-جاري التوليد...
-            `;
+            if (codeInput.value) return; // Already has a value
 
             try {
                 const response = await fetch('{{ route("manufacturing.worker-teams.generate-code") }}');
                 const data = await response.json();
-
                 if (data.team_code) {
                     codeInput.value = data.team_code;
-
-                    // Success state
-                    button.classList.remove('loading');
-                    button.classList.add('success');
-                    button.innerHTML = `
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        تم التوليد بنجاح
-                    `;
-
-                    // Reset after 2 seconds
-                    setTimeout(() => {
-                        button.classList.remove('success');
-                        button.innerHTML = originalText;
-                        button.disabled = false;
-                    }, 2000);
                 }
             } catch (error) {
                 console.error('Error generating code:', error);
-
-                // Error state
-                button.classList.remove('loading');
-                button.classList.add('error');
-                button.innerHTML = `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                    فشل التوليد
-                `;
-
-                alert('حدث خطأ في توليد الكود');
-
-                // Reset after 2 seconds
-                setTimeout(() => {
-                    button.classList.remove('error');
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                }, 2000);
             }
-        });
-
-        // Initialize worker count on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            updateWorkerCount();
-        });
-
-        // Update selected workers count
-        function updateSelectedCount() {
-            const count = document.querySelectorAll('.worker-checkbox:checked').length;
-            document.getElementById('selectedCount').textContent = count;
         }
 
-        document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', updateSelectedCount);
-        });
-
-        // Update count on page load
-        updateSelectedCount();
-
-        // Auto-generate code on page load
-        window.addEventListener('DOMContentLoaded', function() {
-            if (!document.getElementById('team_code').value) {
-                document.getElementById('generateCodeBtn').click();
-            }
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            autoGenerateCode();
+            updateWorkerCount();
         });
     </script>
 @endsection

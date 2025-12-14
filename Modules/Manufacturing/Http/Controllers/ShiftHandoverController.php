@@ -622,6 +622,12 @@ class ShiftHandoverController extends Controller
                 ->with('error', 'لم يتم العثور على الوردية المرتبطة بهذه المرحلة');
         }
 
+        // جلب العمال للوردية الحالية
+        $currentShiftWorkers = [];
+        if ($currentShift->worker_ids && count($currentShift->worker_ids) > 0) {
+            $currentShiftWorkers = \App\Models\Worker::whereIn('id', $currentShift->worker_ids)->get();
+        }
+
         // جلب الورديات المتاحة للنقل إليها - جميع الورديات النشطة ما عدا الوردية الحالية
         $availableShifts = ShiftAssignment::where('status', ShiftAssignment::STATUS_ACTIVE)
             ->where('id', '!=', $currentShift->id)
@@ -629,9 +635,24 @@ class ShiftHandoverController extends Controller
             ->orderBy('shift_date', 'desc')
             ->get();
 
+        // جلب العمال لكل وردية متاحة
+        $shiftsWithWorkers = [];
+        foreach ($availableShifts as $shift) {
+            $workers = [];
+            if ($shift->worker_ids && count($shift->worker_ids) > 0) {
+                $workers = \App\Models\Worker::whereIn('id', $shift->worker_ids)->get();
+            }
+            $shiftsWithWorkers[] = [
+                'shift' => $shift,
+                'workers' => $workers
+            ];
+        }
+
         return view('manufacturing::shift-handovers.transfer-stage', compact(
             'currentShift',
+            'currentShiftWorkers',
             'availableShifts',
+            'shiftsWithWorkers',
             'stageNumber',
             'stageRecordId'
         ));
@@ -649,6 +670,7 @@ class ShiftHandoverController extends Controller
             'stage_record_id' => 'required|integer',
             'stage_record_barcode' => 'nullable|string',
             'notes' => 'nullable|string|max:1000',
+            'confirm_transfer' => 'required|accepted',
         ]);
 
         if ($validator->fails()) {
@@ -662,7 +684,7 @@ class ShiftHandoverController extends Controller
             }
 
             return redirect()->back()->withErrors($validator)->withInput()
-                ->with('error', 'بيانات غير صحيحة');
+                ->with('error', 'يجب عليك الموافقة على نقل المرحلة أولاً');
         }
 
         try {
