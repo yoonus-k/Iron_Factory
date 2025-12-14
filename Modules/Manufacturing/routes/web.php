@@ -455,6 +455,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('stage4/store-single', [Stage4Controller::class, 'storeSingle'])
         ->middleware('permission:STAGE4_PACKAGING_CREATE')
         ->name('manufacturing.stage4.store-single');
+    Route::post('stage4/check-final-waste', [Stage4Controller::class, 'checkFinalWaste'])
+        ->middleware('permission:STAGE4_PACKAGING_CREATE')
+        ->name('manufacturing.stage4.check-final-waste');
     Route::get('stage4/get-lafaf-by-barcode/{barcode}', [Stage4Controller::class, 'getByBarcode'])
         ->middleware('permission:STAGE4_PACKAGING_READ')
         ->name('manufacturing.stage4.get-lafaf-by-barcode');

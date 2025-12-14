@@ -107,17 +107,26 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>
-                                <code style="background: #f8f9fa; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 12px;">
+                                <code style="background: #f8f9fa; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: 600;">
                                     {{ $item->barcode }}
                                 </code>
                             </td>
+                            <td><strong>{{ $item->stand_number ?? __('stages.not_specified') }}</strong></td>
                             <td>
-                                <span class="badge badge-info">{{ $item->stand_number ?? __('stages.not_specified') }}</span>
+                                <div class="um-course-info">
+                                    <h6 class="um-course-title">{{ $item->material_name ?? __('stages.not_specified') }}</h6>
+                                    <p class="um-course-desc">{{ $item->parent_barcode }}</p>
+                                </div>
                             </td>
-                            <td>{{ $item->material_name ?? __('stages.not_specified') }}</td>
-                            <td><strong>{{ number_format($item->input_weight, 2) }}</strong> {{ __('stages.kg_unit') }}</td>
-                            <td><strong style="color: #27ae60;">{{ number_format($item->output_weight, 2) }}</strong> {{ __('stages.kg_unit') }}</td>
-                            <td><strong style="color: #e74c3c;">{{ number_format($item->waste, 2) }}</strong> {{ __('stages.kg_unit') }}</td>
+                            <td>{{ number_format($item->input_weight, 2) }} {{ __('stages.kg_unit') }}</td>
+                            <td><strong style="color: #27ae60;">{{ number_format($item->output_weight, 2) }} {{ __('stages.kg_unit') }}</strong></td>
+                            <td>
+                                @if($item->waste > 0)
+                                <span class="um-badge um-badge-danger">{{ number_format($item->waste, 2) }} {{ __('stages.kg_unit') }}</span>
+                                @else
+                                <span class="um-badge um-badge-success">0 {{ __('stages.kg_unit') }}</span>
+                                @endif
+                            </td>
                             <td>
                                 @if($item->status == 'in_progress')
                                     <span class="um-badge um-badge-warning">{{ __('stages.status_in_process') }}</span>
@@ -130,28 +139,27 @@
                                 @endif
                             </td>
                             <td>{{ $item->created_by_name ?? 'غير محدد' }}</td>
-                            <td>{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d') }}</td>
                             <td>
-                                <div class="dropdown" style="position: relative; display: inline-block;">
-                                    <button class="um-btn um-btn-sm um-btn-primary" onclick="toggleDropdown(this)" style="padding: 6px 12px;">
+                                <div class="um-dropdown">
+                                    <button class="um-btn-action um-btn-dropdown" title="{{ __('stages.actions_table_header') }}">
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
-                                    <div class="dropdown-menu" style="display: none; position: absolute; left: 0; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 180px; padding: 8px 0;">
-                                        <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->stand_number }}', '{{ $item->material_name }}', {{ $item->output_weight }})" class="dropdown-item" style="width: 100%; text-align: right; padding: 10px 20px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: flex-end; gap: 10px; transition: background 0.2s;">
-                                            <span>طباعة الباركود</span>
-                                            <i class="feather icon-printer" style="color: #10b981;"></i>
+                                    <div class="um-dropdown-menu">
+                                        <button type="button" class="um-dropdown-item" onclick="printBarcode('{{ $item->barcode }}', '{{ $item->stand_number }}', '{{ $item->material_name }}', {{ $item->output_weight }})" style="color: #27ae60;">
+                                            <i class="feather icon-printer"></i>
+                                            <span>{{ __('stages.print_barcode_button') }}</span>
                                         </button>
-                                        <a href="{{ route('manufacturing.stage2.show', $item->id) }}" class="dropdown-item" style="width: 100%; text-align: right; padding: 10px 20px; text-decoration: none; color: #2c3e50; display: flex; align-items: center; justify-content: flex-end; gap: 10px; transition: background 0.2s;">
-                                            <span>عرض التفاصيل</span>
-                                            <i class="feather icon-eye" style="color: #3b82f6;"></i>
+                                        <a href="{{ route('manufacturing.stage2.show', $item->id) }}" class="um-dropdown-item um-btn-view">
+                                            <i class="feather icon-eye"></i>
+                                            <span>{{ __('stages.view_details') }}</span>
                                         </a>
-                                        <div style="border-top: 1px solid #eee; margin: 8px 0;"></div>
-                                        <div class="dropdown-item" style="padding: 10px 20px; color: #7f8c8d; font-size: 12px; text-align: right; cursor: default;">
-                                            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
-                                                <span>{{ $item->created_by_name ?? 'غير محدد' }}</span>
-                                                <i class="feather icon-user" style="font-size: 14px;"></i>
-                                            </div>
+                                        @if($item->created_by_name)
+                                        <div class="um-dropdown-item" style="pointer-events: none; opacity: 0.7;">
+                                            <i class="feather icon-user"></i>
+                                            <span>{{ $item->created_by_name }}</span>
                                         </div>
+                                        @endif
                                     </div>
                                 </div>
                             </td>

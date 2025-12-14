@@ -225,8 +225,8 @@
 
     <!-- Actions -->
     <div style="display:flex; gap:15px; justify-content:center; margin-top:25px; padding-top:20px; border-top:2px solid #ecf0f1;">
-        <button type="button" class="btn-success" onclick="finishOperation()" id="submitBtn" disabled style="padding:14px 32px; font-size:16px;">
-            <i class="fas fa-check-double"></i> {{ __('stages.stage4_finish_shipment') }}
+        <button type="button" class="btn-success" onclick="finishPackaging()" id="finishBtn" disabled style="padding:14px 32px; font-size:16px;">
+            <i class="fas fa-check-circle"></i> إنهاء التعبئة وفحص الهدر
         </button>
         <button type="button" class="btn-secondary" onclick="window.location.href='{{ route('manufacturing.stage4.index') }}'">
             <i class="fas fa-times"></i> {{ __('app.cancel') }}
@@ -458,7 +458,6 @@ function addBox() {
             clearForm();
 
             showToast('{{ __("stages.stage4_box_saved_success") }}', 'success');
-
             document.getElementById('boxWeight').focus();
         } else {
             throw new Error(result.message || 'حدث خطأ أثناء الحفظ');
@@ -476,7 +475,7 @@ function addBox() {
 function renderBoxes() {
     const list = document.getElementById('boxList');
     document.getElementById('boxCount').textContent = boxes.length;
-    document.getElementById('submitBtn').disabled = boxes.length === 0;
+    document.getElementById('finishBtn').disabled = boxes.length === 0;
 
     if (boxes.length === 0) {
         list.innerHTML = `
@@ -534,16 +533,85 @@ function updateSummary() {
     document.getElementById('summaryBox').style.display = 'block';
 }
 
-function finishOperation() {
+// دالة إنهاء التعبئة وفحص الهدر
+async function finishPackaging() {
+    if (!currentLafaf) {
+        alert('⚠️ لا يوجد لفاف محدد!');
+        return;
+    }
+
     if (boxes.length === 0) {
         alert('⚠️ لا توجد كراتين محفوظة!');
         return;
     }
 
-    showToast('✅ تم إنهاء العملية بنجاح!', 'success');
-    setTimeout(() => {
-        window.location.href = '{{ route("manufacturing.stage4.index") }}';
-    }, 1000);
+    const finishBtn = document.getElementById('finishBtn');
+    finishBtn.disabled = true;
+    finishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري فحص الهدر...';
+
+    try {
+        const response = await fetch('{{ route("manufacturing.stage4.check-final-waste") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                lafaf_barcode: currentLafaf.barcode
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // 🔥 التحقق من وجود تنبيه هدر
+            if (result.pending_approval && result.alert_message) {
+                await Swal.fire({
+                    title: result.alert_title || '⛔ تم إيقاف العملية',
+                    html: result.alert_message,
+                    icon: 'warning',
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#e67e22',
+                    width: '600px'
+                });
+                
+                // الانتقال لصفحة السجل
+                window.location.href = '{{ route("manufacturing.stage4.index") }}';
+            } else {
+                // لا يوجد تجاوز - نجاح
+                await Swal.fire({
+                    title: '✅ تم بنجاح',
+                    html: `
+                        <div style="text-align: right; direction: rtl;">
+                            <p style="font-size: 16px; margin-bottom: 15px;">
+                                <strong>تم فحص الهدر بنجاح - لا يوجد تجاوز في النسبة المسموح بها</strong>
+                            </p>
+                            <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; border-right: 4px solid #17a2b8; margin-top: 15px;">
+                                <table style="width: 100%; text-align: right;">
+                                    <tr><td style="padding: 5px;"><strong>وزن اللفاف:</strong></td><td style="padding: 5px;">${result.data.lafaf_weight} كجم</td></tr>
+                                    <tr><td style="padding: 5px;"><strong>إجمالي الكراتين:</strong></td><td style="padding: 5px;">${result.data.total_boxes_weight} كجم</td></tr>
+                                    <tr><td style="padding: 5px;"><strong>الهدر:</strong></td><td style="padding: 5px; color: #28a745; font-weight: bold;">${result.data.waste_weight} كجم</td></tr>
+                                    <tr><td style="padding: 5px;"><strong>نسبة الهدر:</strong></td><td style="padding: 5px; color: #28a745; font-weight: bold;">${result.data.waste_percentage}%</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                    `,
+                    icon: 'success',
+                    confirmButtonText: 'العودة للسجل',
+                    confirmButtonColor: '#27ae60'
+                });
+                
+                window.location.href = '{{ route("manufacturing.stage4.index") }}';
+            }
+        } else {
+            throw new Error(result.message || 'حدث خطأ');
+        }
+    } catch (error) {
+        alert('{{ __("app.error") }}: ' + error.message);
+        finishBtn.disabled = false;
+        finishBtn.innerHTML = '<i class="fas fa-check-circle"></i> إنهاء التعبئة وفحص الهدر';
+    }
 }
 
 function clearForm() {

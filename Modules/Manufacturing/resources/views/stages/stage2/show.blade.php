@@ -217,21 +217,30 @@
 
     <!-- Worker Tracking Section -->
     @php
-    $currentWorker = \App\Models\WorkerStageHistory::getCurrentWorkerForStage(
-        \App\Models\WorkerStageHistory::STAGE_2_PROCESSED,
-        $processed->id
-    );
-    $workerStats = \App\Services\WorkerTrackingService::class;
-    $stats = app($workerStats)->getStageStatistics(
-        \App\Models\WorkerStageHistory::STAGE_2_PROCESSED,
-        $processed->id
-    );
+    try {
+        $currentWorker = \App\Models\WorkerStageHistory::getCurrentWorkerForStage(
+            \App\Models\WorkerStageHistory::STAGE_2_PROCESSED,
+            $record->id
+        );
+        $workerStats = \App\Services\WorkerTrackingService::class;
+        $stats = app($workerStats)->getStageStatistics(
+            \App\Models\WorkerStageHistory::STAGE_2_PROCESSED,
+            $record->id
+        );
+    } catch (\Exception $e) {
+        $currentWorker = null;
+        $stats = null;
+    }
 
     // جلب الوردية الحالية للمرحلة
-    $currentShift = \App\Models\ShiftAssignment::where('status', 'active')
-        ->where('stage_number', 2)
-        ->latest('created_at')
-        ->first();
+    try {
+        $currentShift = \App\Models\ShiftAssignment::where('status', 'active')
+            ->where('stage_number', 2)
+            ->latest('created_at')
+            ->first();
+    } catch (\Exception $e) {
+        $currentShift = null;
+    }
     @endphp
 
     <!-- Current Shift Section -->
@@ -325,7 +334,7 @@
                 <i class="feather icon-users"></i>
                 {{ __('worker-tracking.worker_tracking') }}
             </div>
-            <a href="{{ route('worker-tracking.stage-history', ['stageType' => 'stage2_processed', 'stageRecordId' => $processed->id]) }}"
+            <a href="{{ route('worker-tracking.stage-history', ['stageType' => 'stage2_processed', 'stageRecordId' => $record->id]) }}"
                class="um-btn um-btn-sm um-btn-info">
                 <i class="feather icon-history"></i>
                 {{ __('worker-tracking.view_history') }}

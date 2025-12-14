@@ -61,7 +61,7 @@
                 <form method="GET">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث برقم الكرتون...">
+                            <input type="text" name="search" class="um-form-control" placeholder="البحث بالباركود...">
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
@@ -94,7 +94,7 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>رقم الكرتون</th>
+                            <th>الباركود</th>
                             <th>عدد الكويلات</th>
                             <th>الوزن</th>
                             <th>نوع التغليف</th>
@@ -107,24 +107,50 @@
                         @forelse($boxes as $item)
                         <tr>
                             <td>{{ $loop->iteration + ($boxes->currentPage() - 1) * $boxes->perPage() }}</td>
-                            <td><span class="badge badge-info">{{ $item->barcode }}</span></td>
+                            <td>
+                                <code style="background: #f8f9fa; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: 600;">
+                                    {{ $item->barcode }}
+                                </code>
+                            </td>
                             <td>{{ $item->coils_count }}</td>
                             <td>{{ number_format($item->total_weight, 2) }} كجم</td>
                             <td>{{ $item->packaging_type }}</td>
                             <td>
-                                @if($item->status === 'packed')
+                                @if($item->status === 'pending_approval')
+                                <span class="um-badge" style="background: #ff9800; color: white;">⏸️ في انتظار الموافقة</span>
+                                @elseif($item->status === 'packed')
                                 <span class="um-badge um-badge-success">معبأ</span>
+                                @elseif($item->status === 'in_warehouse')
+                                <span class="um-badge um-badge-info">في المستودع</span>
                                 @elseif($item->status === 'shipped')
-                                <span class="um-badge um-badge-info">تم الشحن</span>
+                                <span class="um-badge um-badge-primary">تم الشحن</span>
                                 @else
                                 <span class="um-badge um-badge-secondary">{{ $item->status }}</span>
                                 @endif
                             </td>
                             <td>{{ is_string($item->created_at) ? date('Y-m-d', strtotime($item->created_at)) : $item->created_at }}</td>
                             <td>
-                                <button onclick="printBarcode('{{ $item->barcode }}', '{{ $item->material_name ?? 'غير محدد' }}', {{ $item->total_weight }}, '{{ $item->parent_barcode ?? '' }}')" class="um-btn um-btn-success um-btn-sm" title="طباعة الباركود">
-                                    <i class="feather icon-printer"></i>
-                                </button>
+                                <div class="um-dropdown">
+                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                        <i class="feather icon-more-vertical"></i>
+                                    </button>
+                                    <div class="um-dropdown-menu">
+                                        <button type="button" class="um-dropdown-item" onclick="printBarcode('{{ $item->barcode }}', '{{ $item->material_name ?? 'غير محدد' }}', {{ $item->total_weight }}, '{{ $item->parent_barcode ?? '' }}')" style="color: #27ae60;">
+                                            <i class="feather icon-printer"></i>
+                                            <span>طباعة الباركود</span>
+                                        </button>
+                                        <a href="{{ route('manufacturing.stage4.show', $item->id) }}" class="um-dropdown-item um-btn-view">
+                                            <i class="feather icon-eye"></i>
+                                            <span>عرض التفاصيل</span>
+                                        </a>
+                                        @if($item->created_by_name)
+                                        <div class="um-dropdown-item" style="pointer-events: none; opacity: 0.7;">
+                                            <i class="feather icon-user"></i>
+                                            <span>{{ $item->created_by_name }}</span>
+                                        </div>
+                                        @endif
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                         @empty
