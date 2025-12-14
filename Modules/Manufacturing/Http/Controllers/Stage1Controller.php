@@ -73,6 +73,18 @@ class Stage1Controller extends Controller
         ]);
 
         try {
+            // التحقق من أن الباركود لم يُستخدم من قبل
+            $barcodeExists = DB::table('stage1_stands')
+                ->where('parent_barcode', $validated['material_barcode'])
+                ->exists();
+
+            if ($barcodeExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'هذا الباركود تم استخدامه مسبقاً في المرحلة الأولى'
+                ], 422);
+            }
+
             DB::beginTransaction();
 
             $userId = Auth::id();
@@ -316,6 +328,18 @@ class Stage1Controller extends Controller
         ]);
 
         try {
+            // التحقق من أن الباركود لم يُستخدم من قبل
+            $barcodeExists = DB::table('stage1_stands')
+                ->where('parent_barcode', $validated['material_barcode'])
+                ->exists();
+
+            if ($barcodeExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'هذا الباركود تم استخدامه مسبقاً في المرحلة الأولى'
+                ], 422);
+            }
+
             DB::beginTransaction();
 
             $userId = Auth::id();
