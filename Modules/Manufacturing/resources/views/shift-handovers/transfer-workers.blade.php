@@ -24,14 +24,38 @@
 
     <!-- Error Messages -->
     @if ($errors->any())
-    <div class="um-alert-custom um-alert-danger" role="alert">
+    <div class="um-alert-custom um-alert-danger" role="alert" style="margin-bottom: 20px;">
         <i class="feather icon-alert-circle"></i>
-        <strong>خطأ في البيانات:</strong>
+        <strong>❌ خطأ في البيانات:</strong>
         <ul style="margin: 10px 0 0 20px;">
             @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
+            <li style="margin: 5px 0;"><strong>{{ $error }}</strong></li>
             @endforeach
         </ul>
+        <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+            <i class="feather icon-x"></i>
+        </button>
+    </div>
+    @endif
+
+    <!-- Session Error -->
+    @if (session('error'))
+    <div class="um-alert-custom um-alert-danger" role="alert" style="margin-bottom: 20px;">
+        <i class="feather icon-alert-circle"></i>
+        <strong>❌ خطأ:</strong>
+        <p style="margin: 10px 0 0 0; color: #721c24;">{{ session('error') }}</p>
+        <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+            <i class="feather icon-x"></i>
+        </button>
+    </div>
+    @endif
+
+    <!-- Session Success -->
+    @if (session('success'))
+    <div class="um-alert-custom um-alert-success" role="alert" style="margin-bottom: 20px;">
+        <i class="feather icon-check-circle"></i>
+        <strong>✅ نجاح:</strong>
+        <p style="margin: 10px 0 0 0; color: #155724;">{{ session('success') }}</p>
         <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
             <i class="feather icon-x"></i>
         </button>
@@ -175,6 +199,87 @@
                     </div>
                 </div>
 
+                <!-- Available Shifts Section -->
+                <div style="background: #f0f7ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h5 style="margin-bottom: 15px; color: #0d47a1; font-weight: 700;">
+                        <i class="feather icon-share-2"></i>
+                        الورديات المتاحة:
+                    </h5>
+
+                    @if($availableShifts && count($availableShifts) > 0)
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px;">
+                        @foreach($availableShifts as $shift)
+                        <div style="background: white; padding: 12px; border-radius: 6px; border-left: 3px solid #2196f3;">
+                            <strong style="display: block; color: #0d47a1; margin-bottom: 5px;">{{ $shift->shift_code }}</strong>
+                            <small style="display: block; color: #666; margin: 3px 0;">
+                                <i class="feather icon-user"></i> {{ $shift->user->name }}
+                            </small>
+                            <small style="display: block; color: #666;">
+                                <i class="feather icon-shield"></i> {{ $shift->supervisor->name ?? 'لا يوجد مسؤول' }}
+                            </small>
+                        </div>
+                        @endforeach
+                    </div>
+                    @else
+                    <p style="color: #666; text-align: center;">لا توجد ورديات متاحة</p>
+                    @endif
+                </div>
+
+                <!-- All Workers Section -->
+                <div style="background: #f3e5f5; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h5 style="margin-bottom: 15px; color: #6a1b9a; font-weight: 700;">
+                        <i class="feather icon-users"></i>
+                        جميع العمال:
+                    </h5>
+
+                    @if($allWorkers && count($allWorkers) > 0)
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px;">
+                        @foreach($allWorkers as $worker)
+                        <div style="background: white; padding: 12px; border-radius: 6px; border-left: 3px solid #9c27b0;">
+                            <strong style="display: block; color: #6a1b9a; margin-bottom: 5px;">👤 {{ $worker->name }}</strong>
+                            <small style="display: block; color: #666; margin: 3px 0;">
+                                📱 {{ $worker->phone ?? 'N/A' }}
+                            </small>
+                            <small style="display: block; color: #666; margin: 3px 0;">
+                                ✉️ {{ $worker->email ?? 'N/A' }}
+                            </small>
+                            <small style="display: block; color: #666;">
+                                💼 {{ $worker->position_name ?? $worker->position }}
+                            </small>
+                        </div>
+                        @endforeach
+                    </div>
+                    @else
+                    <p style="color: #666; text-align: center;">لا توجد عمال</p>
+                    @endif
+                </div>
+
+                <!-- All Teams Section -->
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h5 style="margin-bottom: 15px; color: #1b5e20; font-weight: 700;">
+                        <i class="feather icon-users"></i>
+                        فرق العمال:
+                    </h5>
+
+                    @if($allTeams && count($allTeams) > 0)
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px;">
+                        @foreach($allTeams as $team)
+                        <div style="background: white; padding: 12px; border-radius: 6px; border-left: 3px solid #4caf50;">
+                            <strong style="display: block; color: #1b5e20; margin-bottom: 5px;">👥 {{ $team->name }}</strong>
+                            <small style="display: block; color: #666; margin: 3px 0;">
+                                👨‍💼 مدير: {{ $team->manager->name ?? 'لا يوجد' }}
+                            </small>
+                            <small style="display: block; color: #666;">
+                                👤 عدد العمال: {{ count($team->worker_ids ?? []) }}
+                            </small>
+                        </div>
+                        @endforeach
+                    </div>
+                    @else
+                    <p style="color: #666; text-align: center;">لا توجد فرق عمل</p>
+                    @endif
+                </div>
+
                 <!-- Notes Field -->
                 <div class="form-group" style="margin-bottom: 15px;">
                     <label class="form-label"><strong>ملاحظات:</strong></label>
@@ -312,8 +417,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const toSupervisorName = document.getElementById('to-supervisor-name');
     const noShiftsAlert = document.getElementById('no-shifts-alert');
 
-    // تحميل الورديات المتاحة - جلب من نفس المرحلة
-    fetch(`{{ route('manufacturing.shift-handovers.api.available-shifts') }}?stage_number=${stageNumber}&exclude_shift_id=${fromShiftId}`)
+    // تحميل الورديات المتاحة - جميع الورديات النشطة بدون قيود
+    fetch(`{{ route('manufacturing.shift-handovers.api.available-shifts') }}`)
         .then(response => response.json())
         .then(data => {
             if (data.success && data.data.length > 0) {

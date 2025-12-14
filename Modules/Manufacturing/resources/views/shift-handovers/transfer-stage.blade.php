@@ -24,14 +24,38 @@
 
     <!-- Error Messages -->
     @if ($errors->any())
-    <div class="um-alert-custom um-alert-danger" role="alert">
+    <div class="um-alert-custom um-alert-danger" role="alert" style="margin-bottom: 20px;">
         <i class="feather icon-alert-circle"></i>
-        <strong>خطأ في البيانات:</strong>
+        <strong>❌ خطأ في البيانات:</strong>
         <ul style="margin: 10px 0 0 20px;">
             @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
+            <li style="margin: 5px 0;"><strong>{{ $error }}</strong></li>
             @endforeach
         </ul>
+        <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+            <i class="feather icon-x"></i>
+        </button>
+    </div>
+    @endif
+
+    <!-- Session Error -->
+    @if (session('error'))
+    <div class="um-alert-custom um-alert-danger" role="alert" style="margin-bottom: 20px;">
+        <i class="feather icon-alert-circle"></i>
+        <strong>❌ خطأ:</strong>
+        <p style="margin: 10px 0 0 0; color: #721c24;">{{ session('error') }}</p>
+        <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+            <i class="feather icon-x"></i>
+        </button>
+    </div>
+    @endif
+
+    <!-- Session Success -->
+    @if (session('success'))
+    <div class="um-alert-custom um-alert-success" role="alert" style="margin-bottom: 20px;">
+        <i class="feather icon-check-circle"></i>
+        <strong>✅ نجاح:</strong>
+        <p style="margin: 10px 0 0 0; color: #155724;">{{ session('success') }}</p>
         <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
             <i class="feather icon-x"></i>
         </button>
@@ -242,4 +266,25 @@ select.form-control {
 }
 </style>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            console.log('🚀 Form Submission Started');
+            console.log('📝 Form Data:');
+
+            const formData = new FormData(form);
+            for (let [key, value] of formData.entries()) {
+                console.log(`  ${key}: ${value}`);
+            }
+
+            console.log('✅ Form is about to submit to:', form.action);
+        });
+    }
+});
+</script>
+
 @endsection
+
