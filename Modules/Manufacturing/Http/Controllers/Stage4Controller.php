@@ -169,6 +169,18 @@ class Stage4Controller extends Controller
         }
 
         try {
+            // التحقق من أن الباركود لم يُستخدم من قبل
+            $barcodeExists = DB::table('stage4_boxes')
+                ->where('parent_barcode', $request->lafaf_barcode)
+                ->exists();
+
+            if ($barcodeExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'هذا الباركود تم استخدامه مسبقاً في المرحلة الرابعة'
+                ], 422);
+            }
+
             DB::beginTransaction();
 
             // الحصول على بيانات اللفاف
@@ -403,6 +415,18 @@ class Stage4Controller extends Controller
         }
 
         try {
+            // التحقق من أن الباركود لم يُستخدم من قبل
+            $barcodeExists = DB::table('stage4_boxes')
+                ->where('parent_barcode', $request->lafaf_barcode)
+                ->exists();
+
+            if ($barcodeExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'هذا الباركود تم استخدامه مسبقاً في المرحلة الرابعة'
+                ], 422);
+            }
+
             DB::beginTransaction();
 
             // 🔍 التحقق من كمية الكراتين في المستودع
