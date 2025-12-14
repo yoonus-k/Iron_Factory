@@ -114,6 +114,16 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:SHIFTS_UPDATE')
         ->name('manufacturing.shifts-workers.transfer-store');
 
+    // نقل الوردية V2 - مع تمييز العمال الأفراد والمجموعات
+    Route::post('shifts-workers/{id}/transfer-store-v2', [ShiftsWorkersController::class, 'transferStoreV2'])
+        ->middleware('permission:SHIFTS_UPDATE')
+        ->name('manufacturing.shifts-workers.transfer-store-v2');
+
+    // عرض سجل النقل
+    Route::get('shifts-workers/{id}/transfer-history', [ShiftsWorkersController::class, 'transferHistory'])
+        ->middleware('permission:SHIFTS_READ')
+        ->name('manufacturing.shifts-workers.transfer-history');
+
     Route::resource('shifts-workers', ShiftsWorkersController::class)
         ->middleware('permission:SHIFT_WORKERS_READ')
         ->names('manufacturing.shifts-workers');

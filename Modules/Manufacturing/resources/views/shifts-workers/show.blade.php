@@ -65,6 +65,13 @@
                             </svg>
                             نقل الوردية
                         </a>
+
+                        <a href="{{ route('manufacturing.shifts-workers.transfer-history', $shift->id) }}" class="btn btn-transfer" style="background-color: #6366f1; color: white; border: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 12a9 9 0 010-18 9 9 0 0110 9M12 2v10M2 12h10"></path>
+                            </svg>
+                            سجل النقل
+                        </a>
                     @endif
                     <a href="{{ route('manufacturing.shifts-workers.index') }}" class="btn btn-back">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

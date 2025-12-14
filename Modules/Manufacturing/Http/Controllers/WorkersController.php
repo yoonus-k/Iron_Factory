@@ -100,7 +100,11 @@ class WorkersController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), $this->getWorkerValidationRules());
+        $validator = Validator::make(
+            $request->all(),
+            $this->getWorkerValidationRules(),
+            $this->getWorkerValidationMessages()
+        );
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -194,7 +198,11 @@ class WorkersController extends Controller
     {
         $worker = Worker::findOrFail($id);
 
-        $validator = Validator::make($request->all(), $this->getWorkerValidationRules($id));
+        $validator = Validator::make(
+            $request->all(),
+            $this->getWorkerValidationRules($id),
+            $this->getWorkerValidationMessages()
+        );
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -435,6 +443,65 @@ class WorkersController extends Controller
         }
 
         return $baseRules;
+    }
+
+    /**
+     * رسائل التحقق المخصصة بالعربية
+     */
+    private function getWorkerValidationMessages()
+    {
+        return [
+            'worker_code.required' => 'كود العامل مطلوب',
+            'worker_code.unique' => 'كود العامل موجود مسبقاً',
+            'worker_code.max' => 'كود العامل يجب ألا يتجاوز 50 حرف',
+
+            'name.required' => 'اسم العامل مطلوب',
+            'name.max' => 'اسم العامل يجب ألا يتجاوز 255 حرف',
+
+            'national_id.unique' => 'الرقم الوطني مستخدم من قبل',
+            'national_id.max' => 'الرقم الوطني يجب ألا يتجاوز 20 حرف',
+
+            'phone.max' => 'رقم الهاتف يجب ألا يتجاوز 20 حرف',
+
+            'email.email' => 'البريد الإلكتروني يجب أن يكون بتنسيق صحيح',
+            'email.unique' => 'البريد الإلكتروني مستخدم من قبل',
+            'email.max' => 'البريد الإلكتروني يجب ألا يتجاوز 255 حرف',
+
+            'role_id.required' => 'يجب اختيار الوظيفة',
+            'role_id.exists' => 'الوظيفة المختارة غير موجودة',
+
+            'allowed_stages.array' => 'صيغة المراحل المسموحة غير صحيحة',
+            'allowed_stages.*.integer' => 'رقم المرحلة يجب أن يكون رقماً صحيحاً',
+            'allowed_stages.*.between' => 'رقم المرحلة يجب أن يكون بين 1 و 4',
+
+            'hourly_rate.required' => 'الأجر بالساعة مطلوب',
+            'hourly_rate.numeric' => 'الأجر بالساعة يجب أن يكون رقماً',
+            'hourly_rate.min' => 'الأجر بالساعة يجب أن يكون صفر أو أكثر',
+
+            'shift_preference.required' => 'يجب اختيار تفضيل الوردية',
+            'shift_preference.in' => 'تفضيل الوردية المختار غير صحيح',
+
+            'hire_date.required' => 'تاريخ التوظيف مطلوب',
+            'hire_date.date' => 'تاريخ التوظيف يجب أن يكون تاريخاً صحيحاً',
+
+            'notes.max' => 'الملاحظات يجب ألا تتجاوز 1000 حرف',
+
+            'emergency_contact.max' => 'جهة الاتصال الطارئ يجب ألا تتجاوز 255 حرف',
+            'emergency_phone.max' => 'هاتف الطوارئ يجب ألا يتجاوز 20 حرف',
+
+            'user_id.exists' => 'المستخدم المختار غير موجود',
+
+            'allow_system_access.in' => 'خيار الوصول للنظام غير صحيح',
+
+            'new_username.unique' => 'اسم المستخدم الجديد موجود مسبقاً',
+            'new_username.max' => 'اسم المستخدم يجب ألا يتجاوز 255 حرف',
+
+            'new_email.email' => 'البريد الإلكتروني الجديد يجب أن يكون بتنسيق صحيح',
+            'new_email.unique' => 'البريد الإلكتروني الجديد مستخدم من قبل',
+            'new_email.max' => 'البريد الإلكتروني يجب ألا يتجاوز 255 حرف',
+
+            'is_active.boolean' => 'حالة التفعيل يجب أن تكون نعم أو لا',
+        ];
     }
 
     /**

@@ -330,8 +330,9 @@
         </p>
         <div class="transfer-info-box">
             <i class="feather icon-info"></i>
-            <strong>⚠️ لاحظ:</strong> عند إرسال طلب النقل، سيتم انتظار موافقة المسؤول الجديد قبل نقل الوردية فعلياً.
-            سيتم تسجيل جميع العمال المنقولين وتتبعهم في النظام.
+            <strong>⚠️ لاحظ:</strong> العمال المختارة سيتم إضافتهم للوردية الحالية.
+            سيتم الاحتفاظ بالعمال القدامى وإضافة الجدد معهم.
+            سيتم تسجيل جميع العمال المضافين وتتبعهم في النظام.
         </div>
     </div>
 
@@ -350,16 +351,14 @@
         </div>
     @endif
 
-    <!-- Before and After Cards -->
-    <div class="transfer-grid">
-        <!-- Current/Before Card -->
-        <div class="shift-card before">
-            <div class="card-title before">
-                <i class="feather icon-arrow-left"></i>
-                البيانات الحالية
-            </div>
-
-            <div class="info-row">
+        <!-- Before and After Cards -->
+        <div class="transfer-grid">
+            <!-- Current/Before Card -->
+            <div class="shift-card before">
+                <div class="card-title before">
+                    <i class="feather icon-arrow-left"></i>
+                    العمال الحاليين
+                </div>            <div class="info-row">
                 <span class="info-label">المسؤول:</span>
                 <span class="info-value">{{ $supervisor ? $supervisor->name : 'لا يوجد' }}</span>
             </div>
@@ -386,7 +385,7 @@
 
             @if(count($workers) > 0)
                 <div class="workers-list">
-                    <h4>قائمة العمال:</h4>
+                    <h4>العمال الموجودين (سيبقون):</h4>
                     @foreach($workers as $worker)
                         <span class="worker-badge">
                             {{ $worker->name }}
@@ -403,7 +402,7 @@
         <div class="shift-card after">
             <div class="card-title after">
                 <i class="feather icon-arrow-right"></i>
-                البيانات الجديدة
+                العمال الجدد (المضافين)
             </div>
 
             <!-- New Supervisor -->
@@ -426,53 +425,97 @@
                 @enderror
             </div>
 
-            <!-- Team Selection (Optional) -->
+            <!-- Worker Type Selection -->
             <div class="form-group">
-                <label for="team_id">
-                    <i class="feather icon-users"></i>
-                    اختر مجموعة عمال (اختياري)
+                <label style="display: block; margin-bottom: 12px;">
+                    <strong>نوع العمال:</strong>
                 </label>
-                <select id="team_id" onchange="loadTeamWorkers()">
-                    <option value="">-- اختر مجموعة عمال --</option>
-                    @foreach($teams as $team)
-                        <option value="{{ $team->id }}" data-workers="{{ json_encode($team->worker_ids ?? []) }}">
-                            {{ $team->name }}
-                        </option>
-                    @endforeach
-                </select>
-                <small style="color: #6b7280; margin-top: 5px; display: block;">
-                    اختر مجموعة عمال لتحميل جميع عمالها تلقائياً
-                </small>
+                <div style="display: flex; gap: 20px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="radio" name="worker_type" value="individual" checked onchange="switchWorkerType('individual')">
+                        <span style="font-weight: 500;">👤 عمال أفراد</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="radio" name="worker_type" value="team" onchange="switchWorkerType('team')">
+                        <span style="font-weight: 500;">👥 مجموعات عمال</span>
+                    </label>
+                </div>
             </div>
 
-            <!-- New Workers Selection -->
-            <div class="form-group">
-                <label>
-                    <i class="feather icon-users"></i>
-                    العمال الجدد
-                </label>
-                <div class="selected-count">
-                    تم اختيار <strong id="selectedCount">0</strong> عامل
-                </div>
-                <div class="workers-selection" id="workersContainer">
-                    @foreach($allWorkers as $worker)
-                        <div class="worker-item">
-                            <input type="checkbox" class="worker-checkbox"
-                                id="worker_{{ $worker->id }}"
-                                value="{{ $worker->id }}"
-                                @if(in_array($worker->id, $currentShift->worker_ids ?? []))
-                                    checked
-                                @endif>
-                            <label for="worker_{{ $worker->id }}">
-                                {{ $worker->name }}
-                                @if($worker->assigned_stage)
-                                    <small class="text-muted">(المرحلة: {{ $worker->assigned_stage }})</small>
-                                @endif
-                            </label>
-                        </div>
-                    @endforeach
+            <!-- Individual Workers Section -->
+            <div id="individual-section">
+                <div class="form-group">
+                    <label>
+                        <i class="feather icon-users"></i>
+                        العمال الأفراد
+                    </label>
+                    <div class="selected-count">
+                        تم اختيار <strong id="selectedIndividualCount">0</strong> عامل
+                    </div>
+                    <div class="workers-selection" id="individualWorkersContainer">
+                        @foreach($allWorkers as $worker)
+                            <div class="worker-item">
+                                <input type="checkbox" class="worker-checkbox individual-checkbox"
+                                    id="worker_{{ $worker->id }}"
+                                    value="{{ $worker->id }}"
+                                    data-worker-name="{{ $worker->name }}"
+                                    onchange="updateIndividualCount()"
+                                    @if(in_array($worker->id, $currentShift->individual_worker_ids ?? []))
+                                        checked
+                                    @endif>
+                                <label for="worker_{{ $worker->id }}">
+                                    {{ $worker->name }}
+                                    @if($worker->assigned_stage)
+                                        <small class="text-muted">(المرحلة: {{ $worker->assigned_stage }})</small>
+                                    @endif
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
+
+            <!-- Team Workers Section -->
+            <div id="team-section" style="display: none;">
+                <div class="form-group">
+                    <label for="team_id">
+                        <i class="feather icon-users"></i>
+                        اختر مجموعات عمال
+                    </label>
+                    <div class="selected-count">
+                        تم اختيار <strong id="selectedTeamCount">0</strong> مجموعة
+                    </div>
+                    <div class="workers-selection">
+                        @foreach($teams as $team)
+                            <div class="worker-item">
+                                <input type="checkbox" class="team-checkbox"
+                                    id="team_{{ $team->id }}"
+                                    value="{{ $team->id }}"
+                                    data-team-name="{{ $team->name }}"
+                                    data-workers="{{ json_encode($team->worker_ids ?? []) }}"
+                                    onchange="updateTeamSelection()">
+                                <label for="team_{{ $team->id }}" style="cursor: pointer;">
+                                    <strong>{{ $team->name }}</strong>
+                                    <br>
+                                    <small style="color: #6b7280;">
+                                        {{ count($team->worker_ids ?? []) }} عامل في المجموعة
+                                    </small>
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Selected Teams Preview -->
+                <div id="teams-preview" style="margin-top: 15px; display: none;">
+                    <div style="background: #f3f4f6; padding: 15px; border-radius: 8px;">
+                        <h4 style="margin: 0 0 10px 0;">المجموعات المختارة:</h4>
+                        <div id="teams-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Duplicate removal - remove the old "New Workers Selection" section -->
         </div>
     </div>
 
@@ -480,7 +523,7 @@
     <div class="form-section">
         <h2>ملاحظات النقل</h2>
 
-        <form method="POST" action="{{ route('manufacturing.shifts-workers.transfer-store', $currentShift->id) }}" id="finalForm">
+        <form method="POST" action="{{ route('manufacturing.shifts-workers.transfer-store-v2', $currentShift->id) }}" id="finalForm">
             @csrf
 
             <!-- Hidden fields for stage information -->
@@ -515,80 +558,138 @@
 </div>
 
 <script>
-    // تحديث عدد العمال المختارين
-    document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', updateSelectedCount);
-    });
+    // تحديث عدد العمال الأفراد
+    function updateIndividualCount() {
+        const count = document.querySelectorAll('.individual-checkbox:checked').length;
+        document.getElementById('selectedIndividualCount').textContent = count;
+    }
 
-    function updateSelectedCount() {
-        const count = document.querySelectorAll('.worker-checkbox:checked').length;
-        document.getElementById('selectedCount').textContent = count;
+    function updateSelectedTeamCount() {
+        const count = document.querySelectorAll('.team-checkbox:checked').length;
+        document.getElementById('selectedTeamCount').textContent = count;
     }
 
     // تحديث العد عند تحميل الصفحة
-    updateSelectedCount();
+    updateIndividualCount();
+    updateSelectedTeamCount();
 
-    // تحميل عمال المجموعة
-    function loadTeamWorkers() {
-        const teamSelect = document.getElementById('team_id');
-        const selectedOption = teamSelect.options[teamSelect.selectedIndex];
-        const teamWorkersJson = selectedOption.getAttribute('data-workers');
+    // تبديل نوع العمال
+    function switchWorkerType(type) {
+        const individualSection = document.getElementById('individual-section');
+        const teamSection = document.getElementById('team-section');
 
-        if (!teamWorkersJson) {
-            // إذا لم يتم اختيار مجموعة، لا نفعل شيء
-            return;
+        if (type === 'individual') {
+            individualSection.style.display = 'block';
+            teamSection.style.display = 'none';
+            // إلغاء اختيار المجموعات
+            document.querySelectorAll('.team-checkbox').forEach(cb => cb.checked = false);
+            updateSelectedTeamCount();
+        } else {
+            individualSection.style.display = 'none';
+            teamSection.style.display = 'block';
+            // إلغاء اختيار العمال الأفراد
+            document.querySelectorAll('.individual-checkbox').forEach(cb => cb.checked = false);
+            updateIndividualCount();
         }
+    }
 
-        try {
-            const teamWorkerIds = JSON.parse(teamWorkersJson) || [];
+    // تحديث اختيار المجموعات
+    function updateTeamSelection() {
+        const selectedTeams = Array.from(document.querySelectorAll('.team-checkbox:checked')).map(cb => ({
+            id: cb.value,
+            name: cb.getAttribute('data-team-name'),
+            workers: JSON.parse(cb.getAttribute('data-workers'))
+        }));
 
-            // اختيار عمال المجموعة وإلغاء الآخرين
-            document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
-                const workerId = parseInt(checkbox.value);
-                checkbox.checked = teamWorkerIds.includes(workerId);
-            });
+        updateSelectedTeamCount();
 
-            updateSelectedCount();
-        } catch (error) {
-            console.error('Error parsing team workers:', error);
+        const preview = document.getElementById('teams-preview');
+        const teamsList = document.getElementById('teams-list');
+
+        if (selectedTeams.length > 0) {
+            preview.style.display = 'block';
+            teamsList.innerHTML = selectedTeams.map(team => `
+                <div style="background: white; padding: 12px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid #10b981;">
+                    <strong style="font-size: 14px;">👥 ${team.name}</strong>
+                    <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+                        يحتوي على ${team.workers.length} عامل
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            preview.style.display = 'none';
         }
     }
 
     function submitTransfer() {
         const supervisorId = document.getElementById('new_supervisor_id').value;
+        const workerType = document.querySelector('input[name="worker_type"]:checked').value;
 
         if (!supervisorId) {
             alert('يرجى اختيار المسؤول الجديد');
             return;
         }
 
-        // جمع العمال المختارين
-        const selectedWorkers = Array.from(document.querySelectorAll('.worker-checkbox:checked'))
-            .map(checkbox => checkbox.value);
+        let selectedWorkers = [];
+        let selectedTeams = [];
 
-        console.log('Supervisor ID:', supervisorId);
-        console.log('Selected Workers:', selectedWorkers);
+        if (workerType === 'individual') {
+            selectedWorkers = Array.from(document.querySelectorAll('.individual-checkbox:checked'))
+                .map(checkbox => checkbox.value);
+
+            if (selectedWorkers.length === 0) {
+                alert('يرجى اختيار عمال أفراد على الأقل');
+                return;
+            }
+        } else {
+            selectedTeams = Array.from(document.querySelectorAll('.team-checkbox:checked')).map(cb => ({
+                id: cb.value,
+                name: cb.getAttribute('data-team-name'),
+                workers: JSON.parse(cb.getAttribute('data-workers'))
+            }));
+
+            if (selectedTeams.length === 0) {
+                alert('يرجى اختيار مجموعات عمال على الأقل');
+                return;
+            }
+        }
 
         // إضافة المسؤول
         document.getElementById('hidden_supervisor').value = supervisorId;
 
-        // إضافة العمال كـ hidden inputs
+        // إضافة نوع النقل
+        const typeInput = document.createElement('input');
+        typeInput.type = 'hidden';
+        typeInput.name = 'transfer_type';
+        typeInput.value = workerType;
+
         const container = document.getElementById('hidden_workers_container');
         container.innerHTML = '';
+        container.appendChild(typeInput);
 
-        selectedWorkers.forEach(workerId => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'new_workers[]';
-            input.value = workerId;
-            container.appendChild(input);
-            console.log('Added worker:', workerId);
-        });
-
-        // طباعة ملخص البيانات
-        console.log('Form Data Summary:');
-        console.log('Supervisor ID:', document.getElementById('hidden_supervisor').value);
-        console.log('Workers Count:', container.querySelectorAll('input').length);
+        if (workerType === 'individual') {
+            // إضافة العمال الأفراد
+            selectedWorkers.forEach(workerId => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'individual_workers[]';
+                input.value = workerId;
+                container.appendChild(input);
+            });
+        } else {
+            // إضافة المجموعات
+            selectedTeams.forEach(team => {
+                const teamInput = document.createElement('input');
+                teamInput.type = 'hidden';
+                teamInput.name = 'teams[]';
+                teamInput.value = JSON.stringify({
+                    team_id: team.id,
+                    team_name: team.name,
+                    worker_ids: team.workers
+                });
+                container.appendChild(teamInput);
+            });
+        }
 
         // إرسال النموذج
         document.getElementById('finalForm').submit();

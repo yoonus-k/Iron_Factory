@@ -495,7 +495,7 @@
                                     <line x1="3" y1="18" x2="3.01" y2="18"></line>
                                 </svg>
                                 <textarea name="notes" id="notes" rows="4"
-                                    class="form-input" placeholder="{{ __('shifts-workers.enter_notes') }}">{{ old('notes') }}</textarea>
+                                    class="form-input" placeholder="{{ __('workers.enter_notes') }}">{{ old('notes') }}</textarea>
 
                             </div>
                         </div>
@@ -509,7 +509,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        {{ __('shifts-workers.save') }} {{ __('shifts-workers.worker') }}
+                        {{ __('shifts-workerssave') }} {{ __('workers.worker') }}
                     </button>
 
                     <a href="{{ route('manufacturing.workers.index') }}" class="btn-cancel">
