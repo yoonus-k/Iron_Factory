@@ -622,10 +622,9 @@ class ShiftHandoverController extends Controller
                 ->with('error', 'لم يتم العثور على الوردية المرتبطة بهذه المرحلة');
         }
 
-        // جلب الورديات المتاحة للنقل إليها - نشطة فقط
-        $availableShifts = ShiftAssignment::where('stage_number', $stageNumber)
+        // جلب الورديات المتاحة للنقل إليها - جميع الورديات النشطة ما عدا الوردية الحالية
+        $availableShifts = ShiftAssignment::where('status', ShiftAssignment::STATUS_ACTIVE)
             ->where('id', '!=', $currentShift->id)
-            ->where('status', ShiftAssignment::STATUS_ACTIVE)
             ->with('user', 'supervisor')
             ->orderBy('shift_date', 'desc')
             ->get();
@@ -696,11 +695,10 @@ class ShiftHandoverController extends Controller
                 'stage_record_barcode' => $request->stage_record_barcode ?? $fromShift->stage_record_barcode,
             ]);
 
-            // إزالة المرحلة من الوردية القديمة
+            // تحديث حالة الوردية القديمة - ليس حذف المرحلة بل تحديث الحالة
+            // لأن stage_number لا يقبل null في قاعدة البيانات
             $fromShift->update([
-                'stage_number' => null,
-                'stage_record_id' => null,
-                'stage_record_barcode' => null,
+                'status' => ShiftAssignment::STATUS_COMPLETED,
             ]);
 
             // إنشاء سجل في جدول shift_handovers لتتبع النقل
@@ -795,15 +793,32 @@ class ShiftHandoverController extends Controller
                 'wsh.is_active',
                 'workers.name as worker_name',
                 'workers.email',
-
                 'worker_teams.name as team_name'
             )
             ->orderBy('wsh.started_at', 'desc')
             ->get();
 
+        // جلب جميع الورديات النشطة
+        $availableShifts = ShiftAssignment::where('status', ShiftAssignment::STATUS_ACTIVE)
+            ->where('id', '!=', $fromShiftId)
+            ->with('user', 'supervisor')
+            ->orderBy('shift_date', 'desc')
+            ->get();
+
+        // جلب جميع العمال
+        $allWorkers = \App\Models\Worker::where('is_active', true)
+            ->get();
+
+        // جلب جميع فرق العمال
+        $allTeams = \App\Models\WorkerTeam::where('is_active', true)
+            ->get();
+
         return view('manufacturing::shift-handovers.transfer-workers', compact(
             'fromShift',
-            'activeWorkers'
+            'activeWorkers',
+            'availableShifts',
+            'allWorkers',
+            'allTeams'
         ));
     }
 
@@ -918,25 +933,26 @@ class ShiftHandoverController extends Controller
     /**
      * الحصول على الورديات المتاحة (API)
      */
-    public function getAvailableShifts(Request $request)
+
+            public function getAvailableShifts(Request $request)
     {
         $stageNumber = $request->input('stage_number');
         $excludeShiftId = $request->input('exclude_shift_id');
 
-        if (!$stageNumber) {
-            return response()->json([
-                'success' => false,
-                'message' => 'يجب تحديد المرحلة'
-            ], 422);
-        }
-
         try {
-            $shifts = ShiftAssignment::where('stage_number', $stageNumber)
-                ->when($excludeShiftId, function($q) use ($excludeShiftId) {
-                    return $q->where('id', '!=', $excludeShiftId);
-                })
-                ->where('status', ShiftAssignment::STATUS_ACTIVE)
-                ->with('user', 'supervisor')
+            $query = ShiftAssignment::where('status', ShiftAssignment::STATUS_ACTIVE);
+
+            // إذا كان هناك stage_number، استخدمه كـ filter
+            if ($stageNumber) {
+                $query->where('stage_number', $stageNumber);
+            }
+
+            // استبعد الوردية الحالية إذا تم توفيرها
+            if ($excludeShiftId) {
+                $query->where('id', '!=', $excludeShiftId);
+            }
+
+            $shifts = $query->with('user', 'supervisor')
                 ->orderBy('shift_date', 'desc')
                 ->get()
                 ->map(function($shift) {
