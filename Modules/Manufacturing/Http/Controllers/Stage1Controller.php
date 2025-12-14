@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Stand;
 use App\Models\StandUsageHistory;
+use App\Models\ShiftAssignment;
+use App\Models\ShiftHandover;
+use App\Models\Worker;
 use App\Services\WasteCheckService;
 use App\Helpers\SystemSettingsHelper;
 
@@ -695,7 +698,94 @@ class Stage1Controller extends Controller
             ->orderBy('stand_usage_history.created_at', 'desc')
             ->first();
 
-        return view('manufacturing::stages.stage1.show', compact('stand', 'operationLogs', 'trackingLogs', 'usageHistory'));
+        // 🔥 جلب بيانات الورديات والعمال - من جدول shift_handovers
+
+        // جلب آخر handover (النقل الأخير) - هذا يمثل الوردية الحالية
+        $currentHandover = \App\Models\ShiftHandover::where('stage_number', 1)
+            ->with(['toUser', 'fromUser', 'approver'])
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $currentShiftAssignment = null;
+        $currentShiftWorkers = collect();
+        $currentHandoverData = null;
+
+        if ($currentHandover) {
+            // جلب الوردية المنقول إليها (to_shift) من الـ handover
+            $currentShiftAssignment = \App\Models\ShiftAssignment::find($currentHandover->to_shift_id);
+
+            if ($currentShiftAssignment) {
+                $currentShiftAssignment->load('supervisor');
+                // جلب العمال من الوردية الحالية
+                $currentShiftWorkers = \App\Models\Worker::whereIn('id', $currentShiftAssignment->worker_ids ?? [])->get();
+            }
+
+            $currentHandoverData = $currentHandover;
+        }
+
+        // إذا لم نجد handover، جلب آخر وردية نشطة كبديل
+        if (!$currentShiftAssignment) {
+            $currentShiftAssignment = \App\Models\ShiftAssignment::where('stage_number', 1)
+                ->where('status', 'active')
+                ->with(['supervisor'])
+                ->latest('created_at')
+                ->first();
+
+            if ($currentShiftAssignment) {
+                $currentShiftWorkers = \App\Models\Worker::whereIn('id', $currentShiftAssignment->worker_ids ?? [])->get();
+            }
+        }
+
+        // جلب الوردية السابقة - ثاني أحدث handover
+        $previousHandover = \App\Models\ShiftHandover::where('stage_number', 1)
+            ->with(['toUser', 'fromUser', 'approver'])
+            ->orderBy('created_at', 'desc')
+            ->skip(1)
+            ->first();
+
+        $previousShift = null;
+        $previousShiftWorkers = collect();
+        $previousHandoverData = null;
+
+        if ($previousHandover) {
+            // جلب الوردية الأصلية (from_shift) من الـ handover السابق
+            $previousShift = \App\Models\ShiftAssignment::find($previousHandover->from_shift_id);
+
+            if ($previousShift) {
+                $previousShift->load('supervisor');
+                $previousShiftWorkers = \App\Models\Worker::whereIn('id', $previousShift->worker_ids ?? [])->get();
+            } else {
+                // إذا لم نجد from_shift، جلب الوردية المنقول إليها (to_shift)
+                $previousShift = \App\Models\ShiftAssignment::find($previousHandover->to_shift_id);
+                if ($previousShift) {
+                    $previousShift->load('supervisor');
+                    $previousShiftWorkers = \App\Models\Worker::whereIn('id', $previousShift->worker_ids ?? [])->get();
+                }
+            }
+
+            $previousHandoverData = $previousHandover;
+        }
+
+        // إذا لم نجد handover سابقة، جلب ثاني أحدث وردية كبديل
+        if (!$previousShift) {
+            $previousShift = \App\Models\ShiftAssignment::where('stage_number', 1)
+                ->with(['supervisor'])
+                ->latest('created_at')
+                ->offset(1)
+                ->limit(1)
+                ->first();
+
+            if ($previousShift) {
+                $previousShiftWorkers = \App\Models\Worker::whereIn('id', $previousShift->worker_ids ?? [])->get();
+            }
+        }
+
+        return view('manufacturing::stages.stage1.show', compact(
+            'stand', 'operationLogs', 'trackingLogs', 'usageHistory',
+            'currentShiftAssignment', 'previousShift',
+            'currentShiftWorkers', 'previousShiftWorkers',
+            'currentHandoverData', 'previousHandoverData'
+        ));
     }
 
     /**

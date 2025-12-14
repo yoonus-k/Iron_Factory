@@ -5,6 +5,7 @@ namespace Modules\Manufacturing\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Services\WorkerTrackingService;
 use App\Models\WorkerStageHistory;
+use App\Models\ShiftHandover;
 use App\Models\User;
 use App\Models\Stand;
 use Illuminate\Http\Request;
@@ -332,28 +333,55 @@ class WorkerTrackingController extends Controller
 
             DB::beginTransaction();
 
-            // احصل على الوردية الأصلية
+            // احصل على الوردية الأصلية والجديدة
             $fromShift = \App\Models\ShiftAssignment::findOrFail($validated['from_shift_id']);
-            // احصل على الوردية الجديدة
             $toShift = \App\Models\ShiftAssignment::findOrFail($validated['to_shift_id']);
-
-            // احصل على بيانات الستاند
             $stand = \App\Models\Stand::findOrFail($validated['stand_id']);
 
-            // احصل على سجل stage1_stands الخاص بهذا الستاند
-            $stage1Stand = DB::table('stage1_stands')
-                ->where('stand_number', $stand->stand_number)
-                ->where('material_id', $stand->material_id)
-                ->orderBy('created_at', 'desc')
-                ->first();
+            Log::info('📦 Stand Details', [
+                'stand_id' => $stand->id,
+                'stand_number' => $stand->stand_number,
+                'stand_barcode' => $stand->barcode
+            ]);
 
-            // 🔥 أولاً: إزالة الستاند من الوردية الأصلية
+            // 🔥 Step 1: إنشاء سجل نقل الوردية (Handover) مع الموافقة
+            $handover = \App\Models\ShiftHandover::create([
+                'from_user_id' => $fromShift->supervisor_id,
+                'to_user_id' => $toShift->supervisor_id,
+                'stage_number' => 1,
+                'shift_assignment_id' => $toShift->id,
+                'from_shift_id' => $fromShift->id,
+                'to_shift_id' => $toShift->id,
+                'handover_items' => [
+                    'stand_id' => $stand->id,
+                    'stand_number' => $stand->stand_number,
+                    'stand_barcode' => $stand->barcode ?? 'STAND-' . $stand->id,
+                    'material_id' => $stand->material_id,
+                    'from_shift_code' => $fromShift->shift_code,
+                    'to_shift_code' => $toShift->shift_code,
+                    'transfer_type' => 'stage1_stand',
+                    'transfer_reason' => $validated['notes'] ?? 'نقل روتيني'
+                ],
+                'pending_items_count' => 1,
+                'notes' => $validated['notes'] ?? '',
+                'handover_time' => now(),
+                'supervisor_approved' => true,
+                'approved_by' => auth()->id()
+            ]);
+
+            Log::info('✅ ShiftHandover Created', [
+                'handover_id' => $handover->id,
+                'from_supervisor' => $fromShift->supervisor?->name,
+                'to_supervisor' => $toShift->supervisor?->name
+            ]);
+
+            // 🔥 Step 2: إزالة الستاند من الوردية الأصلية
             $fromShift->update([
                 'stage_record_id' => null,
                 'stage_record_barcode' => null,
             ]);
 
-            // 🔥 ثانياً: إضافة الستاند إلى الوردية الجديدة
+            // 🔥 Step 3: إضافة الستاند إلى الوردية الجديدة
             $toShift->update([
                 'stage_record_id' => $stand->id,
                 'stage_record_barcode' => $stand->barcode ?? 'STAND-' . $stand->id,
@@ -365,7 +393,13 @@ class WorkerTrackingController extends Controller
                 'stand_id' => $stand->id
             ]);
 
-            // 🔥 تحديث سجل المرحلة ليعكس الوردية الجديدة (إذا كان موجوداً)
+            // 🔥 Step 4: تحديث جدول stage1_stands
+            $stage1Stand = DB::table('stage1_stands')
+                ->where('stand_number', $stand->stand_number)
+                ->where('material_id', $stand->material_id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
             if ($stage1Stand) {
                 DB::table('stage1_stands')->where('id', $stage1Stand->id)->update([
                     'shift_id' => $toShift->id,
@@ -380,11 +414,7 @@ class WorkerTrackingController extends Controller
                 ]);
             }
 
-            // ملاحظة: لا نحدث الستاند مباشرة لتجنب مشاكل الـ enum
-            // الستاند سيحتفظ بحالته الحالية
-
-            // تسجيل في جدول product_tracking لتتبع النقل
-            // استخدم باركود الستاند أو رقم الستاند كـ fallback
+            // 🔥 Step 5: تسجيل في product_tracking
             $trackingBarcode = $stand->barcode ?? 'STAND-' . $stand->id . '-' . $stand->stand_number;
 
             DB::table('product_tracking')->insert([
@@ -396,6 +426,7 @@ class WorkerTrackingController extends Controller
                 'worker_id' => auth()->id(),
                 'shift_id' => $toShift->id,
                 'notes' => json_encode([
+                    'handover_id' => $handover->id,
                     'transfer_type' => 'stage1_stand',
                     'from_shift_id' => $fromShift->id,
                     'to_shift_id' => $toShift->id,
@@ -414,8 +445,7 @@ class WorkerTrackingController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // 🔥 نقل تتبع العمال من الوردية الأصلية إلى الجديدة
-            // إنهاء تتبع العمال في الوردية الأصلية
+            // 🔥 Step 6: نقل تتبع العمال
             \App\Models\WorkerStageHistory::where('stage_type', 'stage1_stands')
                 ->where('stage_record_id', $stand->id)
                 ->where('shift_assignment_id', $fromShift->id)
@@ -432,7 +462,6 @@ class WorkerTrackingController extends Controller
 
             if (!empty($toShiftWorkerIds)) {
                 foreach ($toShiftWorkerIds as $workerId) {
-                    // تحقق من عدم وجود سجل نشط بالفعل
                     $existingHistory = \App\Models\WorkerStageHistory::where('stage_type', 'stage1_stands')
                         ->where('stage_record_id', $stand->id)
                         ->where('shift_assignment_id', $toShift->id)
@@ -441,8 +470,6 @@ class WorkerTrackingController extends Controller
                         ->first();
 
                     if (!$existingHistory) {
-                        $trackingBarcode = $stand->barcode ?? 'STAND-' . $stand->id . '-' . $stand->stand_number;
-
                         \App\Models\WorkerStageHistory::create([
                             'stage_type' => 'stage1_stands',
                             'stage_record_id' => $stand->id,
@@ -460,7 +487,7 @@ class WorkerTrackingController extends Controller
                 }
             }
 
-            // إنشاء سجل نقل العملية في logs
+            // 🔥 Step 7: إنشاء سجل العملية
             \App\Models\ShiftOperationLog::create([
                 'stage_number' => 1,
                 'shift_id' => $toShift->id,
@@ -491,15 +518,25 @@ class WorkerTrackingController extends Controller
                     'stand_status' => $stand->status
                 ],
                 'notes' => $validated['notes'] ?? null,
-                'user_id' => auth()->id()
+                'user_id' => auth()->id(),
+                'metadata' => json_encode([
+                    'handover_id' => $handover->id,
+                    'approved' => true
+                ])
             ]);
 
             DB::commit();
+
+            Log::info('✅ Transaction Committed', [
+                'handover_id' => $handover->id,
+                'stand_id' => $stand->id
+            ]);
 
             return response()->json([
                 'success' => true,
                 'message' => "✅ تم نقل المرحلة {$stand->stand_number} بنجاح من الوردية {$fromShift->shift_code} إلى الوردية {$toShift->shift_code}",
                 'data' => [
+                    'handover_id' => $handover->id,
                     'stand_id' => $stand->id,
                     'stand_number' => $stand->stand_number,
                     'stand_barcode' => $stand->barcode,
@@ -521,6 +558,7 @@ class WorkerTrackingController extends Controller
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('❌ Validation Failed:', $e->errors());
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'خطأ في التحقق من البيانات: ' . json_encode($e->errors()),
@@ -529,10 +567,9 @@ class WorkerTrackingController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Transfer Stage Error: ' . $e->getMessage(), [
-                'stand_id' => $validated['stand_id'] ?? null,
-                'from_shift_id' => $validated['from_shift_id'] ?? null,
-                'to_shift_id' => $validated['to_shift_id'] ?? null,
-                'error' => $e->getTraceAsString()
+                'error_line' => $e->getLine(),
+                'error_file' => $e->getFile(),
+                'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([
@@ -549,43 +586,100 @@ class WorkerTrackingController extends Controller
     {
         try {
             $currentShiftId = $request->get('current_shift_id');
+            $searchTerm = $request->get('search', '');
 
-            // احصل على جميع الورديات النشطة والمكتملة (ما عدا الوردية الحالية)
-            $shifts = \App\Models\ShiftAssignment::where('stage_number', 1)
+            // ✅ جلب جميع الورديات في المرحلة 1
+            $allShifts = \App\Models\ShiftAssignment::where('stage_number', 1)
                 ->whereIn('status', ['active', 'completed'])
-                ->where('id', '!=', $currentShiftId)
                 ->with('supervisor')
                 ->orderBy('shift_date', 'desc')
-                ->get()
-                ->map(function ($shift) {
-                    // احصل على بيانات العمال
-                    $workers = \App\Models\Worker::whereIn('id', $shift->worker_ids ?? [])
-                        ->select('id', 'name', 'worker_code', 'position')
-                        ->get()
-                        ->toArray();
+                ->get();
 
-                    return [
-                        'id' => $shift->id,
-                        'shift_code' => $shift->shift_code,
-                        'shift_type' => $shift->shift_type,
-                        'shift_date' => $shift->shift_date,
-                        'status' => $shift->status,
-                        'supervisor_name' => $shift->supervisor?->name ?? 'لم يحدد',
-                        'supervisor' => $shift->supervisor ? [
-                            'id' => $shift->supervisor->id,
-                            'name' => $shift->supervisor->name,
-                            'email' => $shift->supervisor->email
-                        ] : null,
-                        'workers_count' => count($workers),
-                        'workers' => $workers
-                    ];
+            \Log::info('✅ STEP 1: جلب جميع الورديات', [
+                'total' => $allShifts->count(),
+                'shift_ids' => $allShifts->pluck('id')->toArray(),
+                'current_shift_id' => $currentShiftId
+            ]);
+
+            // ❌ احصل على الورديات المربوطة (موجودة في to_shift_id)
+            $boundShiftIds = \App\Models\ShiftHandover::whereNotNull('to_shift_id')
+                ->distinct()
+                ->pluck('to_shift_id')
+                ->toArray();
+
+            \Log::info('🔗 STEP 2: الورديات المربوطة', [
+                'total_bound' => count($boundShiftIds),
+                'bound_ids' => $boundShiftIds
+            ]);
+
+            // ✨ فلترة الورديات المتاحة:
+            // استبعد الورديات المربوطة فقط (لا نستبعد الوردية الحالية، قد تحتاج للتحديث)
+            $availableShifts = $allShifts->filter(function ($shift) use ($boundShiftIds) {
+                // استبعد الورديات المربوطة فقط
+                if (in_array($shift->id, $boundShiftIds)) {
+                    \Log::debug("Shift {$shift->id} excluded - it's already bound to another stage");
+                    return false;
+                }
+
+                \Log::debug("Shift {$shift->id} is available");
+                return true;
+            });            \Log::info('✨ STEP 3: الورديات المتاحة (بعد الاستبعاد)', [
+                'total_available' => $availableShifts->count(),
+                'shift_codes' => $availableShifts->pluck('shift_code')->values()->toArray()
+            ]);
+
+            // البحث حسب رقم الوردية أو المسؤول (إن وجد)
+            if (!empty($searchTerm)) {
+                $availableShifts = $availableShifts->filter(function ($shift) use ($searchTerm) {
+                    $shiftCodeMatch = stripos($shift->shift_code, $searchTerm) !== false;
+                    $supervisorMatch = stripos($shift->supervisor?->name ?? '', $searchTerm) !== false;
+                    return $shiftCodeMatch || $supervisorMatch;
                 });
+
+                \Log::info('🔍 STEP 4: البحث بـ: ' . $searchTerm, [
+                    'count_after_search' => $availableShifts->count()
+                ]);
+            }
+
+            // تحويل البيانات النهائية
+            $shiftsData = $availableShifts->map(function ($shift) {
+                $workers = \App\Models\Worker::whereIn('id', $shift->worker_ids ?? [])
+                    ->select('id', 'name', 'worker_code', 'position')
+                    ->get()
+                    ->toArray();
+
+                return [
+                    'id' => $shift->id,
+                    'shift_code' => $shift->shift_code,
+                    'shift_type' => $shift->shift_type,
+                    'shift_date' => $shift->shift_date,
+                    'status' => $shift->status,
+                    'supervisor_name' => $shift->supervisor?->name ?? 'لم يحدد',
+                    'supervisor' => $shift->supervisor ? [
+                        'id' => $shift->supervisor->id,
+                        'name' => $shift->supervisor->name,
+                        'email' => $shift->supervisor->email
+                    ] : null,
+                    'workers_count' => count($workers),
+                    'workers' => $workers
+                ];
+            })->values();
+
+            \Log::info('📤 STEP 5: النتيجة النهائية', [
+                'total_returned' => $shiftsData->count(),
+                'shift_codes' => collect($shiftsData)->pluck('shift_code')->toArray()
+            ]);
 
             return response()->json([
                 'success' => true,
-                'shifts' => $shifts
+                'total' => $shiftsData->count(),
+                'shifts' => $shiftsData
             ]);
         } catch (\Exception $e) {
+            \Log::error('❌ Error in getAvailableShifts: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'خطأ: ' . $e->getMessage()

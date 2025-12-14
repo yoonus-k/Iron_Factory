@@ -14,6 +14,56 @@
             --warning-yellow: #f39c12;
         }
 
+        /* Styles for Search Input and Dropdown */
+        #shiftSearchInput {
+            transition: all 0.3s ease !important;
+        }
+
+        #shiftSearchInput:hover {
+            border-color: #bbb !important;
+            border-right-color: var(--success-green) !important;
+        }
+
+        #shiftSearchInput:focus {
+            border-color: var(--success-green) !important;
+            background: white !important;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1) !important;
+        }
+
+        #shiftsDropdown {
+            animation: slideDown 0.2s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .shift-option {
+            transition: all 0.2s ease;
+        }
+
+        .shift-option:hover {
+            background: #f0f8ff !important;
+            border-right: 4px solid var(--success-green) !important;
+            padding-right: 11px !important;
+        }
+
+        .shift-option .shift-checkmark {
+            transition: opacity 0.2s ease;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .detail-card {
             background: white;
             border-radius: 12px;
@@ -244,33 +294,7 @@
 
         <!-- Shifts and Workers Tracking Section -->
         @php
-            // جلب الوردية الحالية للستاند (بناءً على مرتبط الستاند الحالي)
-            $currentShiftAssignment = \App\Models\ShiftAssignment::where('stage_number', 1)
-                ->where('stage_record_id', $stand->id)
-                ->where('stage_record_barcode', $stand->barcode)
-                ->latest('created_at')
-                ->first();
-
-            // إذا لم نجد ارتباط مباشر، جلب آخر وردية نشطة
-            if (!$currentShiftAssignment) {
-                $currentShiftAssignment = \App\Models\ShiftAssignment::where('status', 'active')
-                    ->where('stage_number', 1)
-                    ->latest('created_at')
-                    ->first();
-            }
-
-            // جلب الوردية السابقة (ثاني أحدث وردية)
-            $previousShift = \App\Models\ShiftAssignment::where('stage_number', 1)
-                ->orderBy('created_at', 'desc')
-                ->skip(1)
-                ->first();
-
-            // جلب العمال الحاليين
-            $currentShiftWorkers = $currentShiftAssignment ? \App\Models\Worker::whereIn('id', $currentShiftAssignment->worker_ids ?? [])->get() : collect();
-
-            // جلب العمال السابقين
-            $previousShiftWorkers = $previousShift ? \App\Models\Worker::whereIn('id', $previousShift->worker_ids ?? [])->get() : collect();
-
+            // البيانات تأتي من الـ Controller - لا حاجة لإعادة الاستعلام
             // جلب تتبع العمال للمرحلة الحالية
             $workerTracking = \App\Models\WorkerStageHistory::where('stage_type', 'stage1_stands')
                 ->where('stage_record_id', $stand->id)
@@ -323,6 +347,19 @@
                                         {{ count($currentShiftAssignment->worker_ids ?? []) }} عامل
                                     </div>
                                 </div>
+                                @if($currentHandoverData)
+                                <div style="padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); margin-top: 10px;">
+                                    <div style="font-size: 11px; opacity: 0.8;">📋 معلومات النقل:</div>
+                                    <div style="font-size: 12px; margin-top: 6px;">
+                                        ✓ وقت النقل: {{ $currentHandoverData->handover_time->format('H:i') }}
+                                    </div>
+                                    @if($currentHandoverData->supervisor_approved)
+                                    <div style="font-size: 12px; color: #2ecc71;">
+                                        ✅ موافق من قبل المشرف
+                                    </div>
+                                    @endif
+                                </div>
+                                @endif
                             </div>
                         </div>
 
@@ -379,6 +416,19 @@
                                         {{ count($previousShift->worker_ids ?? []) }} عامل
                                     </div>
                                 </div>
+                                @if($previousHandoverData)
+                                <div style="padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); margin-top: 10px;">
+                                    <div style="font-size: 11px; opacity: 0.8;">📋 معلومات النقل:</div>
+                                    <div style="font-size: 12px; margin-top: 6px;">
+                                        ✓ وقت النقل: {{ $previousHandoverData->handover_time->format('H:i') }}
+                                    </div>
+                                    @if($previousHandoverData->supervisor_approved)
+                                    <div style="font-size: 12px; color: #f1c40f;">
+                                        ✅ موافق من قبل المشرف
+                                    </div>
+                                    @endif
+                                </div>
+                                @endif
                             </div>
                         </div>
 
@@ -1032,11 +1082,29 @@
                                     <i class="feather icon-arrow-right"></i> الوردية الجديدة
                                 </h6>
                                 <div class="mb-3">
-                                    <select id="toShiftId" class="form-select" required style="border: 2px solid #e0e0e0; border-right: 4px solid var(--success-green);">
-                                        <option value="">-- اختر وردية --</option>
-                                    </select>
+                                    <label style="font-weight: 600; color: #555; margin-bottom: 8px; display: block; font-size: 14px;">🔍 ابحث عن وردية</label>
+                                    <div style="position: relative;">
+                                        <input
+                                            type="text"
+                                            id="shiftSearchInput"
+                                            class="form-control"
+                                            placeholder="اكتب رقم الوردية أو اسم المسؤول..."
+                                            style="border: 2px solid #ddd; border-right: 4px solid var(--success-green); padding: 14px 15px; border-radius: 8px; font-size: 15px; text-align: right; background: #fafbfc; transition: all 0.3s ease;"
+                                            autocomplete="off"
+                                            onmouseover="this.style.borderColor='#bbb'; this.style.borderRightColor='var(--success-green)';"
+                                            onmouseout="this.style.borderColor='#ddd';"
+                                            onfocus="this.style.borderColor='var(--success-green)'; this.style.background='white'; this.style.boxShadow='0 0 0 3px rgba(39, 174, 96, 0.1)';"
+                                            onblur="this.style.borderColor='#ddd'; this.style.background='#fafbfc'; this.style.boxShadow='none';"
+                                        >
+                                        <div
+                                            id="shiftsDropdown"
+                                            style="position: absolute; top: calc(100% + 4px); right: 0; left: 0; background: white; border: 2px solid #e0e0e0; border-radius: 8px; max-height: 350px; overflow-y: auto; z-index: 9999; display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.12);"
+                                        ></div>
+                                    </div>
                                 </div>
-                                <div id="newShiftCard" style="display: none; text-align: right;"></div>
+                                <!-- Input Hidden لتخزين الوردية المختارة -->
+                                <input type="hidden" id="toShiftId" value="">
+                                <div id="newShiftCard" style="display: none; text-align: right; margin-top: 15px;"></div>
                             </div>
                         </div>
                     </div>
@@ -1106,7 +1174,19 @@
             loadAvailableShifts(currentShiftId);
 
             // فتح الـ Modal
-            new bootstrap.Modal(document.getElementById('transferStageModal')).show();
+            const modal = new bootstrap.Modal(document.getElementById('transferStageModal'));
+            modal.show();
+
+            // إظهار الـ dropdown وإضاءة الـ input بعد فتح المودال
+            setTimeout(() => {
+                const searchInput = document.getElementById('shiftSearchInput');
+                const dropdown = document.getElementById('shiftsDropdown');
+                if(searchInput && dropdown) {
+                    searchInput.focus();
+                    searchInput.select();
+                    dropdown.style.display = 'block';
+                }
+            }, 500);
         }
 
         // تحميل الوردية السابقة
@@ -1238,36 +1318,181 @@
             displayWorkersList(shift.workers || [], 'currentShiftWorkers', 'الوردية الحالية', true);
         }
 
+        // تخزين الورديات المتاحة
+        let allShifts = [];
+
         // تحميل الورديات المتاحة
         function loadAvailableShifts(currentShiftId) {
+            console.log('🔥 جاري تحميل الورديات المتاحة للـ shift ID:', currentShiftId);
+
             fetch('{{ route("worker-tracking.available-shifts") }}?current_shift_id=' + currentShiftId)
-                .then(response => response.json())
+                .then(response => {
+                    console.log('✅ استجابة الخادم:', response.status);
+                    return response.json();
+                })
                 .then(data => {
-                    if(data.success && data.shifts) {
-                        const select = document.getElementById('toShiftId');
-                        select.innerHTML = '<option value="">-- اختر وردية --</option>';
+                    console.log('📊 بيانات الورديات المستلمة:', data);
 
-                        data.shifts.forEach(shift => {
-                            const option = document.createElement('option');
-                            option.value = shift.id;
-                            option.textContent = `${shift.shift_code} - ${shift.supervisor_name || 'لم يحدد'} (${shift.shift_type === 'morning' ? 'الفترة الأولى' : 'الفترة الثانية'})`;
-                            option.dataset.shift = JSON.stringify(shift);
-                            select.appendChild(option);
-                        });
+                    if(data.success && data.shifts && data.shifts.length > 0) {
+                        allShifts = data.shifts;
+                        console.log('✅ عدد الورديات المتاحة:', allShifts.length);
 
-                        // إضافة event listener لعرض تفاصيل الوردية المختارة
-                        select.addEventListener('change', function() {
-                            if(this.value) {
-                                const shift = JSON.parse(this.options[this.selectedIndex].dataset.shift);
-                                displaySelectedShiftInfo(shift);
-                            } else {
-                                document.getElementById('newShiftCard').style.display = 'none';
-                                document.getElementById('newShiftWorkers').innerHTML = '';
-                            }
-                        });
+                        // إضافة event listeners للـ input
+                        const searchInput = document.getElementById('shiftSearchInput');
+                        const dropdown = document.getElementById('shiftsDropdown');
+
+                        if(searchInput && dropdown) {
+                            // عند الكتابة - البحث والتصفية
+                            searchInput.addEventListener('input', function() {
+                                const searchTerm = this.value.toLowerCase();
+                                console.log('🔍 البحث عن:', searchTerm);
+                                filterAndDisplayShifts(searchTerm);
+                                dropdown.style.display = 'block';
+                            });
+
+                            // عند التركيز على الـ input - إظهار جميع الورديات
+                            searchInput.addEventListener('focus', function() {
+                                console.log('👁️ تركيز على input، عرض جميع الورديات');
+                                if(allShifts.length > 0) {
+                                    displayShiftsDropdown(allShifts);
+                                    dropdown.style.display = 'block';
+                                } else {
+                                    console.warn('⚠️ لا توجد ورديات متاحة');
+                                }
+                            });
+
+                            // إغلاق القائمة عند النقر خارجها
+                            document.addEventListener('click', function(e) {
+                                if(dropdown && searchInput && !dropdown.contains(e.target) && e.target !== searchInput) {
+                                    dropdown.style.display = 'none';
+                                }
+                            });
+                        }
+
+                        // عرض الورديات عند تحميلها
+                        displayShiftsDropdown(allShifts);
+                    } else {
+                        console.warn('⚠️ لا توجد ورديات متاحة أو حدث خطأ:', data);
+                        const dropdown = document.getElementById('shiftsDropdown');
+                        if(dropdown) {
+                            dropdown.innerHTML = `
+                                <div style="padding: 15px; text-align: center; color: #999;">
+                                    <i class="feather icon-inbox"></i>
+                                    <div>لا توجد ورديات متاحة حالياً</div>
+                                </div>
+                            `;
+                        }
                     }
                 })
-                .catch(error => console.error('خطأ في تحميل الورديات:', error));
+                .catch(error => {
+                    console.error('❌ خطأ في تحميل الورديات:', error);
+                    const dropdown = document.getElementById('shiftsDropdown');
+                    if(dropdown) {
+                        dropdown.innerHTML = `
+                            <div style="padding: 15px; text-align: center; color: #e74c3c;">
+                                <i class="feather icon-alert-circle"></i>
+                                <div>حدث خطأ في تحميل الورديات</div>
+                            </div>
+                        `;
+                    }
+                });
+        }
+
+        // عرض قائمة الورديات في الـ dropdown
+        function displayShiftsDropdown(shifts) {
+            const dropdown = document.getElementById('shiftsDropdown');
+
+            console.log('📋 عرض الورديات:', shifts.length);
+
+            if(!shifts || shifts.length === 0) {
+                dropdown.innerHTML = `
+                    <div style="padding: 15px; text-align: center; color: #999;">
+                        <i class="feather icon-inbox"></i>
+                        <div>لا توجد ورديات متاحة</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            shifts.forEach((shift, index) => {
+                const shiftType = shift.shift_type === 'morning' ? '🌅 الفترة الأولى' : '🌙 الفترة الثانية';
+                const shiftDate = new Date(shift.shift_date).toLocaleDateString('ar-EG');
+                const borderStyle = index === shifts.length - 1 ? '' : 'border-bottom: 1px solid #f0f0f0;';
+
+                html += `
+                    <div class="shift-option" style="padding: 12px 15px; cursor: pointer; transition: all 0.2s ease; text-align: right; background: white; ${borderStyle}"
+                        data-shift-id="${shift.id}"
+                        data-shift='${JSON.stringify(shift).replace(/'/g, "&apos;")}'>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: var(--primary-blue); margin-bottom: 4px; font-size: 15px;">${shift.shift_code}</div>
+                                <div style="font-size: 13px; color: #666; margin-bottom: 3px;">👤 ${shift.supervisor_name || 'لم يحدد'}</div>
+                                <div style="font-size: 12px; color: #999;">${shiftType} • ${shiftDate}</div>
+                            </div>
+                            <div style="margin-right: 12px; color: #27ae60; opacity: 0; transition: all 0.2s ease;" class="shift-checkmark">
+                                <i class="feather icon-check-circle" style="font-size: 18px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            dropdown.innerHTML = html;
+
+            // إضافة event listeners للخيارات
+            document.querySelectorAll('.shift-option').forEach(option => {
+                option.addEventListener('mouseenter', function() {
+                    this.style.background = '#f0f8ff';
+                    this.style.borderRight = '4px solid var(--success-green)';
+                    this.style.paddingRight = '11px';
+                    const checkmark = this.querySelector('.shift-checkmark');
+                    if(checkmark) checkmark.style.opacity = '1';
+                });
+                option.addEventListener('mouseleave', function() {
+                    this.style.background = 'white';
+                    this.style.borderRight = 'none';
+                    this.style.paddingRight = '15px';
+                    const checkmark = this.querySelector('.shift-checkmark');
+                    if(checkmark) checkmark.style.opacity = '0';
+                });
+                option.addEventListener('click', function() {
+                    const shiftData = JSON.parse(this.dataset.shift.replace(/&apos;/g, "'"));
+                    console.log('✅ تم اختيار وردية:', shiftData.shift_code);
+                    selectShift(this.dataset.shiftId, shiftData);
+                });
+            });
+        }
+
+        // تصفية الورديات حسب البحث
+        function filterAndDisplayShifts(searchTerm) {
+            const dropdown = document.getElementById('shiftsDropdown');
+
+            if(!searchTerm || searchTerm.trim() === '') {
+                // إذا كان البحث فارغ - عرض جميع الورديات
+                displayShiftsDropdown(allShifts);
+                return;
+            }
+
+            // البحث في الورديات
+            const filtered = allShifts.filter(shift => {
+                const shiftCodeMatch = (shift.shift_code || '').toLowerCase().includes(searchTerm);
+                const supervisorMatch = (shift.supervisor_name || '').toLowerCase().includes(searchTerm);
+                return shiftCodeMatch || supervisorMatch;
+            });
+
+            console.log('🔎 نتائج البحث:', filtered.length);
+            displayShiftsDropdown(filtered);
+        }
+
+        // اختيار وردية
+        function selectShift(shiftId, shift) {
+            document.getElementById('toShiftId').value = shiftId;
+            document.getElementById('shiftSearchInput').value = `${shift.shift_code} - ${shift.supervisor_name || 'لم يحدد'}`;
+            document.getElementById('shiftsDropdown').style.display = 'none';
+
+            // عرض تفاصيل الوردية المختارة
+            displaySelectedShiftInfo(shift);
         }
 
         // عرض بيانات الوردية المختارة
@@ -1516,62 +1741,62 @@
 
             console.log('✅ انتظر إعادة تحميل الصفحة...');
         }
-    </script>
-        function printBarcode(barcode, standNumber, materialName, netWeight) {
-            const printWindow = window.open('', '', 'height=650,width=850');
-            printWindow.document.write('<html dir="rtl"><head><title>' + '{{ __('stages.print_barcode_title') }}' +
-                ' - ' + standNumber + '</title>');
-            printWindow.document.write(
-                '<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
-            printWindow.document.write('<style>');
-            printWindow.document.write(
-                'body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }'
-                );
-            printWindow.document.write(
-                '.barcode-container { background: white; padding: 50px; border-radius: 16px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); text-align: center; max-width: 550px; }'
-                );
-            printWindow.document.write(
-                '.title { font-size: 28px; font-weight: bold; color: #2c3e50; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 4px solid #667eea; }'
-                );
-            printWindow.document.write(
-                '.stand-number { font-size: 24px; color: #667eea; font-weight: bold; margin: 20px 0; }');
-            printWindow.document.write(
-                '.barcode-code { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 25px 0; letter-spacing: 4px; font-family: "Courier New", monospace; }'
-                );
-            printWindow.document.write(
-                '.info { margin-top: 30px; padding: 25px; background: #f8f9fa; border-radius: 10px; text-align: right; }'
-                );
-            printWindow.document.write('.info-row { margin: 12px 0; display: flex; justify-content: space-between; }');
-            printWindow.document.write('.label { color: #7f8c8d; font-size: 16px; }');
-            printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 18px; }');
-            printWindow.document.write('@media print { body { background: white; } }');
-            printWindow.document.write('</style></head><body>');
-            printWindow.document.write('<div class="barcode-container">');
-            printWindow.document.write('<div class="title">{{ __('stages.barcode_title') }}</div>');
-            printWindow.document.write('<div class="stand-number">{{ __('stages.stand_label_print') }} ' + standNumber +
-                '</div>');
-            printWindow.document.write('<svg id="print-barcode"></svg>');
-            printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
-            printWindow.document.write('<div class="info">');
-            printWindow.document.write(
-                '<div class="info-row"><span class="label">{{ __('stages.material_label_print') }}:</span><span class="value">' +
-                materialName + '</span></div>');
-            printWindow.document.write(
-                '<div class="info-row"><span class="label">{{ __('stages.net_weight_label_print') }}:</span><span class="value">' +
-                netWeight + ' {{ __('stages.weight_unit') }}</span></div>');
-            printWindow.document.write(
-                '<div class="info-row"><span class="label">{{ __('stages.date_label_print') }}:</span><span class="value">' +
-                new Date().toLocaleDateString('ar-EG') + '</span></div>');
-            printWindow.document.write('</div></div>');
-            printWindow.document.write('<script>');
-            printWindow.document.write('JsBarcode("#print-barcode", "' + barcode +
-                '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');
-            printWindow.document.write(
-                'window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };'
-                );
-            printWindow.document.write('<\/script></body></html>');
-            printWindow.document.close();
-        }
-    </script>
-
+</script>
+<script>
+    function printBarcode(barcode, standNumber, materialName, netWeight) {
+        const printWindow = window.open('', '', 'height=650,width=850');
+        printWindow.document.write('<html dir="rtl"><head><title>' + '{{ __('stages.print_barcode_title') }}' +
+            ' - ' + standNumber + '</title>');
+        printWindow.document.write(
+            '<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></scr' + 'ipt>');
+        printWindow.document.write('<style>');
+        printWindow.document.write(
+            'body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }'
+        );
+        printWindow.document.write(
+            '.barcode-container { background: white; padding: 50px; border-radius: 16px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); text-align: center; max-width: 550px; }'
+        );
+        printWindow.document.write(
+            '.title { font-size: 28px; font-weight: bold; color: #2c3e50; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 4px solid #667eea; }'
+        );
+        printWindow.document.write(
+            '.stand-number { font-size: 24px; color: #667eea; font-weight: bold; margin: 20px 0; }');
+        printWindow.document.write(
+            '.barcode-code { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 25px 0; letter-spacing: 4px; font-family: "Courier New", monospace; }'
+        );
+        printWindow.document.write(
+            '.info { margin-top: 30px; padding: 25px; background: #f8f9fa; border-radius: 10px; text-align: right; }'
+        );
+        printWindow.document.write('.info-row { margin: 12px 0; display: flex; justify-content: space-between; }');
+        printWindow.document.write('.label { color: #7f8c8d; font-size: 16px; }');
+        printWindow.document.write('.value { color: #2c3e50; font-weight: bold; font-size: 18px; }');
+        printWindow.document.write('@media print { body { background: white; } }');
+        printWindow.document.write('</style></head><body>');
+        printWindow.document.write('<div class="barcode-container">');
+        printWindow.document.write('<div class="title">{{ __('stages.barcode_title') }}</div>');
+        printWindow.document.write('<div class="stand-number">{{ __('stages.stand_label_print') }} ' + standNumber +
+            '</div>');
+        printWindow.document.write('<svg id="print-barcode"></svg>');
+        printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
+        printWindow.document.write('<div class="info">');
+        printWindow.document.write(
+            '<div class="info-row"><span class="label">{{ __('stages.material_label_print') }}:</span><span class="value">' +
+            materialName + '</span></div>');
+        printWindow.document.write(
+            '<div class="info-row"><span class="label">{{ __('stages.net_weight_label_print') }}:</span><span class="value">' +
+            netWeight + ' {{ __('stages.weight_unit') }}</span></div>');
+        printWindow.document.write(
+            '<div class="info-row"><span class="label">{{ __('stages.date_label_print') }}:</span><span class="value">' +
+            new Date().toLocaleDateString('ar-EG') + '</span></div>');
+        printWindow.document.write('</div></div>');
+        printWindow.document.write('<scr' + 'ipt>');
+        printWindow.document.write('JsBarcode("#print-barcode", "' + barcode +
+            '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');
+        printWindow.document.write(
+            'window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };'
+        );
+        printWindow.document.write('</scr' + 'ipt></body></html>');
+        printWindow.document.close();
+    }
+</script>
 @endsection
