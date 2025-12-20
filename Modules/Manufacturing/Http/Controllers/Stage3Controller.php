@@ -20,7 +20,7 @@ class Stage3Controller extends Controller
     public function index()
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-
+        
         // Query base
         $query = DB::table('stage3_coils')
             ->leftJoin('stage2_processed', 'stage3_coils.stage2_id', '=', 'stage2_processed.id')
@@ -41,7 +41,7 @@ class Stage3Controller extends Controller
 
         // إذا لم يكن لديه صلاحية رؤية جميع العمليات، يعرض فقط عملياته
         $viewingAll = $user->hasPermission('VIEW_ALL_STAGE3_OPERATIONS');
-
+        
         if (!$viewingAll) {
             $query->where('stage3_coils.created_by', $user->id);
         }
@@ -70,8 +70,9 @@ class Stage3Controller extends Controller
         // جلب البلاستيك من المستودع
         $plastic = DB::table('materials')
             ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
-            ->where('material_types.type_name', 'بلاستيك')
+            ->where('material_types.type_code', 'PLASTIC')
             ->where('materials.status', 'available')
+            ->select('materials.id', 'materials.name_ar', 'materials.barcode')
             ->first();
 
         // جلب اللفافات النشطة
@@ -113,7 +114,7 @@ class Stage3Controller extends Controller
                     'message' => '⛔ هذا السجل في انتظار الموافقة ولا يمكن استخدامه في المرحلة الثالثة'
                 ], 403);
             }
-
+            
             // التحقق من أن المرحلة الثانية في حالة نشطة
             if ($stage2->status !== 'in_progress' && $stage2->status !== 'completed') {
                 return response()->json([
@@ -192,6 +193,18 @@ class Stage3Controller extends Controller
         }
 
         try {
+            // التحقق من أن الباركود لم يُستخدم من قبل
+            $barcodeExists = DB::table('stage3_coils')
+                ->where('parent_barcode', $request->stage2_barcode)
+                ->exists();
+
+            if ($barcodeExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'هذا الباركود تم استخدامه مسبقاً في المرحلة الثالثة'
+                ], 422);
+            }
+
             DB::beginTransaction();
 
             $source = $request->source ?? 'stage2';
@@ -202,7 +215,7 @@ class Stage3Controller extends Controller
                 'wrapping_weight' => $request->wrapping_weight,
                 'input_weight' => $request->input_weight,
             ]);
-
+            
             // جلب البيانات حسب المصدر
             if ($source === 'warehouse_direct') {
                 // المصدر من المخزن مباشرة
@@ -230,7 +243,7 @@ class Stage3Controller extends Controller
 
             $totalWeight = $request->total_weight;
             $wrappingWeight = $request->wrapping_weight ?? 0;
-
+            
             // حساب الوزن الصافي (بعد خصم وزن اللفاف)
             $netWeight = $totalWeight - $wrappingWeight;
             \Log::info('Stage3 storeSingle weights calc', [
@@ -252,7 +265,7 @@ class Stage3Controller extends Controller
             // 🔍 التحقق من كمية البلاستيك في المستودع
             $plastic = DB::table('materials')
                 ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
-                ->where('material_types.type_name', 'بلاستيك')
+                ->where('material_types.type_code', 'PLASTIC')
                 ->where('materials.status', 'available')
                 ->select('materials.id', 'materials.name_ar')
                 ->selectRaw('COALESCE((SELECT SUM(quantity) FROM material_details WHERE material_id = materials.id AND quantity > 0), 0) as available_quantity')
@@ -340,25 +353,6 @@ class Stage3Controller extends Controller
                 'created_at' => now()
             ]);
 
-            // 🔥 تسجيل العامل في نظام تتبع العمال
-            try {
-                $trackingService = app(\App\Services\WorkerTrackingService::class);
-                $trackingService->assignWorkerToStage(
-                    stageType: \App\Models\WorkerStageHistory::STAGE_3_COILS,
-                    stageRecordId: $coilId,
-                    workerId: auth()->id() ?? 1,
-                    barcode: $barcode,
-                    statusBefore: 'created',
-                    assignedBy: auth()->id() ?? 1
-                );
-            } catch (\Exception $e) {
-                \Log::error('Failed to register worker tracking for Stage3', [
-                    'error' => $e->getMessage(),
-                    'coil_id' => $coilId,
-                    'worker_id' => auth()->id(),
-                ]);
-            }
-
             DB::commit();
 
             $materialName = 'غير محدد';
@@ -420,6 +414,18 @@ class Stage3Controller extends Controller
         }
 
         try {
+            // التحقق من أن الباركود لم يُستخدم من قبل
+            $barcodeExists = DB::table('stage3_coils')
+                ->where('parent_barcode', $request->stage2_barcode)
+                ->exists();
+
+            if ($barcodeExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'هذا الباركود تم استخدامه مسبقاً في المرحلة الثالثة'
+                ], 422);
+            }
+
             DB::beginTransaction();
 
             // الحصول على بيانات المرحلة الثانية
@@ -739,7 +745,7 @@ class Stage3Controller extends Controller
         if ($materialDetail->quantity >= $remainingToDeduct) {
             // الكمية كافية في هذا السجل
             $newQuantity = $materialDetail->quantity - $remainingToDeduct;
-
+            
             DB::table('material_details')
                 ->where('id', $materialDetail->id)
                 ->update([
@@ -749,7 +755,7 @@ class Stage3Controller extends Controller
 
             // تسجيل الحركة
             $movementNumber = 'MOV-' . date('Ymd') . '-' . str_pad(DB::table('material_movements')->count() + 1, 6, '0', STR_PAD_LEFT);
-
+            
             DB::table('material_movements')->insert([
                 'movement_number' => $movementNumber,
                 'movement_type' => 'to_production',
@@ -772,7 +778,7 @@ class Stage3Controller extends Controller
         } else {
             // الكمية غير كافية، نحتاج سجلات إضافية
             $deducted = $materialDetail->quantity;
-
+            
             DB::table('material_details')
                 ->where('id', $materialDetail->id)
                 ->update([
@@ -782,7 +788,7 @@ class Stage3Controller extends Controller
 
             // تسجيل الحركة
             $movementNumber = 'MOV-' . date('Ymd') . '-' . str_pad(DB::table('material_movements')->count() + 1, 6, '0', STR_PAD_LEFT);
-
+            
             DB::table('material_movements')->insert([
                 'movement_number' => $movementNumber,
                 'movement_type' => 'to_production',

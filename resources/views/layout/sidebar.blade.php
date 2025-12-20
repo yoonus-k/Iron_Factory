@@ -4,6 +4,11 @@
     </div>
 
     <nav class="sidebar-menu">
+          <li>
+                        <a href="{{ route('manufacturing.warehouse-intake.index') }}">
+                            <i class="fas fa-dolly"></i> إدخال مواد منتجة
+                        </a>
+                    </li>
         <ul>
             <!-- {{ __('app.menu.dashboard') }} -->
             @if(auth()->user()->hasPermission('MENU_DASHBOARD'))
@@ -23,7 +28,6 @@
                     <span>{{ __('app.menu.menu_stage_worker_dashboard') }}</span>
                 </a>
             </li>
-            
             @endif
 
 
@@ -121,18 +125,18 @@
                     </li>
                     @endif
 
-                    @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_READ'))
+               
                     <li>
                         <a href="{{ route('manufacturing.warehouse-intake.index') }}">
-                            <i class="fas fa-dolly"></i> {{ __('app.warehouse.intake_requests') }}
+                            <i class="fas fa-dolly"></i> إدخال مواد منتجة
                         </a>
                     </li>
-                    @endif
+                   
 
                     @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_APPROVE'))
                     <li>
                         <a href="{{ route('manufacturing.warehouse-intake.pending-approval') }}">
-                            <i class="fas fa-clipboard-check"></i> {{ __('app.warehouse.approve_intake_requests') }}
+                            <i class="fas fa-clipboard-check"></i> الطلبات المنتظرة
                             @php
                                 $pendingIntakeCount = \App\Models\WarehouseIntakeRequest::where('status', 'pending')->count();
                             @endphp
@@ -460,6 +464,14 @@
                     <li>
                         <a href="{{ route('manufacturing.shifts-workers.current') }}">
                             <i class="fas fa-clock"></i> {{ __('app.users.current_shifts') }}
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('SHIFTS_UPDATE'))
+                    <li>
+                        <a href="{{ route('manufacturing.shift-handovers.index') }}">
+                            <i class="fas fa-exchange-alt"></i> طلبات نقل الوردية
                         </a>
                     </li>
                     @endif

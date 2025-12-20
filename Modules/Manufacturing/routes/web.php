@@ -458,6 +458,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('stage4/get-lafaf-by-barcode/{barcode}', [Stage4Controller::class, 'getByBarcode'])
         ->middleware('permission:STAGE4_PACKAGING_READ')
         ->name('manufacturing.stage4.get-lafaf-by-barcode');
+    Route::post('stage4/check-final-waste', [Stage4Controller::class, 'checkFinalWaste'])
+        ->middleware('permission:STAGE4_PACKAGING_CREATE')
+        ->name('manufacturing.stage4.check-final-waste');
 
     // Shift Handover Routes
     Route::resource('shift-handovers', ShiftHandoverController::class)
