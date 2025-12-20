@@ -94,23 +94,13 @@ class WorkerTeamsController extends Controller
      */
     public function store(Request $request)
     {
-        // التحقق من البيانات الأساسية
         $validator = Validator::make($request->all(), [
             'team_code' => 'required|string|max:50|unique:worker_teams,team_code',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
             'manager_id' => 'required|exists:users,id',
-            'workers' => 'nullable|array',
-        ], [
-            // رسائل مخصصة بالعربية
-            'team_code.required' => 'كود المجموعة مطلوب',
-            'team_code.unique' => 'كود المجموعة موجود مسبقاً',
-            'name.required' => 'اسم المجموعة مطلوب',
-            'name.max' => 'اسم المجموعة يجب ألا يتجاوز 255 حرف',
-            'description.max' => 'الوصف يجب ألا يتجاوز 1000 حرف',
-            'manager_id.required' => 'يجب اختيار المشرف المسؤول',
-            'manager_id.exists' => 'المشرف المختار غير موجود',
-            'workers.array' => 'صيغة قائمة العمال غير صحيحة',
+            'workers' => 'required|array|min:1',
+            'workers.*' => 'exists:users,id'
         ]);
 
         if ($validator->fails()) {
@@ -118,20 +108,6 @@ class WorkerTeamsController extends Controller
                 ->withErrors($validator)
                 ->withInput()
                 ->with('error', 'يرجى التحقق من البيانات المدخلة');
-        }
-
-        // التحقق من وجود العمال في جدول workers أو users
-        if ($request->has('workers') && is_array($request->workers)) {
-            foreach ($request->workers as $workerId) {
-                $workerExists = \App\Models\Worker::where('id', $workerId)->exists() ||
-                                User::where('id', $workerId)->exists();
-
-                if (!$workerExists) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->with('error', 'أحد العمال المحددين غير موجود في النظام');
-                }
-            }
         }
 
         try {
@@ -224,17 +200,8 @@ class WorkerTeamsController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
             'manager_id' => 'required|exists:users,id',
-            'workers' => 'nullable|array'
-        ], [
-            // رسائل مخصصة بالعربية
-            'team_code.required' => 'كود المجموعة مطلوب',
-            'team_code.unique' => 'كود المجموعة موجود مسبقاً',
-            'name.required' => 'اسم المجموعة مطلوب',
-            'name.max' => 'اسم المجموعة يجب ألا يتجاوز 255 حرف',
-            'description.max' => 'الوصف يجب ألا يتجاوز 1000 حرف',
-            'manager_id.required' => 'يجب اختيار المشرف المسؤول',
-            'manager_id.exists' => 'المشرف المختار غير موجود',
-            'workers.array' => 'صيغة قائمة العمال غير صحيحة'
+            'workers' => 'required|array|min:1',
+            'workers.*' => 'exists:users,id'
         ]);
 
         if ($validator->fails()) {
@@ -242,19 +209,6 @@ class WorkerTeamsController extends Controller
                 ->withErrors($validator)
                 ->withInput()
                 ->with('error', 'يرجى التحقق من البيانات المدخلة');
-        }
-
-        // التحقق اليدوي من وجود العمال في كلا الجدولين
-        if ($request->has('workers') && !empty($request->workers)) {
-            foreach ($request->workers as $workerId) {
-                $workerExists = \App\Models\Worker::where('id', $workerId)->exists() ||
-                                User::where('id', $workerId)->exists();
-                if (!$workerExists) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->with('error', 'أحد العمال المحددين غير موجود في النظام');
-                }
-            }
         }
 
         try {

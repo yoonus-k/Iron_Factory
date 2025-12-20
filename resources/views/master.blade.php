@@ -80,6 +80,34 @@
             }
         }
 
+        .net-status-toast {
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-24px);
+            background: #1abc9c;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 14px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .net-status-toast.is-visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .net-status-toast .net-status-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         /* For RTL (Arabic) - position tooltip to the left */
         [dir="rtl"] [title]:hover::after {
             right: auto;
@@ -107,6 +135,13 @@
 
 <body class="lang-{{ app()->getLocale() }}">
     <!-- Mobile Overlay -->
+    <div id="networkStatusToast" class="net-status-toast" role="status" aria-live="polite">
+        <span class="net-status-text">
+            <span class="fa fa-wifi"></span>
+            <span class="net-status-message">تم الاتصال بالإنترنت</span>
+        </span>
+    </div>
+
     <div class="mobile-overlay" id="mobileOverlay"></div>
 
     <div class="dashboard-container">
@@ -349,6 +384,38 @@
                     }
                 });
             });
+        });
+
+        const networkStatusToast = document.getElementById('networkStatusToast');
+        let networkToastTimer;
+
+        function showNetworkToast(message) {
+            if (!networkStatusToast) {
+                return;
+            }
+
+            const messageHolder = networkStatusToast.querySelector('.net-status-message');
+            if (messageHolder) {
+                messageHolder.textContent = message;
+            } else {
+                networkStatusToast.textContent = message;
+            }
+
+            networkStatusToast.classList.add('is-visible');
+            clearTimeout(networkToastTimer);
+            networkToastTimer = setTimeout(() => {
+                networkStatusToast.classList.remove('is-visible');
+            }, 3500);
+        }
+
+        window.addEventListener('online', () => {
+            showNetworkToast('تم الاتصال بالإنترنت');
+        });
+
+        window.addEventListener('offline', () => {
+            if (networkStatusToast) {
+                networkStatusToast.classList.remove('is-visible');
+            }
         });
     </script>
 

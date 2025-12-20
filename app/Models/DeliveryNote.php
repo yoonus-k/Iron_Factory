@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Enums\DeliveryNoteStatus;
+use App\Traits\Syncable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DeliveryNote extends Model
 {
+    use Syncable;
     protected $table = 'delivery_notes';
 
     protected $fillable = [
@@ -81,6 +83,12 @@ class DeliveryNote extends Model
         'received_from_person', // ✅ اسم الشخص المستلم منه
         'total_coils', // ✅ عدد الكويلات
         'has_coils', // ✅ هل يحتوي على كويلات
+        // Sync fields
+        'is_synced',
+        'sync_status',
+        'synced_at',
+        'local_id',
+        'device_id',
     ];
 
     protected $casts = [

@@ -181,10 +181,10 @@
             <div class="form-group">
                 <label class="form-label">{{ __('app.users.username_or_email') }}</label>
                 <div class="input-group">
-                    <input
-                        type="text"
-                        name="login"
-                        class="form-control @error('login') is-invalid @enderror"
+                    <input 
+                        type="text" 
+                        name="login" 
+                        class="form-control @error('login') is-invalid @enderror" 
                         placeholder="{{ __('app.users.enter_username_or_email') }}"
                         value="{{ old('login') }}"
                         required
@@ -198,10 +198,10 @@
             <div class="form-group">
                 <label class="form-label">{{ __('app.users.password') }}</label>
                 <div class="input-group">
-                    <input
-                        type="password"
-                        name="password"
-                        class="form-control @error('password') is-invalid @enderror"
+                    <input 
+                        type="password" 
+                        name="password" 
+                        class="form-control @error('password') is-invalid @enderror" 
                         placeholder="{{ __('app.users.enter_password') }}"
                         required
                     >
@@ -212,10 +212,10 @@
             <!-- Remember & Forgot -->
             <div class="remember-forgot">
                 <div class="form-check">
-                    <input
-                        type="checkbox"
-                        class="form-check-input"
-                        id="remember"
+                    <input 
+                        type="checkbox" 
+                        class="form-check-input" 
+                        id="remember" 
                         name="remember"
                         {{ old('remember') ? 'checked' : '' }}
                     >

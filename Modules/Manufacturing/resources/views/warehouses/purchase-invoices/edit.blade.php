@@ -388,7 +388,11 @@
                     addItem(item);
                 });
                 // حساب المجاميع بعد إضافة كل العناصر مباشرة
-                updateAllCalculations();
+                setTimeout(() => {
+                    console.log('Updating all calculations...');
+                    updateAllCalculations();
+                    console.log('Calculations completed');
+                }, 200);
             } else {
                 // Add at least one empty item
                 addItem();
@@ -482,6 +486,13 @@
             `;
 
             container.insertAdjacentHTML('beforeend', itemHtml);
+            
+            // حساب الإجمالي للعنصر المضاف
+            if (existingItem) {
+                setTimeout(() => {
+                    calculateItemTotal(itemIndex);
+                }, 50);
+            }
         }
 
         function removeItem(index) {

@@ -15,12 +15,41 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Call the AdminUserSeeder to create admin and test users
+        // الترتيب مهم جداً - يجب إنشاء الأساسيات أولاً
         $this->call([
-            AdminUserSeeder::class,
+            // 1. الأدوار والصلاحيات
+            RolesAndPermissionsSeeder::class,
             PermissionsSeeder::class,
             RolePermissionsSeeder::class,
+            UpdatePermissionsTranslations::class,
+            
+            // 2. المستخدمين
+            AdminUserSeeder::class,
+            UsersSeeder::class,
+            
+            // 3. إعدادات النظام
+            SystemSettingsSeeder::class,
             BarcodeSettingsSeeder::class,
+            
+            // 4. البيانات الأساسية
+            WarehousesSeeder::class,
+            MaterialTypesAndUnitsSeeder::class,
+            MaterialTypeTranslationSeeder::class,
+            UnitTranslationSeeder::class,
+            
+            // 5. الموردين والعملاء والعمال
+            SuppliersSeeder::class,
+            TestSupplierSeeder::class,
+            CustomersSeeder::class,
+            WorkersSeeder::class,
+            
+            // 6. المواد والإنتاج
+            MaterialsSeeder::class,
+            DefaultMaterialsSeeder::class,
+            ProductionStageSeeder::class,
+            
+            // 7. وحدات النظام (Modules)
+            \Modules\Manufacturing\Database\Seeders\ManufacturingDatabaseSeeder::class,
         ]);
     }
 }

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Syncable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Stage1Stand extends Model
 {
+    use Syncable;
     protected $table = 'stage1_stands';
 
     protected $fillable = [

@@ -23,6 +23,7 @@
                     <span>{{ __('app.menu.menu_stage_worker_dashboard') }}</span>
                 </a>
             </li>
+            
             @endif
 
 
@@ -459,14 +460,6 @@
                     <li>
                         <a href="{{ route('manufacturing.shifts-workers.current') }}">
                             <i class="fas fa-clock"></i> {{ __('app.users.current_shifts') }}
-                        </a>
-                    </li>
-                    @endif
-
-                    @if(auth()->user()->hasPermission('SHIFTS_UPDATE'))
-                    <li>
-                        <a href="{{ route('manufacturing.shift-handovers.index') }}">
-                            <i class="fas fa-exchange-alt"></i> طلبات نقل الوردية
                         </a>
                     </li>
                     @endif

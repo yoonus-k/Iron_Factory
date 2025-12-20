@@ -74,18 +74,13 @@ class WasteCheckService
             try {
                 DB::beginTransaction();
 
-                // 🔥 التحقق من وجود suspension نشط لنفس اللفاف
-                $suspension = StageSuspension::where('batch_barcode', $batchBarcode)
-                    ->where('stage_number', $stageNumber)
-                    ->where('status', 'suspended')
-                    ->first();
-
-                $suspensionData = [
+                // إنشاء سجل إيقاف المرحلة
+                $suspension = StageSuspension::create([
                     'stage_number' => $stageNumber,
                     'batch_barcode' => $batchBarcode,
                     'batch_id' => $batchId,
-                    'input_weight' => $totalInput, // استخدام المجموع الكلي
-                    'output_weight' => $totalOutput, // استخدام المجموع الكلي
+                    'input_weight' => $inputWeight,
+                    'output_weight' => $outputWeight,
                     'waste_weight' => $check['waste_weight'],
                     'waste_percentage' => $check['waste_percentage'],
                     'allowed_percentage' => $check['allowed_percentage'],
@@ -104,14 +99,7 @@ class WasteCheckService
                         'total_output_weight' => $check['total_output_weight'],
                         'difference' => $check['difference'],
                     ],
-                ];
-
-                // إذا كان موجوداً، قم بالتحديث، وإلا أنشئ جديد
-                if ($suspension) {
-                    $suspension->update($suspensionData);
-                } else {
-                    $suspension = StageSuspension::create($suspensionData);
-                }
+                ]);
 
                 // إرسال تنبيهات
                 if ($check['should_alert']) {

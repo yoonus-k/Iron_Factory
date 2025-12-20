@@ -62,6 +62,7 @@ return [
     'coil_number' => 'رقم الكويل',
     'unit' => 'وحدة',
     'activity' => 'النشاط',
+    'notes' => 'الملاحظات',
 
     // Warehouse Management
     'warehouse_management' => 'إدارة المستودع والنقل',
@@ -219,4 +220,14 @@ return [
 
     // Permissions
     'no_permission_to_create' => 'ليس لديك صلاحية لإنشاء أذن تسليم جديدة',
+    
+    // Coils
+    'coils_details' => 'تفاصيل الكويلات',
+    'coil' => 'كويل',
+    'coils_notice' => 'ملاحظة',
+    'this_delivery_divided_into_coils' => 'هذا الإذن مقسم إلى كويلات. يمكنك نقل كل كويل للإنتاج بشكل منفصل.',
+    'coil_barcode' => 'باركود الكويل',
+    'coil_weight' => 'وزن الكويل',
+    'remaining_weight' => 'الوزن المتبقي',
+    'total' => 'الإجمالي',
 ];

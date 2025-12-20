@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Syncable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Supplier extends Model
 {
+    use Syncable;
     protected $fillable = [
         'name',
         'name_en',
@@ -21,6 +23,12 @@ class Supplier extends Model
         'notes',
         'is_active',
         'created_by',
+        // Sync fields
+        'is_synced',
+        'sync_status',
+        'synced_at',
+        'local_id',
+        'device_id',
     ];
 
     protected $casts = [

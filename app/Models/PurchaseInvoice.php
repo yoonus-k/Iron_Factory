@@ -44,6 +44,8 @@ enum InvoiceStatus: string
 
 class PurchaseInvoice extends Model
 {
+    use \App\Traits\Syncable;
+    
     protected $fillable = [
         'invoice_number',
         'invoice_reference_number',

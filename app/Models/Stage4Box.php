@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Syncable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class Stage4Box extends Model
 {
+    use Syncable;
     protected $table = 'stage4_boxes';
 
     protected $fillable = [

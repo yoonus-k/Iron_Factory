@@ -2,22 +2,37 @@
 
 namespace App\Models;
 
+use App\Traits\Syncable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Material extends Model
 {
+    use Syncable;
     protected $fillable = [
         'warehouse_id',
         'material_type_id',
         'unit_id',
         'barcode',
         'batch_number',
+        'name_ar',
+        'name_en',
+        'type',
         'delivery_note_number',
         'purchase_invoice_id',
         'status',
+        'shelf_location',
+        'shelf_location_en',
+        'notes',
+        'notes_en',
         'created_by',
+        // Sync fields
+        'is_synced',
+        'sync_status',
+        'synced_at',
+        'local_id',
+        'device_id',
     ];
 
     protected $casts = [

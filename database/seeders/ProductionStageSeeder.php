@@ -60,7 +60,12 @@ class ProductionStageSeeder extends Seeder
             ],
         ];
 
-        DB::table('production_stages')->insert($stages);
+        foreach ($stages as $stage) {
+            DB::table('production_stages')->updateOrInsert(
+                ['stage_code' => $stage['stage_code']],
+                $stage
+            );
+        }
 
         $this->command->info('✅ تم إضافة ' . count($stages) . ' مراحل إنتاجية بنجاح!');
     }

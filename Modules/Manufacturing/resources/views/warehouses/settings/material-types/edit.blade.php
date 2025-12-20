@@ -78,7 +78,7 @@
                                 <line x1="4" y1="8" x2="20" y2="8"></line>
                             </svg>
                             <input type="text" name="type_name" id="type_name" class="form-input @error('type_name') error @enderror"
-                                   placeholder="{{ __('warehouse.example') }}: {{ __('warehouse.raw_material_example') }}" value="{{ old('type_name', $materialType->type_name ?? $translations['ar']['name'] ?? '') }}" required>
+                                placeholder="{{ __('warehouse.example') }}: {{ __('warehouse.raw_material_example') }}" value="{{ old('type_name', $materialType->type_name ?? $translations['ar']['name'] ?? '') }}" @if($locale === 'ar') required @endif>
                         </div>
                         @error('type_name')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -98,7 +98,7 @@
                                 <line x1="4" y1="8" x2="20" y2="8"></line>
                             </svg>
                             <input type="text" name="type_name_en" id="type_name_en" class="form-input @error('type_name_en') error @enderror"
-                                   placeholder="{{ __('warehouse.example') }}: {{ __('warehouse.raw_material_example_en') }}" value="{{ old('type_name_en', $materialType->type_name_en ?? $translations['en']['name'] ?? '') }}" required>
+                                placeholder="{{ __('warehouse.example') }}: {{ __('warehouse.raw_material_example_en') }}" value="{{ old('type_name_en', $materialType->type_name_en ?? $translations['en']['name'] ?? '') }}" @if($locale !== 'ar') required @endif>
                         </div>
                         @error('type_name_en')
                             <div class="error-message" style="display: block;">{{ $message }}</div>

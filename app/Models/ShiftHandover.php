@@ -12,8 +12,6 @@ class ShiftHandover extends Model
     protected $fillable = [
         'from_user_id',
         'to_user_id',
-        'from_shift_id',
-        'to_shift_id',
         'stage_number',
         'shift_assignment_id',
         'handover_items',

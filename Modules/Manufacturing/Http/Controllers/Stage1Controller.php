@@ -121,11 +121,22 @@ class Stage1Controller extends Controller
                 throw new \Exception('لم يتم العثور على المادة بهذا الباركود');
             }
 
+            // البحث عن نقل الكويل بناءً على production_barcode
+            $coilTransfer = DB::table('coil_transfers')
+                ->where('production_barcode', $validated['material_barcode'])
+                ->first();
+
             // حساب الكمية المنقولة للإنتاج
-            $transferredToProduction = DB::table('material_movements')
-                ->where('batch_id', $materialBatch->id)
-                ->where('movement_type', 'to_production')
-                ->sum('quantity');
+            if ($coilTransfer) {
+                // إذا كان باركود كويل، نستخدم وزن النقل المحدد
+                $transferredToProduction = $coilTransfer->transfer_weight;
+            } else {
+                // إذا كان باركود batch عادي، نبحث في material_movements
+                $transferredToProduction = DB::table('material_movements')
+                    ->where('batch_id', $materialBatch->id)
+                    ->where('movement_type', 'to_production')
+                    ->sum('quantity');
+            }
 
             // حساب الكمية المستخدمة سابقاً
             $usedInStage1 = DB::table('stage1_stands')
@@ -914,76 +925,86 @@ class Stage1Controller extends Controller
 
             // ✅ الباركود مؤكد، نتابع جلب البيانات
 
-            // البحث عن الباركود في جدول barcodes أولاً
-            $barcodeRecord = DB::table('barcodes')
-                ->where('barcode', $barcode)
-                ->where('reference_table', 'material_batches')
+            // جلب معلومات الكويل من جدول coil_transfers باستخدام production_barcode
+            $coilTransfer = DB::table('coil_transfers')
+                ->where('production_barcode', $barcode)
                 ->first();
 
-            if (!$barcodeRecord) {
-                // إذا لم يوجد في جدول barcodes، نبحث مباشرة في material_batches.batch_code
-                $batch = DB::table('material_batches')
-                    ->join('materials', 'material_batches.material_id', '=', 'materials.id')
-                    ->join('units', 'material_batches.unit_id', '=', 'units.id')
-                    ->where('material_batches.batch_code', $barcode)
-                    ->select(
-                        'material_batches.*',
-                        'materials.name_ar as material_name',
-                        'units.unit_symbol'
-                    )
-                    ->first();
-            } else {
-                // إذا وُجد في جدول barcodes، نجلب البيانات باستخدام reference_id
-                $batch = DB::table('material_batches')
-                    ->join('materials', 'material_batches.material_id', '=', 'materials.id')
-                    ->join('units', 'material_batches.unit_id', '=', 'units.id')
-                    ->where('material_batches.id', $barcodeRecord->reference_id)
-                    ->select(
-                        'material_batches.*',
-                        'materials.name_ar as material_name',
-                        'units.unit_symbol'
-                    )
-                    ->first();
+            if (!$coilTransfer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لم يتم العثور على نقل كويل بهذا الباركود'
+                ], 404);
             }
 
-            if (!$batch) {
+            // جلب معلومات الكويل الأصلي
+            $coil = DB::table('delivery_note_coils')
+                ->where('id', $coilTransfer->coil_id)
+                ->first();
+
+            if (!$coil) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لم يتم العثور على معلومات الكويل'
+                ], 404);
+            }
+
+            // جلب معلومات إذن التسليم
+            $deliveryNote = DB::table('delivery_notes')
+                ->join('materials', 'delivery_notes.material_id', '=', 'materials.id')
+                ->leftJoin('units', 'materials.unit_id', '=', 'units.id')
+                ->where('delivery_notes.id', $coil->delivery_note_id)
+                ->select(
+                    'delivery_notes.*',
+                    'materials.name_ar as material_name',
+                    'materials.unit_id',
+                    'units.unit_symbol'
+                )
+                ->first();
+
+            if (!$deliveryNote) {
                 return response()->json([
                     'success' => false,
                     'message' => 'الباركود غير موجود في النظام'
                 ], 404);
             }
 
-            // حساب الكمية المنقولة للإنتاج (to_production)
-            $transferredToProduction = DB::table('material_movements')
-                ->where('batch_id', $batch->id)
-                ->where('movement_type', 'to_production')
-                ->sum('quantity');
+            // استخدام وزن النقل المحدد من coil_transfer (وزن الكويل المنقول فعلياً)
+            $transferredToProduction = $coilTransfer->transfer_weight;
 
             // التحقق من توفر كمية منقولة للإنتاج
             if ($transferredToProduction <= 0) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'لم يتم نقل أي كمية من هذه المادة للإنتاج بعد. يجب النقل للإنتاج أولاً من صفحة تسجيل البضاعة.'
+                    'message' => 'لم يتم نقل أي كمية من هذا الإذن للإنتاج بعد. يجب النقل للإنتاج أولاً من صفحة تسجيل البضاعة.'
                 ], 400);
             }
 
+            // إعداد البيانات المرجعة
+            $materialData = [
+                'id' => $deliveryNote->material_id,
+                'batch_id' => $deliveryNote->batch_id,
+                'delivery_note_id' => $deliveryNote->id,
+                'coil_id' => $coil->id,
+                'coil_transfer_id' => $coilTransfer->id,
+                'barcode' => $barcode,
+                'coil_barcode' => $coil->coil_barcode,
+                'coil_number' => $coil->coil_number,
+                'material_name' => $deliveryNote->material_name,
+                'material_type' => $deliveryNote->material_name,
+                'initial_quantity' => $coilTransfer->transfer_weight,
+                'available_quantity' => $coilTransfer->transfer_weight,
+                'transferred_to_production' => $transferredToProduction,
+                'production_weight' => $transferredToProduction,
+                'remaining_weight' => $coilTransfer->transfer_weight,
+                'unit_symbol' => $deliveryNote->unit_symbol ?? 'كجم',
+                'warehouse_id' => $deliveryNote->warehouse_id,
+                'unit_id' => $deliveryNote->unit_id,
+            ];
+
             return response()->json([
                 'success' => true,
-                'material' => [
-                    'id' => $batch->material_id,
-                    'batch_id' => $batch->id,
-                    'barcode' => $batch->batch_code,
-                    'material_name' => $batch->material_name,
-                    'material_type' => $batch->material_name,
-                    'initial_quantity' => $batch->initial_quantity,
-                    'available_quantity' => $batch->available_quantity,
-                    'transferred_to_production' => $transferredToProduction,
-                    'production_weight' => $transferredToProduction,
-                    'remaining_weight' => $batch->available_quantity,
-                    'unit_symbol' => $batch->unit_symbol,
-                    'warehouse_id' => $batch->warehouse_id,
-                    'unit_id' => $batch->unit_id,
-                ]
+                'material' => $materialData
             ]);
 
         } catch (\Exception $e) {

@@ -555,6 +555,18 @@ class ReconciliationController extends Controller
                     ]);
                 } else {
                     // إنشاء حركة جديدة
+                    // الحصول على unit_id بالترتيب التالي: materialDetail -> material
+                    $unitId = null;
+                    if ($deliveryNote->materialDetail && $deliveryNote->materialDetail->unit_id) {
+                        $unitId = $deliveryNote->materialDetail->unit_id;
+                    } elseif ($deliveryNote->material && $deliveryNote->material->unit_id) {
+                        $unitId = $deliveryNote->material->unit_id;
+                    } else {
+                        // إذا لم يكن هناك unit_id، استخدم الوحدة الافتراضية (كيلو)
+                        $defaultUnit = \App\Models\Unit::where('unit_code', 'KG')->orWhere('unit_name', 'كيلو')->first();
+                        $unitId = $defaultUnit ? $defaultUnit->id : 1; // fallback to ID 1
+                    }
+                    
                     MaterialMovement::create([
                         'movement_number' => MaterialMovement::generateMovementNumber(),
                         'movement_type' => $discrepancy > 0 ? 'adjustment' : 'reconciliation',
@@ -563,7 +575,7 @@ class ReconciliationController extends Controller
                         'reconciliation_log_id' => $reconciliationLog->id,
                         'material_detail_id' => $deliveryNote->material_detail_id,
                         'material_id' => $deliveryNote->material_id,
-                        'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
+                        'unit_id' => $unitId,
                         'quantity' => abs($discrepancy),
                         'from_warehouse_id' => $deliveryNote->warehouse_id,
                         'supplier_id' => $deliveryNote->supplier_id,

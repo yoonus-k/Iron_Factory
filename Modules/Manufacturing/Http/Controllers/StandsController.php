@@ -4,7 +4,6 @@ namespace Modules\Manufacturing\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Stand;
-use App\Models\ShiftAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -63,22 +62,22 @@ class StandsController extends Controller
     {
         $prefix = 'ST';
         $date = now()->format('Ymd');
-
+        
         // Get the last stand number for today
         $lastStand = Stand::whereDate('created_at', today())
             ->where('stand_number', 'like', "$prefix-$date-%")
             ->orderBy('stand_number', 'desc')
             ->first();
-
+        
         if ($lastStand) {
             $lastNumber = (int) substr($lastStand->stand_number, -3);
             $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
         } else {
             $newNumber = '001';
         }
-
+        
         $standNumber = "$prefix-$date-$newNumber";
-
+        
         return response()->json(['stand_number' => $standNumber]);
     }
 
@@ -131,15 +130,8 @@ class StandsController extends Controller
     {
         $stand = Stand::findOrFail($id);
 
-        // الحصول على جميع الوردية النشطة
-        $shifts = \App\Models\ShiftAssignment::with('supervisor')
-            ->where('status', 'active')
-            ->orWhere('status', 'scheduled')
-            ->latest()
-            ->get();
-
         return response()
-            ->view('manufacturing::stands.show', compact('stand', 'shifts'))
+            ->view('manufacturing::stands.show', compact('stand'))
             ->header('Content-Type', 'text/html; charset=UTF-8');
     }
 
@@ -243,23 +235,11 @@ class StandsController extends Controller
         $query = DB::table('stand_usage_history')
             ->join('stands', 'stand_usage_history.stand_id', '=', 'stands.id')
             ->leftJoin('users', 'stand_usage_history.user_id', '=', 'users.id')
-            // 🔥 إضافة joins لـ shift_assignment والمسؤول
-            ->leftJoin('shift_assignments', function($join) {
-                $join->on(DB::raw("DATE(shift_assignments.shift_date)"), '=', DB::raw("DATE(stand_usage_history.started_at)"))
-                    ->whereColumn('shift_assignments.user_id', 'stand_usage_history.user_id')
-                    ->where('shift_assignments.status', '!=', 'cancelled');
-            })
-            ->leftJoin('users as supervisors', 'shift_assignments.supervisor_id', '=', 'supervisors.id')
             ->select(
                 'stand_usage_history.*',
                 'stands.stand_number',
                 'stands.usage_count',
-                'users.name as user_name',
-                'shift_assignments.id as shift_id',
-                'shift_assignments.shift_code',
-                'shift_assignments.shift_type',
-                'supervisors.name as supervisor_name',
-                'supervisors.email as supervisor_email'
+                'users.name as user_name'
             );
 
         // Filter by stand number
@@ -292,37 +272,11 @@ class StandsController extends Controller
         $history->getCollection()->transform(function ($item) {
             $stand = Stand::find($item->stand_id);
             $user = \App\Models\User::find($item->user_id);
-            $shift = null;
-            $supervisor = null;
-
-            // جلب معلومات الوردية والمسؤول
-            if ($item->shift_id) {
-                $shift = \App\Models\ShiftAssignment::find($item->shift_id);
-            } else {
-                // البحث عن الوردية من خلال التاريخ والعامل إذا لم تكن موجودة في join
-                $shift = \App\Models\ShiftAssignment::whereDate('shift_date', $item->started_at)
-                    ->where('user_id', $item->user_id)
-                    ->where('status', '!=', 'cancelled')
-                    ->latest()
-                    ->first();
-            }
-
-            // جلب بيانات المسؤول
-            if ($shift && $shift->supervisor_id) {
-                $supervisor = \App\Models\User::find($shift->supervisor_id);
-            } elseif ($item->supervisor_name) {
-                $supervisor = (object)[
-                    'name' => $item->supervisor_name,
-                    'email' => $item->supervisor_email,
-                ];
-            }
-
+            
             return (object) [
                 'id' => $item->id,
                 'stand' => $stand,
                 'user' => $user,
-                'shift' => $shift,
-                'supervisor' => $supervisor,
                 'material_barcode' => $item->material_barcode,
                 'material_type' => $item->material_type,
                 'wire_size' => $item->wire_size,

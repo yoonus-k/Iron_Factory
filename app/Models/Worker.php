@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Syncable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Worker extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Syncable;
 
     protected $fillable = [
         'worker_code',
@@ -20,7 +21,6 @@ class Worker extends Model
         'email',
         'position',
         'allowed_stages',
-        'assigned_stage',
         'hourly_rate',
         'shift_preference',
         'is_active',
@@ -30,6 +30,12 @@ class Worker extends Model
         'emergency_contact',
         'emergency_phone',
         'user_id',
+        // Sync fields
+        'is_synced',
+        'sync_status',
+        'synced_at',
+        'local_id',
+        'device_id',
     ];
 
     protected $casts = [

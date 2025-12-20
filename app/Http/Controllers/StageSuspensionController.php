@@ -95,22 +95,6 @@ class StageSuspensionController extends Controller
                         'status' => 'in_progress',
                         'updated_at' => now()
                     ]);
-            } elseif ($suspension->stage_number == 3) {
-                DB::table('stage3_coils')
-                    ->where('parent_barcode', $suspension->batch_barcode)
-                    ->where('status', 'pending_approval')
-                    ->update([
-                        'status' => 'wrapped',
-                        'updated_at' => now()
-                    ]);
-            } elseif ($suspension->stage_number == 4) {
-                DB::table('stage4_boxes')
-                    ->where('parent_barcode', $suspension->batch_barcode)
-                    ->where('status', 'pending_approval')
-                    ->update([
-                        'status' => 'packed',
-                        'updated_at' => now()
-                    ]);
             }
 
             // Send notification to the worker that stage is resumed

@@ -65,6 +65,24 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{id}/reject', [\App\Http\Controllers\StageSuspensionController::class, 'reject'])->name('reject');
     });
 
+    // Sync Dashboard Routes
+    Route::prefix('sync')->name('sync.')->controller(\App\Http\Controllers\SyncDashboardController::class)->group(function () {
+        Route::get('/dashboard', 'index')->name('dashboard');
+        Route::get('/stats', 'stats')->name('stats');
+        Route::get('/pending', 'pending')->name('pending');
+        Route::get('/failed', 'failed')->name('failed');
+        Route::get('/history', 'history')->name('history');
+        Route::get('/chart-data', 'chartData')->name('chart-data');
+        Route::post('/retry/{id}', 'retry')->name('retry');
+        Route::delete('/delete/{id}', 'delete')->name('delete');
+        Route::post('/retry-all', 'retryAll')->name('retry-all');
+        Route::post('/process-now', function() {
+            $syncService = app(\App\Services\SyncService::class);
+            $result = $syncService->processPendingSyncs(null, 100);
+            return response()->json($result);
+        })->name('process-now');
+    });
+
     // Roles & Permissions Routes (Admin Only)
     Route::middleware(['role:ADMIN'])->group(function () {
         Route::resource('roles', RoleController::class);

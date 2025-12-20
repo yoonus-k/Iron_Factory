@@ -686,4 +686,10 @@ return [
     'transfer' => 'تحويل',
     'no_movements' => 'لا توجد حركات',
     'date' => 'التاريخ',
+    
+    // Purchase Invoices
+    'tax_percentage' => 'نسبة الضريبة %',
+    'discount_percentage' => 'نسبة الخصم %',
+    'total' => 'الإجمالي',
+    'final_total' => 'الإجمالي النهائي',
 ];

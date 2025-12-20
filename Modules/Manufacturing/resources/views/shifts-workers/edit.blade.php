@@ -185,53 +185,7 @@
                             @enderror
                         </div>
 
-                        <!-- المرحلة -->
-                        <div class="form-group">
-                            <label for="stage_number" class="form-label">
-                                <i class="feather icon-layers"></i>
-                                {{ __('shifts-workers.stage_number') }} (اختياري)
-                            </label>
-                            <div class="input-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                </svg>
-                                <select name="stage_number" id="stage_number" class="form-input" onchange="loadStageRecords()">
-                                    <option value="0">-- لم تحدد المرحلة بعد --</option>
-                                    <option value="1" {{ old('stage_number', $shift->stage_number) == 1 ? 'selected' : '' }}>المرحلة 1 - الأستندات</option>
-                                    <option value="2" {{ old('stage_number', $shift->stage_number) == 2 ? 'selected' : '' }}>المرحلة 2 - المعالجة</option>
-                                    <option value="3" {{ old('stage_number', $shift->stage_number) == 3 ? 'selected' : '' }}>المرحلة 3 - الملفات</option>
-                                    <option value="4" {{ old('stage_number', $shift->stage_number) == 4 ? 'selected' : '' }}>المرحلة 4 - الصناديق</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- باركود المرحلة -->
-                        <div class="form-group">
-                            <label for="stage_record_barcode" class="form-label">
-                                <i class="feather icon-barcode-2"></i>
-                                باركود المرحلة (اختياري)
-                            </label>
-                            <div class="input-wrapper position-relative">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <line x1="8" y1="4" x2="8" y2="20"></line>
-                                    <line x1="16" y1="4" x2="16" y2="20"></line>
-                                    <line x1="4" y1="8" x2="20" y2="8"></line>
-                                    <line x1="4" y1="16" x2="20" y2="16"></line>
-                                </svg>
-                                <input type="text" name="stage_record_barcode" id="stage_record_barcode"
-                                    class="form-input" placeholder="-- اختر المرحلة أولاً ثم ادخل أو اختر الباركود --"
-                                    value="{{ $shift->stage_record_barcode ?? '' }}" autocomplete="off" list="barcodeList" oninput="filterBarcodes()">
-                                <datalist id="barcodeList"></datalist>
-                                <div id="barcodeDropdown" class="barcode-dropdown" style="display: none;"></div>
-                            </div>
-                            <small class="text-muted" id="stage_records_count"></small>
-                        </div>
-
-                        <input type="hidden" name="stage_record_id" id="stage_record_id" value="{{ $shift->stage_record_id ?? '' }}">
+                        <input type="hidden" name="stage_number" value="0">
 
                         <div class="form-group full-width">
                             <label for="notes" class="form-label">{{ __('shifts-workers.notes') }}</label>
@@ -279,7 +233,7 @@
                             </label>
                             <div class="teams-grid">
                                 @forelse($teams as $team)
-                                    <div class="team-card" onclick="selectTeam({{ $team['id'] }}, {{ json_encode($team['worker_ids']) }}, {{ $team['manager_id'] }}, '{{ $team['manager_name'] }}')">
+                                    <div class="team-card" onclick="selectTeam({{ $team['id'] }}, {{ json_encode($team['worker_ids']) }})">
                                         <div class="team-card-header">
                                             <div class="team-icon">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -555,14 +509,9 @@
         }
 
         // Select a team from the card and load its workers
-        function selectTeam(teamId, workerIds, managerId, managerName) {
+        function selectTeam(teamId, workerIds) {
             // Store team ID in hidden field
             document.getElementById('team_id').value = teamId;
-
-            // تعيين المسؤول تلقائياً
-            if (managerId) {
-                document.getElementById('supervisor_id').value = managerId;
-            }
 
             // First, clear all selected workers
             document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
@@ -578,6 +527,9 @@
             if (event && event.currentTarget) {
                 event.currentTarget.classList.add('selected');
             }
+
+            // Load team supervisor and workers from server
+            loadTeamSupervisor(teamId);
 
             // Select workers from the team
             if (workerIds && workerIds.length > 0) {
@@ -960,130 +912,61 @@
         }
 
         // Load team supervisor when team is selected
-        // تحديث الأوقات عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', function() {
-            updateShiftTimes();
-            updateWorkersCount();
-            // Load stage records if stage is selected
-            if (document.getElementById('stage_number').value) {
-                loadStageRecords();
-            }
-        });
-
-        // Store available barcodes globally
-        let availableBarcodes = [];
-
-        // Load stage records (barcodes) based on stage selection
-        async function loadStageRecords() {
-            const stageNumber = document.getElementById('stage_number').value;
-            const barcodeInput = document.getElementById('stage_record_barcode');
-            const countLabel = document.getElementById('stage_records_count');
-            const dataList = document.getElementById('barcodeList');
-
-            // Clear and disable if no stage selected
-            if (!stageNumber || stageNumber === '0') {
-                barcodeInput.disabled = true;
-                barcodeInput.value = '';
-                barcodeInput.placeholder = '-- اختر المرحلة أولاً ثم ادخل أو اختر الباركود --';
-                countLabel.textContent = '';
-                document.getElementById('stage_record_id').value = '';
-                dataList.innerHTML = '';
-                availableBarcodes = [];
+        async function loadTeamSupervisor(teamId) {
+            if (!teamId) {
                 return;
             }
 
             try {
-                // Show loading state
-                barcodeInput.disabled = true;
-                barcodeInput.placeholder = 'جاري التحميل...';
-                countLabel.textContent = '';
-
-                const response = await fetch('{{ route("manufacturing.shifts-workers.get-stage-records") }}?stage_number=' + stageNumber, {
+                const response = await fetch(`/manufacturing/shifts-workers/team/${teamId}/details`, {
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
 
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const data = await response.json();
 
-                if (data.success && data.records && data.records.length > 0) {
-                    // Store barcodes for filtering
-                    availableBarcodes = data.records.map(r => ({
-                        barcode: r.barcode,
-                        id: r.id
-                    }));
+                if (data.success && data.team) {
+                    // Auto-populate supervisor if team has a manager
+                    if (data.team.manager_id) {
+                        const supervisorSelect = document.getElementById('supervisor_id');
+                        const option = Array.from(supervisorSelect.options).find(opt => opt.value == data.team.manager_id);
+                        if (option) {
+                            supervisorSelect.value = data.team.manager_id;
+                            supervisorSelect.dispatchEvent(new Event('change'));
+                        }
+                    }
 
-                    // Populate datalist
-                    dataList.innerHTML = availableBarcodes.map(item =>
-                        `<option value="${item.barcode}">ID: ${item.id} - ${item.barcode}</option>`
-                    ).join('');
+                    // Auto-populate workers from team
+                    document.querySelectorAll('.worker-checkbox').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
 
-                    barcodeInput.disabled = false;
-                    barcodeInput.placeholder = 'ادخل أو اختر الباركود من القائمة';
-                    countLabel.textContent = `عدد السجلات: ${data.count}`;
-                } else {
-                    barcodeInput.disabled = true;
-                    barcodeInput.placeholder = '-- لا توجد سجلات في هذه المرحلة --';
-                    countLabel.textContent = 'لا توجد سجلات متاحة';
-                    dataList.innerHTML = '';
-                    availableBarcodes = [];
+                    if (data.team.worker_ids && data.team.worker_ids.length > 0) {
+                        data.team.worker_ids.forEach(workerId => {
+                            const checkbox = document.getElementById(`worker_${workerId}`);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                            }
+                        });
+                    }
+
+                    updateWorkersCount();
                 }
             } catch (error) {
-                console.error('Error loading stage records:', error);
-                barcodeInput.disabled = true;
-                barcodeInput.placeholder = '-- خطأ في التحميل --';
-                countLabel.textContent = 'حدث خطأ: ' + error.message;
-                dataList.innerHTML = '';
+                console.error('Error loading team supervisor:', error);
             }
         }
 
-        // Filter barcodes as user types
-        function filterBarcodes() {
-            const input = document.getElementById('stage_record_barcode');
-            const dropdown = document.getElementById('barcodeDropdown');
-            const value = input.value.toLowerCase().trim();
-
-            if (!value || value.length < 1) {
-                dropdown.style.display = 'none';
-                return;
-            }
-
-            const filtered = availableBarcodes.filter(item =>
-                item.barcode.toLowerCase().includes(value) ||
-                item.id.toString().includes(value)
-            );
-
-            if (filtered.length > 0) {
-                dropdown.innerHTML = filtered.map(item =>
-                    `<div class="barcode-option" onclick="selectBarcode('${item.barcode}', ${item.id})">
-                        <strong>${item.barcode}</strong>
-                        <span class="barcode-id">ID: ${item.id}</span>
-                    </div>`
-                ).join('');
-                dropdown.style.display = 'block';
-            } else {
-                dropdown.innerHTML = '<div class="barcode-option disabled">لا توجد نتائج</div>';
-                dropdown.style.display = 'block';
-            }
-        }
-
-        // Select a barcode from dropdown
-        function selectBarcode(barcode, recordId) {
-            document.getElementById('stage_record_barcode').value = barcode;
-            document.getElementById('stage_record_id').value = recordId;
-            document.getElementById('barcodeDropdown').style.display = 'none';
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const input = document.getElementById('stage_record_barcode');
-            const dropdown = document.getElementById('barcodeDropdown');
-            if (!input || !dropdown) return;
-
-            if (!input.contains(event.target) && !dropdown.contains(event.target)) {
-                dropdown.style.display = 'none';
-            }
+        // تحديث الأوقات عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            updateShiftTimes();
+            updateWorkersCount();
         });
     </script>
 

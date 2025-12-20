@@ -169,18 +169,6 @@ class Stage4Controller extends Controller
         }
 
         try {
-            // التحقق من أن الباركود لم يُستخدم من قبل
-            $barcodeExists = DB::table('stage4_boxes')
-                ->where('parent_barcode', $request->lafaf_barcode)
-                ->exists();
-
-            if ($barcodeExists) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'هذا الباركود تم استخدامه مسبقاً في المرحلة الرابعة'
-                ], 422);
-            }
-
             DB::beginTransaction();
 
             // الحصول على بيانات اللفاف
@@ -221,37 +209,12 @@ class Stage4Controller extends Controller
             $lafafWeight = $lafaf->net_weight ?? $lafaf->total_weight;
             $displayLafafWeight = $lafafWeight;
             $displayTotalWeight = $lafaf->total_weight;
-            $wasteWeight = $lafafWeight - $totalBoxesWeight;
-            
-            // 🔥 فحص نسبة الهدر قبل الحفظ
-            $wasteCheck = \App\Services\WasteCheckService::checkAndSuspend(
-                stageNumber: 4,
-                batchBarcode: $request->lafaf_barcode,
-                batchId: $lafaf->material_id,
-                inputWeight: $lafafWeight,
-                outputWeight: $totalBoxesWeight
-            );
-            $wasteData = $wasteCheck['data'] ?? [];
+            $difference = abs($lafafWeight - $totalBoxesWeight);
+            $tolerance = $lafafWeight * 0.02; // تسامح 2%
 
-            // تسجيل نتيجة فحص الهدر
-            \Log::info('Stage 4 Waste Check Result', [
-                'suspended' => $wasteCheck['suspended'] ?? false,
-                'suspension_id' => $wasteCheck['suspension_id'] ?? null,
-                'waste_percentage' => $wasteData['waste_percentage'] ?? 0,
-                'allowed_percentage' => $wasteData['allowed_percentage'] ?? 0,
-                'input_weight' => $lafafWeight,
-                'output_weight' => $totalBoxesWeight,
-                'waste_weight' => $wasteWeight,
-            ]);
-
-            // تحديد الحالة بناءً على فحص الهدر
-            $recordStatus = $wasteCheck['suspended'] ? 'pending_approval' : 'packed';
-            $suspensionId = $wasteCheck['suspension_id'] ?? null;
-
-            \Log::info('Stage 4 Record Status Determined', [
-                'status' => $recordStatus,
-                'will_show_alert' => $recordStatus === 'pending_approval',
-            ]);
+            if ($difference > $tolerance) {
+                throw new \Exception("مجموع أوزان الكراتين ({$totalBoxesWeight} كجم) لا يساوي الوزن الصافي للَّفاف ({$displayLafafWeight} كجم)" . ($displayTotalWeight && $displayTotalWeight != $displayLafafWeight ? " - إجمالي اللفاف {$displayTotalWeight} كجم" : ''));
+            }
 
             $boxIds = [];
             $boxBarcodes = [];
@@ -268,8 +231,8 @@ class Stage4Controller extends Controller
                     'packaging_type' => $request->packaging_type ?? 'standard',
                     'coils_count' => 1, // كرتون واحد من لفاف واحد
                     'total_weight' => $box['weight'],
-                    'waste' => ($index === 0) ? $wasteWeight : 0, // تسجيل الهدر في أول كرتون فقط
-                    'status' => $recordStatus, // استخدام الحالة المحددة من فحص الهدر
+                    'waste' => 0,
+                    'status' => 'packed',
                     'notes' => $box['notes'] ?? null,
                     'created_by' => auth()->id() ?? 1,
                     'created_at' => now(),
@@ -397,52 +360,6 @@ class Stage4Controller extends Controller
 
             DB::commit();
 
-            // 🔥 إذا تم إيقاف العملية بسبب تجاوز نسبة الهدر
-            if ($recordStatus === 'pending_approval') {
-                $wastePercentage = $wasteData['waste_percentage'] ?? 0;
-                $allowedPercentage = $wasteData['allowed_percentage'] ?? 0;
-
-                return response()->json([
-                    'success' => true,
-                    'pending_approval' => true,
-                    'message' => 'تم الحفظ مع إيقاف مؤقت بسبب تجاوز نسبة الهدر',
-                    'alert_title' => '⛔ تم إيقاف الانتقال لمرحلة التسليم',
-                    'alert_message' => "
-                        <div style='text-align: right; direction: rtl;'>
-                            <p style='font-size: 16px; margin-bottom: 15px;'>
-                                <strong>⚠️ تم تجاوز نسبة الهدر المسموح بها في المرحلة الرابعة (التعبئة)</strong>
-                            </p>
-                            <div style='background: #fff3cd; padding: 15px; border-radius: 8px; border-right: 4px solid #ffc107; margin-top: 15px;'>
-                                <table style='width: 100%; text-align: right;'>
-                                    <tr><td style='padding: 5px;'><strong>وزن اللفاف الداخل:</strong></td><td style='padding: 5px;'>{$lafafWeight} كجم</td></tr>
-                                    <tr><td style='padding: 5px;'><strong>إجمالي أوزان الكراتين:</strong></td><td style='padding: 5px;'>{$totalBoxesWeight} كجم</td></tr>
-                                    <tr><td style='padding: 5px;'><strong>وزن الهدر:</strong></td><td style='padding: 5px; color: #dc3545; font-weight: bold;'>{$wasteWeight} كجم</td></tr>
-                                    <tr><td style='padding: 5px;'><strong>نسبة الهدر:</strong></td><td style='padding: 5px; color: #dc3545; font-weight: bold;'>{$wastePercentage}%</td></tr>
-                                    <tr><td style='padding: 5px;'><strong>النسبة المسموح بها:</strong></td><td style='padding: 5px; color: #28a745;'>{$allowedPercentage}%</td></tr>
-                                </table>
-                            </div>
-                            <div style='background: #d1ecf1; padding: 15px; border-radius: 8px; border-right: 4px solid #17a2b8; margin-top: 15px;'>
-                                <p style='color: #0c5460; margin: 0;'>
-                                    <i class='fas fa-info-circle'></i> 
-                                    <strong>تم إرسال تنبيه للإدارة للمراجعة والموافقة.</strong><br>
-                                    لا يمكن تسليم هذه الكراتين حتى تتم الموافقة من قبل المسؤولين.
-                                </p>
-                            </div>
-                        </div>
-                    ",
-                    'data' => [
-                        'box_count' => count($boxes),
-                        'barcodes' => $boxBarcodes,
-                        'total_weight' => $totalBoxesWeight,
-                        'waste_weight' => $wasteWeight,
-                        'waste_percentage' => $wastePercentage,
-                        'allowed_percentage' => $allowedPercentage,
-                        'barcode_info' => $barcodeInfoArray,
-                        'status' => 'pending_approval'
-                    ]
-                ]);
-            }
-
             return response()->json([
                 'success' => true,
                 'message' => 'تم حفظ الكراتين بنجاح',
@@ -486,18 +403,6 @@ class Stage4Controller extends Controller
         }
 
         try {
-            // التحقق من أن الباركود لم يُستخدم من قبل
-            $barcodeExists = DB::table('stage4_boxes')
-                ->where('parent_barcode', $request->lafaf_barcode)
-                ->exists();
-
-            if ($barcodeExists) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'هذا الباركود تم استخدامه مسبقاً في المرحلة الرابعة'
-                ], 422);
-            }
-
             DB::beginTransaction();
 
             // 🔍 التحقق من كمية الكراتين في المستودع
@@ -520,31 +425,6 @@ class Stage4Controller extends Controller
                 ));
             }
 
-            // جلب بيانات اللفاف الأصلي لحساب الهدر
-            $lafaf = DB::table('stage3_coils')
-                ->where('barcode', $request->lafaf_barcode)
-                ->first();
-
-            $lafafWeight = 0;
-            $wasteWeight = 0;
-            $recordStatus = 'packed';
-
-            // 🔥 في حالة الإضافة الفردية، لا نفحص الهدر
-            // لأن المستخدم قد يضيف المزيد من الكراتين
-            // سيتم فحص الهدر عند النقر على زر "إنهاء التعبئة"
-            if ($lafaf) {
-                $lafafWeight = $lafaf->net_weight ?? $lafaf->total_weight;
-                
-                // حساب مجموع أوزان الكراتين الموجودة مسبقاً
-                $existingBoxesWeight = DB::table('stage4_boxes')
-                    ->where('parent_barcode', $request->lafaf_barcode)
-                    ->sum('total_weight');
-                
-                // الوزن الكلي للكراتين (الموجودة + الجديدة)
-                $totalBoxesWeight = $existingBoxesWeight + $request->weight;
-                $wasteWeight = $lafafWeight - $totalBoxesWeight;
-            }
-
             // توليد الباركود
             $barcode = $this->generateStageBarcode('stage4');
 
@@ -562,8 +442,8 @@ class Stage4Controller extends Controller
                 'packaging_type' => 'standard',
                 'coils_count' => 1,
                 'total_weight' => $request->weight,
-                'waste' => $wasteWeight,
-                'status' => $recordStatus,
+                'waste' => 0,
+                'status' => 'packed',
                 'notes' => $request->notes,
                 'created_by' => auth()->id() ?? 1,
                 'created_at' => now(),
@@ -615,7 +495,6 @@ class Stage4Controller extends Controller
 
             DB::commit();
 
-            // إرجاع استجابة نجاح مع معلومات الكرتون
             return response()->json([
                 'success' => true,
                 'message' => 'تم حفظ الكرتون بنجاح',
@@ -858,160 +737,6 @@ class Stage4Controller extends Controller
             if ($remainingToDeduct > 0) {
                 $this->deductCartonFromWarehouse($cartonMaterialId, $remainingToDeduct);
             }
-        }
-    }
-
-    /**
-     * فحص الهدر النهائي عند انتهاء التعبئة
-     */
-    public function checkFinalWaste(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'lafaf_barcode' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'بيانات غير صحيحة',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            // جلب بيانات اللفاف
-            $lafaf = DB::table('stage3_coils')
-                ->where('barcode', $request->lafaf_barcode)
-                ->first();
-
-            if (!$lafaf) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'اللفاف غير موجود'
-                ], 404);
-            }
-
-            // حساب مجموع أوزان الكراتين
-            $totalBoxesWeight = DB::table('stage4_boxes')
-                ->where('parent_barcode', $request->lafaf_barcode)
-                ->sum('total_weight');
-
-            if ($totalBoxesWeight == 0) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'لا توجد كراتين لهذا اللفاف'
-                ], 400);
-            }
-
-            $lafafWeight = $lafaf->net_weight ?? $lafaf->total_weight;
-            $wasteWeight = $lafafWeight - $totalBoxesWeight;
-
-            // 🔥 فحص نسبة الهدر
-            $wasteCheck = \App\Services\WasteCheckService::checkAndSuspend(
-                stageNumber: 4,
-                batchBarcode: $request->lafaf_barcode,
-                batchId: $lafaf->material_id,
-                inputWeight: $lafafWeight,
-                outputWeight: $totalBoxesWeight
-            );
-            $wasteData = $wasteCheck['data'] ?? [];
-
-            \Log::info('Stage 4 Final Waste Check Result', [
-                'suspended' => $wasteCheck['suspended'] ?? false,
-                'waste_percentage' => $wasteData['waste_percentage'] ?? 0,
-                'allowed_percentage' => $wasteData['allowed_percentage'] ?? 0,
-                'input_weight' => $lafafWeight,
-                'output_weight' => $totalBoxesWeight,
-                'waste_weight' => $wasteWeight,
-            ]);
-
-            // تحديث حالة جميع الكراتين
-            DB::beginTransaction();
-
-            $recordStatus = $wasteCheck['suspended'] ? 'pending_approval' : 'packed';
-            
-            DB::table('stage4_boxes')
-                ->where('parent_barcode', $request->lafaf_barcode)
-                ->update([
-                    'status' => $recordStatus,
-                    'updated_at' => now()
-                ]);
-
-            // تحديث حالة اللفاف
-            DB::table('stage3_coils')
-                ->where('id', $lafaf->id)
-                ->update([
-                    'status' => 'packed',
-                    'updated_at' => now()
-                ]);
-
-            DB::commit();
-
-            // 🔥 إذا تم إيقاف العملية بسبب تجاوز نسبة الهدر
-            if ($wasteCheck['suspended']) {
-                $wastePercentage = $wasteData['waste_percentage'] ?? 0;
-                $allowedPercentage = $wasteData['allowed_percentage'] ?? 0;
-
-                return response()->json([
-                    'success' => true,
-                    'pending_approval' => true,
-                    'message' => 'تم فحص الهدر - يوجد تجاوز في نسبة الهدر',
-                    'alert_title' => '⛔ تم إيقاف الانتقال لمرحلة التسليم',
-                    'alert_message' => "
-                        <div style='text-align: right; direction: rtl;'>
-                            <p style='font-size: 16px; margin-bottom: 15px;'>
-                                <strong>⚠️ تم تجاوز نسبة الهدر المسموح بها في المرحلة الرابعة (التعبئة)</strong>
-                            </p>
-                            <div style='background: #fff3cd; padding: 15px; border-radius: 8px; border-right: 4px solid #ffc107; margin-top: 15px;'>
-                                <table style='width: 100%; text-align: right;'>
-                                    <tr><td style='padding: 5px;'><strong>وزن اللفاف الداخل:</strong></td><td style='padding: 5px;'>" . number_format($lafafWeight, 2) . " كجم</td></tr>
-                                    <tr><td style='padding: 5px;'><strong>إجمالي أوزان الكراتين:</strong></td><td style='padding: 5px;'>" . number_format($totalBoxesWeight, 2) . " كجم</td></tr>
-                                    <tr><td style='padding: 5px;'><strong>وزن الهدر:</strong></td><td style='padding: 5px; color: #dc3545; font-weight: bold;'>" . number_format($wasteWeight, 2) . " كجم</td></tr>
-                                    <tr><td style='padding: 5px;'><strong>نسبة الهدر:</strong></td><td style='padding: 5px; color: #dc3545; font-weight: bold;'>{$wastePercentage}%</td></tr>
-                                    <tr><td style='padding: 5px;'><strong>النسبة المسموح بها:</strong></td><td style='padding: 5px; color: #28a745;'>{$allowedPercentage}%</td></tr>
-                                </table>
-                            </div>
-                            <div style='background: #d1ecf1; padding: 15px; border-radius: 8px; border-right: 4px solid #17a2b8; margin-top: 15px;'>
-                                <p style='color: #0c5460; margin: 0;'>
-                                    <i class='fas fa-info-circle'></i> 
-                                    <strong>تم إرسال تنبيه للإدارة للمراجعة والموافقة.</strong><br>
-                                    لا يمكن تسليم هذه الكراتين حتى تتم الموافقة من قبل المسؤولين.
-                                </p>
-                            </div>
-                        </div>
-                    ",
-                    'data' => [
-                        'lafaf_barcode' => $request->lafaf_barcode,
-                        'lafaf_weight' => $lafafWeight,
-                        'total_boxes_weight' => $totalBoxesWeight,
-                        'waste_weight' => $wasteWeight,
-                        'waste_percentage' => $wastePercentage,
-                        'allowed_percentage' => $allowedPercentage,
-                        'status' => 'pending_approval'
-                    ]
-                ]);
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => '✅ تم فحص الهدر بنجاح - لا يوجد تجاوز',
-                'data' => [
-                    'lafaf_barcode' => $request->lafaf_barcode,
-                    'lafaf_weight' => $lafafWeight,
-                    'total_boxes_weight' => $totalBoxesWeight,
-                    'waste_weight' => $wasteWeight,
-                    'waste_percentage' => $wasteData['waste_percentage'] ?? 0,
-                    'allowed_percentage' => $wasteData['allowed_percentage'] ?? 0,
-                    'status' => 'packed'
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ: ' . $e->getMessage()
-            ], 500);
         }
     }
 }

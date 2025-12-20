@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\Syncable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Warehouse extends Model
 {
+    use Syncable;
+
     protected $fillable = [
         'warehouse_code',
         'warehouse_name',
@@ -24,6 +27,12 @@ class Warehouse extends Model
         'contact_number',
         'is_active',
         'created_by',
+        // Sync fields
+        'is_synced',
+        'sync_status',
+        'synced_at',
+        'local_id',
+        'device_id',
     ];
 
     protected $casts = [

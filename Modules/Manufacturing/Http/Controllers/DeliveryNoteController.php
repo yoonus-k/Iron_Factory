@@ -277,6 +277,32 @@ class DeliveryNoteController extends Controller
                 'invoice_reference_number.string' => 'رقم مرجع الفاتورة يجب أن يكون نصاً',
             ]);
 
+            // ✅ إذا كانت الشحنة تعتمد على كويلات، نحسب الكمية تلقائياً بما يعادل إجمالي أوزان الكويلات
+            if ($type === 'incoming' && $hasCoils) {
+                $tempCoils = session('temp_coils', []);
+                $totalCoilWeight = collect($tempCoils)->sum(function ($coil) {
+                    return isset($coil['coil_weight']) ? (float) $coil['coil_weight'] : 0;
+                });
+
+                if ($totalCoilWeight <= 0) {
+                    return back()->withInput()->withErrors([
+                        'quantity' => 'يجب إضافة كويل واحد على الأقل أو إدخال الكمية يدوياً قبل الحفظ.',
+                    ]);
+                }
+
+                $validated['quantity'] = round($totalCoilWeight, 3);
+                // توحيد قيم الحقول المرتبطة بالكمية/الوزن عند استخدام الكويلات
+                $validated['delivery_quantity'] = $validated['quantity'];
+                if (empty($validated['delivered_weight'])) {
+                    $validated['delivered_weight'] = $validated['quantity'];
+                }
+            }
+
+            // تأمين قيمة رقمية للكمية لتفادي إدخال NULL في قاعدة البيانات
+            if (!array_key_exists('quantity', $validated) || $validated['quantity'] === null) {
+                $validated['quantity'] = 0;
+            }
+
             // Generate a new delivery note number (always generate fresh, don't use form value)
             $noteNumber = $this->generateDeliveryNoteNumber();
             $validated['note_number'] = $noteNumber;
@@ -526,7 +552,7 @@ class DeliveryNoteController extends Controller
                     }
                 }
 
-                // ✅ تسجيل الحركة في material_movements للأذن الواردة مع batch_id
+                // ✅ تسجيل الحركة في material_movements للأذن الواردة
                 if (isset($batch)) {
                     MaterialMovement::create([
                         'movement_number' => MaterialMovement::generateMovementNumber(),
@@ -535,7 +561,6 @@ class DeliveryNoteController extends Controller
                         'delivery_note_id' => $deliveryNote->id,
                         'material_detail_id' => $deliveryNote->material_detail_id,
                         'material_id' => $validated['material_id'],
-                        'batch_id' => $batch->id, // ✅ إضافة batch_id
                         'unit_id' => $batch->unit_id,
                         'quantity' => $validated['quantity'],
                         'to_warehouse_id' => $deliveryNote->warehouse_id,
@@ -881,7 +906,8 @@ class DeliveryNoteController extends Controller
             'registrationLogs.registeredBy',
             'reconciliationLogs',
             'reconciliationLogs.decidedBy',
-            'purchaseInvoice'
+            'purchaseInvoice',
+            'coils' // ✅ إضافة الكويلات
         ])->findOrFail($id);
 
         // Load operation logs
@@ -1428,7 +1454,7 @@ class DeliveryNoteController extends Controller
 
             // Log the operation
             try {
-                $statusLabel = \App\Models\DeliveryNoteStatus::from($validated['status'])->label();
+                $statusLabel = \App\Enums\DeliveryNoteStatus::from($validated['status'])->label();
                 $this->logOperation(
                     'update',
                     'Update Status',
@@ -1445,7 +1471,7 @@ class DeliveryNoteController extends Controller
 
             // إرسال إشعار بتحديث حالة أذن التسليم
             try {
-                $statusLabel = \App\Models\DeliveryNoteStatus::from($validated['status'])->label();
+                $statusLabel = \App\Enums\DeliveryNoteStatus::from($validated['status'])->label();
                 $managers = User::where('role', 'admin')->orWhere('role', 'manager')->get();
                 foreach ($managers as $manager) {
                     $this->notificationService->notifyCustom(
@@ -1904,6 +1930,18 @@ class DeliveryNoteController extends Controller
                 ]);
 
                 // تسجيل حركة المواد
+                // الحصول على unit_id بالترتيب التالي: materialDetail -> material -> default (كيلو)
+                $unitId = null;
+                if ($deliveryNote->materialDetail && $deliveryNote->materialDetail->unit_id) {
+                    $unitId = $deliveryNote->materialDetail->unit_id;
+                } elseif ($deliveryNote->material && $deliveryNote->material->unit_id) {
+                    $unitId = $deliveryNote->material->unit_id;
+                } else {
+                    // إذا لم يكن هناك unit_id، استخدم الوحدة الافتراضية (كيلو)
+                    $defaultUnit = \App\Models\Unit::where('unit_code', 'KG')->orWhere('unit_name', 'كيلو')->first();
+                    $unitId = $defaultUnit ? $defaultUnit->id : 1; // fallback to ID 1
+                }
+                
                 \App\Models\MaterialMovement::create([
                     'movement_number' => \App\Models\MaterialMovement::generateMovementNumber(),
                     'movement_type' => 'to_production',
@@ -1912,7 +1950,7 @@ class DeliveryNoteController extends Controller
                     'material_detail_id' => $deliveryNote->material_detail_id,
                     'material_id' => $deliveryNote->material_id,
                     'batch_id' => $productionBatch ? $productionBatch->id : null,
-                    'unit_id' => $deliveryNote->materialDetail->unit_id ?? null,
+                    'unit_id' => $unitId,
                     'quantity' => $transferWeight,
                     'from_warehouse_id' => $deliveryNote->warehouse_id,
                     'destination' => 'الإنتاج - ' . ($stage?->stage_name ?? ''),

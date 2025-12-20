@@ -17,9 +17,9 @@ class DefaultMaterialsSeeder extends Seeder
     {
         // البحث عن الوحدات أو إنشاؤها
         $unitCount = Unit::firstOrCreate(
-            ['unit_name' => 'عدد'],
+            ['unit_code' => 'COUNT'],
             [
-                'unit_code' => 'COUNT',
+                'unit_name' => 'عدد',
                 'unit_symbol' => 'عدد',
                 'unit_name_en' => 'Count',
                 'unit_type' => 'quantity',
@@ -30,9 +30,9 @@ class DefaultMaterialsSeeder extends Seeder
         );
 
         $unitKg = Unit::firstOrCreate(
-            ['unit_name' => 'كيلو'],
+            ['unit_code' => 'KG'],
             [
-                'unit_code' => 'KG',
+                'unit_name' => 'كيلو',
                 'unit_symbol' => 'كجم',
                 'unit_name_en' => 'Kilogram',
                 'unit_type' => 'weight',
@@ -44,9 +44,9 @@ class DefaultMaterialsSeeder extends Seeder
 
         // إنشاء أنواع المواد
         $typeCarton = MaterialType::firstOrCreate(
-            ['type_name' => 'كرتون'],
+            ['type_code' => 'CARTON'],
             [
-                'type_code' => 'CARTON',
+                'type_name' => 'كرتون',
                 'type_name_en' => 'Carton',
                 'description' => 'مواد التعبئة والتغليف - كرتون',
                 'description_en' => 'Packaging Materials - Carton',
@@ -56,9 +56,9 @@ class DefaultMaterialsSeeder extends Seeder
         );
 
         $typePlastic = MaterialType::firstOrCreate(
-            ['type_name' => 'بلاستيك'],
+            ['type_code' => 'PLASTIC'],
             [
-                'type_code' => 'PLASTIC',
+                'type_name' => 'بلاستيك',
                 'type_name_en' => 'Plastic',
                 'description' => 'مواد التعبئة والتغليف - بلاستيك',
                 'description_en' => 'Packaging Materials - Plastic',
@@ -68,9 +68,9 @@ class DefaultMaterialsSeeder extends Seeder
         );
 
         $typeDye = MaterialType::firstOrCreate(
-            ['type_name' => 'صبغة'],
+            ['type_code' => 'DYE'],
             [
-                'type_code' => 'DYE',
+                'type_name' => 'صبغة',
                 'type_name_en' => 'Dye',
                 'description' => 'مواد كيميائية - صبغات وألوان',
                 'description_en' => 'Chemical Materials - Dyes and Colors',

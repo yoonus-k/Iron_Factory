@@ -77,7 +77,7 @@
                                 <line x1="4" y1="8" x2="20" y2="8"></line>
                             </svg>
                             <input type="text" name="type_name" id="type_name" class="form-input @error('type_name') error @enderror"
-                                   placeholder="{{ __('warehouse.example') }}: {{ __('warehouse.raw_material_example') }}" value="{{ old('type_name') }}" required>
+                                placeholder="{{ __('warehouse.example') }}: {{ __('warehouse.raw_material_example') }}" value="{{ old('type_name') }}" @if($locale === 'ar') required @endif>
                         </div>
                         @error('type_name')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -97,7 +97,7 @@
                                 <line x1="4" y1="8" x2="20" y2="8"></line>
                             </svg>
                             <input type="text" name="type_name_en" id="type_name_en" class="form-input @error('type_name_en') error @enderror"
-                                   placeholder="{{ __('warehouse.example') }}: {{ __('warehouse.raw_material_example_en') }}" value="{{ old('type_name_en') }}" required>
+                                placeholder="{{ __('warehouse.example') }}: {{ __('warehouse.raw_material_example_en') }}" value="{{ old('type_name_en') }}" @if($locale !== 'ar') required @endif>
                         </div>
                         @error('type_name_en')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -147,7 +147,7 @@
                     </div>
 
                     <!-- التكلفة القياسية -->
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="standard_cost" class="form-label">{{ __('warehouse.standard_cost') }}</label>
                         <div class="input-wrapper">
                             <input type="number" name="standard_cost" id="standard_cost" class="form-input @error('standard_cost') error @enderror"
@@ -156,10 +156,10 @@
                         @error('standard_cost')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
                         @enderror
-                    </div>
+                    </div> -->
 
                     <!-- مدة الصلاحية (أيام) -->
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="shelf_life_days" class="form-label">{{ __('warehouse.shelf_life_days') }}</label>
                         <div class="input-wrapper">
                             <input type="number" name="shelf_life_days" id="shelf_life_days" class="form-input @error('shelf_life_days') error @enderror"
@@ -168,7 +168,7 @@
                         @error('shelf_life_days')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
                         @enderror
-                    </div>
+                    </div> -->
 
                     <!-- الحالة -->
                     <div class="form-group">

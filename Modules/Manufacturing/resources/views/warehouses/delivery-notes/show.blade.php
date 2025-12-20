@@ -92,7 +92,14 @@
 
                     @if($deliveryNote->type === 'incoming')
                         @if (auth()->user()->hasPermission('WAREHOUSE_REGISTRATION_TRANSFER'))
-                            <a href="{{ route('manufacturing.warehouse.registration.transfer-form', $deliveryNote) }}" class="btn btn-success">
+                            @php
+                                // Check if delivery note has coils
+                                $hasCoils = $deliveryNote->coils && $deliveryNote->coils->count() > 0;
+                                $transferRoute = $hasCoils 
+                                    ? route('manufacturing.coils.transfer-index') 
+                                    : route('manufacturing.warehouse.registration.transfer-form', $deliveryNote);
+                            @endphp
+                            <a href="{{ $transferRoute }}" class="btn btn-success">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline>
                                     <line x1="12" y1="12" x2="20" y2="7.5"></line>
@@ -100,6 +107,9 @@
                                     <line x1="12" y1="12" x2="4" y2="7.5"></line>
                                 </svg>
                                 {{ __('delivery_notes.transfer_to_production') }}
+                                @if($hasCoils)
+                                    <span class="badge badge-light" style="margin-right: 5px;">{{ $deliveryNote->coils->count() }} كويل</span>
+                                @endif
                             </a>
                         @endif
 
@@ -150,7 +160,7 @@
                                 {{ $deliveryNote->status->label() }}
                             </button>
                             <ul class="dropdown-menu">
-                                @foreach(\App\Models\DeliveryNoteStatus::cases() as $status)
+                                @foreach(\App\Enums\DeliveryNoteStatus::cases() as $status)
                                     @php
                                         $btnColor = $status->color();
                                         $btnColorCode = $btnColor === 'yellow' ? '#f39c12' : ($btnColor === 'green' ? '#27ae60' : ($btnColor === 'red' ? '#e74c3c' : '#3498db'));
@@ -386,6 +396,88 @@
                                     <div style="font-size: 11px; color: #999;">{{ __('delivery_notes.by') }}: {{ __('delivery_notes.system') }}</div>
                                 </div>
                             @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- قسم الكويلات إذا كان الإذن مقسم إلى كويلات --}}
+            @if ($deliveryNote->coils && $deliveryNote->coils->count() > 0)
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon warning">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <circle cx="12" cy="12" r="6"></circle>
+                                <circle cx="12" cy="12" r="2"></circle>
+                            </svg>
+                        </div>
+                        <h3 class="card-title">🎲 {{ __('delivery_notes.coils_details') }} ({{ $deliveryNote->coils->count() }} {{ __('delivery_notes.coil') }})</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="background: #fff9e6; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-right: 4px solid #ffa726;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <svg style="width: 24px; height: 24px; color: #ffa726;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                                <div>
+                                    <strong>{{ __('delivery_notes.coils_notice') }}:</strong>
+                                    {{ __('delivery_notes.this_delivery_divided_into_coils') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                                        <th style="padding: 12px; text-align: right; font-weight: 600; color: #495057;">#</th>
+                                        <th style="padding: 12px; text-align: right; font-weight: 600; color: #495057;">{{ __('delivery_notes.coil_number') }}</th>
+                                        <th style="padding: 12px; text-align: right; font-weight: 600; color: #495057;">{{ __('delivery_notes.coil_barcode') }}</th>
+                                        <th style="padding: 12px; text-align: right; font-weight: 600; color: #495057;">{{ __('delivery_notes.coil_weight') }}</th>
+                                        <th style="padding: 12px; text-align: right; font-weight: 600; color: #495057;">{{ __('delivery_notes.remaining_weight') }}</th>
+                                        <th style="padding: 12px; text-align: right; font-weight: 600; color: #495057;">{{ __('delivery_notes.status') }}</th>
+                                        <th style="padding: 12px; text-align: right; font-weight: 600; color: #495057;">{{ __('delivery_notes.notes') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($deliveryNote->coils as $index => $coil)
+                                        <tr style="border-bottom: 1px solid #dee2e6;">
+                                            <td style="padding: 12px; text-align: right;">{{ $index + 1 }}</td>
+                                            <td style="padding: 12px; text-align: right; font-weight: 600; color: #2c3e50;">{{ $coil->coil_number ?? 'N/A' }}</td>
+                                            <td style="padding: 12px; text-align: right;">
+                                                <code style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 12px;">{{ $coil->coil_barcode }}</code>
+                                            </td>
+                                            <td style="padding: 12px; text-align: right; color: #27ae60; font-weight: 600;">{{ number_format($coil->coil_weight, 3) }} كجم</td>
+                                            <td style="padding: 12px; text-align: right; color: #3498db; font-weight: 600;">{{ number_format($coil->remaining_weight, 3) }} كجم</td>
+                                            <td style="padding: 12px; text-align: right;">
+                                                @php
+                                                    $statusBadge = [
+                                                        'available' => ['bg' => '#d4edda', 'color' => '#155724', 'text' => 'متاح'],
+                                                        'partially_used' => ['bg' => '#fff3cd', 'color' => '#856404', 'text' => 'مستخدم جزئياً'],
+                                                        'fully_used' => ['bg' => '#f8d7da', 'color' => '#721c24', 'text' => 'مستخدم بالكامل'],
+                                                    ];
+                                                    $badge = $statusBadge[$coil->status] ?? ['bg' => '#e2e3e5', 'color' => '#383d41', 'text' => $coil->status];
+                                                @endphp
+                                                <span style="background: {{ $badge['bg'] }}; color: {{ $badge['color'] }}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                                    {{ $badge['text'] }}
+                                                </span>
+                                            </td>
+                                            <td style="padding: 12px; text-align: right; color: #6c757d; font-size: 13px;">{{ $coil->notes ?? '-' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr style="background: #f8f9fa; font-weight: 600;">
+                                        <td colspan="3" style="padding: 12px; text-align: right;">{{ __('delivery_notes.total') }}:</td>
+                                        <td style="padding: 12px; text-align: right; color: #27ae60;">{{ number_format($deliveryNote->coils->sum('coil_weight'), 3) }} كجم</td>
+                                        <td style="padding: 12px; text-align: right; color: #3498db;">{{ number_format($deliveryNote->coils->sum('remaining_weight'), 3) }} كجم</td>
+                                        <td colspan="2"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         </div>
                     </div>
                 </div>
