@@ -689,11 +689,11 @@ class Stage1Controller extends Controller
             ->orderBy('stand_usage_history.created_at', 'desc')
             ->first();
 
-        // جلب الوردية الحالية للمرحلة
+        // جلب الوردية الحالية للمرحلة (بناءً على تاريخ اليوم)
         $currentShift = DB::table('shift_assignments')
             ->leftJoin('users', 'shift_assignments.user_id', '=', 'users.id')
             ->leftJoin('users as supervisors', 'shift_assignments.supervisor_id', '=', 'supervisors.id')
-            ->where('shift_assignments.stage_record_id', $id)
+            ->where('shift_assignments.shift_date', '>=', $stand->created_at ? date('Y-m-d', strtotime($stand->created_at)) : date('Y-m-d'))
             ->where('shift_assignments.stage_number', 1)
             ->where('shift_assignments.status', 'active')
             ->select(
@@ -701,6 +701,7 @@ class Stage1Controller extends Controller
                 'users.name as worker_name',
                 'supervisors.name as supervisor_name'
             )
+            ->orderBy('shift_assignments.shift_date', 'desc')
             ->first();
 
         // جلب العمال الحاليين مع المسؤول للوردية الحالية
@@ -748,7 +749,7 @@ class Stage1Controller extends Controller
         $previousShifts = DB::table('shift_assignments')
             ->leftJoin('users', 'shift_assignments.user_id', '=', 'users.id')
             ->leftJoin('users as supervisors', 'shift_assignments.supervisor_id', '=', 'supervisors.id')
-            ->where('shift_assignments.stage_record_id', $id)
+            ->where('shift_assignments.shift_date', '<=', $stand->created_at ? date('Y-m-d', strtotime($stand->created_at)) : date('Y-m-d'))
             ->where('shift_assignments.stage_number', 1)
             ->where('shift_assignments.status', '!=', 'active')
             ->select(
@@ -756,7 +757,7 @@ class Stage1Controller extends Controller
                 'users.name as worker_name',
                 'supervisors.name as supervisor_name'
             )
-            ->orderBy('shift_assignments.created_at', 'desc')
+            ->orderBy('shift_assignments.shift_date', 'desc')
             ->limit(10)
             ->get();
 

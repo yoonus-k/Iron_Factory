@@ -219,12 +219,12 @@
     @php
     $currentWorker = \App\Models\WorkerStageHistory::getCurrentWorkerForStage(
         \App\Models\WorkerStageHistory::STAGE_2_PROCESSED,
-        $processed->id
+        $record->id
     );
     $workerStats = \App\Services\WorkerTrackingService::class;
     $stats = app($workerStats)->getStageStatistics(
         \App\Models\WorkerStageHistory::STAGE_2_PROCESSED,
-        $processed->id
+        $record->id
     );
     @endphp
 
@@ -234,7 +234,7 @@
                 <i class="feather icon-users"></i>
                 {{ __('worker-tracking.worker_tracking') }}
             </div>
-            <a href="{{ route('worker-tracking.stage-history', ['stageType' => 'stage2_processed', 'stageRecordId' => $processed->id]) }}"
+            <a href="{{ route('worker-tracking.stage-history', ['stageType' => 'stage2_processed', 'stageRecordId' => $record->id]) }}"
                class="um-btn um-btn-sm um-btn-info">
                 <i class="feather icon-history"></i>
                 {{ __('worker-tracking.view_history') }}
@@ -448,3 +448,4 @@ function printBarcode(barcode, wireSize, netWeight) {
 </script>
 
 @endsection
+

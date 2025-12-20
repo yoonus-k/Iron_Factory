@@ -180,12 +180,22 @@
 
                             <td style="padding: 18px; text-align: center;">
                                 <div style="font-weight: bold; color: #2c3e50; font-size: 15px;">
-                                    {{ $confirmation->batch?->material?->name ?? __('app.production_confirmations.table.not_specified') }}
+                                    {{ $confirmation->deliveryNote?->material?->name_ar ?? $confirmation->batch?->material?->name ?? __('app.production_confirmations.table.not_specified') }}
                                 </div>
                             </td>
 
                             <td style="padding: 18px; text-align: center;">
-                                @if($confirmation->deliveryNote?->quantity)
+                                @if($confirmation->actual_received_quantity)
+                                    <span style="font-size: 16px; font-weight: bold; color: #27ae60;">
+                                        {{ number_format($confirmation->actual_received_quantity, 2) }}
+                                    </span>
+                                    <span style="color: #7f8c8d; font-size: 13px;">{{ __('app.units.kg') }}</span>
+                                @elseif($confirmation->batch?->initial_quantity)
+                                    <span style="font-size: 16px; font-weight: bold; color: #27ae60;">
+                                        {{ number_format($confirmation->batch->initial_quantity, 2) }}
+                                    </span>
+                                    <span style="color: #7f8c8d; font-size: 13px;">{{ __('app.units.kg') }}</span>
+                                @elseif($confirmation->deliveryNote?->quantity)
                                     <span style="font-size: 16px; font-weight: bold; color: #27ae60;">
                                         {{ number_format($confirmation->deliveryNote->quantity, 2) }}
                                     </span>
