@@ -694,6 +694,27 @@ class Stage4Controller extends Controller
                 throw new \Exception('فشل خصم الكرتون من المستودع: ' . $e->getMessage());
             }
 
+            // 🔥 تحديث حالة سجل المرحلة الثالثة إلى "packed"
+            DB::table('stage3_coils')
+                ->where('barcode', $request->lafaf_barcode)
+                ->update([
+                    'status' => 'packed',
+                    'updated_at' => now()
+                ]);
+
+            // 🔥 تحديث سجل العامل في المرحلة الثالثة ليصبح غير نشط
+            \App\Models\WorkerStageHistory::where('stage_type', \App\Models\WorkerStageHistory::STAGE_3_COILS)
+                ->where(function($q) use ($request) {
+                    $q->where('barcode', $request->lafaf_barcode);
+                })
+                ->where('is_active', true)
+                ->update([
+                    'is_active' => false,
+                    'ended_at' => now(),
+                    'duration_minutes' => DB::raw('TIMESTAMPDIFF(MINUTE, started_at, NOW())'),
+                    'status_after' => 'completed',
+                ]);
+
             DB::commit();
 
             // إرجاع استجابة نجاح مع معلومات الكرتون

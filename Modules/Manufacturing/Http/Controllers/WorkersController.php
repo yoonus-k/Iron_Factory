@@ -80,14 +80,12 @@ class WorkersController extends Controller
 
         // إضافة معلومات الوردية لكل عامل
         foreach ($workers as $worker) {
-            if ($worker->user_id) {
-                // البحث عن الوردية في worker_ids
-                $worker->currentShift = \App\Models\ShiftAssignment::whereJsonContains('worker_ids', $worker->user_id)
-                    ->whereIn('status', ['active', 'scheduled'])
-                    ->where('shift_date', '>=', now()->toDateString())
-                    ->orderBy('shift_date', 'asc')
-                    ->first();
-            }
+            // البحث عن الوردية في worker_ids (يحتوي على worker->id وليس user_id)
+            $worker->currentShift = \App\Models\ShiftAssignment::whereJsonContains('worker_ids', (string)$worker->id)
+                ->whereIn('status', ['active', 'scheduled'])
+                ->where('shift_date', '>=', now()->toDateString())
+                ->orderBy('shift_date', 'asc')
+                ->first();
         }
 
         return view('manufacturing::workers.index', compact('workers', 'stats'));
