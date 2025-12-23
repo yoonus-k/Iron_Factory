@@ -5,20 +5,32 @@
 @section('content')
     <div class="um-content-wrapper">
         <!-- Header Section -->
-        <div class="um-header-section">
-            <h1 class="um-page-title">
-                <i class="feather icon-bar-chart-2"></i>
-                تقرير تتبع الإنتاج التفصيلي
-            </h1>
-            <nav class="um-breadcrumb-nav">
-                <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
-                </span>
-                <i class="feather icon-chevron-left"></i>
-                <span>تتبع الإنتاج</span>
-                <i class="feather icon-chevron-left"></i>
-                <span>تقرير التتبع</span>
-            </nav>
+        <div class="um-header-section" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h1 class="um-page-title">
+                    <i class="feather icon-bar-chart-2"></i>
+                    تقرير تتبع الإنتاج التفصيلي
+                </h1>
+                <nav class="um-breadcrumb-nav">
+                    <span>
+                        <i class="feather icon-home"></i> لوحة التحكم
+                    </span>
+                    <i class="feather icon-chevron-left"></i>
+                    <span>تتبع الإنتاج</span>
+                    <i class="feather icon-chevron-left"></i>
+                    <span>تقرير التتبع</span>
+                </nav>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="{{ route('manufacturing.production-tracking.scan') }}" class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px;">
+                    <i class="feather icon-arrow-right"></i>
+                    <span>بحث عن باركود آخر</span>
+                </a>
+                <button onclick="window.print()" class="btn btn-primary" style="display: flex; align-items: center; gap: 8px;">
+                    <i class="feather icon-printer"></i>
+                    <span>طباعة التقرير</span>
+                </button>
+            </div>
         </div>
 
         <!-- Barcode Display -->
@@ -158,6 +170,141 @@
                 </div>
             </div>
         </div>
+
+        <!-- Reverse Tracking (من أين جاء هذا المنتج) -->
+        @if(isset($reverseTracking) && count($reverseTracking) > 0)
+        <section class="um-main-card" style="margin-bottom: 30px; border: 2px solid #8b5cf6; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);">
+            <div class="um-card-header" style="background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); color: white;">
+                <h4 class="um-card-title" style="color: white; display: flex; align-items: center; gap: 10px;">
+                    <i class="feather icon-arrow-left-circle" style="font-size: 24px;"></i>
+                    <span>التتبع العكسي - أصل المنتج</span>
+                    <span class="um-badge" style="background: rgba(255,255,255,0.3); color: white;">{{ count($reverseTracking) }} مرحلة سابقة</span>
+                </h4>
+                <p style="margin: 5px 0 0 0; font-size: 13px; opacity: 0.9;">من أين جاء هذا الباركود؟</p>
+            </div>
+            <div style="padding: 25px; background: linear-gradient(180deg, #faf5ff 0%, #f5f3ff 100%);">
+                <div style="position: relative; padding: 10px 0;">
+                    <div style="position: absolute; top: 0; bottom: 0; right: 30px; width: 3px; background: linear-gradient(180deg, #8b5cf6, #6d28d9); opacity: 0.4;"></div>
+                    
+                    @foreach($reverseTracking as $index => $item)
+                    <div style="position: relative; margin-bottom: 25px;">
+                        <div style="position: absolute; right: 18px; width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #a78bfa, #8b5cf6); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: bold; z-index: 10; box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4);">
+                            {{ $index + 1 }}
+                        </div>
+                        
+                        <div style="margin-right: 65px; background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 2px solid #e9d5ff;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                                <div>
+                                    <div style="font-size: 11px; color: #6b21a8; font-weight: 600; margin-bottom: 5px;">الباركود</div>
+                                    <div style="font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700; color: #581c87;">{{ $item['barcode'] }}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: #6b21a8; font-weight: 600; margin-bottom: 5px;">المرحلة</div>
+                                    <div style="font-size: 14px; color: #1e293b; font-weight: 600;">{{ $item['stage_name'] }}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: #6b21a8; font-weight: 600; margin-bottom: 5px;">الإجراء</div>
+                                    <div style="font-size: 14px; color: #1e293b;">{{ $item['action_name'] }}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: #6b21a8; font-weight: 600; margin-bottom: 5px;">الوزن</div>
+                                    <div style="font-size: 16px; font-weight: 700; color: #7c3aed;">{{ number_format($item['weight'], 2) }} كجم</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e9d5ff; font-size: 12px; color: #6b7280;">
+                                <i class="feather icon-clock"></i> {{ $item['formatted_time'] }}
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+        @endif
+
+        <!-- Forward Tracking (ماذا تم إنتاجه من هذا الباركود) -->
+        @if(isset($forwardTracking) && count($forwardTracking) > 0)
+        <section class="um-main-card" style="margin-bottom: 30px; border: 2px solid #10b981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);">
+            <div class="um-card-header" style="background: linear-gradient(135deg, #34d399 0%, #10b981 100%); color: white;">
+                <h4 class="um-card-title" style="color: white; display: flex; align-items: center; gap: 10px;">
+                    <i class="feather icon-arrow-right-circle" style="font-size: 24px;"></i>
+                    <span>التتبع الأمامي - المنتجات المشتقة</span>
+                    <span class="um-badge" style="background: rgba(255,255,255,0.3); color: white;">{{ count($forwardTracking) }} منتج</span>
+                </h4>
+                <p style="margin: 5px 0 0 0; font-size: 13px; opacity: 0.9;">ماذا تم إنتاجه من هذا الباركود؟</p>
+            </div>
+            <div style="padding: 25px; background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">
+                    @foreach($forwardTracking as $product)
+                    <div style="background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 2px solid #86efac;">
+                        <div style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 10px; border-radius: 8px; margin-bottom: 12px; text-align: center;">
+                            <div style="font-size: 10px; color: #065f46; font-weight: 600; margin-bottom: 4px;">الباركود</div>
+                            <div style="font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700; color: #047857;">{{ $product['barcode'] }}</div>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <div style="font-size: 11px; color: #059669; font-weight: 600; margin-bottom: 3px;">المرحلة</div>
+                            <div style="font-size: 14px; color: #1e293b; font-weight: 600;">{{ $product['stage_name'] }}</div>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <div style="font-size: 11px; color: #059669; font-weight: 600; margin-bottom: 3px;">الإجراء</div>
+                            <div style="font-size: 13px; color: #64748b;">{{ $product['action_name'] }}</div>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <div style="font-size: 11px; color: #059669; font-weight: 600; margin-bottom: 3px;">الوزن</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #10b981;">{{ number_format($product['weight'], 2) }} كجم</div>
+                        </div>
+                        <div style="padding-top: 8px; border-top: 1px solid #86efac; font-size: 11px; color: #6b7280;">
+                            <i class="feather icon-clock"></i> {{ $product['formatted_time'] }}
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+        @endif
+
+        <!-- Charts Section (رسوم بيانية) -->
+        <section class="um-main-card" style="margin-bottom: 30px; border: 2px solid #3b82f6; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);">
+            <div class="um-card-header" style="background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); color: white;">
+                <h4 class="um-card-title" style="color: white; display: flex; align-items: center; gap: 10px;">
+                    <i class="feather icon-bar-chart-2" style="font-size: 24px;"></i>
+                    <span>التحليل البياني</span>
+                </h4>
+            </div>
+            <div style="padding: 25px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 25px;">
+                    <!-- Weight Flow Chart -->
+                    <div>
+                        <h6 style="text-align: center; color: #1e293b; font-weight: 600; margin-bottom: 15px;">
+                            <i class="feather icon-trending-up"></i> تدفق الأوزان عبر المراحل
+                        </h6>
+                        <div style="height: 300px;">
+                            <canvas id="weightFlowChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Waste Chart -->
+                    <div>
+                        <h6 style="text-align: center; color: #1e293b; font-weight: 600; margin-bottom: 15px;">
+                            <i class="feather icon-alert-triangle"></i> الهدر في كل مرحلة
+                        </h6>
+                        <div style="height: 300px;">
+                            <canvas id="wasteChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Efficiency Doughnut Chart -->
+                <div style="margin-top: 30px; max-width: 400px; margin-left: auto; margin-right: auto;">
+                    <h6 style="text-align: center; color: #1e293b; font-weight: 600; margin-bottom: 15px;">
+                        <i class="feather icon-pie-chart"></i> كفاءة الإنتاج الإجمالية
+                    </h6>
+                    <div style="height: 300px;">
+                        <canvas id="efficiencyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- Barcode Split History (NEW) -->
         @php
@@ -564,6 +711,35 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        @media print {
+            .um-header-section button,
+            .um-header-section a {
+                display: none !important;
+            }
+            
+            @page {
+                margin: 15mm;
+                size: A4;
+            }
+            
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            .um-main-card {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            
+            canvas {
+                max-height: 400px !important;
+            }
+        }
+    </style>
+    
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Prepare data
@@ -682,6 +858,57 @@
                         ticks: {
                             callback: function(value) {
                                 return value + ' كجم';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Efficiency Doughnut Chart
+        const efficiencyCtx = document.getElementById('efficiencyChart').getContext('2d');
+        const efficiency = {{ $trackingData['summary']['efficiency'] ?? 100 }};
+        const waste_percent = {{ $trackingData['summary']['waste_percentage'] ?? 0 }};
+        
+        new Chart(efficiencyCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['كفاءة الإنتاج', 'الهدر'],
+                datasets: [{
+                    data: [efficiency, waste_percent],
+                    backgroundColor: [
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(239, 68, 68, 0.8)'
+                    ],
+                    borderColor: [
+                        '#10b981',
+                        '#ef4444'
+                    ],
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        rtl: true,
+                        labels: {
+                            font: { size: 14, weight: 'bold' },
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        rtl: true,
+                        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                        padding: 15,
+                        titleFont: { size: 15, weight: 'bold' },
+                        bodyFont: { size: 14 },
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed.toFixed(2) + '%';
                             }
                         }
                     }

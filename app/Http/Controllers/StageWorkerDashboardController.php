@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\ProductionConfirmation;
 use App\Models\MaterialBatch;
 use App\Models\ProductTracking;
+use App\Models\WorkerStageHistory;
+use App\Models\Notification;
 use Carbon\Carbon;
 
 class StageWorkerDashboardController extends Controller
@@ -67,7 +69,8 @@ class StageWorkerDashboardController extends Controller
                 'deliveryNote.material',
                 'deliveryNote.materialBatch',
                 'deliveryNote.productTracking',
-                'assignedUser'
+                    'assignedUser',
+                    'workerStageHistory'
             ])
             ->get();
 
@@ -187,18 +190,28 @@ class StageWorkerDashboardController extends Controller
      */
     private function getPendingConfirmations($userId)
     {
-        return ProductionConfirmation::where('assigned_to', $userId)
+        $confirmations = ProductionConfirmation::where('assigned_to', $userId)
             ->where('status', 'pending')
             ->with([
                 'batch.material',
                 'deliveryNote.material',
                 'deliveryNote.materialBatch',
                 'deliveryNote.productTracking',
-                'assignedUser'
+                'assignedUser',
+                'workerStageHistory'
             ])
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
+
+        // Load stage records based on stage_type
+        $confirmations->each(function ($confirmation) {
+            if ($confirmation->stage_record_id && $confirmation->stage_type) {
+                $confirmation->loadStageRecord();
+            }
+        });
+
+        return $confirmations;
     }
 
     /**
@@ -206,29 +219,54 @@ class StageWorkerDashboardController extends Controller
      */
     private function getStageNotifications($stageNumber, $userId, $since = null)
     {
-        // مؤقتاً: جلب التأكيدات الأخيرة كإشعارات
-        $query = ProductionConfirmation::where('assigned_to', $userId)
-            ->whereIn('status', ['pending', 'confirmed', 'rejected'])
-            ->with(['batch.material', 'deliveryNote']);
+        // جلب إشعارات المستخدم من جدول notifications
+        $query = Notification::where('user_id', $userId)
+            ->whereNull('read_at')
+            ->orderBy('created_at', 'desc');
 
         if ($since) {
-            $query->where('updated_at', '>', $since);
+            $query->where('created_at', '>', $since);
         }
 
-        return $query->orderBy('updated_at', 'desc')
-            ->limit(5)
+        return $query->limit(10)
             ->get()
-            ->map(function ($confirmation) {
+            ->map(function ($notification) {
+                $data = json_decode($notification->data, true) ?? [];
+                
+                // تحديد الـ URL بناءً على البيانات المتاحة
+                $url = '#';
+                if (!empty($data['barcode'])) {
+                    $url = route('manufacturing.pending-production.history', $data['barcode']);
+                } elseif (!empty($data['url'])) {
+                    $url = $data['url'];
+                }
+                
                 return [
-                    'id' => $confirmation->id,
-                    'type' => $this->getNotificationType($confirmation->status),
-                    'title' => $this->getNotificationTitle($confirmation),
-                    'message' => $this->getNotificationMessage($confirmation),
-                    'time' => $confirmation->updated_at->diffForHumans(),
-                    'is_read' => false,
-                    'url' => route('manufacturing.production.confirmations.show', $confirmation->id)
+                    'id' => $notification->id,
+                    'type' => $this->mapNotificationType($notification->type),
+                    'title' => $notification->title,
+                    'message' => $notification->message,
+                    'time' => $notification->created_at->diffForHumans(),
+                    'is_read' => $notification->read_at !== null,
+                    'url' => $url
                 ];
             });
+    }
+
+    /**
+     * تحويل نوع الإشعار إلى نوع CSS
+     */
+    private function mapNotificationType($type)
+    {
+        $typeMap = [
+            'work_assigned' => 'success',
+            'work_reassigned' => 'warning',
+            'shift_transfer' => 'info',
+            'work_completed' => 'success',
+            'work_rejected' => 'danger',
+        ];
+
+        return $typeMap[$type] ?? 'info';
     }
 
     /**

@@ -114,6 +114,19 @@ class Stage3Controller extends Controller
                     'message' => '⛔ هذا السجل في انتظار الموافقة ولا يمكن استخدامه في المرحلة الثالثة'
                 ], 403);
             }
+
+            // ✅ التحقق من عدم وجود confirmation معلقة لهذا الباركود (معاد إسناده)
+            $pendingConfirmation = \App\Models\ProductionConfirmation::where('barcode', $stage2->barcode)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($pendingConfirmation) {
+                return response()->json([
+                    'success' => false,
+                    'blocked' => true,
+                    'message' => '⛔ هذا الباركود معاد إسناده ويحتاج موافقة من العامل المسند إليه أولاً'
+                ], 403);
+            }
             
             // التحقق من أن المرحلة الثانية في حالة نشطة
             if ($stage2->status !== 'in_progress' && $stage2->status !== 'completed') {
@@ -234,6 +247,15 @@ class Stage3Controller extends Controller
                     throw new \Exception('باركود المرحلة الثانية غير موجود');
                 }
 
+                // ✅ التحقق من عدم وجود confirmation معلقة لهذا الباركود (معاد إسناده)
+                $pendingConfirmation = \App\Models\ProductionConfirmation::where('barcode', $stage2->barcode)
+                    ->where('status', 'pending')
+                    ->first();
+
+                if ($pendingConfirmation) {
+                    throw new \Exception('⛔ هذا الباركود معاد إسناده ويحتاج موافقة من العامل المسند إليه أولاً');
+                }
+
                 $inputWeight = $stage2->remaining_weight ?? $stage2->output_weight;
                 $materialId = $stage2->material_id;
                 $stage2Id = $stage2->id;
@@ -324,6 +346,17 @@ class Stage3Controller extends Controller
                         'status' => 'completed',
                         'updated_at' => now()
                     ]);
+                
+                // 🔥 إنهاء سجل العامل في المرحلة الثانية
+                \App\Models\WorkerStageHistory::where('stage_type', \App\Models\WorkerStageHistory::STAGE_2_PROCESSED)
+                    ->where('stage_record_id', $stage2Id)
+                    ->where('is_active', true)
+                    ->update([
+                        'is_active' => false,
+                        'ended_at' => now(),
+                        'duration_minutes' => DB::raw('TIMESTAMPDIFF(MINUTE, started_at, NOW())'),
+                        'status_after' => 'completed',
+                    ]);
             }
 
             DB::table('product_tracking')->insert([
@@ -352,6 +385,25 @@ class Stage3Controller extends Controller
                 ]),
                 'created_at' => now()
             ]);
+
+            // 🔥 تسجيل العامل في نظام تتبع العمال
+            try {
+                $trackingService = app(\App\Services\WorkerTrackingService::class);
+                $trackingService->assignWorkerToStage(
+                    stageType: \App\Models\WorkerStageHistory::STAGE_3_COILS,
+                    stageRecordId: $lafafId,
+                    workerId: auth()->id() ?? 1,
+                    barcode: $barcode,
+                    statusBefore: $recordStatus ?? 'active',
+                    assignedBy: auth()->id() ?? 1
+                );
+            } catch (\Exception $e) {
+                \Log::error('Failed to register worker tracking for Stage3', [
+                    'error' => $e->getMessage(),
+                    'lafaf_id' => $lafafId,
+                    'worker_id' => auth()->id(),
+                ]);
+            }
 
             DB::commit();
 
@@ -435,6 +487,15 @@ class Stage3Controller extends Controller
 
             if (!$stage2) {
                 throw new \Exception('باركود المرحلة الثانية غير موجود');
+            }
+
+            // ✅ التحقق من عدم وجود confirmation معلقة لهذا الباركود (معاد إسناده)
+            $pendingConfirmation = \App\Models\ProductionConfirmation::where('barcode', $stage2->barcode)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($pendingConfirmation) {
+                throw new \Exception('⛔ هذا الباركود معاد إسناده ويحتاج موافقة من العامل المسند إليه أولاً');
             }
 
             // التحقق من أن الوزن الكامل أكبر من وزن الدخول

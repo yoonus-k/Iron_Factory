@@ -191,7 +191,7 @@
                                     <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
                                 <input type="time" name="start_time" id="start_time"
-                                    class="form-input" readonly
+                                    class="form-input"
                                     value="{{ old('start_time', '06:00') }}" required>
                             </div>
                         </div>
@@ -208,7 +208,7 @@
                                     <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
                                 <input type="time" name="end_time" id="end_time"
-                                    class="form-input" readonly
+                                    class="form-input"
                                     value="{{ old('end_time', '18:00') }}" required>
                             </div>
                         </div>

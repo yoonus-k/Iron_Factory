@@ -34,7 +34,7 @@ class WorkersController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Worker::query();
+        $query = Worker::with(['user']);
 
         // Filter by position
         if ($request->filled('position')) {
@@ -78,6 +78,18 @@ class WorkersController extends Controller
             'workers' => Worker::where('position', Worker::POSITION_WORKER)->where('is_active', true)->count(),
         ];
 
+        // إضافة معلومات الوردية لكل عامل
+        foreach ($workers as $worker) {
+            if ($worker->user_id) {
+                // البحث عن الوردية في worker_ids
+                $worker->currentShift = \App\Models\ShiftAssignment::whereJsonContains('worker_ids', $worker->user_id)
+                    ->whereIn('status', ['active', 'scheduled'])
+                    ->where('shift_date', '>=', now()->toDateString())
+                    ->orderBy('shift_date', 'asc')
+                    ->first();
+            }
+        }
+
         return view('manufacturing::workers.index', compact('workers', 'stats'));
     }
 
@@ -86,13 +98,10 @@ class WorkersController extends Controller
      */
     public function create()
     {
-        // Get available users (those who don't have worker profiles yet)
-        $availableUsers = User::whereDoesntHave('worker')->where('is_active', true)->get();
-
         // Get roles for positions
         $roles = Role::all();
 
-        return view('manufacturing::workers.create', compact('availableUsers', 'roles'));
+        return view('manufacturing::workers.create', compact('roles'));
     }
 
     /**
@@ -100,7 +109,23 @@ class WorkersController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), $this->getWorkerValidationRules());
+        $validator = Validator::make($request->all(), [
+            'worker_code' => 'required|string|max:50|unique:workers,worker_code',
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username',
+            'password' => 'required|string|min:6',
+            'role_id' => 'required|exists:roles,id',
+        ], [
+            'worker_code.required' => 'كود العامل مطلوب',
+            'worker_code.unique' => 'كود العامل موجود مسبقاً',
+            'name.required' => 'اسم العامل مطلوب',
+            'username.required' => 'اسم المستخدم مطلوب',
+            'username.unique' => 'اسم المستخدم موجود مسبقاً',
+            'password.required' => 'كلمة المرور مطلوبة',
+            'password.min' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
+            'role_id.required' => 'الدور الوظيفي مطلوب',
+            'role_id.exists' => 'الدور الوظيفي غير موجود',
+        ]);
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -112,13 +137,31 @@ class WorkersController extends Controller
         try {
             DB::beginTransaction();
 
-            $userId = $this->processUserAccess($request);
-            $position = $this->getPositionFromRole($request->role_id);
+            // إنشاء مستخدم جديد
+            $user = User::create([
+                'name' => $request->name,
+                'username' => $request->username,
+                'email' => $request->username . '@factory.local', // بريد افتراضي
+                'password' => bcrypt($request->password),
+                'role_id' => $request->role_id,
+                'is_active' => true,
+            ]);
 
-            $worker = Worker::create($this->getWorkerData($request, $userId, $position, true));
+            // الحصول على الوظيفة من الدور
+            $role = Role::find($request->role_id);
+            $position = self::POSITION_MAP[$role->role_code] ?? 'worker';
 
-            $this->syncWorkerPermissions($worker, $request->role_id);
-            $this->updateUserRole($userId, $request->role_id);
+            // إنشاء سجل العامل
+            $worker = Worker::create([
+                'worker_code' => $request->worker_code,
+                'name' => $request->name,
+                'position' => $position,
+                'user_id' => $user->id,
+                'is_active' => true,
+                'hire_date' => now(),
+                'hourly_rate' => 0,
+                'shift_preference' => 'any',
+            ]);
 
             // Store notification
             $this->notifyCreate(
@@ -194,7 +237,22 @@ class WorkersController extends Controller
     {
         $worker = Worker::findOrFail($id);
 
-        $validator = Validator::make($request->all(), $this->getWorkerValidationRules($id));
+        $validator = Validator::make($request->all(), [
+            'worker_code' => "required|string|max:50|unique:workers,worker_code,{$id}",
+            'name' => 'required|string|max:255',
+            'username' => "required|string|max:255|unique:users,username," . ($worker->user_id ?? 'NULL') . ",id",
+            'password' => 'nullable|string|min:6',
+            'role_id' => 'required|exists:roles,id',
+        ], [
+            'worker_code.required' => 'كود المستخدم مطلوب',
+            'worker_code.unique' => 'كود المستخدم موجود مسبقاً',
+            'name.required' => 'اسم المستخدم مطلوب',
+            'username.required' => 'اسم المستخدم للدخول مطلوب',
+            'username.unique' => 'اسم المستخدم للدخول موجود مسبقاً',
+            'password.min' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
+            'role_id.required' => 'الدور الوظيفي مطلوب',
+            'role_id.exists' => 'الدور الوظيفي غير موجود',
+        ]);
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -206,17 +264,36 @@ class WorkersController extends Controller
         try {
             DB::beginTransaction();
 
-            $userId = $this->processUserAccess($request, $worker->user_id);
-            $position = $this->getPositionFromRole($request->role_id);
+            // تحديث بيانات المستخدم
+            if ($worker->user) {
+                $userData = [
+                    'name' => $request->name,
+                    'username' => $request->username,
+                    'role_id' => $request->role_id,
+                ];
 
-            $worker->update($this->getWorkerData($request, $userId, $position, false));
+                // تحديث كلمة المرور إذا تم إدخالها
+                if ($request->filled('password')) {
+                    $userData['password'] = bcrypt($request->password);
+                }
 
-            $this->syncWorkerPermissions($worker, $request->role_id);
-            $this->updateUserRole($userId, $request->role_id);
+                $worker->user->update($userData);
+            }
+
+            // الحصول على الوظيفة من الدور
+            $role = Role::find($request->role_id);
+            $position = self::POSITION_MAP[$role->role_code] ?? 'worker';
+
+            // تحديث بيانات العامل
+            $worker->update([
+                'worker_code' => $request->worker_code,
+                'name' => $request->name,
+                'position' => $position,
+            ]);
 
             // Store notification
             $this->notifyUpdate(
-                'عامل',
+                'مستخدم',
                 $worker->worker_code,
                 route('manufacturing.workers.show', $worker->id)
             );
@@ -224,7 +301,7 @@ class WorkersController extends Controller
             DB::commit();
 
             return redirect()->route('manufacturing.workers.index')
-                ->with('success', 'تم تحديث بيانات العامل بنجاح');
+                ->with('success', 'تم تحديث بيانات المستخدم بنجاح');
 
         } catch (\Exception $e) {
             DB::rollBack();

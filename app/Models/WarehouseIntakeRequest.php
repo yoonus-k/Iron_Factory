@@ -81,6 +81,19 @@ class WarehouseIntakeRequest extends Model
                     'status' => 'in_warehouse',
                     'warehouse_id' => $warehouseId
                 ]);
+                
+                // إغلاق سجلات worker_stage_history النشطة لهذا الصندوق
+                \DB::table('worker_stage_history')
+                    ->where('stage_type', 'stage4_boxes')
+                    ->where('stage_record_id', $item->stage4_box_id)
+                    ->where('is_active', true)
+                    ->update([
+                        'is_active' => false,
+                        'ended_at' => now(),
+                        'duration_minutes' => \DB::raw('TIMESTAMPDIFF(MINUTE, started_at, NOW())'),
+                        'status_after' => 'completed',
+                        'updated_at' => now()
+                    ]);
             }
 
             // تسجيل الحركة في material_movements

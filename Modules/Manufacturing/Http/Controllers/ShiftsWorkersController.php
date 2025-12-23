@@ -84,23 +84,34 @@ class ShiftsWorkersController extends Controller
     public function create()
     {
         // Get all workers from workers table
-        $workersFromTable = \App\Models\Worker::orderBy('name')->get();
+        $workersFromTable = \App\Models\Worker::with('user')->orderBy('name')->get();
 
         // Get all users
-        $usersWorkers = User::orderBy('name')->get();
+        $usersCollection = User::orderBy('name')->get();
 
-        // Merge workers and users, removing duplicates by id
+        // Build workers collection without duplicates
         $workers = collect();
+        $addedUserIds = [];
 
-        // Add workers from workers table
+        // Add workers: if worker has user_id, add the User object, otherwise add the Worker
         foreach ($workersFromTable as $worker) {
-            $workers->push($worker);
+            if ($worker->user_id && $worker->user) {
+                // Worker has a user account - add the user instead
+                if (!in_array($worker->user_id, $addedUserIds)) {
+                    $workers->push($worker->user);
+                    $addedUserIds[] = $worker->user_id;
+                }
+            } else {
+                // Worker doesn't have user account - add the worker
+                $workers->push($worker);
+            }
         }
 
-        // Add users that are not already in workers
-        foreach ($usersWorkers as $user) {
-            if (!$workers->contains('id', $user->id)) {
+        // Add any users that don't have worker records
+        foreach ($usersCollection as $user) {
+            if (!in_array($user->id, $addedUserIds)) {
                 $workers->push($user);
+                $addedUserIds[] = $user->id;
             }
         }
 
@@ -151,7 +162,7 @@ class ShiftsWorkersController extends Controller
             'notes' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
             'workers' => 'nullable|array',
-            'workers.*' => 'exists:workers,id'
+            'workers.*' => 'exists:users,id'
         ]);
 
         if ($validator->fails()) {
@@ -173,6 +184,41 @@ class ShiftsWorkersController extends Controller
             }
             $workerIds = array_filter($workerIds);
             $workerIds = array_values($workerIds);
+            
+            // Convert to integers
+            $workerIds = array_map('intval', $workerIds);
+
+            // التحقق من عدم وجود العامل في وردية أخرى في نفس اليوم
+            if (!empty($workerIds)) {
+                $shiftDate = $request->shift_date;
+                
+                // البحث عن الورديات الأخرى في نفس اليوم
+                $existingShifts = ShiftAssignment::whereDate('shift_date', $shiftDate)
+                    ->whereIn('status', ['active', 'scheduled'])
+                    ->get();
+                
+                $conflicts = [];
+                foreach ($existingShifts as $existingShift) {
+                    // فحص العمال المشتركين
+                    $existingWorkerIds = $existingShift->worker_ids ?? [];
+                    $commonWorkers = array_intersect($workerIds, $existingWorkerIds);
+                    
+                    if (!empty($commonWorkers)) {
+                        foreach ($commonWorkers as $workerId) {
+                            $user = \App\Models\User::find($workerId);
+                            $workerName = $user ? $user->name : "مستخدم #$workerId";
+                            $conflicts[] = $workerName . ' (موجود في وردية ' . $existingShift->start_time . '-' . $existingShift->end_time . ')';
+                        }
+                    }
+                }
+                
+                if (!empty($conflicts)) {
+                    DB::rollBack();
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', 'لا يمكن إضافة الوردية: لا يُسمح للعامل بالعمل في أكثر من وردية واحدة في اليوم. العمال التالية موجودة في ورديات أخرى: ' . implode(', ', array_unique($conflicts)));
+                }
+            }
 
             $shift = ShiftAssignment::create([
                 'shift_code' => $request->shift_code,
@@ -255,23 +301,34 @@ class ShiftsWorkersController extends Controller
         $shift = ShiftAssignment::findOrFail($id);
 
         // Get all workers from workers table
-        $workersFromTable = \App\Models\Worker::orderBy('name')->get();
+        $workersFromTable = \App\Models\Worker::with('user')->orderBy('name')->get();
 
         // Get all users
-        $usersWorkers = User::orderBy('name')->get();
+        $usersCollection = User::orderBy('name')->get();
 
-        // Merge workers and users, removing duplicates by id
+        // Build workers collection without duplicates
         $workers = collect();
+        $addedUserIds = [];
 
-        // Add workers from workers table
+        // Add workers: if worker has user_id, add the User object, otherwise add the Worker
         foreach ($workersFromTable as $worker) {
-            $workers->push($worker);
+            if ($worker->user_id && $worker->user) {
+                // Worker has a user account - add the user instead
+                if (!in_array($worker->user_id, $addedUserIds)) {
+                    $workers->push($worker->user);
+                    $addedUserIds[] = $worker->user_id;
+                }
+            } else {
+                // Worker doesn't have user account - add the worker
+                $workers->push($worker);
+            }
         }
 
-        // Add users that are not already in workers
-        foreach ($usersWorkers as $user) {
-            if (!$workers->contains('id', $user->id)) {
+        // Add any users that don't have worker records
+        foreach ($usersCollection as $user) {
+            if (!in_array($user->id, $addedUserIds)) {
                 $workers->push($user);
+                $addedUserIds[] = $user->id;
             }
         }
 
@@ -312,6 +369,14 @@ class ShiftsWorkersController extends Controller
     {
         $shift = ShiftAssignment::findOrFail($id);
 
+        // Debug: Log all request data
+        \Log::info('=== Shift Update Request ===', [
+            'shift_id' => $id,
+            'all_input' => $request->all(),
+            'workers_input' => $request->input('workers'),
+            'has_workers' => $request->has('workers'),
+        ]);
+
         $validator = Validator::make($request->all(), [
             'shift_code' => 'required|string|max:50|unique:shift_assignments,shift_code,' . $id,
             'shift_date' => 'required|date',
@@ -323,7 +388,7 @@ class ShiftsWorkersController extends Controller
             'end_time' => 'required|date_format:H:i',
             'notes' => 'nullable|string|max:1000',
             'workers' => 'nullable|array',
-            'workers.*' => 'exists:workers,id'
+            'workers.*' => 'exists:users,id'
         ]);
 
         if ($validator->fails()) {
@@ -339,12 +404,59 @@ class ShiftsWorkersController extends Controller
             $workerIds = $request->input('workers', []);
             $teamId = $request->input('team_id');
 
+            // Debug logging
+            \Log::info('Update Shift - Workers Input:', [
+                'raw_workers' => $request->input('workers'),
+                'team_id' => $teamId,
+                'shift_id' => $id
+            ]);
+
             // Ensure worker_ids is an array and clean it
             if (!is_array($workerIds)) {
                 $workerIds = [];
             }
             $workerIds = array_filter($workerIds);
+            // Convert to integers to ensure proper JSON comparison
+            $workerIds = array_map('intval', $workerIds);
             $workerIds = array_values($workerIds);
+
+            \Log::info('Update Shift - Processed Workers:', [
+                'worker_ids' => $workerIds,
+                'count' => count($workerIds)
+            ]);
+
+            // التحقق من عدم وجود العامل في وردية أخرى في نفس اليوم
+            if (!empty($workerIds)) {
+                $shiftDate = $request->shift_date;
+                
+                // البحث عن الورديات الأخرى في نفس اليوم (ما عدا الوردية الحالية)
+                $existingShifts = ShiftAssignment::whereDate('shift_date', $shiftDate)
+                    ->where('id', '!=', $id)
+                    ->whereIn('status', ['active', 'scheduled'])
+                    ->get();
+                
+                $conflicts = [];
+                foreach ($existingShifts as $existingShift) {
+                    // فحص العمال المشتركين
+                    $existingWorkerIds = $existingShift->worker_ids ?? [];
+                    $commonWorkers = array_intersect($workerIds, $existingWorkerIds);
+                    
+                    if (!empty($commonWorkers)) {
+                        foreach ($commonWorkers as $workerId) {
+                            $user = \App\Models\User::find($workerId);
+                            $workerName = $user ? $user->name : "مستخدم #$workerId";
+                            $conflicts[] = $workerName . ' (موجود في وردية ' . $existingShift->start_time . '-' . $existingShift->end_time . ')';
+                        }
+                    }
+                }
+                
+                if (!empty($conflicts)) {
+                    DB::rollBack();
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', 'لا يمكن تحديث الوردية: لا يُسمح للعامل بالعمل في أكثر من وردية واحدة في اليوم. العمال التالية موجودة في ورديات أخرى: ' . implode(', ', array_unique($conflicts)));
+                }
+            }
 
             $shift->update([
                 'shift_code' => $request->shift_code,

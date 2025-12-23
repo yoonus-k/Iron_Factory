@@ -120,21 +120,31 @@
                            style="width: 100%; padding: 12px; border: 2px solid #bdc3c7; border-radius: 8px; font-size: 14px;">
                 </div>
 
-                <!-- أزرار -->
-                <div style="display: flex; gap: 10px; align-items: flex-end;">
-                    <button type="submit"
-                            style="flex: 1; background: #3498db; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s;"
-                            onmouseover="this.style.background='#2980b9'"
-                            onmouseout="this.style.background='#3498db'">
-                        🔍 {{ __('app.production_confirmations.search_btn') }}
-                    </button>
-                    <a href="{{ route('manufacturing.production.confirmations.index') }}"
-                       style="flex: 1; background: #95a5a6; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; text-decoration: none; text-align: center; transition: all 0.3s;"
-                       onmouseover="this.style.background='#7f8c8d'"
-                       onmouseout="this.style.background='#95a5a6'">
-                        ↻ {{ __('app.production_confirmations.reset_btn') }}
-                    </a>
-                </div>
+            </div>
+
+            <!-- أزرار -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                <button type="submit"
+                        style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; border: none; padding: 14px 24px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px;"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 15px rgba(52, 152, 219, 0.4)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 10px rgba(52, 152, 219, 0.3)'">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    {{ __('app.production_confirmations.search_btn') }}
+                </button>
+                <a href="{{ route('manufacturing.production.confirmations.index') }}"
+                   style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%); color: white; border: none; padding: 14px 24px; border-radius: 8px; font-weight: bold; font-size: 15px; text-decoration: none; transition: all 0.3s; box-shadow: 0 4px 10px rgba(149, 165, 166, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px;"
+                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 15px rgba(149, 165, 166, 0.4)'"
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 10px rgba(149, 165, 166, 0.3)'">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <path d="M3 3v5h5"></path>
+                    </svg>
+                    {{ __('app.production_confirmations.reset_btn') }}
+                </a>
+            </div>
             </div>
         </form>
     </div>
@@ -148,18 +158,19 @@
         </div>
     @else
         <div style="background: white; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%); color: white;">
-                        <th style="padding: 18px; text-align: center; font-weight: bold; font-size: 15px; border-left: 1px solid rgba(255,255,255,0.1);">{{ __('app.production_confirmations.table.number') }}</th>
-                        <th style="padding: 18px; text-align: center; font-weight: bold; font-size: 15px; border-left: 1px solid rgba(255,255,255,0.1);">{{ __('app.production_confirmations.table.batch_code') }}</th>
-                        <th style="padding: 18px; text-align: center; font-weight: bold; font-size: 15px; border-left: 1px solid rgba(255,255,255,0.1);">{{ __('app.production_confirmations.table.material') }}</th>
-                        <th style="padding: 18px; text-align: center; font-weight: bold; font-size: 15px; border-left: 1px solid rgba(255,255,255,0.1);">{{ __('app.production_confirmations.table.quantity') }}</th>
-                        <th style="padding: 18px; text-align: center; font-weight: bold; font-size: 15px; border-left: 1px solid rgba(255,255,255,0.1);">{{ __('app.production_confirmations.table.stage') }}</th>
-                        <th style="padding: 18px; text-align: center; font-weight: bold; font-size: 15px; border-left: 1px solid rgba(255,255,255,0.1);">{{ __('app.production_confirmations.table.worker') }}</th>
-                        <th style="padding: 18px; text-align: center; font-weight: bold; font-size: 15px; border-left: 1px solid rgba(255,255,255,0.1);">{{ __('app.production_confirmations.table.status') }}</th>
-                        <th style="padding: 18px; text-align: center; font-weight: bold; font-size: 15px; border-left: 1px solid rgba(255,255,255,0.1);">{{ __('app.production_confirmations.table.date') }}</th>
-                        <th style="padding: 18px; text-align: center; font-weight: bold; font-size: 15px;">{{ __('app.production_confirmations.table.actions') }}</th>
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%); color: white;">
+                            <th style="padding: 15px 10px; text-align: center; font-weight: bold; font-size: 14px; border-left: 1px solid rgba(255,255,255,0.1); white-space: nowrap;">{{ __('app.production_confirmations.table.number') }}</th>
+                            <th style="padding: 15px 10px; text-align: center; font-weight: bold; font-size: 14px; border-left: 1px solid rgba(255,255,255,0.1); white-space: nowrap;">{{ __('app.production_confirmations.table.batch_code') }}</th>
+                        <th style="padding: 15px 10px; text-align: center; font-weight: bold; font-size: 14px; border-left: 1px solid rgba(255,255,255,0.1); white-space: nowrap;">{{ __('app.production_confirmations.table.material') }}</th>
+                        <th style="padding: 15px 10px; text-align: center; font-weight: bold; font-size: 14px; border-left: 1px solid rgba(255,255,255,0.1); white-space: nowrap;">{{ __('app.production_confirmations.table.quantity') }}</th>
+                        <th style="padding: 15px 10px; text-align: center; font-weight: bold; font-size: 14px; border-left: 1px solid rgba(255,255,255,0.1); white-space: nowrap;">{{ __('app.production_confirmations.table.stage') }}</th>
+                        <th style="padding: 15px 10px; text-align: center; font-weight: bold; font-size: 14px; border-left: 1px solid rgba(255,255,255,0.1); white-space: nowrap;">{{ __('app.production_confirmations.table.worker') }}</th>
+                        <th style="padding: 15px 10px; text-align: center; font-weight: bold; font-size: 14px; border-left: 1px solid rgba(255,255,255,0.1); white-space: nowrap;">{{ __('app.production_confirmations.table.status') }}</th>
+                        <th style="padding: 15px 10px; text-align: center; font-weight: bold; font-size: 14px; border-left: 1px solid rgba(255,255,255,0.1); white-space: nowrap;">{{ __('app.production_confirmations.table.date') }}</th>
+                        <th style="padding: 15px 10px; text-align: center; font-weight: bold; font-size: 14px; white-space: nowrap;">{{ __('app.production_confirmations.table.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -168,81 +179,120 @@
                             onmouseover="this.style.background='#f8f9fa'"
                             onmouseout="this.style.background='white'">
 
-                            <td style="padding: 18px; text-align: center; font-weight: bold; color: #7f8c8d;">
+                            <td style="padding: 12px 8px; text-align: center; font-weight: bold; color: #7f8c8d; white-space: nowrap;">
                                 {{ $confirmations->firstItem() + $index }}
                             </td>
 
-                            <td style="padding: 18px; text-align: center;">
-                                <span style="background: #9b59b6; color: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 14px;">
-                                    {{ $confirmation->batch?->batch_code ?? __('app.production_confirmations.table.not_specified') }}
+                            <td style="padding: 12px 8px; text-align: center;">
+                                <span style="background: #9b59b6; color: white; padding: 6px 10px; border-radius: 6px; font-weight: bold; font-size: 12px; display: inline-block; white-space: nowrap;">
+                                    {{ $confirmation->barcode ?? $confirmation->batch?->production_barcode ?? $confirmation->batch?->batch_code ?? $confirmation->metadata['barcode'] ?? __('app.production_confirmations.table.not_specified') }}
                                 </span>
                             </td>
 
-                            <td style="padding: 18px; text-align: center;">
-                                <div style="font-weight: bold; color: #2c3e50; font-size: 15px;">
-                                    {{ $confirmation->deliveryNote?->material?->name_ar ?? $confirmation->batch?->material?->name ?? __('app.production_confirmations.table.not_specified') }}
+                            <td style="padding: 12px 8px; text-align: center;">
+                                <div style="font-weight: bold; color: #2c3e50; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">
+                                    {{ $confirmation->metadata['stage_name'] ?? $confirmation->deliveryNote?->material?->name_ar ?? $confirmation->batch?->material?->name ?? __('app.production_confirmations.table.not_specified') }}
                                 </div>
                             </td>
 
-                            <td style="padding: 18px; text-align: center;">
-                                @if($confirmation->actual_received_quantity)
-                                    <span style="font-size: 16px; font-weight: bold; color: #27ae60;">
-                                        {{ number_format($confirmation->actual_received_quantity, 2) }}
+                            <td style="padding: 12px 8px; text-align: center; white-space: nowrap;">
+                                @php
+                                    $weight = $confirmation->actual_received_quantity 
+                                        ?? $confirmation->batch?->initial_quantity 
+                                        ?? $confirmation->deliveryNote?->quantity 
+                                        ?? ($confirmation->metadata['weight'] ?? null);
+                                @endphp
+                                @if($weight)
+                                    <span style="font-size: 14px; font-weight: bold; color: #27ae60;">
+                                        {{ number_format($weight, 2) }}
                                     </span>
-                                    <span style="color: #7f8c8d; font-size: 13px;">{{ __('app.units.kg') }}</span>
-                                @elseif($confirmation->batch?->initial_quantity)
-                                    <span style="font-size: 16px; font-weight: bold; color: #27ae60;">
-                                        {{ number_format($confirmation->batch->initial_quantity, 2) }}
-                                    </span>
-                                    <span style="color: #7f8c8d; font-size: 13px;">{{ __('app.units.kg') }}</span>
-                                @elseif($confirmation->deliveryNote?->quantity)
-                                    <span style="font-size: 16px; font-weight: bold; color: #27ae60;">
-                                        {{ number_format($confirmation->deliveryNote->quantity, 2) }}
-                                    </span>
-                                    <span style="color: #7f8c8d; font-size: 13px;">{{ __('app.units.kg') }}</span>
+                                    <span style="color: #7f8c8d; font-size: 11px;">{{ __('app.units.kg') }}</span>
                                 @else
-                                    <span style="color: #e74c3c; font-size: 14px;">{{ __('app.production_confirmations.table.data_unavailable') }}</span>
+                                    <span style="color: #e74c3c; font-size: 12px;">{{ __('app.production_confirmations.table.data_unavailable') }}</span>
                                 @endif
                             </td>
 
-                            <td style="padding: 18px; text-align: center;">
-                                <span style="background: #3498db; color: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 13px;">
-                                    {{ $confirmation->deliveryNote?->production_stage_name ?? __('app.production_confirmations.table.not_specified') }}
-                                </span>
+                            <td style="padding: 12px 8px; text-align: center;">
+                                @php
+                                    $stageMapping = [
+                                        'stage1_stands' => 'المرحلة الأولى - الاستاند',
+                                        'stage2_processed' => 'المرحلة الثانية - المعالج',
+                                        'stage3_coils' => 'المرحلة الثالثة - اللفائف',
+                                        'stage4_boxes' => 'المرحلة الرابعة - الصناديق',
+                                        'warehouse' => 'المستودع',
+                                    ];
+                                    $stageName = $confirmation->metadata['stage_name'] 
+                                        ?? ($stageMapping[$confirmation->stage_type] ?? null)
+                                        ?? $confirmation->deliveryNote?->production_stage_name 
+                                        ?? __('app.production_confirmations.table.not_specified');
+                                @endphp
+                                <div style="display: inline-block; background: #3498db; color: white; padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 11px; white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis;" title="{{ $stageName }}">
+                                    {{ $stageName }}
+                                </div>
                             </td>
 
-                            <td style="padding: 18px; text-align: center; color: #2c3e50; font-weight: 600;">
+                            <td style="padding: 12px 8px; text-align: center; color: #2c3e50; font-weight: 600; font-size: 13px; white-space: nowrap;">
                                 {{ $confirmation->assignedUser?->name ?? __('app.production_confirmations.table.not_specified') }}
                             </td>
 
-                            <td style="padding: 18px; text-align: center;">
+                            <td style="padding: 12px 8px; text-align: center;">
                                 @if($confirmation->status == 'pending')
-                                    <span style="background: #f39c12; color: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 13px;">⏳ {{ __('app.production_confirmations.pending') }}</span>
+                                    <div style="display: inline-flex; align-items: center; gap: 4px; background: #f39c12; color: white; padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 11px; white-space: nowrap;">
+                                        <span>⏳</span>
+                                        <span>{{ __('app.production_confirmations.pending') }}</span>
+                                    </div>
                                 @elseif($confirmation->status == 'confirmed')
-                                    <span style="background: #27ae60; color: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 13px;">✓ {{ __('app.production_confirmations.confirmed') }}</span>
+                                    <div style="display: inline-flex; align-items: center; gap: 4px; background: #27ae60; color: white; padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 11px; white-space: nowrap;">
+                                        <span>✓</span>
+                                        <span>{{ __('app.production_confirmations.confirmed') }}</span>
+                                    </div>
                                 @else
-                                    <span style="background: #e74c3c; color: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 13px;">✕ {{ __('app.production_confirmations.rejected') }}</span>
+                                    <div style="display: inline-flex; align-items: center; gap: 4px; background: #e74c3c; color: white; padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 11px; white-space: nowrap;">
+                                        <span>✕</span>
+                                        <span>{{ __('app.production_confirmations.rejected') }}</span>
+                                    </div>
                                 @endif
                             </td>
 
-                            <td style="padding: 18px; text-align: center; color: #7f8c8d; font-size: 14px;">
+                            <td style="padding: 12px 8px; text-align: center; color: #7f8c8d; font-size: 12px; white-space: nowrap;">
                                 {{ $confirmation->created_at->format('d/m/Y H:i') }}
                             </td>
 
-                            <td style="padding: 18px; text-align: center;">
-                                <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                            <td style="padding: 12px 8px; text-align: center;">
+                                <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; align-items: center;">
                                     <a href="{{ route('manufacturing.production.confirmations.show', $confirmation->id) }}"
-                                       style="background: #3498db; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 13px; transition: all 0.3s;"
-                                       onmouseover="this.style.background='#2980b9'"
-                                       onmouseout="this.style.background='#3498db'">
-                                        👁️ {{ __('app.production_confirmations.view_details') }}
+                                       style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 11px; transition: all 0.3s; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(52, 152, 219, 0.3); white-space: nowrap;"
+                                       onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 10px rgba(52, 152, 219, 0.4)'"
+                                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(52, 152, 219, 0.3)'">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                        <span>عرض</span>
                                     </a>
+                                    
+                                    @if($confirmation->status == 'pending')
+                                    <button type="button" 
+                                            onclick="openTransferModal({{ $confirmation->id }}, '{{ $confirmation->assignedUser?->name ?? '' }}', {{ $confirmation->assigned_user_id ?? 'null' }})"
+                                            style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; padding: 6px 12px; border: none; border-radius: 6px; font-weight: 600; font-size: 11px; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(155, 89, 182, 0.3); white-space: nowrap;"
+                                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 10px rgba(155, 89, 182, 0.4)'"
+                                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(155, 89, 182, 0.3)'">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="9" cy="7" r="4"></circle>
+                                            <line x1="19" y1="8" x2="24" y2="13"></line>
+                                            <line x1="24" y1="8" x2="19" y2="13"></line>
+                                        </svg>
+                                        <span>نقل</span>
+                                    </button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+            </div>
         </div>
 
         <!-- Pagination -->
@@ -293,6 +343,70 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('app.buttons.cancel') }}</button>
                 <button type="button" class="btn btn-danger" onclick="submitReject()">✕ {{ __('app.buttons.reject') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transfer Worker Modal -->
+<div class="modal fade" id="transferWorkerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="direction: rtl;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white;">
+                <h5 class="modal-title" style="display: flex; align-items: center; gap: 10px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <line x1="19" y1="8" x2="24" y2="13"></line>
+                        <line x1="24" y1="8" x2="19" y2="13"></line>
+                    </svg>
+                    نقل التأكيد إلى موظف آخر
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="padding: 25px;">
+                <input type="hidden" id="transfer-confirmation-id">
+                
+                <div class="mb-4" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-right: 4px solid #9b59b6;">
+                    <label style="display: block; font-weight: bold; color: #2c3e50; margin-bottom: 8px;">
+                        الموظف الحالي:
+                    </label>
+                    <div id="current-worker-name" style="font-size: 16px; color: #7f8c8d; font-weight: 600;">
+                        غير محدد
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label" style="font-weight: bold; color: #2c3e50; display: flex; align-items: center; gap: 6px;">
+                        <span style="color: #e74c3c;">*</span>
+                        الموظف الجديد:
+                    </label>
+                    <select id="transfer-worker-id" class="form-control" style="padding: 12px; border: 2px solid #bdc3c7; border-radius: 8px; font-size: 14px;" required>
+                        <option value="">-- اختر الموظف --</option>
+                        @foreach(\App\Models\User::where('is_active', 1)->orderBy('name')->get() as $worker)
+                            <option value="{{ $worker->id }}">{{ $worker->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label" style="font-weight: bold; color: #2c3e50;">
+                        ملاحظات (اختياري):
+                    </label>
+                    <textarea id="transfer-notes" class="form-control" rows="3" style="padding: 12px; border: 2px solid #bdc3c7; border-radius: 8px; font-size: 14px;" placeholder="أدخل سبب النقل أو أي ملاحظات..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 20px; background: #f8f9fa;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="padding: 10px 20px; border-radius: 8px;">
+                    إلغاء
+                </button>
+                <button type="button" class="btn" onclick="submitTransfer()" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 6px;">
+                        <polyline points="9 11 12 14 22 4"></polyline>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                    تأكيد النقل
+                </button>
             </div>
         </div>
     </div>
@@ -412,6 +526,91 @@ function submitReject() {
             title: '{{ __('app.production_confirmations.error') }}',
             text: '{{ __('app.production_confirmations.rejection_error') }}',
             confirmButtonText: '{{ __('app.buttons.ok') }}'
+        });
+    });
+}
+
+// Transfer Worker Modal
+let transferModal;
+document.addEventListener('DOMContentLoaded', function() {
+    transferModal = new bootstrap.Modal(document.getElementById('transferWorkerModal'));
+});
+
+function openTransferModal(confirmationId, currentWorkerName, currentWorkerId) {
+    document.getElementById('transfer-confirmation-id').value = confirmationId;
+    document.getElementById('current-worker-name').textContent = currentWorkerName || 'غير محدد';
+    
+    // Reset and populate worker select
+    const workerSelect = document.getElementById('transfer-worker-id');
+    workerSelect.value = '';
+    
+    // Highlight current worker if exists
+    if(currentWorkerId) {
+        Array.from(workerSelect.options).forEach(option => {
+            if(option.value == currentWorkerId) {
+                option.style.background = '#fff3cd';
+                option.textContent = option.textContent.replace(' (الحالي)', '') + ' (الحالي)';
+            }
+        });
+    }
+    
+    transferModal.show();
+}
+
+function submitTransfer() {
+    const confirmationId = document.getElementById('transfer-confirmation-id').value;
+    const newWorkerId = document.getElementById('transfer-worker-id').value;
+    const notes = document.getElementById('transfer-notes').value;
+
+    if (!newWorkerId) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'تنبيه',
+            text: 'الرجاء اختيار الموظف الجديد',
+            confirmButtonText: 'حسناً'
+        });
+        return;
+    }
+
+    fetch(`{{ url('manufacturing/production/confirmations') }}/${confirmationId}/transfer`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ 
+            new_worker_id: newWorkerId,
+            notes: notes
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            transferModal.hide();
+            Swal.fire({
+                icon: 'success',
+                title: 'نجح!',
+                text: data.message || 'تم نقل التأكيد إلى الموظف الجديد بنجاح',
+                confirmButtonText: 'حسناً'
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'خطأ',
+                text: data.message || 'حدث خطأ أثناء نقل التأكيد',
+                confirmButtonText: 'حسناً'
+            });
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        Swal.fire({
+            icon: 'error',
+            title: 'خطأ',
+            text: 'حدث خطأ في الاتصال بالخادم',
+            confirmButtonText: 'حسناً'
         });
     });
 }

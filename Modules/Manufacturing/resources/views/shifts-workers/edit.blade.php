@@ -6,6 +6,39 @@
 
         <!-- Header -->
         <div class="um-header-section">
+            @if(session('success'))
+            <div class="um-alert-custom um-alert-success" role="alert">
+                <i class="feather icon-check-circle"></i>
+                {{ session('success') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+            @endif
+
+            @if(session('error'))
+            <div class="um-alert-custom um-alert-danger" role="alert">
+                <i class="feather icon-alert-circle"></i>
+                {{ session('error') }}
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+            @endif
+
+            @if($errors->any())
+            <div class="um-alert-custom um-alert-danger" role="alert">
+                <i class="feather icon-alert-circle"></i>
+                <ul style="margin: 0; padding-right: 20px;">
+                    @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+                    <i class="feather icon-x"></i>
+                </button>
+            </div>
+            @endif
             <h1 class="um-page-title">
                 <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -109,6 +142,10 @@
                                     <option value="morning" {{ old('shift_type', $shift->shift_type) == 'morning' ? 'selected' : '' }}>{{ __('shifts-workers.morning_shift') }}</option>
                                     <option value="evening" {{ old('shift_type', $shift->shift_type) == 'evening' ? 'selected' : '' }}>{{ __('shifts-workers.evening_shift') }}</option>
                                 </select>
+                                @if($shift->status != 'scheduled')
+                                    {{-- Add hidden input to ensure value is submitted when disabled --}}
+                                    <input type="hidden" name="shift_type" value="{{ $shift->shift_type }}">
+                                @endif
                             </div>
                             @error('shift_type')
                                 <span class="error-message">{{ $message }}</span>

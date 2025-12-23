@@ -820,107 +820,241 @@ $(document).ready(function() {
 
     // تحديث التأكيدات
     function updateConfirmations(confirmations) {
+        if (!confirmations || confirmations.length === 0) {
+            return;
+        }
+
         const $list = $('#confirmations-list');
         $('#no-confirmations').remove();
-        
+        function mapStageCodeToName(stageCode) {
+            const mapping = {
+                'stage_1': 'المرحلة الأولى',
+                'stage_2': 'المرحلة الثانية',
+                'stage_3': 'المرحلة الثالثة',
+                'stage_4': 'المرحلة الرابعة',
+                'warehouse': 'المستودع',
+            };
+            return mapping[stageCode] || 'غير محدد';
+        }
+
+        function mapStageTypeToName(stageType) {
+            const mapping = {
+                'stage1_stands': 'المرحلة الأولى - الاستاند',
+                'stage2_processed': 'المرحلة الثانية - المعالج',
+                'stage3_coils': 'المرحلة الثالثة - اللفائف',
+                'stage4_boxes': 'المرحلة الرابعة - الصناديق',
+                'warehouse': 'المستودع',
+            };
+            return mapping[stageType] || null;
+        }
+
+        function getConfirmationTypeLabel(type) {
+            if (type === 'reassignment') return 'إعادة إسناد';
+            if (type === 'shift_transfer') return 'نقل للوردية التالية';
+            return 'نقل المواد';
+        }
+
+        function resolveMaterialName(confirmation) {
+            return confirmation.delivery_note?.material?.name_ar
+                || confirmation.delivery_note?.material?.name
+                || confirmation.batch?.material?.name_ar
+                || confirmation.batch?.material?.name
+                || confirmation.metadata?.stage_name
+                || 'غير محدد';
+        }
+
+        function resolveBarcode(confirmation) {
+            return confirmation.barcode
+                || confirmation.delivery_note?.production_barcode
+                || confirmation.delivery_note?.material_batch?.batch_code
+                || confirmation.batch?.production_barcode
+                || confirmation.batch?.batch_code
+                || confirmation.metadata?.barcode
+                || 'غير محدد';
+        }
+
+        function resolveStageLabel(confirmation) {
+            return confirmation.metadata?.stage_name
+                || mapStageTypeToName(confirmation.stage_type)
+                || mapStageCodeToName(confirmation.stage_code)
+                || 'غير محدد';
+        }
+
+        function resolveWeightLabel(confirmation) {
+            const candidates = [
+                confirmation.metadata?.stage_weight, // الوزن من stage_record (للمعاد إسناده)
+                confirmation.actual_received_quantity,
+                confirmation.delivery_note?.quantity_used,
+                confirmation.delivery_note?.material_batch?.initial_quantity,
+                confirmation.batch?.initial_quantity,
+                confirmation.delivery_note?.quantity,
+                confirmation.metadata?.weight,
+            ].filter(value => value && parseFloat(value) > 0);
+
+            if (candidates.length === 0) {
+                return 'غير محدد';
+            }
+
+            return `${parseFloat(candidates[0]).toFixed(2)} كجم`;
+        }
+
+        // إنشاء HTML للتأكيد
+        function createConfirmationHtml(confirmation) {
+            const materialName = resolveMaterialName(confirmation);
+            const productionBarcode = resolveBarcode(confirmation);
+            const finalWeight = resolveWeightLabel(confirmation);
+            const stageLabel = resolveStageLabel(confirmation);
+            const typeLabel = getConfirmationTypeLabel(confirmation.confirmation_type);
+            const reason = confirmation.metadata?.reason;
+            const notes = confirmation.notes;
+
+            const reasonHtml = reason ? `
+                <div class="confirmation-notes mt-2">
+                    <i class="fas fa-info-circle"></i>
+                    <span>سبب العملية: ${reason}</span>
+                </div>
+            ` : '';
+
+            const notesHtml = notes ? `
+                <div class="confirmation-notes">
+                    <i class="fas fa-sticky-note"></i>
+                    <span>${notes}</span>
+                </div>
+            ` : '';
+
+            return `
+                <div class="confirmation-card new-item" id="confirmation-${confirmation.id}">
+                    <div class="confirmation-header">
+                        <div class="confirmation-title">
+                            <i class="fas fa-box-open"></i>
+                            <h4>${materialName}</h4>
+                        </div>
+                        <div class="confirmation-time">
+                            <i class="fas fa-clock"></i>
+                            الآن
+                        </div>
+                    </div>
+                    <div class="confirmation-body">
+                        <div class="confirmation-details">
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-barcode"></i> باركود الإنتاج
+                                </span>
+                                <span class="detail-value">${productionBarcode}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-weight"></i> الوزن النهائي
+                                </span>
+                                <span class="detail-value">${finalWeight}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-industry"></i> المرحلة
+                                </span>
+                                <span class="detail-value">${stageLabel}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-random"></i> نوع العملية
+                                </span>
+                                <span class="detail-value">${typeLabel}</span>
+                            </div>
+                        </div>
+                        ${notesHtml}
+                        ${reasonHtml}
+                    </div>
+                    <div class="confirmation-actions">
+                        <button class="action-btn btn-confirm quick-confirm" data-id="${confirmation.id}">
+                            <i class="fas fa-check"></i>
+                            <span>تأكيد</span>
+                        </button>
+                        <button class="action-btn btn-reject quick-reject" data-id="${confirmation.id}">
+                            <i class="fas fa-times"></i>
+                            <span>رفض</span>
+                        </button>
+                        <a href="/manufacturing/production/confirmations/${confirmation.id}" class="action-btn btn-details">
+                            <i class="fas fa-eye"></i>
+                            <span>تفاصيل</span>
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
         confirmations.forEach(function(confirmation) {
-            // تحقق إذا كان التأكيد موجود بالفعل
-            if ($('#confirmation-' + confirmation.id).length === 0) {
-                const html = createConfirmationHtml(confirmation);
-                $list.prepend(html);
+            const cardId = `confirmation-${confirmation.id}`;
+            const $existingCard = $(`#${cardId}`);
+            const cardHtml = createConfirmationHtml(confirmation);
+
+            if ($existingCard.length) {
+                $existingCard.replaceWith(cardHtml);
+            } else {
+                $list.prepend(cardHtml);
             }
         });
+
+        const totalCards = $list.children('.confirmation-card').length;
+        $('#pending-badge').text(totalCards);
+        $('#stat-pending').text(totalCards);
     }
 
     // تحديث الإشعارات
     function updateNotifications(notifications) {
+        if (!notifications || notifications.length === 0) {
+            return;
+        }
+
         const $list = $('#notifications-list');
         $('#no-notifications').remove();
-        
+
+        let insertedCount = 0;
+
         notifications.forEach(function(notification) {
-            const html = createNotificationHtml(notification);
-            $list.prepend(html);
+            const notificationId = notification.id ?? `temp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+            if ($list.find(`[data-notification-id="${notificationId}"]`).length) {
+                return;
+            }
+
+            const notificationHtml = createNotificationHtml({
+                ...notification,
+                id: notificationId
+            });
+            $list.prepend(notificationHtml);
+            insertedCount += 1;
         });
 
-        $('#notifications-badge').text($('.notification-item').length);
-    }
-
-    // إنشاء HTML للتأكيد
-    function createConfirmationHtml(confirmation) {
-        const materialName = confirmation.delivery_note?.material?.name_ar || 
-                           confirmation.delivery_note?.material?.name || 
-                           confirmation.batch?.material?.name_ar || 
-                           confirmation.batch?.material?.name || 'غير محدد';
-        const productionBarcode = confirmation.delivery_note?.production_barcode || 
-                                 confirmation.delivery_note?.material_batch?.batch_code || 
-                                 confirmation.batch?.batch_code || 'غير محدد';
-        const weight = confirmation.delivery_note?.quantity_used || 
-                      confirmation.delivery_note?.material_batch?.initial_quantity || 
-                      confirmation.batch?.initial_quantity || 
-                      confirmation.delivery_note?.quantity || 0;
-        const finalWeight = weight > 0 ? parseFloat(weight).toFixed(2) : 'غير محدد';
-
-        return `
-            <div class="confirmation-card new-item" id="confirmation-${confirmation.id}">
-                <div class="confirmation-header">
-                    <div class="confirmation-title">
-                        <i class="fas fa-box-open"></i>
-                        <h4>${materialName}</h4>
-                    </div>
-                    <div class="confirmation-time">
-                        <i class="fas fa-clock"></i>
-                        الآن
-                    </div>
-                </div>
-                <div class="confirmation-body">
-                    <div class="confirmation-details">
-                        <div class="detail-item">
-                            <span class="detail-label">
-                                <i class="fas fa-barcode"></i> باركود الإنتاج
-                            </span>
-                            <span class="detail-value">${productionBarcode}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">
-                                <i class="fas fa-weight"></i> الوزن النهائي
-                            </span>
-                            <span class="detail-value">${finalWeight} كجم</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="confirmation-actions">
-                    <button class="action-btn btn-confirm quick-confirm" data-id="${confirmation.id}">
-                        <i class="fas fa-check"></i>
-                        <span>تأكيد</span>
-                    </button>
-                    <button class="action-btn btn-reject quick-reject" data-id="${confirmation.id}">
-                        <i class="fas fa-times"></i>
-                        <span>رفض</span>
-                    </button>
-                    <a href="/manufacturing/production/confirmations/${confirmation.id}" class="action-btn btn-details">
-                        <i class="fas fa-eye"></i>
-                        <span>تفاصيل</span>
-                    </a>
-                </div>
-            </div>
-        `;
+        if (insertedCount > 0) {
+            const currentCount = parseInt($('#notifications-badge').text(), 10) || 0;
+            $('#notifications-badge').text(currentCount + insertedCount);
+        }
     }
 
     // إنشاء HTML للإشعار
     function createNotificationHtml(notification) {
+        const type = notification.type || 'info';
+        const icon = type === 'warning' ? 'exclamation-triangle'
+            : (type === 'success' ? 'check-circle'
+            : (type === 'danger' ? 'times-circle' : 'info-circle'));
+        const url = notification.url || '#';
+
         return `
-            <div class="notification-item alert alert-${notification.type} alert-dismissible fade show new-item" role="alert">
-                <strong>${notification.title}</strong>
-                <p class="mb-1 small">${notification.message}</p>
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">
-                        <i class="fas fa-clock"></i> ${notification.time}
-                    </small>
-                    <a href="${notification.url}" class="btn btn-sm btn-outline-primary">
-                        عرض التفاصيل
-                    </a>
+            <div class="notification-card notification-${type} new-item" data-notification-id="${notification.id}">
+                <div class="notification-icon">
+                    <i class="fas fa-${icon}"></i>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <div class="notification-content">
+                    <h5>${notification.title || ''}</h5>
+                    <p>${notification.message || ''}</p>
+                    <div class="notification-meta">
+                        <span class="notification-time">
+                            <i class="fas fa-clock"></i> ${notification.time || ''}
+                        </span>
+                        <a href="${url}" class="notification-link">
+                            عرض التفاصيل <i class="fas fa-arrow-left"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         `;
     }
@@ -974,21 +1108,19 @@ $(document).ready(function() {
             return;
         }
         
-        console.log('Starting AJAX request to:', `/manufacturing/production/confirmations/${currentConfirmationId}/confirm`);
+        console.log('Starting AJAX request to confirm');
         btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> جاري التأكيد...');
         
         $.ajax({
-            url: `/manufacturing/production/confirmations/${currentConfirmationId}/confirm`,
+            url: `{{ url('/stage-worker/dashboard/confirm') }}/${currentConfirmationId}`,
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            contentType: 'application/json',
-            data: JSON.stringify({ 
+            data: { 
                 notes: notes,
                 _token: '{{ csrf_token() }}'
-            }),
+            },
             success: function(response) {
                 console.log('Confirm success:', response);
                 
@@ -1117,22 +1249,20 @@ $(document).ready(function() {
             return;
         }
 
-        console.log('Starting AJAX request for rejection to:', `/manufacturing/production/confirmations/${currentConfirmationId}/reject`);
+        console.log('Starting AJAX request for rejection');
         
         btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> جاري الرفض...');
         
         $.ajax({
-            url: `/manufacturing/production/confirmations/${currentConfirmationId}/reject`,
+            url: `{{ url('/stage-worker/dashboard/reject') }}/${currentConfirmationId}`,
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            contentType: 'application/json',
-            data: JSON.stringify({ 
+            data: { 
                 rejection_reason: reason,
                 _token: '{{ csrf_token() }}'
-            }),
+            },
             success: function(response) {
                 console.log('Reject success:', response);
                 

@@ -631,6 +631,7 @@ return [
     'emergency_phone' => 'رقم هاتف الطوارئ',
     'notes' => 'ملاحظات',
     'shift_preference' => 'تفضيل الوردية',
+    'current_shift' => 'الوردية الحالية',
     'worker_status' => 'حالة العامل',
     'system_access' => 'السماح بالدخول للنظام',
     'user_account' => 'حساب المستخدم',

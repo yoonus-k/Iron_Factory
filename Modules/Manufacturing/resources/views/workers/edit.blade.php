@@ -1,878 +1,445 @@
 @extends('master')
 
-@section('title', __('shifts-workers..edit_worker'))
+@section('title', 'تعديل مستخدم')
 
 @section('content')
-
-        <!-- Header -->
-        <div class="um-header-section">
-            @if(session('success'))
-            <div class="um-alert-custom um-alert-success" role="alert">
-                <i class="feather icon-check-circle"></i>
-                {{ session('success') }}
-                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
-                    <i class="feather icon-x"></i>
-                </button>
-            </div>
-            @endif
-
-            @if(session('error'))
-            <div class="um-alert-custom um-alert-danger" role="alert">
-                <i class="feather icon-alert-circle"></i>
-                {{ session('error') }}
-                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
-                    <i class="feather icon-x"></i>
-                </button>
-            </div>
-            @endif
-
-            @if($errors->any())
-            <div class="um-alert-custom um-alert-danger" role="alert">
-                <i class="feather icon-alert-circle"></i>
-                <ul style="margin: 0; padding-right: 20px;">
-                    @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
-                    <i class="feather icon-x"></i>
-                </button>
-            </div>
-            @endif
-            <h1 class="um-page-title">
-                <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-                {{ __('shifts-workers..edit_worker') }}
-            </h1>
-            <nav class="um-breadcrumb-nav">
-                <span>
-                    <i class="feather icon-home"></i> {{ __('app.menu.dashboard') }}
-                </span>
-                <i class="feather icon-chevron-left"></i>
-                <span>{{ __('shifts-workers..shifts-workers.') }}</span>
-                <i class="feather icon-chevron-left"></i>
-                <span>{{ __('app.buttons.edit') }}: {{ $worker->name }}</span>
-            </nav>
-        </div>
-
-        <!-- Form Card -->
-        <div class="form-card">
-            <form method="POST" action="{{ route('manufacturing.shifts-workers..update', $worker->id) }}" id="workerForm">
-                @csrf
-                @method('PUT')
-
-                <!-- Basic Information Section -->
-                <div class="form-section">
-                    <div class="section-header">
-                        <div class="section-icon personal">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="section-title">{{ __('shifts-workers..basic_information') }}</h3>
-                            <p class="section-subtitle">{{ __('shifts-workers..basic_info_desc') }}</p>
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="worker_code" class="form-label">
-                                {{ __('shifts-workers..worker_code') }}
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrapper">
-                                <input type="text" id="worker_code" name="worker_code" class="form-input"
-                                       value="{{ old('worker_code', $worker->worker_code) }}" required>
-                                @error('worker_code')
-                                <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="name" class="form-label">
-                                {{ __('shifts-workers..worker_name') }}
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrapper">
-                                <input type="text" id="name" name="name" class="form-input"
-                                       value="{{ old('name', $worker->name) }}" required>
-                                @error('name')
-                                <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="national_id" class="form-label">
-                                {{ __('shifts-workers..national_id') }}
-                            </label>
-                            <div class="input-wrapper">
-                                <input type="text" id="national_id" name="national_id" class="form-input"
-                                       value="{{ old('national_id', $worker->national_id) }}">
-                                @error('national_id')
-                                <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="phone" class="form-label">
-                                {{ __('shifts-workers..phone') }}
-                            </label>
-                            <div class="input-wrapper">
-                                <input type="tel" id="phone" name="phone" class="form-input"
-                                       value="{{ old('phone', $worker->phone) }}">
-                                @error('phone')
-                                <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email" class="form-label">
-                                {{ __('shifts-workers..email') }}
-                            </label>
-                            <div class="input-wrapper">
-                                <input type="email" id="email" name="email" class="form-input"
-                                       value="{{ old('email', $worker->email) }}">
-                                @error('email')
-                                <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="position" class="form-label">
-                                {{ __('shifts-workers..position') }}
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrapper">
-                                <select id="position" name="role_id" class="form-input" required>
-                                    <option value="">{{ __('shifts-workers..select_position') }}</option>
-                                    @foreach($roles as $role)
-                                    <option value="{{ $role->id }}" data-role-code="{{ $role->role_code }}" {{ old('role_id', $worker->user?->role_id ?? collect($roles)->firstWhere('role_code', strtoupper($worker->position))?->id) == $role->id ? 'selected' : '' }}>
-                                        {{ $role->role_name }}
-                                    </option>
-                                    @endforeach
-                                </select>
-                                @error('role_id')
-                                <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Work Information Section -->
-                <div class="form-section">
-                    <div class="section-header">
-                        <div class="section-icon account">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="section-title">{{ __('shifts-workers..work_information') }}</h3>
-                            <p class="section-subtitle">{{ __('shifts-workers..work_info_desc') }}</p>
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <input type="hidden" name="shift_preference" value="any">
-
-                        <div class="form-group">
-                            <label for="hourly_rate" class="form-label">
-                                {{ __('shifts-workers..hourly_rate') }}
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrapper">
-                                <input type="number" id="hourly_rate" name="hourly_rate" class="form-input"
-                                       value="{{ old('hourly_rate', $worker->hourly_rate) }}" step="0.01" required>
-                                @error('hourly_rate')
-                                <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="hire_date" class="form-label">
-                                {{ __('shifts-workers..hire_date') }}
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrapper">
-                                <input type="date" id="hire_date" name="hire_date" class="form-input"
-                                       value="{{ old('hire_date', $worker->hire_date ? $worker->hire_date->format('Y-m-d') : '') }}" required>
-                                @error('hire_date')
-                                <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group full-width">
-                            <label class="form-label">{{ __('shifts-workers..allowed_stages') }}</label>
-                            <div class="shifts-workers.-selection">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" name="allowed_stages[]" value="1"
-                                           {{ in_array(1, old('allowed_stages', $worker->allowed_stages ?? [])) ? 'checked' : '' }}>
-                                    <span>{{ __('shifts-workers..stage_1') }} - {{ __('app.reception') }}</span>
-                                </label>
-                                <label class="checkbox-label">
-                                    <input type="checkbox" name="allowed_stages[]" value="2"
-                                           {{ in_array(2, old('allowed_stages', $worker->allowed_stages ?? [])) ? 'checked' : '' }}>
-                                    <span>{{ __('shifts-workers..stage_2') }} - {{ __('app.preparation') }}</span>
-                                </label>
-                                <label class="checkbox-label">
-                                    <input type="checkbox" name="allowed_stages[]" value="3"
-                                           {{ in_array(3, old('allowed_stages', $worker->allowed_stages ?? [])) ? 'checked' : '' }}>
-                                    <span>{{ __('shifts-workers..stage_3') }} - {{ __('app.processing') }}</span>
-                                </label>
-                                <label class="checkbox-label">
-                                    <input type="checkbox" name="allowed_stages[]" value="4"
-                                           {{ in_array(4, old('allowed_stages', $worker->allowed_stages ?? [])) ? 'checked' : '' }}>
-                                    <span>{{ __('shifts-workers..stage_4') }} - {{ __('app.packaging') }}</span>
-                                </label>
-                            </div>
-                            @error('allowed_stages')
-                            <span class="error-message">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group full-width">
-                            <div class="switch-group">
-                                <label for="is_active" class="form-label">
-                                    <span>{{ __('shifts-workers..worker_status') }}</span>
-                                </label>
-                                <div class="toggle-switch">
-                                    <input type="hidden" name="is_active" value="0">
-                                    <input type="checkbox" id="is_active" name="is_active" value="1"
-                                           {{ old('is_active', $worker->is_active) ? 'checked' : '' }} class="toggle-input">
-                                    <label for="is_active" class="toggle-label">
-                                        <span class="toggle-inner"></span>
-                                        <span class="toggle-switch-label">{{ $worker->is_active ? __('shifts-workers..active') : __('workers.inactive') }}</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Permissions Section -->
-                <div class="form-section" id="permissionsSection" style="display: none;">
-                    <div class="section-header">
-                        <div class="section-icon security">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="1"></circle>
-                                <path d="M12 1v6m6.16-1.16l-4.24 4.24m6 6l-4.24-4.24m4.24 4.24l-4.24 4.24m-6-6l4.24-4.24"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="section-title">{{ __('shifts-workers.account_management') }}</h3>
-                            <p class="section-subtitle">{{ __('shifts-workers.account_info_desc') }}</p>
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="form-group full-width">
-                            <div id="permissionsContainer" class="permissions-list">
-                                <p class="text-muted" style="text-align: center; padding: 20px;">
-                                    <i class="feather icon-info"></i> {{ __('shifts-workers.loading_permissions') }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- User Account Management Section -->
-                <div class="form-section">
-                    <div class="section-header">
-                        <div class="section-icon security">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="section-title">{{ __('shifts-workers.user_account_management') }}</h3>
-                            <p class="section-subtitle">{{ __('shifts-workers.user_account_desc') }}</p>
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        @if($worker->user)
-                        <div class="form-group full-width">
-                            <div class="alert alert-info">
-                                <i class="feather icon-info"></i>
-                                <strong>{{ __('shifts-workers.note') }}:</strong> {{ __('shifts-workers.current_user_info') }}
-                                <br>
-                                <strong>{{ __('shifts-workers.username') }}:</strong> {{ $worker->user->username }}
-                                <br>
-                                <strong>{{ __('shifts-workers.email') }}:</strong> {{ $worker->user->email }}
-                                <br>
-                                <strong>{{ __('shifts-workers.current_role') }}:</strong> {{ $worker->user->roleRelation?->role_name ?? __('shifts-workers.without_role') }}
-                            </div>
-                        </div>
-
-                        <div class="form-group full-width">
-                            <label for="user_id" class="form-label">
-                                {{ __('shifts-workers.change_user_account') }}
-                            </label>
-                            <div class="input-wrapper">
-                                <select id="user_id" name="user_id" class="form-input">
-                                    <option value="">{{ __('app.without') }} {{ __('shifts-workers.user_account') }}</option>
-                                    @foreach($availableUsers as $user)
-                                    <option value="{{ $user->id }}" {{ $worker->user_id === $user->id ? 'selected' : '' }}>
-                                        {{ $user->username }} ({{ $user->email }})
-                                    </option>
-                                    @endforeach
-                                </select>
-                                <small class="text-muted">{{ __('shifts-workers.role_will_be_updated') }}</small>
-                            </div>
-                            @error('user_id')
-                            <span class="error-message">{{ $message }}</span>
-                            @enderror
-                        </div>
-                        @else
-                        <div class="form-group full-width">
-                            <label for="allow_system_access_edit" class="form-label">
-                                {{ __('shifts-workers.system_access') }}?
-                            </label>
-                            <div class="input-wrapper">
-                                <select id="allow_system_access_edit" name="allow_system_access" class="form-input" onchange="toggleUserAccountFieldsEdit()">
-                                    <option value="no" {{ old('allow_system_access') == 'no' ? 'selected' : '' }}>{{ __('shifts-workers.worker_only') }}</option>
-                                    <option value="existing" {{ old('allow_system_access') == 'existing' ? 'selected' : '' }}>{{ __('shifts-workers.link_existing_account') }}</option>
-                                    <option value="new" {{ old('allow_system_access') == 'new' ? 'selected' : '' }}>{{ __('shifts-workers.create_new_account') }}</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Existing User Selection -->
-                        <div id="existing_user_section_edit" class="form-group full-width" style="display: none;">
-                            <label for="user_id" class="form-label">
-                                {{ __('shifts-workers.select_user') }}
-                            </label>
-                            <div class="input-wrapper">
-                                <select id="user_id" name="user_id" class="form-input">
-                                    <option value="">{{ __('shifts-workers.select_user') }} --</option>
-                                    @foreach($availableUsers as $user)
-                                    <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
-                                        {{ $user->username }} ({{ $user->email }})
-                                    </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <small class="text-muted">{{ __('shifts-workers.users_without_worker_file') }}</small>
-                        </div>
-
-                        <!-- New User Creation Fields -->
-                        <div id="new_user_section_edit" style="display: none;" class="full-width">
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="new_username_edit" class="form-label">
-                                        {{ __('shifts-workers.username') }}
-                                        <span class="required">*</span>
-                                    </label>
-                                    <div class="input-wrapper">
-                                        <input type="text" name="new_username" id="new_username_edit" class="form-input"
-                                            value="{{ old('new_username') }}" placeholder="{{ __('shifts-workers.enter_username') }}">
-                                    </div>
-                                    <small class="text-muted">{{ __('shifts-workers.username_desc') }}</small>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="new_email_edit" class="form-label">
-                                        {{ __('shifts-workers.email') }}
-                                        <span class="required">*</span>
-                                    </label>
-                                    <div class="input-wrapper">
-                                        <input type="email" name="new_email" id="new_email_edit" class="form-input"
-                                            value="{{ old('new_email') }}" placeholder="example@company.com">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="alert alert-warning" style="margin-top: 15px;">
-                                <i data-feather="alert-triangle"></i>
-                                <strong>{{ __('shifts-workers.note') }}:</strong> {{ __('shifts-workers.password_will_be_sent') }}
-                            </div>
-                        </div>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Additional Information Section -->
-                <div class="form-section">
-                    <div class="section-header">
-                        <div class="section-icon address">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="section-title">{{ __('shifts-workers.additional_information') }}</h3>
-                            <p class="section-subtitle">{{ __('shifts-workers.additional_info_desc') }}</p>
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="emergency_contact" class="form-label">
-                                {{ __('shifts-workers.emergency_contact') }}
-                            </label>
-                            <div class="input-wrapper">
-                                <input type="text" id="emergency_contact" name="emergency_contact" class="form-input"
-                                       value="{{ old('emergency_contact', $worker->emergency_contact) }}">
-                                @error('emergency_contact')
-                                <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="emergency_phone" class="form-label">
-                                {{ __('shifts-workers.emergency_phone') }}
-                            </label>
-                            <div class="input-wrapper">
-                                <input type="tel" id="emergency_phone" name="emergency_phone" class="form-input"
-                                       value="{{ old('emergency_phone', $worker->emergency_phone) }}">
-                                @error('emergency_phone')
-                                <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group full-width">
-                            <label for="notes" class="form-label">{{ __('shifts-workers.notes') }}</label>
-                            <div class="input-wrapper">
-                                <textarea id="notes" name="notes" class="form-input" rows="4">{{ old('notes', $worker->notes) }}</textarea>
-                                @error('notes')
-                                <span class="error-message">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Form Actions -->
-                <div class="form-actions">
-
-                    <button type="submit" class="btn-submit">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        {{ __('shifts-workers.save_changes') }}
-                    </button>
-
-                    <a href="{{ route('manufacturing.workers.index') }}" class="btn-cancel">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                        {{ __('app.buttons.cancel') }}
-                    </a>
-
-                </div>
-            </form>
-        </div>
-
 <style>
-    .input-group-with-button {
-        display: flex;
-        gap: 10px;
-        align-items: flex-start;
-    }
-
-    .btn-generate {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 20px;
+    .um-header-section {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border-radius: 12px;
         color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        white-space: nowrap;
-        box-shadow: 0 4px 6px rgba(102, 126, 234, 0.25);
-        min-height: 48px;
     }
 
-    .btn-generate:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(102, 126, 234, 0.35);
-        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    }
-
-    .btn-generate:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 4px rgba(102, 126, 234, 0.25);
-    }
-
-    .btn-generate:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    .btn-generate svg {
-        width: 18px;
-        height: 18px;
-        animation: spin 0s linear infinite;
-    }
-
-    .btn-generate.loading svg {
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        from {
-            transform: rotate(0deg);
-        }
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    .btn-generate.success {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    }
-
-    .btn-generate.error {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    }
-
-    /* Permissions Styles */
-    .permissions-list {
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 15px;
-        max-height: 400px;
-        overflow-y: auto;
-    }
-
-    .permission-group {
-        margin-bottom: 15px;
-    }
-
-    .permission-group-title {
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 10px;
-        padding-bottom: 8px;
-        border-bottom: 2px solid #e5e7eb;
-        font-size: 14px;
-    }
-
-    .permission-item {
+    .um-page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
         display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        padding: 8px 10px;
-        margin-bottom: 6px;
-        background: white;
-        border-radius: 6px;
-        border-left: 3px solid #dbeafe;
-        transition: all 0.2s ease;
-    }
-
-    .permission-item:hover {
-        background: #f3f4f6;
-        border-left-color: #60a5fa;
-    }
-
-    .permission-item input[type="checkbox"] {
-        margin-top: 3px;
-        cursor: pointer;
-        width: 18px;
-        height: 18px;
-        accent-color: #667eea;
-    }
-
-    .permission-item-content {
-        flex: 1;
-    }
-
-    .permission-name {
-        font-weight: 500;
-        color: #1f2937;
-        font-size: 14px;
-    }
-
-    .permission-description {
-        font-size: 12px;
-        color: #6b7280;
-        margin-top: 2px;
-    }
-
-    .text-muted {
-        color: #9ca3af;
-        font-size: 14px;
-    }
-
-    /* Alert Styles */
-    .alert {
-        padding: 12px 16px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-    }
-
-    .alert-info {
-        background-color: #e0f2fe;
-        border-left: 4px solid #0284c7;
-        color: #0c4a6e;
-    }
-
-    .alert strong {
-        font-weight: 600;
-    }
-
-    /* Reduce icon sizes */
-    .section-icon svg {
-        width: 20px;
-        height: 20px;
-    }
-
-    .input-icon {
-        width: 18px;
-        height: 18px;
+        align-items: center;
+        gap: 1rem;
     }
 
     .title-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .um-breadcrumb-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .um-alert-custom {
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        position: relative;
+    }
+
+    .um-alert-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+
+    .um-alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+
+    .um-alert-close {
+        position: absolute;
+        left: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        opacity: 0.7;
+    }
+
+    .um-alert-close:hover {
+        opacity: 1;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .section-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .section-icon.personal {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .section-icon.account {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+
+    .section-icon svg {
         width: 24px;
         height: 24px;
     }
 
-    @media (max-width: 768px) {
-        .input-group-with-button {
-            flex-direction: column;
-        }
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin: 0;
+        color: #2d3748;
+    }
 
-        .btn-generate {
-            width: 100%;
-            justify-content: center;
-        }
+    .section-subtitle {
+        font-size: 0.9rem;
+        color: #718096;
+        margin: 0.25rem 0 0 0;
+    }
 
-        .section-icon svg {
-            width: 18px;
-            height: 18px;
-        }
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
 
-        .input-icon {
-            width: 16px;
-            height: 16px;
-        }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
 
-        .permissions-list {
-            max-height: 300px;
-        }
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .required {
+        color: #e53e3e;
+    }
+
+    .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-icon {
+        position: absolute;
+        right: 12px;
+        width: 20px;
+        height: 20px;
+        color: #a0aec0;
+        pointer-events: none;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 2.5rem 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: #e2e8f0;
+        color: #4a5568;
+    }
+
+    .btn-secondary:hover {
+        background: #cbd5e0;
+    }
+
+    .btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .help-text {
+        font-size: 0.85rem;
+        color: #718096;
+        margin-top: 0.25rem;
     }
 </style>
 
-<script>
-    // جلب الصلاحيات حسب الدور
-    function loadPermissionsByRole(roleId) {
-        if (!roleId) {
-            document.getElementById('permissionsSection').style.display = 'none';
-            return;
-        }
+<!-- Header -->
+<div class="um-header-section">
+    @if(session('success'))
+    <div class="um-alert-custom um-alert-success" role="alert">
+        <i class="feather icon-check-circle"></i>
+        {{ session('success') }}
+        <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+            <i class="feather icon-x"></i>
+        </button>
+    </div>
+    @endif
 
-        const permissionsSection = document.getElementById('permissionsSection');
-        const permissionsContainer = document.getElementById('permissionsContainer');
+    @if(session('error'))
+    <div class="um-alert-custom um-alert-danger" role="alert">
+        <i class="feather icon-alert-circle"></i>
+        {{ session('error') }}
+        <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+            <i class="feather icon-x"></i>
+        </button>
+    </div>
+    @endif
 
-        // عرض حالة التحميل
-        permissionsContainer.innerHTML = '<p class="text-muted" style="text-align: center; padding: 20px;"><i class="feather icon-loader"></i> جاري تحميل الصلاحيات...</p>';
-        permissionsSection.style.display = 'block';
+    @if($errors->any())
+    <div class="um-alert-custom um-alert-danger" role="alert">
+        <i class="feather icon-alert-circle"></i>
+        <ul style="margin: 0; padding-right: 20px;">
+            @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="um-alert-close" onclick="this.parentElement.style.display='none'">
+            <i class="feather icon-x"></i>
+        </button>
+    </div>
+    @endif
 
-        fetch(`{{ route('manufacturing.workers.permissions-by-role') }}?role_id=${roleId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('فشل في جلب الصلاحيات');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success && data.permissions.length > 0) {
-                    renderPermissions(data.permissions);
-                } else {
-                    permissionsContainer.innerHTML = '<p class="text-muted" style="text-align: center; padding: 20px;">لا توجد صلاحيات محددة لهذه الوظيفة</p>';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading permissions:', error);
-                permissionsContainer.innerHTML = '<p class="text-muted" style="text-align: center; padding: 20px; color: #ef4444;"><i class="feather icon-alert-circle"></i> حدث خطأ في تحميل الصلاحيات</p>';
-            });
-    }
+    <h1 class="um-page-title">
+        <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        تعديل مستخدم: {{ $worker->name }}
+    </h1>
+    <nav class="um-breadcrumb-nav">
+        <span>
+            <i class="feather icon-home"></i> {{ __('menu.dashboard') }}
+        </span>
+        <i class="feather icon-chevron-left"></i>
+        <span>المستخدمين</span>
+        <i class="feather icon-chevron-left"></i>
+        <span>تعديل مستخدم</span>
+    </nav>
+</div>
 
-    // عرض الصلاحيات مجمعة حسب المجموعة
-    function renderPermissions(permissions) {
-        const container = document.getElementById('permissionsContainer');
-        container.innerHTML = '';
+<!-- Form Card -->
+<div class="form-card">
+    <form method="POST" action="{{ route('manufacturing.workers.update', $worker->id) }}" id="workerForm">
+        @csrf
+        @method('PUT')
 
-        // تجميع الصلاحيات حسب المجموعة
-        const grouped = {};
-        permissions.forEach(permission => {
-            if (!grouped[permission.group_name]) {
-                grouped[permission.group_name] = [];
-            }
-            grouped[permission.group_name].push(permission);
-        });
+        <!-- Basic Information Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <div class="section-icon personal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="section-title">معلومات المستخدم الأساسية</h3>
+                    <p class="section-subtitle">تعديل البيانات الأساسية للمستخدم</p>
+                </div>
+            </div>
 
-        // عرض كل مجموعة
-        Object.keys(grouped).forEach(groupName => {
-            const groupDiv = document.createElement('div');
-            groupDiv.className = 'permission-group';
-
-            const titleDiv = document.createElement('div');
-            titleDiv.className = 'permission-group-title';
-            titleDiv.textContent = groupName;
-            groupDiv.appendChild(titleDiv);
-
-            grouped[groupName].forEach(permission => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'permission-item';
-                itemDiv.innerHTML = `
-                    <input type="checkbox"
-                           name="permissions[]"
-                           value="${permission.id}"
-                           checked
-                           disabled
-                           class="permission-checkbox">
-                    <div class="permission-item-content">
-                        <div class="permission-name">${permission.display_name}</div>
-                        <div class="permission-description">${permission.name}</div>
+            <div class="form-grid">
+                <!-- Worker Code -->
+                <div class="form-group">
+                    <label for="worker_code" class="form-label">
+                        كود المستخدم
+                        <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <input type="text" name="worker_code" id="worker_code" class="form-input"
+                            value="{{ old('worker_code', $worker->worker_code) }}" placeholder="أدخل كود المستخدم" required>
                     </div>
-                `;
-                groupDiv.appendChild(itemDiv);
-            });
+                </div>
 
-            container.appendChild(groupDiv);
-        });
+                <!-- Worker Name -->
+                <div class="form-group">
+                    <label for="name" class="form-label">
+                        اسم المستخدم
+                        <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <input type="text" name="name" id="name" class="form-input"
+                            value="{{ old('name', $worker->name) }}" placeholder="أدخل اسم المستخدم" required>
+                    </div>
+                </div>
 
-        // إضافة رسالة معلومات
-        const infoDiv = document.createElement('div');
-        infoDiv.style.cssText = 'margin-top: 15px; padding: 12px 15px; background: #eff6ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 13px; color: #1e40af;';
-        infoDiv.innerHTML = '<strong>ملاحظة:</strong> الصلاحيات سيتم تحديثها تلقائياً للعامل عند الحفظ بناءً على الوظيفة المختارة.';
-        container.appendChild(infoDiv);
-    }
+                <!-- Role -->
+                <div class="form-group">
+                    <label for="role_id" class="form-label">
+                        الدور الوظيفي
+                        <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <select name="role_id" id="role_id" class="form-input" required>
+                            <option value="">اختر الدور الوظيفي</option>
+                            @foreach($roles as $role)
+                            <option value="{{ $role->id }}" data-role-code="{{ $role->role_code }}" 
+                                {{ old('role_id', $worker->user?->role_id) == $role->id ? 'selected' : '' }}>
+                                {{ $role->role_name }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <span class="help-text">سيتم تحديث صلاحيات المستخدم بناءً على الدور المختار</span>
+                </div>
+            </div>
+        </div>
 
-    // Generate worker code by role code
-    function generateWorkerCodeByRole(roleCode) {
-        const codeInput = document.getElementById('worker_code');
+        <!-- Account Information Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <div class="section-icon account">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="section-title">معلومات الدخول للنظام</h3>
+                    <p class="section-subtitle">تحديث اسم المستخدم وكلمة المرور</p>
+                </div>
+            </div>
 
-        if (!roleCode) {
-            alert('الرجاء اختيار الوظيفة أولاً');
-            return;
-        }
+            <div class="form-grid">
+                <!-- Username -->
+                <div class="form-group">
+                    <label for="username" class="form-label">
+                        اسم المستخدم للدخول
+                        <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <input type="text" name="username" id="username" class="form-input"
+                            value="{{ old('username', $worker->user?->username) }}" placeholder="أدخل اسم المستخدم" required>
+                    </div>
+                    <span class="help-text">اسم المستخدم لتسجيل الدخول للنظام</span>
+                </div>
 
-        // Map role code to position
-        const positionMap = {
-            'WORKER': 'worker',
-            'SUPERVISOR': 'supervisor',
-            'TECHNICIAN': 'technician',
-            'QUALITY_INSPECTOR': 'quality_inspector'
-        };
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        كلمة المرور الجديدة
+                    </label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <input type="password" name="password" id="password" class="form-input"
+                            placeholder="اتركه فارغاً إذا لم ترد التغيير" minlength="6">
+                    </div>
+                    <span class="help-text">اترك الحقل فارغاً إذا لم ترد تغيير كلمة المرور</span>
+                </div>
+            </div>
+        </div>
 
-        const position = positionMap[roleCode] || 'worker';
-
-        fetch(`{{ route('manufacturing.workers.generate-code') }}?position=${position}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('فشل في توليد الكود');
-                }
-                return response.json();
-            })
-            .then(data => {
-                codeInput.value = data.worker_code;
-            })
-            .catch(error => {
-                console.error('Error generating code:', error);
-            });
-    }
-
-    // Toggle user account fields based on selection for edit page
-    function toggleUserAccountFieldsEdit() {
-        const accessType = document.getElementById('allow_system_access_edit').value;
-        const existingSection = document.getElementById('existing_user_section_edit');
-        const newSection = document.getElementById('new_user_section_edit');
-        const userIdSelect = document.getElementById('user_id');
-
-        // Hide all sections first
-        existingSection.style.display = 'none';
-        newSection.style.display = 'none';
-
-        // Remove required from all fields first
-        userIdSelect.required = false;
-        const newUsernameEdit = document.getElementById('new_username_edit');
-        const newEmailEdit = document.getElementById('new_email_edit');
-        if (newUsernameEdit) newUsernameEdit.required = false;
-        if (newEmailEdit) newEmailEdit.required = false;
-
-        // Clear user_id if not using existing user
-        if (accessType !== 'existing') {
-            userIdSelect.value = '';
-        }
-
-        // Clear new user fields if not creating new user
-        if (accessType !== 'new') {
-            if (newUsernameEdit) newUsernameEdit.value = '';
-            if (newEmailEdit) newEmailEdit.value = '';
-        }
-
-        // Show appropriate section
-        if (accessType === 'existing') {
-            existingSection.style.display = 'block';
-            userIdSelect.required = true;
-        } else if (accessType === 'new') {
-            newSection.style.display = 'block';
-            // Make new user fields required
-            if (newUsernameEdit) newUsernameEdit.required = true;
-            if (newEmailEdit) newEmailEdit.required = true;
-        }
-    }
-
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        // جلب الصلاحيات الحالية عند تحميل الصفحة
-        const positionSelect = document.getElementById('position');
-        if (positionSelect && positionSelect.value) {
-            // Permissions auto-sync on role change
-        }
-
-        // عند تغيير الوظيفة، تحديث البيانات
-        positionSelect.addEventListener('change', function() {
-            // Update on role change
-        });
-
-        // Initialize toggle if edit mode and no user
-        @if(!$worker->user)
-        toggleUserAccountFieldsEdit();
-        @endif
-
-        // Initialize Feather icons
-        if (typeof feather !== 'undefined') {
-            feather.replace();
-        }
-    });
-</script>
-
-        // Initialize Feather icons
-        if (typeof feather !== 'undefined') {
-            feather.replace();
-        }
-    });
-</script>
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="window.location='{{ route('manufacturing.workers.index') }}'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                إلغاء
+            </button>
+            <button type="submit" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                حفظ التعديلات
+            </button>
+        </div>
+    </form>
+</div>
 @endsection

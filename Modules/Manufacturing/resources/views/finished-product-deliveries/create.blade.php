@@ -169,8 +169,28 @@
     }
     
     .selected-box-item {
-        background: white;
-        border: 1px solid #e0e0e0;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border: 2px solid #27ae60;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 12px rgba(39, 174, 96, 0.15);
+        transition: all 0.3s ease;
+    }
+    
+    .selected-box-item:hover {
+        transform: translateX(-5px);
+        box-shadow: 0 6px 20px rgba(39, 174, 96, 0.25);
+    }
+    
+    .selected-box-item strong {
+        color: #27ae60;
+        font-size: 1.1rem;
+    }
+    
+    .selected-box-item .badge {
+        font-size: 0.9rem;
+        padding: 6px 12px;
     }
 
     .selected-boxes-summary {
@@ -178,6 +198,129 @@
         border: 2px solid #4caf50;
         border-radius: 10px;
         padding: 20px;
+    }
+
+    /* تحسين أنماط الأزرار */
+    .btn {
+        font-weight: 600;
+        padding: 10px 20px;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        border: 2px solid transparent;
+    }
+    
+    .btn i {
+        font-size: 1.1em;
+    }
+    
+    .btn-primary {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+    
+    .btn-primary:hover {
+        background: #5568d3;
+        border-color: #5568d3;
+        transform: translateY(-1px);
+    }
+    
+    .btn-success {
+        background: #27ae60;
+        color: white;
+        border-color: #27ae60;
+    }
+    
+    .btn-success:hover {
+        background: #229954;
+        border-color: #229954;
+        transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+        background: #95a5a6;
+        color: white;
+        border-color: #95a5a6;
+    }
+    
+    .btn-secondary:hover {
+        background: #7f8c8d;
+        border-color: #7f8c8d;
+        transform: translateY(-1px);
+    }
+    
+    .btn-danger {
+        background: #e74c3c;
+        color: white;
+        border-color: #e74c3c;
+    }
+    
+    .btn-danger:hover {
+        background: #c0392b;
+        border-color: #c0392b;
+        transform: translateY(-1px);
+    }
+    
+    .btn:active {
+        transform: translateY(0);
+    }
+    
+    .input-group .btn {
+        padding: 10px 18px;
+        font-size: 0.95rem;
+    }
+
+    /* عرض البيانات المدخلة */
+    .delivery-info-display {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border: 2px solid #2196f3;
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 12px;
+        display: none;
+    }
+    
+    .delivery-info-display.show {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .delivery-info-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(33, 150, 243, 0.2);
+    }
+    
+    .delivery-info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .delivery-info-item i {
+        color: #1976d2;
+        font-size: 1.2em;
+    }
+    
+    .delivery-info-label {
+        font-weight: 600;
+        color: #1565c0;
+        min-width: 80px;
+    }
+    
+    .delivery-info-value {
+        color: #0d47a1;
+        font-weight: 700;
+        font-size: 1.05rem;
         margin-top: 20px;
     }
 </style>
@@ -230,19 +373,19 @@
                         <div class="mb-3">
                             <label class="form-label">{{ __('app.finished_products.search_by_barcode') }}</label>
                             <div class="input-group">
-                                <input type="text" id="searchBarcode" class="form-control"
+                                <input type="text" id="searchBarcode" class="form-control form-control-lg"
                                        placeholder="{{ __('app.finished_products.barcode_search_placeholder') }}">
                                 <button type="button" id="searchBoxes" class="btn btn-primary">
-                                    <i class="bi bi-search me-1"></i>
-                                    {{ __('app.buttons.search') }}
+                                    <i class="bi bi-search"></i>
+                                    <span>{{ __('app.buttons.search') }}</span>
                                 </button>
                                 <button type="button" id="addDirectly" class="btn btn-success" style="display:none;">
-                                    <i class="bi bi-plus-circle me-1"></i>
-                                    {{ __('app.buttons.add_all') }}
+                                    <i class="bi bi-plus-circle"></i>
+                                    <span>{{ __('app.buttons.add_all') }}</span>
                                 </button>
                                 <button type="button" id="clearSearch" class="btn btn-secondary">
-                                    <i class="bi bi-x-circle me-1"></i>
-                                    {{ __('app.buttons.clear') }}
+                                    <i class="bi bi-x-circle"></i>
+                                    <span>{{ __('app.buttons.clear') }}</span>
                                 </button>
                             </div>
                         </div>
@@ -303,6 +446,43 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- الصناديق المحددة -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="bi bi-box-seam me-2"></i>
+                                {{ __('app.finished_products.selected_boxes') }}
+                            </h5>
+                            <button type="button" id="clearAllBoxes" class="btn btn-sm btn-danger" style="display:none;">
+                                <i class="bi bi-trash me-1"></i>
+                                {{ __('app.buttons.clear_all') }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- ملخص الصناديق المحددة -->
+                        <div id="selectedSummary" class="alert alert-secondary mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span><i class="bi bi-box-seam me-1"></i>{{ __('app.finished_products.count') }}:</span>
+                                <strong id="selectedCount">0</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-speedometer me-1"></i>{{ __('app.finished_products.total_weight_label') }}:</span>
+                                <strong id="totalWeight">0.00 {{ __('app.units.kg') }}</strong>
+                            </div>
+                        </div>
+
+                        <!-- قائمة الصناديق -->
+                        <div id="selectedBoxesList" style="max-height: 400px; overflow-y: auto;">
+                            <div class="text-center text-muted py-3">
+                                <i class="bi bi-inbox"></i>
+                                <p class="mb-0">{{ __('app.finished_products.no_boxes_selected') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- قسم الملخص والحفظ -->
@@ -340,29 +520,40 @@
                             <div class="card-body">
                                 <!-- اسم السائق -->
                                 <div class="mb-3">
-                                    <label class="form-label">
+                                    <label class="form-label fw-bold">
                                         <i class="bi bi-person-badge me-1"></i>
                                         اسم السائق
                                     </label>
-                                    <input type="text" name="driver_name" class="form-control" placeholder="أدخل اسم السائق">
+                                    <input type="text" name="driver_name" id="driverName" class="form-control" placeholder="أدخل اسم السائق">
                                 </div>
 
                                 <!-- رقم اللوحة -->
                                 <div class="mb-3">
-                                    <label class="form-label">
+                                    <label class="form-label fw-bold">
                                         <i class="bi bi-card-text me-1"></i>
                                         رقم اللوحة
                                     </label>
-                                    <input type="text" name="vehicle_number" class="form-control" placeholder="أدخل رقم اللوحة">
+                                    <input type="text" name="vehicle_number" id="vehicleNumber" class="form-control" placeholder="أدخل رقم اللوحة">
                                 </div>
 
                                 <!-- المدينة -->
-                                <div class="mb-0">
-                                    <label class="form-label">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">
                                         <i class="bi bi-geo-alt me-1"></i>
                                         المدينة/الوجهة
                                     </label>
-                                    <input type="text" name="city" class="form-control" placeholder="أدخل المدينة أو الوجهة">
+                                    <input type="text" name="city" id="cityName" class="form-control" placeholder="أدخل المدينة أو الوجهة">
+                                </div>
+
+                                <!-- عرض البيانات المدخلة -->
+                                <div id="deliveryInfoDisplay" class="delivery-info-display">
+                                    <div class="text-center mb-2">
+                                        <strong style="color: #1565c0;">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            البيانات المدخلة
+                                        </strong>
+                                    </div>
+                                    <div id="deliveryInfoContent"></div>
                                 </div>
                             </div>
                         </div>
@@ -374,46 +565,16 @@
                                       placeholder="{{ __('app.finished_products.notes_placeholder') }}"></textarea>
                         </div>
 
-                        <!-- ملخص الصناديق المحددة -->
-                        <div id="selectedSummary" class="alert alert-secondary">
-                            <h6 class="mb-2">{{ __('app.finished_products.selected_boxes') }}:</h6>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span>{{ __('app.finished_products.count') }}:</span>
-                                <strong id="selectedCount">0</strong>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span>{{ __('app.finished_products.total_weight_label') }}:</span>
-                                <strong id="totalWeight">0.00 {{ __('app.units.kg') }}</strong>
-                            </div>
-                        </div>
-
-                        <!-- قائمة الصناديق المحددة -->
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="mb-0">{{ __('app.finished_products.selected_boxes') }}:</h6>
-                                <button type="button" id="clearAllBoxes" class="btn btn-sm btn-outline-danger" style="display:none;">
-                                    <i class="bi bi-trash me-1"></i>
-                                    {{ __('app.buttons.clear_all') }}
-                                </button>
-                            </div>
-                            <div id="selectedBoxesList" style="max-height: 300px; overflow-y: auto;">
-                                <div class="text-center text-muted py-3">
-                                    <i class="bi bi-inbox"></i>
-                                    <p class="mb-0">{{ __('app.finished_products.no_boxes_selected') }}</p>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- أزرار الحفظ -->
-                        <button type="submit" id="submitBtn" class="btn btn-success w-100 mb-2" disabled>
-                            <i class="bi bi-check-circle me-1"></i>
-                            {{ __('app.buttons.save') }}
+                        <button type="submit" id="submitBtn" class="btn btn-success w-100 mb-2 py-3" disabled>
+                            <i class="bi bi-check-circle"></i>
+                            <span style="font-size: 1.1rem;">{{ __('app.buttons.save') }}</span>
                         </button>
 
                         <a href="{{ route('manufacturing.finished-product-deliveries.index') }}"
-                           class="btn btn-secondary w-100">
-                            <i class="bi bi-x-circle me-1"></i>
-                            {{ __('app.buttons.cancel') }}
+                           class="btn btn-secondary w-100 py-2">
+                            <i class="bi bi-x-circle"></i>
+                            <span>{{ __('app.buttons.cancel') }}</span>
                         </a>
                     </div>
                 </div>
@@ -454,6 +615,58 @@ $(document).ready(function() {
     let selectedBoxes = [];
     let currentBoxes = [];
     const allAvailableBoxes = @json($availableBoxes);
+
+    // عرض بيانات التوصيل عند الإدخال
+    function updateDeliveryInfoDisplay() {
+        const driverName = $('#driverName').val().trim();
+        const vehicleNumber = $('#vehicleNumber').val().trim();
+        const cityName = $('#cityName').val().trim();
+        
+        const displayDiv = $('#deliveryInfoDisplay');
+        const contentDiv = $('#deliveryInfoContent');
+        
+        if (driverName || vehicleNumber || cityName) {
+            let html = '';
+            
+            if (driverName) {
+                html += `
+                    <div class="delivery-info-item">
+                        <i class="bi bi-person-badge"></i>
+                        <span class="delivery-info-label">السائق:</span>
+                        <span class="delivery-info-value">${driverName}</span>
+                    </div>
+                `;
+            }
+            
+            if (vehicleNumber) {
+                html += `
+                    <div class="delivery-info-item">
+                        <i class="bi bi-card-text"></i>
+                        <span class="delivery-info-label">اللوحة:</span>
+                        <span class="delivery-info-value">${vehicleNumber}</span>
+                    </div>
+                `;
+            }
+            
+            if (cityName) {
+                html += `
+                    <div class="delivery-info-item">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span class="delivery-info-label">الوجهة:</span>
+                        <span class="delivery-info-value">${cityName}</span>
+                    </div>
+                `;
+            }
+            
+            contentDiv.html(html);
+            displayDiv.addClass('show');
+        } else {
+            displayDiv.removeClass('show');
+        }
+    }
+    
+    // تحديث العرض عند كتابة أي بيانات توصيل
+    $('#driverName, #vehicleNumber, #cityName').on('input', updateDeliveryInfoDisplay);
 
     // البحث عند الضغط على Enter
     $('#searchBarcode').on('keypress', function(e) {
@@ -784,17 +997,25 @@ $(document).ready(function() {
             let listHtml = '';
             selectedBoxes.forEach((box, index) => {
                 listHtml += `
-                    <div class="alert alert-light py-2 mb-2">
+                    <div class="selected-box-item">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="flex-grow-1">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="badge bg-primary">${index + 1}</span>
-                                    <strong>${box.barcode}</strong>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-primary" style="font-size: 1rem; padding: 8px 12px;">${index + 1}</span>
+                                    <strong style="font-size: 1.2rem; color: #27ae60;">${box.barcode}</strong>
                                 </div>
-                                <small class="text-muted">${parseFloat(box.weight || 0).toFixed(2)} {{ __('app.units.kg') }} | ${box.packaging_type}</small>
+                                <div class="d-flex gap-3 flex-wrap">
+                                    <span class="badge bg-info" style="font-size: 0.9rem;">
+                                        <i class="bi bi-box-seam me-1"></i>${box.packaging_type}
+                                    </span>
+                                    <span class="badge bg-success" style="font-size: 0.9rem;">
+                                        <i class="bi bi-speedometer me-1"></i>${parseFloat(box.weight || 0).toFixed(2)} {{ __('app.units.kg') }}
+                                    </span>
+                                </div>
                             </div>
-                            <button type="button" class="btn btn-sm btn-danger remove-box" data-box-id="${box.id}">
-                                <i class="bi bi-trash"></i>
+                            <button type="button" class="btn btn-danger remove-box" data-box-id="${box.id}" style="padding: 10px 16px;">
+                                <i class="bi bi-trash me-1" style="font-size: 1.1em;"></i>
+                                <span>حذف</span>
                             </button>
                         </div>
                     </div>

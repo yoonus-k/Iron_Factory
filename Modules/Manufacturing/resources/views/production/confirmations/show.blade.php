@@ -104,14 +104,14 @@
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 4px solid #9b59b6;">
                         <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">{{ __('app.production_confirmations.batch_code_label') }}</div>
                         <div style="font-weight: bold; color: #2c3e50; font-size: 18px;">
-                            {{ $confirmation->batch?->batch_code ?? __('app.production_confirmations.table.not_specified') }}
+                            {{ $confirmation->barcode ?? $confirmation->batch?->production_barcode ?? $confirmation->batch?->batch_code ?? $confirmation->metadata['barcode'] ?? __('app.production_confirmations.table.not_specified') }}
                         </div>
                     </div>
 
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 4px solid #3498db;">
                         <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">{{ __('app.production_confirmations.material_label') }}</div>
                         <div style="font-weight: bold; color: #2c3e50; font-size: 18px;">
-                            {{ $confirmation->batch?->material?->name ?? __('app.production_confirmations.table.not_specified') }}
+                            {{ $confirmation->metadata['stage_name'] ?? $confirmation->batch?->material?->name ?? __('app.production_confirmations.table.not_specified') }}
                         </div>
                         <div style="color: #95a5a6; font-size: 13px; margin-top: 3px;">
                             @if($confirmation->batch?->material?->weight)
@@ -123,12 +123,14 @@
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 4px solid #27ae60;">
                         <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">{{ __('app.production_confirmations.final_weight') }}</div>
                         <div style="font-weight: bold; color: #27ae60; font-size: 20px;">
-                            @if($confirmation->actual_received_quantity)
-                                {{ number_format($confirmation->actual_received_quantity, 2) }}
-                            @elseif($confirmation->batch?->initial_quantity)
-                                {{ number_format($confirmation->batch->initial_quantity, 2) }}
-                            @elseif($confirmation->deliveryNote?->quantity)
-                                {{ number_format($confirmation->deliveryNote->quantity, 2) }}
+                            @php
+                                $weight = $confirmation->actual_received_quantity 
+                                    ?? $confirmation->batch?->initial_quantity 
+                                    ?? $confirmation->deliveryNote?->quantity 
+                                    ?? ($confirmation->metadata['weight'] ?? null);
+                            @endphp
+                            @if($weight)
+                                {{ number_format($weight, 2) }}
                             @else
                                 <span style="color: #e74c3c;">{{ __('app.production_confirmations.table.data_unavailable') }}</span>
                             @endif
@@ -148,7 +150,20 @@
 
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 4px solid #e67e22;">
                         <div style="color: #7f8c8d; font-size: 13px; margin-bottom: 5px;">{{ __('app.production_confirmations.production_stage') }}</div>
-                        <div style="font-weight: bold; color: #2c3e50; font-size: 18px;">{{ $confirmation->deliveryNote?->production_stage_name ?? __('app.production_confirmations.table.not_specified') }}</div>
+                        @php
+                            $stageMapping = [
+                                'stage1_stands' => 'المرحلة الأولى - الاستاند',
+                                'stage2_processed' => 'المرحلة الثانية - المعالج',
+                                'stage3_coils' => 'المرحلة الثالثة - اللفائف',
+                                'stage4_boxes' => 'المرحلة الرابعة - الصناديق',
+                                'warehouse' => 'المستودع',
+                            ];
+                            $stageName = $confirmation->metadata['stage_name'] 
+                                ?? ($stageMapping[$confirmation->stage_type] ?? null)
+                                ?? $confirmation->deliveryNote?->production_stage_name 
+                                ?? __('app.production_confirmations.table.not_specified');
+                        @endphp
+                        <div style="font-weight: bold; color: #2c3e50; font-size: 18px;">{{ $stageName }}</div>
                     </div>
 
                     @if($confirmation->batch?->coil_number)

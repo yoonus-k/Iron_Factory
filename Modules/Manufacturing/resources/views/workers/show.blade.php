@@ -474,6 +474,50 @@
                         <div class="value">{{ $worker->shift_preference_name }}</div>
                     </div>
 
+                    @php
+                        // Get current or last shift assignment where this worker is assigned
+                        $currentShift = null;
+                        
+                        if ($worker->user_id) {
+                            // Find shifts where this user_id is in worker_ids array (check both int and string)
+                            $currentShift = \App\Models\ShiftAssignment::where(function($query) use ($worker) {
+                                $query->whereJsonContains('worker_ids', $worker->user_id)
+                                      ->orWhereJsonContains('worker_ids', (string)$worker->user_id);
+                            })
+                            ->whereIn('status', ['active', 'scheduled'])
+                            ->latest('shift_date')
+                            ->first();
+                            
+                            if (!$currentShift) {
+                                $currentShift = \App\Models\ShiftAssignment::where(function($query) use ($worker) {
+                                    $query->whereJsonContains('worker_ids', $worker->user_id)
+                                          ->orWhereJsonContains('worker_ids', (string)$worker->user_id);
+                                })
+                                ->where('status', 'completed')
+                                ->latest('shift_date')
+                                ->first();
+                            }
+                        }
+                    @endphp
+
+                    @if($currentShift)
+                    <div class="info-item">
+                        <label>{{ __('shifts-workers.current_shift') }}</label>
+                        <div class="value">
+                            <span class="status-badge {{ $currentShift->status === 'active' ? 'active' : 'warning' }}">
+                                {{ $currentShift->shift_type === 'morning' ? 'الفترة الصباحية' : 'الفترة المسائية' }}
+                                @if($currentShift->status === 'active')
+                                    <small>(نشطة)</small>
+                                @elseif($currentShift->status === 'scheduled')
+                                    <small>(مجدولة)</small>
+                                @else
+                                    <small>(آخر وردية)</small>
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="info-item">
                         <label>{{ __('app.status.status') }}</label>
                         <div class="value">

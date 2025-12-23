@@ -40,39 +40,39 @@
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="bg-light">
                                     <tr>
-                                        <th class="text-center">{{ __('app.production_confirmations.table.batch_code') }}</th>
-                                        <th class="text-center">{{ __('app.production_confirmations.table.material') }}</th>
-                                        <th class="text-center">{{ __('app.production_confirmations.table.quantity') }}</th>
-                                        <th class="text-center">{{ __('app.production_confirmations.table.stage') }}</th>
-                                        <th class="text-center">{{ __('app.production_confirmations.table.date') }}</th>
-                                        <th class="text-center">{{ __('app.production_confirmations.table.actions') }}</th>
+                                        <th class="text-center" style="white-space: nowrap; font-size: 13px;">{{ __('app.production_confirmations.table.batch_code') }}</th>
+                                        <th class="text-center" style="white-space: nowrap; font-size: 13px;">{{ __('app.production_confirmations.table.material') }}</th>
+                                        <th class="text-center" style="white-space: nowrap; font-size: 13px;">{{ __('app.production_confirmations.table.quantity') }}</th>
+                                        <th class="text-center" style="white-space: nowrap; font-size: 13px;">{{ __('app.production_confirmations.table.stage') }}</th>
+                                        <th class="text-center" style="white-space: nowrap; font-size: 13px;">{{ __('app.production_confirmations.table.date') }}</th>
+                                        <th class="text-center" style="white-space: nowrap; font-size: 13px;">{{ __('app.production_confirmations.table.actions') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($pendingConfirmations as $index => $confirmation)
                                     <tr>
                                         <td class="text-center">
-                                            <span class="badge bg-purple">{{ $confirmation->batch?->batch_code ?? __('app.production_confirmations.table.not_specified') }}</span>
+                                            <span class="badge bg-purple" style="font-size: 11px; white-space: nowrap;">{{ $confirmation->batch?->batch_code ?? __('app.production_confirmations.table.not_specified') }}</span>
                                         </td>
-                                        <td class="text-center">{{ $confirmation->batch?->material?->name ?? __('app.production_confirmations.table.not_specified') }}</td>
-                                        <td class="text-center">
-                                            <strong class="text-success">{{ number_format($confirmation->actual_received_quantity ?? 0, 2) }}</strong>
-                                            <small class="text-muted">{{ __('app.units.kg') }}</small>
+                                        <td class="text-center" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px;" title="{{ $confirmation->batch?->material?->name ?? __('app.production_confirmations.table.not_specified') }}">{{ $confirmation->batch?->material?->name ?? __('app.production_confirmations.table.not_specified') }}</td>
+                                        <td class="text-center" style="white-space: nowrap;">
+                                            <strong class="text-success" style="font-size: 13px;">{{ number_format($confirmation->actual_received_quantity ?? 0, 2) }}</strong>
+                                            <small class="text-muted" style="font-size: 10px;">{{ __('app.units.kg') }}</small>
                                         </td>
                                         <td class="text-center">
-                                            <span class="badge bg-info">{{ $confirmation->deliveryNote?->production_stage_name ?? __('app.production_confirmations.table.not_specified') }}</span>
+                                            <span class="badge bg-info" style="font-size: 11px; white-space: nowrap;">{{ $confirmation->deliveryNote?->production_stage_name ?? __('app.production_confirmations.table.not_specified') }}</span>
                                         </td>
-                                        <td class="text-center text-muted">{{ $confirmation->created_at->format('d/m/Y H:i') }}</td>
+                                        <td class="text-center text-muted" style="white-space: nowrap; font-size: 13px;">{{ $confirmation->created_at->format('d/m/Y H:i') }}</td>
                                         <td class="text-center">
-                                            <div class="btn-group btn-group-sm" role="group">
-                                                <button type="button" class="btn btn-outline-primary" onclick="showDetails({{ $confirmation->id }})">
-                                                    <i class="fas fa-info-circle"></i> {{ __('app.production_confirmations.view_details') }}
+                                            <div class="btn-group btn-group-sm" role="group" style="flex-wrap: nowrap;">
+                                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="showDetails({{ $confirmation->id }})" title="{{ __('app.production_confirmations.view_details') }}" style="padding: 4px 8px; font-size: 11px;">
+                                                    <i class="fas fa-info-circle"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-outline-success" onclick="confirmReceipt({{ $confirmation->id }})">
-                                                    <i class="fas fa-check"></i> {{ __('app.production_confirmations.confirm_receipt') }}
+                                                <button type="button" class="btn btn-outline-success btn-sm" onclick="confirmReceipt({{ $confirmation->id }})" title="{{ __('app.production_confirmations.confirm_receipt') }}" style="padding: 4px 8px; font-size: 11px;">
+                                                    <i class="fas fa-check"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-outline-danger" onclick="rejectReceipt({{ $confirmation->id }})">
-                                                    <i class="fas fa-times"></i> {{ __('app.production_confirmations.reject_receipt') }}
+                                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="rejectReceipt({{ $confirmation->id }})" title="{{ __('app.production_confirmations.reject_receipt') }}" style="padding: 4px 8px; font-size: 11px;">
+                                                    <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -462,53 +462,53 @@ document.getElementById('rejectForm').addEventListener('submit', function(e) {
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="bg-light">
                                     <tr>
-                                        <th class="text-center">#</th>
-                                        <th class="text-center">رمز الدفعة</th>
-                                        <th>المادة</th>
-                                        <th class="text-center">الكمية</th>
-                                        <th class="text-center">المرحلة</th>
-                                        <th class="text-center">التاريخ</th>
-                                        <th class="text-center">الإجراءات</th>
+                                        <th class="text-center" style="white-space: nowrap; font-size: 13px;">#</th>
+                                        <th class="text-center" style="white-space: nowrap; font-size: 13px;">رمز الدفعة</th>
+                                        <th style="white-space: nowrap; font-size: 13px;">المادة</th>
+                                        <th class="text-center" style="white-space: nowrap; font-size: 13px;">الكمية</th>
+                                        <th class="text-center" style="white-space: nowrap; font-size: 13px;">المرحلة</th>
+                                        <th class="text-center" style="white-space: nowrap; font-size: 13px;">التاريخ</th>
+                                        <th class="text-center" style="white-space: nowrap; font-size: 13px;">الإجراءات</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($pendingConfirmations as $index => $confirmation)
                                         <tr>
-                                            <td class="text-center">{{ $pendingConfirmations->firstItem() + $index }}</td>
+                                            <td class="text-center" style="font-size: 13px;">{{ $pendingConfirmations->firstItem() + $index }}</td>
 
                                             <td class="text-center">
-                                                <span class="badge bg-primary">{{ $confirmation->batch->batch_code }}</span>
+                                                <span class="badge bg-primary" style="font-size: 11px;">{{ $confirmation->batch->batch_code }}</span>
                                             </td>
 
-                                            <td>
-                                                <div class="fw-bold">{{ $confirmation->batch->material->name }}</div>
-                                                <small class="text-muted">{{ $confirmation->batch->material->category }}</small>
-                                            </td>
-
-                                            <td class="text-center">
-                                                <span class="fw-bold">{{ number_format($confirmation->actual_received_quantity ?? 0, 2) }}</span>
-                                                <small class="text-muted d-block">كجم</small>
+                                            <td style="max-width: 200px;">
+                                                <div class="fw-bold" style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $confirmation->batch->material->name }}">{{ $confirmation->batch->material->name }}</div>
+                                                <small class="text-muted" style="font-size: 11px;">{{ $confirmation->batch->material->category }}</small>
                                             </td>
 
                                             <td class="text-center">
-                                                <span class="badge bg-info">{{ $confirmation->deliveryNote->production_stage_name }}</span>
-                                            </td>
-
-                                            <td class="text-center text-muted">
-                                                <div>{{ $confirmation->created_at->format('Y/m/d') }}</div>
-                                                <small>{{ $confirmation->created_at->format('h:i A') }}</small>
+                                                <span class="fw-bold" style="font-size: 13px;">{{ number_format($confirmation->actual_received_quantity ?? 0, 2) }}</span>
+                                                <small class="text-muted d-block" style="font-size: 10px;">كجم</small>
                                             </td>
 
                                             <td class="text-center">
-                                                <div class="btn-group" role="group">
-                                                    <button onclick="showDetails({{ $confirmation->id }})" class="btn btn-sm btn-info" title="التفاصيل">
-                                                        <i class="fas fa-eye"></i>
+                                                <span class="badge bg-info" style="font-size: 11px; white-space: nowrap;">{{ $confirmation->deliveryNote->production_stage_name }}</span>
+                                            </td>
+
+                                            <td class="text-center text-muted" style="white-space: nowrap;">
+                                                <div style="font-size: 12px;">{{ $confirmation->created_at->format('Y/m/d') }}</div>
+                                                <small style="font-size: 10px;">{{ $confirmation->created_at->format('h:i A') }}</small>
+                                            </td>
+
+                                            <td class="text-center">
+                                                <div class="btn-group" role="group" style="white-space: nowrap;">
+                                                    <button onclick="showDetails({{ $confirmation->id }})" class="btn btn-sm btn-info" title="التفاصيل" style="padding: 4px 8px;">
+                                                        <i class="fas fa-eye" style="font-size: 12px;"></i>
                                                     </button>
-                                                    <button onclick="confirmReceipt({{ $confirmation->id }})" class="btn btn-sm btn-success" title="تأكيد الاستلام">
-                                                        <i class="fas fa-check"></i>
+                                                    <button onclick="confirmReceipt({{ $confirmation->id }})" class="btn btn-sm btn-success" title="تأكيد الاستلام" style="padding: 4px 8px;">
+                                                        <i class="fas fa-check" style="font-size: 12px;"></i>
                                                     </button>
-                                                    <button onclick="rejectReceipt({{ $confirmation->id }})" class="btn btn-sm btn-danger" title="رفض الاستلام">
-                                                        <i class="fas fa-times"></i>
+                                                    <button onclick="rejectReceipt({{ $confirmation->id }})" class="btn btn-sm btn-danger" title="رفض الاستلام" style="padding: 4px 8px;">
+                                                        <i class="fas fa-times" style="font-size: 12px;"></i>
                                                     </button>
                                                 </div>
                                             </td>

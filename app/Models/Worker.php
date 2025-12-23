@@ -79,6 +79,10 @@ class Worker extends Model
             self::POSITION_SUPERVISOR => 'مشرف',
             self::POSITION_TECHNICIAN => 'فني',
             self::POSITION_QUALITY_INSPECTOR => 'مراقب جودة',
+            'stage1_worker' => 'عامل المرحلة الأولى',
+            'stage2_worker' => 'عامل المرحلة الثانية',
+            'stage3_worker' => 'عامل المرحلة الثالثة',
+            'stage4_worker' => 'عامل المرحلة الرابعة',
             default => $this->position,
         };
     }

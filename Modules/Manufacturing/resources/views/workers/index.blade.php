@@ -9,14 +9,14 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-users"></i>
-                {{ __('shifts-workers.workers_management') }}
+                إدارة المستخدمين
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
                     <i class="feather icon-home"></i> {{ __('app.menu.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>{{ __('shifts-workers.workers') }}</span>
+                <span>المستخدمين</span>
             </nav>
         </div>
 
@@ -49,12 +49,12 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    {{ __('shifts-workers.workers') }} {{ __('shifts-workers.list') }}
+                    قائمة المستخدمين
                 </h4>
                 @if(auth()->user()->hasPermission('WORKERS_CREATE'))
                 <a href="{{ route('manufacturing.workers.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>
-                    {{ __('shifts-workers.add_worker') }}
+                    إضافة مستخدم
                 </a>
                 @endif
        </div>
@@ -144,7 +144,7 @@
                         @forelse($workers as $index => $worker)
                         <tr>
                             <td>{{ $workers->firstItem() + $index }}</td>
-                            <td><strong>{{ $worker->worker_code }}</strong></td>
+                            <td>{{ $worker->worker_code }}</strong></td>
                             <td>{{ $worker->name }}</td>
                             <td>
                                 <span class="um-badge um-badge-info">
@@ -152,7 +152,26 @@
                                 </span>
                             </td>
                             <td>{{ $worker->phone ?? '-' }}</td>
-                            <td>{{ $worker->shift_preference_name }}</td>
+                            <td>
+                                @php
+                                    $currentShift = $worker->currentShift ?? null;
+                                    $shiftTypeName = match($currentShift?->shift_type ?? $worker->shift_preference) {
+                                        'morning' => 'الفترة الصباحية',
+                                        'evening' => 'الفترة المسائية',
+                                        'night' => 'الفترة الليلية',
+                                        'any' => 'أي وردية',
+                                        default => 'أي وردية'
+                                    };
+                                @endphp
+                                <span class="um-badge {{ $currentShift ? 'um-badge-success' : 'um-badge-secondary' }}">
+                                    {{ $shiftTypeName }}
+                                    @if($currentShift)
+                                        <small style="display: block; font-size: 0.75em; margin-top: 2px;">
+                                            ({{ $currentShift->shift_date->format('Y-m-d') }})
+                                        </small>
+                                    @endif
+                                </span>
+                            </td>
                             <td>{{ number_format($worker->hourly_rate, 2) }} {{ __('shifts-workers.currency') }}</td>
                             <td>
                                 @if($worker->user_id)
@@ -250,7 +269,26 @@
                         </div>
                         <div class="um-info-row">
                             <span class="um-info-label">{{ __('shifts-workers.shift_pref') }}:</span>
-                            <span class="um-info-value">{{ $worker->shift_preference_name }}</span>
+                            <span class="um-info-value">
+                                @php
+                                    $currentShift = $worker->currentShift ?? null;
+                                    $shiftTypeName = match($currentShift?->shift_type ?? $worker->shift_preference) {
+                                        'morning' => 'الفترة الصباحية',
+                                        'evening' => 'الفترة المسائية',
+                                        'night' => 'الفترة الليلية',
+                                        'any' => 'أي وردية',
+                                        default => 'أي وردية'
+                                    };
+                                @endphp
+                                <span class="um-badge {{ $currentShift ? 'um-badge-success' : 'um-badge-secondary' }}">
+                                    {{ $shiftTypeName }}
+                                    @if($currentShift)
+                                        <small style="display: block; font-size: 0.75em; margin-top: 2px;">
+                                            ({{ $currentShift->shift_date->format('Y-m-d') }})
+                                        </small>
+                                    @endif
+                                </span>
+                            </span>
                         </div>
                         <div class="um-info-row">
                             <span class="um-info-label">{{ __('shifts-workers.salary_hour') }}:</span>

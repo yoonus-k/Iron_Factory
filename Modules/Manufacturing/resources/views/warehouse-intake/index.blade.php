@@ -24,10 +24,23 @@
     }
     .action-btn {
         transition: all 0.2s ease;
+        font-weight: 600;
+        padding: 10px 18px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
     .action-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .btn-sm {
+        font-size: 0.95rem;
+        padding: 8px 14px;
+        font-weight: 600;
+    }
+    .btn-sm i {
+        font-size: 1.1em;
     }
     .table-card {
         border-radius: 16px;
@@ -106,15 +119,17 @@
                             <td>{{ $request->requestedBy->name ?? '-' }}</td>
                             <td>{{ $request->created_at->format('Y-m-d H:i') }}</td>
                             <td>
-                                <div class="btn-group" role="group">
+                                <div class="d-flex gap-2 align-items-center">
                                     <a href="{{ route('manufacturing.warehouse-intake.show', $request->id) }}" 
-                                       class="btn btn-sm btn-info action-btn" title="{{ __('warehouse_intake.view_details') }}">
-                                        <i class="bi bi-eye-fill me-1"></i>{{ __('warehouse_intake.view') }}
+                                       class="btn btn-sm btn-info d-flex align-items-center gap-1" title="{{ __('warehouse_intake.view_details') }}">
+                                        <i class="bi bi-eye-fill"></i>
+                                        <span>{{ __('warehouse_intake.view') }}</span>
                                     </a>
                                     @if($request->status === 'approved')
                                     <a href="{{ route('manufacturing.warehouse-intake.print', $request->id) }}" 
-                                       class="btn btn-sm btn-secondary action-btn" target="_blank" title="{{ __('warehouse_intake.print') }}">
-                                        <i class="bi bi-printer-fill me-1"></i>{{ __('warehouse_intake.print') }}
+                                       class="btn btn-sm btn-secondary d-flex align-items-center gap-1" target="_blank" title="{{ __('warehouse_intake.print') }}">
+                                        <i class="bi bi-printer-fill"></i>
+                                        <span>{{ __('warehouse_intake.print') }}</span>
                                     </a>
                                     @endif
                                 </div>

@@ -8,7 +8,23 @@
                         ?? $confirmation->deliveryNote?->material?->name 
                         ?? $confirmation->batch?->material?->name_ar 
                         ?? $confirmation->batch?->material?->name 
+                        ?? ($confirmation->metadata['stage_name'] ?? 'غير محدد');
+                    $productionBarcode = $confirmation->barcode
+                        ?? $confirmation->batch?->production_barcode 
+                        ?? $confirmation->batch?->batch_code 
+                        ?? $confirmation->deliveryNote?->production_barcode 
+                        ?? $confirmation->deliveryNote?->materialBatch?->batch_code 
+                        ?? $confirmation->metadata['barcode'] 
                         ?? 'غير محدد';
+                    $stageLabel = $confirmation->metadata['stage_name']
+                        ?? $confirmation->stage()?->stage_name
+                        ?? 'غير محدد';
+                    $typeLabel = match ($confirmation->confirmation_type) {
+                        'reassignment' => 'إعادة إسناد',
+                        'shift_transfer' => 'نقل للوردية التالية',
+                        default => 'نقل المواد',
+                    };
+                    $reasonText = $confirmation->metadata['reason'] ?? null;
                 @endphp
                 {{ $materialName }}
             </h4>
@@ -25,15 +41,7 @@
                 <span class="detail-label">
                     <i class="fas fa-barcode"></i> باركود الإنتاج
                 </span>
-                <span class="detail-value">
-                    @php
-                        $barcode = $confirmation->deliveryNote?->production_barcode 
-                            ?? $confirmation->deliveryNote?->materialBatch?->batch_code 
-                            ?? $confirmation->batch?->batch_code 
-                            ?? 'غير محدد';
-                    @endphp
-                    {{ $barcode }}
-                </span>
+                <span class="detail-value">{{ $productionBarcode }}</span>
             </div>
             <div class="detail-item">
                 <span class="detail-label">
@@ -41,11 +49,20 @@
                 </span>
                 <span class="detail-value">
                     @php
-                        $weight = $confirmation->actual_received_quantity;
+                        $weight = null;
 
-                        // أولاً: نعرض الكمية المستلمة فعلياً إن وجدت
+                        // أولاً: الوزن من stage_record (للمواد المعاد إسنادها)
+                        if (isset($confirmation->metadata['stage_weight']) && $confirmation->metadata['stage_weight'] > 0) {
+                            $weight = $confirmation->metadata['stage_weight'];
+                        }
+
+                        // ثانياً: نعرض الكمية المستلمة فعلياً إن وجدت
                         if (is_null($weight) || $weight <= 0) {
-                            // ثانياً: نحاول أخذ الكمية المنقولة من DeliveryNote نفسه
+                            $weight = $confirmation->actual_received_quantity;
+                        }
+
+                        // ثالثاً: نحاول أخذ الكمية المنقولة من DeliveryNote نفسه
+                        if (is_null($weight) || $weight <= 0) {
                             if ($confirmation->deliveryNote && isset($confirmation->deliveryNote->quantity_used)) {
                                 $lastTransferQuantity = $confirmation->deliveryNote->quantity_used;
                                 if ($lastTransferQuantity > 0) {
@@ -54,7 +71,7 @@
                             }
                         }
 
-                        // ثالثاً: نحاول أخذ الوزن من MaterialBatch
+                        // رابعاً: نحاول أخذ الوزن من MaterialBatch
                         if ((is_null($weight) || $weight <= 0) && $confirmation->deliveryNote?->materialBatch) {
                             $weight = $confirmation->deliveryNote->materialBatch->initial_quantity 
                                 ?? $confirmation->deliveryNote->materialBatch->available_quantity;
@@ -77,12 +94,31 @@
                     {{ $displayWeight }} @if($weight) كجم @endif
                 </span>
             </div>
+            <div class="detail-item">
+                <span class="detail-label">
+                    <i class="fas fa-industry"></i> المرحلة
+                </span>
+                <span class="detail-value">{{ $stageLabel }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">
+                    <i class="fas fa-random"></i> نوع العملية
+                </span>
+                <span class="detail-value">{{ $typeLabel }}</span>
+            </div>
         </div>
         
         @if($confirmation->notes)
             <div class="confirmation-notes">
                 <i class="fas fa-sticky-note"></i>
                 <span>{{ $confirmation->notes }}</span>
+            </div>
+        @endif
+
+        @if($reasonText)
+            <div class="confirmation-notes mt-2">
+                <i class="fas fa-info-circle"></i>
+                <span>سبب العملية: {{ $reasonText }}</span>
             </div>
         @endif
     </div>

@@ -47,13 +47,52 @@
     .box-info strong{ font-size:15px }
 
     .button-group{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px }
-    .btn-primary, .btn-success, .btn-secondary, .btn-warning{ border:none; border-radius:8px; padding:10px 14px; font-weight:700; cursor:pointer }
-    .btn-primary{ background:var(--brand-1); color:white }
-    .btn-success{ background:var(--success); color:white }
-    .btn-secondary{ background:#8e9aa4; color:white }
-    .btn-warning{ background:#f39c12; color:white }
 
-    .btn-print{ background:#27ae60; color:white; padding:10px 16px; border-radius:8px; border:none; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(39,174,96,0.3) }
+    .btn-primary, .btn-success, .btn-secondary, .btn-warning {
+        border: none;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
+        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary { background: var(--brand-1); color: #fff; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-secondary { background: #8e9aa4; color: #fff; }
+    .btn-warning { background: #f39c12; color: #fff; }
+    .btn-primary:active, .btn-success:active, .btn-secondary:active, .btn-warning:active {
+        box-shadow: 0 4px 16px rgba(44, 62, 80, 0.18);
+    }
+    .btn-primary i, .btn-success i, .btn-secondary i, .btn-warning i {
+        font-size: 1.2em;
+    }
+
+    .btn-print {
+        background: #27ae60;
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 2px 8px rgba(39,174,96,0.3);
+        font-size: 1.1rem;
+    }
+    .btn-print i { font-size: 1.2em; }
+
+    /* تحسين وضوح النص في الأزرار الكبيرة */
+    #finishBtn {
+        font-size: 1.2rem !important;
+        padding: 16px 36px !important;
+    }
 
     .empty-state{ padding:30px; text-align:center; color:#98a2a8 }
 
@@ -79,6 +118,7 @@
     <!-- Barcode Scanner -->
     <div class="form-section barcode-section">
         <h3 style="margin: 0 0 15px 0; color: #e67e22;"><i class="fas fa-camera"></i> {{ __('stages.stage4_scan_stage3_barcode') }}</h3>
+        
         <div class="barcode-input-wrapper">
             <input type="text" id="lafafBarcode" class="barcode-input" placeholder="{{ __('stages.stage4_scan_or_press_enter') }}" autofocus>
             <span class="barcode-icon">📦</span>
@@ -91,7 +131,7 @@
         <h4><i class="fas fa-circle-check"></i> {{ __('stages.stage4_coil_information') }}</h4>
         <div class="lafaf-info">
             <div class="info-item">
-                <div class="info-label">{{ __('stages.stage1_barcode_label') }}</div>
+                <div class="info-label">{{ __('stages.stage_previous_barcode_label') }}</div>
                 <div class="info-value" id="displayBarcode">-</div>
             </div>
             <div class="info-item">
@@ -225,8 +265,8 @@
 
     <!-- Actions -->
     <div style="display:flex; gap:15px; justify-content:center; margin-top:25px; padding-top:20px; border-top:2px solid #ecf0f1;">
-        <button type="button" class="btn-success" onclick="finishOperation()" id="submitBtn" disabled style="padding:14px 32px; font-size:16px;">
-            <i class="fas fa-check-double"></i> {{ __('stages.stage4_finish_shipment') }}
+        <button type="button" class="btn-success" onclick="finishPackaging()" id="finishBtn" disabled style="padding:14px 32px; font-size:16px;">
+            <i class="fas fa-check-circle"></i> إنهاء التعبئة وفحص الهدر
         </button>
         <button type="button" class="btn-secondary" onclick="window.location.href='{{ route('manufacturing.stage4.index') }}'">
             <i class="fas fa-times"></i> {{ __('app.cancel') }}
@@ -340,6 +380,12 @@ async function divideWeight() {
         return;
     }
 
+    // Disable button and show loading
+    const divideBtn = event.target;
+    const originalHtml = divideBtn.innerHTML;
+    divideBtn.disabled = true;
+    divideBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
     // Calculate weight per box
     const weightPerBox = totalWeight / count;
 
@@ -390,6 +436,8 @@ async function divideWeight() {
             }
         } catch (error) {
             alert('❌ خطأ في حفظ الكرتون رقم ' + (i + 1) + ': ' + error.message);
+            divideBtn.disabled = false;
+            divideBtn.innerHTML = originalHtml;
             break;
         }
     }
@@ -397,9 +445,20 @@ async function divideWeight() {
     renderBoxes();
     showToast(`{{ __("stages.stage4_box_saved_success") }}: ${boxes.length}! (${weightPerBox.toFixed(3)} كجم)`, 'success');
 
+    // Re-enable button
+    divideBtn.disabled = false;
+    divideBtn.innerHTML = originalHtml;
+    
+    // مسح بيانات اللفاف الحالي
+    currentLafaf = null;
+    document.getElementById('lafafDisplay').classList.remove('active');
+
     // Clear divide inputs
     document.getElementById('totalBoxesWeight').value = '';
     document.getElementById('boxesCount').value = '';
+    
+    // Focus on barcode for next scan
+    document.getElementById('lafafBarcode').focus();
 }
 
 function addBox() {
@@ -456,16 +515,33 @@ function addBox() {
             boxes.push(box);
             renderBoxes();
             clearForm();
+            
+            // مسح بيانات اللفاف الحالي
+            currentLafaf = null;
+            document.getElementById('lafafDisplay').classList.remove('active');
 
             showToast('{{ __("stages.stage4_box_saved_success") }}', 'success');
-
-            document.getElementById('boxWeight').focus();
+            // Focus on barcode for next scan
+            document.getElementById('lafafBarcode').focus();
         } else {
             throw new Error(result.message || 'حدث خطأ أثناء الحفظ');
         }
     })
     .catch(error => {
-        alert('{{ __("app.error") }}: ' + error.message);
+        // عرض رسالة خطأ باستخدام SweetAlert
+        Swal.fire({
+            icon: 'error',
+            title: '❌ خطأ',
+            text: error.message,
+            confirmButtonText: 'حسناً',
+            confirmButtonColor: '#dc3545',
+            customClass: {
+                popup: 'swal2-rtl'
+            }
+        });
+        
+        // Focus back on barcode input
+        document.getElementById('lafafBarcode').focus();
     })
     .finally(() => {
         addBtn.disabled = false;
@@ -476,7 +552,7 @@ function addBox() {
 function renderBoxes() {
     const list = document.getElementById('boxList');
     document.getElementById('boxCount').textContent = boxes.length;
-    document.getElementById('submitBtn').disabled = boxes.length === 0;
+    document.getElementById('finishBtn').disabled = boxes.length === 0;
 
     if (boxes.length === 0) {
         list.innerHTML = `
@@ -534,16 +610,85 @@ function updateSummary() {
     document.getElementById('summaryBox').style.display = 'block';
 }
 
-function finishOperation() {
+// دالة إنهاء التعبئة وفحص الهدر
+async function finishPackaging() {
+    if (!currentLafaf) {
+        alert('⚠️ لا يوجد لفاف محدد!');
+        return;
+    }
+
     if (boxes.length === 0) {
         alert('⚠️ لا توجد كراتين محفوظة!');
         return;
     }
 
-    showToast('✅ تم إنهاء العملية بنجاح!', 'success');
-    setTimeout(() => {
-        window.location.href = '{{ route("manufacturing.stage4.index") }}';
-    }, 1000);
+    const finishBtn = document.getElementById('finishBtn');
+    finishBtn.disabled = true;
+    finishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري فحص الهدر...';
+
+    try {
+        const response = await fetch('{{ route("manufacturing.stage4.check-final-waste") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                lafaf_barcode: currentLafaf.barcode
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // 🔥 التحقق من وجود تنبيه هدر
+            if (result.pending_approval && result.alert_message) {
+                await Swal.fire({
+                    title: result.alert_title || '⛔ تم إيقاف العملية',
+                    html: result.alert_message,
+                    icon: 'warning',
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#e67e22',
+                    width: '600px'
+                });
+                
+                // الانتقال لصفحة السجل
+                window.location.href = '{{ route("manufacturing.stage4.index") }}';
+            } else {
+                // لا يوجد تجاوز - نجاح
+                await Swal.fire({
+                    title: '✅ تم بنجاح',
+                    html: `
+                        <div style="text-align: right; direction: rtl;">
+                            <p style="font-size: 16px; margin-bottom: 15px;">
+                                <strong>تم فحص الهدر بنجاح - لا يوجد تجاوز في النسبة المسموح بها</strong>
+                            </p>
+                            <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; border-right: 4px solid #17a2b8; margin-top: 15px;">
+                                <table style="width: 100%; text-align: right;">
+                                    <tr><td style="padding: 5px;"><strong>وزن اللفاف:</strong></td><td style="padding: 5px;">${result.data.lafaf_weight} كجم</td></tr>
+                                    <tr><td style="padding: 5px;"><strong>إجمالي الكراتين:</strong></td><td style="padding: 5px;">${result.data.total_boxes_weight} كجم</td></tr>
+                                    <tr><td style="padding: 5px;"><strong>الهدر:</strong></td><td style="padding: 5px; color: #28a745; font-weight: bold;">${result.data.waste_weight} كجم</td></tr>
+                                    <tr><td style="padding: 5px;"><strong>نسبة الهدر:</strong></td><td style="padding: 5px; color: #28a745; font-weight: bold;">${result.data.waste_percentage}%</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                    `,
+                    icon: 'success',
+                    confirmButtonText: 'العودة للسجل',
+                    confirmButtonColor: '#27ae60'
+                });
+                
+                window.location.href = '{{ route("manufacturing.stage4.index") }}';
+            }
+        } else {
+            throw new Error(result.message || 'حدث خطأ');
+        }
+    } catch (error) {
+        alert('{{ __("app.error") }}: ' + error.message);
+        finishBtn.disabled = false;
+        finishBtn.innerHTML = '<i class="fas fa-check-circle"></i> إنهاء التعبئة وفحص الهدر';
+    }
 }
 
 function clearForm() {

@@ -234,6 +234,102 @@ class ProductionConfirmationController extends Controller
     }
 
     /**
+     * نقل التأكيد إلى موظف آخر
+     */
+    public function transfer(Request $request, $id)
+    {
+        $request->validate([
+            'new_worker_id' => 'required|exists:users,id',
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $confirmation = ProductionConfirmation::findOrFail($id);
+
+            // التحقق من أن التأكيد لا يزال معلقاً
+            if ($confirmation->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكن نقل التأكيد. الحالة الحالية: ' . $confirmation->status
+                ], 400);
+            }
+
+            $oldUserId = $confirmation->assigned_to;
+            $newUserId = $request->new_worker_id;
+
+            // التحقق من أن الموظف الجديد مختلف عن القديم
+            if ($oldUserId == $newUserId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'الموظف الجديد هو نفس الموظف الحالي'
+                ], 400);
+            }
+
+            $oldUser = User::find($oldUserId);
+            $newUser = User::findOrFail($newUserId);
+
+            // تحديث الموظف المسند إليه
+            $confirmation->update([
+                'assigned_to' => $newUserId,
+            ]);
+
+            // إنشاء إشعار للموظف الجديد
+            Notification::create([
+                'user_id' => $newUserId,
+                'type' => 'production_confirmation_transferred',
+                'title' => 'تأكيد إنتاج جديد تم نقله إليك',
+                'message' => 'تم نقل تأكيد إنتاج إليك من ' . ($oldUser ? $oldUser->name : 'موظف سابق'),
+                'data' => json_encode([
+                    'confirmation_id' => $confirmation->id,
+                    'batch_code' => $confirmation->batch?->batch_code,
+                    'stage_name' => ProductionStage::getByCode($confirmation->stage_code)?->stage_name,
+                    'old_worker' => $oldUser?->name,
+                    'new_worker' => $newUser->name,
+                    'notes' => $request->notes,
+                    'transferred_by' => Auth::user()->name,
+                    'transferred_at' => now()->format('Y-m-d H:i:s'),
+                ]),
+                'is_read' => false,
+            ]);
+
+            // إشعار للموظف القديم (إن وجد)
+            if ($oldUser) {
+                Notification::create([
+                    'user_id' => $oldUserId,
+                    'type' => 'production_confirmation_transferred_from',
+                    'title' => 'تم نقل تأكيد إنتاج من مهامك',
+                    'message' => 'تم نقل تأكيد إنتاج من مهامك إلى ' . $newUser->name,
+                    'data' => json_encode([
+                        'confirmation_id' => $confirmation->id,
+                        'batch_code' => $confirmation->batch?->batch_code,
+                        'new_worker' => $newUser->name,
+                        'notes' => $request->notes,
+                        'transferred_by' => Auth::user()->name,
+                    ]),
+                    'is_read' => false,
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم نقل التأكيد بنجاح من ' . ($oldUser?->name ?? 'موظف سابق') . ' إلى ' . $newUser->name
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error transferring production confirmation: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء نقل التأكيد: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Get confirmation details as JSON (API endpoint)
      */
     public function getDetails($id)

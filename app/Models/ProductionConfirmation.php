@@ -18,8 +18,14 @@ class ProductionConfirmation extends Model
         'delivery_note_id',
         'batch_id',
         'stage_code',
+        'stage_record_id',
+        'stage_type',
+        'worker_stage_history_id',
+        'barcode',
         'assigned_to',
+        'assigned_by',
         'status',
+        'confirmation_type',
         'confirmed_by',
         'confirmed_at',
         'rejected_by',
@@ -27,6 +33,7 @@ class ProductionConfirmation extends Model
         'rejection_reason',
         'actual_received_quantity',
         'notes',
+        'metadata',
         'ip_address',
         'user_agent',
     ];
@@ -35,6 +42,7 @@ class ProductionConfirmation extends Model
         'confirmed_at' => 'datetime',
         'rejected_at' => 'datetime',
         'actual_received_quantity' => 'decimal:2',
+        'metadata' => 'array',
     ];
 
     /**
@@ -75,6 +83,22 @@ class ProductionConfirmation extends Model
     public function rejectedByUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'rejected_by');
+    }
+
+    /**
+     * الموظف الذي قام بالإسناد
+     */
+    public function assignedByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_by');
+    }
+
+    /**
+     * سجل worker_stage_history المرتبط (لعمليات إعادة الإسناد)
+     */
+    public function workerStageHistory(): BelongsTo
+    {
+        return $this->belongsTo(WorkerStageHistory::class, 'worker_stage_history_id');
     }
 
     /**
@@ -121,6 +145,53 @@ class ProductionConfirmation extends Model
     }
 
     /**
+     * تحميل سجل المرحلة بناءً على stage_type
+     */
+    public function loadStageRecord()
+    {
+        if (!$this->stage_record_id || !$this->stage_type) {
+            return null;
+        }
+
+        $table = null;
+        $weightField = null;
+
+        switch ($this->stage_type) {
+            case 'stage1_stands':
+                $table = 'stage1_stands';
+                $weightField = 'remaining_weight';
+                break;
+            case 'stage2_processed':
+                $table = 'stage2_processed';
+                $weightField = 'remaining_weight';
+                break;
+            case 'stage3_coils':
+                $table = 'stage3_coils';
+                $weightField = 'remaining_weight';
+                break;
+            case 'stage4_boxes':
+                $table = 'stage4_boxes';
+                $weightField = 'final_weight';
+                break;
+        }
+
+        if ($table) {
+            $record = \DB::table($table)->find($this->stage_record_id);
+            if ($record && $weightField && isset($record->$weightField)) {
+                // إضافة الوزن إلى metadata
+                $metadata = $this->metadata ?? [];
+                $metadata['stage_weight'] = $record->$weightField;
+                $metadata['stage_barcode'] = $record->barcode ?? null;
+                $this->metadata = $metadata;
+                $this->save();
+            }
+            return $record;
+        }
+
+        return null;
+    }
+
+    /**
      * تأكيد الاستلام
      */
     public function confirm($userId, $actualQuantity = null, $notes = null)
@@ -140,8 +211,10 @@ class ProductionConfirmation extends Model
             ]);
         }
         
-        // تحديث حالة أذن التسليم فقط إذا تم تأكيد جميع الكويلات
-        $this->updateDeliveryNoteStatusIfAllConfirmed();
+        // تحديث حالة أذن التسليم فقط إذا كان موجوداً (لا يوجد في حالة إعادة الإسناد)
+        if ($this->delivery_note_id) {
+            $this->updateDeliveryNoteStatusIfAllConfirmed();
+        }
     }
     
     /**
@@ -174,15 +247,17 @@ class ProductionConfirmation extends Model
             'rejection_reason' => $reason,
         ]);
 
-        // تحديث حالة أذن التسليم (فقط إذا كانت جميع الكويلات مرفوضة)
-        $this->deliveryNote->update([
-            'transfer_status' => 'rejected',
-            'rejected_by' => $userId,
-            'rejected_at' => now(),
-            'rejection_reason' => $reason,
-        ]);
+        // تحديث حالة أذن التسليم (فقط إذا كان موجوداً - لا يوجد في حالة إعادة الإسناد)
+        if ($this->deliveryNote) {
+            $this->deliveryNote->update([
+                'transfer_status' => 'rejected',
+                'rejected_by' => $userId,
+                'rejected_at' => now(),
+                'rejection_reason' => $reason,
+            ]);
+        }
 
-        // ✅ إرجاع الكمية للمستودع (MaterialDetail)
+        // ✅ إرجاع الكمية للمستودع (MaterialDetail) - فقط إذا كان من المخزن
         if ($this->deliveryNote && $this->deliveryNote->materialDetail) {
             $materialDetail = $this->deliveryNote->materialDetail;
             

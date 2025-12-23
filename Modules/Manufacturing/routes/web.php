@@ -325,6 +325,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('{id}/reject', [ProductionConfirmationController::class, 'reject'])
             ->middleware('permission:PRODUCTION_CONFIRMATIONS_REJECT')
             ->name('reject');
+        Route::post('{id}/transfer', [ProductionConfirmationController::class, 'transfer'])
+            ->middleware('permission:PRODUCTION_CONFIRMATIONS_CONFIRM')
+            ->name('transfer');
         Route::get('{id}/details', [ProductionConfirmationController::class, 'getDetails'])
             ->middleware('permission:PRODUCTION_CONFIRMATIONS_VIEW_DETAILS')
             ->name('details');
@@ -534,6 +537,22 @@ Route::middleware(['auth'])->group(function () {
     Route::get('production-tracking/report', [QualityController::class, 'productionTrackingReport'])
         ->middleware('permission:MENU_QUALITY')
         ->name('manufacturing.production-tracking.report');
+
+    // Pending Production Routes (السجلات غير المكتملة)
+    Route::prefix('pending-production')->name('manufacturing.pending-production.')->group(function () {
+        Route::get('/', [\Modules\Manufacturing\Http\Controllers\PendingProductionController::class, 'index'])
+            ->middleware('permission:MENU_QUALITY')
+            ->name('index');
+        Route::post('{id}/reassign', [\Modules\Manufacturing\Http\Controllers\PendingProductionController::class, 'reassign'])
+            ->middleware('permission:MENU_QUALITY')
+            ->name('reassign');
+        Route::get('{barcode}/history', [\Modules\Manufacturing\Http\Controllers\PendingProductionController::class, 'history'])
+            ->middleware('permission:MENU_QUALITY')
+            ->name('history');
+        Route::get('{id}/show', [\Modules\Manufacturing\Http\Controllers\PendingProductionController::class, 'show'])
+            ->middleware('permission:MENU_QUALITY')
+            ->name('show');
+    });
 
     // Iron Journey Tracking Routes
     Route::get('iron-journey', [QualityController::class, 'ironJourney'])

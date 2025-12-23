@@ -4,11 +4,6 @@
     </div>
 
     <nav class="sidebar-menu">
-          <li>
-                        <a href="{{ route('manufacturing.warehouse-intake.index') }}">
-                            <i class="fas fa-dolly"></i> إدخال مواد منتجة
-                        </a>
-                    </li>
         <ul>
             <!-- {{ __('app.menu.dashboard') }} -->
             @if(auth()->user()->hasPermission('MENU_DASHBOARD'))
@@ -57,11 +52,11 @@
                     @endif
 
                     @if(auth()->user()->hasPermission('MENU_STAGE3_COILS') || auth()->user()->hasPermission('STAGE3_COILS_READ'))
-                    <li>
+                    <!-- <li>
                         <a href="{{ route('manufacturing.wrappings.index') }}">
                             <i class="fas fa-tape"></i> اللفافات
                         </a>
-                    </li>
+                    </li> -->
                     @endif
 
                     @if(auth()->user()->hasPermission('MENU_WAREHOUSE_STORES') || auth()->user()->hasPermission('WAREHOUSE_STORES_READ'))
@@ -125,13 +120,41 @@
                     </li>
                     @endif
 
-               
+                    @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_READ'))
                     <li>
                         <a href="{{ route('manufacturing.warehouse-intake.index') }}">
-                            <i class="fas fa-dolly"></i> إدخال مواد منتجة
+                            <i class="fas fa-dolly"></i> {{ __('app.warehouse.intake_requests') }}
                         </a>
                     </li>
-                   
+                    @endif
+
+                    @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_READ'))
+                    <li>
+                        <a href="{{ route('manufacturing.finished-product-deliveries.index') }}">
+                            <i class="fas fa-truck-loading"></i> {{ __('app.warehouse.product_delivery_notes') }}
+                        </a>
+                    </li>
+                    @endif
+
+                </ul>
+            </li>
+            @endif
+
+            @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_CREATE') || auth()->user()->hasPermission('WAREHOUSE_INTAKE_APPROVE'))
+            <li class="has-submenu">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="المواد الجاهزة للإدخال">
+                    <i class="fas fa-dolly"></i>
+                    <span>المواد الجاهزة للإدخال</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </a>
+                <ul class="submenu">
+                    @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_CREATE'))
+                    <li>
+                        <a href="{{ route('manufacturing.warehouse-intake.create') }}">
+                            <i class="fas fa-plus-square"></i> إدخال مواد منتجة
+                        </a>
+                    </li>
+                    @endif
 
                     @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_APPROVE'))
                     <li>
@@ -146,15 +169,6 @@
                         </a>
                     </li>
                     @endif
-
-                    @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_READ'))
-                    <li>
-                        <a href="{{ route('manufacturing.finished-product-deliveries.index') }}">
-                            <i class="fas fa-truck-loading"></i> {{ __('app.warehouse.product_delivery_notes') }}
-                        </a>
-                    </li>
-                    @endif
-
                 </ul>
             </li>
             @endif
@@ -533,6 +547,14 @@
                     <li>
                         <a href="/manufacturing/quality/waste-limits">
                             <i class="fas fa-cog"></i> {{ __('app.production.waste_limits') }}
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('MENU_QUALITY'))
+                    <li>
+                        <a href="{{ route('manufacturing.pending-production.index') }}">
+                            <i class="fas fa-hourglass-half"></i> السجلات غير المكتملة
                         </a>
                     </li>
                     @endif

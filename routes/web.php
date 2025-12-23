@@ -19,6 +19,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/stage-worker/dashboard', [App\Http\Controllers\StageWorkerDashboardController::class, 'index'])->name('stage-worker.dashboard.index');
     Route::get('/stage-worker/dashboard/updates', [App\Http\Controllers\StageWorkerDashboardController::class, 'getUpdates'])->name('stage-worker.dashboard.updates');
+    Route::post('/stage-worker/dashboard/confirm/{id}', [App\Http\Controllers\StageWorkerDashboardController::class, 'quickConfirm'])->name('stage-worker.dashboard.confirm');
+    Route::post('/stage-worker/dashboard/reject/{id}', [App\Http\Controllers\StageWorkerDashboardController::class, 'quickReject'])->name('stage-worker.dashboard.reject');
     Route::get('/manager', [DashboardController::class, 'index'])->name('manager');
        Route::get('/profile', [UserController::class, 'profile'])->name('profile');
 

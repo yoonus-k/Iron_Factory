@@ -97,6 +97,19 @@ class Stage4Controller extends Controller
                 ], 400);
             }
 
+            // ✅ التحقق من عدم وجود confirmation معلقة لهذا الباركود (معاد إسناده)
+            $pendingConfirmation = \App\Models\ProductionConfirmation::where('barcode', $lafaf->barcode)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($pendingConfirmation) {
+                return response()->json([
+                    'success' => false,
+                    'blocked' => true,
+                    'message' => '⛔ هذا الباركود معاد إسناده ويحتاج موافقة من العامل المسند إليه أولاً'
+                ], 403);
+            }
+
             return response()->json([
                 'success' => true,
                 'source' => 'stage3',
@@ -155,9 +168,7 @@ class Stage4Controller extends Controller
             'boxes' => 'required|array|min:1',
             'boxes.*.weight' => 'required|numeric|min:0.001',
             'boxes.*.notes' => 'nullable|string',
-            'packaging_type' => 'nullable|string|max:100',
-            'worker_id' => 'nullable|integer',
-            'shift_id' => 'nullable|integer'
+            'packaging_type' => 'nullable|string|max:100'
         ]);
 
         if ($validator->fails()) {
@@ -169,18 +180,6 @@ class Stage4Controller extends Controller
         }
 
         try {
-            // التحقق من أن الباركود لم يُستخدم من قبل
-            $barcodeExists = DB::table('stage4_boxes')
-                ->where('parent_barcode', $request->lafaf_barcode)
-                ->exists();
-
-            if ($barcodeExists) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'هذا الباركود تم استخدامه مسبقاً في المرحلة الرابعة'
-                ], 422);
-            }
-
             DB::beginTransaction();
 
             // الحصول على بيانات اللفاف
@@ -190,6 +189,15 @@ class Stage4Controller extends Controller
 
             if (!$lafaf) {
                 throw new \Exception('باركود اللفاف غير موجود');
+            }
+
+            // ✅ التحقق من عدم وجود confirmation معلقة لهذا الباركود (معاد إسناده)
+            $pendingConfirmation = \App\Models\ProductionConfirmation::where('barcode', $lafaf->barcode)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($pendingConfirmation) {
+                throw new \Exception('⛔ هذا الباركود معاد إسناده ويحتاج موافقة من العامل المسند إليه أولاً');
             }
 
             $boxes = $request->boxes;
@@ -313,8 +321,8 @@ class Stage4Controller extends Controller
                     'output_weight' => $box['weight'],
                     'waste_amount' => 0,
                     'waste_percentage' => 0,
-                    'worker_id' => $request->worker_id,
-                    'shift_id' => $request->shift_id,
+                    'worker_id' => auth()->id() ?? 1,
+                    'shift_id' => null,
                     'notes' => $box['notes'] ?? null,
                     'metadata' => json_encode([
                         'lafaf_id' => $lafaf->id,
@@ -326,7 +334,26 @@ class Stage4Controller extends Controller
                     'created_at' => now()
                 ]);
 
-                // 📦 خصم كرتونة واحدة من المستودع
+                // � تسجيل العامل في نظام تتبع العمال
+                try {
+                    $trackingService = app(\App\Services\WorkerTrackingService::class);
+                    $trackingService->assignWorkerToStage(
+                        stageType: \App\Models\WorkerStageHistory::STAGE_4_BOXES,
+                        stageRecordId: $boxId,
+                        workerId: auth()->id() ?? 1,
+                        barcode: $barcode,
+                        statusBefore: 'active',
+                        assignedBy: auth()->id() ?? 1
+                    );
+                } catch (\Exception $e) {
+                    \Log::error('Failed to register worker tracking for Stage4', [
+                        'error' => $e->getMessage(),
+                        'box_id' => $boxId,
+                        'worker_id' => auth()->id(),
+                    ]);
+                }
+
+                // �📦 خصم كرتونة واحدة من المستودع
                 try {
                     \Log::info("Stage4: Starting carton deduction", [
                         'carton_id' => $carton->id,
@@ -374,14 +401,31 @@ class Stage4Controller extends Controller
                     'status' => 'packed',
                     'updated_at' => now()
                 ]);
+            
+            // 🔥 إنهاء سجل العامل في المرحلة الثالثة (بالباركود والـ ID)
+            \App\Models\WorkerStageHistory::where('stage_type', \App\Models\WorkerStageHistory::STAGE_3_COILS)
+                ->where(function($q) use ($lafaf) {
+                    $q->where('stage_record_id', $lafaf->id)
+                      ->orWhere('barcode', $lafaf->barcode);
+                })
+                ->where('is_active', true)
+                ->update([
+                    'is_active' => false,
+                    'ended_at' => now(),
+                    'duration_minutes' => DB::raw('TIMESTAMPDIFF(MINUTE, started_at, NOW())'),
+                    'status_after' => 'completed',
+                ]);
 
             // 🔥 تسجيل العمال في نظام تتبع العمال لكل صندوق
+            $boxIds = [];
             try {
                 $trackingService = app(\App\Services\WorkerTrackingService::class);
                 foreach ($boxBarcodes as $index => $boxBarcode) {
+                    $boxId = DB::table('stage4_boxes')->where('barcode', $boxBarcode)->value('id');
+                    $boxIds[] = $boxId;
                     $trackingService->assignWorkerToStage(
                         stageType: \App\Models\WorkerStageHistory::STAGE_4_BOXES,
-                        stageRecordId: DB::table('stage4_boxes')->where('barcode', $boxBarcode)->value('id'),
+                        stageRecordId: $boxId,
                         workerId: auth()->id() ?? 1,
                         barcode: $boxBarcode,
                         statusBefore: 'created',
@@ -393,6 +437,19 @@ class Stage4Controller extends Controller
                     'error' => $e->getMessage(),
                     'worker_id' => auth()->id(),
                 ]);
+            }
+
+            // 🔥 إنهاء سجل العامل في المرحلة الرابعة بعد إكمال التعبئة
+            foreach ($boxIds as $boxId) {
+                \App\Models\WorkerStageHistory::where('stage_type', \App\Models\WorkerStageHistory::STAGE_4_BOXES)
+                    ->where('stage_record_id', $boxId)
+                    ->where('is_active', true)
+                    ->update([
+                        'is_active' => false,
+                        'ended_at' => now(),
+                        'duration_minutes' => DB::raw('TIMESTAMPDIFF(MINUTE, started_at, NOW())'),
+                        'status_after' => 'completed',
+                    ]);
             }
 
             DB::commit();
@@ -486,18 +543,6 @@ class Stage4Controller extends Controller
         }
 
         try {
-            // التحقق من أن الباركود لم يُستخدم من قبل
-            $barcodeExists = DB::table('stage4_boxes')
-                ->where('parent_barcode', $request->lafaf_barcode)
-                ->exists();
-
-            if ($barcodeExists) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'هذا الباركود تم استخدامه مسبقاً في المرحلة الرابعة'
-                ], 422);
-            }
-
             DB::beginTransaction();
 
             // 🔍 التحقق من كمية الكراتين في المستودع
@@ -524,6 +569,19 @@ class Stage4Controller extends Controller
             $lafaf = DB::table('stage3_coils')
                 ->where('barcode', $request->lafaf_barcode)
                 ->first();
+
+            if (!$lafaf) {
+                throw new \Exception('باركود اللفاف غير موجود');
+            }
+
+            // ✅ التحقق من عدم وجود confirmation معلقة لهذا الباركود (معاد إسناده)
+            $pendingConfirmation = \App\Models\ProductionConfirmation::where('barcode', $lafaf->barcode)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($pendingConfirmation) {
+                throw new \Exception('⛔ هذا الباركود معاد إسناده ويحتاج موافقة من العامل المسند إليه أولاً');
+            }
 
             $lafafWeight = 0;
             $wasteWeight = 0;
@@ -584,6 +642,29 @@ class Stage4Controller extends Controller
                 ]),
                 'created_at' => now(),
                 'updated_at' => now()
+            ]);
+
+            // إدراج سجل في product_tracking
+            DB::table('product_tracking')->insert([
+                'barcode' => $barcode,
+                'stage' => 'stage4',
+                'action' => 'packed',
+                'input_barcode' => $request->lafaf_barcode,
+                'output_barcode' => $barcode,
+                'input_weight' => $request->weight,
+                'output_weight' => $request->weight,
+                'waste_amount' => 0,
+                'waste_percentage' => 0,
+                'worker_id' => auth()->id() ?? 1,
+                'shift_id' => null,
+                'notes' => $request->notes,
+                'metadata' => json_encode([
+                    'lafaf_id' => $request->lafaf_id,
+                    'lafaf_barcode' => $request->lafaf_barcode,
+                    'box_number' => $boxNumber,
+                    'source' => $request->source ?? 'stage3'
+                ]),
+                'created_at' => now()
             ]);
 
             // جلب اسم المادة

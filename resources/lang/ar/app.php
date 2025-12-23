@@ -127,6 +127,7 @@ return [
         'total_notes' => 'إجمالي الإذونات',
         'pending' => 'قيد الانتظار',
         'approved' => 'معتمد',
+        'rejected' => 'مرفوض',
         'rejected_status' => 'مرفوض',
         'not_set' => 'لم يحدد بعد',
         'search_placeholder' => 'ابحث برقم الإذن أو رمز العميل',
@@ -281,6 +282,8 @@ return [
         'wire_size' => 'قياس السلك',
         'materials' => 'المواد',
         'no_materials_info' => 'لا توجد معلومات المواد',
+        'box' => 'صندوق',
+        'save_delivery_note' => 'حفظ إذن الصرف',
     ],
 
     // العملاء

@@ -430,6 +430,10 @@ function addProcessed() {
             processedItems.push(processed);
             renderProcessed();
             clearForm();
+            
+            // مسح بيانات الباركود والاستاند الحالي
+            currentStand = null;
+            document.getElementById('standDisplay').classList.remove('active');
 
             // عرض رسالة SweetAlert مع أيقونة خطأ
             Swal.fire({
@@ -471,8 +475,12 @@ function addProcessed() {
             processedItems.push(processed);
             renderProcessed();
             clearForm();
+            
+            // مسح بيانات الباركود والاستاند الحالي
+            currentStand = null;
+            document.getElementById('standDisplay').classList.remove('active');
 
-            showToast('✅ تم حفظ المعالجة بنجاح!', 'success');
+            showToast('✅ تم حفظ المعالجة بنجاح', 'success');
 
             // Focus on barcode for next scan
             document.getElementById('standBarcode').focus();
@@ -481,11 +489,24 @@ function addProcessed() {
         }
     })
     .catch(error => {
-        alert('❌ خطأ: ' + error.message);
+        // عرض رسالة خطأ باستخدام SweetAlert
+        Swal.fire({
+            icon: 'error',
+            title: '❌ خطأ',
+            text: error.message,
+            confirmButtonText: 'حسناً',
+            confirmButtonColor: '#dc3545',
+            customClass: {
+                popup: 'swal2-rtl'
+            }
+        });
+        
+        // Focus back on barcode input
+        document.getElementById('standBarcode').focus();
     })
     .finally(() => {
         addBtn.disabled = false;
-        addBtn.innerHTML = '<i class="fas fa-plus"></i> إضافة المعالجة';
+        addBtn.innerHTML = '<i class="fas fa-plus"></i> {{ __("stages.stage2_add_processing") }}';
     });
 }
 

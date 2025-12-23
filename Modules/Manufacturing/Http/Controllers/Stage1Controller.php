@@ -264,6 +264,25 @@ class Stage1Controller extends Controller
                 'updated_at' => now(),
             ]);
 
+            // 🔥 تسجيل العامل في نظام تتبع العمال
+            try {
+                $trackingService = app(\App\Services\WorkerTrackingService::class);
+                $trackingService->assignWorkerToStage(
+                    stageType: \App\Models\WorkerStageHistory::STAGE_1_STANDS,
+                    stageRecordId: $stage1StandId,
+                    workerId: $userId,
+                    barcode: $stage1Barcode,
+                    statusBefore: $recordStatus,
+                    assignedBy: $userId
+                );
+            } catch (\Exception $e) {
+                \Log::error('Failed to register worker tracking for Stage1', [
+                    'error' => $e->getMessage(),
+                    'stage1_id' => $stage1StandId,
+                    'worker_id' => $userId,
+                ]);
+            }
+
             DB::commit();
 
             // إذا كانت الحالة pending_approval، نرجع استجابة خاصة
@@ -883,15 +902,22 @@ class Stage1Controller extends Controller
     {
         try {
             // 🔒 خطوة 1: التحقق من الموافقة على الباركود للمرحلة الأولى
+            // البحث عن batch_code في material_batches
+            $batch = DB::table('material_batches')
+                ->where('batch_code', $barcode)
+                ->first();
+            
+            if (!$batch) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '❌ الباركود غير موجود في النظام'
+                ], 404);
+            }
+            
+            // البحث عن التأكيد المرتبط بهذا الـ batch
             $confirmation = DB::table('production_confirmations')
-                ->join('delivery_notes', 'production_confirmations.delivery_note_id', '=', 'delivery_notes.id')
-                ->where('delivery_notes.production_barcode', $barcode)
-                ->where('production_confirmations.stage_code', 'stage_1')
-                ->select(
-                    'production_confirmations.*',
-                    'delivery_notes.production_barcode',
-                    'delivery_notes.batch_id'
-                )
+                ->where('batch_id', $batch->id)
+                ->where('stage_code', 'stage_1')
                 ->first();
 
             // التحقق من وجود الموافقة

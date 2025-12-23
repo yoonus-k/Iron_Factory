@@ -127,6 +127,7 @@ return [
         'total_notes' => 'Total Notes',
         'pending' => 'Pending',
         'approved' => 'Approved',
+        'rejected' => 'Rejected',
         'rejected_status' => 'Rejected',
         'not_set' => 'Not Set',
         'search_placeholder' => 'Search by note number or customer code',
@@ -270,6 +271,8 @@ return [
         'general_manager' => 'General Manager',
         'receiver' => 'Receiver',
         'average_box_weight' => 'Average Box Weight',
+        'box' => 'Box',
+        'save_delivery_note' => 'Save Delivery Note',
     ],
 
     // Customers

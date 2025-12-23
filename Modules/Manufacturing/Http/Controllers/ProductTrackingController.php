@@ -62,10 +62,121 @@ class ProductTrackingController extends Controller
                 ->with('error', 'لم يتم العثور على بيانات لهذا الباركود: ' . $barcode);
         }
 
+        // جلب التتبع العكسي (من أين جاء هذا الباركود)
+        $reverseTracking = $this->getReverseTracking($barcode);
+        
+        // جلب التتبع الأمامي (ماذا تم إنتاجه من هذا الباركود)
+        $forwardTracking = $this->getForwardTracking($barcode);
+
         return view('manufacturing::quality.production-tracking-report', [
             'trackingData' => $trackingData,
+            'reverseTracking' => $reverseTracking,
+            'forwardTracking' => $forwardTracking,
             'barcode' => $barcode
         ]);
+    }
+
+    /**
+     * Get reverse tracking (من أين جاء هذا الباركود)
+     */
+    private function getReverseTracking($barcode)
+    {
+        $chain = [];
+        $currentBarcode = $barcode;
+        $maxDepth = 10; // لتجنب اللوبات اللانهائية
+        $depth = 0;
+
+        while ($depth < $maxDepth) {
+            // البحث عن السجل الذي أنتج هذا الباركود
+            $record = DB::table('product_tracking')
+                ->where('output_barcode', $currentBarcode)
+                ->orWhere('barcode', $currentBarcode)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if (!$record || !$record->input_barcode) {
+                break;
+            }
+
+            // إضافة معلومات المرحلة السابقة
+            $chain[] = [
+                'barcode' => $record->input_barcode,
+                'stage' => $record->stage,
+                'stage_name' => $this->getStageNameAr($record->stage),
+                'action' => $record->action,
+                'action_name' => $this->getActionNameAr($record->action),
+                'weight' => $record->input_weight ?? 0,
+                'timestamp' => $record->created_at,
+                'formatted_time' => date('Y-m-d H:i:s', strtotime($record->created_at)),
+            ];
+
+            $currentBarcode = $record->input_barcode;
+            $depth++;
+        }
+
+        return array_reverse($chain); // عكس الترتيب ليكون من الأول للأخير
+    }
+
+    /**
+     * Get forward tracking (ماذا تم إنتاجه من هذا الباركود)
+     */
+    private function getForwardTracking($barcode)
+    {
+        $products = [];
+
+        // البحث عن جميع المنتجات التي تم إنتاجها من هذا الباركود
+        $records = DB::table('product_tracking')
+            ->where('input_barcode', $barcode)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        foreach ($records as $record) {
+            $products[] = [
+                'barcode' => $record->output_barcode ?? $record->barcode,
+                'stage' => $record->stage,
+                'stage_name' => $this->getStageNameAr($record->stage),
+                'action' => $record->action,
+                'action_name' => $this->getActionNameAr($record->action),
+                'weight' => $record->output_weight ?? 0,
+                'timestamp' => $record->created_at,
+                'formatted_time' => date('Y-m-d H:i:s', strtotime($record->created_at)),
+            ];
+        }
+
+        return $products;
+    }
+
+    /**
+     * Get stage name in Arabic
+     */
+    private function getStageNameAr($stage)
+    {
+        $names = [
+            'warehouse' => 'المستودع',
+            'stage1' => 'المرحلة الأولى - التقسيم',
+            'stage2' => 'المرحلة الثانية - المعالجة',
+            'stage3' => 'المرحلة الثالثة - الملفات',
+            'stage4' => 'المرحلة الرابعة - التعبئة',
+        ];
+        return $names[$stage] ?? $stage;
+    }
+
+    /**
+     * Get action name in Arabic
+     */
+    private function getActionNameAr($action)
+    {
+        $names = [
+            'received' => 'استلام',
+            'created' => 'إنشاء',
+            'processed' => 'معالجة',
+            'moved' => 'نقل',
+            'quality_check' => 'فحص جودة',
+            'packed' => 'تعبئة',
+            'shipped' => 'شحن',
+            'split' => 'تقسيم',
+        ];
+        return $names[$action] ?? $action;
     }
 
     /**
@@ -453,6 +564,7 @@ class ProductTrackingController extends Controller
                 'duration_days' => 0,
                 'duration_hours' => 0,
                 'duration_minutes' => 0,
+                'total_minutes' => 0,
                 'total_hours' => 0,
                 'stages_count' => 0,
                 'efficiency' => 0,

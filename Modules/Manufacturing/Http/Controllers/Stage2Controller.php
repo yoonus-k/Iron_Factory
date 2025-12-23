@@ -75,6 +75,19 @@ class Stage2Controller extends Controller
                     ], 403);
                 }
 
+                // ✅ التحقق من عدم وجود confirmation معلقة لهذا الباركود (معاد إسناده)
+                $pendingConfirmation = \App\Models\ProductionConfirmation::where('barcode', $stage1Data->barcode)
+                    ->where('status', 'pending')
+                    ->first();
+
+                if ($pendingConfirmation) {
+                    return response()->json([
+                        'success' => false,
+                        'blocked' => true,
+                        'message' => '⛔ هذا الباركود معاد إسناده ويحتاج موافقة من العامل المسند إليه أولاً'
+                    ], 403);
+                }
+
                 // ✅ وُجد في المرحلة الأولى
                 return response()->json([
                     'success' => true,
@@ -144,6 +157,19 @@ class Stage2Controller extends Controller
         ]);
 
         try {
+            // التحقق من أن الباركود لم يُستخدم من قبل في المرحلة الثانية
+            $barcodeExists = DB::table('stage2_processed')
+                ->where('parent_barcode', $validated['stage1_barcode'])
+                ->exists();
+
+            if ($barcodeExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '⛔ هذا الباركود (' . $validated['stage1_barcode'] . ') تم استخدامه مسبقاً في المرحلة الثانية ولا يمكن استخدامه مرة أخرى',
+                    'barcode' => $validated['stage1_barcode']
+                ], 422);
+            }
+
             DB::beginTransaction();
 
             $userId = Auth::id();
@@ -170,6 +196,15 @@ class Stage2Controller extends Controller
                 // 🔒 التحقق من حالة الاستاند
                 if ($stage1Data->status === 'pending_approval') {
                     throw new \Exception('⛔ هذا الاستاند في انتظار الموافقة ولا يمكن استخدامه في المرحلة الثانية');
+                }
+
+                // ✅ التحقق من عدم وجود confirmation معلقة لهذا الباركود (معاد إسناده)
+                $pendingConfirmation = \App\Models\ProductionConfirmation::where('barcode', $stage1Data->barcode)
+                    ->where('status', 'pending')
+                    ->first();
+
+                if ($pendingConfirmation) {
+                    throw new \Exception('⛔ هذا الباركود معاد إسناده ويحتاج موافقة من العامل المسند إليه أولاً');
                 }
 
                 $inputWeight = $stage1Data->remaining_weight;
@@ -242,6 +277,17 @@ class Stage2Controller extends Controller
                     ->update([
                         'status' => 'in_process',
                         'updated_at' => now(),
+                    ]);
+                
+                // 🔥 إنهاء سجل العامل في المرحلة الأولى
+                \App\Models\WorkerStageHistory::where('stage_type', \App\Models\WorkerStageHistory::STAGE_1_STANDS)
+                    ->where('stage_record_id', $stage1Id)
+                    ->where('is_active', true)
+                    ->update([
+                        'is_active' => false,
+                        'ended_at' => now(),
+                        'duration_minutes' => DB::raw('TIMESTAMPDIFF(MINUTE, started_at, NOW())'),
+                        'status_after' => 'completed',
                     ]);
             }
 
@@ -372,6 +418,18 @@ class Stage2Controller extends Controller
         ]);
 
         try {
+            // التحقق من أن الباركود لم يُستخدم من قبل
+            $barcodeExists = DB::table('stage2_processed')
+                ->where('parent_barcode', $validated['stage1_barcode'])
+                ->exists();
+
+            if ($barcodeExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'هذا الباركود تم استخدامه مسبقاً في المرحلة الثانية'
+                ], 422);
+            }
+
             DB::beginTransaction();
 
             $userId = Auth::id();
