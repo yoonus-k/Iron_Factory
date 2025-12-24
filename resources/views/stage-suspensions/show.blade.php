@@ -62,7 +62,14 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="text-muted d-block mb-1">{{ __('stage_suspensions.barcode') }}</label>
-                            <h5 class="mb-0">{{ $suspension->barcode }}</h5>
+                            <h5 class="mb-0">
+                                <code style="font-size: 1.1em;">{{ $suspension->production_barcode }}</code>
+                            </h5>
+                            @if($suspension->production_barcode !== $suspension->batch_barcode)
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-box me-1"></i>باركود المادة: {{ $suspension->batch_barcode }}
+                                </small>
+                            @endif
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="text-muted d-block mb-1">{{ __('stage_suspensions.stage') }}</label>

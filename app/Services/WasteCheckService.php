@@ -19,6 +19,7 @@ class WasteCheckService
      * @param int|null $batchId معرف الدفعة
      * @param float $inputWeight الوزن المدخل
      * @param float $outputWeight الوزن الناتج
+     * @param string|null $productionBarcode باركود الإنتاج (اختياري)
      * @return array
      */
     public static function checkAndSuspend(
@@ -26,7 +27,8 @@ class WasteCheckService
         string $batchBarcode, 
         ?int $batchId, 
         float $inputWeight, 
-        float $outputWeight
+        float $outputWeight,
+        ?string $productionBarcode = null
     ): array {
         $inputWeight = max(0, $inputWeight);
         $outputWeight = max(0, $outputWeight);
@@ -74,13 +76,18 @@ class WasteCheckService
             try {
                 DB::beginTransaction();
 
-                // إنشاء سجل إيقاف المرحلة
-                $suspension = StageSuspension::create([
+                // 🔥 التحقق من وجود suspension نشط لنفس اللفاف
+                $suspension = StageSuspension::where('batch_barcode', $batchBarcode)
+                    ->where('stage_number', $stageNumber)
+                    ->where('status', 'suspended')
+                    ->first();
+
+                $suspensionData = [
                     'stage_number' => $stageNumber,
                     'batch_barcode' => $batchBarcode,
                     'batch_id' => $batchId,
-                    'input_weight' => $inputWeight,
-                    'output_weight' => $outputWeight,
+                    'input_weight' => $totalInput, // استخدام المجموع الكلي
+                    'output_weight' => $totalOutput, // استخدام المجموع الكلي
                     'waste_weight' => $check['waste_weight'],
                     'waste_percentage' => $check['waste_percentage'],
                     'allowed_percentage' => $check['allowed_percentage'],
@@ -98,8 +105,16 @@ class WasteCheckService
                         'total_input_weight' => $check['total_input_weight'],
                         'total_output_weight' => $check['total_output_weight'],
                         'difference' => $check['difference'],
+                        'production_barcode' => $productionBarcode, // حفظ باركود الإنتاج
                     ],
-                ]);
+                ];
+
+                // إذا كان موجوداً، قم بالتحديث، وإلا أنشئ جديد
+                if ($suspension) {
+                    $suspension->update($suspensionData);
+                } else {
+                    $suspension = StageSuspension::create($suspensionData);
+                }
 
                 // إرسال تنبيهات
                 if ($check['should_alert']) {

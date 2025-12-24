@@ -138,7 +138,12 @@
                         @foreach($suspensions as $suspension)
                         <tr>
                             <td><strong>{{ $suspension->getStageName() }}</strong></td>
-                            <td><code>{{ $suspension->batch_barcode }}</code></td>
+                            <td>
+                                <code>{{ $suspension->production_barcode }}</code>
+                                @if($suspension->production_barcode !== $suspension->batch_barcode)
+                                    <br><small class="text-muted">المادة: {{ $suspension->batch_barcode }}</small>
+                                @endif
+                            </td>
                             <td>{{ number_format($suspension->input_weight, 2) }} {{ __('stage_suspensions.kg') }}</td>
                             <td>{{ number_format($suspension->output_weight, 2) }} {{ __('stage_suspensions.kg') }}</td>
                             <td class="text-danger">
