@@ -46,6 +46,7 @@ return [
         'remaining' => 'शेष',
         'raw_materials' => 'कच्चा माल',
         'stores' => 'दुकानें',
+        'stands' => 'स्टैंड',
         'delivery_notes' => 'डिलीवरी नोट्स',
         'registration' => 'शिपमेंट रजिस्ट्रेशन',
         'purchase_invoices' => 'खरीद चालान',
@@ -55,6 +56,7 @@ return [
         'intake_requests' => 'गोदाम सेवन अनुरोध',
         'approve_intake_requests' => 'सेवन अनुरोध को मंजूरी दें',
         'product_delivery_notes' => 'उत्पाद डिलीवरी नोट्स',
+        'coils_transfer' => 'कॉइल को उत्पादन में स्थानांतरित करें',
     ],
 
     // Production Stages
@@ -282,6 +284,18 @@ return [
         'teams' => 'कर्मचारी टीम',
     ],
 
+    // Users
+    'users' => [
+        'manage' => 'उपयोगकर्ताओं का प्रबंधन करें',
+        'roles' => 'भूमिकाएं और अनुमतियां',
+        'profile' => 'मेरी प्रोफाइल',
+        'shifts_list' => 'शिफ्ट सूची',
+        'add_shift' => 'शिफ्ट जोड़ें',
+        'current_shifts' => 'वर्तमान शिफ्ट',
+        'shift_handovers' => 'शिफ्ट हस्तांतरण अनुरोध',
+        'activity_log' => 'गतिविधि लॉग',
+    ],
+
     // Permissions
     'permissions' => [
         'manage' => 'अनुमतियों का प्रबंधन करें',
@@ -379,6 +393,11 @@ return [
         'shift_summary' => 'शिफ्ट सारांश',
         'stands_usage_history' => 'स्टैंड्स उपयोग इतिहास',
         'worker_performance' => 'कर्मचारी प्रदर्शन',
+        'stage1_management' => 'चरण 1 रिपोर्ट',
+        'stage2_management' => 'चरण 2 रिपोर्ट',
+        'stage3_management' => 'चरण 3 रिपोर्ट',
+        'stage4_management' => 'चरण 4 रिपोर्ट',
+        'product_tracking' => 'पूर्ण ट्रैकिंग रिपोर्ट',
     ],
 
     // Users
@@ -553,7 +572,6 @@ return [
         'view_details' => 'विवरण देखें',
         'no_pending' => 'कोई लंबित अनुरोध नहीं',
         'no_pending_desc' => 'आप के लिए सभी अनुरोध पुष्टि या अस्वीकृत हो चुके हैं',
-
         // Modals
         'details_modal_title' => 'बैच विवरण',
         'confirm_modal_title' => 'बैच प्राप्ति की पुष्टि करें',
@@ -574,7 +592,29 @@ return [
         'error_reject' => 'अस्वीकार करने में त्रुटि',
         'loading' => 'लोड हो रहा है...',
         'loading_details' => 'विवरण लोड हो रहे हैं',
-        'error_loading' => 'विवरण लोड करने में त्रुटि',
         'back_arrow' => '← सूची में वापस जाएं',
     ],
+
+    // Additional Menu Translations
+    'pending_intake' => 'सेवन के लिए तैयार सामग्री',
+    'materials_ready_for_intake' => 'सेवन के लिए तैयार सामग्री',
+    'pending_materials' => 'लंबित सामग्री',
+    'production_confirmations_menu' => 'उत्पादन पुष्टि',
+    'quality_monitoring_suspensions' => 'अपशिष्ट ओवरराइड को मंजूरी दें',
+    'incomplete_records' => 'अधूरे रिकॉर्ड',
+    'incomplete_entries' => 'अधूरे रिकॉर्ड',
+    'pending_approvals_count' => 'लंबित अनुमोदन',
+    'shift_handover_requests' => 'शिफ्ट हस्तांतरण अनुरोध',
+    'approval_pending' => 'लंबित अनुमोदन',
+    'pending_count_suffix' => 'लंबित',
+
+    // Additional General Texts
+    'notifications' => 'सूचनाएं',
+    'view_all_notifications' => 'सभी सूचनाएं देखें',
+    'mark_all_as_read' => 'सभी को पढ़ने के रूप में चिह्नित करें',
+    'loading' => 'लोड हो रहा है...',
+    'search_placeholder' => 'खोज...',
+        'error_loading' => 'विवरण लोड करने में त्रुटि',
+        'back_arrow' => '← सूची में वापस जाएं',
+
 ];

@@ -56,6 +56,7 @@ return [
         'intake_requests' => 'طلبات إدخال المستودع',
         'approve_intake_requests' => 'اعتماد طلبات الإدخال',
         'product_delivery_notes' => 'إذونات صرف المنتجات',
+        'coils_transfer' => 'نقل كويلات للإنتاج',
     ],
 
     // مراحل الإنتاج
@@ -297,6 +298,18 @@ return [
         'teams' => 'مجموعات العمال',
     ],
 
+    // المستخدمين والمستخدمات
+    'users' => [
+        'manage' => 'إدارة المستخدمين',
+        'roles' => 'الأدوار والصلاحيات',
+        'profile' => 'ملفي الشخصي',
+        'shifts_list' => 'قائمة الورديات',
+        'add_shift' => 'إضافة وردية',
+        'current_shifts' => 'الورديات الحالية',
+        'shift_handovers' => 'طلبات نقل الوردية',
+        'activity_log' => 'سجل النشاط',
+    ],
+
     // الصلاحيات
     'permissions' => [
         'manage' => 'إدارة الصلاحيات',
@@ -394,6 +407,11 @@ return [
         'shift_summary' => 'ملخص الوردية',
         'stands_usage_history' => 'تاريخ استخدام الستاندات',
         'worker_performance' => 'أداء العمال',
+        'stage1_management' => 'تقرير المرحلة الأولى',
+        'stage2_management' => 'تقرير المرحلة الثانية',
+        'stage3_management' => 'تقرير المرحلة الثالثة',
+        'stage4_management' => 'تقرير المرحلة الرابعة',
+        'product_tracking' => 'تقرير التتبع الشامل',
     ],
 
     // المستخدمين
@@ -589,7 +607,29 @@ return [
         'error_reject' => 'خطأ أثناء الرفض',
         'loading' => 'جاري التحميل...',
         'loading_details' => 'جاري تحميل التفاصيل',
-        'error_loading' => 'حدث خطأ أثناء تحميل التفاصيل',
         'back_arrow' => '← العودة للقائمة',
     ],
+
+    // إعدادات إضافية للقائمة الجانبية
+    'pending_intake' => 'المواد الجاهزة للإدخال',
+    'materials_ready_for_intake' => 'المواد الجاهزة للإدخال',
+    'pending_materials' => 'المواد المنتظرة',
+    'production_confirmations_menu' => 'تأكيدات الإنتاج',
+    'quality_monitoring_suspensions' => 'الموافقة على تجاوز الهدر',
+    'incomplete_records' => 'السجلات غير المكتملة',
+    'incomplete_entries' => 'السجلات غير المكتملة',
+    'pending_approvals_count' => 'بانتظار الموافقة',
+    'shift_handover_requests' => 'طلبات نقل الوردية',
+    'approval_pending' => 'الإذونات المعلقة',
+    'pending_count_suffix' => 'قيد الانتظار',
+
+    // نصوص عامة إضافية
+    'notifications' => 'الإشعارات',
+    'view_all_notifications' => 'عرض جميع الإشعارات',
+    'mark_all_as_read' => 'وضع علامة على الكل كمقروء',
+    'loading' => 'جاري التحميل...',
+    'search_placeholder' => 'البحث...',
+        'error_loading' => 'حدث خطأ أثناء تحميل التفاصيل',
+        'back_arrow' => '← العودة للقائمة',
+
 ];

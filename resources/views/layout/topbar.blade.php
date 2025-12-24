@@ -22,8 +22,8 @@
             <!-- Dropdown الإشعارات -->
             <div class="notification-dropdown" id="notificationDropdown">
                 <div class="notification-header">
-                    <h6>الإشعارات</h6>
-                    <button class="mark-all-read-btn" onclick="markAllNotificationsRead(event)" title="وضع علامة على الكل كمقروء">
+                    <h6>{{ __('app.notifications') }}</h6>
+                    <button class="mark-all-read-btn" onclick="markAllNotificationsRead(event)" title="{{ __('app.mark_all_as_read') }}">
                         <i class="fas fa-check-double"></i>
                     </button>
                 </div>
@@ -31,13 +31,13 @@
                 <div class="notification-list" id="notificationList">
                     <!-- سيتم ملؤها ديناميكياً -->
                     <div class="notification-loading">
-                        <i class="fas fa-spinner fa-spin"></i> جاري التحميل...
+                        <i class="fas fa-spinner fa-spin"></i> {{ __('app.loading') }}
                     </div>
                 </div>
 
                 <div class="notification-footer">
                     <a href="{{ route('notifications.index') }}" class="view-all-btn">
-                        <i class="fas fa-list"></i> عرض جميع الإشعارات
+                        <i class="fas fa-list"></i> {{ __('app.view_all_notifications') }}
                     </a>
                 </div>
             </div>
@@ -72,7 +72,7 @@
 
         <!-- البحث -->
         <div class="search-box">
-            <input type="text" placeholder="البحث..." class="form-control">
+            <input type="text" placeholder="{{ __('app.search_placeholder') }}" class="form-control">
             <i class="fas fa-search"></i>
         </div>
 
