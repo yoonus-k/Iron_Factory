@@ -343,7 +343,10 @@ return [
     'finished_product_boxes' => 'صناديق المنتج النهائي',
     'save_material_type' => 'حفظ النوع',
     'description_and_storage' => 'الوصف وشروط التخزين',
-    'raw_materials_in_warehouses' => 'المواد الخام في المستودعات',
+    'raw_materials_in_warehouse' => 'المواد الخام في المستودعات',
+'no_boxes_in_warehouse' => 'لا توجد صناديق منتجات نهائية في المستودعات',
+'filter' => 'تصفية',
+'from' => 'من',
     'enter_description_and_storage' => 'أدخل وصف النوع وشروط التخزين',
     'edit_description_and_storage' => 'تعديل وصف النوع وشروط التخزين',
     'description_ar' => 'الوصف (عربي)',
@@ -406,6 +409,7 @@ return [
     'warehouse' => 'المستودع',
     'warehouses' => 'المستودعات',
     'warehouse_details' => 'تفاصيل المستودع',
+
     'add_new_warehouse' => 'إضافة مستودع جديد',
     'edit_warehouse' => 'تعديل بيانات المستودع',
     'warehouses_list' => 'قائمة المستودعات',
@@ -586,4 +590,5 @@ return [
     'tax_percentage' => 'نسبة الضريبة %',
     'discount_percentage' => 'نسبة الخصم %',
     'total' => 'الإجمالي',
-    'final_total' => 'الإجمالي النهائي',];
+    'final_total' => 'الإجمالي النهائي',
+];

@@ -12,8 +12,8 @@ return [
     'dashboard' => 'Dashboard',
     'materials' => 'Materials',
     'units' => 'Units',
-     'amount' => 'Amount',
-    'invoice_date'=>'Invoice Date',
+    'amount' => 'Amount',
+    'invoice_date' => 'Invoice Date',
     'due_date' => 'Due Date',
 
     // Form Labels
@@ -172,9 +172,9 @@ return [
     'view_details' => 'View Details',
     'change_status' => 'Change Status',
     'shelf_location' => 'Shelf Location',
-    'location'=> 'Location',
+    'location' => 'Location',
     'capacity' => 'Capacity',
-'statistics' => 'Statistics',
+    'statistics' => 'Statistics',
     'batch_number' => 'Batch Number',
     'entered_by' => 'Entered by',
     'invoice_number' => 'Invoice ID',
@@ -365,7 +365,11 @@ return [
     'created_by' => 'Created By',
     'recorded_on' => 'Recorded On',
     'finished_product_boxes' => 'Finished Product Boxes',
-'raw_materials_in_warehouses' => 'Raw Materials in Warehouses',
+    'from' => 'From',
+    'available_actions' => 'Available Actions',
+    'raw_materials_in_warehouses' => 'Raw Materials in Warehouses',
+    'filter' => 'Filter',
+    'material_movements_on_warehouses' => 'Material Movements on Warehouses',
     'example' => 'Example',
     'raw_material_example' => 'Raw Iron',
     'raw_material_example_en' => 'Raw Iron',
@@ -528,12 +532,4 @@ return [
     'remaining' => 'Remaining',
     'no_invoices' => 'No Invoices',
     'pending_amount' => 'Pending Amount',
-
-    // Warehouse Form Keys
-    'enter_warehouse_basic_data' => 'Enter warehouse basic data',
-    'save_warehouse' => 'Save Warehouse',
-    'example' => 'Example',
-    'confirm_save' => 'Confirm Save',
-    'confirm_save_warehouse' => 'Are you sure you want to create this warehouse?',
-    'yes_save' => 'Yes, Save',
 ];
