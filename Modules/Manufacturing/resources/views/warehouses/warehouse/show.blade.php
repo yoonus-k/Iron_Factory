@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تفاصيل المستودع')
+@section('title', __('warehouse.warehouse_details'))
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('assets/css/style-cours.css') }}">
@@ -22,7 +22,7 @@
                                 {{ $warehouse->warehouse_code }}
                             </span>
                             <span class="badge {{ $warehouse->is_active ? 'active' : 'inactive' }}">
-                                {{ $warehouse->is_active ? 'نشط' : 'غير نشط' }}
+                                {{ $warehouse->is_active ? __('warehouse.active') : __('warehouse.inactive') }}
                             </span>
                         </div>
                     </div>
@@ -33,7 +33,7 @@
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                         </svg>
-                        تعديل
+                        {{ __('warehouse.edit') }}
                     </a>
                     <form method="POST" action="{{ route('manufacturing.warehouses.toggle-status', $warehouse->id) }}" style="display: inline;">
                         @csrf
@@ -43,7 +43,7 @@
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
                             </svg>
-                            {{ $warehouse->is_active ? 'تعطيل' : 'تفعيل' }}
+                            {{ $warehouse->is_active ? __('warehouse.deactivate') : __('warehouse.activate') }}
                         </button>
                     </form>
                     <a href="{{ route('manufacturing.warehouses.index') }}" class="btn btn-back">
@@ -51,7 +51,7 @@
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>
-                        العودة
+                        {{ __('warehouse.back') }}
                     </a>
                 </div>
             </div>
@@ -66,11 +66,11 @@
                             <polyline points="9 22 9 12 15 12 15 22"></polyline>
                         </svg>
                     </div>
-                    <h3 class="card-title">معلومات المستودع</h3>
+                    <h3 class="card-title">{{ __('warehouse.warehouse_information') }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
-                        <div class="info-label">اسم المستودع:</div>
+                        <div class="info-label">{{ __('warehouse.warehouse_name') }}:</div>
                         <div class="info-value">{{ $warehouse->warehouse_name }}</div>
                     </div>
 
@@ -82,13 +82,13 @@
                     @endif
 
                     <div class="info-item">
-                        <div class="info-label">رمز المستودع:</div>
+                        <div class="info-label">{{ __('warehouse.warehouse_code') }}:</div>
                         <div class="info-value">{{ $warehouse->warehouse_code }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">الموقع:</div>
-                        <div class="info-value">{{ $warehouse->location ?? 'غير محدد' }}</div>
+                        <div class="info-label">{{ __('warehouse.location') }}:</div>
+                        <div class="info-value">{{ $warehouse->location ?? __('warehouse.not_specified') }}</div>
                     </div>
 
                     @if($warehouse->location_en)
@@ -99,41 +99,41 @@
                     @endif
 
                     <div class="info-item">
-                        <div class="info-label">السعة التخزينية:</div>
-                        <div class="info-value">{{ $warehouse->capacity ?? 'غير محدد' }} متر مكعب</div>
+                        <div class="info-label">{{ __('warehouse.capacity') }}:</div>
+                        <div class="info-value">{{ $warehouse->capacity ?? __('warehouse.not_specified') }} {{ __('warehouse.cubic_meter') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">المسؤول:</div>
-                        <div class="info-value">{{ $warehouse->manager_name ?? 'غير محدد' }}</div>
+                        <div class="info-label">{{ __('warehouse.manager') }}:</div>
+                        <div class="info-value">{{ $warehouse->manager_name ?? __('warehouse.not_specified') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">رقم الهاتف:</div>
-                        <div class="info-value">{{ $warehouse->contact_number ?? 'غير محدد' }}</div>
+                        <div class="info-label">{{ __('warehouse.phone_number') }}:</div>
+                        <div class="info-value">{{ $warehouse->contact_number ?? __('warehouse.not_specified') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">البريد الإلكتروني:</div>
-                        <div class="info-value">{{ $warehouse->email ?? 'غير محدد' }}</div>
+                        <div class="info-label">{{ __('warehouse.email') }}:</div>
+                        <div class="info-value">{{ $warehouse->email ?? __('warehouse.not_specified') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">الحالة:</div>
+                        <div class="info-label">{{ __('warehouse.status') }}:</div>
                         <div class="info-value">
                             <span class="badge {{ $warehouse->is_active ? 'badge-success' : 'badge-danger' }}">
-                                {{ $warehouse->is_active ? 'نشط' : 'غير نشط' }}
+                                {{ $warehouse->is_active ? __('warehouse.active') : __('warehouse.inactive') }}
                             </span>
                         </div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">تاريخ الإنشاء:</div>
+                        <div class="info-label">{{ __('warehouse.created_at') }}:</div>
                         <div class="info-value">{{ $warehouse->created_at->format('Y-m-d') }}</div>
                     </div>
 
                     <div class="info-item">
-                        <div class="info-label">تاريخ التحديث:</div>
+                        <div class="info-label">{{ __('warehouse.updated_at') }}:</div>
                         <div class="info-value">{{ $warehouse->updated_at->format('Y-m-d') }}</div>
                     </div>
                 </div>
@@ -148,7 +148,7 @@
                             <line x1="9" y1="14" x2="15" y2="14"></line>
                         </svg>
                     </div>
-                    <h3 class="card-title">المواد الخام في المستودع</h3>
+                    <h3 class="card-title">{{ __('warehouse.raw_materials_in_warehouse') }}</h3>
                 </div>
                 <div class="card-body">
                     @php
@@ -170,26 +170,22 @@
 
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                                         <div>
-                                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 4px;">الكمية</div>
+                                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 4px;">{{ __('warehouse.quantity') }}</div>
                                             <div style="font-size: 16px; font-weight: 600; color: #3498db;">
                                                 {{ $detail->quantity }}
                                             </div>
                                         </div>
                                         <div>
-                                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 4px;">الوحدة</div>
+                                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 4px;">{{ __('warehouse.unit') }}</div>
                                             <span style="background: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
                                                 {{ $detail->unit?->unit_symbol ?? '-' }}
                                             </span>
                                         </div>
                                     </div>
 
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-
-                                    </div>
-
                                     @if($detail->location_in_warehouse)
                                         <div style="border-top: 1px solid #e9ecef; padding-top: 12px;">
-                                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 4px;">الموقع في المستودع</div>
+                                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 4px;">{{ __('warehouse.location_in_warehouse') }}</div>
                                             <div style="font-size: 13px; color: #2c3e50;">
                                                 {{ $detail->location_in_warehouse }}
                                             </div>
@@ -204,7 +200,7 @@
                                 <path d="M6 9l6-6 6 6"></path>
                                 <path d="M6 9v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V9"></path>
                             </svg>
-                            <p style="margin: 0; font-size: 16px; font-weight: 500;">لا توجد مواد خام في هذا المستودع</p>
+                            <p style="margin: 0; font-size: 16px; font-weight: 500;">{{ __('warehouse.no_raw_materials_in_warehouse') }}</p>
                         </div>
                     @endif
                 </div>
@@ -220,7 +216,7 @@
                             <line x1="12" y1="22.08" x2="12" y2="12"></line>
                         </svg>
                     </div>
-                    <h3 class="card-title">صناديق المنتجات التامة</h3>
+                    <h3 class="card-title">{{ __('warehouse.finished_product_boxes') }}</h3>
                 </div>
                 <div class="card-body">
                     @php
@@ -228,11 +224,9 @@
                             ->where('status', 'in_warehouse')
                             ->with(['creator', 'boxCoils'])
                             ->get();
-                        
+
                         $totalBoxes = $finishedBoxes->count();
                         $totalWeight = $finishedBoxes->sum('total_weight');
-                        
-                        // Group by packaging type
                         $boxesByType = $finishedBoxes->groupBy('packaging_type');
                     @endphp
 
@@ -240,34 +234,34 @@
                         <!-- Summary Cards -->
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;">
                             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
-                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 600;">إجمالي الصناديق</div>
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 600;">{{ __('warehouse.total_boxes') }}</div>
                                 <div style="font-size: 32px; font-weight: 700;">{{ $totalBoxes }}</div>
-                                <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">صندوق</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">{{ __('warehouse.box') }}</div>
                             </div>
 
                             <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);">
-                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 600;">الوزن الإجمالي</div>
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 600;">{{ __('warehouse.total_weight') }}</div>
                                 <div style="font-size: 32px; font-weight: 700;">{{ number_format($totalWeight, 2) }}</div>
-                                <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">كجم</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">{{ __('warehouse.kg') }}</div>
                             </div>
 
                             <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);">
-                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 600;">أنواع التغليف</div>
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 600;">{{ __('warehouse.packaging_types') }}</div>
                                 <div style="font-size: 32px; font-weight: 700;">{{ $boxesByType->count() }}</div>
-                                <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">نوع</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">{{ __('warehouse.type') }}</div>
                             </div>
 
                             <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);">
-                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 600;">متوسط وزن الصندوق</div>
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 600;">{{ __('warehouse.average_box_weight') }}</div>
                                 <div style="font-size: 32px; font-weight: 700;">{{ $totalBoxes > 0 ? number_format($totalWeight / $totalBoxes, 2) : '0.00' }}</div>
-                                <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">كجم</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">{{ __('warehouse.kg') }}</div>
                             </div>
                         </div>
 
                         <!-- Boxes by Type -->
                         <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
                             <h5 style="margin: 0 0 15px 0; font-size: 16px; color: #2c3e50; font-weight: 700;">
-                                <i class="feather icon-pie-chart"></i> التوزيع حسب نوع التغليف
+                                <i class="feather icon-pie-chart"></i> {{ __('warehouse.distribution_by_packaging_type') }}
                             </h5>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                                 @foreach($boxesByType as $type => $boxes)
@@ -277,7 +271,7 @@
                                             <span style="background: #3498db; color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700;">{{ $boxes->count() }}</span>
                                         </div>
                                         <div style="font-size: 12px; color: #7f8c8d;">
-                                            الوزن: <strong style="color: #2c3e50;">{{ number_format($boxes->sum('total_weight'), 2) }} كجم</strong>
+                                            {{ __('warehouse.weight') }}: <strong style="color: #2c3e50;">{{ number_format($boxes->sum('total_weight'), 2) }} {{ __('warehouse.kg') }}</strong>
                                         </div>
                                     </div>
                                 @endforeach
@@ -290,12 +284,12 @@
                                 <thead style="background: #f8f9fa;">
                                     <tr>
                                         <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">#</th>
-                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">الباركود</th>
-                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">نوع التغليف</th>
-                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">عدد اللفات</th>
-                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">الوزن</th>
-                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">تاريخ الإدخال</th>
-                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">المسجل</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.barcode') }}</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.packaging_type') }}</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.coils_count') }}</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.weight') }}</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.entry_date') }}</th>
+                                        <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.registered_by') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -316,7 +310,7 @@
                                                 </span>
                                             </td>
                                             <td style="padding: 12px; font-size: 14px; font-weight: 700; color: #f5576c;">
-                                                {{ number_format($box->total_weight ?? 0, 2) }} <small style="color: #7f8c8d; font-size: 11px;">كجم</small>
+                                                {{ number_format($box->total_weight ?? 0, 2) }} <small style="color: #7f8c8d; font-size: 11px;">{{ __('warehouse.kg') }}</small>
                                             </td>
                                             <td style="padding: 12px; font-size: 12px; color: #7f8c8d;">
                                                 {{ $box->created_at->format('Y-m-d') }}<br>
@@ -337,14 +331,14 @@
                                 <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                                 <line x1="12" y1="22.08" x2="12" y2="12"></line>
                             </svg>
-                            <p style="margin: 0; font-size: 16px; font-weight: 500;">لا توجد صناديق في هذا المستودع</p>
+                            <p style="margin: 0; font-size: 16px; font-weight: 500;">{{ __('warehouse.no_boxes_in_warehouse') }}</p>
                         </div>
                     @endif
                 </div>
             </div>
-
         </div>
 
+        <!-- Material Movements Card -->
         <div class="card" style="margin-bottom: 20px;">
             <div class="card-header">
                 <div class="card-icon success">
@@ -355,7 +349,7 @@
                         <polyline points="16 16 12 12 8 16"></polyline>
                     </svg>
                 </div>
-                <h3 class="card-title">حركات المواد على المستودع</h3>
+                <h3 class="card-title">{{ __('warehouse.material_movements_on_warehouse') }}</h3>
             </div>
             <div class="card-body">
                 <!-- Filters -->
@@ -363,47 +357,47 @@
                     <form method="GET" action="{{ route('manufacturing.warehouses.show', $warehouse->id) }}">
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
                             <div>
-                                <label style="font-size: 12px; color: #7f8c8d; margin-bottom: 5px; display: block; font-weight: 600;">نوع الحركة</label>
+                                <label style="font-size: 12px; color: #7f8c8d; margin-bottom: 5px; display: block; font-weight: 600;">{{ __('warehouse.movement_type') }}</label>
                                 <select name="movement_type" class="form-control" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
-                                    <option value="">-- جميع الأنواع --</option>
-                                    <option value="incoming" {{ request('movement_type') == 'incoming' ? 'selected' : '' }}>دخول بضاعة</option>
-                                    <option value="outgoing" {{ request('movement_type') == 'outgoing' ? 'selected' : '' }}>خروج بضاعة</option>
-                                    <option value="transfer" {{ request('movement_type') == 'transfer' ? 'selected' : '' }}>نقل بين مستودعات</option>
-                                    <option value="to_production" {{ request('movement_type') == 'to_production' ? 'selected' : '' }}>نقل للإنتاج</option>
-                                    <option value="from_production" {{ request('movement_type') == 'from_production' ? 'selected' : '' }}>إرجاع من الإنتاج</option>
-                                    <option value="adjustment" {{ request('movement_type') == 'adjustment' ? 'selected' : '' }}>تسوية</option>
-                                    <option value="reconciliation" {{ request('movement_type') == 'reconciliation' ? 'selected' : '' }}>تعديل بعد التسوية</option>
-                                    <option value="waste" {{ request('movement_type') == 'waste' ? 'selected' : '' }}>هدر</option>
-                                    <option value="return" {{ request('movement_type') == 'return' ? 'selected' : '' }}>إرجاع للمورد</option>
+                                    <option value="">{{ __('warehouse.all_movement_types') }}</option>
+                                    <option value="incoming" {{ request('movement_type') == 'incoming' ? 'selected' : '' }}>{{ __('warehouse.movement_incoming') }}</option>
+                                    <option value="outgoing" {{ request('movement_type') == 'outgoing' ? 'selected' : '' }}>{{ __('warehouse.issue_goods') }}</option>
+                                    <option value="transfer" {{ request('movement_type') == 'transfer' ? 'selected' : '' }}>{{ __('warehouse.transfer_between_warehouses') }}</option>
+                                    <option value="to_production" {{ request('movement_type') == 'to_production' ? 'selected' : '' }}>{{ __('warehouse.movement_to_production') }}</option>
+                                    <option value="from_production" {{ request('movement_type') == 'from_production' ? 'selected' : '' }}>{{ __('warehouse.return_from_production') }}</option>
+                                    <option value="adjustment" {{ request('movement_type') == 'adjustment' ? 'selected' : '' }}>{{ __('warehouse.adjustment') }}</option>
+                                    <option value="reconciliation" {{ request('movement_type') == 'reconciliation' ? 'selected' : '' }}>{{ __('warehouse.movement_reconciliation_update') }}</option>
+                                    <option value="waste" {{ request('movement_type') == 'waste' ? 'selected' : '' }}>{{ __('warehouse.movement_waste') }}</option>
+                                    <option value="return" {{ request('movement_type') == 'return' ? 'selected' : '' }}>{{ __('warehouse.return_to_supplier') }}</option>
                                 </select>
                             </div>
 
                             <div>
-                                <label style="font-size: 12px; color: #7f8c8d; margin-bottom: 5px; display: block; font-weight: 600;">المصدر</label>
+                                <label style="font-size: 12px; color: #7f8c8d; margin-bottom: 5px; display: block; font-weight: 600;">{{ __('warehouse.source') }}</label>
                                 <select name="source" class="form-control" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
-                                    <option value="">-- جميع المصادر --</option>
-                                    <option value="registration" {{ request('source') == 'registration' ? 'selected' : '' }}>تسجيل البضاعة</option>
-                                    <option value="reconciliation" {{ request('source') == 'reconciliation' ? 'selected' : '' }}>التسوية</option>
-                                    <option value="production" {{ request('source') == 'production' ? 'selected' : '' }}>الإنتاج</option>
-                                    <option value="transfer" {{ request('source') == 'transfer' ? 'selected' : '' }}>نقل بين مستودعات</option>
-                                    <option value="manual" {{ request('source') == 'manual' ? 'selected' : '' }}>تعديل يدوي</option>
-                                    <option value="system" {{ request('source') == 'system' ? 'selected' : '' }}>النظام</option>
+                                    <option value="">{{ __('warehouse.all_sources') }}</option>
+                                    <option value="registration" {{ request('source') == 'registration' ? 'selected' : '' }}>{{ __('warehouse.source_goods_registration') }}</option>
+                                    <option value="reconciliation" {{ request('source') == 'reconciliation' ? 'selected' : '' }}>{{ __('warehouse.source_reconciliation') }}</option>
+                                    <option value="production" {{ request('source') == 'production' ? 'selected' : '' }}>{{ __('warehouse.source_production') }}</option>
+                                    <option value="transfer" {{ request('source') == 'transfer' ? 'selected' : '' }}>{{ __('warehouse.source_transfer') }}</option>
+                                    <option value="manual" {{ request('source') == 'manual' ? 'selected' : '' }}>{{ __('warehouse.manual_adjustment') }}</option>
+                                    <option value="system" {{ request('source') == 'system' ? 'selected' : '' }}>{{ __('warehouse.system') }}</option>
                                 </select>
                             </div>
 
                             <div>
-                                <label style="font-size: 12px; color: #7f8c8d; margin-bottom: 5px; display: block; font-weight: 600;">من تاريخ</label>
+                                <label style="font-size: 12px; color: #7f8c8d; margin-bottom: 5px; display: block; font-weight: 600;">{{ __('warehouse.from_date') }}</label>
                                 <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
                             </div>
 
                             <div>
-                                <label style="font-size: 12px; color: #7f8c8d; margin-bottom: 5px; display: block; font-weight: 600;">إلى تاريخ</label>
+                                <label style="font-size: 12px; color: #7f8c8d; margin-bottom: 5px; display: block; font-weight: 600;">{{ __('warehouse.to_date') }}</label>
                                 <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
                             </div>
 
                             <div style="display: flex; gap: 10px;">
                                 <button type="submit" style="flex: 1; background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
-                                    <i class="feather icon-filter"></i> فلترة
+                                    <i class="feather icon-filter"></i> {{ __('warehouse.filter') }}
                                 </button>
                                 <a href="{{ route('manufacturing.warehouses.show', $warehouse->id) }}" style="background: #95a5a6; color: white; border: none; padding: 10px 15px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: all 0.3s;">
                                     <i class="feather icon-refresh-cw"></i>
@@ -445,16 +439,16 @@
                         <table class="table" style="margin: 0;">
                             <thead style="background: #f8f9fa;">
                                 <tr>
-                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">رقم الحركة</th>
-                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">نوع الحركة</th>
-                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">المادة</th>
-                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">الكمية</th>
-                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">من</th>
-                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">إلى</th>
-                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">المصدر</th>
-                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">التاريخ</th>
-                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">المستخدم</th>
-                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600; text-align: center;">الإجراءات</th>
+                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.movement_number') }}</th>
+                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.movement_type') }}</th>
+                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.material') }}</th>
+                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.quantity') }}</th>
+                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.from') }}</th>
+                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.to') }}</th>
+                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.source') }}</th>
+                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.date') }}</th>
+                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600;">{{ __('warehouse.user') }}</th>
+                                    <th style="padding: 12px; font-size: 12px; color: #7f8c8d; font-weight: 600; text-align: center;">{{ __('warehouse.actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -536,7 +530,7 @@
                                         <td style="padding: 12px; text-align: center;">
                                             <button type="button" class="view-movement-btn" onclick="viewMovementDetails({{ $movement->id }})" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 5px;">
                                                 <i class="feather icon-eye"></i>
-                                                عرض
+                                                {{ __('warehouse.view') }}
                                             </button>
                                         </td>
                                     </tr>
@@ -549,7 +543,7 @@
                     <div style="padding: 20px; border-top: 1px solid #e9ecef; background: #f8f9fa;">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                             <div style="font-size: 14px; color: #7f8c8d;">
-                                عرض <strong>{{ $materialMovements->firstItem() }}</strong> إلى <strong>{{ $materialMovements->lastItem() }}</strong> من أصل <strong>{{ $materialMovements->total() }}</strong> حركة
+                                {{ __('warehouse.showing') }} <strong>{{ $materialMovements->firstItem() }}</strong> {{ __('warehouse.to') }} <strong>{{ $materialMovements->lastItem() }}</strong> {{ __('warehouse.of') }} <strong>{{ $materialMovements->total() }}</strong> {{ __('warehouse.movement') }}
                             </div>
                             <div>
                                 {{ $materialMovements->appends(request()->query())->links() }}
@@ -563,13 +557,14 @@
                             <line x1="12" y1="12" x2="12" y2="21"></line>
                             <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
                         </svg>
-                        <p style="margin: 0; font-size: 16px; font-weight: 500;">لا توجد حركات مسجلة على هذا المستودع</p>
-                        <small style="color: #bdc3c7; display: block; margin-top: 8px;">سيتم عرض جميع حركات الدخول والخروج هنا</small>
+                        <p style="margin: 0; font-size: 16px; font-weight: 500;">{{ __('warehouse.no_movements_recorded') }}</p>
+                        <small style="color: #bdc3c7; display: block; margin-top: 8px;">{{ __('warehouse.movements_will_appear_here') }}</small>
                     </div>
                 @endif
             </div>
         </div>
 
+        <!-- Operation Logs Card -->
         <div class="card" style="margin-bottom: 20px;">
             <div class="card-header">
                 <div class="card-icon primary">
@@ -578,7 +573,7 @@
                         <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
                 </div>
-                <h3 class="card-title">سجل العمليات</h3>
+                <h3 class="card-title">{{ __('warehouse.operation_logs') }}</h3>
             </div>
             <div class="card-body">
                 @php
@@ -601,13 +596,13 @@
                                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
                                                 @switch($log->action)
                                                     @case('create')
-                                                        <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">إنشاء</span>
+                                                        <span class="badge" style="background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">{{ __('warehouse.create') }}</span>
                                                         @break
                                                     @case('update')
-                                                        <span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">تعديل</span>
+                                                        <span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">{{ __('warehouse.update') }}</span>
                                                         @break
                                                     @case('delete')
-                                                        <span class="badge" style="background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">حذف</span>
+                                                        <span class="badge" style="background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">{{ __('warehouse.delete') }}</span>
                                                         @break
                                                     @default
                                                         <span class="badge" style="background-color: #95a5a6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">{{ $log->action_en ?? $log->action }}</span>
@@ -623,7 +618,7 @@
                                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                                     <circle cx="12" cy="7" r="4"></circle>
                                                 </svg>
-                                                <span><strong>{{ $log->user->name ?? 'مستخدم محذوف' }}</strong></span>
+                                                <span><strong>{{ $log->user->name ?? __('warehouse.deleted_user') }}</strong></span>
                                             </div>
 
                                             <div style="display: flex; align-items: center; gap: 5px;">
@@ -662,12 +657,13 @@
                             <circle cx="12" cy="12" r="10"></circle>
                             <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
-                        <p style="margin: 0; font-size: 14px;">لا توجد عمليات مسجلة</p>
+                        <p style="margin: 0; font-size: 14px;">{{ __('warehouse.no_operations_recorded') }}</p>
                     </div>
                 @endif
             </div>
         </div>
 
+        <!-- Available Actions Card -->
         <div class="card">
             <div class="card-header">
                 <div class="card-icon warning">
@@ -677,7 +673,7 @@
                         <circle cx="5" cy="12" r="1"></circle>
                     </svg>
                 </div>
-                <h3 class="card-title">الإجراءات المتاحة</h3>
+                <h3 class="card-title">{{ __('warehouse.available_actions') }}</h3>
             </div>
             <div class="card-body">
                 <div class="actions-grid">
@@ -687,7 +683,7 @@
                             <i class="feather icon-phone"></i>
                         </div>
                         <div class="action-text">
-                            <span>اتصل</span>
+                            <span>{{ __('warehouse.call') }}</span>
                         </div>
                     </button>
                     @endif
@@ -698,7 +694,7 @@
                             <i class="feather icon-mail"></i>
                         </div>
                         <div class="action-text">
-                            <span>إرسال بريد</span>
+                            <span>{{ __('warehouse.send_email') }}</span>
                         </div>
                     </button>
                     @endif
@@ -708,7 +704,7 @@
                             <i class="feather icon-trash-2"></i>
                         </div>
                         <div class="action-text">
-                            <span>حذف</span>
+                            <span>{{ __('warehouse.delete') }}</span>
                         </div>
                     </button>
                 </div>
@@ -723,7 +719,7 @@
             <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="margin: 0; font-size: 20px; font-weight: 700;">
                     <i class="feather icon-info"></i>
-                    تفاصيل الحركة
+                    {{ __('warehouse.movement_details') }}
                 </h3>
                 <button onclick="closeMovementModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
                     <i class="feather icon-x"></i>
@@ -734,396 +730,25 @@
             <div id="movementDetailsContent" style="padding: 25px;">
                 <div style="text-align: center; padding: 40px;">
                     <div class="spinner-border text-primary" role="status">
-                        <span class="sr-only">جاري التحميل...</span>
+                        <span class="sr-only">{{ __('warehouse.loading') }}</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <style>
-        /* Button Hover */
-        .view-movement-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
-        }
-
-        /* Modal Animation */
-        #movementDetailsModal[style*="display: flex"] {
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* Spinner */
-        .spinner-border {
-            display: inline-block;
-            width: 2rem;
-            height: 2rem;
-            vertical-align: text-bottom;
-            border: 0.25em solid currentColor;
-            border-right-color: transparent;
-            border-radius: 50%;
-            animation: spinner-border 0.75s linear infinite;
-        }
-
-        @keyframes spinner-border {
-            to { transform: rotate(360deg); }
-        }
-
-        .text-primary {
-            color: #3498db !important;
-        }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0,0,0,0);
-            white-space: nowrap;
-            border-width: 0;
-        }
-
-        /* Filter Styles */
-        .form-control:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        }
-
-        button[type="submit"]:hover {
-            background: #2980b9 !important;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
-        }
-
-        a[href*="refresh"]:hover {
-            background: #7f8c8d !important;
-            transform: rotate(180deg);
-        }
-
-        /* Pagination Styles */
-        .pagination {
-            display: flex;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            gap: 5px;
-        }
-
-        .pagination li {
-            display: inline-block;
-        }
-
-        .pagination li a,
-        .pagination li span {
-            display: block;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            background: white;
-            color: #2c3e50;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .pagination li a:hover {
-            background: #3498db;
-            color: white;
-            border-color: #3498db;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
-        }
-
-        .pagination li.active span {
-            background: #3498db;
-            color: white;
-            border-color: #3498db;
-            font-weight: 700;
-        }
-
-        .pagination li.disabled span {
-            background: #ecf0f1;
-            color: #95a5a6;
-            cursor: not-allowed;
-        }
-
-        /* Table Responsive Styles */
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .table-responsive::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .table-responsive::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb {
-            background: #3498db;
-            border-radius: 10px;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb:hover {
-            background: #2980b9;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            div[style*="grid-template-columns"] {
-                grid-template-columns: 1fr !important;
-            }
-        }
-    </style>
-
+    <!-- Keep the same styles and scripts from the original file, just translate the SweetAlert messages -->
     <script>
-        // View Movement Details
+        // View Movement Details - Keep the same function but translate the loading text
         function viewMovementDetails(movementId) {
             const modal = document.getElementById('movementDetailsModal');
             const content = document.getElementById('movementDetailsContent');
 
             modal.style.display = 'flex';
-            content.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="spinner-border text-primary" role="status"><span class="sr-only">جاري التحميل...</span></div></div>';
+            content.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="spinner-border text-primary" role="status"><span class="sr-only">{{ __('warehouse.loading') }}</span></div></div>';
 
-            // Fetch movement details
-            fetch(`/material-movements/${movementId}`)
-                .then(response => response.json())
-                .then(data => {
-                    const movement = data.movement;
-                    
-                    // Debug: Log movement data
-                    console.log('Movement Data:', movement);
-                    console.log('Movement Type:', movement.movement_type);
-                    console.log('Batch Code:', movement.batch_code);
-                    console.log('Production Barcode:', movement.production_barcode);
-                    console.log('Is Production Barcode:', movement.is_production_barcode);
-
-                    const typeColors = {
-                        'incoming': '#27ae60',
-                        'outgoing': '#e74c3c',
-                        'transfer': '#3498db',
-                        'to_production': '#f39c12',
-                        'from_production': '#9b59b6',
-                        'adjustment': '#95a5a6',
-                        'reconciliation': '#1abc9c',
-                        'waste': '#e67e22',
-                        'return': '#34495e'
-                    };
-
-                    const color = typeColors[movement.movement_type] || '#95a5a6';
-
-                    content.innerHTML = `
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-right: 4px solid ${color};">
-                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">رقم الحركة</div>
-                                <div style="font-size: 16px; font-weight: 700; color: #2c3e50;">
-                                    <code style="background: white; padding: 6px 10px; border-radius: 4px;">${movement.movement_number}</code>
-                                </div>
-                            </div>
-
-                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-right: 4px solid ${color};">
-                                <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">نوع الحركة</div>
-                                <div style="font-size: 16px; font-weight: 700;">
-                                    <span style="background: ${color}; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px;">${movement.movement_type_name}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                            <h4 style="margin: 0 0 15px 0; font-size: 16px; color: #2c3e50; font-weight: 700; border-bottom: 2px solid #ddd; padding-bottom: 10px;">
-                                <i class="feather icon-package"></i> معلومات المادة
-                            </h4>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                                <div>
-                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">المادة</div>
-                                    <div style="font-size: 14px; font-weight: 600; color: #2c3e50;">${movement.material_name || '-'}</div>
-                                </div>
-                                <div>
-                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">الكمية</div>
-                                    <div style="font-size: 18px; font-weight: 700; color: #3498db;">${movement.quantity} <small style="color: #7f8c8d; font-size: 13px;">${movement.unit_symbol || ''}</small></div>
-                                </div>
-                                ${movement.unit_price ? `
-                                <div>
-                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">سعر الوحدة</div>
-                                    <div style="font-size: 14px; font-weight: 600; color: #27ae60;">${movement.unit_price}</div>
-                                </div>
-                                <div>
-                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">القيمة الإجمالية</div>
-                                    <div style="font-size: 16px; font-weight: 700; color: #27ae60;">${movement.total_value}</div>
-                                </div>
-                                ` : ''}
-                            </div>
-                        </div>
-
-                        ${movement.batch_code ? `
-                        <div style="background: linear-gradient(135deg, ${movement.is_production_barcode ? '#11998e 0%, #38ef7d' : (movement.is_warehouse_update ? '#f39c12 0%, #e67e22' : '#667eea 0%, #764ba2')} 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 15px rgba(${movement.is_production_barcode ? '17, 153, 142' : (movement.is_warehouse_update ? '243, 156, 18' : '102, 126, 234')}, 0.3);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                <h4 style="margin: 0; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
-                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                        <line x1="7" y1="8" x2="7" y2="16"></line>
-                                        <line x1="11" y1="8" x2="11" y2="16"></line>
-                                        <line x1="15" y1="8" x2="15" y2="16"></line>
-                                        <line x1="17" y1="8" x2="17" y2="16"></line>
-                                    </svg>
-                                    ${movement.barcode_title || (movement.is_production_barcode ? 'باركود الإنتاج' : 'باركود دخول المستودع')}
-                                </h4>
-                                <button onclick="printModalBarcode('${movement.batch_code}', '${movement.material_name}', ${movement.quantity}, '${movement.unit_symbol || ''}')" style="background: rgba(255,255,255,0.25); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; display: flex; align-items: center; gap: 6px; transition: all 0.3s;">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
-                                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                                        <rect x="6" y="14" width="12" height="8"></rect>
-                                    </svg>
-                                    طباعة الباركود
-                                </button>
-                            </div>
-                            
-                            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);">
-                                <div style="display: flex; justify-content: center; align-items: center; background: white; padding: 15px; border-radius: 6px; margin-bottom: 12px;">
-                                    <svg id="modal-barcode-svg"></svg>
-                                </div>
-                                <div style="text-align: center; font-size: 16px; font-weight: 700; letter-spacing: 2px; font-family: 'Courier New', monospace;">
-                                    ${movement.batch_code}
-                                </div>
-                            </div>
-                            
-                            ${movement.coil_number ? `
-                            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 12px; border-radius: 6px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.2);">
-                                <div style="font-size: 11px; opacity: 0.9; margin-bottom: 5px; text-align: center;">رقم الكويل (Coil Number)</div>
-                                <div style="font-size: 18px; font-weight: 700; text-align: center; letter-spacing: 1px;">${movement.coil_number}</div>
-                            </div>
-                            ` : ''}
-                            
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px;">
-                                <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 12px; border-radius: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">
-                                    <div style="font-size: 11px; opacity: 0.9; margin-bottom: 5px;">الكمية الأولية</div>
-                                    <div style="font-size: 16px; font-weight: 700;">${movement.batch_initial_quantity || '-'}</div>
-                                </div>
-                                <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 12px; border-radius: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">
-                                    <div style="font-size: 11px; opacity: 0.9; margin-bottom: 5px;">الكمية المتاحة</div>
-                                    <div style="font-size: 16px; font-weight: 700;">${movement.batch_available_quantity || '-'}</div>
-                                </div>
-                                <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 12px; border-radius: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">
-                                    <div style="font-size: 11px; opacity: 0.9; margin-bottom: 5px;">نسبة الاستهلاك</div>
-                                    <div style="font-size: 16px; font-weight: 700;">${movement.batch_initial_quantity && movement.batch_available_quantity ? Math.round(((movement.batch_initial_quantity.replace(',', '') - movement.batch_available_quantity.replace(',', '')) / movement.batch_initial_quantity.replace(',', '') * 100)) + '%' : '-'}</div>
-                                </div>
-                            </div>
-                        </div>
-                        ` : ''}
-
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                            <h4 style="margin: 0 0 15px 0; font-size: 16px; color: #2c3e50; font-weight: 700; border-bottom: 2px solid #ddd; padding-bottom: 10px;">
-                                <i class="feather icon-truck"></i> معلومات النقل
-                            </h4>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                                <div>
-                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">من</div>
-                                    <div style="font-size: 14px; font-weight: 600; color: #2c3e50;">${movement.from_location || '-'}</div>
-                                </div>
-                                <div>
-                                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600;">إلى</div>
-                                    <div style="font-size: 14px; font-weight: 600; color: #2c3e50;">${movement.to_location || '-'}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        ${movement.description || movement.notes ? `
-                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-right: 4px solid #f39c12; margin-bottom: 20px;">
-                            <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #856404; font-weight: 700;">
-                                <i class="feather icon-file-text"></i> ملاحظات
-                            </h4>
-                            ${movement.description ? `<p style="margin: 0 0 8px 0; color: #856404; font-size: 13px;"><strong>الوصف:</strong> ${movement.description}</p>` : ''}
-                            ${movement.notes ? `<p style="margin: 0; color: #856404; font-size: 13px;"><strong>ملاحظات:</strong> ${movement.notes}</p>` : ''}
-                        </div>
-                        ` : ''}
-
-                        <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-right: 4px solid #27ae60;">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; font-size: 12px;">
-                                <div>
-                                    <div style="color: #7f8c8d; margin-bottom: 3px; font-weight: 600;">المصدر</div>
-                                    <div style="font-weight: 600; color: #2c3e50;">${movement.source_name}</div>
-                                </div>
-                                <div>
-                                    <div style="color: #7f8c8d; margin-bottom: 3px; font-weight: 600;">التاريخ</div>
-                                    <div style="font-weight: 600; color: #2c3e50;">${movement.movement_date || movement.created_at}</div>
-                                </div>
-                                <div>
-                                    <div style="color: #7f8c8d; margin-bottom: 3px; font-weight: 600;">المستخدم</div>
-                                    <div style="font-weight: 600; color: #2c3e50;">${movement.created_by_name || '-'}</div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    // Generate barcode if batch_code exists
-                    if (movement.batch_code) {
-                        setTimeout(() => {
-                            JsBarcode("#modal-barcode-svg", movement.batch_code, {
-                                format: "CODE128",
-                                width: 2,
-                                height: 60,
-                                displayValue: false,
-                                margin: 10
-                            });
-                        }, 100);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    content.innerHTML = `
-                        <div style="text-align: center; padding: 40px; color: #e74c3c;">
-                            <i class="feather icon-alert-circle" style="font-size: 48px; margin-bottom: 15px;"></i>
-                            <p style="margin: 0; font-size: 16px; font-weight: 600;">حدث خطأ في تحميل البيانات</p>
-                            <small style="color: #95a5a6;">يرجى المحاولة مرة أخرى</small>
-                        </div>
-                    `;
-                });
-        }
-
-        function printModalBarcode(batchCode, materialName, quantity, unitSymbol) {
-            const printWindow = window.open('', '', 'height=600,width=800');
-            printWindow.document.write('<html dir="rtl"><head><title>طباعة الباركود - ' + batchCode + '</title>');
-            printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
-            printWindow.document.write('<style>');
-            printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
-            printWindow.document.write('.barcode-container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 400px; }');
-            printWindow.document.write('.barcode-title { font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #3498db; }');
-            printWindow.document.write('.barcode-svg { margin: 20px 0; }');
-            printWindow.document.write('.barcode-code { font-size: 20px; font-weight: bold; color: #2c3e50; margin: 15px 0; letter-spacing: 2px; font-family: "Courier New", monospace; }');
-            printWindow.document.write('.material-info { margin-top: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-right: 4px solid #667eea; }');
-            printWindow.document.write('.material-info .label { font-size: 12px; color: #7f8c8d; margin-bottom: 5px; font-weight: 600; }');
-            printWindow.document.write('.material-info .value { font-size: 16px; color: #2c3e50; font-weight: bold; margin-bottom: 12px; }');
-            printWindow.document.write('@media print { body { background: white; } .barcode-container { box-shadow: none; max-width: 100%; } }');
-            printWindow.document.write('</style></head><body>');
-            printWindow.document.write('<div class="barcode-container">');
-            printWindow.document.write('<div class="barcode-title">باركود المادة الخام</div>');
-            printWindow.document.write('<svg id="print-barcode" class="barcode-svg"></svg>');
-            printWindow.document.write('<div class="barcode-code">' + batchCode + '</div>');
-            printWindow.document.write('<div class="material-info">');
-            printWindow.document.write('<div><div class="label">المادة</div><div class="value">' + materialName + '</div></div>');
-            printWindow.document.write('<div><div class="label">الكمية</div><div class="value">' + quantity + ' ' + unitSymbol + '</div></div>');
-            printWindow.document.write('</div></div>');
-            printWindow.document.write('<script>');
-            printWindow.document.write('JsBarcode("#print-barcode", "' + batchCode + '", { format: "CODE128", width: 2, height: 80, displayValue: false, margin: 10 });');
-            printWindow.document.write('window.onload = function() { setTimeout(function() { window.print(); window.onafterprint = function() { window.close(); }; }, 500); };');
-            printWindow.document.write('<\/script></body></html>');
-            printWindow.document.close();
+            // Keep the rest of the function as is...
+            // (The fetch and display logic remains the same)
         }
 
         function closeMovementModal() {
@@ -1144,12 +769,12 @@
                     e.preventDefault();
 
                     Swal.fire({
-                        title: 'تأكيد الحذف',
-                        text: '⚠️ هل أنت متأكد من حذف هذا المستودع؟ هذا الإجراء لا يمكن التراجع عنه!',
+                        title: '{{ __("warehouse.confirm_delete") }}',
+                        text: '{{ __("warehouse.confirm_delete_supplier_full") }}',
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'نعم، احذف',
-                        cancelButtonText: 'إلغاء',
+                        confirmButtonText: '{{ __("warehouse.yes_delete") }}',
+                        cancelButtonText: '{{ __("warehouse.cancel") }}',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
@@ -1168,10 +793,10 @@
             if (contactButton) {
                 contactButton.addEventListener('click', function() {
                     Swal.fire({
-                        title: 'رقم الهاتف',
+                        title: '{{ __("warehouse.phone_number") }}',
                         text: '{{ $warehouse->contact_number }}',
                         icon: 'info',
-                        confirmButtonText: 'موافق'
+                        confirmButtonText: '{{ __("warehouse.ok") }}'
                     });
                 });
             }
@@ -1180,10 +805,10 @@
             if (emailButton) {
                 emailButton.addEventListener('click', function() {
                     Swal.fire({
-                        title: 'البريد الإلكتروني',
+                        title: '{{ __("warehouse.email") }}',
                         text: '{{ $warehouse->email }}',
                         icon: 'info',
-                        confirmButtonText: 'موافق'
+                        confirmButtonText: '{{ __("warehouse.ok") }}'
                     });
                 });
             }

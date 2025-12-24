@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إضافة مستودع جديد')
+@section('title', __('warehouse.add_new_warehouse'))
 
 @section('content')
 
@@ -11,16 +11,16 @@
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                 </svg>
-                إضافة مستودع جديد
+                {{ __('warehouse.add_new_warehouse') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('warehouse.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المستودعات</span>
+                <span>{{ __('warehouse.warehouse') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>إضافة مستودع جديد</span>
+                <span>{{ __('warehouse.add_new_warehouse') }}</span>
             </nav>
         </div>
 
@@ -43,7 +43,7 @@
                         <line x1="12" y1="8" x2="12" y2="12"></line>
                         <line x1="12" y1="16" x2="12.01" y2="16"></line>
                     </svg>
-                    <h4 class="alert-title">يوجد أخطاء في البيانات المدخلة</h4>
+                    <h4 class="alert-title">{{ __('warehouse.error_in_data') }}</h4>
                     <button type="button" class="alert-close" onclick="this.parentElement.parentElement.style.display='none'">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -85,8 +85,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">بيانات المستودع</h3>
-                            <p class="section-subtitle">أدخل المعلومات الأساسية فقط</p>
+                            <h3 class="section-title">{{ __('warehouse.warehouse_information') }}</h3>
+                            <p class="section-subtitle">{{ __('warehouse.enter_warehouse_basic_data') }}</p>
                         </div>
                     </div>
 
@@ -94,7 +94,7 @@
                         <!-- Name Arabic - REQUIRED -->
                         <div class="form-group">
                             <label for="name" class="form-label">
-                                اسم المستودع
+                                {{ __('warehouse.warehouse_name') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -103,7 +103,7 @@
                                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                                 </svg>
                                 <input type="text" name="name" id="name" class="form-input"
-                                    value="{{ old('name') }}" placeholder="مثال: المستودع الرئيسي" required>
+                                    value="{{ old('name') }}" placeholder="{{ __('warehouse.example') }}: المستودع الرئيسي" required>
                             </div>
                             <div class="error-message" id="name-error" style="display: none;"></div>
                         </div>
@@ -111,7 +111,7 @@
                         <!-- Code - Auto Generated -->
                         <div class="form-group">
                             <label for="code" class="form-label">
-                                الرمز
+                                {{ __('warehouse.warehouse_code') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -125,8 +125,6 @@
                             </div>
                             <div class="error-message" id="code-error" style="display: none;"></div>
                         </div>
-
-
                     </div>
                 </div>
 
@@ -136,14 +134,14 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        حفظ المستودع
+                        {{ __('warehouse.save_warehouse') }}
                     </button>
                     <a href="{{ route('manufacturing.warehouses.index') }}" class="btn-cancel">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
-                        إلغاء
+                        {{ __('warehouse.cancel') }}
                     </a>
                 </div>
             </form>
@@ -174,7 +172,7 @@
             inputs.forEach(input => {
                 input.addEventListener('blur', function() {
                     if (this.hasAttribute('required') && !this.value.trim()) {
-                        showError(this.id, 'هذا الحقل مطلوب');
+                        showError(this.id, '{{ __("warehouse.required_field") }}');
                     } else {
                         hideError(this.id);
                     }
@@ -198,7 +196,7 @@
 
                 requiredFields.forEach(field => {
                     if (!field.value.trim()) {
-                        showError(field.id, 'هذا الحقل مطلوب');
+                        showError(field.id, '{{ __("warehouse.required_field") }}');
                         isValid = false;
                     }
                 });
@@ -207,12 +205,12 @@
                 if (isValid) {
                     // Show SweetAlert2 confirmation
                     Swal.fire({
-                        title: 'تأكيد الحفظ',
-                        text: 'هل أنت متأكد من حفظ بيانات المستودع؟',
+                        title: '{{ __("warehouse.confirm_save") }}',
+                        text: '{{ __("warehouse.confirm_save_warehouse") }}',
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonText: 'نعم، احفظ',
-                        cancelButtonText: 'إلغاء',
+                        confirmButtonText: '{{ __("warehouse.yes_save") }}',
+                        cancelButtonText: '{{ __("warehouse.cancel") }}',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {

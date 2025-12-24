@@ -205,7 +205,7 @@
                         </a>
                     </li>
                     @endif
-
+{{--
                     @if(auth()->user()->hasPermission('STAGE1_BARCODE_SCAN'))
                     <li>
                         <a href="{{ route('manufacturing.stage1.barcode-scan') }}">
@@ -220,7 +220,7 @@
                             <i class="fas fa-trash-alt"></i> {{ __('app.production.waste_tracking') }}
                         </a>
                     </li>
-                    @endif
+                    @endif --}}
                 </ul>
             </li>
             @endif
