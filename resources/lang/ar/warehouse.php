@@ -586,4 +586,4 @@ return [
     'tax_percentage' => 'نسبة الضريبة %',
     'discount_percentage' => 'نسبة الخصم %',
     'total' => 'الإجمالي',
-    'final_total' => 'الإجمالي النهائي',
+    'final_total' => 'الإجمالي النهائي',];
