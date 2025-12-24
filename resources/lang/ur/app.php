@@ -36,6 +36,7 @@ return [
     'warehouse' => [
         'add' => 'گودام شامل کریں',
         'name' => 'گودام کا نام',
+         'stands' => 'اسٹینڈز',
         'location' => 'مقام',
         'capacity' => 'گنجائش',
         'current_stock' => 'موجودہ اسٹاک',
@@ -46,7 +47,6 @@ return [
         'remaining' => 'باقی',
         'raw_materials' => 'خام مال',
         'stores' => 'دکانیں',
-        'stands' => 'اسٹینڈز',
         'delivery_notes' => 'ڈیلیوری نوٹس',
         'registration' => 'شپمنٹ رجسٹریشن',
         'purchase_invoices' => 'خریداری کے انوائسز',
@@ -56,7 +56,6 @@ return [
         'intake_requests' => 'گودام میں داخل کرنے کی درخواستیں',
         'approve_intake_requests' => 'داخل کرنے کی درخواستوں کی منظوری',
         'product_delivery_notes' => 'پروڈکٹ ڈیلیوری نوٹس',
-        'coils_transfer' => 'کوائلز کو پروڈکشن میں منتقل کریں',
     ],
 
     // Production Stages
@@ -273,6 +272,24 @@ return [
         'average_box_weight' => 'ڈبے کا اوسط وزن',
     ],
 
+    // سائیڈ بار (Sidebar)
+    'sidebar' => [
+        'transfer_coils' => 'کوائلز کو پروڈکشن میں منتقل کریں',
+        'ready_materials' => 'داخل کرنے کے لیے تیار مواد',
+        'add_produced_materials' => 'تیار شدہ مواد شامل کریں',
+        'pending_requests' => 'زیرِ التوا درخواستیں',
+        'production_confirmations' => 'پروڈکشن تصدیقیں',
+        'shift_handovers' => 'شفٹ ہینڈ اوور کی درخواستیں',
+        'pending_approvals' => 'زیرِ التوا منظوریاں',
+        'incomplete_records' => 'نامکمل ریکارڈز',
+        'waste_exceeding_approval' => 'فالتو مال سے تجاوز کی منظوری',
+        'stage1_report' => '📊 مرحلہ 1 کی رپورٹ',
+        'stage2_report' => '⚙️ مرحلہ 2 کی رپورٹ',
+        'stage3_report' => '🎨 مرحلہ 3 کی رپورٹ',
+        'stage4_report' => '📦 مرحلہ 4 کی رپورٹ',
+        'tracking_report' => '🔍 جامع ٹریکنگ رپورٹ',
+    ],
+
     // Customers
     'customers' => [
         'manage' => 'صارفین کا انتظام کریں',
@@ -282,18 +299,6 @@ return [
     'workers' => [
         'manage' => 'کارکنوں کا انتظام کریں',
         'teams' => 'کارکنوں کی ٹیمیں',
-    ],
-
-    // Users
-    'users' => [
-        'manage' => 'صارفین کا انتظام کریں',
-        'roles' => 'کردار اور اختیارات',
-        'profile' => 'میری پروفائل',
-        'shifts_list' => 'شفٹوں کی فہرست',
-        'add_shift' => 'شفٹ شامل کریں',
-        'current_shifts' => 'موجودہ شفٹیں',
-        'shift_handovers' => 'شفٹ کو منتقل کرنے کی درخواستیں',
-        'activity_log' => 'سرگرمی کا لاگ',
     ],
 
     // Permissions
@@ -393,11 +398,6 @@ return [
         'shift_summary' => 'شفٹ کا خلاصہ',
         'stands_usage_history' => 'اسٹینڈز کے استعمال کی تاریخ',
         'worker_performance' => 'کارکن کی کارکردگی',
-        'stage1_management' => 'مرحلہ 1 کی رپورٹ',
-        'stage2_management' => 'مرحلہ 2 کی رپورٹ',
-        'stage3_management' => 'مرحلہ 3 کی رپورٹ',
-        'stage4_management' => 'مرحلہ 4 کی رپورٹ',
-        'product_tracking' => 'مکمل ٹریکنگ رپورٹ',
     ],
 
     // Users
@@ -572,6 +572,7 @@ return [
         'view_details' => 'تفصیلات دیکھیں',
         'no_pending' => 'کوئی زیرِ التوا درخواست نہیں',
         'no_pending_desc' => 'آپ کے لیے تمام درخواستوں کی تصدیق یا مسترد ہو چکی ہے',
+
         // Modals
         'details_modal_title' => 'بیچ کی تفصیلات',
         'confirm_modal_title' => 'بیچ کی وصول کی تصدیق کریں',
@@ -592,28 +593,7 @@ return [
         'error_reject' => 'مسترد کرنے میں خرابی',
         'loading' => 'لوڈ ہو رہا ہے...',
         'loading_details' => 'تفصیلات لوڈ ہو رہی ہیں',
+        'error_loading' => 'تفصیلات لوڈ کرنے میں خرابی',
         'back_arrow' => '← فہرست میں واپس جائیں',
     ],
-
-    // Additional Menu Translations
-    'pending_intake' => 'داخل کرنے کے لیے تیار مال',
-    'materials_ready_for_intake' => 'داخل کرنے کے لیے تیار مال',
-    'pending_materials' => 'زیرِ التوا مال',
-    'production_confirmations_menu' => 'پروڈکشن کی تصدیقیں',
-    'quality_monitoring_suspensions' => 'ہدر کو منظور کرنے کی منظوری',
-    'incomplete_records' => 'نامکمل ریکارڈز',
-    'incomplete_entries' => 'نامکمل ریکارڈز',
-    'pending_approvals_count' => 'زیرِ التوا منظوری',
-    'shift_handover_requests' => 'شفٹ کو منتقل کرنے کی درخواستیں',
-    'approval_pending' => 'زیرِ التوا منظوریاں',
-    'pending_count_suffix' => 'زیرِ التوا',
-
-    // Additional General Texts
-    'notifications' => 'اطلاعات',
-    'view_all_notifications' => 'تمام اطلاعات دیکھیں',
-    'mark_all_as_read' => 'تمام کو پڑھا ہوا نشان زد کریں',
-    'loading' => 'لوڈ ہو رہا ہے...',
-    'search_placeholder' => 'تلاش کریں...',
-        'error_loading' => 'تفصیلات لوڈ کرنے میں خرابی',
-
 ];

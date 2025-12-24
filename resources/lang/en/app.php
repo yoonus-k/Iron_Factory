@@ -57,7 +57,29 @@ return [
         'approve_intake_requests' => 'Approve Intake Requests',
         'product_delivery_notes' => 'Product Delivery Notes',
 
-        'coils_transfer' => 'Transfer Coils to Production',
+    ],
+
+    // Production Stages
+    'production' => [
+        'barcode' => 'Barcode',
+        'parent_barcode' => 'Parent Barcode',
+        'weight' => 'Weight (kg)',
+        'color' => 'Color',
+        'wire_size' => 'Wire Size',
+        'stand_number' => 'Stand Number',
+        'coil_number' => 'Coil Number',
+        'box_count' => 'Box Count',
+        'waste' => 'Waste',
+        'status' => 'Status',
+        'date' => 'Date',
+        'barcode_scan' => 'Barcode Scan',
+        'waste_tracking' => 'Waste Tracking',
+        'waste_statistics' => 'Waste Statistics',
+        'quality_monitoring' => 'Quality Monitoring',
+        'downtime_tracking' => 'Downtime & Failures',
+        'waste_limits' => 'Allowed Waste Limits',
+        'iron_journey' => 'Iron Journey',
+'history'=>'Phase Record',
 
         // Stage 1
         'stage1' => [
@@ -254,6 +276,24 @@ return [
         'save_delivery_note' => 'Save Delivery Note',
     ],
 
+    // Sidebar
+    'sidebar' => [
+        'transfer_coils' => 'Transfer Coils to Production',
+        'ready_materials' => 'Ready Materials for Intake',
+        'add_produced_materials' => 'Add Produced Materials',
+        'pending_requests' => 'Pending Requests',
+        'production_confirmations' => 'Production Confirmations',
+        'shift_handovers' => 'Shift Handover Requests',
+        'pending_approvals' => 'Pending Approvals',
+        'incomplete_records' => 'Incomplete Records',
+        'waste_exceeding_approval' => 'Waste Exceeding Approval',
+        'stage1_report' => '📊 Stage 1 Report',
+        'stage2_report' => '⚙️ Stage 2 Report',
+        'stage3_report' => '🎨 Stage 3 Report',
+        'stage4_report' => '📦 Stage 4 Report',
+        'tracking_report' => '🔍 Comprehensive Tracking Report',
+    ],
+
     // Customers
     'customers' => [
         'manage' => 'Manage Customers',
@@ -264,8 +304,6 @@ return [
         'manage' => 'Manage Workers',
         'teams' => 'Worker Teams',
     ],
-
-    // Users
 
     // Permissions
     'permissions' => [
@@ -364,11 +402,6 @@ return [
         'shift_summary' => 'Shift Summary',
         'stands_usage_history' => 'Stands Usage History',
         'worker_performance' => 'Worker Performance',
-        'stage1_management' => 'Stage 1 Report',
-        'stage2_management' => 'Stage 2 Report',
-        'stage3_management' => 'Stage 3 Report',
-        'stage4_management' => 'Stage 4 Report',
-        'product_tracking' => 'Complete Tracking Report',
     ],
 
     // Users
@@ -380,20 +413,12 @@ return [
         'add_shift' => 'Add Shift',
         'current_shifts' => 'Current Shifts',
         'shift_handovers' => 'Shift Handover Requests',
-        'activity_log' => 'Activity Log',
         'name' => 'Name',
         'email' => 'Email',
         'password' => 'Password',
         'role' => 'Role',
         'shift' => 'Shift',
         'is_active' => 'Active',
-        'profile' => 'Profile',
-        'roles' => 'Roles & Permissions',
-        'activity_log' => 'Activity Log',
-        'shifts_list' => 'Shifts List',
-        'add_shift' => 'Add New Shift',
-        'current_shifts' => 'Current Shifts',
-        'attendance' => 'Attendance Log',
         'login' => 'Login',
         'logout' => 'Logout',
         'register' => 'Register',
@@ -404,7 +429,6 @@ return [
         'forgot_password' => 'Forgot Password?',
         'no_account' => "Don't have an account?",
         'register_now' => 'Register Now',
-        'manage' => 'Manage Users',
         'role_types' => [
             'admin' => 'Admin',
             'manager' => 'Manager',
@@ -572,29 +596,7 @@ return [
         'error_reject' => 'Error during rejection',
         'loading' => 'Loading...',
         'loading_details' => 'Loading details',
-        'back_arrow' => '← Back to List',
-    ],
-
-    // Additional Menu Translations
-    'pending_intake' => 'Materials Ready for Intake',
-    'materials_ready_for_intake' => 'Materials Ready for Intake',
-    'pending_materials' => 'Pending Materials',
-    'production_confirmations_menu' => 'Production Confirmations',
-    'quality_monitoring_suspensions' => 'Approve Waste Override',
-    'incomplete_records' => 'Incomplete Records',
-    'incomplete_entries' => 'Incomplete Records',
-    'pending_approvals_count' => 'Pending Approval',
-    'shift_handover_requests' => 'Shift Handover Requests',
-    'approval_pending' => 'Pending Approvals',
-    'pending_count_suffix' => 'Pending',
-
-    // Additional General Texts
-    'notifications' => 'Notifications',
-    'view_all_notifications' => 'View All Notifications',
-    'mark_all_as_read' => 'Mark All As Read',
-    'loading' => 'Loading...',
-    'search_placeholder' => 'Search...',
         'error_loading' => 'Error loading details',
         'back_arrow' => '← Back to List',
-
+    ],
 ];
