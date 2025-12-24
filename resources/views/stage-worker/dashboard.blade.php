@@ -1111,16 +1111,22 @@ $(document).ready(function() {
         console.log('Starting AJAX request to confirm');
         btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> جاري التأكيد...');
         
+        // الحصول على CSRF token من meta tag
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+        
         $.ajax({
             url: `{{ url('/stage-worker/dashboard/confirm') }}/${currentConfirmationId}`,
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             },
-            data: { 
+            data: JSON.stringify({ 
                 notes: notes,
-                _token: '{{ csrf_token() }}'
-            },
+                _token: csrfToken
+            }),
+            contentType: 'application/json',
             success: function(response) {
                 console.log('Confirm success:', response);
                 
@@ -1253,16 +1259,22 @@ $(document).ready(function() {
         
         btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> جاري الرفض...');
         
+        // الحصول على CSRF token من meta tag
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+        
         $.ajax({
             url: `{{ url('/stage-worker/dashboard/reject') }}/${currentConfirmationId}`,
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             },
-            data: { 
+            data: JSON.stringify({ 
                 rejection_reason: reason,
-                _token: '{{ csrf_token() }}'
-            },
+                _token: csrfToken
+            }),
+            contentType: 'application/json',
             success: function(response) {
                 console.log('Reject success:', response);
                 

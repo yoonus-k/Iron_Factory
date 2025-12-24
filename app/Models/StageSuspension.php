@@ -78,4 +78,64 @@ class StageSuspension extends Model
     {
         return $query->where('stage_number', $stage);
     }
+
+    /**
+     * جلب باركود الإنتاج الفعلي من الجدول المناسب حسب المرحلة
+     */
+    public function getProductionBarcodeAttribute(): ?string
+    {
+        // إذا كان محفوظاً في additional_data، استخدمه
+        if (!empty($this->additional_data['production_barcode'])) {
+            return $this->additional_data['production_barcode'];
+        }
+
+        // إذا لم يكن محفوظاً، ابحث في الجداول حسب المرحلة
+        return $this->fetchProductionBarcode();
+    }
+
+    /**
+     * البحث عن باركود الإنتاج في الجداول المناسبة
+     */
+    private function fetchProductionBarcode(): ?string
+    {
+        try {
+            $tableName = match($this->stage_number) {
+                1 => 'stage1_stands',
+                2 => 'stage2_processed',
+                3 => 'stage3_coils',
+                4 => 'stage4_boxes',
+                default => null
+            };
+
+            if (!$tableName) {
+                return null;
+            }
+
+            // البحث في product_tracking أولاً (الأسرع)
+            $tracking = \DB::table('product_tracking')
+                ->where('input_barcode', $this->batch_barcode)
+                ->where('stage', 'stage' . $this->stage_number)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($tracking && $tracking->output_barcode) {
+                return $tracking->output_barcode;
+            }
+
+            // البحث في الجدول المناسب للمرحلة
+            $record = \DB::table($tableName)
+                ->where('input_barcode', $this->batch_barcode)
+                ->orWhere('parent_barcode', $this->batch_barcode)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            return $record?->barcode ?? $this->batch_barcode;
+        } catch (\Exception $e) {
+            \Log::error('Error fetching production barcode', [
+                'suspension_id' => $this->id,
+                'error' => $e->getMessage()
+            ]);
+            return $this->batch_barcode;
+        }
+    }
 }

@@ -439,11 +439,11 @@
                     @endif
 
                     @if(auth()->user()->hasPermission('PRODUCTION_IRON_JOURNEY'))
-                    <li>
+                    <!-- <li>
                         <a href="{{ route('manufacturing.iron-journey') }}">
                             <i class="fas fa-route"></i> {{ __('app.production.iron_journey') }}
                         </a>
-                    </li>
+                    </li> -->
                     @endif
                 </ul>
             </li>
