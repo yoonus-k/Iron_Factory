@@ -75,7 +75,7 @@
                     </li>
                     <li>
                         <a href="{{ route('manufacturing.coils.transfer-index') }}">
-                            <i class="fas fa-exchange-alt"></i> نقل كويلات للإنتاج
+                            <i class="fas fa-exchange-alt"></i> {{ __('app.sidebar.transfer_coils') }}
                         </a>
                     </li>
                     @endif
@@ -142,16 +142,16 @@
 
             @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_CREATE') || auth()->user()->hasPermission('WAREHOUSE_INTAKE_APPROVE'))
             <li class="has-submenu">
-                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="المواد الجاهزة للإدخال">
+                <a href="javascript:void(0)" class="submenu-toggle" data-tooltip="{{ __('app.sidebar.ready_materials') }}">
                     <i class="fas fa-dolly"></i>
-                    <span>المواد الجاهزة للإدخال</span>
+                    <span>{{ __('app.sidebar.ready_materials') }}</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </a>
                 <ul class="submenu">
                     @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_CREATE'))
                     <li>
                         <a href="{{ route('manufacturing.warehouse-intake.create') }}">
-                            <i class="fas fa-plus-square"></i> إدخال مواد منتجة
+                            <i class="fas fa-plus-square"></i> {{ __('app.sidebar.add_produced_materials') }}
                         </a>
                     </li>
                     @endif
@@ -159,7 +159,7 @@
                     @if(auth()->user()->hasPermission('WAREHOUSE_INTAKE_APPROVE'))
                     <li>
                         <a href="{{ route('manufacturing.warehouse-intake.pending-approval') }}">
-                            <i class="fas fa-clipboard-check"></i> الطلبات المنتظرة
+                            <i class="fas fa-clipboard-check"></i> {{ __('app.sidebar.pending_requests') }}
                             @php
                                 $pendingIntakeCount = \App\Models\WarehouseIntakeRequest::where('status', 'pending')->count();
                             @endphp
@@ -205,7 +205,7 @@
                         </a>
                     </li>
                     @endif
-
+{{--
                     @if(auth()->user()->hasPermission('STAGE1_BARCODE_SCAN'))
                     <li>
                         <a href="{{ route('manufacturing.stage1.barcode-scan') }}">
@@ -220,7 +220,7 @@
                             <i class="fas fa-trash-alt"></i> {{ __('app.production.waste_tracking') }}
                         </a>
                     </li>
-                    @endif
+                    @endif --}}
                 </ul>
             </li>
             @endif
@@ -353,9 +353,9 @@
             <!-- تأكيدات الإنتاج -->
             @if(auth()->user()->hasPermission('MENU_PRODUCTION_CONFIRMATIONS'))
             <li>
-                <a href="{{ route('manufacturing.production.confirmations.index') }}" data-tooltip="تأكيدات الإنتاج">
+                <a href="{{ route('manufacturing.production.confirmations.index') }}" data-tooltip="{{ __('app.sidebar.production_confirmations') }}">
                     <i class="fas fa-check-circle"></i>
-                    <span>تأكيدات الإنتاج</span>
+                    <span>{{ __('app.sidebar.production_confirmations') }}</span>
                 </a>
             </li>
             @endif
@@ -395,7 +395,7 @@
                     @if(auth()->user()->hasPermission('FINISHED_PRODUCT_DELIVERIES_APPROVE'))
                     <li>
                         <a href="{{ route('manufacturing.finished-product-deliveries.pending-approval') }}">
-                            <i class="fas fa-clock"></i> الإذونات المعلقة
+                            <i class="fas fa-clock"></i> {{ __('app.sidebar.pending_approvals') }}
                             @php
                                 $pendingDeliveryCount = \App\Models\DeliveryNote::where('status', 'pending')
                                     ->where('type', 'finished_product_outgoing')
@@ -485,7 +485,7 @@
                     @if(auth()->user()->hasPermission('SHIFTS_UPDATE'))
                     <li>
                         <a href="{{ route('manufacturing.shift-handovers.index') }}">
-                            <i class="fas fa-exchange-alt"></i> طلبات نقل الوردية
+                            <i class="fas fa-exchange-alt"></i> {{ __('app.sidebar.shift_handovers') }}
                         </a>
                     </li>
                     @endif
@@ -554,7 +554,7 @@
                     @if(auth()->user()->hasPermission('MENU_QUALITY'))
                     <li>
                         <a href="{{ route('manufacturing.pending-production.index') }}">
-                            <i class="fas fa-hourglass-half"></i> السجلات غير المكتملة
+                            <i class="fas fa-hourglass-half"></i> {{ __('app.sidebar.incomplete_records') }}
                         </a>
                     </li>
                     @endif
@@ -562,7 +562,7 @@
                     @if(auth()->user()->hasPermission('STAGE_SUSPENSION_VIEW') || auth()->user()->hasPermission('STAGE_SUSPENSION_APPROVE'))
                     <li>
                         <a href="{{ route('stage-suspensions.index') }}">
-                            <i class="fas fa-pause-circle"></i> الموافقة على تجاوز الهدر
+                            <i class="fas fa-pause-circle"></i> {{ __('app.sidebar.waste_exceeding_approval') }}
                             @php
                                 $pendingSuspensionsCount = \App\Models\StageSuspension::where('status', 'suspended')->count();
                             @endphp
@@ -624,7 +624,7 @@
                     @if(auth()->user()->hasPermission('STAGE1_STANDS_READ'))
                     <li>
                         <a href="{{ route('manufacturing.reports.stage1-management') }}">
-                            <i class="fas fa-toolbox"></i> 📊 تقرير المرحلة الأولى
+                            <i class="fas fa-toolbox"></i> {{ __('app.sidebar.stage1_report') }}
                         </a>
                     </li>
                     @endif
@@ -632,7 +632,7 @@
                     @if(auth()->user()->hasPermission('STAGE2_PROCESSED_READ'))
                     <li>
                         <a href="{{ route('manufacturing.reports.stage2-management') }}">
-                            <i class="fas fa-cogs"></i> ⚙️ تقرير المرحلة الثانية
+                            <i class="fas fa-cogs"></i> {{ __('app.sidebar.stage2_report') }}
                         </a>
                     </li>
                     @endif
@@ -640,7 +640,7 @@
                     @if(auth()->user()->hasPermission('STAGE3_COILS_READ'))
                     <li>
                         <a href="{{ route('manufacturing.reports.stage3-management') }}">
-                            <i class="fas fa-palette"></i> 🎨 تقرير المرحلة الثالثة
+                            <i class="fas fa-palette"></i> {{ __('app.sidebar.stage3_report') }}
                         </a>
                     </li>
                     @endif
@@ -648,7 +648,7 @@
                     @if(auth()->user()->hasPermission('STAGE4_PACKAGING_READ'))
                     <li>
                         <a href="{{ route('manufacturing.reports.stage4-management') }}">
-                            <i class="fas fa-box-open"></i> 📦 تقرير المرحلة الرابعة
+                            <i class="fas fa-box-open"></i> {{ __('app.sidebar.stage4_report') }}
                         </a>
                     </li>
                     @endif
@@ -656,7 +656,7 @@
 
                     <li>
                         <a href="{{ route('manufacturing.reports.product-tracking') }}">
-                            <i class="fas fa-barcode"></i> 🔍 تقرير التتبع الشامل
+                            <i class="fas fa-barcode"></i> {{ __('app.sidebar.tracking_report') }}
                         </a>
                     </li>
 

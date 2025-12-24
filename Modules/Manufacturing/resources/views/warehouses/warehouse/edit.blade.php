@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تعديل بيانات المستودع')
+@section('title', __('warehouse.edit_warehouse'))
 
 @section('content')
 
@@ -11,16 +11,16 @@
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                 </svg>
-                تعديل بيانات المستودع
+                {{ __('warehouse.edit_warehouse') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('warehouse.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المستودعات</span>
+                <span>{{ __('warehouse.warehouse') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>تعديل مستودع</span>
+                <span>{{ __('warehouse.edit_warehouse') }}</span>
             </nav>
         </div>
 
@@ -40,8 +40,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="section-title">بيانات المستودع</h3>
-                            <p class="section-subtitle">تحديث المعلومات الأساسية فقط</p>
+                            <h3 class="section-title">{{ __('warehouse.warehouse_information') }}</h3>
+                            <p class="section-subtitle">{{ __('warehouse.update_warehouse_data') }}</p>
                         </div>
                     </div>
 
@@ -49,7 +49,7 @@
                         <!-- Name Arabic - REQUIRED -->
                         <div class="form-group">
                             <label for="name" class="form-label">
-                                اسم المستودع
+                                {{ __('warehouse.warehouse_name') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -59,7 +59,7 @@
                                 </svg>
                                 <input type="text" name="name" id="name" class="form-input"
                                     value="{{ old('name', $warehouse->name ?? $warehouse->warehouse_name) }}"
-                                    placeholder="مثال: المستودع الرئيسي" required>
+                                    placeholder="{{ __('warehouse.example') }}: المستودع الرئيسي" required>
                             </div>
                             <div class="error-message" id="name-error" style="display: none;"></div>
                         </div>
@@ -67,7 +67,7 @@
                         <!-- Code - Read Only -->
                         <div class="form-group">
                             <label for="code" class="form-label">
-                                الرمز
+                                {{ __('warehouse.warehouse_code') }}
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrapper">
@@ -84,15 +84,19 @@
 
                         <!-- Status -->
                         <div class="form-group">
-                            <label for="is_active" class="form-label">الحالة</label>
+                            <label for="is_active" class="form-label">{{ __('warehouse.status') }}</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
                                 </svg>
                                 <select name="is_active" id="is_active" class="form-input">
-                                    <option value="1" {{ old('is_active', $warehouse->is_active) == 1 ? 'selected' : '' }}>نشط</option>
-                                    <option value="0" {{ old('is_active', $warehouse->is_active) == 0 ? 'selected' : '' }}>غير نشط</option>
+                                    <option value="1" {{ old('is_active', $warehouse->is_active) == 1 ? 'selected' : '' }}>
+                                        {{ __('warehouse.active') }}
+                                    </option>
+                                    <option value="0" {{ old('is_active', $warehouse->is_active) == 0 ? 'selected' : '' }}>
+                                        {{ __('warehouse.inactive') }}
+                                    </option>
                                 </select>
                             </div>
                             <div class="error-message" id="is_active-error" style="display: none;"></div>
@@ -106,14 +110,14 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        حفظ التغييرات
+                        {{ __('warehouse.save_changes') }}
                     </button>
                     <a href="{{ route('manufacturing.warehouses.index') }}" class="btn-cancel">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
-                        إلغاء
+                        {{ __('warehouse.cancel') }}
                     </a>
                 </div>
             </form>
@@ -127,7 +131,7 @@
             inputs.forEach(input => {
                 input.addEventListener('blur', function() {
                     if (this.hasAttribute('required') && !this.value.trim()) {
-                        showError(this.id, 'هذا الحقل مطلوب');
+                        showError(this.id, '{{ __("warehouse.required_field") }}');
                     } else {
                         hideError(this.id);
                     }
@@ -151,7 +155,7 @@
 
                 requiredFields.forEach(field => {
                     if (!field.value.trim()) {
-                        showError(field.id, 'هذا الحقل مطلوب');
+                        showError(field.id, '{{ __("warehouse.required_field") }}');
                         isValid = false;
                     }
                 });
@@ -160,12 +164,12 @@
                 if (isValid) {
                     // Show SweetAlert2 confirmation
                     Swal.fire({
-                        title: 'تأكيد الحفظ',
-                        text: 'هل أنت متأكد من حفظ التغييرات؟',
+                        title: '{{ __("warehouse.confirm_save") }}',
+                        text: '{{ __("warehouse.confirm_save_changes") }}',
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonText: 'نعم، احفظ',
-                        cancelButtonText: 'إلغاء',
+                        confirmButtonText: '{{ __("warehouse.yes_save") }}',
+                        cancelButtonText: '{{ __("warehouse.cancel") }}',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {

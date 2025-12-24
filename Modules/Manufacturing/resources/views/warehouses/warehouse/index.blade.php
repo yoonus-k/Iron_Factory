@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إدارة المستودعات')
+@section('title', __('warehouse.warehouse_management'))
 
 @section('content')
     <div class="um-content-wrapper">
@@ -8,14 +8,14 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-home"></i>
-                إدارة المستودعات
+                {{ __('warehouse.warehouse_management') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('warehouse.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المستودعات</span>
+                <span>{{ __('warehouse.warehouse') }}</span>
             </nav>
         </div>
 
@@ -46,11 +46,11 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    قائمة المستودعات
+                    {{ __('warehouse.warehouses_list') }}
                 </h4>
                 <a href="{{ route('manufacturing.warehouses.create') }}" class="um-btn um-btn-primary">
                     <i class="feather icon-plus"></i>
-                    إضافة مستودع جديد
+                    {{ __('warehouse.add_new_warehouse') }}
                 </a>
             </div>
 
@@ -59,23 +59,29 @@
                 <form method="GET">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <input type="text" name="search" class="um-form-control" placeholder="البحث في المستودعات..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="um-form-control"
+                                   placeholder="{{ __('warehouse.search_warehouses') }}"
+                                   value="{{ request('search') }}">
                         </div>
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
-                                <option value="">جميع الحالات</option>
-                                <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>نشط</option>
-                                <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>غير نشط</option>
+                                <option value="">{{ __('warehouse.all_statuses') }}</option>
+                                <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>
+                                    {{ __('warehouse.active') }}
+                                </option>
+                                <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>
+                                    {{ __('warehouse.inactive') }}
+                                </option>
                             </select>
                         </div>
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                بحث
+                                {{ __('warehouse.search') }}
                             </button>
                             <a href="{{ route('manufacturing.warehouses.index') }}" class="um-btn um-btn-outline">
                                 <i class="feather icon-x"></i>
-                                إعادة تعيين
+                                {{ __('warehouse.reset') }}
                             </a>
                         </div>
                     </div>
@@ -87,10 +93,10 @@
                 <table class="um-table">
                     <thead>
                         <tr>
-                            <th>اسم المستودع</th>
-                            <th>الرمز</th>
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
+                            <th>{{ __('warehouse.warehouse_name') }}</th>
+                            <th>{{ __('warehouse.warehouse_code') }}</th>
+                            <th>{{ __('warehouse.status') }}</th>
+                            <th>{{ __('warehouse.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -102,29 +108,29 @@
                             <td>{{ $warehouse->code ?? $warehouse->warehouse_code }}</td>
                             <td>
                                 <span class="um-badge {{ $warehouse->is_active ? 'um-badge-success' : 'um-badge-danger' }}">
-                                    {{ $warehouse->is_active ? 'نشط' : 'غير نشط' }}
+                                    {{ $warehouse->is_active ? __('warehouse.active') : __('warehouse.inactive') }}
                                 </span>
                             </td>
                             <td>
                                 <div class="um-dropdown">
-                                    <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                                    <button class="um-btn-action um-btn-dropdown" title="{{ __('warehouse.actions') }}">
                                         <i class="feather icon-more-vertical"></i>
                                     </button>
                                     <div class="um-dropdown-menu">
                                         <a href="{{ route('manufacturing.warehouses.show', $warehouse->id) }}" class="um-dropdown-item um-btn-eye">
-                                            <i class="feather icon-edit-2"></i>
-                                            <span>عرض</span>
+                                            <i class="feather icon-eye"></i>
+                                            <span>{{ __('warehouse.view') }}</span>
                                         </a>
                                         <a href="{{ route('manufacturing.warehouses.edit', $warehouse->id) }}" class="um-dropdown-item um-btn-edit">
                                             <i class="feather icon-edit-2"></i>
-                                            <span>تعديل</span>
+                                            <span>{{ __('warehouse.edit') }}</span>
                                         </a>
                                         <form method="POST" action="{{ route('manufacturing.warehouses.destroy', $warehouse->id) }}" style="display: inline;" class="delete-form">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="um-dropdown-item um-btn-delete">
                                                 <i class="feather icon-trash-2"></i>
-                                                <span>حذف</span>
+                                                <span>{{ __('warehouse.delete') }}</span>
                                             </button>
                                         </form>
                                     </div>
@@ -134,7 +140,7 @@
                         @empty
                         <tr>
                             <td colspan="4" class="text-center" style="padding: 20px;">
-                                <p>لا توجد مستودعات حالياً</p>
+                                <p>{{ __('warehouse.no_warehouses_found') }}</p>
                             </td>
                         </tr>
                         @endforelse
@@ -157,26 +163,26 @@
                             </div>
                         </div>
                         <span class="um-badge {{ $warehouse->is_active ? 'um-badge-success' : 'um-badge-danger' }}">
-                            {{ $warehouse->is_active ? 'نشط' : 'غير نشط' }}
+                            {{ $warehouse->is_active ? __('warehouse.active') : __('warehouse.inactive') }}
                         </span>
                     </div>
 
                     <div class="um-category-card-footer">
                         <div class="um-dropdown">
-                            <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+                            <button class="um-btn-action um-btn-dropdown" title="{{ __('warehouse.actions') }}">
                                 <i class="feather icon-more-vertical"></i>
                             </button>
                             <div class="um-dropdown-menu">
                                 <a href="{{ route('manufacturing.warehouses.edit', $warehouse->id) }}" class="um-dropdown-item um-btn-edit">
                                     <i class="feather icon-edit-2"></i>
-                                    <span>تعديل</span>
+                                    <span>{{ __('warehouse.edit') }}</span>
                                 </a>
                                 <form method="POST" action="{{ route('manufacturing.warehouses.destroy', $warehouse->id) }}" style="display: inline;" class="delete-form">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="um-dropdown-item um-btn-delete">
                                         <i class="feather icon-trash-2"></i>
-                                        <span>حذف</span>
+                                        <span>{{ __('warehouse.delete') }}</span>
                                     </button>
                                 </form>
                             </div>
@@ -185,7 +191,7 @@
                 </div>
                 @empty
                 <div style="text-align: center; padding: 40px;">
-                    <p>لا توجد مستودعات حالياً</p>
+                    <p>{{ __('warehouse.no_warehouses_found') }}</p>
                 </div>
                 @endforelse
             </div>
@@ -195,9 +201,9 @@
                 <div>
                     <p class="um-pagination-info">
                         @if($warehouses->count())
-                            عرض {{ $warehouses->firstItem() }} إلى {{ $warehouses->lastItem() }} من أصل {{ $warehouses->total() }} مستودع
+                            {{ __('warehouse.showing') }} {{ $warehouses->firstItem() }} {{ __('warehouse.to') }} {{ $warehouses->lastItem() }} {{ __('warehouse.of') }} {{ $warehouses->total() }} {{ __('warehouse.warehouse') }}
                         @else
-                            لا توجد نتائج
+                            {{ __('warehouse.no_warehouses_found') }}
                         @endif
                     </p>
                 </div>
@@ -217,12 +223,12 @@
                     e.preventDefault();
 
                     Swal.fire({
-                        title: 'تأكيد الحذف',
-                        text: 'هل أنت متأكد من حذف هذا المستودع؟ هذا الإجراء لا يمكن التراجع عنه!',
+                        title: '{{ __('warehouse.confirm_delete') }}',
+                        text: '{{ __('warehouse.confirm_delete_warehouse_message') }}',
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'نعم، احذف',
-                        cancelButtonText: 'إلغاء',
+                        confirmButtonText: '{{ __("warehouse.yes_delete") }}',
+                        cancelButtonText: '{{ __("warehouse.cancel") }}',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {

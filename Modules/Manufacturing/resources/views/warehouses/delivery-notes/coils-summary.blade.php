@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'عرض كويلات الشحنة')
+@section('title', __('app.coil_transfer.selected_coils'))
 
 @section('content')
 <!-- مكتبة JsBarcode لتوليد باركود قابل للمسح -->
@@ -284,7 +284,7 @@
     <div class="page-header">
         <h1>
             <span style="font-size: 28px;">📦</span>
-            كويلات الشحنة - أذن توريد رقم {{ $deliveryNote->id }}
+            {{ __('app.coil_transfer.selected_coils') }} - أذن توريد رقم {{ $deliveryNote->id }}
         </h1>
         <p class="subtitle">عرض وإدارة جميع الكويلات المرتبطة بأذن التوريد</p>
     </div>
@@ -298,7 +298,7 @@
             </div>
             <div class="info-card-value">{{ $deliveryNote->delivery_date }}</div>
         </div>
-        
+
         <div class="info-card">
             <div class="info-card-header">
                 <span class="info-card-icon">🏭</span>
@@ -306,7 +306,7 @@
             </div>
             <div class="info-card-value" style="font-size: 20px;">{{ $deliveryNote->warehouse->warehouse_name ?? 'غير محدد' }}</div>
         </div>
-        
+
         <div class="info-card">
             <div class="info-card-header">
                 <span class="info-card-icon">📦</span>
@@ -314,7 +314,7 @@
             </div>
             <div class="info-card-value" style="font-size: 20px;">{{ $deliveryNote->material->name_ar ?? 'غير محدد' }}</div>
         </div>
-        
+
         <div class="info-card" style="border-top-color: #4caf50;">
             <div class="info-card-header">
                 <span class="info-card-icon">⚖️</span>
@@ -322,7 +322,7 @@
             </div>
             <div class="info-card-value" style="color: #4caf50;">{{ number_format($deliveryNote->quantity, 2) }} <span style="font-size: 18px;">كجم</span></div>
         </div>
-        
+
         <div class="info-card" style="border-top-color: #2196f3;">
             <div class="info-card-header">
                 <span class="info-card-icon">🔢</span>
@@ -330,7 +330,7 @@
             </div>
             <div class="info-card-value" style="color: #2196f3;">{{ $deliveryNote->coils()->count() }}</div>
         </div>
-        
+
         <div class="info-card" style="border-top-color: #ff9800;">
             <div class="info-card-header">
                 <span class="info-card-icon">📊</span>
@@ -346,12 +346,12 @@
             <span>←</span>
             <span>العودة للقائمة</span>
         </a>
-        
+
         <a href="{{ route('manufacturing.coils.transfer-index') }}" class="btn btn-success">
             <span>🔄</span>
             <span>نقل كويلات للإنتاج</span>
         </a>
-        
+
         <button onclick="printAllBarcodes()" class="btn btn-warning">
             <span>🖨️</span>
             <span>طباعة جميع الباركودات</span>
@@ -383,19 +383,19 @@
                         <td style="text-align: center;">
                             <div class="coil-number-badge">#{{ ($coils->currentPage() - 1) * $coils->perPage() + $index + 1 }}</div>
                         </td>
-                        
+
                         <td>
                             <strong style="font-size: 15px; color: #2c3e50;">{{ $coil->coil_number }}</strong>
                         </td>
-                        
+
                         <td style="text-align: center;">
                             <strong style="color: #7f8c8d;">{{ number_format($coil->coil_weight, 3) }}</strong> كجم
                         </td>
-                        
+
                         <td style="text-align: center;">
                             <strong style="color: #27ae60; font-size: 16px;">{{ number_format($coil->remaining_weight, 3) }}</strong> كجم
                         </td>
-                        
+
                         <td class="barcode-cell">
                             <div style="position: relative; display: inline-block;">
                                 <div class="barcode-loading" style="position: absolute; top: 0; left: 50%; transform: translateX(-50%);"></div>
@@ -403,7 +403,7 @@
                             </div>
                             <div class="barcode-code">{{ $coil->coil_barcode }}</div>
                         </td>
-                        
+
                         <td style="text-align: center;">
                             @if($coil->status === 'available')
                                 <span class="status-badge status-available">✓ متاح</span>
@@ -413,7 +413,7 @@
                                 <span class="status-badge status-used">✕ مستخدم بالكامل</span>
                             @endif
                         </td>
-                        
+
                         <td style="text-align: center;">
                             <button onclick="printCoilBarcode({{ $coil->id }})" class="btn btn-success btn-sm" title="طباعة الباركود">
                                 🖨️
@@ -446,7 +446,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const barcodes = document.querySelectorAll('.barcode');
     let index = 0;
-    
+
     // توليد الباركودات بشكل تدريجي لتجنب تعليق الصفحة
     function generateNextBarcode() {
         if (index < barcodes.length) {
@@ -479,7 +479,7 @@ document.addEventListener('DOMContentLoaded', function() {
             requestAnimationFrame(generateNextBarcode);
         }
     }
-    
+
     // بدء التوليد
     if (barcodes.length > 0) {
         generateNextBarcode();
@@ -547,7 +547,7 @@ function printCoilBarcode(coilId) {
                     border-top: 1px solid #ecf0f1;
                 }
                 @media print {
-                    body { 
+                    body {
                         padding: 0;
                         background: white;
                     }

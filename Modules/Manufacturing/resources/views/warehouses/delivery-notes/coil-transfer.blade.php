@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'نقل كويلات للإنتاج')
+@section('title', __('app.coil_transfer.page_title'))
 
 @section('content')
 <!-- مكتبة JsBarcode -->
@@ -194,7 +194,7 @@
         margin: 0 0 15px 0;
         color: #4caf50;
     }
-    
+
     .barcode-card svg {
         max-width: 100%;
         height: auto;
@@ -206,9 +206,9 @@
     <div class="page-header">
         <h1>
             <span>🔄</span>
-            <span>نقل كويلات للإنتاج</span>
+            <span>{{ __('app.coil_transfer.page_title') }}</span>
         </h1>
-        <p style="margin: 10px 0 0 0; opacity: 0.9;">اختر الكويلات وحدد المرحلة الإنتاجية والموظف المستلم</p>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">{{ __('app.coil_transfer.page_subtitle') }}</p>
     </div>
 
     <!-- Alerts -->
@@ -217,12 +217,12 @@
             <span>✓</span>
             <span>{{ session('success') }}</span>
         </div>
-        
+
         @if(session('production_barcodes'))
             <div style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px;">
-                <h3 style="margin: 0 0 20px 0; color: #333;">✅ تم النقل بنجاح - اطبع الباركودات</h3>
-                
-                <h4 style="color: #4caf50; margin: 20px 0 15px 0;">باركودات الإنتاج:</h4>
+                <h3 style="margin: 0 0 20px 0; color: #333;">✅ {{ __('app.coil_transfer.transfer_success') }}</h3>
+
+                <h4 style="color: #4caf50; margin: 20px 0 15px 0;">{{ __('app.coil_transfer.production_barcodes') }}</h4>
                 <div style="display: flex; flex-direction: column; gap: 20px; margin: 20px 0;">
                     @foreach(session('production_barcodes') as $item)
                         <div class="barcode-card">
@@ -236,7 +236,7 @@
                         </div>
                     @endforeach
                 </div>
-                
+
                 @if(session('warehouse_barcodes') && count(session('warehouse_barcodes')) > 0)
                     <h4 style="color: #2196f3; margin: 20px 0 15px 0;">باركودات المتبقي في المستودع:</h4>
                     <div style="display: flex; flex-direction: column; gap: 20px; margin: 20px 0;">
@@ -266,36 +266,36 @@
 
     <!-- Scanner Section -->
     <div class="form-section">
-        <h3 style="margin: 0 0 20px 0; color: #333;">🔍 مسح باركود الكويل</h3>
+        <h3 style="margin: 0 0 20px 0; color: #333;">{{ __('app.coil_transfer.scan_barcode') }}</h3>
         <div style="display: flex; gap: 15px;">
             <div style="flex: 1;">
-                <input type="text" 
-                       id="barcodeInput" 
-                       class="form-control" 
-                       placeholder="امسح الباركود أو أدخله يدوياً"
+                <input type="text"
+                       id="barcodeInput"
+                       class="form-control"
+                       placeholder="{{ __('app.coil_transfer.scan_placeholder') }}"
                        autofocus>
             </div>
             <button type="button" onclick="scanBarcode()" class="btn btn-primary">
-                🔍 بحث
+                {{ __('app.coil_transfer.search_button') }}
             </button>
         </div>
     </div>
 
     <!-- Selected Coils Section -->
     <div id="selectedCoilsSection" class="selected-coils-section">
-        <h3 style="margin: 0 0 20px 0; color: #333;">📦 الكويلات المحددة (<span id="selectedCount">0</span>)</h3>
+        <h3 style="margin: 0 0 20px 0; color: #333;">{{ __('app.coil_transfer.selected_coils') }} (<span id="selectedCount">0</span>)</h3>
         <div id="selectedCoilsList"></div>
-        
+
         <!-- Transfer Form -->
         <form method="POST" action="{{ route('manufacturing.coils.transfer') }}" id="transferForm">
             @csrf
             <div id="coilsInputsContainer"></div>
-            
+
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
                 <div class="form-group">
-                    <label for="production_stage">المرحلة الإنتاجية *</label>
+                    <label for="production_stage">{{ __('app.coil_transfer.production_stage') }} *</label>
                     <select name="production_stage" id="production_stage" class="form-control" required>
-                        <option value="">-- اختر المرحلة --</option>
+                        <option value="">{{ __('app.coil_transfer.select_stage') }}</option>
                         @foreach($productionStages as $stage)
                             <option value="{{ $stage->stage_code }}">{{ $stage->stage_name }}</option>
                         @endforeach
@@ -303,9 +303,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="assigned_to">الموظف المستلم *</label>
+                    <label for="assigned_to">{{ __('app.coil_transfer.assigned_to') }} *</label>
                     <select name="assigned_to" id="assigned_to" class="form-control" required>
-                        <option value="">-- اختر الموظف --</option>
+                        <option value="">{{ __('app.coil_transfer.select_employee') }}</option>
                         @foreach($users as $user)
                             <option value="{{ $user->id }}">{{ $user->name }}</option>
                         @endforeach
@@ -314,20 +314,20 @@
             </div>
 
             <div class="form-group">
-                <label for="notes">ملاحظات</label>
-                <textarea name="notes" 
-                          id="notes" 
-                          class="form-control" 
-                          rows="3" 
-                          placeholder="أضف ملاحظات إضافية (اختياري)"></textarea>
+                <label for="notes">{{ __('app.coil_transfer.notes') }}</label>
+                <textarea name="notes"
+                          id="notes"
+                          class="form-control"
+                          rows="3"
+                          placeholder="{{ __('app.coil_transfer.notes_placeholder') }}"></textarea>
             </div>
 
             <div style="display: flex; gap: 15px; margin-top: 20px;">
                 <button type="submit" class="btn btn-success">
-                    ✓ نقل للإنتاج
+                    ✓ {{ __('app.coil_transfer.transfer_button') }}
                 </button>
                 <button type="button" onclick="clearSelection()" class="btn btn-danger">
-                    ✗ مسح الكل
+                    ✗ {{ __('app.coil_transfer.clear_all_button') }}
                 </button>
             </div>
         </form>
@@ -342,49 +342,49 @@
                         <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
                     </th>
                     <th>#</th>
-                    <th>رقم الكويل</th>
-                    <th>الباركود</th>
-                    <th>المادة</th>
-                    <th>المستودع</th>
-                    <th>الوزن الأصلي</th>
-                    <th>الوزن المتبقي</th>
-                    <th>الحالة</th>
-                    <th>الإجراء</th>
+                    <th>{{ __('app.coil_transfer.coil_number') }}</th>
+                    <th>{{ __('app.coil_transfer.barcode') }}</th>
+                    <th>{{ __('app.coil_transfer.material') }}</th>
+                    <th>{{ __('app.coil_transfer.warehouse') }}</th>
+                    <th>{{ __('app.coil_transfer.original_weight') }}</th>
+                    <th>{{ __('app.coil_transfer.remaining_weight') }}</th>
+                    <th>{{ __('app.coil_transfer.status') }}</th>
+                    <th>{{ __('app.coil_transfer.action') }}</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($availableCoils as $index => $coil)
                     <tr id="row-{{ $coil->id }}">
                         <td>
-                            <input type="checkbox" 
-                                   class="coil-checkbox" 
+                            <input type="checkbox"
+                                   class="coil-checkbox"
                                    data-coil-id="{{ $coil->id }}"
                                    onchange="toggleCoilSelection(this)">
                         </td>
                         <td>{{ ($availableCoils->currentPage() - 1) * $availableCoils->perPage() + $index + 1 }}</td>
                         <td><strong>{{ $coil->coil_number }}</strong></td>
                         <td><code style="font-size: 11px;">{{ $coil->coil_barcode }}</code></td>
-                        <td>{{ $coil->deliveryNote->material->material_name ?? 'غير محدد' }}</td>
-                        <td>{{ $coil->deliveryNote->warehouse->warehouse_name ?? 'غير محدد' }}</td>
-                        <td>{{ number_format($coil->coil_weight, 3) }} كجم</td>
-                        <td><strong style="color: #4caf50;">{{ number_format($coil->remaining_weight, 3) }} كجم</strong></td>
+                        <td>{{ $coil->deliveryNote->material->material_name ?? __('app.coil_transfer.not_specified') }}</td>
+                        <td>{{ $coil->deliveryNote->warehouse->warehouse_name ?? __('app.coil_transfer.not_specified') }}</td>
+                        <td>{{ number_format($coil->coil_weight, 3) }} {{ __('app.coil_transfer.weight_kg') }}</td>
+                        <td><strong style="color: #4caf50;">{{ number_format($coil->remaining_weight, 3) }} {{ __('app.coil_transfer.weight_kg') }}</strong></td>
                         <td>
                             @if($coil->status === 'available')
-                                <span class="status-badge status-available">✓ متاح</span>
+                                <span class="status-badge status-available">{{ __('app.coil_transfer.status_available') }}</span>
                             @else
-                                <span class="status-badge status-partial">⚡ مستخدم جزئياً</span>
+                                <span class="status-badge status-partial">{{ __('app.coil_transfer.status_partial') }}</span>
                             @endif
                         </td>
                         <td>
-                            <button type="button" 
+                            <button type="button"
                                     onclick="quickAddCoil({{ json_encode([
                                         'id' => $coil->id,
                                         'coil_number' => $coil->coil_number,
                                         'coil_barcode' => $coil->coil_barcode,
                                         'remaining_weight' => $coil->remaining_weight,
                                         'material_name' => $coil->deliveryNote->material->material_name ?? 'غير محدد',
-                                    ]) }})" 
-                                    class="btn btn-primary" 
+                                    ]) }})"
+                                    class="btn btn-primary"
                                     style="padding: 8px 15px; font-size: 14px;">
                                 إضافة
                             </button>
@@ -394,7 +394,7 @@
                     <tr>
                         <td colspan="10" style="text-align: center; padding: 40px; color: #999;">
                             <div style="font-size: 48px; margin-bottom: 15px;">📦</div>
-                            <p style="margin: 0;">لا توجد كويلات متاحة للنقل</p>
+                            <p style="margin: 0;">{{ __('app.coil_transfer.no_available_coils') }}</p>
                         </td>
                     </tr>
                 @endforelse
@@ -416,9 +416,9 @@ let selectedCoils = [];
 // مسح الباركود
 function scanBarcode() {
     const barcode = document.getElementById('barcodeInput').value.trim();
-    
+
     if (!barcode) {
-        alert('الرجاء إدخال الباركود');
+        alert('{{ __('app.coil_transfer.no_barcode') }}');
         return;
     }
 
@@ -429,12 +429,12 @@ function scanBarcode() {
                 quickAddCoil(data.coil);
                 document.getElementById('barcodeInput').value = '';
             } else {
-                alert(data.message || 'الباركود غير موجود');
+                alert(data.message || '{{ __('app.coil_transfer.barcode_not_found') }}');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('حدث خطأ في البحث');
+            alert('{{ __('app.coil_transfer.search_error') }}');
         });
 }
 
@@ -449,7 +449,7 @@ document.getElementById('barcodeInput').addEventListener('keypress', function(e)
 function quickAddCoil(coil) {
     // التحقق من عدم التكرار
     if (selectedCoils.find(c => c.id === coil.id)) {
-        alert('هذا الكويل مضاف بالفعل');
+        alert('{{ __('app.coil_transfer.duplicate_coil') }}');
         return;
     }
 
@@ -476,7 +476,7 @@ function updateSelectedCoilsUI() {
 
     if (selectedCoils.length > 0) {
         section.classList.add('active');
-        
+
         // عرض القائمة
         list.innerHTML = selectedCoils.map((coil, index) => `
             <div class="selected-coil-item">
@@ -492,11 +492,11 @@ function updateSelectedCoilsUI() {
                 </div>
                 <div>
                     <label style="font-size: 12px; margin-bottom: 5px;">الوزن المطلوب نقله (كجم)</label>
-                    <input type="number" 
-                           class="form-control" 
-                           value="${coil.transfer_weight}" 
-                           step="0.001" 
-                           min="0.001" 
+                    <input type="number"
+                           class="form-control"
+                           value="${coil.transfer_weight}"
+                           step="0.001"
+                           min="0.001"
                            max="${coil.remaining_weight}"
                            onchange="updateTransferWeight(${index}, this.value)"
                            style="padding: 8px;">
@@ -533,10 +533,10 @@ function removeCoil(index) {
 
 // مسح الكل
 function clearSelection() {
-    if (confirm('هل أنت متأكد من مسح جميع الكويلات المحددة؟')) {
+    if (confirm('{{ __('app.coil_transfer.clear_confirmation') }}')) {
         selectedCoils = [];
         updateSelectedCoilsUI();
-        
+
         // إلغاء تحديد الـ checkboxes
         document.querySelectorAll('.coil-checkbox').forEach(cb => cb.checked = false);
         document.getElementById('selectAll').checked = false;
@@ -546,7 +546,7 @@ function clearSelection() {
 // تحديد/إلغاء تحديد كويل من checkbox
 function toggleCoilSelection(checkbox) {
     const coilId = parseInt(checkbox.dataset.coilId);
-    
+
     if (checkbox.checked) {
         // البحث عن بيانات الكويل في الجدول
         const row = checkbox.closest('tr');
@@ -554,7 +554,7 @@ function toggleCoilSelection(checkbox) {
         const barcode = row.cells[3].textContent.trim();
         const material = row.cells[4].textContent.trim();
         const remaining = parseFloat(row.cells[7].textContent.replace(' كجم', '').replace(',', ''));
-        
+
         quickAddCoil({
             id: coilId,
             coil_number: coilNumber,
@@ -610,10 +610,10 @@ function printBarcode(barcode, title) {
         </head>
         <body>
             <div class="barcode-container">
-                <h3>🏭 مصنع الحديد</h3>
+                <h3>🏭 {{ __('app.coil_transfer.print_title') }}</h3>
                 <h4>${title}</h4>
                 <svg id="printBarcode"></svg>
-                <p style="font-size: 11px; color: #666; margin-top: 10px;">تاريخ الطباعة: ${new Date().toLocaleString('ar-EG')}</p>
+                <p style="font-size: 11px; color: #666; margin-top: 10px;">{{ __('app.coil_transfer.print_date') }}: ${new Date().toLocaleString('ar-EG')}</p>
             </div>
             <script>
                 JsBarcode("#printBarcode", "${barcode}", {
@@ -648,7 +648,7 @@ document.addEventListener('DOMContentLoaded', function() {
             margin: 5
         });
     });
-    
+
     // توليد باركودات المستودع
     document.querySelectorAll('.warehouse-barcode').forEach(function(svg) {
         const code = svg.getAttribute('data-barcode');
