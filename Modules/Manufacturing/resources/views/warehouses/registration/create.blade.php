@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'نموذج تسجيل الشحنة')
+@section('title', __('warehouse_registration.register_shipment'))
 
 @section('content')
     <div class="um-content-wrapper">
@@ -10,23 +10,23 @@
                 <div class="col">
                     <h1 class="um-page-title">
                         <i class="feather icon-edit-3"></i>
-                        تسجيل شحنة جديدة
+                        {{ __('warehouse_registration.register_new_shipment') }}
                     </h1>
                     <nav class="um-breadcrumb-nav">
                         <span>
-                            <i class="feather icon-home"></i> لوحة التحكم
+                            <i class="feather icon-home"></i> {{ __('warehouse.dashboard') }}
                         </span>
                         <i class="feather icon-chevron-left"></i>
-                        <span>المستودع</span>
+                        <span>{{ __('warehouse.warehouse') }}</span>
                         <i class="feather icon-chevron-left"></i>
-                        <span>التسجيل</span>
+                        <span>{{ __('warehouse.registration') }}</span>
                         <i class="feather icon-chevron-left"></i>
                         <span>#{{ $deliveryNote->note_number ?? $deliveryNote->id }}</span>
                     </nav>
                 </div>
                 <div class="col-auto">
                     <a href="{{ route('manufacturing.warehouse.registration.pending') }}" class="um-btn um-btn-outline">
-                        <i class="feather icon-arrow-right"></i> رجوع
+                        <i class="feather icon-arrow-right"></i> {{ __('warehouse_registration.back') }}
                     </a>
                 </div>
             </div>
@@ -40,7 +40,7 @@
                 1
             </div>
             <div>
-                <strong>الخطوة 1:</strong> ملء بيانات التسجيل الدقيقة من الميزان والفحص الفيزيائي
+                <strong>{{ __('warehouse_registration.step_1') }}</strong> {{ __('warehouse_registration.fill_registration_data') }}
             </div>
         </div>
 
@@ -73,7 +73,7 @@
                         <line x1="12" y1="8" x2="12" y2="12"></line>
                         <line x1="12" y1="16" x2="12.01" y2="16"></line>
                     </svg>
-                    <h4 class="alert-title">يوجد أخطاء في البيانات المدخلة</h4>
+                    <h4 class="alert-title">{{ __('warehouse_registration.validation_errors') }}</h4>
                     <button type="button" class="alert-close"
                         onclick="this.parentElement.parentElement.style.display='none'">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -112,21 +112,21 @@
                 <div class="col-lg-6">
                     <div class="card mb-4">
                         <div class="card-header bg-light">
-                            <h5 class="mb-0">📦 معلومات الشحنة (للمرجعية)</h5>
-                            <small class="text-muted">البيانات التالية قراءة فقط</small>
+                            <h5 class="mb-0">📦 {{ __('warehouse_registration.shipment_info') }} ({{ __('warehouse_registration.reference_data') }})</h5>
+                            <small class="text-muted">{{ __('warehouse_registration.read_only_data') }}</small>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
-                                        <label class="form-label"><strong>رقم الشحنة:</strong></label>
+                                        <label class="form-label"><strong>{{ __('warehouse_registration.shipment_number') }}:</strong></label>
                                         <input type="text" class="form-control"
                                             value="{{ $deliveryNote->note_number ?? $deliveryNote->id }}" disabled>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
-                                        <label class="form-label"><strong>تاريخ الوصول:</strong></label>
+                                        <label class="form-label"><strong>{{ __('warehouse_registration.created_date') }}:</strong></label>
                                         <input type="text" class="form-control"
                                             value="{{ $deliveryNote->created_at->format('d/m/Y H:i') }}" disabled>
                                     </div>
@@ -134,7 +134,7 @@
                             </div>
 
                             <div class="form-group mb-3">
-                                <label class="form-label"><strong>المورد:</strong></label>
+                                <label class="form-label"><strong>{{ __('warehouse_registration.supplier') }}:</strong></label>
                                 <input type="text" class="form-control"
                                     value="{{ $deliveryNote->supplier->name ?? 'N/A' }}" disabled>
                             </div>
@@ -142,14 +142,14 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group mb-0">
-                                        <label class="form-label"><strong>سائق الشاحنة:</strong></label>
+                                        <label class="form-label"><strong>{{ __('warehouse_registration.driver_name') }}:</strong></label>
                                         <input type="text" class="form-control"
                                             value="{{ $deliveryNote->driver_name ?? 'N/A' }}" disabled>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group mb-0">
-                                        <label class="form-label"><strong>رقم المركبة:</strong></label>
+                                        <label class="form-label"><strong>{{ __('warehouse_registration.vehicle_number') }}:</strong></label>
                                         <input type="text" class="form-control"
                                             value="{{ $deliveryNote->vehicle_number ?? 'N/A' }}" disabled>
                                     </div>
@@ -163,15 +163,14 @@
                 <div class="col-lg-6">
                     <div class="card mb-4">
                         <div class="card-header bg-danger text-white">
-                            <h5 class="mb-0">⚠️ البيانات المطلوبة للتسجيل</h5>
-                            <small>جميع الحقول إجبارية *</small>
+                            <h5 class="mb-0">{{ __('warehouse_registration.required_data') }}</h5>
+                            <small>{{ __('warehouse_registration.all_fields_required') }} *</small>
                         </div>
                         <div class="card-body">
                             <div class="alert alert-info mb-3" style="display: flex; gap: 10px; align-items: flex-start;">
                                 <i class="fas fa-lightbulb" style="flex-shrink: 0; margin-top: 2px;"></i>
                                 <div>
-                                    <strong>💡 نصيحة:</strong> تأكد من قراءة الوزن من الميزان مباشرة والمطابقة مع الفحص
-                                    الفيزيائي للبضاعة
+                                    <strong>{{ __('warehouse_registration.tip') }}</strong> {{ __('warehouse_registration.tip_message') }}
                                 </div>
                             </div>
 
@@ -184,14 +183,14 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <div class="form-group mb-0">
-                                        <label class="form-label"><strong>المستودع <span
+                                        <label class="form-label"><strong>{{ __('warehouse_registration.warehouse_select') }} <span
                                                     class="text-danger">*</span></strong></label>
                                         <select name="warehouse_select" class="form-select @error('warehouse_id') is-invalid @enderror"
                                             id="warehouseSelect" required>
-                                            <option value="">-- اختر المستودع --</option>
+                                            <option value="">{{ __('warehouse_registration.select_warehouse') }}</option>
                                             @if ($deliveryNote->warehouse_id && $deliveryNote->warehouse)
                                                 <option value="{{ $deliveryNote->warehouse_id }}" selected>
-                                                    {{ $deliveryNote->warehouse->warehouse_name ?? 'مستودع' }}
+                                                    {{ $deliveryNote->warehouse->warehouse_name ?? __('warehouse.warehouse') }}
                                                 </option>
                                             @else
                                                 @foreach (\App\Models\Warehouse::where('is_active', true)->get() as $warehouse)
@@ -209,11 +208,11 @@
 
                                 <div class="col-md-6">
                                     <div class="form-group mb-0">
-                                        <label class="form-label"><strong>المادة <span
+                                        <label class="form-label"><strong>{{ __('warehouse_registration.material_select') }} <span
                                                     class="text-danger">*</span></strong></label>
                                         <select name="material_id" class="form-select @error('material_id') is-invalid @enderror"
                                             id="materialSelect" required>
-                                            <option value="">-- اختر المادة --</option>
+                                            <option value="">{{ __('warehouse_registration.select_material') }}</option>
                                             @foreach ($materials as $mat)
                                                 <option value="{{ $mat->id }}" @selected(old('material_id', $previousLog->material_id ?? '') == $mat->id)>
                                                     {{ $mat->name_ar }}
@@ -228,39 +227,39 @@
                             </div>
 
                             <div class="form-group mb-3">
-                                <label class="form-label"><strong>الكمية المسلمة (من الأذن) <span
+                                <label class="form-label"><strong>{{ __('warehouse_registration.quantity_delivered') }} <span
                                             class="text-danger">*</span></strong></label>
                                 <div class="input-group">
                                     <input type="number" name="quantity"
                                         class="form-control @error('quantity') is-invalid @enderror"
-                                        placeholder="الكمية من أذن التسليم" step="0.01" min="0.01"
+                                        placeholder="{{ __('warehouse_registration.quantity_delivered') }}" step="0.01" min="0.01"
                                         value="{{ old('quantity', $deliveryNote->quantity ?? $deliveryNote->delivered_weight ?? '') }}"
                                         readonly
                                         style="background-color: #f8f9fa; cursor: not-allowed;">
-                                    <span class="input-group-text">وحدة</span>
+                                    <span class="input-group-text">{{ __('warehouse.unit') }}</span>
                                 </div>
                                 <small class="text-muted d-block mt-1">
-                                    ✅ الكمية المسجلة من أذن التسليم الأصلية
+                                    ✅ {{ __('warehouse_registration.recorded_quantity') }}
                                     @if($deliveryNote->quantity && $deliveryNote->quantity > 0)
-                                        - تم تسجيل: <strong style="color: #0066CC;">{{ number_format($deliveryNote->quantity, 2) }}</strong> وحدة
+                                        - {{ __('warehouse_registration.registered_quantity') }}: <strong style="color: #0066CC;">{{ number_format($deliveryNote->quantity, 2) }}</strong> {{ __('warehouse.unit') }}
                                     @endif
                                 </small>
                             </div>
 
                             <div class="form-group mb-3">
-                                <label class="form-label"><strong>رقم الكويل (Coil Number) <span class="text-muted">(اختياري)</span></strong></label>
+                                <label class="form-label"><strong>{{ __('warehouse_registration.coil_number_input') }} <span class="text-muted">({{ __('warehouse.optional_field') }})</span></strong></label>
                                 <div class="input-group">
                                     <span class="input-group-text">
                                         <i class="feather icon-package"></i>
                                     </span>
                                     <input type="text" name="coil_number"
                                         class="form-control @error('coil_number') is-invalid @enderror"
-                                        placeholder="مثال: C-2025-001 أو رقم الكويل من المورد"
+                                        placeholder="{{ __('warehouse_registration.enter_coil_number') }}"
                                         value="{{ old('coil_number') }}"
                                         autocomplete="off">
                                 </div>
                                 <small class="text-muted d-block mt-1">
-                                    ℹ️ رقم الكويل (اللفة) من المورد - يساعد في تتبع المادة الخام
+                                    ℹ️ {{ __('warehouse_registration.coil_number') }} - {{ __('warehouse_registration.use_for_all_stages') }}
                                 </small>
                                 @error('coil_number')
                                     <small class="text-danger d-block mt-1">{{ $message }}</small>
@@ -268,15 +267,15 @@
                             </div>
 
                             <div class="form-group mb-3">
-                                <label class="form-label"><strong>الوزن الفعلي من الميزان (كيلو) <span
+                                <label class="form-label"><strong>{{ __('warehouse_registration.actual_weight_from_scale') }} <span
                                             class="text-danger">*</span></strong></label>
                                 <div class="input-group">
                                     <input type="number" name="actual_weight"
                                         class="form-control @error('actual_weight') is-invalid @enderror"
-                                        placeholder="مثال: 1000.50" step="0.01" min="0.01"
+                                        placeholder="{{ __('warehouse_registration.enter_weight') }}" step="0.01" min="0.01"
                                         value="{{ old('actual_weight', $previousLog->weight_recorded ?? '') }}" required
                                         autocomplete="off">
-                                    <span class="input-group-text">كيلو</span>
+                                    <span class="input-group-text">{{ __('warehouse.kg') }}</span>
                                 </div>
                                 @error('actual_weight')
                                     <small class="text-danger d-block mt-1">{{ $message }}</small>
@@ -284,11 +283,11 @@
                             </div>
 
                             <div class="form-group mb-3">
-                                <label class="form-label"><strong>الوحدة <span
+                                <label class="form-label"><strong>{{ __('warehouse_registration.unit_select') }} <span
                                             class="text-danger">*</span></strong></label>
                                 <select name="unit_id" class="form-select @error('unit_id') is-invalid @enderror"
                                     required>
-                                    <option value="">-- اختر الوحدة من القائمة --</option>
+                                    <option value="">{{ __('warehouse_registration.select_unit') }}</option>
                                     @foreach (\App\Models\Unit::where('is_active', true)->orderBy('unit_name')->get() as $unit)
                                         <option value="{{ $unit->id }}" @selected(old('unit_id', $previousLog->unit_id ?? '') == $unit->id)>
                                             {{ $unit->unit_name }}
@@ -301,11 +300,11 @@
                             </div>
 
                             <div class="form-group mb-0">
-                                <label class="form-label"><strong>موقع التخزين <span
+                                <label class="form-label"><strong>{{ __('warehouse_registration.storage_location') }} <span
                                             class="text-danger">*</span></strong></label>
                                 <input type="text" name="location"
                                     class="form-control @error('location') is-invalid @enderror"
-                                    placeholder="مثال: المنطقة أ - الصف 1 - الرف 3"
+                                    placeholder="{{ __('warehouse_registration.enter_storage_location') }}"
                                     value="{{ old('location', $previousLog->location ?? '') }}" required
                                     autocomplete="off">
                                 @error('location')
@@ -320,13 +319,13 @@
             <!-- ملاحظات -->
             <div class="card mb-4">
                 <div class="card-header bg-light">
-                    <h5 class="mb-0">📋 ملاحظات إضافية (اختيارية)</h5>
+                    <h5 class="mb-0">{{ __('warehouse_registration.additional_notes') }} ({{ __('warehouse.optional_field') }})</h5>
                 </div>
                 <div class="card-body">
                     <div class="form-group mb-0">
-                        <label class="form-label">ملاحظات عن حالة البضاعة:</label>
+                        <label class="form-label">{{ __('warehouse_registration.additional_notes_placeholder') }}:</label>
                         <textarea name="notes" class="form-control @error('notes') is-invalid @enderror" rows="3"
-                            placeholder=" البضاعة سليمة بدون أضرار / هناك " autocomplete="off">{{ old('notes') }}</textarea>
+                            placeholder="{{ __('warehouse_registration.additional_notes_placeholder') }}" autocomplete="off">{{ old('notes') }}</textarea>
                         @error('notes')
                             <small class="text-danger d-block mt-1">{{ $message }}</small>
                         @enderror
@@ -340,28 +339,27 @@
                     <div class="form-check mb-4">
                         <input type="checkbox" id="confirmCheck" class="form-check-input" required>
                         <label class="form-check-label" for="confirmCheck">
-                            <strong>✓ أؤكد أن جميع البيانات صحيحة وقد تم التحقق منها بدقة من الميزان والفحص
-                                الفيزيائي</strong>
+                            <strong>✓ {{ __('warehouse_registration.confirm_data_accuracy') }}</strong>
                         </label>
                     </div>
 
                     <div class="row g-2">
                         <div class="col-auto">
                             <button type="submit" class="btn btn-success btn-lg" id="submitBtn" disabled>
-                                <i class="fas fa-check-circle"></i> ✓ تسجيل الآن
+                                <i class="fas fa-check-circle"></i> {{ __('warehouse_registration.register_now') }}
                             </button>
                         </div>
                         <div class="col-auto">
                             <a href="{{ route('manufacturing.warehouse.registration.pending') }}"
                                 class="btn btn-secondary btn-lg">
-                                <i class="fas fa-times-circle"></i> ✗ إلغاء
+                                <i class="fas fa-times-circle"></i> {{ __('warehouse_registration.cancel') }}
                             </a>
                         </div>
                     </div>
 
                     <div class="alert alert-light mt-3 mb-0" style="border-left: 3px solid #27ae60;">
                         <small style="color: #666;">
-                            <strong>✓ بعد التسجيل:</strong> ستتمكن من عرض البيانات ونقل البضاعة للإنتاج
+                            <strong>✓ {{ __('warehouse_registration.after_registration') }}</strong>
                         </small>
                     </div>
                 </div>

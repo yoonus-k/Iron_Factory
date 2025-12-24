@@ -1,0 +1,172 @@
+<?php
+
+return [
+    // Page Titles
+    'reconciliation_dashboard' => 'Reconciliation Dashboard',
+    'reconciliation_history' => 'Reconciliation History',
+    'link_invoice' => 'Link Invoice',
+    'edit_link_invoice' => 'Edit Invoice Link',
+    'supplier_report' => 'Supplier Performance Report',
+    'reconciliation_management' => 'Reconciliation & Link Management',
+    
+    // Navigation & Breadcrumbs
+    'dashboard' => 'Dashboard',
+    'warehouse' => 'Warehouse',
+    'reconciliation' => 'Reconciliation',
+    'back' => 'Back',
+    
+    // How It Works Section
+    'how_it_works' => 'How It Works:',
+    'step_1' => 'Search and select a delivery note from the available notes',
+    'step_2' => 'Search and select an invoice to link it with the delivery note',
+    'step_3' => 'Select the products from the invoice that match the delivery note',
+    'step_4' => 'The system will automatically calculate the discrepancy',
+    'step_5' => 'Review and confirm the data, then submit',
+    'note' => 'Note:',
+    'note_text' => 'You can choose all or some products as needed',
+    
+    // Labels & Placeholders
+    'delivery_note' => 'Delivery Note',
+    'search_delivery_notes' => 'Search delivery notes...',
+    'invoice' => 'Invoice',
+    'search_invoices' => 'Search invoices...',
+    'invoice_number' => 'Invoice Number',
+    'delivery_note_number' => 'Delivery Note Number',
+    'supplier' => 'Supplier',
+    'date' => 'Date',
+    'weight' => 'Weight',
+    'quantity' => 'Quantity',
+    'total_weight' => 'Total Weight',
+    'total_quantity' => 'Total Quantity',
+    'items_count' => 'Items Count',
+    
+    // Product Selection
+    'select_products' => 'Select Products',
+    'product_name' => 'Product Name',
+    'selected_items' => 'Selected Items',
+    'selection_summary' => 'Selection Summary',
+    'total_selected_weight' => 'Total Weight (Selected)',
+    'total_selected_quantity' => 'Total Quantity (Selected)',
+    
+    // Discrepancy Section
+    'discrepancy' => 'Discrepancy',
+    'discrepancy_calculation' => 'Discrepancy Calculation',
+    'invoice_weight' => 'Invoice Weight',
+    'actual_weight' => 'Actual Weight',
+    'difference' => 'Difference',
+    'in_our_favor' => 'In Our Favor',
+    'deficit' => 'Deficit',
+    'no_discrepancy' => 'No Discrepancy',
+    'weights_match' => 'Weights Match - Auto-Matched',
+    'weight_difference' => 'Weight Difference:',
+    'kg' => 'kg',
+    
+    // Buttons
+    'clear' => 'Clear',
+    'submit' => 'Submit',
+    'cancel' => 'Cancel',
+    'save' => 'Save',
+    'confirm' => 'Confirm',
+    'create_delivery_note' => 'Create Delivery Note from Invoice',
+    'search' => 'Search',
+    'filter' => 'Filter',
+    'reset_filters' => 'Reset Filters',
+    'add_new' => 'Add New',
+    'view' => 'View',
+    'edit' => 'Edit',
+    'delete' => 'Delete',
+    
+    // Messages
+    'success' => 'Success!',
+    'error' => 'Error!',
+    'warning' => 'Warning!',
+    'info' => 'Information',
+    'created_successfully' => 'Created successfully',
+    'updated_successfully' => 'Updated successfully',
+    'deleted_successfully' => 'Deleted successfully',
+    'saved_successfully' => 'Saved successfully',
+    'linked_successfully' => 'Linked successfully',
+    'reconciled_successfully' => 'Reconciled successfully',
+    'no_data_found' => 'No data found',
+    'confirm_delete' => 'Are you sure you want to delete this record?',
+    'confirm_action' => 'Are you sure you want to perform this action?',
+    'please_select' => 'Please select at least one item',
+    'please_select_delivery_note' => 'Please select a delivery note',
+    'please_select_invoice' => 'Please select an invoice',
+    'i_confirm' => 'I confirm the data is correct',
+    'loading' => 'Loading...',
+    'processing' => 'Processing...',
+    'error_message' => 'An error occurred:',
+    
+    // Checkboxes & Confirmations
+    'confirm_and_submit' => 'I confirm that the data above is correct and submit it for reconciliation',
+    'agree_terms' => 'I agree to the terms and conditions',
+    
+    // Statistics & Reports
+    'statistics' => 'Statistics',
+    'pending_reconciliations' => 'Pending Reconciliations',
+    'total_shipments' => 'Total Shipments',
+    'average_accuracy' => 'Average Accuracy',
+    'total_discrepancies' => 'Total Discrepancies',
+    'total_weight_variation' => 'Total Weight Variation',
+    'number_of_suppliers' => 'Number of Suppliers',
+    'reconciliation_log' => 'Reconciliation Log',
+    'logs' => 'Logs',
+    
+    // Tab Names
+    'delivery_notes' => 'Delivery Notes',
+    'invoices' => 'Invoices',
+    'reconciliation_records' => 'Reconciliation Records',
+    'movements' => 'Movements',
+    'supplier_performance' => 'Supplier Performance',
+    
+    // Table Headers
+    'actions' => 'Actions',
+    'status' => 'Status',
+    'created_at' => 'Created At',
+    'updated_at' => 'Updated At',
+    'created_by' => 'Created By',
+    'modified_by' => 'Modified By',
+    'accuracy' => 'Accuracy',
+    'discrepancy_percentage' => 'Discrepancy %',
+    'material_name' => 'Material Name',
+    'material_unit' => 'Unit',
+    
+    // Status Options
+    'pending' => 'Pending',
+    'matched' => 'Matched',
+    'mismatched' => 'Mismatched',
+    'reconciled' => 'Reconciled',
+    'rejected' => 'Rejected',
+    'approved' => 'Approved',
+    
+    // Confirmations
+    'delete_delivery_note' => 'Are you sure you want to delete this delivery note?',
+    'delete_invoice' => 'Are you sure you want to delete this invoice?',
+    'delete_reconciliation' => 'Are you sure you want to delete this reconciliation record?',
+    'delete_movement' => 'Are you sure you want to delete this movement?',
+    
+    // Movement Types
+    'incoming' => 'Incoming',
+    'outgoing' => 'Outgoing',
+    'transfer' => 'Transfer',
+    'adjustment' => 'Adjustment',
+    
+    // Summary
+    'summary' => 'Summary',
+    'quick_summary' => 'Quick Summary',
+    'delivery_note_created' => 'Delivery Note Created',
+    'delivery_note_number_created' => 'Delivery Note Number:',
+    'items_count_created' => 'Number of Items:',
+    'total_weight_created' => 'Total Weight:',
+    'total_quantity_created' => 'Total Quantity:',
+    'weights_matched' => 'Weights Matched - Auto-Matched',
+    'weight_discrepancy' => 'Weight Discrepancy:',
+    'this_action_cannot_be_undone' => 'This action cannot be undone',
+    
+    // Additional Fields
+    'notes' => 'Notes',
+    'remarks' => 'Remarks',
+    'reference_number' => 'Reference Number',
+    'description' => 'Description',
+];

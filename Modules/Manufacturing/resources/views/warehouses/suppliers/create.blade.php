@@ -38,7 +38,7 @@
             </div>
         @endif
 
-        {{-- عرض جميع أخطاء التحقق --}}
+        {{-- Validation error messages --}}
         @if ($errors->any())
             <div class="alert alert-danger alert-container">
                 <div class="alert-header">

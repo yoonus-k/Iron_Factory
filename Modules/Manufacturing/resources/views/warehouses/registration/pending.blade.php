@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تسجيل البضاعة - المستودع')
+@section('title', __('warehouse_registration.warehouse_registration'))
 
 @section('content')
     <style>
@@ -409,16 +409,16 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="fas fa-box"></i>
-                تسجيل البضاعة في المستودع
+                {{ __('warehouse_registration.warehouse_registration') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('warehouse.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>المستودع</span>
+                <span>{{ __('warehouse.warehouse') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>تسجيل البضاعة</span>
+                <span>{{ __('warehouse.registration') }}</span>
             </nav>
         </div>
 
@@ -426,7 +426,7 @@
         @if ($errors->any())
             <div class="um-alert-custom um-alert-error" role="alert">
                 <i class="feather icon-x-circle"></i>
-                <strong>❌ خطأ!</strong>
+                <strong>{{ __('warehouse.error_in_data') }}!</strong>
                 <ul class="mb-0">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -475,7 +475,7 @@
                     <i class="fas fa-hourglass-half"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-label">🔴 شحنات معلقة (بانتظار التسجيل)</span>
+                    <span class="stat-label">{{ __('warehouse_registration.pending_shipments_count') }}</span>
                     <span class="stat-number" style="color: #0051E5;">{{ $incomingUnregistered->total() ?? 0 }}</span>
                 </div>
             </div>
@@ -485,7 +485,7 @@
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-label">🟢 شحنات مسجلة</span>
+                    <span class="stat-label">{{ __('warehouse_registration.registered_shipments_count') }}</span>
                     <span class="stat-number" style="color: #3E4651;">{{ $incomingRegistered->total() ?? 0 }}</span>
                 </div>
             </div>
@@ -496,7 +496,7 @@
                     <i class="fas fa-industry"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-label">🏭 منقولة للإنتاج</span>
+                    <span class="stat-label">{{ __('warehouse_registration.moved_to_production_count') }}</span>
                     <span class="stat-number" style="color: #0051E5;">{{ $movedToProduction->total() ?? 0 }}</span>
                 </div>
             </div>
@@ -509,20 +509,20 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="fas fa-box"></i>
-                    إدارة تسجيل الشحنات الواردة
+                    {{ __('warehouse_registration.incoming_shipments') }}
                 </h4>
                 <div style="display: flex; gap: 10px;">
                     <a href="{{ route('manufacturing.warehouse.movements.index') }}" class="um-btn um-btn-primary">
                         <i class="fas fa-exchange-alt"></i>
-                        سجل الحركات
+                        {{ __('warehouse.movements') }}
                     </a>
                     <a href="{{ route('manufacturing.warehouses.reconciliation.link-invoice') }}" class="um-btn um-btn-primary">
                         <i class="fas fa-link"></i>
-                        ربط فاتورة
+                        {{ __('warehouse.reconciliation') }}
                     </a>
                     <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="um-btn um-btn-primary">
                         <i class="fas fa-balance-scale"></i>
-                        التسويات
+                        {{ __('warehouse.reconciliation') }}
                     </a>
                 </div>
             </div>
@@ -534,7 +534,7 @@
                         <!-- From Date -->
                         <div class="um-form-group">
                             <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
-                                <i class="fas fa-calendar-alt" style="color: #0051E5; margin-left: 5px;"></i> من التاريخ
+                                <i class="fas fa-calendar-alt" style="color: #0051E5; margin-left: 5px;"></i> {{ __('warehouse.from_date') }}
                             </label>
                             <input type="date" name="from_date" class="um-form-control"
                                    value="{{ $appliedFilters['from_date'] ?? '' }}">
@@ -543,7 +543,7 @@
                         <!-- To Date -->
                         <div class="um-form-group">
                             <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
-                                <i class="fas fa-calendar-check" style="color: #0051E5; margin-left: 5px;"></i> إلى التاريخ
+                                <i class="fas fa-calendar-check" style="color: #0051E5; margin-left: 5px;"></i> {{ __('warehouse.to_date') }}
                             </label>
                             <input type="date" name="to_date" class="um-form-control"
                                    value="{{ $appliedFilters['to_date'] ?? '' }}">
@@ -552,22 +552,22 @@
                         <!-- Sort By -->
                         <div class="um-form-group">
                             <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
-                                <i class="fas fa-sort" style="color: #0051E5; margin-left: 5px;"></i> ترتيب حسب
+                                <i class="fas fa-sort" style="color: #0051E5; margin-left: 5px;"></i> {{ __('warehouse.type') }}
                             </label>
                             <select name="sort_by" class="um-form-control">
-                                <option value="date" {{ ($appliedFilters['sort_by'] ?? 'date') === 'date' ? 'selected' : '' }}>التاريخ</option>
-                                <option value="note_number" {{ ($appliedFilters['sort_by'] ?? 'date') === 'note_number' ? 'selected' : '' }}>رقم الأذن</option>
+                                <option value="date" {{ ($appliedFilters['sort_by'] ?? 'date') === 'date' ? 'selected' : '' }}>{{ __('warehouse.date') }}</option>
+                                <option value="note_number" {{ ($appliedFilters['sort_by'] ?? 'date') === 'note_number' ? 'selected' : '' }}>{{ __('warehouse_registration.shipment_number') }}</option>
                             </select>
                         </div>
 
                         <!-- Sort Order -->
                         <div class="um-form-group">
                             <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 8px;">
-                                <i class="fas fa-arrow-up-down" style="color: #0051E5; margin-left: 5px;"></i> الترتيب
+                                <i class="fas fa-arrow-up-down" style="color: #0051E5; margin-left: 5px;"></i> {{ __('warehouse.order') }}
                             </label>
                             <select name="sort_order" class="um-form-control">
-                                <option value="desc" {{ ($appliedFilters['sort_order'] ?? 'desc') === 'desc' ? 'selected' : '' }}>الأحدث أولاً</option>
-                                <option value="asc" {{ ($appliedFilters['sort_order'] ?? 'desc') === 'asc' ? 'selected' : '' }}>الأقدم أولاً</option>
+                                <option value="desc" {{ ($appliedFilters['sort_order'] ?? 'desc') === 'desc' ? 'selected' : '' }}>{{ __('warehouse.order_desc') }}</option>
+                                <option value="asc" {{ ($appliedFilters['sort_order'] ?? 'desc') === 'asc' ? 'selected' : '' }}>{{ __('warehouse.order_asc') }}</option>
                             </select>
                         </div>
 
@@ -575,11 +575,11 @@
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="fas fa-search"></i>
-                                بحث
+                                {{ __('warehouse_registration.search') }}
                             </button>
                             <a href="{{ route('manufacturing.warehouse.registration.pending') }}" class="um-btn um-btn-outline">
                                 <i class="fas fa-redo"></i>
-                                إعادة تعيين
+                                {{ __('warehouse_registration.reset') }}
                             </a>
                         </div>
                     </div>
@@ -589,12 +589,12 @@
                         <div style="margin-top: 12px; padding: 10px 12px; background-color: #e8f0ff; border-radius: 6px; border-right: 4px solid #0051E5;">
                             <small style="color: #0051E5; font-weight: 500;">
                                 <i class="fas fa-info-circle"></i>
-                                تم تطبيق الفلترة:
+                                {{ __('warehouse.apply_filters') }}:
                                 @if ($appliedFilters['from_date'])
-                                    من <strong>{{ date('Y-m-d', strtotime($appliedFilters['from_date'])) }}</strong>
+                                    {{ __('warehouse.from') }} <strong>{{ date('Y-m-d', strtotime($appliedFilters['from_date'])) }}</strong>
                                 @endif
                                 @if ($appliedFilters['to_date'])
-                                    إلى <strong>{{ date('Y-m-d', strtotime($appliedFilters['to_date'])) }}</strong>
+                                    {{ __('warehouse.to') }} <strong>{{ date('Y-m-d', strtotime($appliedFilters['to_date'])) }}</strong>
                                 @endif
                             </small>
                         </div>
@@ -607,15 +607,15 @@
                 <table class="um-table">
                     <thead>
                         <tr>
-                            <th>رقم الأذن</th>
-                            <th>المورد</th>
-                            <th>تاريخ الإنشاء</th>
-                            <th class="status-column">الحالة</th>
-                            <th>الكمية المسجلة</th>
-                            <th>الكمية المتبقية</th>
-                            <th>مسجل بواسطة</th>
-                            <th>تاريخ التسجيل</th>
-                            <th>الإجراءات</th>
+                            <th>{{ __('warehouse_registration.shipment_number') }}</th>
+                            <th>{{ __('warehouse_registration.supplier') }}</th>
+                            <th>{{ __('warehouse_registration.created_date') }}</th>
+                            <th class="status-column">{{ __('warehouse_registration.status') }}</th>
+                            <th>{{ __('warehouse_registration.registered_quantity') }}</th>
+                            <th>{{ __('warehouse_registration.remaining_quantity') }}</th>
+                            <th>{{ __('warehouse_registration.registered_by') }}</th>
+                            <th>{{ __('warehouse_registration.registration_date') }}</th>
+                            <th>{{ __('warehouse_registration.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -627,7 +627,7 @@
                             <td>{{ $shipment->created_at->format('Y-m-d H:i:s') }}</td>
                             <td class="status-column">
                                 <span class="um-badge badge-pending">
-                                    <i class="fas fa-hourglass-half"></i> معلقة
+                                    <i class="fas fa-hourglass-half"></i> {{ __('warehouse_registration.pending') }}
                                 </span>
                                
                             </td>
@@ -638,7 +638,7 @@
                             <td>
                                 <a href="{{ route('manufacturing.warehouse.registration.create', $shipment) }}"
                                    class="um-btn um-btn-primary" style="padding: 4px 8px; font-size: 12px;">
-                                    <i class="fas fa-edit"></i> تسجيل
+                                    <i class="fas fa-edit"></i> {{ __('warehouse_registration.register') }}
                                 </a>
                             </td>
                         </tr>
@@ -659,12 +659,12 @@
                                 <td>{{ $shipment->created_at->format('Y-m-d H:i:s') }}</td>
                                 <td class="status-column">
                                     <span class="um-badge badge-registered">
-                                        <i class="fas fa-check-circle"></i> مسجلة
+                                        <i class="fas fa-check-circle"></i> {{ __('warehouse_registration.registered') }}
                                     </span>
                                    
                                     @if($remainingQuantity > 0)
                                         <span class="um-badge" style="background-color: #004B87; color: white; margin-top: 5px; display: inline-block;">
-                                            📦 متاح: {{ number_format($remainingQuantity, 2) }}
+                                            {{ __('warehouse_registration.available_quantity', ['quantity' => number_format($remainingQuantity, 2)]) }}
                                         </span>
                                     @endif
                                 </td>
@@ -675,7 +675,7 @@
                                 <td>
                                     <a href="{{ route('manufacturing.warehouse.registration.show', $shipment) }}"
                                        class="um-btn um-btn-primary" style="padding: 4px 8px; font-size: 12px;">
-                                        <i class="fas fa-eye"></i> عرض
+                                        <i class="fas fa-eye"></i> {{ __('warehouse_registration.view') }}
                                     </a>
                                 </td>
                             </tr>
@@ -690,7 +690,7 @@
                                 <td>{{ $shipment->created_at->format('Y-m-d H:i:s') }}</td>
                                 <td class="status-column">
                                     <span class="um-badge badge-moved">
-                                        <i class="fas fa-industry"></i> منقولة للإنتاج
+                                        <i class="fas fa-industry"></i> {{ __('warehouse_registration.moved_to_production') }}
                                     </span>
                                    
                                 </td>
@@ -701,7 +701,7 @@
                                 <td>
                                     <a href="{{ route('manufacturing.warehouse.registration.show', $shipment) }}"
                                        class="um-btn um-btn-primary" style="padding: 4px 8px; font-size: 12px;">
-                                        <i class="fas fa-eye"></i> عرض
+                                        <i class="fas fa-eye"></i> {{ __('warehouse_registration.view') }}
                                     </a>
                                 </td>
                             </tr>
@@ -710,7 +710,7 @@
 
                         @if($incomingUnregistered->isEmpty() && $incomingRegistered->isEmpty() && $movedToProduction->isEmpty())
                         <tr>
-                            <td colspan="9" class="text-center">لا توجد شحنات</td>
+                            <td colspan="9" class="text-center">{{ __('warehouse.no_records') }}</td>
                         </tr>
                         @endif
                     </tbody>
@@ -722,8 +722,8 @@
                 <div class="um-pagination-section">
                     <div>
                         <p class="um-pagination-info">
-                            عرض {{ $incomingUnregistered->firstItem() ?? $incomingRegistered->firstItem() ?? 0 }} إلى {{ $incomingUnregistered->lastItem() ?? $incomingRegistered->lastItem() ?? 0 }} من أصل
-                            {{ $incomingUnregistered->total() + $incomingRegistered->total() + $movedToProduction->count() }} شحنة
+                            {{ __('warehouse.showing') }} {{ $incomingUnregistered->firstItem() ?? $incomingRegistered->firstItem() ?? 0 }} {{ __('warehouse.to') }} {{ $incomingUnregistered->lastItem() ?? $incomingRegistered->lastItem() ?? 0 }} {{ __('warehouse.of') }}
+                            {{ $incomingUnregistered->total() + $incomingRegistered->total() + $movedToProduction->count() }} {{ __('warehouse_registration.shipments') }}
                         </p>
                     </div>
                     <div>

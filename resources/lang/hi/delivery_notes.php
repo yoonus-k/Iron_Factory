@@ -13,7 +13,12 @@ return [
     // Navigation
     'dashboard' => 'डैशबोर्ड',
     'warehouse' => 'गोदाम',
+        'coils_notice' => ' नोट',
+    'coils_details' => '    कॉइल्स का विवरण',
+    'coil_barcodes' => 'कॉइल बारकोड',
+'this_delivery_divided_into_coils' => 'इस डिलीवरी को कॉइल्स में विभाजित किया गया है',
     'back' => 'वापस',
+    'total'=>'कुल',
 
     // Types
     'type' => 'प्रकार',

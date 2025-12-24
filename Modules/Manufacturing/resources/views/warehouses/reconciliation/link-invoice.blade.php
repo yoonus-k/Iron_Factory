@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'ربط الفاتورة بالأذن')
+@section('title', __('reconciliation.link_invoice'))
 
 @section('content')
 <div class="container-fluid">
@@ -8,28 +8,28 @@
         <div class="row align-items-center">
             <div class="col-auto">
                 <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="btn btn-info">
-                    ← رجوع
+                    ← {{ __('reconciliation.back') }}
                 </a>
             </div>
             <div class="col">
-                <h1 class="page-title">🔗 ربط الفاتورة بأذن التسليم</h1>
-                <p class="text-muted">لمعالجة الفواتير المتأخرة وحساب الفروقات</p>
+                <h1 class="page-title">🔗 {{ __('reconciliation.link_invoice') }}</h1>
+                <p class="text-muted">{{ __('reconciliation.reconciliation_management') }}</p>
             </div>
         </div>
     </div>
 
     <!-- Process Explanation -->
     <div class="alert alert-info mb-4" style="background-color: #e8f0ff; border-left: 4px solid #0051E5; color: #003FA0;">
-        <h5 class="mb-2"><strong>📌 كيفية العمل:</strong></h5>
+        <h5 class="mb-2"><strong>📌 {{ __('reconciliation.how_it_works') }}</strong></h5>
         <ol style="margin: 0; padding-right: 20px;">
-            <li>ابحث عن فاتورة الشراء واخترها</li>
-            <li>اختر المنتجات/البنود المراد إنشاء أذن تسليم لها</li>
-            <li>ستظهر ملخص الاختيار (عدد المنتجات، الوزن الإجمالي)</li>
-            <li>إذا تطابق الوزن: تتم التسوية تلقائياً ✓</li>
-            <li>إذا اختلف الوزن: تُرسل للتسوية اليدوية ⚠️</li>
+            <li>{{ __('reconciliation.step_1') }}</li>
+            <li>{{ __('reconciliation.step_2') }}</li>
+            <li>{{ __('reconciliation.step_3') }}</li>
+            <li>{{ __('reconciliation.step_4') }}</li>
+            <li>{{ __('reconciliation.step_5') }}</li>
         </ol>
         <hr class="my-2" style="border-top-color: #0051E5;">
-        <small><strong>💡 ملاحظة:</strong> يمكنك اختيار جميع المنتجات أو بعضها فقط حسب احتياجك</small>
+        <small><strong>💡 {{ __('reconciliation.note') }}</strong> {{ __('reconciliation.note_text') }}</small>
     </div>
 
     @if (session('success'))
@@ -48,7 +48,7 @@
 
     @if ($errors->any())
         <div class="alert alert-danger">
-            <h5>يوجد أخطاء:</h5>
+            <h5>{{ __('reconciliation.error') }}:</h5>
             <ul class="mb-0">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>

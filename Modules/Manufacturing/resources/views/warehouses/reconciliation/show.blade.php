@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'لوحة التسوية التفصيلية')
+@section('title', __('reconciliation.reconciliation_dashboard'))
 
 @section('content')
 @php
@@ -41,10 +41,10 @@
             <div class="col-auto">
                 <div class="d-flex gap-2">
                     <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="btn-back">
-                        <i class="fas fa-arrow-left"></i> رجوع
+                        <i class="fas fa-arrow-left"></i> {{ __('reconciliation.back') }}
                     </a>
                     <button onclick="window.print()" class="btn-back" style="background: white; color: var(--secondary-gray);">
-                        <i class="fas fa-print"></i> طباعة
+                        <i class="fas fa-print"></i> {{ __('reconciliation.save') }}
                     </button>
                 </div>
             </div>

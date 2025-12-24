@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'لوحة التسوية')
+@section('title', __('reconciliation.reconciliation_dashboard'))
 
 @section('content')
 <div class="container-fluid px-4 py-4">
@@ -13,8 +13,8 @@
                         <i class="fas fa-balance-scale"></i>
                     </div>
                     <div>
-                        <h1 class="page-title mb-0">لوحة تسوية البضاعة والفواتير</h1>
-                        <p class="text-white-50 mb-0 mt-1">مقارنة الأوزان الفعلية مع أوزان الفواتير</p>
+                        <h1 class="page-title mb-0">{{ __('reconciliation.reconciliation_dashboard') }}</h1>
+                        <p class="text-white-50 mb-0 mt-1">{{ __('reconciliation.reconciliation_management') }}</p>
                     </div>
                 </div>
             </div>
@@ -22,12 +22,12 @@
                 <div class="d-flex gap-2">
                     <a href="{{ route('manufacturing.warehouses.reconciliation.link-invoice') }}" class="btn-action-primary">
                         <i class="fas fa-link"></i>
-                        ربط فاتورة جديدة
+                        {{ __('reconciliation.link_invoice') }}
                     </a>
                     @if(Route::has('manufacturing.warehouses.reconciliation.history'))
                     <a href="{{ route('manufacturing.warehouses.reconciliation.history') }}" class="btn-action-secondary">
                         <i class="fas fa-history"></i>
-                        السجل
+                        {{ __('reconciliation.reconciliation_history') }}
                     </a>
                     @endif
                 </div>
@@ -39,7 +39,7 @@
     @if (session('success'))
         <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
             <i class="fas fa-check-circle me-2"></i>
-            <strong>تم!</strong> {{ session('success') }}
+            <strong>{{ __('reconciliation.success') }}!</strong> {{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
@@ -47,7 +47,7 @@
     @if (session('error'))
         <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i>
-            <strong>خطأ!</strong> {{ session('error') }}
+            <strong>{{ __('reconciliation.error') }}!</strong> {{ session('error') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
@@ -61,7 +61,7 @@
                 </div>
                 <div class="stats-content">
                     <h3>{{ $stats['total_pending'] + $stats['total_discrepancy'] }}</h3>
-                    <p>معلقة (تحتاج مراجعة)</p>
+                    <p>{{ __('reconciliation.pending_reconciliations') }}</p>
                 </div>
             </div>
         </div>
@@ -72,7 +72,7 @@
                 </div>
                 <div class="stats-content">
                     <h3>{{ $pending->count() }}</h3>
-                    <p>في القائمة أدناه</p>
+                    <p>{{ __('reconciliation.total_weight_variation') }}</p>
                 </div>
             </div>
         </div>
@@ -83,7 +83,7 @@
                 </div>
                 <div class="stats-content">
                     <h3>{{ $stats['total_matched'] }}</h3>
-                    <p>متطابقة</p>
+                    <p>{{ __('reconciliation.matched') }}</p>
                 </div>
             </div>
         </div>
@@ -94,7 +94,7 @@
                 </div>
                 <div class="stats-content">
                     <h3>{{ $stats['total_adjusted'] }}</h3>
-                    <p>مسوّاة</p>
+                    <p>{{ __('reconciliation.reconciled') }}</p>
                 </div>
             </div>
         </div>
@@ -104,9 +104,9 @@
     <div class="filter-card mb-4">
         <form method="GET" class="row g-3">
             <div class="col-md-3">
-                <label class="form-label">المورد:</label>
+                <label class="form-label">{{ __('reconciliation.supplier') }}:</label>
                 <select name="supplier_id" class="form-select">
-                    <option value="">-- جميع الموردين --</option>
+                    <option value="">-- {{ __('reconciliation.supplier') }} --</option>
                     @foreach (\App\Models\Supplier::where('is_active', true)->get() as $supplier)
                         <option value="{{ $supplier->id }}" @selected(request('supplier_id') == $supplier->id)>
                             {{ $supplier->name }}
@@ -115,23 +115,23 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <label class="form-label">من التاريخ:</label>
+                <label class="form-label">{{ __('reconciliation.date') }}:</label>
                 <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">
             </div>
             <div class="col-md-2">
-                <label class="form-label">إلى التاريخ:</label>
+                <label class="form-label">{{ __('reconciliation.date') }}:</label>
                 <input type="date" name="to_date" class="form-control" value="{{ request('to_date') }}">
             </div>
             <div class="col-md-2">
                 <label class="form-label">&nbsp;</label>
                 <button type="submit" class="btn btn-primary w-100">
-                    <i class="fas fa-search"></i> بحث
+                    <i class="fas fa-search"></i> {{ __('reconciliation.search') }}
                 </button>
             </div>
             <div class="col-md-3">
                 <label class="form-label">&nbsp;</label>
                 <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="btn btn-outline-secondary w-100">
-                    <i class="fas fa-redo"></i> إعادة تعيين
+                    <i class="fas fa-redo"></i> {{ __('reconciliation.reset_filters') }}
                 </a>
             </div>
         </form>

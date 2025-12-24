@@ -3,7 +3,7 @@
 @section('title', __('delivery_notes.new_delivery_note'))
 
 @section('content')
-<!-- مكتبة JsBarcode لتوليد باركود قابل للمسح -->
+<!-- JsBarcode library for barcode generation -->
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <style>
     .simple-container {
@@ -370,68 +370,63 @@
                 </div>
             </div>
 
-            <!-- قسم الكويلات -->
+            <!-- Coils section -->
             <div class="form-group-simple">
                 <label class="label-simple" style="display: flex; align-items: center; gap: 10px;">
                     <input type="checkbox" id="hasCoilsCheckbox" name="has_coils" value="1" style="width: auto; height: 20px;">
-                    <span>🎲 هل الشحنة تحتوي على كويلات متعددة؟</span>
+                    <span>🎲 {{ __('delivery_notes.coils_details') }}</span>
                 </label>
                 <input type="hidden" id="hasCoilsData" name="has_coils_data" value="0">
                 <div class="helper-text">
-                    ✓ فعّل هذا الخيار إذا كانت الشحنة مقسمة إلى عدة كويلات بأوزان مختلفة (سيتم حساب الكمية الإجمالية تلقائياً)
+                    ✓ {{ __('delivery_notes.coils_notice') }}
                 </div>
             </div>
 
             <div id="coilsSection" style="display: none; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 10px; border: 2px dashed #667eea;">
-                <h4 style="color: #667eea; margin-bottom: 20px;">📦 إدارة الكويلات</h4>
-                
-                <!-- زر إضافة كويل جديد -->
+                <h4 style="color: #667eea; margin-bottom: 20px;">📦 {{ __('delivery_notes.coils_details') }}</h4>
+
+                <!-- Button to add new coil -->
                 <div id="addCoilBtnContainer" style="margin-bottom: 20px;">
                     <button type="button" id="showCoilFormBtn" class="btn-submit" style="background: #4caf50; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                        ➕ إضافة كويل جديد
+                        ➕ {{ __('delivery_notes.add_delivery_note') }}
                     </button>
                 </div>
-                
-                <!-- نموذج إضافة كويل واحد (مخفي افتراضياً) -->
+
+                <!-- Form to add single coil (hidden by default) -->
                 <div id="coilFormContainer" style="display: none; background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ddd;">
                     <div style="display: grid; grid-template-columns: 1fr 1fr 120px 120px; gap: 15px; align-items: end;">
                         <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">🔢 رقم الكويل</label>
-                            <input type="text" id="newCoilNumber" class="input-simple" placeholder="اتركه فارغاً للتوليد التلقائي">
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">🔢 {{ __('delivery_notes.coil_number') }}</label>
+                            <input type="text" id="newCoilNumber" class="input-simple" placeholder="{{ __('delivery_notes.enter_coil_number_if_exists') }}">
                         </div>
                         <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">⚖️ الوزن (كجم) <span style="color: red;">*</span></label>
-                            <input type="number" id="newCoilWeight" class="input-simple" placeholder="أدخل الوزن" step="0.001" min="0.001">
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">⚖️ {{ __('delivery_notes.coil_weight') }} <span style="color: red;">*</span></label>
+                            <input type="number" id="newCoilWeight" class="input-simple" placeholder="{{ __('delivery_notes.enter_quantity_placeholder') }}" step="0.001" min="0.001">
                         </div>
                         <div>
                             <button type="button" id="addCoilBtn" onclick="return false;" class="btn-submit" style="width: 100%; margin: 0; padding: 10px; background: #4caf50;">
-                                ✓ حفظ
+                                ✓ {{ __('delivery_notes.save') }}
                             </button>
                         </div>
                         <div>
                             <button type="button" id="cancelCoilBtn" class="btn-submit" style="width: 100%; margin: 0; padding: 10px; background: #95a5a6;">
-                                ✕ إلغاء
+                                ✕ {{ __('delivery_notes.cancel') }}
                             </button>
                         </div>
-                    </div>
-                    <div style="margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 5px;">
-                        <small style="color: #1565c0;">
-                            💡 <strong>نصيحة:</strong> اضغط Enter بعد إدخال الوزن للحفظ السريع، سيتم توليد الباركود فوراً
-                        </small>
                     </div>
                 </div>
 
                 <!-- قائمة الكويلات المضافة -->
                 <div id="coilsListContainer" style="margin-top: 20px;">
-                    <h5 style="color: #555; margin-bottom: 15px;">الكويلات المضافة:</h5>
+                    <h5 style="color: #555; margin-bottom: 15px;">{{ __('delivery_notes.coils_details') }}:</h5>
                     <div id="coilsList"></div>
                 </div>
-                
+
                 <div style="margin-top: 15px; padding: 15px; background: #e8f5e9; border-radius: 8px;" id="coilsSummary">
-                    <strong>📊 ملخص الكويلات:</strong>
+                    <strong>📊 {{ __('delivery_notes.total') }}:</strong>
                     <div style="margin-top: 10px;">
-                        <div>عدد الكويلات: <span id="summaryCoilCount">0</span></div>
-                        <div style="font-size: 18px; font-weight: bold; color: #2e7d32;">إجمالي الوزن: <span id="summaryTotalWeight">0</span> كجم</div>
+                        <div>{{ __('delivery_notes.coil') }}: <span id="summaryCoilCount">0</span></div>
+                        <div style="font-size: 18px; font-weight: bold; color: #2e7d32;">{{ __('delivery_notes.total') }}: <span id="summaryTotalWeight">0</span> kg</div>
                     </div>
                 </div>
 
@@ -440,13 +435,13 @@
 
             <!-- حقول إضافية -->
             <div class="form-group-simple">
-                <label class="label-simple">🚗 رقم لوحة السيارة (اختياري)</label>
-                <input type="text" name="vehicle_plate_number" class="input-simple" placeholder="مثال: ABC-1234">
+                <label class="label-simple">🚗 {{ __('delivery_notes.optional') }}</label>
+                <input type="text" name="vehicle_plate_number" class="input-simple" placeholder="ABC-1234">
             </div>
 
             <div class="form-group-simple">
-                <label class="label-simple">👤 اسم الشخص المستلم منه (اختياري)</label>
-                <input type="text" name="received_from_person" class="input-simple" placeholder="أدخل اسم الشخص">
+                <label class="label-simple">👤 {{ __('delivery_notes.received_by') }} ({{ __('delivery_notes.optional') }})</label>
+                <input type="text" name="received_from_person" class="input-simple" placeholder="{{ __('delivery_notes.name') }}">
             </div>
         </div>
 
@@ -520,16 +515,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelCoilBtn = document.getElementById('cancelCoilBtn');
     const addCoilBtnContainer = document.getElementById('addCoilBtnContainer');
 
-    let coilsData = []; // مصفوفة لتخزين بيانات الكويلات
-    
-    // إظهار نموذج إضافة كويل
+    let coilsData = []; // Array to store coil data
+
+    // Show coil form
     showCoilFormBtn.addEventListener('click', function() {
         coilFormContainer.style.display = 'block';
         addCoilBtnContainer.style.display = 'none';
         newCoilNumberInput.focus();
     });
-    
-    // إلغاء وإخفاء نموذج الكويل
+
+    // Cancel and hide coil form
     cancelCoilBtn.addEventListener('click', function() {
         coilFormContainer.style.display = 'none';
         addCoilBtnContainer.style.display = 'block';
@@ -592,30 +587,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const weight = parseFloat(newCoilWeightInput.value);
         const warehouseId = warehouseSelect.value;
         const materialId = materialSelect.value;
-        
+
         if (!warehouseId) {
             alert('⚠️ يرجى اختيار المستودع أولاً');
             warehouseSelect.focus();
             return;
         }
-        
+
         if (!materialId) {
             alert('⚠️ يرجى اختيار المادة أولاً');
             materialSelect.focus();
             return;
         }
-        
+
         if (!weight || weight <= 0) {
-            alert('⚠️ يرجى إدخال وزن صحيح للكويل');
+            alert('{{ __('delivery_notes.please_enter_valid_quantity') }}');
             newCoilWeightInput.focus();
             return;
         }
 
-        // تعطيل الزر أثناء الحفظ
+        // Disable button while saving
         addCoilBtn.disabled = true;
-        addCoilBtn.innerHTML = '⏳ جاري الحفظ...';
+        addCoilBtn.innerHTML = '⏳ {{ __('delivery_notes.loading') }}...';
 
-        // إرسال AJAX لحفظ الكويل وتوليد الباركود
+        // Send AJAX to save coil and generate barcode
         fetch('{{ route("manufacturing.delivery-notes.add-coil-temp") }}', {
             method: 'POST',
             headers: {
@@ -632,21 +627,21 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // إضافة الكويل للقائمة المحلية
+                // Add coil to local list
                 coilsData.push(data.coil);
-                
-                // مسح الحقول وإخفاء النموذج
+
+                // Clear fields and hide form
                 newCoilNumberInput.value = '';
                 newCoilWeightInput.value = '';
                 coilFormContainer.style.display = 'none';
                 addCoilBtnContainer.style.display = 'block';
 
-                // تحديث القائمة
+                // Update list
                 renderCoilsList();
                 updateSummary();
-                
-                // إظهار رسالة نجاح
-                showSuccessMessage('✅ تم إضافة الكويل بنجاح وتوليد الباركود');
+
+                // Show success message
+                showSuccessMessage('✅ {{ __('delivery_notes.created_successfully') }}');
             } else {
                 alert('❌ ' + data.message);
             }
@@ -681,7 +676,7 @@ document.addEventListener('DOMContentLoaded', function() {
             addCoilBtn.click();
         }
     });
-    
+
     newCoilNumberInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -702,25 +697,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="coil-item" id="coil-${coil.id}" style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; display: grid; grid-template-columns: 40px 1fr 1fr 2fr 70px 70px 70px; gap: 10px; align-items: center;">
                     <div style="font-weight: bold; color: #667eea;">#${index + 1}</div>
                     <div>
-                        <small style="color: #777;">رقم الكويل</small>
+                        <small style="color: #777;">{{ __('delivery_notes.coil_number') }}</small>
                         <div style="font-weight: 600;" class="coil-number-display">${coil.coil_number}</div>
                     </div>
                     <div>
-                        <small style="color: #777;">الوزن</small>
-                        <div style="font-weight: 600; color: #2e7d32;" class="coil-weight-display">${parseFloat(coil.coil_weight).toFixed(3)} كجم</div>
+                        <small style="color: #777;">{{ __('delivery_notes.coil_weight') }}</small>
+                        <div style="font-weight: 600; color: #2e7d32;" class="coil-weight-display">${parseFloat(coil.coil_weight).toFixed(3)} kg</div>
                     </div>
                     <div>
-                        <small style="color: #777;">الباركود</small>
+                        <small style="color: #777;">{{ __('delivery_notes.coil_barcode') }}</small>
                         <svg class="coil-barcode-svg" data-barcode="${coil.coil_barcode}" style="max-width: 100%;"></svg>
                         <div style="font-size: 9px; font-family: monospace; color: #555; text-align: center;">${coil.coil_barcode}</div>
                     </div>
-                    <button type="button" onclick="editCoil('${coil.id}')" class="btn-edit" style="background: #2196f3; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;" title="تعديل">
+                    <button type="button" onclick="editCoil('${coil.id}')" class="btn-edit" style="background: #2196f3; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;" title="{{ __('delivery_notes.edit') }}">
                         ✏️
                     </button>
-                    <button type="button" onclick="printCoilBarcode('${coil.coil_number}', ${coil.coil_weight}, '${coil.coil_barcode}')" class="btn-print" style="background: #4caf50; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;" title="طباعة">
+                    <button type="button" onclick="printCoilBarcode('${coil.coil_number}', ${coil.coil_weight}, '${coil.coil_barcode}')" class="btn-print" style="background: #4caf50; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;" title="{{ __('delivery_notes.movements_log') }}">
                         🖨️
                     </button>
-                    <button type="button" onclick="removeCoil('${coil.id}')" class="btn-remove" style="background: #f44336; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;" title="حذف">
+                    <button type="button" onclick="removeCoil('${coil.id}')" class="btn-remove" style="background: #f44336; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;" title="{{ __('delivery_notes.delete') }}">
                         🗑️
                     </button>
                 </div>
@@ -728,8 +723,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         coilsList.innerHTML = html;
-        
-        // توليد الباركودات
+
+        // Generate barcodes
         setTimeout(function() {
             document.querySelectorAll('.coil-barcode-svg').forEach(function(svg) {
                 const code = svg.getAttribute('data-barcode');
@@ -748,24 +743,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
     }
 
-    // تعديل كويل
+    // Edit coil
     window.editCoil = function(coilId) {
         const coil = coilsData.find(c => c.id === coilId);
         if (!coil) return;
 
-        const newNumber = prompt('تعديل رقم الكويل:', coil.coil_number);
-        if (newNumber === null) return; // ألغى المستخدم
+        const newNumber = prompt('{{ __('delivery_notes.coil_number') }}:', coil.coil_number);
+        if (newNumber === null) return; // User cancelled
 
-        const newWeight = prompt('تعديل الوزن (كجم):', coil.coil_weight);
-        if (newWeight === null) return; // ألغى المستخدم
+        const newWeight = prompt('{{ __('delivery_notes.coil_weight') }} (kg):', coil.coil_weight);
+        if (newWeight === null) return; // User cancelled
 
         const weight = parseFloat(newWeight);
         if (isNaN(weight) || weight <= 0) {
-            alert('⚠️ يرجى إدخال وزن صحيح');
+            alert('{{ __('delivery_notes.please_enter_valid_quantity') }}');
             return;
         }
 
-        // إرسال AJAX لتحديث الكويل في الجلسة
+        // Send AJAX to update coil in session
         fetch('{{ route("manufacturing.delivery-notes.update-coil-temp") }}', {
             method: 'PUT',
             headers: {
@@ -781,29 +776,29 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // تحديث البيانات المحلية
+                // Update local data
                 coil.coil_number = newNumber.trim();
                 coil.coil_weight = weight;
-                
+
                 renderCoilsList();
                 updateSummary();
-                
-                showSuccessMessage('✅ تم تعديل الكويل بنجاح');
+
+                showSuccessMessage('{{ __('delivery_notes.created_successfully') }}');
             } else {
-                alert('❌ ' + data.message);
+                alert('{{ __('delivery_notes.error') }} ' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('❌ حدث خطأ أثناء تعديل الكويل');
+            alert('{{ __('delivery_notes.error') }} {{ __('delivery_notes.unknown_error') }}');
         });
     };
 
-    // حذف كويل
+    // Remove coil
     window.removeCoil = function(coilId) {
-        if (!confirm('هل أنت متأكد من حذف هذا الكويل؟')) return;
+        if (!confirm('{{ __('delivery_notes.confirm_delete') }}')) return;
 
-        // إرسال AJAX لحذف الكويل من الجلسة
+        // Send AJAX to delete coil from session
         fetch('{{ route("manufacturing.delivery-notes.delete-coil-temp") }}', {
             method: 'DELETE',
             headers: {
@@ -817,19 +812,19 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // حذف من البيانات المحلية
+                // Delete from local data
                 coilsData = coilsData.filter(c => c.id !== coilId);
                 renderCoilsList();
                 updateSummary();
-                
-                showSuccessMessage('✅ تم حذف الكويل بنجاح');
+
+                showSuccessMessage('{{ __('delivery_notes.deleted_successfully') }}');
             } else {
-                alert('❌ ' + data.message);
+                alert('{{ __('delivery_notes.error') }} ' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('❌ حدث خطأ أثناء حذف الكويل');
+            alert('{{ __('delivery_notes.error') }} {{ __('delivery_notes.unknown_error') }}');
         });
     };
 
@@ -839,7 +834,7 @@ document.addEventListener('DOMContentLoaded', function() {
         msgDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4caf50; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; animation: slideIn 0.3s ease-out;';
         msgDiv.textContent = message;
         document.body.appendChild(msgDiv);
-        
+
         setTimeout(() => {
             msgDiv.style.animation = 'slideOut 0.3s ease-in';
             setTimeout(() => msgDiv.remove(), 300);
@@ -853,7 +848,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <!DOCTYPE html>
             <html>
             <head>
-                <title>طباعة باركود - ${coilNumber}</title>
+                <title>{{ __('delivery_notes.print') }} - ${coilNumber}</title>
                 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
                 <style>
                     body {
@@ -882,11 +877,11 @@ document.addEventListener('DOMContentLoaded', function() {
             </head>
             <body>
                 <div class="barcode-container">
-                    <h3>🏭 مصنع الحديد</h3>
-                    <div class="info"><strong>رقم الكويل:</strong> ${coilNumber}</div>
-                    <div class="info"><strong>الوزن:</strong> ${weight.toFixed(3)} كجم</div>
+                    <h3>🏭 {{ __('delivery_notes.warehouse') }}</h3>
+                    <div class="info"><strong>{{ __('delivery_notes.coil_number') }}:</strong> ${coilNumber}</div>
+                    <div class="info"><strong>{{ __('delivery_notes.coil_weight') }}:</strong> ${weight.toFixed(3)} kg</div>
                     <svg id="printBarcode"></svg>
-                    <div class="info" style="font-size: 11px; color: #666;">تاريخ الطباعة: ${new Date().toLocaleString('ar-EG')}</div>
+                    <div class="info" style="font-size: 11px; color: #666;">{{ __('delivery_notes.created_at') }}: ${new Date().toLocaleString('ar-EG')}</div>
                 </div>
                 <script>
                     JsBarcode("#printBarcode", "${barcode}", {
@@ -908,7 +903,7 @@ document.addEventListener('DOMContentLoaded', function() {
         printWindow.document.close();
     };
 
-    // تحديث الملخص
+    // Update summary
     function updateSummary() {
         const totalCoils = coilsData.length;
         const totalWeight = coilsData.reduce((sum, coil) => sum + parseFloat(coil.coil_weight), 0);
@@ -917,12 +912,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('summaryTotalWeight').textContent = totalWeight.toFixed(3);
         totalCoilsInput.value = totalCoils;
 
-        // تحديث حقل الكمية الإجمالي
+        // Update total quantity field
         if (hasCoilsCheckbox.checked) {
             totalQuantityInput.value = totalWeight.toFixed(3);
         }
-        
-        // تحديث حقل has_coils_data
+
+        // Update has_coils_data field
         if (totalCoils > 0) {
             document.getElementById('hasCoilsData').value = '1';
         }

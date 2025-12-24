@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'لوحة تحكم التسوية والربط')
+@section('title', __('reconciliation.reconciliation_management'))
 
 @section('content')
 <div class="container-fluid">
@@ -9,12 +9,12 @@
         <div class="row align-items-center">
             <div class="col-auto">
                 <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="btn btn-secondary">
-                    ← رجوع
+                    ← {{ __('reconciliation.back') }}
                 </a>
             </div>
             <div class="col">
-                <h1 class="page-title">⚙️ لوحة تحكم التسوية والربط</h1>
-                <p class="text-muted">إدارة شاملة - بحث وتعديل وحذف الأذونات والفواتير</p>
+                <h1 class="page-title">⚙️ {{ __('reconciliation.reconciliation_management') }}</h1>
+                <p class="text-muted">{{ __('reconciliation.reconciliation_management') }}</p>
             </div>
         </div>
     </div>
@@ -39,13 +39,13 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="delivery-notes-tab" data-bs-toggle="tab"
                 data-bs-target="#delivery-notes-pane" type="button" role="tab">
-                📦 إدارة الأذونات
+                📦 {{ __('reconciliation.delivery_notes') }}
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="invoices-tab" data-bs-toggle="tab"
                 data-bs-target="#invoices-pane" type="button" role="tab">
-                📄 إدارة الفواتير
+                📄 {{ __('reconciliation.invoices') }}
             </button>
         </li>
         <li class="nav-item" role="presentation">

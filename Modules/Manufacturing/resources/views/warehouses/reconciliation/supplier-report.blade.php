@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تقرير أداء الموردين')
+@section('title', __('reconciliation.supplier_report'))
 
 @section('content')
 <div class="um-content-wrapper">
@@ -10,23 +10,23 @@
             <div class="col">
                 <h1 class="um-page-title">
                     <i class="feather icon-bar-chart-2"></i>
-                    تقرير أداء الموردين
+                    {{ __('reconciliation.supplier_report') }}
                 </h1>
                 <nav class="um-breadcrumb-nav">
                     <span>
-                        <i class="feather icon-home"></i> لوحة التحكم
+                        <i class="feather icon-home"></i> {{ __('reconciliation.dashboard') }}
                     </span>
                     <i class="feather icon-chevron-left"></i>
-                    <span>المستودع</span>
+                    <span>{{ __('reconciliation.warehouse') }}</span>
                     <i class="feather icon-chevron-left"></i>
-                    <span>التسوية</span>
+                    <span>{{ __('reconciliation.reconciliation') }}</span>
                     <i class="feather icon-chevron-left"></i>
-                    <span>تقرير الموردين</span>
+                    <span>{{ __('reconciliation.supplier_report') }}</span>
                 </nav>
             </div>
             <div class="col-auto">
                 <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="um-btn um-btn-outline">
-                    <i class="feather icon-arrow-right"></i> العودة
+                    <i class="feather icon-arrow-right"></i> {{ __('reconciliation.back') }}
                 </a>
             </div>
         </div>
@@ -41,7 +41,7 @@
                 </div>
                 <div class="um-stat-content">
                     <h3 class="um-stat-value" style="color: #0066CC;">{{ $suppliers->count() }}</h3>
-                    <p class="um-stat-label">عدد الموردين</p>
+                    <p class="um-stat-label">{{ __('reconciliation.number_of_suppliers') }}</p>
                 </div>
             </div>
         </div>
@@ -52,7 +52,7 @@
                 </div>
                 <div class="um-stat-content">
                     <h3 class="um-stat-value" style="color: #10B981;">{{ $totalShipments ?? 0 }}</h3>
-                    <p class="um-stat-label">إجمالي الشحنات</p>
+                    <p class="um-stat-label">{{ __('reconciliation.total_shipments') }}</p>
                 </div>
             </div>
         </div>
@@ -63,7 +63,7 @@
                 </div>
                 <div class="um-stat-content">
                     <h3 class="um-stat-value" style="color: #F59E0B;">{{ number_format($averageAccuracy ?? 0, 2) }}%</h3>
-                    <p class="um-stat-label">متوسط الدقة</p>
+                    <p class="um-stat-label">{{ __('reconciliation.average_accuracy') }}</p>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@
                 </div>
                 <div class="um-stat-content">
                     <h3 class="um-stat-value" style="color: #EF4444;">{{ number_format($totalDiscrepancy ?? 0, 2) }}</h3>
-                    <p class="um-stat-label">إجمالي الفروقات (كيلو)</p>
+                    <p class="um-stat-label">{{ __('reconciliation.total_weight_variation') }}</p>
                 </div>
             </div>
         </div>
@@ -133,23 +133,23 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-activity"></i>
-                    تفاصيل أداء الموردين
+                    {{ __('reconciliation.supplier_report') }}
                 </h4>
             </div>
             <div class="um-table-responsive">
                 <table class="um-table">
                     <thead>
                         <tr>
-                            <th>اسم المورد</th>
-                            <th>الشحنات</th>
-                            <th>المتطابقة</th>
-                            <th>الفروقات</th>
-                            <th>المعدّلة</th>
-                            <th>المرفوضة</th>
-                            <th>دقة الأداء</th>
-                            <th>متوسط الفرق</th>
-                            <th>إجمالي الفروقات</th>
-                            <th>التصنيف</th>
+                            <th>{{ __('reconciliation.supplier') }}</th>
+                            <th>{{ __('reconciliation.total_shipments') }}</th>
+                            <th>{{ __('reconciliation.matched') }}</th>
+                            <th>{{ __('reconciliation.mismatched') }}</th>
+                            <th>{{ __('reconciliation.reconciled') }}</th>
+                            <th>{{ __('reconciliation.rejected') }}</th>
+                            <th>{{ __('reconciliation.accuracy') }}</th>
+                            <th>{{ __('reconciliation.weight_difference') }}</th>
+                            <th>{{ __('reconciliation.total_weight_variation') }}</th>
+                            <th>{{ __('reconciliation.status') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -215,7 +215,7 @@
                                 </td>
                                 <td>
                                     <span class="badge {{ $totalDiscrepancy > 0 ? 'bg-danger' : ($totalDiscrepancy < 0 ? 'bg-warning' : 'bg-success') }}">
-                                        {{ number_format($totalDiscrepancy, 2) }} كيلو
+                                        {{ number_format($totalDiscrepancy, 2) }} {{ __('reconciliation.kg') }}
                                     </span>
                                 </td>
                                 <td>
@@ -236,26 +236,26 @@
                 <div class="um-alert-custom um-alert-info">
                     <i class="feather icon-info"></i>
                     <div>
-                        <h6 style="margin: 0 0 10px 0; font-weight: 600;">شرح المؤشرات</h6>
+                        <h6 style="margin: 0 0 10px 0; font-weight: 600;">{{ __('reconciliation.accuracy') }}</h6>
                         <div class="row">
                             <div class="col-md-3">
                                 <small>
-                                    <strong>⭐⭐⭐⭐⭐:</strong> دقة 95% فما فوق
+                                    <strong>⭐⭐⭐⭐⭐:</strong> 95%+
                                 </small>
                             </div>
                             <div class="col-md-3">
                                 <small>
-                                    <strong>⭐⭐⭐⭐:</strong> دقة 90-95%
+                                    <strong>⭐⭐⭐⭐:</strong> 90-95%
                                 </small>
                             </div>
                             <div class="col-md-3">
                                 <small>
-                                    <strong>⭐⭐⭐:</strong> دقة 85-90%
+                                    <strong>⭐⭐⭐:</strong> 85-90%
                                 </small>
                             </div>
                             <div class="col-md-3">
                                 <small>
-                                    <strong>⭐⭐ أو ⭐:</strong> دقة أقل من 85%
+                                    <strong>⭐⭐ or ⭐:</strong> &lt; 85%
                                 </small>
                             </div>
                         </div>
@@ -266,8 +266,8 @@
     @else
         <div class="um-alert-custom um-alert-info" style="text-align: center; padding: 40px;">
             <i class="feather icon-inbox" style="font-size: 48px; margin-bottom: 15px;"></i>
-            <h4>لا توجد بيانات للموردين</h4>
-            <p class="mb-0">لم يتم إضافة أي موردين بعد</p>
+            <h4>{{ __('reconciliation.no_data_found') }}</h4>
+            <p class="mb-0">{{ __('reconciliation.no_data_found') }}</p>
         </div>
     @endif
 </div>

@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تعديل ربط الفاتورة بالأذن')
+@section('title', __('reconciliation.edit_link_invoice'))
 
 @section('content')
 <div class="container-fluid">
@@ -8,28 +8,28 @@
         <div class="row align-items-center">
             <div class="col-auto">
                 <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="btn btn-info">
-                    ← رجوع
+                    ← {{ __('reconciliation.back') }}
                 </a>
             </div>
             <div class="col">
-                <h1 class="page-title">✏️ تعديل ربط الفاتورة بأذن التسليم</h1>
-                <p class="text-muted">تعديل وربط الفاتورة بأذن التسليم</p>
+                <h1 class="page-title">✏️ {{ __('reconciliation.edit_link_invoice') }}</h1>
+                <p class="text-muted">{{ __('reconciliation.edit_link_invoice') }}</p>
             </div>
         </div>
     </div>
 
     <!-- Process Explanation -->
     <div class="alert alert-info mb-4" style="background-color: #e8f0ff; border-left: 4px solid #0051E5; color: #003FA0;">
-        <h5 class="mb-2"><strong>📌 كيفية العمل:</strong></h5>
+        <h5 class="mb-2"><strong>📌 {{ __('reconciliation.how_it_works') }}</strong></h5>
         <ol style="margin: 0; padding-right: 20px;">
-            <li>ابحث عن فاتورة الشراء واخترها</li>
-            <li>اختر المنتجات/البنود المراد إنشاء أذن تسليم لها</li>
-            <li>ستظهر ملخص الاختيار (عدد المنتجات، الوزن الإجمالي)</li>
-            <li>إذا تطابق الوزن: تتم التسوية تلقائياً ✓</li>
-            <li>إذا اختلف الوزن: تُرسل للتسوية اليدوية ⚠️</li>
+            <li>{{ __('reconciliation.step_1') }}</li>
+            <li>{{ __('reconciliation.step_2') }}</li>
+            <li>{{ __('reconciliation.step_3') }}</li>
+            <li>{{ __('reconciliation.step_4') }}</li>
+            <li>{{ __('reconciliation.step_5') }}</li>
         </ol>
         <hr class="my-2" style="border-top-color: #0051E5;">
-        <small><strong>💡 ملاحظة:</strong> يمكنك اختيار جميع المنتجات أو بعضها فقط حسب احتياجك</small>
+        <small><strong>💡 {{ __('reconciliation.note') }}</strong> {{ __('reconciliation.note_text') }}</small>
     </div>
 
     @if (session('success'))
@@ -48,7 +48,7 @@
 
     @if ($errors->any())
         <div class="alert alert-danger">
-            <h5>يوجد أخطاء:</h5>
+            <h5>{{ __('reconciliation.error') }}:</h5>
             <ul class="mb-0">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -66,15 +66,15 @@
             <div class="col-lg-6">
                 <div class="card mb-4">
                     <div class="card-header" style="background: linear-gradient(135deg, #0051E5 0%, #003FA0 100%); color: white;">
-                        <h5 class="mb-0">📦 بيانات أذن التسليم</h5>
+                        <h5 class="mb-0">📦 {{ __('reconciliation.delivery_note') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label class="form-label"><strong>ابحث عن أذن التسليم <span class="text-danger">*</span></strong></label>
-                            <input type="text" id="delivery_note_search" class="form-control" 
-                                   placeholder="اكتب رقم الأذن أو اسم المورد أو التاريخ..."
+                            <label class="form-label"><strong>{{ __('reconciliation.search_delivery_notes') }} <span class="text-danger">*</span></strong></label>
+                            <input type="text" id="delivery_note_search" class="form-control"
+                                   placeholder="{{ __('reconciliation.search_delivery_notes') }}"
                                    value="#{{ $deliveryNote->note_number ?? $deliveryNote->id }} - {{ $deliveryNote->supplier->name }}">
-                            <small class="text-muted d-block mt-1">اكتب لتبحث عن أذن التسليم</small>
+                            <small class="text-muted d-block mt-1">{{ __('reconciliation.search_delivery_notes') }}</small>
                         </div>
 
                         <!-- نتائج البحث -->
@@ -85,26 +85,26 @@
 
                         <!-- عرض معلومات الأذن المختارة -->
                         <div id="deliveryNoteInfo" style="display: block; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #0051E5;">
-                            <h6 class="mb-3"><strong>معلومات الأذن المختارة:</strong></h6>
+                            <h6 class="mb-3"><strong>{{ __('reconciliation.delivery_note') }}:</strong></h6>
                             <div style="display: grid; gap: 10px;">
                                 <div>
-                                    <small class="text-muted">رقم الأذن:</small>
+                                    <small class="text-muted">{{ __('reconciliation.delivery_note_number') }}:</small>
                                     <div id="info-note-number" style="font-weight: 600; color: #0051E5;">#{{ $deliveryNote->note_number ?? $deliveryNote->id }}</div>
                                 </div>
                                 <div>
-                                    <small class="text-muted">المورد:</small>
+                                    <small class="text-muted">{{ __('reconciliation.supplier') }}:</small>
                                     <div id="info-supplier" style="font-weight: 600;">{{ $deliveryNote->supplier->name }}</div>
                                 </div>
                                 <div>
-                                    <small class="text-muted">تاريخ الأذن:</small>
+                                    <small class="text-muted">{{ __('reconciliation.date') }}:</small>
                                     <div id="info-date" style="font-weight: 600;">{{ $deliveryNote->delivery_date?->format('Y-m-d') }}</div>
                                 </div>
                                 <div>
-                                    <small class="text-muted">الوزن الفعلي (من الميزان):</small>
-                                    <div id="info-actual-weight" style="font-weight: 600; color: #3E4651;">{{ number_format($deliveryNote->actual_weight, 2) }} كجم</div>
+                                    <small class="text-muted">{{ __('reconciliation.actual_weight') }}:</small>
+                                    <div id="info-actual-weight" style="font-weight: 600; color: #3E4651;">{{ number_format($deliveryNote->actual_weight, 2) }} {{ __('reconciliation.kg') }}</div>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-outline-danger mt-2" id="clearDeliveryNote">
-                                    <i class="fas fa-times"></i> إزالة
+                                    <i class="fas fa-times"></i> {{ __('reconciliation.clear') }}
                                 </button>
                             </div>
                         </div>
@@ -116,15 +116,15 @@
             <div class="col-lg-6">
                 <div class="card mb-4">
                     <div class="card-header" style="background: linear-gradient(135deg, #3E4651 0%, #2C3339 100%); color: white;">
-                        <h5 class="mb-0">📄 بيانات الفاتورة</h5>
+                        <h5 class="mb-0">📄 {{ __('reconciliation.invoice') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label class="form-label"><strong>ابحث عن فاتورة الشراء <span class="text-danger">*</span></strong></label>
-                            <input type="text" id="invoice_search" class="form-control" 
-                                   placeholder="اكتب رقم الفاتورة أو اسم المورد أو التاريخ..."
+                            <label class="form-label"><strong>{{ __('reconciliation.search_invoices') }} <span class="text-danger">*</span></strong></label>
+                            <input type="text" id="invoice_search" class="form-control"
+                                   placeholder="{{ __('reconciliation.search_invoices') }}"
                                    value="{{ $deliveryNote->purchaseInvoice->invoice_number }} - {{ $deliveryNote->purchaseInvoice->supplier->name }}">
-                            <small class="text-muted d-block mt-1">اكتب لتبحث عن الفواتير المتاحة</small>
+                            <small class="text-muted d-block mt-1">{{ __('reconciliation.search_invoices') }}</small>
                         </div>
 
                         <!-- نتائج البحث عن الفواتير -->
@@ -136,52 +136,51 @@
 
                         <!-- عرض معلومات الفاتورة المختارة -->
                         <div id="invoiceInfo" style="display: block; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #3E4651;">
-                            <h6 class="mb-3"><strong>معلومات الفاتورة المختارة:</strong></h6>
+                            <h6 class="mb-3"><strong>{{ __('reconciliation.invoice') }}:</strong></h6>
                             <div style="display: grid; gap: 10px;">
                                 <div>
-                                    <small class="text-muted">رقم الفاتورة:</small>
+                                    <small class="text-muted">{{ __('reconciliation.invoice_number') }}:</small>
                                     <div id="info-invoice-number" style="font-weight: 600; color: #3E4651;">{{ $deliveryNote->purchaseInvoice->invoice_number }}</div>
                                 </div>
                                 <div>
-                                    <small class="text-muted">المورد:</small>
+                                    <small class="text-muted">{{ __('reconciliation.supplier') }}:</small>
                                     <div id="info-invoice-supplier" style="font-weight: 600;">{{ $deliveryNote->purchaseInvoice->supplier->name }}</div>
                                 </div>
                                 <div>
-                                    <small class="text-muted">تاريخ الفاتورة:</small>
+                                    <small class="text-muted">{{ __('reconciliation.date') }}:</small>
                                     <div id="info-invoice-date" style="font-weight: 600;">{{ $deliveryNote->purchaseInvoice->invoice_date?->format('Y-m-d') }}</div>
                                 </div>
                                 <div>
-                                    <small class="text-muted">وزن الفاتورة:</small>
-                                    <div id="info-invoice-weight" style="font-weight: 600; color: #3E4651;">{{ number_format($deliveryNote->invoice_weight, 2) }} وحدة</div>
+                                    <small class="text-muted">{{ __('reconciliation.weight') }}:</small>
+                                    <div id="info-invoice-weight" style="font-weight: 600; color: #3E4651;">{{ number_format($deliveryNote->invoice_weight, 2) }} {{ __('reconciliation.weight') }}</div>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-outline-danger mt-2" id="clearInvoice">
-                                    <i class="fas fa-times"></i> إزالة
+                                    <i class="fas fa-times"></i> {{ __('reconciliation.clear') }}
                                 </button>
                             </div>
                         </div>
 
                         <!-- عرض المنتجات في الفاتورة -->
                         <div id="invoiceItemsInfo" style="display: block; margin-top: 20px;">
-                            <h6 class="mb-3"><strong>🛍️ المنتجات في الفاتورة:</strong></h6>
+                            <h6 class="mb-3"><strong>🛍️ {{ __('reconciliation.select_products') }}:</strong></h6>
                             <div id="invoiceItemsList" class="table-responsive">
                                 <table class="table table-sm table-bordered mb-0">
                                     <thead style="background-color: #f8f9fa;">
                                         <tr>
-                                            <th style="text-align: right;">المنتج</th>
-                                            <th>الكمية</th>
-                                            <th>الوحدة</th>
-                                          
+                                            <th style="text-align: right;">{{ __('reconciliation.product_name') }}</th>
+                                            <th>{{ __('reconciliation.quantity') }}</th>
+                                            <th>{{ __('reconciliation.material_unit') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody id="invoiceItemsBody">
                                         @foreach($deliveryNote->purchaseInvoice->items ?? [] as $item)
                                         <tr>
                                             <td style="text-align: right;">
-                                                <strong>{{ $item->item_name ?? 'منتج بدون اسم' }}</strong>
+                                                <strong>{{ $item->item_name ?? __('reconciliation.product_name') }}</strong>
                                             </td>
                                             <td>{{ number_format($item->quantity ?? 0, 2) }}</td>
                                             <td>{{ $item->unit ?? 'قطعة' }}</td>
-                                          
+
                                         </tr>
                                         @endforeach
                                     </tbody>
@@ -196,24 +195,24 @@
         <!-- بطاقة إنشاء أذن تسليم من الفاتورة -->
         <div class="card mb-4" id="createDeliveryNoteCard" style="display: block; border-left: 4px solid #27ae60;">
             <div class="card-header" style="background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%); color: white;">
-                <h5 class="mb-0">📦 إنشاء أذن تسليم من الفاتورة</h5>
+                <h5 class="mb-0">📦 {{ __('reconciliation.create_delivery_note') }}</h5>
             </div>
             <div class="card-body">
-                <p class="text-muted mb-3">اختر المنتجات التي تريد إضافتها إلى أذن التسليم:</p>
+                <p class="text-muted mb-3">{{ __('reconciliation.select_products') }}:</p>
                 <div id="productsChecklistContainer">
                     @foreach($deliveryNote->purchaseInvoice->items ?? [] as $index => $item)
                     <div class="form-check" style="margin-bottom: 12px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
                         <input class="form-check-input product-checkbox" type="checkbox" id="product_{{ $index }}"
-                               data-index="{{ $index }}" data-item-id="{{ $item->id }}" 
-                               data-name="{{ $item->item_name ?? 'منتج بدون اسم' }}"
-                               data-quantity="{{ $item->quantity ?? 0 }}" 
-                               data-unit="{{ $item->unit ?? 'قطعة' }}" 
+                               data-index="{{ $index }}" data-item-id="{{ $item->id }}"
+                               data-name="{{ $item->item_name ?? __('reconciliation.product_name') }}"
+                               data-quantity="{{ $item->quantity ?? 0 }}"
+                               data-unit="{{ $item->unit ?? __('reconciliation.material_unit') }}"
                                data-weight="{{ $item->weight ?? 0 }}">
                         <label class="form-check-label" for="product_{{ $index }}" style="cursor: pointer; margin-bottom: 0;">
-                            <strong>{{ $item->item_name ?? 'منتج بدون اسم' }}</strong>
+                            <strong>{{ $item->item_name ?? __('reconciliation.product_name') }}</strong>
                             <br>
-                            <small class="text-muted">الكمية: {{ number_format($item->quantity ?? 0, 2) }} {{ $item->unit ?? 'قطعة' }}</small>
-                            <br><small class="text-muted">الوزن: {{ number_format($item->weight ?? 0, 2) }} {{ $item->weight_unit ?? 'كجم' }}</small>
+                            <small class="text-muted">{{ __('reconciliation.quantity') }}: {{ number_format($item->quantity ?? 0, 2) }} {{ $item->unit ?? __('reconciliation.material_unit') }}</small>
+                            <br><small class="text-muted">{{ __('reconciliation.weight') }}: {{ number_format($item->weight ?? 0, 2) }} {{ $item->weight_unit ?? __('reconciliation.kg') }}</small>
                         </label>
                     </div>
                     @endforeach
@@ -221,25 +220,25 @@
 
                 <!-- ملخص البيانات المختارة -->
                 <div id="selectionSummary" style="display: none; margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #27ae60;">
-                    <h6 class="mb-3"><strong>📊 ملخص الاختيار:</strong></h6>
+                    <h6 class="mb-3"><strong>📊 {{ __('reconciliation.summary') }}:</strong></h6>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-2">
-                                <strong>عدد المنتجات المختارة:</strong>
+                                <strong>{{ __('reconciliation.selected_items') }}:</strong>
                                 <span id="selectedItemsCount" class="badge bg-info">0</span>
                             </div>
                             <div class="mb-2">
-                                <strong>الوزن الإجمالي:</strong>
-                                <span id="selectedTotalWeight" style="font-weight: 600; color: #27ae60;">0.00 كجم</span>
+                                <strong>{{ __('reconciliation.total_weight') }}:</strong>
+                                <span id="selectedTotalWeight" style="font-weight: 600; color: #27ae60;">0.00 {{ __('reconciliation.kg') }}</span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-2">
-                                <strong>إجمالي الكمية:</strong>
+                                <strong>{{ __('reconciliation.total_quantity') }}:</strong>
                                 <span id="selectedTotalQuantity" style="font-weight: 600; color: #27ae60;">0.00</span>
                             </div>
                             <div class="mb-2">
-                                <strong>المورد:</strong>
+                                <strong>{{ __('reconciliation.supplier') }}:</strong>
                                 <span id="selectedSupplier" style="font-weight: 600;">{{ $deliveryNote->purchaseInvoice->supplier->name }}</span>
                             </div>
                         </div>
@@ -247,7 +246,7 @@
                 </div>
 
                 <button type="button" class="btn btn-success mt-3" id="createDeliveryNoteBtn">
-                    <i class="fas fa-save"></i> إنشاء أذن تسليم
+                    <i class="fas fa-save"></i> {{ __('reconciliation.create_delivery_note') }}
                 </button>
             </div>
         </div>
@@ -255,14 +254,14 @@
         <!-- حساب الفرق -->
         <div class="card mb-4" id="discrepancyCard" style="display: block; border-left: 4px solid #0051E5;">
             <div class="card-header" style="background: linear-gradient(135deg, #0051E5 0%, #003FA0 100%); color: white;">
-                <h5 class="mb-0">⚖️ حساب الفرق</h5>
+                <h5 class="mb-0">⚖️ {{ __('reconciliation.discrepancy_calculation') }}</h5>
             </div>
             <div class="card-body">
                 <div class="row text-center">
                     <div class="col-md-3">
                         <div class="p-3 bg-light rounded">
-                            <small class="text-muted d-block mb-2">الوزن الفعلي (الميزان)</small>
-                            <h4 id="display-actual-weight" class="mb-0 text-success">{{ number_format($deliveryNote->actual_weight, 2) }} كجم</h4>
+                            <small class="text-muted d-block mb-2">{{ __('reconciliation.actual_weight') }}</small>
+                            <h4 id="display-actual-weight" class="mb-0 text-success">{{ number_format($deliveryNote->actual_weight, 2) }} {{ __('reconciliation.kg') }}</h4>
                         </div>
                     </div>
                     <div class="col-md-1 d-flex align-items-center justify-content-center">
@@ -270,8 +269,8 @@
                     </div>
                     <div class="col-md-3">
                         <div class="p-3 bg-light rounded">
-                            <small class="text-muted d-block mb-2">وزن الفاتورة</small>
-                            <h4 id="display-invoice-weight" class="mb-0 text-primary">{{ number_format($deliveryNote->invoice_weight, 2) }} كجم</h4>
+                            <small class="text-muted d-block mb-2">{{ __('reconciliation.invoice_weight') }}</small>
+                            <h4 id="display-invoice-weight" class="mb-0 text-primary">{{ number_format($deliveryNote->invoice_weight, 2) }} {{ __('reconciliation.kg') }}</h4>
                         </div>
                     </div>
                     <div class="col-md-1 d-flex align-items-center justify-content-center">
@@ -279,9 +278,9 @@
                     </div>
                     <div class="col-md-4">
                         <div class="p-3 bg-light rounded">
-                            <small class="text-muted d-block mb-2">الفرق</small>
+                            <small class="text-muted d-block mb-2">{{ __('reconciliation.difference') }}</small>
                             <h4 id="display-discrepancy" class="mb-0 {{ ($deliveryNote->actual_weight - $deliveryNote->invoice_weight) >= 0 ? 'text-danger' : 'text-success' }}">
-                                {{ ($deliveryNote->actual_weight - $deliveryNote->invoice_weight) >= 0 ? '+' : '' }}{{ number_format($deliveryNote->actual_weight - $deliveryNote->invoice_weight, 2) }} كجم
+                                {{ ($deliveryNote->actual_weight - $deliveryNote->invoice_weight) >= 0 ? '+' : '' }}{{ number_format($deliveryNote->actual_weight - $deliveryNote->invoice_weight, 2) }} {{ __('reconciliation.kg') }}
                             </h4>
                             <small id="display-percentage" class="text-muted">
                                 ({{ $deliveryNote->invoice_weight > 0 ? number_format((($deliveryNote->actual_weight - $deliveryNote->invoice_weight) / $deliveryNote->invoice_weight) * 100, 2) : 0 }}%)
@@ -293,7 +292,7 @@
                 <!-- تحذير إذا كان هناك فرق كبير -->
                 <div id="discrepancy-warning" style="display: {{ abs((($deliveryNote->actual_weight - $deliveryNote->invoice_weight) / $deliveryNote->invoice_weight) * 100) > 5 ? 'block' : 'none' }}; margin-top: 20px;">
                     <div class="alert alert-warning">
-                        <strong>⚠️ تنبيه:</strong> يوجد فرق كبير بين الوزن الفعلي ووزن الفاتورة. يرجى التأكد من البيانات.
+                        <strong>⚠️ {{ __('reconciliation.warning') }}:</strong> {{ __('reconciliation.error_message') }}
                     </div>
                 </div>
             </div>
@@ -302,13 +301,13 @@
         <!-- ملاحظات -->
         <div class="card mb-4">
             <div class="card-header" style="background: #f8f9fa; border-bottom: 2px solid #e9ecef;">
-                <h5 class="mb-0">📝 ملاحظات</h5>
+                <h5 class="mb-0">📝 {{ __('reconciliation.notes') }}</h5>
             </div>
             <div class="card-body">
                 <div class="form-group mb-0">
-                    <label class="form-label">ملاحظات حول الفرق (إن وجد):</label>
+                    <label class="form-label">{{ __('reconciliation.notes') }}:</label>
                     <textarea name="reconciliation_notes" class="form-control @error('reconciliation_notes') is-invalid @enderror"
-                        rows="3" placeholder="مثال: فرق طبيعي بسبب الرطوبة / يوجد عجز يحتاج متابعة">{{ old('reconciliation_notes', $deliveryNote->reconciliation_notes) }}</textarea>
+                        rows="3" placeholder="{{ __('reconciliation.remarks') }}">{{ old('reconciliation_notes', $deliveryNote->reconciliation_notes) }}</textarea>
                     @error('reconciliation_notes')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
@@ -322,21 +321,21 @@
                 <div class="form-check mb-3">
                     <input type="checkbox" id="confirmCheck" class="form-check-input" required>
                     <label class="form-check-label" for="confirmCheck">
-                        <strong>✓ أؤكد صحة البيانات المدخلة وأن الفاتورة مطابقة للأذن</strong>
+                        <strong>✓ {{ __('reconciliation.i_confirm') }}</strong>
                     </label>
                 </div>
 
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-info btn-lg" id="submitBtn" disabled>
-                        <i class="fas fa-save"></i> حفظ التعديلات
+                        <i class="fas fa-save"></i> {{ __('reconciliation.save') }}
                     </button>
                     <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="btn btn-info btn-lg">
-                        <i class="fas fa-times"></i> إلغاء
+                        <i class="fas fa-times"></i> {{ __('reconciliation.cancel') }}
                     </a>
                 </div>
 
                 <div class="alert alert-light mt-3 mb-0" style="border-left: 4px solid #0051E5;">
-                    <small><strong>✓ بعد الربط:</strong> سيتم حساب الفرق تلقائياً وإضافة السجل في صفحة التسوية</small>
+                    <small><strong>✓ {{ __('reconciliation.note') }}:</strong> {{ __('reconciliation.saved_successfully') }}</small>
                 </div>
             </div>
         </div>
@@ -430,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // البيانات
     let deliveryNotesData = @json($deliveryNotes ?? []);
     let invoicesData = @json($invoices ?? []);
-    
+
     // البيانات الحالية
     const currentDeliveryNote = @json($deliveryNote);
     const currentInvoice = @json($deliveryNote->purchaseInvoice);
@@ -600,7 +599,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div>
                             <strong>${invoice.supplier?.name || 'N/A'}</strong>
                             <br>
-                            <small class="text-muted">${formatGregorianDate(invoice.invoice_date)} | الكمية الإجمالية: ${parseFloat(displayWeight).toFixed(2)} وحدة</small>
+                            <small class="text-muted">${formatGregorianDate(invoice.invoice_date)} | {{ __('reconciliation.total_quantity') }}: ${parseFloat(displayWeight).toFixed(2)} {{ __('reconciliation.material_unit') }}</small>
                         </div>
                     </div>
                 </button>
@@ -640,7 +639,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('info-invoice-number').textContent = invoiceNumber;
         document.getElementById('info-invoice-supplier').textContent = supplier;
         document.getElementById('info-invoice-date').textContent = date;
-        document.getElementById('info-invoice-weight').textContent = `${parseFloat(weight).toFixed(2)} وحدة`;
+        document.getElementById('info-invoice-weight').textContent = `${parseFloat(weight).toFixed(2)} {{ __('reconciliation.material_unit') }}`;
 
         invoiceInfo.style.display = 'block';
 
@@ -664,9 +663,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         invoiceItemsBody.innerHTML = invoice.items.map((item, index) => {
-            const itemName = item.item_name || 'منتج بدون اسم';
+            const itemName = item.item_name || '{{ __('reconciliation.product_name') }}';
             const weight = item.weight ? parseFloat(item.weight).toFixed(2) : '0.00';
-            const unit = item.unit || 'قطعة';
+            const unit = item.unit || '{{ __('reconciliation.material_unit') }}';
 
             return `
                 <tr>
@@ -675,7 +674,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </td>
                     <td>${parseFloat(item.quantity || 0).toFixed(2)}</td>
                     <td>${unit}</td>
-                    <td>${weight} ${item.weight_unit || 'كجم'}</td>
+                    <td>${weight} ${item.weight_unit || '{{ __('reconciliation.kg') }}'}</td>
                 </tr>
             `;
         }).join('');
@@ -683,9 +682,9 @@ document.addEventListener('DOMContentLoaded', function() {
         invoiceItemsInfo.style.display = 'block';
 
         productsChecklistContainer.innerHTML = invoice.items.map((item, index) => {
-            const itemName = item.item_name || 'منتج بدون اسم';
+            const itemName = item.item_name || '{{ __('reconciliation.product_name') }}';
             const quantity = parseFloat(item.quantity || 0).toFixed(2);
-            const unit = item.unit || 'قطعة';
+            const unit = item.unit || '{{ __('reconciliation.material_unit') }}';
             const weight = item.weight ? parseFloat(item.weight).toFixed(2) : '0.00';
 
             return `
@@ -696,8 +695,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <label class="form-check-label" for="product_${index}" style="cursor: pointer; margin-bottom: 0;">
                         <strong>${itemName}</strong>
                         <br>
-                        <small class="text-muted">الكمية: ${quantity} ${unit}</small>
-                        <br><small class="text-muted">الوزن: ${weight} ${item.weight_unit || 'كجم'}</small>
+                        <small class="text-muted">{{ __('reconciliation.quantity') }}: ${quantity} ${unit}</small>
+                        <br><small class="text-muted">{{ __('reconciliation.weight') }}: ${weight} ${item.weight_unit || '{{ __('reconciliation.kg') }}'}</small>
                     </label>
                 </div>
             `;
@@ -739,7 +738,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         document.getElementById('selectedItemsCount').textContent = selectedItems.length;
-        document.getElementById('selectedTotalWeight').textContent = totalWeight.toFixed(2) + ' كجم';
+        document.getElementById('selectedTotalWeight').textContent = totalWeight.toFixed(2) + ' {{ __('reconciliation.kg') }}';
         document.getElementById('selectedTotalQuantity').textContent = totalQuantity.toFixed(2);
         document.getElementById('selectedSupplier').textContent = selectedInvoice.supplier?.name || '-';
 
@@ -750,7 +749,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedItems = Array.from(document.querySelectorAll('.product-checkbox:checked'));
 
         if (selectedItems.length === 0) {
-            alert('يرجى اختيار منتج واحد على الأقل');
+            alert('{{ __('reconciliation.please_select') }}');
             return;
         }
 
@@ -758,7 +757,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedInvoice = invoicesData.find(inv => inv.id == invoiceId) || currentInvoice;
 
         if (!selectedInvoice) {
-            alert('خطأ: لم يتم العثور على الفاتورة');
+            alert('{{ __('reconciliation.error') }}: {{ __('reconciliation.no_data_found') }}');
             return;
         }
 
@@ -784,21 +783,14 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => {
             if (!response.ok) {
                 return response.json().then(data => {
-                    throw new Error(data.error || 'حدث خطأ في الإنشاء');
+                    throw new Error(data.error || '{{ __('reconciliation.error') }}');
                 });
             }
             return response.json();
         })
         .then(data => {
             if (data.success) {
-                const message = `✅ تم إنشاء أذن التسليم بنجاح!
-━━━━━━━━━━━━━━━━━━━━━
-📄 رقم الأذن: ${data.note_number}
-📦 عدد المنتجات: ${data.items_count}
-⚖️ الوزن الإجمالي: ${data.total_weight.toFixed(2)} كجم
-📊 إجمالي الكمية: ${data.total_quantity.toFixed(2)}
-${data.is_matched ? '✓ الأوزان متطابقة - تم المطابقة تلقائياً' : '⚠️ يوجد فرق في الوزن: ' + Math.abs(data.discrepancy).toFixed(2) + ' كجم'}
-━━━━━━━━━━━━━━━━━━━━━`;
+                const message = `✅ {{ __('reconciliation.created_successfully') }}!\n━━━━━━━━━━━━━━━━━━━━━\n📄 {{ __('reconciliation.delivery_note_number') }}: ${data.note_number}\n📦 {{ __('reconciliation.items_count') }}: ${data.items_count}\n⚖️ {{ __('reconciliation.total_weight') }}: ${data.total_weight.toFixed(2)} {{ __('reconciliation.kg') }}\n📊 {{ __('reconciliation.total_quantity') }}: ${data.total_quantity.toFixed(2)}\n${data.is_matched ? '✓ {{ __('reconciliation.weights_matched') }}' : '⚠️ {{ __('reconciliation.weight_discrepancy') }} ' + Math.abs(data.discrepancy).toFixed(2) + ' {{ __('reconciliation.kg') }}'}\n━━━━━━━━━━━━━━━━━━━━━`;
 
                 alert(message);
 
@@ -808,8 +800,8 @@ ${data.is_matched ? '✓ الأوزان متطابقة - تم المطابقة �
             }
         })
         .catch(error => {
-            console.error('❌ خطأ:', error);
-            alert('❌ حدث خطأ: ' + error.message);
+            console.error('❌ {{ __('reconciliation.error') }}:', error);
+            alert('❌ {{ __('reconciliation.error') }}: ' + error.message);
         });
     }
 

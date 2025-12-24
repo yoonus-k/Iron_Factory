@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'نقل البضاعة للإنتاج')
+@section('title', __('warehouse_registration.transfer_to_production'))
 
 @section('content')
 <div class="um-content-wrapper">
@@ -10,23 +10,23 @@
                 <div class="col">
                     <h1 class="um-page-title">
                         <i class="feather icon-arrow-left"></i>
-                        نقل البضاعة للإنتاج
+                        {{ __('warehouse_registration.transfer_to_production') }}
                     </h1>
                     <nav class="um-breadcrumb-nav">
                         <span>
-                            <i class="feather icon-home"></i> لوحة التحكم
+                            <i class="feather icon-home"></i> {{ __('app.dashboard') }}
                         </span>
                         <i class="feather icon-chevron-left"></i>
-                        <span>المستودع</span>
+                        <span>{{ __('warehouse.warehouse') }}</span>
                         <i class="feather icon-chevron-left"></i>
-                        <span>التسجيل</span>
+                        <span>{{ __('warehouse_registration.registration') }}</span>
                         <i class="feather icon-chevron-left"></i>
-                        <span>نقل للإنتاج</span>
+                        <span>{{ __('warehouse_registration.transfer_to_production') }}</span>
                     </nav>
                 </div>
                 <div class="col-auto">
                     <a href="{{ route('manufacturing.warehouse.registration.show', $deliveryNote) }}" class="um-btn um-btn-outline">
-                        <i class="feather icon-arrow-right"></i> رجوع
+                        <i class="feather icon-arrow-right"></i> {{ __('app.back') }}
                     </a>
                 </div>
             </div>
@@ -50,7 +50,7 @@
                         <line x1="12" y1="8" x2="12" y2="12"></line>
                         <line x1="12" y1="16" x2="12.01" y2="16"></line>
                     </svg>
-                    <h4 class="alert-title">يوجد أخطاء في البيانات المدخلة</h4>
+                    <h4 class="alert-title">{{ __('app.input_errors') }}</h4>
                     <button type="button" class="alert-close" onclick="this.parentElement.parentElement.style.display='none'">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -83,7 +83,7 @@
             <div class="um-alert-custom um-alert-error" role="alert">
                 <i class="feather icon-alert-circle"></i>
                 <div>
-                    <strong>خطأ في البيانات!</strong>
+                    <strong>{{ __('app.data_error') }}</strong>
                     <ul style="margin: 8px 0 0 0; padding-right: 20px;">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -102,20 +102,20 @@
                 <section class="um-main-card">
                     <div class="um-card-header" style="background: linear-gradient(135deg, #0066CC 0%, #0052A3 100%); color: white;">
                         <h4 class="um-card-title" style="color: white;">
-                            <i class="feather icon-info"></i> معلومات البضاعة
+                            <i class="feather icon-info"></i> {{ __('warehouse_registration.goods_info') }}
                         </h4>
                     </div>
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <div class="info-group">
-                                    <label class="info-label">رقم الأذن:</label>
+                                    <label class="info-label">{{ __('warehouse_registration.note_number') }}:</label>
                                     <div class="info-value">{{ $deliveryNote->note_number ?? $deliveryNote->id }}</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="info-group">
-                                    <label class="info-label">المادة:</label>
+                                    <label class="info-label">{{ __('warehouse_registration.material') }}:</label>
                                     <div class="info-value">{{ $deliveryNote->material?->name ?? 'غير محددة' }}</div>
                                 </div>
                             </div>
@@ -124,13 +124,13 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <div class="info-group">
-                                    <label class="info-label">المورد:</label>
+                                    <label class="info-label">{{ __('warehouse_registration.supplier') }}:</label>
                                     <div class="info-value">{{ $deliveryNote->supplier?->name ?? 'غير محدد' }}</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="info-group">
-                                    <label class="info-label">تاريخ الاستقبال:</label>
+                                    <label class="info-label">{{ __('warehouse_registration.reception_date') }}:</label>
                                     <div class="info-value">{{ $deliveryNote->delivery_date?->format('Y-m-d H:i') ?? 'غير محدد' }}</div>
                                 </div>
                             </div>
@@ -138,18 +138,18 @@
 
                         <div class="alert alert-info" style="margin-bottom: 0;">
                             <i class="fas fa-box"></i>
-                            <strong>حالة الكميات:</strong>
+                            <strong>{{ __('warehouse_registration.quantity_status') }}:</strong>
                             <div style="margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                                 <div>
-                                    <div style="font-size: 12px; color: #666; margin-bottom: 3px;">الكمية المسلمة (من الأذن):</div>
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 3px;">{{ __('warehouse_registration.delivered_quantity') }} ({{ __('warehouse_registration.from_note') }}):</div>
                                     <div style="font-size: 18px; font-weight: bold; color: #3498db;">
-                                        {{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }} وحدة
+                                        {{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }} {{ __('warehouse_registration.unit') }}
                                     </div>
                                 </div>
                                 <div>
-                                    <div style="font-size: 12px; color: #666; margin-bottom: 3px;">الكمية المتبقية للنقل:</div>
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 3px;">{{ __('warehouse_registration.remaining_quantity_to_transfer') }}:</div>
                                     <div style="font-size: 18px; font-weight: bold; color: #27ae60;">
-                                        {{ number_format($deliveryNote->quantity_remaining ?? ($deliveryNote->quantity ?? $availableQuantity), 2) }} وحدة
+                                        {{ number_format($deliveryNote->quantity_remaining ?? ($deliveryNote->quantity ?? $availableQuantity), 2) }} {{ __('warehouse_registration.unit') }}
                                     </div>
                                 </div>
                             </div>
@@ -162,15 +162,15 @@
                     <div class="um-card-body">
                         <div style="margin-bottom: 15px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <label style="font-weight: 600; color: #2c3e50; margin-bottom: 0;">الكمية المسلمة من الأذن:</label>
+                                <label style="font-weight: 600; color: #2c3e50; margin-bottom: 0;">{{ __('warehouse_registration.delivered_quantity_from_note') }}:</label>
                                 <span style="font-weight: 600; color: #3498db;">
-                                    {{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }} وحدة
+                                    {{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }} {{ __('warehouse_registration.unit') }}
                                 </span>
                             </div>
                             <div class="progress" style="height: 25px; border-radius: 4px; overflow: hidden;">
                                 <div class="progress-bar"
                                     style="width: 100%; background: linear-gradient(90deg, #3498db 0%, #2980b9 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
-                                    {{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }} وحدة
+                                    {{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }} {{ __('warehouse_registration.unit') }}
                                 </div>
                             </div>
                         </div>
@@ -181,7 +181,7 @@
                 <section class="um-main-card">
                     <div class="um-card-header" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white;">
                         <h4 class="um-card-title" style="color: white;">
-                            <i class="feather icon-arrow-left"></i> نقل البضاعة للإنتاج
+                            <i class="feather icon-arrow-left"></i> {{ __('warehouse_registration.transfer_to_production') }}
                         </h4>
                     </div>
                     <div class="card-body">
@@ -189,7 +189,7 @@
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <i class="fas fa-exclamation-triangle" style="font-size: 18px;"></i>
                                 <div>
-                                    <strong>تنبيه مهم:</strong> سيتم نقل الكمية الكاملة للبضاعة إلى الإنتاج. لا يمكن إجراء نقل جزئي.
+                                    <strong>{{ __('warehouse_registration.important_note') }}:</strong> {{ __('warehouse_registration.will_transfer_full_quantity') }} {{ __('warehouse_registration.cannot_partial_transfer') }}
                                 </div>
                             </div>
                         </div>
@@ -202,18 +202,18 @@
 
                             <div class="mb-4">
                                 <label class="form-label" style="font-weight: 600;">
-                                    <i class="fas fa-weight"></i> الكمية المراد نقلها (وحدة):
+                                    <i class="fas fa-weight"></i> {{ __('warehouse_registration.quantity_to_transfer') }} ({{ __('warehouse_registration.unit') }}):
                                 </label>
                                 <div style="font-size: 24px; font-weight: bold; color: #27ae60; padding: 15px; background: #f8f9fa; border-radius: 4px; border: 1px solid #ddd;">
-                                    {{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }} وحدة
+                                    {{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }} {{ __('warehouse_registration.unit') }}
                                 </div>
                                 <small class="form-text" style="color: #666; margin-top: 8px;">
                                     <i class="fas fa-info-circle"></i>
-                                    الكمية المسلمة من أذن الاستلام الأصلية
+                                    {{ __('warehouse_registration.original_delivery_note_quantity') }}
                                 </small>
                             </div>                            <div class="mb-4">
                                 <label for="notes" class="form-label" style="font-weight: 600;">
-                                    <i class="fas fa-sticky-note"></i> ملاحظات (اختياري):
+                                    <i class="fas fa-sticky-note"></i> {{ __('app.notes') }} ({{ __('app.optional') }}):
                                 </label>
 
                                 <textarea
@@ -225,28 +225,28 @@
                                     style="padding: 12px; border-radius: 4px; border: 1px solid #ddd; font-size: 14px;"></textarea>
 
                                 <small class="form-text" style="color: #666; margin-top: 5px;">
-                                    أضف أي ملاحظات متعلقة بعملية النقل
+                                    {{ __('warehouse_registration.add_transfer_related_notes') }}
                                 </small>
                             </div>
 
                             <!-- معاينة -->
                             <div class="alert alert-info">
-                                <strong>معاينة العملية:</strong>
+                                <strong>{{ __('warehouse_registration.operation_preview') }}:</strong>
                                 <div style="margin-top: 10px; font-size: 13px; line-height: 1.8;">
                                     <div>
                                         <i class="fas fa-arrow-down" style="color: #3498db;"></i>
-                                        <strong>قبل النقل:</strong>
+                                        <strong>{{ __('warehouse_registration.before_transfer') }}:</strong>
                                     </div>
                                     <div style="margin-right: 20px; margin-bottom: 10px;">
-                                        الكمية المسلمة: <strong>{{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }}</strong> وحدة
+                                        {{ __('warehouse_registration.delivered_quantity') }}: <strong>{{ number_format($deliveryNote->quantity ?? $availableQuantity, 2) }}</strong> {{ __('warehouse_registration.unit') }}
                                     </div>
 
                                     <div>
                                         <i class="fas fa-arrow-up" style="color: #27ae60;"></i>
-                                        <strong>بعد النقل:</strong>
+                                        <strong>{{ __('warehouse_registration.after_transfer') }}:</strong>
                                     </div>
                                     <div style="margin-right: 20px;">
-                                        الكمية المتبقية: <strong>0.00</strong> وحدة
+                                        {{ __('warehouse_registration.remaining_quantity') }}: <strong>0.00</strong> {{ __('warehouse_registration.unit') }}
                                     </div>
                                 </div>
                             </div>
@@ -254,10 +254,10 @@
                             <!-- الأزرار -->
                             <div style="display: flex; gap: 12px;">
                                 <a href="{{ route('manufacturing.warehouse.registration.show', $deliveryNote) }}" class="um-btn um-btn-outline" style="flex: 0 0 auto;">
-                                    <i class="feather icon-x"></i> إلغاء
+                                    <i class="feather icon-x"></i> {{ __('app.cancel') }}
                                 </a>
                                 <button type="submit" class="um-btn um-btn-primary" style="flex: 1; background: linear-gradient(135deg, #10B981 0%, #059669 100%); border: none;">
-                                    <i class="feather icon-check"></i> تأكيد النقل الكامل
+                                    <i class="feather icon-check"></i> {{ __('warehouse_registration.confirm_full_transfer') }}
                                 </button>
                             </div>
                         </form>

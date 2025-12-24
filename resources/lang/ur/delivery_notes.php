@@ -13,7 +13,17 @@ return [
     // Navigation
     'dashboard' => 'ڈیش بورڈ',
     'warehouse' => 'گودام',
+       'coils_notice' => '  نوٹ',
+       'coil_barcodes' => 'کوائل بارکوڈ',
+'this_delivery_divided_into_coils' => 'اس ڈیلیوری کو کوائلز میں تقسیم کیا گیا ہے',
+    'coils_details' => '    کوائلز کی تفصیلات',
+    'discount_percentage' => 'چھوٹ فیصد',
+    'tax_percentage' => 'ٹیکس فیصد',
+    'enter_basic_invoice_data' => 'بنیادی انوائس ڈیٹا درج کریں',
+
+'invoice_number_auto'=>'انوائس نمبر خود بخود تیار کیا جائے گا',
     'back' => 'واپس',
+    'total'=>'کل',
 
     // Types
     'type' => 'قسم',

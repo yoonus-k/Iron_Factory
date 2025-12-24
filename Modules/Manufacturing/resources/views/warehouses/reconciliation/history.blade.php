@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'سجل التسويات')
+@section('title', __('reconciliation.reconciliation_history'))
 
 @section('content')
 <div class="container-fluid px-4 py-4">
@@ -13,14 +13,14 @@
                         <i class="fas fa-history"></i>
                     </div>
                     <div>
-                        <h2 class="mb-1 fw-bold">سجل التسويات المكتملة</h2>
-                        <p class="text-muted mb-0">جميع التسويات المنجزة والمتطابقة والمرفوضة</p>
+                        <h2 class="mb-1 fw-bold">{{ __('reconciliation.reconciliation_history') }}</h2>
+                        <p class="text-muted mb-0">{{ __('reconciliation.logs') }}</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4 text-end">
                 <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="btn-back">
-                    <i class="fas fa-arrow-left"></i> العودة
+                    <i class="fas fa-arrow-left"></i> {{ __('reconciliation.back') }}
                 </a>
             </div>
         </div>
@@ -31,9 +31,9 @@
         <div class="card-body p-4">
             <form method="GET" action="{{ route('manufacturing.warehouses.reconciliation.history') }}" class="row g-3">
                 <div class="col-md-3">
-                    <label class="form-label fw-semibold">المورد</label>
+                    <label class="form-label fw-semibold">{{ __('reconciliation.supplier') }}</label>
                     <select name="supplier_id" class="form-select custom-select">
-                        <option value="">-- اختر المورد --</option>
+                        <option value="">-- {{ __('reconciliation.supplier') }} --</option>
                         @foreach($suppliers ?? [] as $supplier)
                             <option value="{{ $supplier->id }}" {{ request('supplier_id') == $supplier->id ? 'selected' : '' }}>
                                 {{ $supplier->name }}
@@ -43,18 +43,18 @@
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label fw-semibold">من التاريخ</label>
+                    <label class="form-label fw-semibold">{{ __('reconciliation.date') }}</label>
                     <input type="date" name="from_date" class="form-control custom-input" value="{{ request('from_date') }}">
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label fw-semibold">إلى التاريخ</label>
+                    <label class="form-label fw-semibold">{{ __('reconciliation.date') }}</label>
                     <input type="date" name="to_date" class="form-control custom-input" value="{{ request('to_date') }}">
                 </div>
 
                 <div class="col-md-3 d-flex align-items-end gap-2">
                     <button type="submit" class="btn-primary-custom flex-grow-1">
-                        <i class="fas fa-filter"></i> فلترة
+                        <i class="fas fa-filter"></i> {{ __('reconciliation.filter') }}
                     </button>
                     <button type="button" onclick="window.location.href='{{ route('manufacturing.warehouses.reconciliation.history') }}'" class="btn-secondary-custom">
                         <i class="fas fa-redo"></i>

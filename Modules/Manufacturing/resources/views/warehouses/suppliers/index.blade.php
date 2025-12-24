@@ -211,9 +211,9 @@
                                     <span class="um-badge um-badge-danger">{{ __('warehouse.inactive') }}</span>
                                 @endif
                             </td>
-                           <td>
+                   <td>
     <div class="um-dropdown">
-        <button class="um-btn-action um-btn-dropdown" title="الإجراءات">
+        <button class="um-btn-action um-btn-dropdown" title="{{ __('warehouse.actions') }}">
             <i class="feather icon-more-vertical"></i>
         </button>
 
@@ -223,7 +223,7 @@
                 <a href="{{ route('manufacturing.suppliers.show', $supplier->id) }}"
                    class="um-dropdown-item um-btn-view">
                     <i class="feather icon-eye"></i>
-                    <span>عرض</span>
+                    <span>{{ __('warehouse.view') }}</span>
                 </a>
             @endif
 
@@ -231,7 +231,7 @@
                 <a href="{{ route('manufacturing.suppliers.edit', $supplier->id) }}"
                    class="um-dropdown-item um-btn-edit">
                     <i class="feather icon-edit-2"></i>
-                    <span>تعديل</span>
+                    <span>{{ __('warehouse.edit') }}</span>
                 </a>
             @endif
 
@@ -239,7 +239,7 @@
                 <button class="um-dropdown-item um-btn-delete"
                         onclick="deleteSupplier({{ $supplier->id }})">
                     <i class="feather icon-trash-2"></i>
-                    <span>حذف</span>
+                    <span>{{ __('warehouse.delete') }}</span>
                 </button>
             @endif
 
@@ -247,7 +247,7 @@
                 <button class="um-dropdown-item um-btn-status"
                         onclick="toggleStatus({{ $supplier->id }})">
                     <i class="feather {{ $supplier->is_active ? 'icon-toggle-right' : 'icon-toggle-left' }}"></i>
-                    <span>{{ $supplier->is_active ? 'تعطيل' : 'تفعيل' }}</span>
+                    <span>{{ $supplier->is_active ? __('warehouse.disable') : __('warehouse.enable') }}</span>
                 </button>
             @endif
 
@@ -258,7 +258,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center">لا توجد موردين</td>
+                            <td colspan="7" class="text-center">{{ __('warehouse.no_suppliers_found') }}</td>
                         </tr>
                         @endforelse
                     </tbody>

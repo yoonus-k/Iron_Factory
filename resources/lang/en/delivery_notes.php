@@ -216,6 +216,11 @@ return [
     'can_enter_coil_for_tracking' => 'You can enter coil number to facilitate tracking',
     'will_be_registered_automatically' => 'Will be registered in warehouse automatically',
     'enter_quantity_placeholder' => 'Enter Quantity',
+    'coils_notice' => 'Note',
+    'coils_details' => 'Details about coils',
+'coil_barcodes' => 'Coil Barcodes',
+'this_delivery_divided_into_coils' => 'This delivery is divided into coils',
+'total'=>'Total',
 
     // Permissions
     'no_permission_to_create' => 'You do not have permission to create a new delivery note',
