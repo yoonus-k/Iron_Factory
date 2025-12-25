@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'نقل للإنتاج')
+@section('title', __('warehouse_registration.transfer_to_production'))
 
 @section('content')
 <style>
@@ -185,11 +185,11 @@
     <div class="header-card">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
-                <h1 style="margin: 0; font-size: 28px; margin-bottom: 5px;">🚚 نقل للإنتاج</h1>
+                <h1 style="margin: 0; font-size: 28px; margin-bottom: 5px;">🚚 {{ __('warehouse_registration.transfer_to_production') }}</h1>
                 <p style="margin: 0; opacity: 0.9;">أذن #{{ $deliveryNote->note_number ?? $deliveryNote->id }}</p>
             </div>
             <a href="{{ route('manufacturing.warehouse.registration.show', $deliveryNote) }}" style="background: rgba(255,255,255,0.2); color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: bold; border: 2px solid white;">
-                ← رجوع
+                {{ __('app.back') }}
             </a>
         </div>
     </div>
@@ -202,7 +202,7 @@
 
     @if ($errors->any())
         <div style="background: #f8d7da; border: 2px solid #f5c6cb; color: #721c24; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <strong>خطأ:</strong>
+            <strong>{{ __('app.error') }}:</strong>
             <ul style="margin: 10px 0 0 20px;">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -228,22 +228,22 @@
 
     <!-- الكميات -->
     <div class="info-card">
-        <div class="card-title">📊 الكميات</div>
+        <div class="card-title">📊 {{ __('warehouse_registration.quantities') }}</div>
         
         <div class="stats-grid">
             <div class="stat-box" style="background: #e3f2fd;">
                 <div class="stat-number" style="color: #1976d2;">{{ number_format($registeredQuantity, 2) }}</div>
-                <div class="stat-label" style="color: #1976d2;">الإجمالي المسجل</div>
+                <div class="stat-label" style="color: #1976d2;">{{ __('warehouse_registration.total_registered') }}</div>
             </div>
             
             <div class="stat-box" style="background: #e8f5e9;">
                 <div class="stat-number" style="color: #388e3c;">{{ number_format($transferredQuantity, 2) }}</div>
-                <div class="stat-label" style="color: #388e3c;">تم نقله</div>
+                <div class="stat-label" style="color: #388e3c;">{{ __('warehouse_registration.transferred') }}</div>
             </div>
             
             <div class="stat-box" style="background: #fff3e0;">
                 <div class="stat-number" style="color: #f57c00;">{{ number_format($availableQuantity, 2) }}</div>
-                <div class="stat-label" style="color: #f57c00;">المتاح للنقل</div>
+                <div class="stat-label" style="color: #f57c00;">{{ __('warehouse_registration.available_to_transfer') }}</div>
             </div>
         </div>
     </div>
@@ -253,11 +253,11 @@
         @csrf
         
         <div class="info-card">
-            <div class="card-title">✏️ تفاصيل النقل للإنتاج</div>
+            <div class="card-title">✏️ {{ __('warehouse_registration.transfer_details') }}</div>
             
             <!-- المادة -->
             <div class="input-group-simple">
-                <label class="label-simple">📦 المادة</label>
+                <label class="label-simple">📦 {{ __('warehouse_registration.material') }}</label>
                 <div class="input-simple" style="background: #f8f9fa; color: #2c3e50; cursor: default;">
                     {{ $deliveryNote->material->name_ar ?? 'غير محدد' }}
                 </div>
@@ -265,7 +265,7 @@
             
             <!-- اختيار المرحلة الإنتاجية -->
             <div class="input-group-simple">
-                <label class="label-simple">🏭 المرحلة الإنتاجية <span style="color: #e74c3c;">*</span></label>
+                <label class="label-simple">🏭 {{ __('warehouse_registration.production_stage') }} <span style="color: #e74c3c;">*</span></label>
                 <select name="production_stage" id="productionStage" class="input-simple" required style="cursor: pointer;">
                     @php
                         $productionStages = \App\Models\ProductionStage::getActiveStages();
@@ -278,15 +278,15 @@
                     @endforeach
                 </select>
                 <small style="color: #7f8c8d; font-size: 13px; margin-top: 5px; display: block;">
-                    المرحلة الأولى محددة افتراضياً
+                    {{ __('warehouse_registration.first_stage_default') }}
                 </small>
             </div>
             
             <!-- اختيار الموظف المستلم -->
             <div class="input-group-simple">
-                <label class="label-simple">👤 الموظف المستلم <span style="color: #e74c3c;">*</span></label>
+                <label class="label-simple">👤 {{ __('warehouse_registration.receiving_employee') }} <span style="color: #e74c3c;">*</span></label>
                 <select name="assigned_to" id="assignedTo" class="input-simple" required style="cursor: pointer;">
-                    <option value="">-- اختر الموظف المستلم --</option>
+                    <option value="">{{ __('warehouse_registration.select_receiving_employee') }}</option>
                     @php
                         $workers = \App\Models\User::where('is_active', 1)
                             ->orderBy('name')
@@ -297,12 +297,12 @@
                     @endforeach
                 </select>
                 <small style="color: #7f8c8d; font-size: 13px; margin-top: 5px; display: block;">
-                    سيتم إرسال إشعار للموظف لتأكيد الاستلام
+                    {{ __('warehouse_registration.notification_sent_employee') }}
                 </small>
             </div>
             
             <div class="input-group-simple">
-                <label class="label-simple">⚖️ الكمية (كجم) <span style="color: #e74c3c;">*</span></label>
+                <label class="label-simple">⚖️ {{ __('warehouse_registration.quantity_kg') }} <span style="color: #e74c3c;">*</span></label>
                 <input type="number" 
                        name="quantity" 
                        id="quantityInput"
@@ -315,36 +315,36 @@
                        required>
                 
                 <button type="button" class="btn-full" onclick="document.getElementById('quantityInput').value = {{ $availableQuantity }}; updatePreview();">
-                    استخدم الكل ({{ number_format($availableQuantity, 2) }} كجم)
+                    {{ __('warehouse_registration.use_all') }} ({{ number_format($availableQuantity, 2) }} {{ __('warehouse_registration.kg') }})
                 </button>
             </div>
             
             <!-- معاينة مباشرة -->
             <div class="preview-box">
-                <div style="font-weight: bold; color: #3498db; margin-bottom: 15px; text-align: center;">📋 معاينة بعد النقل</div>
+                <div style="font-weight: bold; color: #3498db; margin-bottom: 15px; text-align: center;">📋 {{ __('warehouse_registration.transfer_preview') }}</div>
                 
                 <div class="preview-item">
-                    <span style="color: #7f8c8d;">الكمية المنقولة:</span>
-                    <span id="transferAmount" style="font-weight: bold; color: #27ae60;">{{ number_format($availableQuantity, 2) }} كجم</span>
+                    <span style="color: #7f8c8d;">{{ __('warehouse_registration.transferred_quantity') }}:</span>
+                    <span id="transferAmount" style="font-weight: bold; color: #27ae60;">{{ number_format($availableQuantity, 2) }} {{ __('warehouse_registration.kg') }}</span>
                 </div>
                 
                 <div class="preview-item">
-                    <span style="color: #7f8c8d;">المتبقي في المستودع:</span>
-                    <span id="remaining" style="font-weight: bold; color: #f57c00;">0.00 كجم</span>
+                    <span style="color: #7f8c8d;">{{ __('warehouse_registration.remaining_in_warehouse') }}:</span>
+                    <span id="remaining" style="font-weight: bold; color: #f57c00;">0.00 {{ __('warehouse_registration.kg') }}</span>
                 </div>
                 
                 <div class="preview-item">
-                    <span style="color: #7f8c8d;">حالة الشحنة:</span>
-                    <span id="statusBadge" style="background: #f39c12; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">⏳ بانتظار التأكيد</span>
+                    <span style="color: #7f8c8d;">{{ __('warehouse_registration.shipment_status') }}:</span>
+                    <span id="statusBadge" style="background: #f39c12; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">⏳ {{ __('warehouse_registration.awaiting_confirmation') }}</span>
                 </div>
             </div>
             
             <div class="input-group-simple" style="margin-top: 25px;">
-                <label class="label-simple">📝 ملاحظات (اختياري)</label>
+                <label class="label-simple">📝 {{ __('app.notes') }} ({{ __('app.optional') }})</label>
                 <textarea name="notes" 
                           class="input-simple" 
                           rows="3" 
-                          placeholder="أي ملاحظات عن عملية النقل..."
+                          placeholder="{{ __('warehouse_registration.transfer_notes_placeholder') }}"
                           style="font-size: 16px; font-weight: normal; resize: vertical;"></textarea>
             </div>
         </div>
@@ -353,10 +353,10 @@
         <div style="margin-top: 30px;">
             <button type="submit" class="btn-submit">
                 <span style="font-size: 24px;">✓</span>
-                <span>تأكيد النقل للإنتاج</span>
+                <span>{{ __('warehouse_registration.confirm_transfer_to_production') }}</span>
             </button>
             <a href="{{ route('manufacturing.warehouse.registration.show', $deliveryNote) }}" class="btn-cancel">
-                ✕ إلغاء
+                {{ __('app.cancel') }}
             </a>
         </div>
     </form>
@@ -366,13 +366,13 @@
         <div style="display: flex; align-items: start; gap: 15px;">
             <div style="font-size: 32px;">💡</div>
             <div>
-                <div style="font-weight: bold; color: #2c3e50; margin-bottom: 10px;">نصائح سريعة:</div>
+                <div style="font-weight: bold; color: #2c3e50; margin-bottom: 10px;">{{ __('warehouse_registration.quick_tips') }}:</div>
                 <ul style="margin: 0; padding-right: 20px; color: #555; line-height: 1.8;">
-                    <li>يمكنك نقل الكمية كاملة أو جزء منها</li>
-                    <li>المرحلة الأولى محددة افتراضياً، يمكنك تغييرها حسب الحاجة</li>
-                    <li>سيتم إرسال إشعار للموظف المستلم لتأكيد الاستلام</li>
-                    <li>الدفعة تنتقل للإنتاج بعد تأكيد الموظف المستلم</li>
-                    <li>في حالة الرفض، ستعود الكمية للمستودع تلقائياً</li>
+                    <li>{{ __('warehouse_registration.transfer_full_or_partial') }}</li>
+                    <li>{{ __('warehouse_registration.first_stage_default_tip') }}</li>
+                    <li>{{ __('warehouse_registration.notification_sent_tip') }}</li>
+                    <li>{{ __('warehouse_registration.batch_moves_after_confirmation') }}</li>
+                    <li>{{ __('warehouse_registration.quantity_returns_if_rejected') }}</li>
                 </ul>
             </div>
         </div>
@@ -438,15 +438,15 @@ function printTransferBarcode(barcode, noteNumber, materialName, quantity) {
     printWindow.document.write('@media print { body { background: white; } }');
     printWindow.document.write('</style></head><body>');
     printWindow.document.write('<div class="barcode-container">');
-    printWindow.document.write('<div class="title">باركود نقل للإنتاج</div>');
+    printWindow.document.write('<div class="title">{{ __('warehouse_registration.production_transfer_barcode') }}</div>');
     printWindow.document.write('<div class="note-number">أذن تسليم ' + noteNumber + '</div>');
     printWindow.document.write('<svg id="print-barcode"></svg>');
     printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
     printWindow.document.write('<div class="info">');
-    printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + materialName + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">الكمية المنقولة:</span><span class="value">' + quantity + ' كجم</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __('warehouse_registration.material') }}:</span><span class="value">' + materialName + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __('warehouse_registration.transferred_quantity') }}:</span><span class="value">' + quantity + ' {{ __('warehouse_registration.kg') }}</span></div>');
     printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">الحالة:</span><span class="value">🚚 تم النقل للإنتاج</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __('app.status') }}:</span><span class="value">🚚 {{ __('warehouse_registration.transfer_completed') }}</span></div>');
     printWindow.document.write('</div></div>');
     printWindow.document.write('<script>');
     printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');

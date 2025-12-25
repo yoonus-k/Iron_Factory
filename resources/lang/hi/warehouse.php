@@ -423,7 +423,7 @@ return [
     'supplier_updated_successfully' => 'आपूर्तिकर्ता सफलतापूर्वक अपडेट किया गया',
     'supplier_deleted_successfully' => 'आपूर्तिकर्ता सफलतापूर्वक हटाया गया',
     'error_in_supplier_data' => 'आपूर्तिकर्ता डेटा में त्रुटि',
-    
+
     // Placeholders for suppliers
     'enter_new_supplier_data' => 'नए आपूर्तिकर्ता की जानकारी दर्ज करें',
     'enter_supplier_name' => 'आपूर्तिकर्ता का नाम दर्ज करें',
@@ -440,7 +440,7 @@ return [
     'inactive' => 'निष्क्रिय',
     'enable' => 'सक्षम करें',
     'disable' => 'अक्षम करें',
-    
+
     // Confirmation messages
     'confirm_delete_supplier_full' => 'क्या आप सुनिश्चित हैं कि आप इस आपूर्तिकर्ता को हटाना चाहते हैं? यह कार्य पूर्ववत नहीं किया जा सकता।',
     'confirm_delete_invoice_full' => 'क्या आप सुनिश्चित हैं कि आप इस चालान को हटाना चाहते हैं? यह कार्य पूर्ववत नहीं किया जा सकता।',
@@ -456,5 +456,8 @@ return [
     'showing' => 'दिखा रहे हैं',
     'to' => 'तक',
     'of' => 'का',
+    'exporting_report_to_excel' => 'एक्सेल में रिपोर्ट निर्यात कर रहे हैं...',
+    'exporting_report_to_pdf' => 'पीडीएफ में रिपोर्ट निर्यात कर रहे हैं...',
+    'warehouse_reports' => 'गोदाम रिपोर्ट्स',
 ];
 

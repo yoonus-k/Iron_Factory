@@ -4,7 +4,7 @@
             <div class="um-info-box">
                 <span class="um-info-label">
                     <i class="feather icon-package"></i>
-                    الشحنة:
+                    {{ __('reconciliation.shipment') }}:
                 </span>
                 <strong class="um-info-value">#{{ $item->note_number ?? $item->id }}</strong>
             </div>
@@ -13,7 +13,7 @@
             <div class="um-info-box">
                 <span class="um-info-label">
                     <i class="feather icon-user"></i>
-                    المورد:
+                    {{ __('reconciliation.supplier') }}:
                 </span>
                 <strong class="um-info-value">{{ $item->supplier->name ?? "---" }}</strong>
             </div>
@@ -22,7 +22,7 @@
             <div class="um-info-box">
                 <span class="um-info-label">
                     <i class="feather icon-file-text"></i>
-                    الفاتورة:
+                    {{ __('reconciliation.invoice') }}:
                 </span>
                 <strong class="um-info-value">{{ $item->purchaseInvoice->invoice_number }}</strong>
             </div>
@@ -31,7 +31,7 @@
             <div class="um-info-box">
                 <span class="um-info-label">
                     <i class="feather icon-calendar"></i>
-                    التاريخ:
+                    {{ __('reconciliation.date') }}:
                 </span>
                 <strong class="um-info-value">{{ $item->created_at->format('Y-m-d') }}</strong>
             </div>
@@ -40,24 +40,24 @@
             <div class="um-info-box">
                 <span class="um-info-label">
                     <i class="feather icon-info"></i>
-                    الحالة:
+                    {{ __('reconciliation.status') }}:
                 </span>
                 <span class="um-badge {{ $item->reconciliation_status === 'discrepancy' ? 'um-badge-warning' : ($item->reconciliation_status === 'rejected' ? 'um-badge-danger' : ($item->reconciliation_status === 'matched' ? 'um-badge-success' : 'um-badge-info')) }}">
                     @switch($item->reconciliation_status)
                         @case('pending')
-                            معلقة
+                            {{ __('reconciliation.pending') }}
                         @break
                         @case('discrepancy')
-                            فروقات
+                            {{ __('reconciliation.discrepancies') }}
                         @break
                         @case('matched')
-                            متطابقة
+                            {{ __('reconciliation.matched') }}
                         @break
                         @case('adjusted')
-                            مسوية
+                            {{ __('reconciliation.adjusted') }}
                         @break
                         @case('rejected')
-                            مرفوضة
+                            {{ __('reconciliation.rejected') }}
                         @break
                         @default
                             {{ $item->reconciliation_status }}
@@ -67,17 +67,17 @@
         </div>
         <div class="col-md-2 text-end">
             <div class="um-actions">
-                <a href="{{ route('manufacturing.warehouses.reconciliation.show', $item) }}" class="um-btn-action um-btn-view" title="عرض التفاصيل">
+                <a href="{{ route('manufacturing.warehouses.reconciliation.show', $item) }}" class="um-btn-action um-btn-view" title="{{ __('reconciliation.view_details') }}">
                     <i class="feather icon-eye"></i>
                 </a>
-                <a href="{{ route('manufacturing.warehouses.reconciliation.link-invoice.edit', $item->id) }}" class="um-btn-action um-btn-edit" title="تعديل">
+                <a href="{{ route('manufacturing.warehouses.reconciliation.link-invoice.edit', $item->id) }}" class="um-btn-action um-btn-edit" title="{{ __('reconciliation.edit') }}">
                     <i class="feather icon-edit-2"></i>
                 </a>
                 @if($item->reconciliation_status !== 'matched' && $item->reconciliation_status !== 'adjusted')
-                    <form action="{{ route('manufacturing.warehouses.reconciliation.link-invoice.delete', $item->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('هل تريد حذف هذه التسوية؟');">
+                    <form action="{{ route('manufacturing.warehouses.reconciliation.link-invoice.delete', $item->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('{{ __('reconciliation.confirm_delete') }}');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="um-btn-action um-btn-delete" title="حذف">
+                        <button type="submit" class="um-btn-action um-btn-delete" title="{{ __('reconciliation.delete') }}">
                             <i class="feather icon-trash-2"></i>
                         </button>
                     </form>
@@ -86,22 +86,22 @@
         </div>
     </div>
 
-    <!-- المقارنة -->
+    <!-- {{ __('reconciliation.comparison') }} -->
     @if ($item->actual_weight && $item->invoice_weight)
         <div class="um-comparison-table">
             <table class="um-table">
                 <thead>
                     <tr>
-                        <th>البيان</th>
-                        <th class="text-end">الفعلي (الميزان)</th>
-                        <th class="text-end">الفاتورة</th>
-                        <th class="text-end">الفرق</th>
-                        <th class="text-end">النسبة</th>
+                        <th>{{ __('reconciliation.statement') }}</th>
+                        <th class="text-end">{{ __('reconciliation.actual_weight') }} ({{ __('reconciliation.scale') }})</th>
+                        <th class="text-end">{{ __('reconciliation.invoice') }}</th>
+                        <th class="text-end">{{ __('reconciliation.difference') }}</th>
+                        <th class="text-end">{{ __('reconciliation.percentage') }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>الوزن/الكمية (وحدة)</strong></td>
+                        <td><strong>{{ __('reconciliation.weight_quantity') }} ({{ __('reconciliation.unit') }})</strong></td>
                         <td class="text-end">
                             <span class="um-badge um-badge-info">{{ number_format($item->actual_weight, 2) }}</span>
                         </td>
@@ -130,10 +130,10 @@
         </div>
     @endif
 
-    <!-- الملاحظات -->
+    <!-- {{ __('reconciliation.notes') }} -->
     @if ($item->reconciliation_notes)
         <div class="um-notes-section mt-3">
-            <strong>📝 ملاحظات:</strong>
+            <strong>📝 {{ __('reconciliation.notes') }}:</strong>
             <p class="text-muted mb-0">{{ $item->reconciliation_notes }}</p>
         </div>
     @endif

@@ -582,7 +582,7 @@ return [
     'supplier_deleted_successfully' => 'Supplier deleted successfully',
     'error_in_supplier_data' => 'Error in supplier data',
     'warehouse' => 'Warehouse',
-    
+
     // Placeholders for suppliers
     'enter_new_supplier_data' => 'Enter new supplier information',
     'enter_supplier_name' => 'Enter supplier name',
@@ -592,11 +592,11 @@ return [
     'suppliers_list' => 'Suppliers List',
     'supplier' => 'supplier',
     'actions' => 'Actions',
-    
+
     // Status
     'active' => 'Active',
     'inactive' => 'Inactive',
-    
+
     // Confirmation messages
     'confirm_delete_supplier_full' => 'Are you sure you want to delete this supplier? This action cannot be undone.',
     'confirm_delete_invoice_full' => 'Are you sure you want to delete this invoice? This action cannot be undone.',

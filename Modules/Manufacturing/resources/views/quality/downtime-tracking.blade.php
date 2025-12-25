@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تتبع الأعطال والتوقفات')
+@section('title', __('app.quality.downtime.title'))
 
 @section('content')
 
@@ -9,16 +9,16 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-alert-triangle"></i>
-                تتبع الأعطال والتوقفات
+                {{ __('app.quality.downtime.title') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('app.quality.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>الجودة والهدر</span>
+                <span>{{ __('app.quality.quality_waste') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>الأعطال والتوقفات</span>
+                <span>{{ __('app.quality.downtime.breadcrumb') }}</span>
             </nav>
         </div>
 
@@ -40,10 +40,10 @@
                     <i class="feather icon-power"></i>
                 </div>
                 <div class="um-stat-content">
-                    <span class="um-stat-label">أعطال نشطة الآن</span>
+                    <span class="um-stat-label">{{ __('app.quality.downtime.active_issues') }}</span>
                     <span class="um-stat-value">2</span>
                     <span class="um-stat-change um-stat-danger">
-                        <i class="feather icon-alert-circle"></i> يتطلب تدخل فوري
+                        <i class="feather icon-alert-circle"></i> {{ __('app.quality.downtime.title') }}
                     </span>
                 </div>
             </div>
@@ -53,7 +53,7 @@
                     <i class="feather icon-clock"></i>
                 </div>
                 <div class="um-stat-content">
-                    <span class="um-stat-label">إجمالي وقت التوقف اليوم</span>
+                    <span class="um-stat-label">{{ __('app.quality.downtime.total_today') }}</span>
                     <span class="um-stat-value">3.5 ساعة</span>
                     <span class="um-stat-change um-stat-danger">
                         <i class="feather icon-trending-up"></i> +25%
@@ -66,7 +66,7 @@
                     <i class="feather icon-tool"></i>
                 </div>
                 <div class="um-stat-content">
-                    <span class="um-stat-label">أعطال تم إصلاحها اليوم</span>
+                    <span class="um-stat-label">{{ __('app.quality.downtime.avg_resolution') }}</span>
                     <span class="um-stat-value">7</span>
                     <span class="um-stat-change um-stat-success">
                         <i class="feather icon-check-circle"></i> معالج بنجاح
@@ -79,7 +79,7 @@
                     <i class="feather icon-target"></i>
                 </div>
                 <div class="um-stat-content">
-                    <span class="um-stat-label">متوسط وقت الإصلاح</span>
+                    <span class="um-stat-label">{{ __('app.quality.downtime.cost_today') }}</span>
                     <span class="um-stat-value">28 دقيقة</span>
                     <span class="um-stat-change um-stat-success">
                         <i class="feather icon-trending-down"></i> -5 دقائق
@@ -93,7 +93,7 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-plus-circle"></i>
-                    تسجيل عطل أو توقف جديد
+                    {{ __('app.quality.downtime.new_entry') }}
                 </h4>
             </div>
 
@@ -196,7 +196,8 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-alert-circle"></i>
-                    الأعطال والتوقفات النشطة
+                    {{ __('app.quality.downtime.active_title') }}
+                </h4>
                 </h4>
             </div>
 

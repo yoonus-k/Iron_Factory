@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تقرير الهدر')
+@section('title', __('app.quality.waste_report.title'))
 
 @section('content')
 
@@ -9,16 +9,16 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-trash"></i>
-                تقرير الهدر
+                {{ __('app.quality.waste_report.title') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('app.quality.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>الجودة والهدر</span>
+                <span>{{ __('app.quality.quality_waste') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>تقرير الهدر</span>
+                <span>{{ __('app.quality.waste_report.breadcrumb') }}</span>
             </nav>
         </div>
 
@@ -29,8 +29,8 @@
                     <i class="feather icon-trash-2"></i>
                 </div>
                 <div class="um-stat-content">
-                    <span class="um-stat-label">إجمالي الهدر اليوم</span>
-                    <span class="um-stat-value">247.5 كجم</span>
+                    <span class="um-stat-label">{{ __('app.quality.waste_report.total_today') }}</span>
+                    <span class="um-stat-value">247.5 {{ __('app.quality.kg') }}</span>
                     <span class="um-stat-change um-stat-danger">
                         <i class="feather icon-trending-up"></i> +12%
                     </span>
@@ -42,7 +42,7 @@
                     <i class="feather icon-percent"></i>
                 </div>
                 <div class="um-stat-content">
-                    <span class="um-stat-label">نسبة الهدر الإجمالية</span>
+                    <span class="um-stat-label">{{ __('app.quality.waste_report.total_percentage') }}</span>
                     <span class="um-stat-value">4.2%</span>
                     <span class="um-stat-change um-stat-success">
                         <i class="feather icon-trending-down"></i> -0.5%
@@ -55,10 +55,10 @@
                     <i class="feather icon-alert-triangle"></i>
                 </div>
                 <div class="um-stat-content">
-                    <span class="um-stat-label">حالات تجاوز الحد</span>
-                    <span class="um-stat-value">3 حالات</span>
+                    <span class="um-stat-label">{{ __('app.quality.waste_report.exceeding_cases') }}</span>
+                    <span class="um-stat-value">3 {{ __('app.quality.waste_report.cases') }}</span>
                     <span class="um-stat-change um-stat-danger">
-                        <i class="feather icon-alert-circle"></i> يتطلب مراجعة
+                        <i class="feather icon-alert-circle"></i> {{ __('app.quality.waste_report.requires_review') }}
                     </span>
                 </div>
             </div>
@@ -68,8 +68,8 @@
                     <i class="feather icon-dollar-sign"></i>
                 </div>
                 <div class="um-stat-content">
-                    <span class="um-stat-label">قيمة الهدر المقدرة</span>
-                    <span class="um-stat-value">4,850 ر.س</span>
+                    <span class="um-stat-label">{{ __('app.quality.waste_report.estimated_value') }}</span>
+                    <span class="um-stat-value">4,850 {{ __('app.quality.sar') }}</span>
                     <span class="um-stat-change um-stat-danger">
                         <i class="feather icon-trending-up"></i> +8%
                     </span>
@@ -82,7 +82,7 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-filter"></i>
-                    فلترة التقارير
+                    {{ __('app.quality.waste_report.filter_title') }}
                 </h4>
             </div>
 
@@ -90,21 +90,21 @@
                 <form method="GET">
                     <div class="um-filter-row">
                         <div class="um-form-group">
-                            <label class="um-form-label">من تاريخ</label>
+                            <label class="um-form-label">{{ __('app.quality.waste_report.date_from') }}</label>
                             <input type="date" name="date_from" class="um-form-control" value="{{ date('Y-m-d') }}">
                         </div>
                         <div class="um-form-group">
-                            <label class="um-form-label">إلى تاريخ</label>
+                            <label class="um-form-label">{{ __('app.quality.waste_report.date_to') }}</label>
                             <input type="date" name="date_to" class="um-form-control" value="{{ date('Y-m-d') }}">
                         </div>
                         <div class="um-form-group">
-                            <label class="um-form-label">المرحلة</label>
+                            <label class="um-form-label">{{ __('app.quality.stage') }}</label>
                             <select name="stage" class="um-form-control">
-                                <option value="">جميع المراحل</option>
-                                <option value="1">المرحلة 1: التقسيم</option>
-                                <option value="2">المرحلة 2: المعالجة</option>
-                                <option value="3">المرحلة 3: الكويلات</option>
-                                <option value="4">المرحلة 4: التغليف</option>
+                                <option value="">{{ __('app.quality.waste_report.all_stages') }}</option>
+                                <option value="1">{{ __('app.quality.waste_report.chart_stage1') }}</option>
+                                <option value="2">{{ __('app.quality.waste_report.chart_stage2') }}</option>
+                                <option value="3">{{ __('app.quality.waste_report.chart_stage3') }}</option>
+                                <option value="4">{{ __('app.quality.waste_report.chart_stage4') }}</option>
                             </select>
                         </div>
                         <div class="um-form-group">
@@ -119,11 +119,11 @@
                         <div class="um-filter-actions">
                             <button type="submit" class="um-btn um-btn-primary">
                                 <i class="feather icon-search"></i>
-                                بحث
+                                {{ __('app.quality.filter') }}
                             </button>
                             <button type="button" class="um-btn um-btn-success" onclick="exportReport()">
                                 <i class="feather icon-download"></i>
-                                تصدير Excel
+                                {{ __('app.quality.waste_report.export_report') }}
                             </button>
                         </div>
                     </div>
@@ -136,7 +136,7 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-pie-chart"></i>
-                    توزيع الهدر حسب المراحل
+                    {{ __('app.quality.waste_report.distribution_chart') }}
                 </h4>
             </div>
             <div class="um-card-body">
@@ -149,7 +149,7 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    تفاصيل الهدر
+                    {{ __('app.quality.waste_report.details_table') }}
                 </h4>
             </div>
 
@@ -159,26 +159,26 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>الباركود</th>
-                            <th>المرحلة</th>
-                            <th>الوزن المدخل</th>
-                            <th>الوزن المخرج</th>
-                            <th>كمية الهدر</th>
-                            <th>النسبة</th>
-                            <th>السبب</th>
-                            <th>المسؤول</th>
-                            <th>الحالة</th>
-                            <th>التاريخ</th>
+                            <th>{{ __('app.quality.barcode') }}</th>
+                            <th>{{ __('app.quality.stage') }}</th>
+                            <th>{{ __('app.quality.tracking_report.input_weight') }}</th>
+                            <th>{{ __('app.quality.tracking_report.output_weight') }}</th>
+                            <th>{{ __('app.quality.waste_report.waste_amount') }}</th>
+                            <th>{{ __('app.quality.waste_report.waste_percentage') }}</th>
+                            <th>{{ __('app.quality.downtime.reason') }}</th>
+                            <th>{{ __('app.quality.waste_report.worker') }}</th>
+                            <th>{{ __('app.quality.status') }}</th>
+                            <th>{{ __('app.quality.date') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>1</td>
                             <td><span class="um-badge um-badge-info">ST1-001-2025</span></td>
-                            <td>المرحلة 1: التقسيم</td>
-                            <td>1000 كجم</td>
-                            <td>955 كجم</td>
-                            <td class="um-text-danger">45 كجم</td>
+                            <td>{{ __('app.quality.waste_report.chart_stage1') }}</td>
+                            <td>1000 {{ __('app.quality.kg') }}</td>
+                            <td>955 {{ __('app.quality.kg') }}</td>
+                            <td class="um-text-danger">45 {{ __('app.quality.kg') }}</td>
                             <td>
                                 <span class="um-badge um-badge-danger">4.5%</span>
                             </td>
@@ -190,10 +190,10 @@
                         <tr>
                             <td>2</td>
                             <td><span class="um-badge um-badge-info">ST2-015-2025</span></td>
-                            <td>المرحلة 2: المعالجة</td>
-                            <td>500 كجم</td>
-                            <td>485 كجم</td>
-                            <td class="um-text-warning">15 كجم</td>
+                            <td>{{ __('app.quality.waste_report.chart_stage2') }}</td>
+                            <td>500 {{ __('app.quality.kg') }}</td>
+                            <td>485 {{ __('app.quality.kg') }}</td>
+                            <td class="um-text-warning">15 {{ __('app.quality.kg') }}</td>
                             <td>
                                 <span class="um-badge um-badge-warning">3.0%</span>
                             </td>
@@ -205,10 +205,10 @@
                         <tr>
                             <td>3</td>
                             <td><span class="um-badge um-badge-info">CO3-023-2025</span></td>
-                            <td>المرحلة 3: الكويلات</td>
-                            <td>300 كجم</td>
-                            <td>288 كجم</td>
-                            <td class="um-text-success">12 كجم</td>
+                            <td>{{ __('app.quality.waste_report.chart_stage3') }}</td>
+                            <td>300 {{ __('app.quality.kg') }}</td>
+                            <td>288 {{ __('app.quality.kg') }}</td>
+                            <td class="um-text-success">12 {{ __('app.quality.kg') }}</td>
                             <td>
                                 <span class="um-badge um-badge-success">4.0%</span>
                             </td>
@@ -269,9 +269,9 @@
         new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['المرحلة 1: التقسيم', 'المرحلة 2: المعالجة', 'المرحلة 3: الكويلات', 'المرحلة 4: التغليف'],
+                labels: ['{{ __("app.quality.waste_report.chart_stage1") }}', '{{ __("app.quality.waste_report.chart_stage2") }}', '{{ __("app.quality.waste_report.chart_stage3") }}', '{{ __("app.quality.waste_report.chart_stage4") }}'],
                 datasets: [{
-                    label: 'كمية الهدر (كجم)',
+                    label: '{{ __("app.quality.waste_report.waste_kg") }}',
                     data: [85, 62, 55, 45],
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.8)',

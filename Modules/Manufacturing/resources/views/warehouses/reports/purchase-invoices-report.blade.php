@@ -135,11 +135,11 @@
                                 <td>{{ number_format($invoice->total_amount - ($invoice->paid_amount ?? 0), 2) }} {{ __('warehouse.sar') }}</td>
                                 <td>
                                     {{-- @if($invoice->payment_status == 'paid')
-                                        <span class="status-badge paid">مدفوعة</span>
+                                        <span class="status-badge paid">{{ __('warehouse.paid') }}</span>
                                     @elseif($invoice->payment_status == 'pending')
-                                        <span class="status-badge pending">قيد الانتظار</span>
+                                        <span class="status-badge pending">{{ __('warehouse.pending') }}</span>
                                     @elseif($invoice->payment_status == 'partially_paid')
-                                        <span class="status-badge partial">مدفوعة جزئياً</span>
+                                        <span class="status-badge partial">{{ __('warehouse.partially_paid') }}</span>
                                     @else
                                         <span class="status-badge">{{ $invoice->payment_status }}</span>
                                     @endif --}}

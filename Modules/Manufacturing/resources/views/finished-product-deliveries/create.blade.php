@@ -393,7 +393,7 @@
                         <!-- بحث حسب الصنف واللون والعدد -->
                         <div class="row g-3 mb-3">
                             <div class="col-md-4">
-                                <label class="form-label">الصنف</label>
+                                <label class="form-label">{{ __('app.finished_products.material_type_filter') }}</label>
                                 <select id="filterMaterialType" class="form-select">
                                     <option value="">{{ __('app.buttons.all') }}</option>
                                     @foreach($materialTypes as $type)
@@ -402,7 +402,7 @@
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">اللون</label>
+                                <label class="form-label">{{ __('app.finished_products.color_filter') }}</label>
                                 <select id="filterColor" class="form-select">
                                     <option value="">{{ __('app.buttons.all') }}</option>
                                     @foreach($materialColors as $color)
@@ -411,12 +411,12 @@
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">العدد</label>
+                                <label class="form-label">{{ __('app.finished_products.quantity_filter') }}</label>
                                 <div class="input-group">
                                     <input type="number" id="selectQuantity" class="form-control" min="1" value="1">
                                     <button type="button" id="addByTypeColor" class="btn btn-success">
                                         <i class="bi bi-plus-circle me-1"></i>
-                                        إضافة
+                                        {{ __('app.finished_products.add_button') }}
                                     </button>
                                 </div>
                             </div>
@@ -514,7 +514,7 @@
                             <div class="card-header bg-info bg-opacity-10">
                                 <h6 class="mb-0">
                                     <i class="bi bi-truck me-2"></i>
-                                    معلومات التوصيل (اختياري)
+                                    {{ __('app.finished_products.delivery_info_optional') }}
                                 </h6>
                             </div>
                             <div class="card-body">
@@ -522,27 +522,27 @@
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">
                                         <i class="bi bi-person-badge me-1"></i>
-                                        اسم السائق
+                                        {{ __('app.finished_products.driver_name_label') }}
                                     </label>
-                                    <input type="text" name="driver_name" id="driverName" class="form-control" placeholder="أدخل اسم السائق">
+                                    <input type="text" name="driver_name" id="driverName" class="form-control" placeholder="{{ __('app.finished_products.driver_name_placeholder') }}">
                                 </div>
 
                                 <!-- رقم اللوحة -->
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">
                                         <i class="bi bi-card-text me-1"></i>
-                                        رقم اللوحة
+                                        {{ __('app.finished_products.vehicle_number_label') }}
                                     </label>
-                                    <input type="text" name="vehicle_number" id="vehicleNumber" class="form-control" placeholder="أدخل رقم اللوحة">
+                                    <input type="text" name="vehicle_number" id="vehicleNumber" class="form-control" placeholder="{{ __('app.finished_products.vehicle_number_placeholder') }}">
                                 </div>
 
                                 <!-- المدينة -->
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">
                                         <i class="bi bi-geo-alt me-1"></i>
-                                        المدينة/الوجهة
+                                        {{ __('app.finished_products.city_destination_label') }}
                                     </label>
-                                    <input type="text" name="city" id="cityName" class="form-control" placeholder="أدخل المدينة أو الوجهة">
+                                    <input type="text" name="city" id="cityName" class="form-control" placeholder="{{ __('app.finished_products.city_destination_placeholder') }}">
                                 </div>
 
                                 <!-- عرض البيانات المدخلة -->
@@ -550,7 +550,7 @@
                                     <div class="text-center mb-2">
                                         <strong style="color: #1565c0;">
                                             <i class="bi bi-info-circle me-1"></i>
-                                            البيانات المدخلة
+                                            {{ __('app.finished_products.entered_data') }}
                                         </strong>
                                     </div>
                                     <div id="deliveryInfoContent"></div>
@@ -632,7 +632,7 @@ $(document).ready(function() {
                 html += `
                     <div class="delivery-info-item">
                         <i class="bi bi-person-badge"></i>
-                        <span class="delivery-info-label">السائق:</span>
+                        <span class="delivery-info-label">{{ __('app.finished_products.driver_label') }}:</span>
                         <span class="delivery-info-value">${driverName}</span>
                     </div>
                 `;
@@ -642,7 +642,7 @@ $(document).ready(function() {
                 html += `
                     <div class="delivery-info-item">
                         <i class="bi bi-card-text"></i>
-                        <span class="delivery-info-label">اللوحة:</span>
+                        <span class="delivery-info-label">{{ __('app.finished_products.vehicle_label') }}:</span>
                         <span class="delivery-info-value">${vehicleNumber}</span>
                     </div>
                 `;
@@ -652,7 +652,7 @@ $(document).ready(function() {
                 html += `
                     <div class="delivery-info-item">
                         <i class="bi bi-geo-alt-fill"></i>
-                        <span class="delivery-info-label">الوجهة:</span>
+                        <span class="delivery-info-label">{{ __('app.finished_products.destination_label') }}:</span>
                         <span class="delivery-info-value">${cityName}</span>
                     </div>
                 `;

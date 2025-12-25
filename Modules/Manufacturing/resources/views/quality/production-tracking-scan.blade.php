@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تتبع الإنتاج - مسح الباركود')
+@section('title', __('app.quality.tracking_scan.title'))
 
 @section('content')
 <style>
@@ -196,8 +196,8 @@
 <div class="scan-container">
     <!-- Header -->
     <div class="scan-header">
-        <h1>🔍 تتبع الإنتاج</h1>
-        <p>امسح الباركود للحصول على تقرير تفصيلي عن رحلة المنتج</p>
+        <h1>🔍 {{ __('app.quality.tracking_scan.title') }}</h1>
+        <p>{{ __('app.quality.tracking_scan.subtitle') }}</p>
     </div>
 
     <!-- Error/Success Messages -->
@@ -269,7 +269,7 @@
 
     <!-- Recent Scans -->
     <div class="recent-scans" id="recentScans" style="display: none;">
-        <h5>📋 عمليات البحث الأخيرة</h5>
+        <h5>📋 {{ __('app.quality.tracking_scan.recent_scans') }}</h5>
         <div id="recentScansList"></div>
     </div>
 </div>

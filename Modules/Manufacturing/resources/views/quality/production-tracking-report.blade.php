@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تقرير تتبع الإنتاج')
+@section('title', __('app.quality.tracking_report.title'))
 
 @section('content')
     <div class="um-content-wrapper">
@@ -9,7 +9,7 @@
             <div>
                 <h1 class="um-page-title">
                     <i class="feather icon-bar-chart-2"></i>
-                    تقرير تتبع الإنتاج التفصيلي
+                    {{ __('app.quality.tracking_report.title') }}
                 </h1>
                 <nav class="um-breadcrumb-nav">
                     <span>
@@ -24,7 +24,7 @@
             <div style="display: flex; gap: 10px;">
                 <a href="{{ route('manufacturing.production-tracking.scan') }}" class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px;">
                     <i class="feather icon-arrow-right"></i>
-                    <span>بحث عن باركود آخر</span>
+                    <span>{{ __('app.quality.tracking_scan.search_button') }}</span>
                 </a>
                 <button onclick="window.print()" class="btn btn-primary" style="display: flex; align-items: center; gap: 8px;">
                     <i class="feather icon-printer"></i>

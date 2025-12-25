@@ -212,17 +212,17 @@
                                         @php
                                             // أولاً: نجرب الحقول المباشرة
                                             $actualWeight = $item->actual_weight ?? $item->weight_from_scale ?? $item->delivered_weight ?? $item->quantity ?? 0;
-                                            
+
                                             // إذا كانت كلها صفر، نجرب من العلاقات
                                             if ($actualWeight == 0 && isset($item->items) && $item->items->count() > 0) {
                                                 $actualWeight = $item->items->sum('actual_weight') ?: $item->items->sum('quantity');
                                             }
-                                            
+
                                             $invoiceWeight = $item->invoice_weight ?? 0;
                                             $discrepancy = $actualWeight - $invoiceWeight;
                                             $discrepancyPercentage = $invoiceWeight > 0 ? (($discrepancy / $invoiceWeight) * 100) : 0;
                                             $isInOurFavor = $discrepancy < 0;
-                                            
+
                                             // رسالة تنبيه للديباج
                                             $weightSource = 'غير محدد';
                                             if ($item->actual_weight > 0) $weightSource = 'actual_weight';

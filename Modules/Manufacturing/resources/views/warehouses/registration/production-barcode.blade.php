@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'باركود الإنتاج')
+@section('title', __('warehouse_registration.production_barcode'))
 
 @section('content')
 <style>
@@ -122,20 +122,20 @@
 
 <div class="production-container">
     <div class="production-header">
-        <h1 style="font-size: 42px; color: #2c3e50; margin: 0 0 15px 0;">🏭 باركود الإنتاج</h1>
-        <p style="font-size: 18px; color: #7f8c8d;">أذن تسليم #{{ $deliveryNote->note_number ?? $deliveryNote->id }}</p>
+        <h1 style="font-size: 42px; color: #2c3e50; margin: 0 0 15px 0;">🏭 {{ __('warehouse_registration.production_barcode') }}</h1>
+        <p style="font-size: 18px; color: #7f8c8d;">{{ __('warehouse_registration.delivery_note') }} #{{ $deliveryNote->note_number ?? $deliveryNote->id }}</p>
     </div>
 
     <div class="production-card">
         <div style="text-align: center; margin-bottom: 25px;">
-            <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">✅ تم النقل للإنتاج بنجاح</div>
-            <div class="status-badge">باركود فعّال للتتبع</div>
+            <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">✅ {{ __('warehouse_registration.transfer_to_production_success') }}</div>
+            <div class="status-badge">{{ __('warehouse_registration.active_tracking_barcode') }}</div>
         </div>
 
         <div class="barcode-section">
             <div style="text-align: center; margin-bottom: 20px;">
-                <div style="font-size: 22px; font-weight: bold; color: #11998e; margin-bottom: 10px;">باركود الإنتاج</div>
-                <div style="font-size: 14px; color: #7f8c8d;">استخدم هذا الباركود للتتبع في جميع مراحل الإنتاج</div>
+                <div style="font-size: 22px; font-weight: bold; color: #11998e; margin-bottom: 10px;">{{ __('warehouse_registration.production_barcode') }}</div>
+                <div style="font-size: 14px; color: #7f8c8d;">{{ __('warehouse_registration.use_barcode_production_tracking') }}</div>
             </div>
             
             <svg id="production-barcode" style="display: block; margin: 20px auto; max-width: 100%;"></svg>
@@ -145,41 +145,41 @@
 
         <div class="info-grid">
             <div class="info-item">
-                <div class="info-label">📦 المادة</div>
+                <div class="info-label">📦 {{ __('warehouse_registration.material') }}</div>
                 <div class="info-value">{{ $deliveryNote->material->name_ar ?? 'غير محدد' }}</div>
             </div>
             
             <div class="info-item">
-                <div class="info-label">🏢 المورد</div>
+                <div class="info-label">🏢 {{ __('warehouse_registration.supplier') }}</div>
                 <div class="info-value">{{ $deliveryNote->supplier->name ?? 'غير محدد' }}</div>
             </div>
             
             <div class="info-item">
-                <div class="info-label">📅 تاريخ النقل</div>
+                <div class="info-label">📅 {{ __('warehouse_registration.transfer_date') }}</div>
                 <div class="info-value">{{ now()->format('Y-m-d') }}</div>
             </div>
             
             <div class="info-item">
-                <div class="info-label">⏰ الوقت</div>
+                <div class="info-label">⏰ {{ __('app.time') }}</div>
                 <div class="info-value">{{ now()->format('H:i') }}</div>
             </div>
         </div>
 
         <div style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 12px; margin-top: 20px; text-align: center;">
             <div style="font-size: 16px; line-height: 1.8;">
-                💡 <strong>ملاحظة:</strong> هذا الباركود مرتبط بأذن التسليم الأصلي ويمكن استخدامه في جميع مراحل الإنتاج للتتبع الكامل للمنتج.
+                💡 <strong>{{ __('app.note') }}:</strong> {{ __('warehouse_registration.barcode_note_text') }}
             </div>
         </div>
 
         <div class="action-buttons">
             <button onclick="printBarcode()" class="btn-action btn-print">
                 <i class="feather icon-printer"></i>
-                طباعة الباركود
+                {{ __('warehouse_registration.print_barcode') }}
             </button>
             
             <a href="{{ route('manufacturing.warehouse.registration.show', $deliveryNote->id) }}" class="btn-action btn-back">
                 <i class="feather icon-arrow-right"></i>
-                العودة للشحنة
+                {{ __('warehouse_registration.return_to_shipment') }}
             </a>
         </div>
     </div>
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // طباعة الباركود
 function printBarcode() {
     const printWindow = window.open('', '', 'height=700,width=900');
-    printWindow.document.write('<html dir="rtl"><head><title>طباعة باركود الإنتاج</title>');
+    printWindow.document.write('<html dir="rtl"><head><title>' + '{{ __('warehouse_registration.production_barcode_print') }}' + '</title>');
     printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>');
     printWindow.document.write('<style>');
     printWindow.document.write('body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }');
@@ -222,20 +222,20 @@ function printBarcode() {
     printWindow.document.write('</style></head><body>');
     printWindow.document.write('<div class="print-container">');
     printWindow.document.write('<div class="header">');
-    printWindow.document.write('<div class="title">🏭 باركود الإنتاج</div>');
-    printWindow.document.write('<div class="subtitle">أذن تسليم {{ $deliveryNote->note_number ?? $deliveryNote->id }}</div>');
+    printWindow.document.write('<div class="title">🏭 ' + '{{ __('warehouse_registration.production_barcode') }}' + '</div>');
+    printWindow.document.write('<div class="subtitle">' + '{{ __('warehouse_registration.delivery_note') }} {{ $deliveryNote->note_number ?? $deliveryNote->id }}</div>');
     printWindow.document.write('</div>');
-    printWindow.document.write('<div class="badge">✓ تم النقل للإنتاج</div>');
+    printWindow.document.write('<div class="badge">✓ ' + '{{ __('warehouse_registration.transfer_to_production') }}' + '</div>');
     printWindow.document.write('<div class="barcode-wrapper">');
     printWindow.document.write('<svg id="print-barcode"></svg>');
     printWindow.document.write('<div class="barcode-number">{{ $deliveryNote->production_barcode }}</div>');
     printWindow.document.write('</div>');
     printWindow.document.write('<div class="info-section">');
-    printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">{{ $deliveryNote->material->name_ar ?? "غير محدد" }}</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">المورد:</span><span class="value">{{ $deliveryNote->supplier->name ?? "غير محدد" }}</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">باركود الإنتاج:</span><span class="value">{{ $deliveryNote->production_barcode }}</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">الوقت:</span><span class="value">' + new Date().toLocaleTimeString('ar-EG') + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">' + '{{ __('warehouse_registration.material') }}' + ':</span><span class="value">' + $deliveryNote->material->name_ar ?? "{{ __('app.not_specified') }}" + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">' + '{{ __('warehouse_registration.supplier') }}' + ':</span><span class="value">' + $deliveryNote->supplier->name ?? "{{ __('app.not_specified') }}" + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">' + '{{ __('warehouse_registration.production_barcode') }}' + ':</span><span class="value">' + $deliveryNote->production_barcode + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">' + '{{ __('app.date') }}' + ':</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">' + '{{ __('app.time') }}' + ':</span><span class="value">' + new Date().toLocaleTimeString('ar-EG') + '</span></div>');
     printWindow.document.write('</div>');
     printWindow.document.write('</div>');
     printWindow.document.write('<script>');

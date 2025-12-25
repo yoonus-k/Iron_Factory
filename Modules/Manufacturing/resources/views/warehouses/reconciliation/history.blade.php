@@ -72,9 +72,9 @@
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <div class="stat-content">
-                    <h6 class="stat-label">متطابقة</h6>
+                    <h6 class="stat-label">{{ __('reconciliation.matched') }}</h6>
                     <h3 class="stat-value">{{ $stats['matched'] ?? 0 }}</h3>
-                    <p class="stat-desc">تسويات متطابقة بدون فروقات</p>
+                    <p class="stat-desc">{{ __('reconciliation.matched_reconciliations') }}</p>
                 </div>
             </div>
         </div>
@@ -85,9 +85,9 @@
                     <i class="fas fa-tools"></i>
                 </div>
                 <div class="stat-content">
-                    <h6 class="stat-label">معدّلة</h6>
+                    <h6 class="stat-label">{{ __('reconciliation.adjusted') }}</h6>
                     <h3 class="stat-value">{{ $stats['adjusted'] ?? 0 }}</h3>
-                    <p class="stat-desc">تسويات تم تعديلها</p>
+                    <p class="stat-desc">{{ __('reconciliation.adjusted_reconciliations') }}</p>
                 </div>
             </div>
         </div>
@@ -98,9 +98,9 @@
                     <i class="fas fa-times-circle"></i>
                 </div>
                 <div class="stat-content">
-                    <h6 class="stat-label">مرفوضة</h6>
+                    <h6 class="stat-label">{{ __('reconciliation.rejected') }}</h6>
                     <h3 class="stat-value">{{ $stats['rejected'] ?? 0 }}</h3>
-                    <p class="stat-desc">فواتير مرفوضة</p>
+                    <p class="stat-desc">{{ __('reconciliation.rejected_invoices') }}</p>
                 </div>
             </div>
         </div>
@@ -111,9 +111,9 @@
                     <i class="fas fa-chart-bar"></i>
                 </div>
                 <div class="stat-content">
-                    <h6 class="stat-label">إجمالي</h6>
+                    <h6 class="stat-label">{{ __('reconciliation.total') }}</h6>
                     <h3 class="stat-value">{{ ($stats['matched'] ?? 0) + ($stats['adjusted'] ?? 0) + ($stats['rejected'] ?? 0) }}</h3>
-                    <p class="stat-desc">جميع التسويات المكتملة</p>
+                    <p class="stat-desc">{{ __('reconciliation.all_completed_reconciliations') }}</p>
                 </div>
             </div>
         </div>
@@ -125,24 +125,24 @@
             <div class="data-card-header">
                 <div class="d-flex align-items-center gap-2">
                     <i class="fas fa-list"></i>
-                    <h5 class="mb-0 fw-bold">السجل الكامل للتسويات</h5>
+                    <h5 class="mb-0 fw-bold">{{ __('reconciliation.complete_reconciliation_log') }}</h5>
                 </div>
             </div>
             <div class="table-responsive p-3">
                 <table class="table custom-table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>رقم الشحنة</th>
-                            <th>المورد</th>
-                            <th>رقم الفاتورة</th>
-                            <th>الوزن الفعلي</th>
-                            <th>وزن الفاتورة</th>
-                            <th>الفرق</th>
-                            <th>النسبة</th>
-                            <th>الحالة</th>
-                            <th>تاريخ التسوية</th>
-                            <th>من قبل</th>
-                            <th>الإجراء</th>
+                            <th>{{ __('reconciliation.delivery_note_number') }}</th>
+                            <th>{{ __('reconciliation.supplier') }}</th>
+                            <th>{{ __('reconciliation.invoice_number') }}</th>
+                            <th>{{ __('reconciliation.actual_weight_label') }}</th>
+                            <th>{{ __('reconciliation.invoice_weight_label') }}</th>
+                            <th>{{ __('reconciliation.difference_label') }}</th>
+                            <th>{{ __('reconciliation.percentage_label') }}</th>
+                            <th>{{ __('reconciliation.status') }}</th>
+                            <th>{{ __('reconciliation.reconciliation_date') }}</th>
+                            <th>{{ __('reconciliation.created_by') }}</th>
+                            <th>{{ __('reconciliation.action') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -159,12 +159,12 @@
                                 </td>
                                 <td>
                                     <span class="badge bg-success">
-                                        {{ number_format($reconciliation->actual_weight, 2) }} كيلو
+                                        {{ number_format($reconciliation->actual_weight, 2) }} {{ __('reconciliation.kg') }}
                                     </span>
                                 </td>
                                 <td>
                                     <span class="badge bg-primary">
-                                        {{ number_format($reconciliation->invoice_weight, 2) }} كيلو
+                                        {{ number_format($reconciliation->invoice_weight, 2) }} {{ __('reconciliation.kg') }}
                                     </span>
                                 </td>
                                 <td>
@@ -172,7 +172,7 @@
                                         $diff = ($reconciliation->actual_weight ?? 0) - ($reconciliation->invoice_weight ?? 0);
                                     @endphp
                                     <span class="badge {{ $diff > 0 ? 'bg-danger' : ($diff < 0 ? 'bg-warning' : 'bg-success') }}">
-                                        {{ number_format($diff, 2) }} كيلو
+                                        {{ number_format($diff, 2) }} {{ __('reconciliation.kg') }}
                                     </span>
                                 </td>
                                 <td>
@@ -186,9 +186,9 @@
                                 <td>
                                     @php
                                         $statusMap = [
-                                            'matched' => ['label' => '✅ متطابقة', 'class' => 'success'],
-                                            'adjusted' => ['label' => '🔧 معدّلة', 'class' => 'warning'],
-                                            'rejected' => ['label' => '❌ مرفوضة', 'class' => 'danger'],
+                                            'matched' => ['label' => '✅ ' . __('reconciliation.matched'), 'class' => 'success'],
+                                            'adjusted' => ['label' => '🔧 ' . __('reconciliation.adjusted'), 'class' => 'warning'],
+                                            'rejected' => ['label' => '❌ ' . __('reconciliation.rejected'), 'class' => 'danger'],
                                         ];
                                         $status = $statusMap[$reconciliation->reconciliation_status] ?? ['label' => '؟', 'class' => 'secondary'];
                                     @endphp
@@ -228,8 +228,8 @@
             <div class="empty-icon">
                 <i class="fas fa-inbox"></i>
             </div>
-            <h5 class="mb-2">لا توجد تسويات مكتملة</h5>
-            <p class="text-muted mb-0">جميع التسويات المعلقة لم تُنجز بعد</p>
+            <h5 class="mb-2">{{ __('reconciliation.no_completed_reconciliations') }}</h5>
+            <p class="text-muted mb-0">{{ __('reconciliation.all_pending_reconciliations') }}</p>
         </div>
     @endif
 </div>

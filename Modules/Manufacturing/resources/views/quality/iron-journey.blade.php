@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'رحلة الحديد - تتبع المنتج')
+@section('title', __('app.quality.iron_journey.title'))
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('assets/css/iron-journey.css') }}">
@@ -10,15 +10,16 @@
     <div class="journey-header">
         <h1>
             <i class="fas fa-route"></i>
-            رحلة الحديد - تتب
-        <p class="subtitle">تتبع رحلة المادة الخام من المستودع حتى المنتج النهائي - اعرف التاريخ الكامل، الهدر، والمسؤولين</p>
+            {{ __('app.quality.iron_journey.title') }}
+        </h1>
+        <p class="subtitle">{{ __('app.quality.iron_journey.subtitle') }}</p>
     </div>
 
     <!-- Search Section -->
     <div class="journey-search-section">
         <h3 style="margin-bottom: 1rem; color: #1F2937;">
             <i class="fas fa-barcode"></i>
-            ابحث عن المنتج
+            {{ __('app.quality.iron_journey.search_title') }}
         </h3>
         <form id="journeySearchForm" method="GET" action="{{ route('manufacturing.iron-journey.show') }}">
             <div class="search-input-group">
@@ -267,8 +268,8 @@
         <div style="font-size: 5rem; color: #D1D5DB; margin-bottom: 1rem;">
             <i class="fas fa-search"></i>
         </div>
-        <h3 style="color: #6B7280; margin-bottom: 1rem;">ابحث عن منتج لتتبع رحلته</h3>
-        <p style="color: #9CA3AF;">امسح أو أدخل الباركود في الأعلى لعرض الرحلة الكاملة للمنتج</p>
+        <h3 style="color: #6B7280; margin-bottom: 1rem;">{{ __('app.quality.iron_journey.empty_state_title') }}</h3>
+        <p style="color: #9CA3AF;">{{ __('app.quality.iron_journey.empty_state_subtitle') }}</p>
     </div>
     @endif
 </div>

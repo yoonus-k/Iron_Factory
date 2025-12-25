@@ -139,9 +139,9 @@
                                         {{ number_format($detail->quantity, 2) }}
                                     </span>
                                 </td>
-                                <td>{{ $detail->unit->unit_name ?? 'وحدة' }}</td>
+                                <td>{{ $detail->unit->unit_name ?? __('warehouse.unit') }}</td>
                                 <td>{{ $detail->min_quantity ? number_format($detail->min_quantity, 2) : '-' }}</td>
-                                <td>{{ number_format($detail->actual_weight ?? 0, 2) }} كجم</td>
+                                <td>{{ number_format($detail->actual_weight ?? 0, 2) }} {{ __('warehouse.kg') }}</td>
                                 <td>
                                     @if($detail->material->status == 'available')
                                         <span class="status-badge active">{{ __('warehouse.available') }}</span>

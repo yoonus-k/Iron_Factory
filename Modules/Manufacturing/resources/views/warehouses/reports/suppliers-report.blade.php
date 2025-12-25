@@ -103,9 +103,9 @@
                                 </td>
                                 <td>
                                     @if($supplier->is_active)
-                                        <span class="status-badge active">نشط</span>
+                                        <span class="status-badge active">{{ __('warehouse.active') }}</span>
                                     @else
-                                        <span class="status-badge inactive">غير نشط</span>
+                                        <span class="status-badge inactive">{{ __('warehouse.inactive') }}</span>
                                     @endif
                                 </td>
                             </tr>
@@ -349,9 +349,9 @@
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['إجمالي الموردين', 'موردين نشطين', 'موردين غير نشطين'],
+                    labels: ['{{ __('warehouse.total_suppliers') }}', '{{ __('warehouse.active_suppliers') }}', '{{ __('warehouse.inactive_suppliers') }}'],
                     datasets: [{
-                        label: 'الإحصائيات',
+                        label: '{{ __('warehouse.statistics') }}',
                         data: [
                             {{ $stats['total_suppliers'] }},
                             {{ $stats['active_suppliers'] }},

@@ -8,13 +8,13 @@ return [
     'edit_link_invoice' => 'Edit Invoice Link',
     'supplier_report' => 'Supplier Performance Report',
     'reconciliation_management' => 'Reconciliation & Link Management',
-    
+
     // Navigation & Breadcrumbs
     'dashboard' => 'Dashboard',
     'warehouse' => 'Warehouse',
     'reconciliation' => 'Reconciliation',
     'back' => 'Back',
-    
+
     // How It Works Section
     'how_it_works' => 'How It Works:',
     'step_1' => 'Search and select a delivery note from the available notes',
@@ -24,7 +24,7 @@ return [
     'step_5' => 'Review and confirm the data, then submit',
     'note' => 'Note:',
     'note_text' => 'You can choose all or some products as needed',
-    
+
     // Labels & Placeholders
     'delivery_note' => 'Delivery Note',
     'search_delivery_notes' => 'Search delivery notes...',
@@ -39,7 +39,7 @@ return [
     'total_weight' => 'Total Weight',
     'total_quantity' => 'Total Quantity',
     'items_count' => 'Items Count',
-    
+
     // Product Selection
     'select_products' => 'Select Products',
     'product_name' => 'Product Name',
@@ -47,7 +47,7 @@ return [
     'selection_summary' => 'Selection Summary',
     'total_selected_weight' => 'Total Weight (Selected)',
     'total_selected_quantity' => 'Total Quantity (Selected)',
-    
+
     // Discrepancy Section
     'discrepancy' => 'Discrepancy',
     'discrepancy_calculation' => 'Discrepancy Calculation',
@@ -60,7 +60,7 @@ return [
     'weights_match' => 'Weights Match - Auto-Matched',
     'weight_difference' => 'Weight Difference:',
     'kg' => 'kg',
-    
+
     // Buttons
     'clear' => 'Clear',
     'submit' => 'Submit',
@@ -75,7 +75,7 @@ return [
     'view' => 'View',
     'edit' => 'Edit',
     'delete' => 'Delete',
-    
+
     // Messages
     'success' => 'Success!',
     'error' => 'Error!',
@@ -97,11 +97,11 @@ return [
     'loading' => 'Loading...',
     'processing' => 'Processing...',
     'error_message' => 'An error occurred:',
-    
+
     // Checkboxes & Confirmations
     'confirm_and_submit' => 'I confirm that the data above is correct and submit it for reconciliation',
     'agree_terms' => 'I agree to the terms and conditions',
-    
+
     // Statistics & Reports
     'statistics' => 'Statistics',
     'pending_reconciliations' => 'Pending Reconciliations',
@@ -112,14 +112,14 @@ return [
     'number_of_suppliers' => 'Number of Suppliers',
     'reconciliation_log' => 'Reconciliation Log',
     'logs' => 'Logs',
-    
+
     // Tab Names
     'delivery_notes' => 'Delivery Notes',
     'invoices' => 'Invoices',
     'reconciliation_records' => 'Reconciliation Records',
     'movements' => 'Movements',
     'supplier_performance' => 'Supplier Performance',
-    
+
     // Table Headers
     'actions' => 'Actions',
     'status' => 'Status',
@@ -131,7 +131,7 @@ return [
     'discrepancy_percentage' => 'Discrepancy %',
     'material_name' => 'Material Name',
     'material_unit' => 'Unit',
-    
+
     // Status Options
     'pending' => 'Pending',
     'matched' => 'Matched',
@@ -139,19 +139,19 @@ return [
     'reconciled' => 'Reconciled',
     'rejected' => 'Rejected',
     'approved' => 'Approved',
-    
+
     // Confirmations
     'delete_delivery_note' => 'Are you sure you want to delete this delivery note?',
     'delete_invoice' => 'Are you sure you want to delete this invoice?',
     'delete_reconciliation' => 'Are you sure you want to delete this reconciliation record?',
     'delete_movement' => 'Are you sure you want to delete this movement?',
-    
+
     // Movement Types
     'incoming' => 'Incoming',
     'outgoing' => 'Outgoing',
     'transfer' => 'Transfer',
     'adjustment' => 'Adjustment',
-    
+
     // Summary
     'summary' => 'Summary',
     'quick_summary' => 'Quick Summary',
@@ -163,10 +163,51 @@ return [
     'weights_matched' => 'Weights Matched - Auto-Matched',
     'weight_discrepancy' => 'Weight Discrepancy:',
     'this_action_cannot_be_undone' => 'This action cannot be undone',
-    
+
     // Additional Fields
     'notes' => 'Notes',
     'remarks' => 'Remarks',
     'reference_number' => 'Reference Number',
     'description' => 'Description',
+    
+    // Missing Keys
+    'delivery_note_info' => 'Delivery Note Info',
+    'invoice_info' => 'Invoice Info',
+    'products' => 'Products',
+    'invoice_weight' => 'Invoice Weight',
+    'discrepancy_calculation' => 'Discrepancy Calculation',
+    'actual_weight' => 'Actual Weight',
+    'warning' => 'Warning',
+    'large_discrepancy_warning' => 'There is a large discrepancy between the actual weight and invoice weight. Please verify the data.',
+    'notes_placeholder' => 'Example: Natural difference due to humidity / Shortage that needs follow-up',
+    'confirm_data' => 'I confirm the accuracy of the entered data and that the invoice matches the delivery note',
+    'link_and_calculate' => 'Link Invoice and Calculate Discrepancy',
+    'cancel' => 'Cancel',
+    'remove' => 'Remove',
+    'after_linking' => 'After Linking',
+    'after_linking_message' => 'The discrepancy will be calculated automatically and the record will be added to the reconciliation page',
+    'comparison' => 'Comparison',
+    'statement' => 'Statement',
+    'scale' => 'Scale',
+    'percentage' => 'Percentage',
+    'view_details' => 'View Details',
+    'shipment' => 'Shipment',
+    'discrepancies' => 'Discrepancies',
+    'adjusted' => 'Adjusted',
+    'matched_reconciliations' => 'Matched Reconciliations',
+    'adjusted_reconciliations' => 'Adjusted Reconciliations',
+    'rejected_invoices' => 'Rejected Invoices',
+    'all_completed_reconciliations' => 'All Completed Reconciliations',
+    'complete_reconciliation_log' => 'Complete Reconciliation Log',
+    'no_completed_reconciliations' => 'No Completed Reconciliations',
+    'all_pending_reconciliations' => 'All Pending Reconciliations',
+    'delivery_note_number' => 'Delivery Note Number',
+    'actual_weight_label' => 'Actual Weight',
+    'invoice_weight_label' => 'Invoice Weight',
+    'difference_label' => 'Difference',
+    'percentage_label' => 'Percentage',
+    'reconciliation_date' => 'Reconciliation Date',
+    'created_by' => 'Created By',
+    'action' => 'Action',
 ];
+

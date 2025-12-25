@@ -512,20 +512,20 @@
 
     <script>
         function exportToExcel() {
-            alert('جارٍ تصدير التقرير إلى Excel...');
+            alert('{{ __('warehouse.exporting_report_to_excel') }}');
             // Add export functionality here
         }
 
         function exportToPDF() {
-            alert('جارٍ تصدير التقرير إلى PDF...');
+            alert('{{ __('warehouse.exporting_report_to_pdf') }}');
             // Add export functionality here
         }
 
         function shareReport() {
             if (navigator.share) {
                 navigator.share({
-                    title: 'تقارير المستودع',
-                    text: 'تقارير وإحصائيات المستودع',
+                    title: '{{ __('warehouse.warehouse_reports') }}',
+                    text: '{{ __('warehouse.reports_and_statistics') }}',
                     url: window.location.href
                 });
             } else {

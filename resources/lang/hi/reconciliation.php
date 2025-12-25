@@ -8,13 +8,13 @@ return [
     'edit_link_invoice' => 'चालान लिंक संपादित करें',
     'supplier_report' => 'आपूर्तिकर्ता प्रदर्शन रिपोर्ट',
     'reconciliation_management' => 'समन्वय और लिंक प्रबंधन डैशबोर्ड',
-    
+
     // Navigation & Breadcrumbs
     'dashboard' => 'डैशबोर्ड',
     'warehouse' => 'गोदाम',
     'reconciliation' => 'समन्वय',
     'back' => 'वापस',
-    
+
     // How It Works Section
     'how_it_works' => 'यह कैसे काम करता है:',
     'step_1' => 'उपलब्ध डिलीवरी नोट से एक को खोजें और चुनें',
@@ -24,7 +24,7 @@ return [
     'step_5' => 'डेटा की समीक्षा करें और पुष्टि करें फिर जमा करें',
     'note' => 'नोट:',
     'note_text' => 'आप अपनी आवश्यकता के अनुसार सभी या कुछ उत्पाद चुन सकते हैं',
-    
+
     // Labels & Placeholders
     'delivery_note' => 'डिलीवरी नोट',
     'search_delivery_notes' => 'डिलीवरी नोट खोजें...',
@@ -39,7 +39,7 @@ return [
     'total_weight' => 'कुल वजन',
     'total_quantity' => 'कुल मात्रा',
     'items_count' => 'वस्तुओं की संख्या',
-    
+
     // Product Selection
     'select_products' => 'उत्पाद चुनें',
     'product_name' => 'उत्पाद का नाम',
@@ -47,7 +47,7 @@ return [
     'selection_summary' => 'चयन सारांश',
     'total_selected_weight' => 'कुल वजन (चयनित)',
     'total_selected_quantity' => 'कुल मात्रा (चयनित)',
-    
+
     // Discrepancy Section
     'discrepancy' => 'विसंगति',
     'discrepancy_calculation' => 'विसंगति गणना',
@@ -60,7 +60,7 @@ return [
     'weights_match' => 'वजन मेल खाते हैं - स्वचालित मिलान',
     'weight_difference' => 'वजन अंतर:',
     'kg' => 'किलोग्राम',
-    
+
     // Buttons
     'clear' => 'साफ़ करें',
     'submit' => 'जमा करें',
@@ -75,7 +75,7 @@ return [
     'view' => 'देखें',
     'edit' => 'संपादित करें',
     'delete' => 'हटाएं',
-    
+
     // Messages
     'success' => 'सफल!',
     'error' => 'त्रुटि!',
@@ -97,11 +97,11 @@ return [
     'loading' => 'लोड हो रहा है...',
     'processing' => 'प्रसंस्करण हो रहा है...',
     'error_message' => 'त्रुटि:',
-    
+
     // Checkboxes & Confirmations
     'confirm_and_submit' => 'मैं पुष्टि करता हूं कि ऊपर दिया गया डेटा सही है और समन्वय के लिए जमा करता हूं',
     'agree_terms' => 'मैं शर्तें और शर्तों से सहमत हूं',
-    
+
     // Statistics & Reports
     'statistics' => 'आंकड़े',
     'pending_reconciliations' => 'लंबित समन्वय',
@@ -112,14 +112,14 @@ return [
     'number_of_suppliers' => 'आपूर्तिकर्ताओं की संख्या',
     'reconciliation_log' => 'समन्वय लॉग',
     'logs' => 'लॉग',
-    
+
     // Tab Names
     'delivery_notes' => 'डिलीवरी नोट',
     'invoices' => 'चालान',
     'reconciliation_records' => 'समन्वय रिकॉर्ड',
     'movements' => 'आंदोलन',
     'supplier_performance' => 'आपूर्तिकर्ता प्रदर्शन',
-    
+
     // Table Headers
     'actions' => 'कार्य',
     'status' => 'स्थिति',
@@ -131,7 +131,7 @@ return [
     'discrepancy_percentage' => 'विसंगति %',
     'material_name' => 'सामग्री का नाम',
     'material_unit' => 'इकाई',
-    
+
     // Status Options
     'pending' => 'लंबित',
     'matched' => 'मेल खाया',
@@ -139,19 +139,19 @@ return [
     'reconciled' => 'समन्वित',
     'rejected' => 'अस्वीकृत',
     'approved' => 'अनुमोदित',
-    
+
     // Confirmations
     'delete_delivery_note' => 'क्या आप इस डिलीवरी नोट को हटाना चाहते हैं?',
     'delete_invoice' => 'क्या आप इस चालान को हटाना चाहते हैं?',
     'delete_reconciliation' => 'क्या आप इस समन्वय रिकॉर्ड को हटाना चाहते हैं?',
     'delete_movement' => 'क्या आप इस आंदोलन को हटाना चाहते हैं?',
-    
+
     // Movement Types
     'incoming' => 'आने वाले',
     'outgoing' => 'जा रहे',
     'transfer' => 'स्थानांतरण',
     'adjustment' => 'समायोजन',
-    
+
     // Summary
     'summary' => 'सारांश',
     'quick_summary' => 'त्वरित सारांश',
@@ -163,10 +163,48 @@ return [
     'weights_matched' => 'स्वचालित मिलान',
     'weight_discrepancy' => 'वजन विसंगति:',
     'this_action_cannot_be_undone' => 'इस कार्रवाई को पूर्ववत नहीं किया जा सकता',
-    
+
     // Additional Fields
     'notes' => 'नोट',
     'remarks' => 'टिप्पणियां',
     'reference_number' => 'संदर्भ संख्या',
-    'description' => 'विवरण',
+    'description' => 'विवरण',    
+    // Missing Keys
+    'delivery_note_info' => 'डिलीवरी नोट जानकारी',
+    'invoice_info' => 'चालान जानकारी',
+    'products' => 'उत्पाद',
+    'invoice_weight' => 'चालान का वजन',
+    'discrepancy_calculation' => 'विसंगति गणना',
+    'actual_weight' => 'वास्तविक वजन',
+    'warning' => 'चेतावनी',
+    'large_discrepancy_warning' => 'वास्तविक वजन और चालान वजन में बड़ी विसंगति है। कृपया डेटा सत्यापित करें।',
+    'notes_placeholder' => 'उदाहरण: नमी के कारण प्राकृतिक अंतर / कमी जिसके लिए अनुवर्ती आवश्यक है',
+    'confirm_data' => 'मैं दर्ज किए गए डेटा की सटीकता की पुष्टि करता हूं और चालान डिलीवरी नोट से मेल खाता है',
+    'link_and_calculate' => 'चालान लिंक करें और विसंगति की गणना करें',
+    'cancel' => 'रद्द करें',
+    'remove' => 'हटाएं',
+    'after_linking' => 'लिंक करने के बाद',
+    'after_linking_message' => 'विसंगति स्वचालित रूप से गणना की जाएगी और रिकॉर्ड समन्वय पृष्ठ में जोड़ा जाएगा',    'comparison' => 'तुलना',
+    'statement' => 'विवरण',
+    'scale' => 'पैमाना',
+    'percentage' => 'प्रतिशत',
+    'view_details' => 'विवरण देखें',
+    'shipment' => 'शिपमेंट',
+    'discrepancies' => 'विसंगतियां',
+    'adjusted' => 'समायोजित',
+    'matched_reconciliations' => 'मिलान समाधान',
+    'adjusted_reconciliations' => 'समायोजित समाधान',
+    'rejected_invoices' => 'अस्वीकृत चालान',
+    'all_completed_reconciliations' => 'सभी पूर्ण समाधान',
+    'complete_reconciliation_log' => 'संपूर्ण समाधान लॉग',
+    'no_completed_reconciliations' => 'कोई पूर्ण समाधान नहीं',
+    'all_pending_reconciliations' => 'सभी लंबित समाधान',
+    'delivery_note_number' => 'शिपमेंट संख्या',
+    'actual_weight_label' => 'वास्तविक वजन',
+    'invoice_weight_label' => 'चालान वजन',
+    'difference_label' => 'अंतर',
+    'percentage_label' => 'प्रतिशत',
+    'reconciliation_date' => 'समाधान तारीख',
+    'created_by' => 'द्वारा बनाया गया',
+    'action' => 'कार्रवाई',
 ];

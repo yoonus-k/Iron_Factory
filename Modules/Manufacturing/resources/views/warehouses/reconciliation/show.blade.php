@@ -6,23 +6,23 @@
 @php
     // تعريف المتغيرات في أعلى الصفحة لاستخدامها في كل الأماكن
     // محاولة الحصول على الوزن من عدة مصادر
-    $actualWeight = $deliveryNote->actual_weight 
-        ?? $deliveryNote->weight_from_scale 
-        ?? $deliveryNote->delivered_weight 
-        ?? $deliveryNote->quantity 
+    $actualWeight = $deliveryNote->actual_weight
+        ?? $deliveryNote->weight_from_scale
+        ?? $deliveryNote->delivered_weight
+        ?? $deliveryNote->quantity
         ?? 0;
-    
+
     // إذا كان صفر، جرب من العلاقات (items)
     if ($actualWeight == 0 && $deliveryNote->items && $deliveryNote->items->count() > 0) {
         $actualWeight = $deliveryNote->items->sum('actual_weight') ?: $deliveryNote->items->sum('quantity');
     }
-    
+
     $invoiceWeight = $deliveryNote->invoice_weight ?? 0;
     $discrepancy = $actualWeight - $invoiceWeight;
     $discrepancyPercentage = $invoiceWeight > 0 ? (($discrepancy / $invoiceWeight) * 100) : 0;
     $isInOurFavor = $discrepancy > 0; // الوزن الفعلي أكبر من الفاتورة = في صالحنا
     $isDeficit = $discrepancy < 0; // الوزن الفعلي أقل من الفاتورة = عجز
-    
+
     // معلومات debugging
     $debugInfo = [
         'actual_weight' => $deliveryNote->actual_weight,
@@ -112,7 +112,7 @@
                                 </span>
                             @endif
                         </p>
-                        
+
                         {{-- معلومات debugging مفصلة --}}
                         @if ($actualWeight == 0)
                             <div class="alert alert-danger p-2 mt-2" style="font-size: 0.85rem;">
@@ -131,7 +131,7 @@
                             </small>
                         @else
                             <small class="text-success d-block mt-1">
-                                ✓ الوزن مأخوذ من: 
+                                ✓ الوزن مأخوذ من:
                                 @if($deliveryNote->actual_weight > 0)
                                     actual_weight
                                 @elseif($deliveryNote->weight_from_scale > 0)
@@ -308,8 +308,8 @@
                         <tr style="background-color: #f8f9fa;">
                             <td colspan="5" class="text-center">
                                 <small class="text-muted">
-                                    <strong>المعادلة:</strong> الفرق = الوزن الفعلي - وزن الفاتورة = 
-                                    {{ number_format($actualWeight, 2) }} - {{ number_format($invoiceWeight, 2) }} = 
+                                    <strong>المعادلة:</strong> الفرق = الوزن الفعلي - وزن الفاتورة =
+                                    {{ number_format($actualWeight, 2) }} - {{ number_format($invoiceWeight, 2) }} =
                                     <span class="text-{{ $isDeficit ? 'danger' : 'success' }}">{{ number_format($discrepancy, 2) }} كجم</span>
                                 </small>
                             </td>

@@ -32,26 +32,26 @@
         <div class="filter-card">
             <h3 class="filter-title">
                 <i class="feather icon-sliders"></i>
-                تصفية التقرير
+                {{ __('warehouse_reports.filter_report') }}
             </h3>
             <form method="GET" action="{{ route('manufacturing.warehouse-reports.comprehensive') }}" class="filter-form">
                 <div class="filter-group">
                     <label for="start_date">
                         <i class="feather icon-calendar"></i>
-                        من تاريخ
+                        {{ __('warehouse_reports.from_date') }}
                     </label>
                     <input type="date" id="start_date" name="start_date" value="{{ $startDate }}" class="form-control">
                 </div>
                 <div class="filter-group">
                     <label for="end_date">
                         <i class="feather icon-calendar"></i>
-                        إلى تاريخ
+                        {{ __('warehouse_reports.to_date') }}
                     </label>
                     <input type="date" id="end_date" name="end_date" value="{{ $endDate }}" class="form-control">
                 </div>
                 <button type="submit" class="btn-filter">
                     <i class="feather icon-search"></i>
-                    <span>عرض النتائج</span>
+                    <span>{{ __('warehouse_reports.show_results') }}</span>
                 </button>
             </form>
         </div>
@@ -65,7 +65,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $data['warehouses']['total'] }}</h3>
-                    <p>إجمالي المستودعات</p>
+                    <p>{{ __('warehouse_reports.warehouses_total') }}</p>
                 </div>
             </div>
 
@@ -75,7 +75,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ $data['warehouses']['active'] }}</h3>
-                    <p>المستودعات النشطة</p>
+                    <p>{{ __('warehouse_reports.warehouses_active') }}</p>
                 </div>
             </div>
 
@@ -85,7 +85,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>{{ number_format($data['warehouses']['total_capacity'], 2) }}</h3>
-                    <p>السعة الإجمالية</p>
+                    <p>{{ __('warehouse_reports.warehouses_total_capacity') }}</p>
                 </div>
             </div>
         </div>
@@ -94,7 +94,7 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-bar-chart-2"></i>
-                رسم بياني للإحصائيات
+                {{ __('warehouse_reports.chart_statistics') }}
             </h2>
             <div class="chart-container">
                 <canvas id="comprehensiveChart"></canvas>
@@ -105,14 +105,14 @@
         <div class="section-card">
             <h2 class="section-title">
                 <i class="feather icon-list"></i>
-                الإحصائيات التفصيلية
+                {{ __('warehouse_reports.detailed_statistics') }}
             </h2>
 
             <!-- Materials Section -->
             <div class="sub-section">
                 <h3 class="sub-title">
                     <i class="feather icon-package"></i>
-                    إحصائيات المواد الخام
+                    {{ __('warehouse_reports.raw_materials_statistics') }}
                 </h3>
                 <div class="stats-cards">
                     <div class="stat-card blue">
@@ -121,7 +121,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>{{ $data['materials']['total'] }}</h3>
-                            <p>إجمالي الأنواع</p>
+                            <p>{{ __('warehouse_reports.materials_total_types') }}</p>
                         </div>
                     </div>
 
@@ -131,7 +131,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>{{ number_format($data['materials']['total_quantity'], 2) }}</h3>
-                            <p>إجمالي الكميات</p>
+                            <p>{{ __('warehouse_reports.materials_total_quantities') }}</p>
                         </div>
                     </div>
 
@@ -141,7 +141,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>{{ $data['materials']['low_stock'] }}</h3>
-                            <p>مخزون منخفض</p>
+                            <p>{{ __('warehouse_reports.materials_low_stock') }}</p>
                         </div>
                     </div>
 
@@ -151,7 +151,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>{{ number_format($data['materials']['total_weight'], 2) }}</h3>
-                            <p>الوزن الإجمالي</p>
+                            <p>{{ __('warehouse_reports.materials_total_weight') }}</p>
                         </div>
                     </div>
                 </div>
@@ -161,7 +161,7 @@
             <div class="sub-section">
                 <h3 class="sub-title">
                     <i class="feather icon-file-text"></i>
-                    إحصائيات أذون التسليم
+                    {{ __('warehouse_reports.delivery_notes_statistics') }}
                 </h3>
                 <div class="stats-cards">
                     <div class="stat-card blue">
@@ -170,7 +170,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>{{ $data['delivery_notes']['total'] }}</h3>
-                            <p>إجمالي الأذون</p>
+                            <p>{{ __('warehouse_reports.delivery_notes_total') }}</p>
                         </div>
                     </div>
 
@@ -180,7 +180,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>{{ $data['delivery_notes']['pending'] }}</h3>
-                            <p>قيد الانتظار</p>
+                            <p>{{ __('warehouse_reports.delivery_notes_pending') }}</p>
                         </div>
                     </div>
 
@@ -190,7 +190,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>{{ $data['delivery_notes']['approved'] }}</h3>
-                            <p>موافق عليه</p>
+                            <p>{{ __('warehouse_reports.delivery_notes_approved') }}</p>
                         </div>
                     </div>
 
@@ -200,7 +200,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>{{ $data['delivery_notes']['completed'] }}</h3>
-                            <p>مكتمل</p>
+                            <p>{{ __('warehouse_reports.delivery_notes_completed') }}</p>
                         </div>
                     </div>
                 </div>
@@ -852,16 +852,16 @@
                 type: 'bar',
                 data: {
                     labels: [
-                        'المستودعات',
-                        'المواد الخام',
-                        'أذون التسليم',
-                        'فواتير المشتريات',
-                        'الحركات',
-                        'الصبغات',
-                        'الموردين'
+                        '{{ __('warehouse_reports.chart_warehouses') }}',
+                        '{{ __('warehouse_reports.chart_raw_materials') }}',
+                        '{{ __('warehouse_reports.chart_delivery_notes') }}',
+                        '{{ __('warehouse_reports.chart_purchase_invoices') }}',
+                        '{{ __('warehouse_reports.chart_movements') }}',
+                        '{{ __('warehouse_reports.chart_additives') }}',
+                        '{{ __('warehouse_reports.chart_suppliers') }}'
                     ],
                     datasets: [{
-                        label: 'الكمية الإجمالية',
+                        label: '{{ __('warehouse_reports.chart_total_amount') }}',
                         data: [
                             {{ $data['warehouses']['total'] }},
                             {{ $data['materials']['total'] }},

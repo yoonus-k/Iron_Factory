@@ -424,7 +424,7 @@ return [
     'supplier_updated_successfully' => 'سپلائر کامیابی سے اپڈیٹ ہوا',
     'supplier_deleted_successfully' => 'سپلائر کامیابی سے حذف ہوا',
     'error_in_supplier_data' => 'سپلائر کی معلومات میں خرابی',
-    
+
     // Placeholders for suppliers
     'enter_new_supplier_data' => 'نیے سپلائر کی معلومات درج کریں',
     'enter_supplier_name' => 'سپلائر کا نام درج کریں',
@@ -441,7 +441,7 @@ return [
     'inactive' => 'غیر فعال',
     'enable' => 'فعال کریں',
     'disable' => 'غیر فعال کریں',
-    
+
     // Confirmation messages
     'confirm_delete_supplier_full' => 'کیا آپ یقینی ہیں کہ یہ سپلائر حذف کرنا چاہتے ہیں؟ یہ کارروائی کو ختم نہیں کیا جا سکتا۔',
     'confirm_delete_invoice_full' => 'کیا آپ یقینی ہیں کہ یہ انوائس حذف کرنا چاہتے ہیں؟ یہ کارروائی کو ختم نہیں کیا جا سکتا۔',
@@ -457,5 +457,8 @@ return [
     'showing' => 'دکھایا جا رہا ہے',
     'to' => 'تک',
     'of' => 'کا',
+    'exporting_report_to_excel' => 'ایکسل میں رپورٹ برآمد کی جا رہی ہے...',
+    'exporting_report_to_pdf' => 'پی ڈی ایف میں رپورٹ برآمد کی جا رہی ہے...',
+    'warehouse_reports' => 'گودام کی رپورٹس',
 ];
 

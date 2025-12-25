@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'مراقبة الجودة')
+@section('title', __('app.quality.monitoring.title'))
 
 @section('content')
 
@@ -9,16 +9,16 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-check-square"></i>
-                مراقبة الجودة
+                {{ __('app.quality.monitoring.title') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('app.quality.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>الجودة والهدر</span>
+                <span>{{ __('app.quality.quality_waste') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>مراقبة الجودة</span>
+                <span>{{ __('app.quality.monitoring.breadcrumb') }}</span>
             </nav>
         </div>
 
@@ -40,7 +40,7 @@
                     <i class="feather icon-check-circle"></i>
                 </div>
                 <div class="um-stat-content">
-                    <span class="um-stat-label">فحوصات ناجحة اليوم</span>
+                    <span class="um-stat-label">{{ __('app.quality.monitoring.passed_today') }}</span>
                     <span class="um-stat-value">142</span>
                     <span class="um-stat-change um-stat-success">
                         <i class="feather icon-trending-up"></i> +5.2%
@@ -53,7 +53,7 @@
                     <i class="feather icon-x-circle"></i>
                 </div>
                 <div class="um-stat-content">
-                    <span class="um-stat-label">فحوصات مرفوضة</span>
+                    <span class="um-stat-label">{{ __('app.quality.monitoring.failed_today') }}</span>
                     <span class="um-stat-value">8</span>
                     <span class="um-stat-change um-stat-danger">
                         <i class="feather icon-alert-triangle"></i> يتطلب اهتمام
@@ -66,7 +66,7 @@
                     <i class="feather icon-percent"></i>
                 </div>
                 <div class="um-stat-content">
-                    <span class="um-stat-label">نسبة القبول</span>
+                    <span class="um-stat-label">{{ __('app.quality.monitoring.acceptance_rate') }}</span>
                     <span class="um-stat-value">94.7%</span>
                     <span class="um-stat-change um-stat-success">
                         <i class="feather icon-trending-up"></i> +1.3%
@@ -79,7 +79,7 @@
                     <i class="feather icon-alert-circle"></i>
                 </div>
                 <div class="um-stat-content">
-                    <span class="um-stat-label">قيد المراجعة</span>
+                    <span class="um-stat-label">{{ __('app.quality.monitoring.pending_review') }}</span>
                     <span class="um-stat-value">12</span>
                     <span class="um-stat-change um-stat-warning">
                         <i class="feather icon-clock"></i> بانتظار القرار
@@ -93,7 +93,7 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-plus-circle"></i>
-                    فحص جودة جديد
+                    {{ __('app.quality.monitoring.new_inspection') }}
                 </h4>
             </div>
 
@@ -192,7 +192,7 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    سجل فحوصات الجودة
+                    {{ __('app.quality.monitoring.history_title') }}
                 </h4>
                 <div class="um-card-actions">
                     <select class="um-form-control um-filter-select" onchange="filterByStatus(this.value)">
@@ -324,7 +324,7 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-trending-up"></i>
-                    اتجاه الجودة - آخر 7 أيام
+                    {{ __('app.quality.monitoring.trend_chart') }}
                 </h4>
             </div>
             <div class="um-card-body">

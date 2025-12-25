@@ -258,17 +258,17 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>اسم المستودع</th>
-                                <th>عدد الأذون</th>
-                                <th>إجمالي الكمية</th>
-                                <th>النسبة</th>
+                                <th>{{ __('warehouse_reports.warehouse_name') }}</th>
+                                <th>{{ __('warehouse_reports.delivery_notes_count') }}</th>
+                                <th>{{ __('warehouse_reports.total_quantity') }}</th>
+                                <th>{{ __('warehouse_reports.percentage') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($warehouseStats as $index => $warehouse)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
-                                    <td><strong>{{ $warehouse->warehouse->warehouse_name ?? 'غير محدد' }}</strong></td>
+                                    <td><strong>{{ $warehouse->warehouse->warehouse_name ?? '{{ __('warehouse_reports.undefined') }}' }}</strong></td>
                                     <td>
                                         <span class="badge badge-info">{{ $warehouse->count }}</span>
                                     </td>
@@ -298,12 +298,12 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>اسم المادة</th>
-                                <th>عدد الأذون</th>
-                                <th>إجمالي الكمية</th>
-                                <th>متوسط الكمية</th>
-                                <th>إجمالي الوزن</th>
-                                <th>النسبة</th>
+                                <th>{{ __('warehouse_reports.material_name') }}</th>
+                                <th>{{ __('warehouse_reports.delivery_notes_count') }}</th>
+                                <th>{{ __('warehouse_reports.total_quantity') }}</th>
+                                <th>{{ __('warehouse_reports.average_quantity') }}</th>
+                                <th>{{ __('warehouse_reports.total_weight') }}</th>
+                                <th>{{ __('warehouse_reports.percentage') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1065,7 +1065,7 @@
             const element = document.querySelector('.report-container');
             const opt = {
                 margin: 10,
-                filename: 'تقرير-أذون-التسليم.pdf',
+                filename: '{{ __('warehouse_reports.delivery_notes_report') }}.pdf'
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }

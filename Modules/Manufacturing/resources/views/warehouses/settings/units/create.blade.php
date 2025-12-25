@@ -188,7 +188,7 @@
                         </label>
                         <div class="input-wrapper">
                             <textarea name="description" id="description" class="form-input @error('description') error @enderror"
-                                      placeholder="أدخل وصف الوحدة" rows="3">{{ old('description') }}</textarea>
+                                      placeholder="{{ __('warehouse.enter_unit_description') }}" rows="3">{{ old('description') }}</textarea>
                         </div>
                         @error('description')
                             <div class="error-message" style="display: block;">{{ $message }}</div>
@@ -227,7 +227,7 @@
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                    إلغاء
+                    {{ __('app.cancel') }}
                 </a>
             </div>
         </form>
@@ -241,7 +241,7 @@
             inputs.forEach(input => {
                 input.addEventListener('blur', function() {
                     if (this.hasAttribute('required') && !this.value.trim()) {
-                        showError(this.id, 'هذا الحقل مطلوب');
+                        showError(this.id, '{{ __('app.this_field_is_required') }}');
                     } else {
                         hideError(this.id);
                     }
@@ -265,7 +265,7 @@
 
                 requiredFields.forEach(field => {
                     if (!field.value.trim()) {
-                        showError(field.id, 'هذا الحقل مطلوب');
+                        showError(field.id, '{{ __('app.this_field_is_required') }}');
                         isValid = false;
                     }
                 });

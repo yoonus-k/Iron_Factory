@@ -144,9 +144,9 @@
                                 <td><span class="count-badge">{{ $warehouse->materials_count ?? 0 }}</span></td>
                                 <td>
                                     @if($warehouse->is_active)
-                                        <span class="status-badge active">نشط</span>
+                                        <span class="status-badge active">{{ __('warehouse.active') }}</span>
                                     @else
-                                        <span class="status-badge inactive">غير نشط</span>
+                                        <span class="status-badge inactive">{{ __('warehouse.inactive') }}</span>
                                     @endif
                                 </td>
                             </tr>
@@ -440,9 +440,9 @@
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['إجمالي المستودعات', 'مستودعات نشطة', 'مستودعات غير نشطة', 'السعة الإجمالية'],
+                    labels: ['{{ __('warehouse.total_warehouses') }}', '{{ __('warehouse.active_warehouses') }}', '{{ __('warehouse.inactive_warehouses') }}', '{{ __('warehouse.total_capacity') }}'],
                     datasets: [{
-                        label: 'الإحصائيات',
+                        label: '{{ __('warehouse.statistics') }}',
                         data: [
                             {{ $stats['total_warehouses'] }},
                             {{ $stats['active_warehouses'] }},

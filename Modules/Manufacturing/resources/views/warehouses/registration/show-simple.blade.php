@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'تفاصيل الشحنة')
+@section('title', __('warehouse_registration.shipment_details'))
 
 @section('content')
 <style>
@@ -190,14 +190,14 @@
     <div class="info-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
-                <h1 style="font-size: 32px; color: #2c3e50; margin: 0;">📦 أذن #{{ $deliveryNote->note_number ?? $deliveryNote->id }}</h1>
+                <h1 style="font-size: 32px; color: #2c3e50; margin: 0;">📦 {{ __('warehouse_registration.delivery_note') }} #{{ $deliveryNote->note_number ?? $deliveryNote->id }}</h1>
                 <div style="margin-top: 10px;">
                     <span class="status-badge-simple {{ $deliveryNote->registration_status === 'registered' ? 'status-success' : ($deliveryNote->registration_status === 'in_production' ? 'status-info' : 'status-warning') }}">
                         @switch($deliveryNote->registration_status)
-                            @case('not_registered') ⏳ معلقة @break
-                            @case('registered') ✅ مسجلة @break
-                            @case('in_production') 🏭 في الإنتاج @break
-                            @case('completed') ✔️ مكتملة @break
+                            @case('not_registered') ⏳ {{ __('warehouse_registration.pending') }} @break
+                            @case('registered') ✅ {{ __('warehouse_registration.registered') }} @break
+                            @case('in_production') 🏭 {{ __('warehouse_registration.in_production') }} @break
+                            @case('completed') ✔️ {{ __('warehouse_registration.completed') }} @break
                             @default {{ $deliveryNote->registration_status }}
                         @endswitch
                     </span>
@@ -207,22 +207,22 @@
         
         <div class="info-grid">
             <div class="info-item-simple">
-                <span class="info-label-simple">🏢 المورد</span>
+                <span class="info-label-simple">🏢 {{ __('warehouse_registration.supplier') }}</span>
                 <span class="info-value-simple">{{ $deliveryNote->supplier->name ?? 'غير محدد' }}</span>
             </div>
             
             <div class="info-item-simple">
-                <span class="info-label-simple">📅 تاريخ الوصول</span>
+                <span class="info-label-simple">📅 {{ __('warehouse_registration.arrival_date') }}</span>
                 <span class="info-value-simple">{{ $deliveryNote->created_at->format('Y-m-d') }}</span>
             </div>
             
             <div class="info-item-simple">
-                <span class="info-label-simple">📦 المادة</span>
+                <span class="info-label-simple">📦 {{ __('warehouse_registration.material') }}</span>
                 <span class="info-value-simple">{{ $deliveryNote->material->name_ar ?? 'غير محدد' }}</span>
             </div>
             
             <div class="info-item-simple">
-                <span class="info-label-simple">⚖️ الوزن الفعلي</span>
+                <span class="info-label-simple">⚖️ {{ __('warehouse_registration.actual_weight') }}</span>
                 <span class="info-value-simple">{{ number_format($deliveryNote->actual_weight ?? 0, 2) }} كجم</span>
             </div>
         </div>
@@ -231,16 +231,16 @@
     <!-- بطاقة الباركود -->
     @if($deliveryNote->materialBatch && $deliveryNote->materialBatch->batch_code)
         <div class="barcode-card">
-            <div style="font-size: 22px; font-weight: bold; margin-bottom: 15px;">🏷️ باركود الدفعة</div>
+            <div style="font-size: 22px; font-weight: bold; margin-bottom: 15px;">🏷️ {{ __('warehouse_registration.batch_barcode') }}</div>
             <svg id="warehouse-barcode" style="background: white; padding: 20px; border-radius: 12px; margin: 20px auto; display: block;"></svg>
             <div class="barcode-number">{{ $deliveryNote->materialBatch->batch_code }}</div>
             <div style="margin-top: 20px; opacity: 0.9;">
-                <div style="margin-bottom: 5px;">📊 الكمية: {{ number_format($deliveryNote->materialBatch->initial_quantity, 2) }} كجم</div>
-                <div>📅 تاريخ التوليد: {{ $deliveryNote->materialBatch->created_at->format('Y-m-d H:i') }}</div>
+                <div style="margin-bottom: 5px;">📊 {{ __('warehouse_registration.quantity') }}: {{ number_format($deliveryNote->materialBatch->initial_quantity, 2) }} {{ __('warehouse_registration.kg') }}</div>
+                <div>📅 {{ __('warehouse_registration.generation_date') }}: {{ $deliveryNote->materialBatch->created_at->format('Y-m-d H:i') }}</div>
             </div>
             <button onclick="printWarehouseBarcode('{{ $deliveryNote->materialBatch->batch_code }}', '{{ $deliveryNote->note_number }}', '{{ $deliveryNote->material->name_ar ?? 'غير محدد' }}', {{ $deliveryNote->materialBatch->initial_quantity }}, '{{ $deliveryNote->supplier->name ?? 'غير محدد' }}')" 
                     style="background: white; color: #667eea; padding: 15px 30px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; display: inline-flex; align-items: center; gap: 10px;">
-                <i class="feather icon-printer"></i> طباعة الباركود
+                <i class="feather icon-printer"></i> {{ __('warehouse_registration.print_barcode') }}
             </button>
         </div>
     @endif
@@ -248,7 +248,7 @@
     <!-- الكميات والحالة -->
     @if($deliveryNote->quantity && $deliveryNote->quantity > 0)
         <div class="info-card">
-            <div class="card-header-simple">📊 توزيع الكميات</div>
+            <div class="card-header-simple">📊 {{ __('warehouse_registration.quantity_distribution') }}</div>
             
             @php
                 $totalQuantity = $deliveryNote->quantity ?? 0;
@@ -261,17 +261,17 @@
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px;">
                 <div style="text-align: center; padding: 20px; background: #e3f2fd; border-radius: 12px;">
                     <div style="font-size: 32px; font-weight: bold; color: #1976d2;">{{ number_format($totalQuantity, 2) }}</div>
-                    <div style="color: #1976d2; font-weight: 600;">إجمالي الكمية</div>
+                    <div style="color: #1976d2; font-weight: 600;">{{ __('warehouse_registration.total_quantity') }}</div>
                 </div>
                 
                 <div style="text-align: center; padding: 20px; background: #e8f5e9; border-radius: 12px;">
                     <div style="font-size: 32px; font-weight: bold; color: #388e3c;">{{ number_format($transferredQuantity, 2) }}</div>
-                    <div style="color: #388e3c; font-weight: 600;">تم النقل</div>
+                    <div style="color: #388e3c; font-weight: 600;">{{ __('warehouse_registration.transferred') }}</div>
                 </div>
                 
                 <div style="text-align: center; padding: 20px; background: #fff3e0; border-radius: 12px;">
                     <div style="font-size: 32px; font-weight: bold; color: #f57c00;">{{ number_format($remainingQuantity, 2) }}</div>
-                    <div style="color: #f57c00; font-weight: 600;">المتبقي</div>
+                    <div style="color: #f57c00; font-weight: 600;">{{ __('warehouse_registration.remaining') }}</div>
                 </div>
             </div>
             
@@ -293,18 +293,18 @@
     <!-- الأزرار -->
     <div class="btn-group-simple">
         <a href="{{ route('manufacturing.warehouse.registration.pending') }}" class="btn-simple btn-secondary">
-            ← العودة للقائمة
+            ← {{ __('warehouse_registration.return_to_list') }}
         </a>
         
         @if($canMoveToProduction ?? false)
             <a href="{{ route('manufacturing.warehouse.registration.transfer-form', $deliveryNote) }}" class="btn-simple btn-success">
-                🚚 نقل للإنتاج
+                🚚 {{ __('warehouse_registration.transfer_to_production') }}
             </a>
         @endif
         
         @if(!$deliveryNote->is_locked && ($canEdit ?? false))
             <a href="{{ route('manufacturing.warehouse.registration.create', $deliveryNote) }}" class="btn-simple btn-warning">
-                ✏️ تعديل
+                ✏️ {{ __('app.edit') }}
             </a>
         @endif
     </div>
@@ -345,15 +345,15 @@ function printWarehouseBarcode(barcode, noteNumber, materialName, quantity, supp
     printWindow.document.write('@media print { body { background: white; } }');
     printWindow.document.write('</style></head><body>');
     printWindow.document.write('<div class="barcode-container">');
-    printWindow.document.write('<div class="title">باركود المستودع</div>');
-    printWindow.document.write('<div class="note-number">أذن تسليم ' + noteNumber + '</div>');
+    printWindow.document.write('<div class="title">{{ __('warehouse_registration.warehouse_barcode') }}</div>');
+    printWindow.document.write('<div class="note-number">{{ __('warehouse_registration.delivery_note') }} ' + noteNumber + '</div>');
     printWindow.document.write('<svg id="print-barcode"></svg>');
     printWindow.document.write('<div class="barcode-code">' + barcode + '</div>');
     printWindow.document.write('<div class="info">');
-    printWindow.document.write('<div class="info-row"><span class="label">المادة:</span><span class="value">' + materialName + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">الكمية:</span><span class="value">' + quantity + ' كجم</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">المورد:</span><span class="value">' + supplierName + '</span></div>');
-    printWindow.document.write('<div class="info-row"><span class="label">التاريخ:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __('warehouse_registration.material') }}:</span><span class="value">' + materialName + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __('warehouse_registration.quantity') }}:</span><span class="value">' + quantity + ' {{ __('warehouse_registration.kg') }}</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __('warehouse_registration.supplier') }}:</span><span class="value">' + supplierName + '</span></div>');
+    printWindow.document.write('<div class="info-row"><span class="label">{{ __('app.date') }}:</span><span class="value">' + new Date().toLocaleDateString('ar-EG') + '</span></div>');
     printWindow.document.write('</div></div>');
     printWindow.document.write('<script>');
     printWindow.document.write('JsBarcode("#print-barcode", "' + barcode + '", { format: "CODE128", width: 2, height: 90, displayValue: false, margin: 12 });');

@@ -65,13 +65,13 @@
             <div class="col-lg-6">
                 <div class="card mb-4">
                     <div class="card-header" style="background: linear-gradient(135deg, #0051E5 0%, #003FA0 100%); color: white;">
-                        <h5 class="mb-0">📦 بيانات أذن التسليم</h5>
+                        <h5 class="mb-0">📦 {{ __('reconciliation.delivery_note') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label class="form-label"><strong>ابحث عن أذن التسليم <span class="text-danger">*</span></strong></label>
-                            <input type="text" id="delivery_note_search" class="form-control" placeholder="اكتب رقم الأذن أو اسم المورد أو التاريخ...">
-                            <small class="text-muted d-block mt-1">اكتب لتبحث عن أذن التسليم</small>
+                            <label class="form-label"><strong>{{ __('reconciliation.search_delivery_notes') }} <span class="text-danger">*</span></strong></label>
+                            <input type="text" id="delivery_note_search" class="form-control" placeholder="{{ __('reconciliation.search_delivery_notes') }}">
+                            <small class="text-muted d-block mt-1">{{ __('reconciliation.search_delivery_notes') }}</small>
                         </div>
 
                         <!-- نتائج البحث -->
@@ -82,26 +82,26 @@
 
                         <!-- عرض معلومات الأذن المختارة -->
                         <div id="deliveryNoteInfo" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #0051E5;">
-                            <h6 class="mb-3"><strong>معلومات الأذن المختارة:</strong></h6>
+                            <h6 class="mb-3"><strong>{{ __('reconciliation.delivery_note_info') }}:</strong></h6>
                             <div style="display: grid; gap: 10px;">
                                 <div>
-                                    <small class="text-muted">رقم الأذن:</small>
+                                    <small class="text-muted">{{ __('reconciliation.delivery_note_number') }}:</small>
                                     <div id="info-note-number" style="font-weight: 600; color: #0051E5;"></div>
                                 </div>
                                 <div>
-                                    <small class="text-muted">المورد:</small>
+                                    <small class="text-muted">{{ __('reconciliation.supplier') }}:</small>
                                     <div id="info-supplier" style="font-weight: 600;"></div>
                                 </div>
                                 <div>
-                                    <small class="text-muted">تاريخ الأذن:</small>
+                                    <small class="text-muted">{{ __('reconciliation.date') }}:</small>
                                     <div id="info-date" style="font-weight: 600;"></div>
                                 </div>
                                 <div>
-                                    <small class="text-muted">actual_weight:</small>
+                                    <small class="text-muted">{{ __('reconciliation.actual_weight') }}:</small>
                                     <div id="info-actual-weight" style="font-weight: 600; color: #3E4651;"></div>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-outline-danger mt-2" id="clearDeliveryNote">
-                                    <i class="fas fa-times"></i> إزالة
+                                    <i class="fas fa-times"></i> {{ __('reconciliation.remove') }}
                                 </button>
                             </div>
                         </div>
@@ -113,13 +113,13 @@
             <div class="col-lg-6">
                 <div class="card mb-4">
                     <div class="card-header" style="background: linear-gradient(135deg, #3E4651 0%, #2C3339 100%); color: white;">
-                        <h5 class="mb-0">📄 بيانات الفاتورة</h5>
+                        <h5 class="mb-0">📄 {{ __('reconciliation.invoice') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label class="form-label"><strong>ابحث عن فاتورة الشراء <span class="text-danger">*</span></strong></label>
-                            <input type="text" id="invoice_search" class="form-control" placeholder="اكتب رقم الفاتورة أو اسم المورد أو التاريخ...">
-                            <small class="text-muted d-block mt-1">اكتب لتبحث عن الفواتير المتاحة</small>
+                            <label class="form-label"><strong>{{ __('reconciliation.search_invoices') }} <span class="text-danger">*</span></strong></label>
+                            <input type="text" id="invoice_search" class="form-control" placeholder="{{ __('reconciliation.search_invoices') }}">
+                            <small class="text-muted d-block mt-1">{{ __('reconciliation.search_invoices') }}</small>
                         </div>
 
                         <!-- نتائج البحث عن الفواتير -->
@@ -131,40 +131,40 @@
 
                         <!-- عرض معلومات الفاتورة المختارة -->
                         <div id="invoiceInfo" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #3E4651;">
-                            <h6 class="mb-3"><strong>معلومات الفاتورة المختارة:</strong></h6>
+                            <h6 class="mb-3"><strong>{{ __('reconciliation.invoice_info') }}:</strong></h6>
                             <div style="display: grid; gap: 10px;">
                                 <div>
-                                    <small class="text-muted">رقم الفاتورة:</small>
+                                    <small class="text-muted">{{ __('reconciliation.invoice_number') }}:</small>
                                     <div id="info-invoice-number" style="font-weight: 600; color: #3E4651;"></div>
                                 </div>
                                 <div>
-                                    <small class="text-muted">المورد:</small>
+                                    <small class="text-muted">{{ __('reconciliation.supplier') }}:</small>
                                     <div id="info-invoice-supplier" style="font-weight: 600;"></div>
                                 </div>
                                 <div>
-                                    <small class="text-muted">تاريخ الفاتورة:</small>
+                                    <small class="text-muted">{{ __('reconciliation.date') }}:</small>
                                     <div id="info-invoice-date" style="font-weight: 600;"></div>
                                 </div>
                                 <div>
-                                    <small class="text-muted">وزن الفاتورة:</small>
+                                    <small class="text-muted">{{ __('reconciliation.invoice_weight') }}:</small>
                                     <div id="info-invoice-weight" style="font-weight: 600; color: #3E4651;"></div>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-outline-danger mt-2" id="clearInvoice">
-                                    <i class="fas fa-times"></i> إزالة
+                                    <i class="fas fa-times"></i> {{ __('reconciliation.remove') }}
                                 </button>
                             </div>
                         </div>
 
                         <!-- عرض المنتجات في الفاتورة -->
                         <div id="invoiceItemsInfo" style="display: none; margin-top: 20px;">
-                            <h6 class="mb-3"><strong>🛍️ المنتجات في الفاتورة:</strong></h6>
+                            <h6 class="mb-3"><strong>🛍️ {{ __('reconciliation.products') }}:</strong></h6>
                             <div id="invoiceItemsList" class="table-responsive">
                                 <table class="table table-sm table-bordered mb-0">
                                     <thead style="background-color: #f8f9fa;">
                                         <tr>
-                                            <th style="text-align: right;">المنتج</th>
-                                            <th>الكمية</th>
-                                            <th>الوحدة</th>
+                                            <th style="text-align: right;">{{ __('reconciliation.product_name') }}</th>
+                                            <th>{{ __('reconciliation.quantity') }}</th>
+                                            <th>{{ __('reconciliation.material_unit') }}</th>
 
                                         </tr>
                                     </thead>
@@ -183,14 +183,14 @@
         <!-- حساب الفرق -->
         <div class="card mb-4" id="discrepancyCard" style="display: none; border-left: 4px solid #0051E5;">
             <div class="card-header" style="background: linear-gradient(135deg, #0051E5 0%, #003FA0 100%); color: white;">
-                <h5 class="mb-0">⚖️ حساب الفرق</h5>
+                <h5 class="mb-0">⚖️ {{ __('reconciliation.discrepancy_calculation') }}</h5>
             </div>
             <div class="card-body">
                 <div class="row text-center">
                     <div class="col-md-3">
                         <div class="p-3 bg-light rounded">
-                            <small class="text-muted d-block mb-2">actual_weight</small>
-                            <h4 id="display-actual-weight" class="mb-0 text-success">0.00 كجم</h4>
+                            <small class="text-muted d-block mb-2">{{ __('reconciliation.actual_weight') }}</small>
+                            <h4 id="display-actual-weight" class="mb-0 text-success">0.00 {{ __('reconciliation.kg') }}</h4>
                         </div>
                     </div>
                     <div class="col-md-1 d-flex align-items-center justify-content-center">
@@ -198,8 +198,8 @@
                     </div>
                     <div class="col-md-3">
                         <div class="p-3 bg-light rounded">
-                            <small class="text-muted d-block mb-2">وزن الفاتورة</small>
-                            <h4 id="display-invoice-weight" class="mb-0 text-primary">0.00 كجم</h4>
+                            <small class="text-muted d-block mb-2">{{ __('reconciliation.invoice_weight') }}</small>
+                            <h4 id="display-invoice-weight" class="mb-0 text-primary">0.00 {{ __('reconciliation.kg') }}</h4>
                         </div>
                     </div>
                     <div class="col-md-1 d-flex align-items-center justify-content-center">
@@ -207,8 +207,8 @@
                     </div>
                     <div class="col-md-4">
                         <div class="p-3 bg-light rounded">
-                            <small class="text-muted d-block mb-2">الفرق</small>
-                            <h4 id="display-discrepancy" class="mb-0">0.00 كجم</h4>
+                            <small class="text-muted d-block mb-2">{{ __('reconciliation.difference') }}</small>
+                            <h4 id="display-discrepancy" class="mb-0">0.00 {{ __('reconciliation.kg') }}</h4>
                             <small id="display-percentage" class="text-muted"></small>
                         </div>
                     </div>
@@ -217,7 +217,7 @@
                 <!-- تحذير إذا كان هناك فرق كبير -->
                 <div id="discrepancy-warning" style="display: none; margin-top: 20px;">
                     <div class="alert alert-warning">
-                        <strong>⚠️ تنبيه:</strong> يوجد فرق كبير بين الوزن الفعلي ووزن الفاتورة. يرجى التأكد من البيانات.
+                        <strong>⚠️ {{ __('reconciliation.warning') }}:</strong> {{ __('reconciliation.large_discrepancy_warning') }}
                     </div>
                 </div>
             </div>
@@ -226,13 +226,13 @@
         <!-- ملاحظات -->
         <div class="card mb-4">
             <div class="card-header" style="background: #f8f9fa; border-bottom: 2px solid #e9ecef;">
-                <h5 class="mb-0">📝 ملاحظات</h5>
+                <h5 class="mb-0">📝 {{ __('reconciliation.notes') }}</h5>
             </div>
             <div class="card-body">
                 <div class="form-group mb-0">
-                    <label class="form-label">ملاحظات حول الفرق (إن وجد):</label>
+                    <label class="form-label">{{ __('reconciliation.notes') }}:</label>
                     <textarea name="reconciliation_notes" class="form-control @error('reconciliation_notes') is-invalid @enderror"
-                        rows="3" placeholder="مثال: فرق طبيعي بسبب الرطوبة / يوجد عجز يحتاج متابعة">{{ old('reconciliation_notes') }}</textarea>
+                        rows="3" placeholder="{{ __('reconciliation.notes_placeholder') }}">{{ old('reconciliation_notes') }}</textarea>
                     @error('reconciliation_notes')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
@@ -246,21 +246,21 @@
                 <div class="form-check mb-3">
                     <input type="checkbox" id="confirmCheck" class="form-check-input" required>
                     <label class="form-check-label" for="confirmCheck">
-                        <strong>✓ أؤكد صحة البيانات المدخلة وأن الفاتورة مطابقة للأذن</strong>
+                        <strong>✓ {{ __('reconciliation.confirm_data') }}</strong>
                     </label>
                 </div>
 
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-info btn-lg" id="submitBtn" disabled>
-                        <i class="fas fa-link"></i> ربط الفاتورة وحساب الفرق
+                        <i class="fas fa-link"></i> {{ __('reconciliation.link_and_calculate') }}
                     </button>
                     <a href="{{ route('manufacturing.warehouses.reconciliation.index') }}" class="btn btn-info btn-lg">
-                        <i class="fas fa-times"></i> إلغاء
+                        <i class="fas fa-times"></i> {{ __('reconciliation.cancel') }}
                     </a>
                 </div>
 
                 <div class="alert alert-light mt-3 mb-0" style="border-left: 4px solid #0051E5;">
-                    <small><strong>✓ بعد الربط:</strong> سيتم حساب الفرق تلقائياً وإضافة السجل في صفحة التسوية</small>
+                    <small><strong>✓ {{ __('reconciliation.after_linking') }}</strong> {{ __('reconciliation.after_linking_message') }}</small>
                 </div>
             </div>
         </div>
@@ -825,13 +825,13 @@ ${data.is_matched ? '✓ الأوزان متطابقة - تم المطابقة �
         invoiceSearchInput.value = '';
         invoiceWeightInput.value = '';
         invoiceInfo.style.display = 'none';
-        
+
         const invoiceItemsInfo = document.getElementById('invoiceItemsInfo');
         const createDeliveryNoteCard = document.getElementById('createDeliveryNoteCard');
-        
+
         if (invoiceItemsInfo) invoiceItemsInfo.style.display = 'none';
         if (createDeliveryNoteCard) createDeliveryNoteCard.style.display = 'none';
-        
+
         invoiceResultsList.style.display = 'none';
         discrepancyCard.style.display = 'none';
     });

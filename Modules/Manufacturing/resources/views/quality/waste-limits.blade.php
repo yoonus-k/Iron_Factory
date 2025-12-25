@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'إعدادات حدود الهدر')
+@section('title', __('app.quality.waste_limits.title'))
 
 @section('content')
 
@@ -9,16 +9,16 @@
         <div class="um-header-section">
             <h1 class="um-page-title">
                 <i class="feather icon-settings"></i>
-                إعدادات حدود الهدر المسموحة
+                {{ __('app.quality.waste_limits.title') }}
             </h1>
             <nav class="um-breadcrumb-nav">
                 <span>
-                    <i class="feather icon-home"></i> لوحة التحكم
+                    <i class="feather icon-home"></i> {{ __('app.quality.dashboard') }}
                 </span>
                 <i class="feather icon-chevron-left"></i>
-                <span>الجودة والهدر</span>
+                <span>{{ __('app.quality.quality_waste') }}</span>
                 <i class="feather icon-chevron-left"></i>
-                <span>حدود الهدر</span>
+                <span>{{ __('app.quality.waste_limits.breadcrumb') }}</span>
             </nav>
         </div>
 

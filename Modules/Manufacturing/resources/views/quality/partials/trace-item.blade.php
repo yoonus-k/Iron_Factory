@@ -22,9 +22,9 @@
                             font-size: 12px; 
                             font-weight: 600;">
                     @if($direction == 'backward')
-                        <i class="feather icon-arrow-left"></i> مصدر
+                        <i class="feather icon-arrow-left"></i> {{ __('app.quality.trace_item.source') }}
                     @else
-                        <i class="feather icon-arrow-right"></i> منتج
+                        <i class="feather icon-arrow-right"></i> {{ __('app.quality.trace_item.product') }}
                     @endif
                 </div>
             </div>
@@ -33,16 +33,16 @@
         {{-- تفاصيل العنصر --}}
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 10px;">
             <div style="background: #f8fafc; padding: 10px; border-radius: 6px;">
-                <div style="font-size: 11px; color: #64748b; margin-bottom: 3px;">الوزن</div>
+                <div style="font-size: 11px; color: #64748b; margin-bottom: 3px;">{{ __('app.quality.weight') }}</div>
                 <div style="font-size: 15px; font-weight: 600; color: #2563eb;">
-                    <i class="feather icon-weight"></i> {{ number_format($item['weight'], 2) }} كجم
+                    <i class="feather icon-weight"></i> {{ number_format($item['weight'], 2) }} {{ __('app.quality.kg') }}
                 </div>
             </div>
             
             <div style="background: #f8fafc; padding: 10px; border-radius: 6px;">
-                <div style="font-size: 11px; color: #64748b; margin-bottom: 3px;">المستوى</div>
+                <div style="font-size: 11px; color: #64748b; margin-bottom: 3px;">{{ __('app.quality.trace_item.level') }}</div>
                 <div style="font-size: 15px; font-weight: 600; color: #7c3aed;">
-                    <i class="feather icon-trending-up"></i> المستوى {{ $level + 1 }}
+                    <i class="feather icon-trending-up"></i> {{ __('app.quality.trace_item.level') }} {{ $level + 1 }}
                 </div>
             </div>
         </div>

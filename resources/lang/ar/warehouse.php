@@ -631,7 +631,7 @@ return [
     'supplier_updated_successfully' => 'تم تحديث المورد بنجاح',
     'supplier_deleted_successfully' => 'تم حذف المورد بنجاح',
     'error_in_supplier_data' => 'خطأ في بيانات المورد',
-    
+
     // Placeholders for suppliers
     'enter_new_supplier_data' => 'أدخل معلومات المورد الجديد',
     'enter_supplier_name' => 'أدخل اسم المورد',
@@ -648,7 +648,7 @@ return [
     'inactive' => 'معطل',
     'enable' => 'تفعيل',
     'disable' => 'تعطيل',
-    
+
     // Confirmation messages
     'confirm_delete_supplier_full' => 'هل أنت متأكد من حذف هذا المورد؟ لا يمكن التراجع عن هذا الإجراء.',
     'confirm_delete_invoice_full' => 'هل أنت متأكد من حذف هذه الفاتورة؟ لا يمكن التراجع عن هذا الإجراء.',
@@ -656,5 +656,8 @@ return [
 
     'basic_unit_information' => 'معلومات الوحدة الأساسية',
     'no_description' => 'لا يوجد وصف',
+    'exporting_report_to_excel' => 'جارٍ تصدير التقرير إلى Excel...',
+    'exporting_report_to_pdf' => 'جارٍ تصدير التقرير إلى PDF...',
+    'warehouse_reports' => 'تقارير المستودع',
 ];
 
