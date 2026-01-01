@@ -374,13 +374,13 @@
         <p style="opacity: 0.9; margin: 0;">الفترة من {{ $dateFrom }} إلى {{ $dateTo }}</p>
     </div>
 
-    <!-- المقاييس الرئيسية -->
+    <!-- المقاييس الرئيسية (Stage 1 Only - Starting Point) -->
     <div class="metrics-grid">
         <div class="metric-card primary">
             <div class="metric-header">
                 <div>
-                    <div class="metric-title">إجمالي القطع المنتجة</div>
-                    <p class="metric-value">{{ number_format($metrics['total_items']) }}</p>
+                    <div class="metric-title">إجمالي القطع المنتجة (المرحلة 1)</div>
+                    <p class="metric-value">{{ number_format($metrics['by_stage']['stage1']['items']) }}</p>
                 </div>
                 <div class="metric-icon primary">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -388,14 +388,14 @@
                     </svg>
                 </div>
             </div>
-            <small style="color: var(--gray-600);">{{ $metrics['avg_items_per_day'] }} قطعة/يوم</small>
+            <small style="color: var(--gray-600);">{{ $metrics['avg_items_per_day_stage1'] }} قطعة/يوم</small>
         </div>
 
         <div class="metric-card success">
             <div class="metric-header">
                 <div>
-                    <div class="metric-title">إجمالي الإنتاج</div>
-                    <p class="metric-value">{{ number_format($metrics['total_output_kg'], 2) }}</p>
+                    <div class="metric-title">إجمالي الإنتاج (المرحلة 1)</div>
+                    <p class="metric-value">{{ number_format($metrics['by_stage']['stage1']['output_kg'], 2) }}</p>
                     <small style="color: var(--gray-600);">كيلوجرام</small>
                 </div>
                 <div class="metric-icon success">
@@ -410,9 +410,9 @@
         <div class="metric-card warning">
             <div class="metric-header">
                 <div>
-                    <div class="metric-title">نسبة الهدر</div>
-                    <p class="metric-value">{{ number_format($metrics['avg_waste_percentage'], 2) }}%</p>
-                    <small style="color: var(--gray-600);">{{ number_format($metrics['total_waste_kg'], 2) }} كجم</small>
+                    <div class="metric-title">نسبة الهدر (المرحلة 1)</div>
+                    <p class="metric-value">{{ number_format($metrics['by_stage']['stage1']['waste_pct'], 2) }}%</p>
+                    <small style="color: var(--gray-600);">{{ number_format($metrics['by_stage']['stage1']['waste_kg'], 2) }} كجم</small>
                 </div>
                 <div class="metric-icon warning">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -426,8 +426,8 @@
         <div class="metric-card success">
             <div class="metric-header">
                 <div>
-                    <div class="metric-title">الكفاءة الإجمالية</div>
-                    <p class="metric-value">{{ number_format($metrics['efficiency'], 1) }}%</p>
+                    <div class="metric-title">الكفاءة (المرحلة 1)</div>
+                    <p class="metric-value">{{ number_format($metrics['by_stage']['stage1']['efficiency'], 1) }}%</p>
                 </div>
                 <div class="metric-icon success">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -593,6 +593,12 @@
 
     // Comparison Chart
     @if($teamComparison['worker'])
+    @php
+        // Calculate worker efficiency from stage1 data
+        $workerOutput = $teamComparison['worker']['output'];
+        $workerWaste = $teamComparison['worker']['waste'];
+        $workerEfficiency = $workerOutput > 0 ? 100 - (($workerWaste / $workerOutput) * 100) : 0;
+    @endphp
     new Chart(document.getElementById('comparisonChart'), {
         type: 'bar',
         data: {
@@ -601,18 +607,18 @@
                 label: 'العامل',
                 data: [
                     {{ $teamComparison['worker']['items'] }},
-                    {{ $teamComparison['worker']['output'] }},
-                    {{ $teamComparison['worker']['waste_pct'] }},
-                    {{ $teamComparison['worker']['efficiency'] }}
+                    {{ number_format($teamComparison['worker']['output'], 2, '.', '') }},
+                    {{ number_format($teamComparison['worker']['waste_pct'], 2, '.', '') }},
+                    {{ number_format($workerEfficiency, 2, '.', '') }}
                 ],
                 backgroundColor: '#0066B2'
             }, {
                 label: 'متوسط الفريق',
                 data: [
-                    {{ $teamComparison['team_avg']['items'] }},
-                    {{ $teamComparison['team_avg']['output'] }},
-                    {{ $teamComparison['team_avg']['waste_pct'] }},
-                    {{ $teamComparison['team_avg']['efficiency'] }}
+                    {{ number_format($teamComparison['team_avg']['items'], 2, '.', '') }},
+                    {{ number_format($teamComparison['team_avg']['output'], 2, '.', '') }},
+                    {{ number_format($teamComparison['team_avg']['waste_pct'], 2, '.', '') }},
+                    {{ number_format($teamComparison['team_avg']['efficiency'], 2, '.', '') }}
                 ],
                 backgroundColor: '#9ca3af'
             }]

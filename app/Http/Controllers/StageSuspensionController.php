@@ -78,13 +78,13 @@ class StageSuspensionController extends Controller
             ]);
 
             // 🔥 تحديث حالة الاستاندات المرتبطة بهذا الإيقاف
-            // تغيير الحالة من pending_approval إلى created/in_progress
+            // عند الموافقة على الهدر = الكويل تم إنهاؤه بنجاح
             if ($suspension->stage_number == 1) {
                 DB::table('stage1_stands')
                     ->where('parent_barcode', $suspension->batch_barcode)
                     ->where('status', 'pending_approval')
                     ->update([
-                        'status' => 'created',
+                        'status' => 'completed',
                         'updated_at' => now()
                     ]);
             } elseif ($suspension->stage_number == 2) {
@@ -92,7 +92,7 @@ class StageSuspensionController extends Controller
                     ->where('parent_barcode', $suspension->batch_barcode)
                     ->where('status', 'pending_approval')
                     ->update([
-                        'status' => 'in_progress',
+                        'status' => 'completed',
                         'updated_at' => now()
                     ]);
             }

@@ -37,7 +37,14 @@
             <div class="um-card-header">
                 <h4 class="um-card-title">
                     <i class="feather icon-list"></i>
-                    {{ __('stages.stage_list') }} ({{ $stands->total() }})
+                    @if(isset($showPendingOnly) && $showPendingOnly)
+                        <span style="color: #e74c3c;">
+                            <i class="fas fa-exclamation-circle"></i> الكويلات المعلقة التي تحتاج إنهاء
+                        </span>
+                    @else
+                        {{ __('stages.stage_list') }}
+                    @endif
+                    ({{ $stands->total() }})
                     @if(isset($viewingAll) && $viewingAll)
                         <span style="display: inline-block; background: #3b82f6; color: white; padding: 4px 12px; border-radius: 6px; font-size: 13px; margin-right: 10px;">
                             <i class="feather icon-eye"></i> {{ __('stages.all_operations') }}
@@ -48,10 +55,23 @@
                         </span>
                     @endif
                 </h4>
-                <a href="{{ route('manufacturing.stage1.create') }}" class="um-btn um-btn-primary">
-                    <i class="feather icon-plus"></i>
-                    {{ __('stages.go_to_first_stage') }}
-                </a>
+                <div style="display: flex; gap: 10px;">
+                    @if(isset($showPendingOnly) && $showPendingOnly)
+                        <a href="{{ route('manufacturing.stage1.index') }}" class="um-btn um-btn-secondary">
+                            <i class="feather icon-list"></i>
+                            عرض الكل
+                        </a>
+                    @else
+                        <a href="{{ route('manufacturing.stage1.index') }}?status=pending" class="um-btn um-btn-warning">
+                            <i class="feather icon-alert-circle"></i>
+                            الكويلات المعلقة
+                        </a>
+                    @endif
+                    <a href="{{ route('manufacturing.stage1.create') }}" class="um-btn um-btn-primary">
+                        <i class="feather icon-plus"></i>
+                        {{ __('stages.go_to_first_stage') }}
+                    </a>
+                </div>
             </div>
 
             <!-- Filters Section -->
@@ -64,6 +84,7 @@
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
                                 <option value="">{{ __('stages.all_statuses') }}</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>⚠️ معلقة (تحتاج إنهاء)</option>
                                 <option value="created" {{ request('status') == 'created' ? 'selected' : '' }}>{{ __('stages.stand_status_created') }}</option>
                                 <option value="pending_approval" {{ request('status') == 'pending_approval' ? 'selected' : '' }}>⏸️ في انتظار الموافقة</option>
                                 <option value="in_process" {{ request('status') == 'in_process' ? 'selected' : '' }}>{{ __('stages.stand_status_in_process') }}</option>
@@ -88,6 +109,15 @@
                 </form>
             </div>
 
+            @if(isset($showPendingOnly) && $showPendingOnly && $stands->count() > 0)
+            <div style="background: #fef3c7; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-right: 5px solid #f59e0b;">
+                <p style="margin: 0; color: #92400e; font-weight: 600;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>الكويلات المعروضة أدناه بحاجة إلى إنهاء.</strong> اضغط على الباركود لتحميله في صفحة التقسيم وإنهائه.
+                </p>
+            </div>
+            @endif
+
             @if($stands->count() > 0)
             <!-- Table - Desktop View -->
             <div class="um-table um-desktop-view">
@@ -100,7 +130,6 @@
                             <th>{{ __('stages.table_header_stand_number') }}</th>
                             <th>{{ __('stages.table_header_total_weight') }}</th>
                             <th>{{ __('stages.table_header_net_weight') }}</th>
-                            <th>{{ __('stages.table_header_waste') }}</th>
                             <th>{{ __('stages.table_header_status') }}</th>
                             <th>{{ __('stages.table_header_date') }}</th>
                             <th>{{ __('stages.table_header_actions') }}</th>
@@ -124,13 +153,6 @@
                             <td><strong>{{ $stand->stand_number }}</strong></td>
                             <td>{{ number_format($stand->weight, 2) }} {{ __('stages.kg_unit') }}</td>
                             <td><strong style="color: #27ae60;">{{ number_format($stand->remaining_weight, 2) }} {{ __('stages.kg_unit') }}</strong></td>
-                            <td>
-                                @if($stand->waste > 0)
-                                <span class="um-badge um-badge-danger">{{ number_format($stand->waste, 2) }} {{ __('stages.kg_unit') }}</span>
-                                @else
-                                <span class="um-badge um-badge-success">0 {{ __('stages.kg_unit') }}</span>
-                                @endif
-                            </td>
                             <td>
                                 @if($stand->status == 'pending_approval')
                                 <span class="um-badge" style="background: #ff9800; color: white;">⏸️ في انتظار الموافقة</span>
@@ -209,10 +231,6 @@
                         <div class="um-info-row">
                             <span class="um-info-label">{{ __('stages.net_weight_label_table') }}</span>
                             <span class="um-info-value">{{ number_format($stand->remaining_weight, 2) }} {{ __('stages.kg_unit') }}</span>
-                        </div>
-                        <div class="um-info-row">
-                            <span class="um-info-label">{{ __('stages.waste_label_table') }}</span>
-                            <span class="um-info-value">{{ number_format($stand->waste, 2) }} {{ __('stages.kg_unit') }}</span>
                         </div>
                         <div class="um-info-row">
                             <span class="um-info-label">{{ __('stages.date_label_table') }}</span>

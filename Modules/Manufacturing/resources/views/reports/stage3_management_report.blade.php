@@ -2,6 +2,10 @@
 
 @section('title', __('stage3_report.page_title'))
 
+@push('head')
+<meta name="google" content="notranslate">
+@endpush
+
 @section('content')
 <link rel="stylesheet" href="{{ asset('assets/css/stage1-report.css') }}">
 
@@ -301,7 +305,7 @@
                         <td style="text-align: center;">{{ $record->waste ?? 0 }} {{ __('stage3_report.unit_kg') }}</td>
                         <td style="text-align: center;">
                             @php
-                                $wastePerc = ($record->total_weight ?? 0) > 0 ? round((($record->waste ?? 0) / ($record->total_weight ?? 0)) * 100, 2) : 0;
+                                $wastePerc = ($record->base_weight ?? 0) > 0 ? round((($record->waste ?? 0) / ($record->base_weight ?? 0)) * 100, 2) : 0;
                                 $wasteClass = $wastePerc > 12 ? 'critical' : ($wastePerc > 8 ? 'warning' : 'safe');
                             @endphp
                             <span class="waste-level {{ $wasteClass }}">{{ $wastePerc }}%</span>
@@ -491,7 +495,7 @@
                         <td>{{ $record->waste ?? 0 }} {{ __('stage3_report.unit_kg') }}</td>
                         <td>
                             @php
-                                $wastePerc = ($record->total_weight ?? 0) > 0 ? round((($record->waste ?? 0) / ($record->total_weight ?? 0)) * 100, 2) : 0;
+                                $wastePerc = ($record->base_weight ?? 0) > 0 ? round((($record->waste ?? 0) / ($record->base_weight ?? 0)) * 100, 2) : 0;
                                 $class = $wastePerc > 12 ? 'critical' : ($wastePerc > 8 ? 'warning' : 'safe');
                             @endphp
                             <span class="waste-level {{ $class }}">{{ $wastePerc }}%</span>

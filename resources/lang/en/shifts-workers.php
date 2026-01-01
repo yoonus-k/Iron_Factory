@@ -547,7 +547,7 @@ return [
 
     // WIP Alert
     'wip_alert_title' => 'Alert: Work In Progress',
-    'wip_alert_message' => 'There are {count} pieces stuck in production stages. Please follow up.',
+    'wip_alert_message' => 'There are :count pieces stuck in production stages. Please follow up.',
     'pieces_in_progress' => 'Pieces in Progress',
     'please_follow_up' => 'Please Follow Up',
 
@@ -559,7 +559,7 @@ return [
     'kilogram' => 'Kilogram',
     'kg' => 'kg',
     'pieces' => 'Pieces',
-    'pieces_count' => '{count} Pieces',
+    'pieces_count' => ':count Pieces',
 
     // Stage Efficiency
     'stage_efficiency_details' => 'Stage Efficiency Details',
@@ -580,14 +580,23 @@ return [
     'stage_distribution' => 'Production Distribution by Stage',
     'pieces_count_chart' => 'Pieces Count',
 
+    // Main Statistics
+    'active_workers' => 'Active Workers',
+    'total_workers_active' => 'Total Active Workers',
+    'active_stages' => 'Active Stages',
+    'out_of_four_stages' => 'out of 4 stages',
+    'wip_items' => 'WIP Items',
+    'items_in_production' => 'items in production',
+    'shift_type' => 'Shift Type',
+
     // Top Performers
     'top_performers' => 'Top Performers in This Shift',
-    'worker_stats_format' => '{items} pieces • {output} kg • {waste}% waste',
+    'worker_stats_format' => ':items pieces • :output kg • :waste% waste',
     'efficiency_label' => 'Efficiency',
     'no_data_for_shift' => 'No data available for this shift',
 
     // Worker Attendance
-    'worker_attendance' => 'Worker Attendance ({count} workers)',
+    'worker_attendance' => 'Worker Attendance (:count workers)',
     'attendance_table_headers' => [
         'number' => '#',
         'name' => 'Name',
@@ -600,17 +609,17 @@ return [
         'efficiency' => 'Efficiency',
         'hours' => 'Hours',
     ],
-    'stage_label' => 'Stage {number}',
+    'stage_label' => 'Stage :number',
     'hours_short' => 'h',
     'no_attendance_data' => 'No attendance data available',
 
     // Shift Handovers Section
-    'shift_handovers_list' => 'Shift Handovers ({count})',
-    'items_transferred' => '{count} items transferred',
-    'handover_time_label' => 'Time: {time}',
+    'shift_handovers_list' => 'Shift Handovers (:count)',
+    'items_transferred' => ':count items transferred',
+    'handover_time_label' => 'Time: :time',
     'approved_status' => 'Approved',
     'pending_status' => 'Pending',
-    'from_to_format' => '{from} → {to}',
+    'from_to_format' => ':from → :to',
 
     // Active Teams Section
     'active_teams_list' => 'Active Teams ({count})',

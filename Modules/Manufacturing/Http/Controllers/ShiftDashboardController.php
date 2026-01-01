@@ -29,8 +29,8 @@ class ShiftDashboardController extends Controller
             // Get shift time range
             $timeRange = $this->getShiftTimeRange($date, $shiftType);
 
-            // Get date range for filtering
-            $dateRange = $this->getDateRange($fromDate, $toDate);
+            // Get date range for filtering (مع مراعاة نوع الوردية)
+            $dateRange = $this->getDateRange($fromDate, $toDate, $shiftType);
 
             // Get shift assignment
             $shiftAssignment = $this->getShiftAssignment($date, $shiftType);
@@ -96,17 +96,37 @@ class ShiftDashboardController extends Controller
     }
 
     /**
-     * Get date range for filtering
+     * Get date range for filtering with shift time
      */
-    private function getDateRange($fromDate = null, $toDate = null)
+    private function getDateRange($fromDate = null, $toDate = null, $shiftType = 'evening')
     {
-        $from = $fromDate ? Carbon::parse($fromDate)->startOfDay() : Carbon::now()->startOfDay();
-        $to = $toDate ? Carbon::parse($toDate)->endOfDay() : Carbon::now()->endOfDay();
+        if (!$fromDate && !$toDate) {
+            // إذا لم يتم تحديد تواريخ، استخدم اليوم
+            return $this->getShiftTimeRange(Carbon::now()->format('Y-m-d'), $shiftType);
+        }
 
-        return [
-            'start' => $from->toDateTimeString(),
-            'end' => $to->toDateTimeString(),
-        ];
+        // إذا تم تحديد نفس التاريخ، استخدم وقت الوردية
+        if ($fromDate === $toDate) {
+            return $this->getShiftTimeRange($fromDate, $shiftType);
+        }
+
+        // إذا تم تحديد نطاق تواريخ، احسب الوقت بناءً على الوردية
+        $from = Carbon::parse($fromDate);
+        $to = Carbon::parse($toDate);
+
+        if ($shiftType === 'morning') {
+            // الوردية الصباحية: من 6 صباحاً اليوم الأول إلى 6 مساءً اليوم الأخير
+            return [
+                'start' => $from->copy()->setTime(6, 0, 0)->toDateTimeString(),
+                'end' => $to->copy()->setTime(18, 0, 0)->toDateTimeString(),
+            ];
+        } else {
+            // الوردية المسائية: من 6 مساءً اليوم الأول إلى 6 صباحاً اليوم التالي للأخير
+            return [
+                'start' => $from->copy()->setTime(18, 0, 0)->toDateTimeString(),
+                'end' => $to->copy()->addDay()->setTime(6, 0, 0)->toDateTimeString(),
+            ];
+        }
     }
 
     /**
@@ -397,28 +417,25 @@ class ShiftDashboardController extends Controller
 
     /**
      * Get shift comparison
+     * المقارنة معطلة لأن البيانات الآن منفصلة لكل مرحلة
      */
     private function getShiftComparison($date, $shiftType, $dateRange = null)
     {
         try {
-            // Current shift
-            $current = $this->getShiftSummary($date, $shiftType);
-
-            // Previous shift
-            $previousDate = Carbon::parse($date)->subDay()->format('Y-m-d');
-            $previous = $this->getShiftSummary($previousDate, $shiftType);
-
             return [
-                'current' => $current,
-                'previous' => $previous,
-                'items_change' => $this->calculateChange($previous['total_items'], $current['total_items']),
-                'output_change' => $this->calculateChange($previous['total_output_kg'], $current['total_output_kg']),
-                'waste_change' => $this->calculateChange($previous['total_waste_kg'], $current['total_waste_kg']),
-                'efficiency_change' => $this->calculateChange($previous['efficiency'], $current['efficiency']),
+                'items_change' => ['value' => 0, 'direction' => 'neutral'],
+                'output_change' => ['value' => 0, 'direction' => 'neutral'],
+                'waste_change' => ['value' => 0, 'direction' => 'neutral'],
+                'efficiency_change' => ['value' => 0, 'direction' => 'neutral'],
             ];
         } catch (\Exception $e) {
             \Log::error('Get Shift Comparison Error: ' . $e->getMessage());
-            return [];
+            return [
+                'items_change' => ['value' => 0, 'direction' => 'neutral'],
+                'output_change' => ['value' => 0, 'direction' => 'neutral'],
+                'waste_change' => ['value' => 0, 'direction' => 'neutral'],
+                'efficiency_change' => ['value' => 0, 'direction' => 'neutral'],
+            ];
         }
     }
 
@@ -586,6 +603,7 @@ class ShiftDashboardController extends Controller
 
     /**
      * Get shift summary statistics
+     * عرض ملخص عام فقط - التفاصيل في by_stage
      */
     private function getShiftSummary($date, $shiftType, $dateRange = null)
     {
@@ -594,69 +612,51 @@ class ShiftDashboardController extends Controller
                 $dateRange = $this->getShiftTimeRange($date, $shiftType);
             }
 
-            $summary = [
-                'total_items' => 0,
-                'total_output_kg' => 0,
-                'total_waste_kg' => 0,
-                'waste_percentage' => 0,
-                'efficiency' => 0,
-                'workers_count' => 0,
-                'avg_items_per_worker' => 0,
-            ];
-
+            // Get all unique workers across all stages
             $tableNames = ['stage1_stands', 'stage2_processed', 'stage3_coils', 'stage4_boxes'];
+            $allWorkerIds = [];
 
-            for ($i = 1; $i <= 4; $i++) {
+            foreach ($tableNames as $tableName) {
                 try {
-                    $tableName = $tableNames[$i - 1];
-                    $preferredColumn = $this->getWeightColumn($i);
-                    $weightColumn = $this->getSafeWeightColumn($tableName, $preferredColumn);
-
-                    $stageData = DB::table($tableName)
-                        ->select(
-                            DB::raw('COUNT(*) as items'),
-                            DB::raw("SUM({$weightColumn}) as output"),
-                            DB::raw('SUM(COALESCE(waste, 0)) as waste'),
-                            DB::raw('COUNT(DISTINCT created_by) as workers')
-                        )
+                    $workerIds = DB::table($tableName)
                         ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
-                        ->first();
-
-                    if ($stageData) {
-                        $summary['total_items'] += $stageData->items ?? 0;
-                        $summary['total_output_kg'] += $stageData->output ?? 0;
-                        $summary['total_waste_kg'] += $stageData->waste ?? 0;
-                        $summary['workers_count'] = max($summary['workers_count'], $stageData->workers ?? 0);
-                    }
+                        ->whereNotNull('created_by')
+                        ->distinct()
+                        ->pluck('created_by')
+                        ->toArray();
+                    
+                    $allWorkerIds = array_merge($allWorkerIds, $workerIds);
                 } catch (\Exception $e) {
-                    \Log::warning("Error processing stage {$i}: " . $e->getMessage());
+                    \Log::warning("Error processing table {$tableName}: " . $e->getMessage());
                     continue;
                 }
             }
 
-            if ($summary['total_output_kg'] > 0) {
-                $summary['waste_percentage'] = round(($summary['total_waste_kg'] / $summary['total_output_kg']) * 100, 2);
-                $summary['efficiency'] = round(100 - $summary['waste_percentage'], 2);
-            }
+            $workersCount = count(array_unique($allWorkerIds));
 
-            if ($summary['workers_count'] > 0) {
-                $summary['avg_items_per_worker'] = round($summary['total_items'] / $summary['workers_count'], 1);
-            }
+            // Get stage details (each stage separately - not summed)
+            $stageDetails = $this->getStageEfficiencyDetails($date, $shiftType, $dateRange);
 
-            $summary['total_output_kg'] = round($summary['total_output_kg'], 2);
-            $summary['total_waste_kg'] = round($summary['total_waste_kg'], 2);
-
-            return $summary;
+            return [
+                'workers_count' => $workersCount,
+                'active_stages' => count(array_filter($stageDetails, fn($s) => ($s['items'] ?? 0) > 0)),
+                'by_stage' => $stageDetails,
+                // For backward compatibility with views
+                'total_items' => 'عرض كل مرحلة منفصلة',
+                'total_output_kg' => 'عرض كل مرحلة منفصلة',
+                'total_waste_kg' => 'عرض كل مرحلة منفصلة',
+                'efficiency' => 'عرض كل مرحلة منفصلة',
+            ];
         } catch (\Exception $e) {
             Log::error('Get Shift Summary Error: ' . $e->getMessage());
             return [
+                'workers_count' => 0,
+                'active_stages' => 0,
+                'by_stage' => [],
                 'total_items' => 0,
                 'total_output_kg' => 0,
                 'total_waste_kg' => 0,
-                'waste_percentage' => 0,
                 'efficiency' => 0,
-                'workers_count' => 0,
-                'avg_items_per_worker' => 0,
             ];
         }
     }

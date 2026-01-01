@@ -69,10 +69,16 @@ class StageWorkerDashboardController extends Controller
                 'deliveryNote.material',
                 'deliveryNote.materialBatch',
                 'deliveryNote.productTracking',
-                    'assignedUser',
-                    'workerStageHistory'
+                'assignedUser',
+                'workerStageHistory'
             ])
             ->get();
+
+        $newConfirmations->each(function ($confirmation) {
+            $this->prepareConfirmationForDisplay($confirmation);
+        });
+
+        $pendingConfirmations = $this->getPendingConfirmations($user->id);
 
         // جلب الإشعارات الجديدة
         $newNotifications = $this->getStageNotifications($stageNumber, $user->id, $lastCheck);
@@ -84,6 +90,7 @@ class StageWorkerDashboardController extends Controller
             'success' => true,
             'new_confirmations' => $newConfirmations,
             'new_notifications' => $newNotifications,
+            'pending_confirmations' => $pendingConfirmations,
             'stats' => $stats,
             'has_updates' => $newConfirmations->count() > 0 || $newNotifications->count() > 0,
             'timestamp' => now()->toIso8601String()
@@ -97,7 +104,7 @@ class StageWorkerDashboardController extends Controller
     {
         try {
             DB::beginTransaction();
-            
+
             $confirmation = ProductionConfirmation::findOrFail($id);
 
             // التحقق من أن الحالة pending
@@ -111,7 +118,7 @@ class StageWorkerDashboardController extends Controller
                 null,
                 $request->input('notes')
             );
-            
+
             DB::commit();
 
             return response()->json([
@@ -135,7 +142,7 @@ class StageWorkerDashboardController extends Controller
     {
         try {
             DB::beginTransaction();
-            
+
             $confirmation = ProductionConfirmation::findOrFail($id);
 
             // التحقق من أن الحالة pending
@@ -151,7 +158,7 @@ class StageWorkerDashboardController extends Controller
 
             // رفض الاستلام باستخدام Model method
             $confirmation->reject(auth()->id(), $validated['rejection_reason']);
-            
+
             DB::commit();
 
             return response()->json([
@@ -173,7 +180,8 @@ class StageWorkerDashboardController extends Controller
      */
     private function getStageNumber($roleCode)
     {
-        if (!$roleCode) return null;
+        if (!$roleCode)
+            return null;
 
         $stageMapping = [
             'STAGE1_WORKER' => 1,
@@ -206,9 +214,7 @@ class StageWorkerDashboardController extends Controller
 
         // Load stage records based on stage_type
         $confirmations->each(function ($confirmation) {
-            if ($confirmation->stage_record_id && $confirmation->stage_type) {
-                $confirmation->loadStageRecord();
-            }
+            $this->prepareConfirmationForDisplay($confirmation);
         });
 
         return $confirmations;
@@ -232,7 +238,7 @@ class StageWorkerDashboardController extends Controller
             ->get()
             ->map(function ($notification) {
                 $data = json_decode($notification->data, true) ?? [];
-                
+
                 // تحديد الـ URL بناءً على البيانات المتاحة
                 $url = '#';
                 if (!empty($data['barcode'])) {
@@ -240,7 +246,7 @@ class StageWorkerDashboardController extends Controller
                 } elseif (!empty($data['url'])) {
                     $url = $data['url'];
                 }
-                
+
                 return [
                     'id' => $notification->id,
                     'type' => $this->mapNotificationType($notification->type),
@@ -339,5 +345,174 @@ class StageWorkerDashboardController extends Controller
         ];
 
         return $messages[$confirmation->status] ?? 'تحديث جديد';
+    }
+
+    /**
+     * تجهيز بيانات التأكيد قبل إرسالها للواجهة بما في ذلك الباركود والوزن الصحيحين
+     */
+    private function prepareConfirmationForDisplay($confirmation)
+    {
+        $metadata = $confirmation->metadata ?? [];
+
+        if ($confirmation->stage_record_id && $confirmation->stage_type) {
+            $stageRecord = $confirmation->loadStageRecord();
+
+            if ($stageRecord) {
+                $metadata['stage_barcode'] = $stageRecord->barcode ?? ($metadata['stage_barcode'] ?? null);
+                $metadata['stage_weight'] = $stageRecord->remaining_weight
+                    ?? $stageRecord->final_weight
+                    ?? ($metadata['stage_weight'] ?? null);
+
+                if (!isset($metadata['stage_name'])) {
+                    $metadata['stage_name'] = $stageRecord->stage_name ?? null;
+                }
+            }
+        }
+
+        $confirmation->setAttribute('metadata', $metadata);
+        $confirmation->setAttribute(
+            'resolved_barcode',
+            $metadata['stage_barcode']
+            ?? $confirmation->barcode
+            ?? $confirmation->deliveryNote?->production_barcode
+            ?? $confirmation->deliveryNote?->materialBatch?->batch_code
+            ?? $confirmation->batch?->production_barcode
+            ?? $confirmation->batch?->batch_code
+        );
+
+        $confirmation->setAttribute(
+            'resolved_weight',
+            $metadata['stage_weight']
+            ?? $confirmation->actual_received_quantity
+            ?? $confirmation->deliveryNote?->quantity_used
+            ?? $confirmation->deliveryNote?->quantity
+            ?? $confirmation->batch?->initial_quantity
+        );
+
+        $displayWeight = $this->resolveFinalWeight($confirmation, $metadata);
+
+        $confirmation->setAttribute('display_material_name', $this->resolveMaterialName($confirmation, $metadata));
+        $confirmation->setAttribute('display_stage_label', $this->resolveStageLabel($confirmation, $metadata));
+        $confirmation->setAttribute('display_production_barcode', $this->resolveProductionBarcode($confirmation, $metadata));
+        $confirmation->setAttribute('display_confirmation_type_label', $this->getConfirmationTypeLabel($confirmation->confirmation_type));
+        $confirmation->setAttribute('display_final_weight', $displayWeight);
+        $confirmation->setAttribute(
+            'display_final_weight_label',
+            $displayWeight ? number_format((float) $displayWeight, 2) . ' كجم' : 'غير محدد'
+        );
+        $confirmation->setAttribute('display_reason_text', $metadata['reason'] ?? null);
+
+        return $confirmation;
+    }
+
+    private function resolveMaterialName($confirmation, array $metadata)
+    {
+        return $confirmation->deliveryNote?->material?->name_ar
+            ?? $confirmation->deliveryNote?->material?->name
+            ?? $confirmation->batch?->material?->name_ar
+            ?? $confirmation->batch?->material?->name
+            ?? ($metadata['stage_name'] ?? 'غير محدد');
+    }
+
+    private function resolveStageLabel($confirmation, array $metadata)
+    {
+        if (!empty($metadata['stage_name'])) {
+            return $metadata['stage_name'];
+        }
+
+        if (!empty($confirmation->stage_type)) {
+            $stageTypeName = $this->mapStageTypeToDisplayName($confirmation->stage_type);
+            if ($stageTypeName) {
+                return $stageTypeName;
+            }
+        }
+
+        if (!empty($confirmation->stage_code)) {
+            $stageCodeName = $this->mapStageCodeToDisplayName($confirmation->stage_code);
+            if ($stageCodeName) {
+                return $stageCodeName;
+            }
+        }
+
+        return 'غير محدد';
+    }
+
+    private function resolveProductionBarcode($confirmation, array $metadata)
+    {
+        return $metadata['stage_barcode']
+            ?? $confirmation->barcode
+            ?? $confirmation->batch?->production_barcode
+            ?? $confirmation->batch?->batch_code
+            ?? $confirmation->deliveryNote?->production_barcode
+            ?? $confirmation->deliveryNote?->materialBatch?->batch_code
+            ?? ($metadata['barcode'] ?? 'غير محدد');
+    }
+
+    private function resolveFinalWeight($confirmation, array $metadata)
+    {
+        $candidates = [
+            $confirmation->resolved_weight,
+            $metadata['stage_weight'] ?? null,
+            $confirmation->actual_received_quantity,
+            $confirmation->deliveryNote?->quantity_used,
+            $confirmation->deliveryNote?->materialBatch?->initial_quantity,
+            $confirmation->deliveryNote?->materialBatch?->available_quantity,
+            $confirmation->batch?->initial_quantity,
+            $confirmation->batch?->available_quantity,
+            $confirmation->deliveryNote?->quantity,
+            $confirmation->deliveryNote?->actual_weight,
+            $metadata['weight'] ?? null,
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (!is_null($candidate) && (float) $candidate > 0) {
+                return (float) $candidate;
+            }
+        }
+
+        return null;
+    }
+
+    private function mapStageCodeToDisplayName(?string $stageCode)
+    {
+        if (!$stageCode) {
+            return null;
+        }
+
+        $mapping = [
+            'stage_1' => 'المرحلة الأولى',
+            'stage_2' => 'المرحلة الثانية',
+            'stage_3' => 'المرحلة الثالثة',
+            'stage_4' => 'المرحلة الرابعة',
+            'warehouse' => 'المستودع',
+        ];
+
+        return $mapping[$stageCode] ?? null;
+    }
+
+    private function mapStageTypeToDisplayName(?string $stageType)
+    {
+        if (!$stageType) {
+            return null;
+        }
+
+        $mapping = [
+            'stage1_stands' => 'المرحلة الأولى - الاستاند',
+            'stage2_processed' => 'المرحلة الثانية - المعالج',
+            'stage3_coils' => 'المرحلة الثالثة - اللفائف',
+            'stage4_boxes' => 'المرحلة الرابعة - الصناديق',
+            'warehouse' => 'المستودع',
+        ];
+
+        return $mapping[$stageType] ?? null;
+    }
+
+    private function getConfirmationTypeLabel(?string $type)
+    {
+        return match ($type) {
+            'reassignment' => 'إعادة إسناد',
+            'shift_transfer' => 'نقل للوردية التالية',
+            default => 'نقل المواد',
+        };
     }
 }

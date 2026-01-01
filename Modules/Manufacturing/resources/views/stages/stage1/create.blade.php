@@ -2,6 +2,9 @@
 
 @section('title', __('stages.stage1_division_materials'))
 
+
+<!-- إضافة ميتا تاج CSRF للواجهة -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
 @section('content')
 
 <style>
@@ -96,6 +99,59 @@
     /* Empty state */
     .empty-state{ padding:36px; text-align:center; color:#96a0a6 }
 
+    /* Finish coil button disabled state */
+    #finishCoilBtn.disabled,
+    #finishCoilBtn:disabled{
+        opacity:0.55;
+        cursor:not-allowed;
+        box-shadow:none;
+        filter: grayscale(0.2);
+    }
+
+    /* Pending coils panel */
+    .pending-coils-panel-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:12px;
+        flex-wrap:wrap;
+    }
+    
+    /* Pending Coils Panel Visibility */
+    #pendingCoilsPanel {
+        display: block !important;
+        margin-bottom: 24px;
+    }
+    
+    .pending-coils-list{ display:flex; flex-direction:column; gap:12px; margin-top:16px; }
+    .pending-coil-card{
+        display:flex;
+        justify-content:space-between;
+        gap:16px;
+        flex-wrap:wrap;
+        padding:16px;
+        border-radius:12px;
+        border:1px solid rgba(231,76,60,0.15);
+        background:linear-gradient(180deg,#fff5f5,#ffecec);
+        box-shadow:0 8px 24px rgba(231,76,60,0.08);
+    }
+    .pending-coil-info{ display:flex; flex-direction:column; gap:6px; color:#b33939; }
+    .pending-coil-info strong{ color:#631010; font-size:16px; }
+    .pending-coil-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .pending-coil-actions button,
+    .pending-coil-actions a{
+        border:none;
+        border-radius:8px;
+        padding:10px 18px;
+        font-weight:700;
+        cursor:pointer;
+        text-decoration:none;
+    }
+    .pending-coil-actions .btn-continue{ background:#d35400; color:#fff; }
+    .pending-coil-actions .btn-view-suspensions{ background:#fff; color:#d35400; border:1px solid #d35400; }
+    .pending-coil-actions .btn-transfer-coil{ background:#9b59b6; color:#fff; }
+    .pending-coil-actions .btn-transfer-coil:hover{ background:#8e44ad; }
+
     /* Small helpers */
     .note { font-size:13px; color:var(--muted); }
 
@@ -103,9 +159,20 @@
     @media (max-width: 900px){ .form-row{ grid-template-columns: 1fr } .material-info{ grid-template-columns:1fr } .stage-header{ flex-direction:column; text-align:center } .stage-header p{ font-size:13px } }
     @media (max-width: 480px){ .barcode-input{ font-size:16px; padding:14px } .btn-primary, .btn-success, .btn-secondary{ width:100%; padding:12px } }
 
-    /* small animation */
+    /* Animations */
     @keyframes subtlePop{ from{ transform: translateY(-6px); opacity:0 } to{ transform:none; opacity:1 } }
     .material-display.active .info-item{ animation: subtlePop .25s ease }
+    
+    @keyframes pulse-warning {
+        0%, 100% { 
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+            transform: scale(1);
+        }
+        50% { 
+            box-shadow: 0 8px 30px rgba(231, 76, 60, 0.7);
+            transform: scale(1.02);
+        }
+    }
 </style>
 
 <div class="stage-container">
@@ -128,6 +195,33 @@
         <small style="color: #7f8c8d; display: block; margin-top: 20px; font-size: 16px;"><i class="fas fa-lightbulb"></i> {{ __('stages.scan_hint') }}</small>
     </div>
 
+    <!-- Pending Transfers Panel - طلبات النقل المعلقة -->
+    <div id="pendingTransfersPanel" class="form-section" style="border:1px solid rgba(39,174,96,0.3); display:none;">
+        <div class="pending-coils-panel-header">
+            <h3 class="section-title" style="color:#27ae60;">
+                <i class="fas fa-exchange-alt"></i>
+                طلبات نقل كويلات إليك
+            </h3>
+        </div>
+        <p style="margin:10px 0; color:#1e8449; font-weight:600;">لديك كويلات تم نقلها إليك في انتظار موافقتك.</p>
+        <div id="pendingTransfersList" class="pending-coils-list"></div>
+    </div>
+
+    <!-- Pending Coils Panel -->
+    <div id="pendingCoilsPanel" class="form-section" style="border:1px solid rgba(231,76,60,0.2);">
+        <div class="pending-coils-panel-header">
+            <h3 class="section-title" style="color:#c0392b;">
+                <i class="fas fa-exclamation-circle"></i>
+                الكويلات المعلقة التي تنتظر الإنهاء
+            </h3>
+            <a href="{{ route('manufacturing.stage1.index') }}?status=pending" class="btn-view-suspensions" style="text-decoration:none;">
+                <i class="fas fa-list"></i> عرض الكويلات المعلقة
+            </a>
+        </div>
+        <p style="margin:10px 0; color:#8c2f2f; font-weight:600;">لا يمكنك بدء كويل جديد قبل إنهاء الكويلات التالية أو استكمال تقسيمها.</p>
+        <div id="pendingCoilsList" class="pending-coils-list"></div>
+    </div>
+
     <!-- Material Display -->
     <div id="materialDisplay" class="material-display">
         <h4><i class="fas fa-circle-check"></i> {{ __('stages.material_data') }}</h4>
@@ -146,6 +240,40 @@
                 <div class="info-value" id="displayWeight">-</div>
             </div>
 
+        </div>
+        
+        <!-- Coil Usage Progress -->
+        <div id="coilProgressSection" style="margin-top: 20px; display: none;">
+            <h5 style="color: var(--brand-1); margin-bottom: 10px;"><i class="fas fa-chart-pie"></i> حالة استهلاك الكويل</h5>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 12px; color: #7f8c8d;">الوزن الكلي</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #2c3e50;" id="coilTotalWeight">-</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 12px; color: #7f8c8d;">المستخدم</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #27ae60;" id="coilUsedWeight">-</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 12px; color: #7f8c8d;">المتبقي</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #e67e22;" id="coilRemainingWeight">-</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 12px; color: #7f8c8d;">عدد الاستاندات</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #3498db;" id="coilStandsCount">0</div>
+                    </div>
+                </div>
+                <div id="workersInfo" style="margin-bottom: 12px; padding: 10px; background: rgba(52, 152, 219, 0.1); border-radius: 6px; font-size: 13px; color: #34495e; display: none;">
+                    <i class="fas fa-users"></i> <strong>العمال:</strong> <span id="workersNames">-</span>
+                </div>
+                <div style="background: #e9ecef; border-radius: 6px; height: 10px; overflow: hidden;">
+                    <div id="coilProgressBar" style="height: 100%; background: linear-gradient(90deg, #27ae60, #2ecc71); width: 0%; transition: width 0.3s ease;"></div>
+                </div>
+                <div style="text-align: center; margin-top: 8px; font-size: 14px; color: #7f8c8d;">
+                    <span id="coilUsagePercentage">0</span>% مستخدم
+                </div>
+            </div>
         </div>
     </div>
 
@@ -188,20 +316,9 @@
             </div>
         </div>
 
-
-         <div class="form-row">
-            <div class="form-group">
-                <label for="wasteWeight"><i class="fas fa-trash-alt"></i> {{ __('stages.waste_weight') }}</label>
-                <input type="number" id="wasteWeight" class="form-control" placeholder="{{ __('stages.auto_calculated') }}" step="0.01" readonly style="background: #ecf0f1;">
-                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-calculator"></i> يُحسب تلقائياً = (الوزن الكلي - الاستاند - الوزن الصافي)</small>
-            </div>
-            <div class="form-group">
-                <label for="wastePercentage"><i class="fas fa-chart-bar"></i> {{ __('stages.waste_percentage') }}</label>
-                <input type="number" id="wastePercentage" class="form-control" placeholder="0" step="0.01" readonly style="background: #ecf0f1;">
-                <small style="color: #7f8c8d; display: block; margin-top: 8px; font-size: 15px;"><i class="fas fa-percent"></i> يُحسب تلقائياً = (وزن الهدر ÷ الوزن الكلي) × 100</small>
-            </div>
-        </div>
-
+        <!-- حقول الهدر مخفية - الهدر يُحسب على مستوى الكويل عند الإنهاء -->
+        <input type="hidden" id="wasteWeight" value="0">
+        <input type="hidden" id="wastePercentage" value="0">
 
         <div class="form-row">
             <div class="form-group">
@@ -281,42 +398,589 @@ let processedStands = [];
 let selectedStand = null;
 let currentMaterial = null;
 let materialTransferredWeight = 0; // وزن المادة المنقول للإنتاج (مرجع حساب الهدر)
+let pendingCoils = []; // قائمة الكويلات المعلقة للمستخدم
+let pendingCoilsCount = 0;
+let currentCoilHasStands = false; // هل الكويل الحالي يحتوي على استاندات محفوظة
+let pendingAlertShown = false;
+let pendingCheckInProgress = true;
 
-// Load stands on page load
+// كائن الترجمات
+const translations = {
+    coilBarcode: 'باركود الكويل',
+    remainingWeight: 'الوزن المتبقي',
+    kg: 'كجم',
+    newEmployee: 'الموظف الجديد',
+    selectEmployee: 'اختر موظفاً',
+    transferReason: 'سبب النقل',
+    endOfShift: 'نهاية الوردية',
+    workDistribution: 'توزيع العمل',
+    emergency: 'حالة طارئة',
+    otherReason: 'سبب آخر',
+    notes: 'ملاحظات',
+    confirmTransfer: 'تأكيد النقل',
+    cancelAction: 'إلغاء',
+    coilTransferredTo: 'تم نقل الكويل إلى',
+    coilWillAppear: 'سيظهر الكويل في قائمة الموظف الجديد',
+    errorOccurred: 'حدث خطأ',
+    cannotTransferConsumed: 'لا يمكن نقل كويل مستهلك بالكامل',
+    understand: 'فهمت'
+};
+
+// تحميل الاستاندات عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', function() {
-    loadStandsList();
-
-    const saved = localStorage.getItem('stage1_processed');
-    if (saved) {
-        const data = JSON.parse(saved);
-        if (confirm('{{ __("stages.found_saved_data") }}')) {
-            currentMaterial = data.material;
-            processedStands = data.stands;
-            if (currentMaterial) {
-                document.getElementById('materialBarcode').value = currentMaterial.barcode;
-                displayMaterialInfo(currentMaterial);
-            }
-            renderStands();
-        } else {
-            localStorage.removeItem('stage1_processed');
-        }
+    const barcodeInput = document.getElementById('materialBarcode');
+    if (barcodeInput) {
+        barcodeInput.disabled = true;
+        barcodeInput.placeholder = '⏳ جارٍ التحقق من الكويلات المعلقة...';
     }
 
+    // التحقق من وجود كويلات معلقة (بدون تنبيه تلقائي)
+    checkPendingCoils(false)
+        .finally(() => {
+            pendingCheckInProgress = false;
+            updateBarcodeInputState();
+            // لا نحمل تلقائياً، فقط نعرض في اللوحة الجانبية
+        });
+    
+    // التحقق من طلبات النقل المعلقة
+    checkPendingTransfers();
+    
+    loadStandsList();
+
+    // تم إزالة استرجاع localStorage للسرعة - النظام offline
     setInterval(saveOffline, 30000);
+    
+    // تحديث الكويلات المعلقة تلقائياً كل 30 ثانية (للنظام offline)
+    setInterval(() => {
+        checkPendingCoils(false);
+        checkPendingTransfers();
+    }, 30000);
 });
 
-// Barcode scanner
+function updateBarcodeInputState() {
+    const barcodeInput = document.getElementById('materialBarcode');
+    if (!barcodeInput) return;
+
+    if (pendingCheckInProgress) {
+        barcodeInput.disabled = true;
+        barcodeInput.placeholder = '⏳ جارٍ التحقق من حالة الكويلات...';
+        return;
+    }
+
+    if (pendingCoilsCount > 0) {
+        barcodeInput.disabled = false;
+        barcodeInput.placeholder = '⚠️ لديك كويلات معلقة، لا تبدأ كويل جديد قبل إنهائها';
+    } else {
+        barcodeInput.disabled = false;
+        barcodeInput.placeholder = '{{ __('stages.scan_or_write_barcode') }}';
+        barcodeInput.focus();
+    }
+}
+
+// التحقق من وجود كويلات معلقة
+function checkPendingCoils(showBlockingPrompt = false) {
+    console.log('🔍 Checking pending coils...');
+    return fetch('/stage1/pending-coils', {
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        console.log('📥 حالة استجابة الكويلات المعلقة:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('📦 بيانات الكويلات المعلقة:', data);
+        if (!data.success) {
+            throw new Error(data.message || 'حدث خطأ أثناء جلب الكويلات المعلقة');
+        }
+
+        pendingCoils = data.pending_coils || [];
+        pendingCoilsCount = data.count || pendingCoils.length;
+
+        // حفظ نسخة محلية لاستخدامها في حالة انقطاع الاتصال
+        try {
+            localStorage.setItem('stage1_pending_coils_cache', JSON.stringify({
+                timestamp: Date.now(),
+                pending_coils: pendingCoils,
+                count: pendingCoilsCount
+            }));
+        } catch (cacheError) {
+            console.warn('⚠️ تعذر حفظ بيانات الكويلات المعلقة محلياً:', cacheError);
+        }
+
+        renderPendingCoilsPanel();
+        updateBarcodeInputState();
+
+        // عرض التنبيه فقط عند طلب صريح (showBlockingPrompt = true)
+        // لن يظهر تلقائياً عند التحميل أو بعد إضافة استاند
+        if (showBlockingPrompt && pendingCoilsCount > 0) {
+            const coilsList = pendingCoils.map(c =>
+                `• ${c.barcode} - ${c.material_name} (${c.stands_count} استاند)`
+            ).join('<br>');
+
+            Swal.fire({
+                icon: 'warning',
+                title: '⚠️ لديك كويلات معلقة غير منتهية',
+                html: `
+                    <div style="text-align: right; direction: rtl;">
+                        <p style="font-size: 16px; margin-bottom: 15px;">
+                            لديك <strong>${pendingCoilsCount}</strong> كويل معلق لم يتم إنهاؤه:
+                        </p>
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; text-align: right; margin-bottom: 15px;">
+                            ${coilsList}
+                        </div>
+                        <p style="color: #856404; font-weight: bold;">
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            يجب إنهاء الكويل الحالي قبل إضافة كويل جديد
+                        </p>
+                        <p style="font-size: 14px; color: #666;">
+                            هل تريد تحميل آخر كويل معلق لإكمال العمل عليه؟
+                        </p>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'الانتقال للكويلات المعلقة',
+                cancelButtonText: 'لاحقاً',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#6c757d',
+                width: '600px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (pendingCoils.length) {
+                        loadPendingCoil(pendingCoils[0].barcode);
+                    } else {
+                        window.location.href = '{{ route('stage-suspensions.index') }}';
+                    }
+                }
+            });
+        }
+
+        if (pendingCoilsCount === 0) {
+            pendingAlertShown = false;
+            updateBarcodeInputState();
+        }
+    })
+    .catch(error => {
+        console.error('❌ خطأ في التحقق من الكويلات المعلقة:', error);
+        // محاولة استخدام الكاش المحلي في حالة فشل الطلب
+        let cacheApplied = false;
+        try {
+            const cached = localStorage.getItem('stage1_pending_coils_cache');
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                // التحقق من أن البيانات المحفوظة ليست قديمة جداً (أكثر من ساعة)
+                const cacheAge = Date.now() - (parsed.timestamp || 0);
+                if (cacheAge < 3600000) { // أقل من ساعة
+                    pendingCoils = parsed.pending_coils || [];
+                    pendingCoilsCount = parsed.count || pendingCoils.length;
+                    renderPendingCoilsPanel();
+                    updateBarcodeInputState();
+                    cacheApplied = true;
+                    console.log('✅ تم استخدام البيانات المحفوظة محلياً');
+                }
+            }
+        } catch (cacheError) {
+            console.error('❌ فشل قراءة الكاش المحلي:', cacheError);
+        }
+
+        if (cacheApplied) {
+            return;
+        }
+
+        // إذا لم يتوفر كاش، عرض قائمة فارغة بدون رسالة خطأ مزعجة
+        pendingCoils = [];
+        pendingCoilsCount = 0;
+        updateBarcodeInputState();
+        console.warn('⚠️ لم يتم تحميل الكويلات المعلقة، سيتم المحاولة مرة أخرى تلقائياً');
+    });
+}
+
+function renderPendingCoilsPanel() {
+    console.log('🎨 عرض لوحة الكويلات المعلقة، العدد:', pendingCoilsCount, 'كويلات:', pendingCoils);
+    const panel = document.getElementById('pendingCoilsPanel');
+    const list = document.getElementById('pendingCoilsList');
+    if (!panel || !list) {
+        console.error('❌ عنصر اللوحة أو القائمة غير موجود!');
+        return;
+    }
+
+    // دائماً نعرض اللوحة
+    panel.style.display = 'block';
+    panel.style.visibility = 'visible';
+    panel.style.opacity = '1';
+
+    if (!pendingCoilsCount || pendingCoils.length === 0) {
+        list.innerHTML = `
+            <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; text-align: center; color: #7f8c8d;">
+                <i class="fas fa-check-circle" style="color:#27ae60; font-size: 24px; margin-bottom: 10px;"></i>
+                <br>
+                <strong style="margin: 0 5px; display: block; margin-bottom: 8px;">لا توجد كويلات معلقة حالياً.</strong>
+                <div style="font-size: 14px;">عند إنشاء كويل وعدم إنهائه سيظهر هنا تلقائياً مع خيارات المتابعة.</div>
+            </div>
+        `;
+        return;
+    }
+
+    list.innerHTML = pendingCoils.map(coil => {
+        const usedWeight = parseFloat(coil.used_weight || 0);
+        const transferWeight = parseFloat(coil.transfer_weight || 0);
+        const remainingWeight = transferWeight - usedWeight;
+        const isFullyConsumed = remainingWeight <= 0;
+        const workersNames = coil.workers_names || '';
+        
+        return `
+            <div class="pending-coil-card">
+                <div class="pending-coil-info">
+                    <strong>الكويل: ${coil.barcode}</strong>
+                    <span>المادة: ${coil.material_name || '-'}</span>
+                    <span>عدد الاستاندات: ${coil.stands_count}</span>
+                    <span>المستخدم: ${usedWeight.toFixed(2)} / ${transferWeight.toFixed(2)} كجم</span>
+                    <span>المتبقي: <strong style="color:${isFullyConsumed ? '#e74c3c' : '#27ae60'}">${remainingWeight.toFixed(2)} كجم</strong></span>
+                    ${workersNames ? `<span style="color:#3498db;"><i class="fas fa-users"></i> العمال: ${workersNames}</span>` : ''}
+                </div>
+                <div class="pending-coil-actions">
+                    <button class="btn-continue" type="button" onclick="loadPendingCoil('${coil.barcode}')">
+                        <i class="fas fa-play"></i> متابعة العمل
+                    </button>
+                    <button class="btn-finish-coil" type="button" onclick="finishPendingCoil('${coil.barcode}')" style="background:#e74c3c; color:#fff;">
+                        <i class="fas fa-check-double"></i> إنهاء الكويل
+                    </button>
+                    <button class="btn-transfer-coil" type="button" 
+                            onclick="showTransferCoilModal('${coil.barcode}', '${coil.material_name || ''}', ${remainingWeight.toFixed(2)})" 
+                            style="background:${isFullyConsumed ? '#bdc3c7' : '#9b59b6'}; color:#fff; ${isFullyConsumed ? 'cursor:not-allowed; opacity:0.6;' : ''}"
+                            ${isFullyConsumed ? 'disabled title="لا يمكن نقل كويل تم استهلاكه بالكامل"' : ''}>
+                        <i class="fas fa-share"></i> نقل لموظف
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function loadPendingCoil(barcode) {
+    if (!barcode) return;
+    const barcodeInput = document.getElementById('materialBarcode');
+    if (barcodeInput) {
+        barcodeInput.value = barcode;
+    }
+    loadMaterialByBarcode(barcode);
+}
+
+function finishPendingCoil(barcode) {
+    if (!barcode) return;
+    
+    if (!confirm('هل أنت متأكد من إنهاء هذا الكويل؟\n\nسيتم حساب الهدر الكلي ومقارنته بالنسبة المسموح بها.')) {
+        return;
+    }
+    
+    fetch('/stage1/finish-coil', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            material_barcode: barcode
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // مسح الكاش المحلي فوراً
+            try {
+                localStorage.removeItem('stage1_pending_coils_cache');
+            } catch (e) {
+                console.warn('تعذر مسح الكاش:', e);
+            }
+            
+            if (data.exceeded) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '⚠️ تم إنهاء الكويل مع تجاوز الهدر',
+                    html: `<div style="text-align:right; direction:rtl;">نسبة الهدر: ${data.data.waste_percentage}%<br>النسبة المسموحة: ${data.data.allowed_percentage}%</div>`,
+                    confirmButtonText: 'فهمت'
+                });
+            } else {
+                showToast('✅ تم إنهاء الكويل بنجاح', 'success');
+            }
+            
+            // تحديث قائمة الكويلات المعلقة بهدوء (بدون تنبيه)
+            checkPendingCoils(false).then(() => {
+                // التأكد من إزالة الكويل من القائمة المعلقة
+                pendingCoils = pendingCoils.filter(c => c.barcode !== barcode);
+                pendingCoilsCount = pendingCoils.length;
+                renderPendingCoilsPanel();
+                updateBarcodeInputState();
+            });
+        } else {
+            showToast('❌ ' + (data.message || 'حدث خطأ'), 'error');
+        }
+    })
+    .catch(error => {
+        console.error('خطأ في إنهاء الكويل:', error);
+        showToast('❌ حدث خطأ أثناء إنهاء الكويل', 'error');
+    });
+}
+
+// عرض نافذة نقل الكويل لموظف آخر
+async function showTransferCoilModal(barcode, materialName, remainingWeight = 0) {
+    // التحقق من أن الكويل ليس مستهلكاً بالكامل
+    if (remainingWeight <= 0) {
+        Swal.fire({
+            icon: 'error',
+            title: translations.cannotTransferConsumed,
+            text: translations.cannotTransferConsumed + '. يرجى إنهاء الكويل بدلاً من ذلك.',
+            confirmButtonText: translations.understand
+        });
+        return;
+    }
+    
+    try {
+        // جلب قائمة الموظفين
+        const response = await fetch('{{ route("manufacturing.stage1.workers-for-transfer") }}');
+        const data = await response.json();
+
+        if (!data.success || !data.workers || data.workers.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'لا يوجد موظفين متاحين',
+                text: 'لا يوجد موظفين آخرين متاحين للنقل',
+                confirmButtonText: 'حسناً'
+            });
+            return;
+        }
+
+        // عرض نافذة اختيار الموظف
+        const { value: formValues } = await Swal.fire({
+            title: 'نقل الكويل لموظف آخر',
+            width: '500px',
+            html: `
+                <div style="text-align:right; direction:rtl;">
+                    <!-- معلومات الكويل -->
+                    <div style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; padding:15px; border-radius:10px; margin-bottom:20px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <div style="font-size:12px; opacity:0.9;">${translations.coilBarcode}</div>
+                                <div style="font-size:16px; font-weight:bold; font-family:monospace;">${barcode}</div>
+                            </div>
+                            <div style="text-align:left;">
+                                <div style="font-size:12px; opacity:0.9;">${translations.remainingWeight}</div>
+                                <div style="font-size:16px; font-weight:bold;">${parseFloat(remainingWeight).toFixed(2)} ${translations.kg}</div>
+                            </div>
+                        </div>
+                        ${materialName ? `<div style="margin-top:10px; font-size:13px; opacity:0.9;"><i class="fas fa-box"></i> ${materialName}</div>` : ''}
+                    </div>
+
+                    <!-- اختيار الموظف -->
+                    <div style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:8px; font-weight:600; color:#333;">
+                            <i class="fas fa-user" style="color:#9b59b6;"></i> ${translations.newEmployee} <span style="color:#e74c3c;">*</span>
+                        </label>
+                        <select id="swal-new-worker" style="width:100%; padding:12px; border-radius:8px; border:2px solid #e0e0e0; font-size:14px; outline:none; transition:border-color 0.3s;" onfocus="this.style.borderColor='#9b59b6'" onblur="this.style.borderColor='#e0e0e0'">
+                            <option value="">-- ${translations.selectEmployee} --</option>
+                            ${data.workers.map(w => `<option value="${w.id}">${w.name}</option>`).join('')}
+                        </select>
+                    </div>
+
+                    <!-- سبب النقل -->
+                    <div style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:8px; font-weight:600; color:#333;">
+                            <i class="fas fa-clipboard-list" style="color:#9b59b6;"></i> ${translations.transferReason}
+                        </label>
+                        <select id="swal-reason" style="width:100%; padding:12px; border-radius:8px; border:2px solid #e0e0e0; font-size:14px; outline:none;" onfocus="this.style.borderColor='#9b59b6'" onblur="this.style.borderColor='#e0e0e0'">
+                            <option value="${translations.endOfShift}">${translations.endOfShift}</option>
+                            <option value="${translations.workDistribution}">${translations.workDistribution}</option>
+                            <option value="${translations.emergency}">${translations.emergency}</option>
+                            <option value="${translations.otherReason}">${translations.otherReason}</option>
+                        </select>
+                    </div>
+
+                    <!-- الملاحظات -->
+                    <div>
+                        <label style="display:block; margin-bottom:8px; font-weight:600; color:#333;">
+                            <i class="fas fa-sticky-note" style="color:#9b59b6;"></i> ${translations.notes} (اختياري)
+                        </label>
+                        <textarea id="swal-notes" placeholder="أضف أي ملاحظات إضافية..." style="width:100%; padding:12px; border-radius:8px; border:2px solid #e0e0e0; font-size:14px; min-height:70px; resize:vertical; outline:none; font-family:inherit;" onfocus="this.style.borderColor='#9b59b6'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: `<i class="fas fa-share"></i> ${translations.confirmTransfer}`,
+            cancelButtonText: `<i class="fas fa-times"></i> ${translations.cancelAction}`,
+            confirmButtonColor: '#9b59b6',
+            cancelButtonColor: '#95a5a6',
+            reverseButtons: true,
+            focusConfirm: false,
+            customClass: {
+                popup: 'swal-rtl-popup',
+                title: 'swal-rtl-title',
+                confirmButton: 'swal-confirm-btn',
+                cancelButton: 'swal-cancel-btn'
+            },
+            preConfirm: () => {
+                const newWorkerId = document.getElementById('swal-new-worker').value;
+                const reason = document.getElementById('swal-reason').value;
+                const notes = document.getElementById('swal-notes').value;
+
+                if (!newWorkerId) {
+                    Swal.showValidationMessage('<i class="fas fa-exclamation-circle"></i> يجب اختيار الموظف الجديد');
+                    return false;
+                }
+
+                return { newWorkerId, reason, notes };
+            }
+        });
+
+        if (formValues) {
+            // تنفيذ النقل
+            await executeCoilTransfer(barcode, formValues.newWorkerId, formValues.reason, formValues.notes);
+        }
+
+    } catch (error) {
+        console.error('خطأ في عرض نافذة نقل الكويل:', error);
+        showToast('❌ ' + translations.errorOccurred, 'error');
+    }
+}
+
+// تنفيذ نقل الكويل
+async function executeCoilTransfer(barcode, newWorkerId, reason, notes) {
+    try {
+        Swal.fire({
+            title: 'جاري نقل الكويل...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        const response = await fetch('{{ route("manufacturing.stage1.transfer-coil") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                barcode: barcode,
+                new_worker_id: newWorkerId,
+                reason: reason,
+                notes: notes
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            await Swal.fire({
+                icon: 'success',
+                title: '✅ ' + translations.coilTransferredTo,
+                html: `
+                    <div style="text-align:right; direction:rtl;">
+                        <p>${translations.coilTransferredTo} <strong>${barcode}</strong>:</p>
+                        <p style="font-size:18px; font-weight:bold; color:#27ae60;">${data.data.new_worker_name}</p>
+                        <p style="color:#666; font-size:13px;">${translations.coilWillAppear}</p>
+                    </div>
+                `,
+                confirmButtonText: 'حسناً'
+            });
+
+            // تحديث قائمة الكويلات المعلقة بهدوء (بدون تنبيه)
+            checkPendingCoils(false);
+
+            // إذا كان الكويل الحالي هو المنقول، إعادة تعيين الحالة
+            if (currentMaterial && currentMaterial.barcode === barcode) {
+                resetCurrentState();
+            }
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: '❌ فشل النقل',
+                text: data.message || translations.errorOccurred,
+                confirmButtonText: 'حسناً'
+            });
+        }
+    } catch (error) {
+        console.error('خطأ في تنفيذ نقل الكويل:', error);
+        Swal.fire({
+            icon: 'error',
+            title: '❌ خطأ',
+            text: translations.errorOccurred,
+            confirmButtonText: 'حسناً'
+        });
+    }
+}
+
+function removeCurrentCoilFromPending() {
+    if (!currentMaterial) return;
+    pendingCoils = pendingCoils.filter(coil => coil.barcode !== currentMaterial.barcode);
+    pendingCoilsCount = pendingCoils.length;
+    renderPendingCoilsPanel();
+}
+
+function updateFinishCoilButtonState(canFinish) {
+    const finishSection = document.getElementById('finishCoilSection');
+    const finishBtn = document.getElementById('finishCoilBtn');
+    const finishNote = document.getElementById('finishCoilNote');
+    if (!finishSection || !finishBtn || !finishNote) return;
+
+    finishSection.style.display = 'block';
+
+    if (!currentMaterial) {
+        finishBtn.disabled = true;
+        finishBtn.classList.add('disabled');
+        finishNote.innerHTML = '<i class="fas fa-info-circle"></i> قم بمسح باركود كويل لتفعيل زر الإنهاء.';
+        return;
+    }
+
+    finishBtn.disabled = !canFinish;
+    finishBtn.classList.toggle('disabled', !canFinish);
+    finishNote.innerHTML = !canFinish
+        ? '<i class="fas fa-info-circle"></i> لا يمكنك إنهاء الكويل قبل إضافة استاند واحد على الأقل.'
+        : '<i class="fas fa-exclamation-triangle"></i> <strong>مهم جداً:</strong> يجب إنهاء الكويل قبل إضافة كويل جديد<br>سيتم حساب الهدر الكلي ومقارنته بالنسبة المسموح بها';
+}
+
+// ماسح الباركود
 document.getElementById('materialBarcode').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         loadMaterialByBarcode(this.value.trim());
     }
 });
 
-// Load material by barcode
+// تحميل المادة باستخدام الباركود
 function loadMaterialByBarcode(barcode) {
     if (!barcode) {
         alert('⚠️ ' + '{{ __('stages.enter_raw_material_barcode') }}');
         return;
+    }
+
+    if (pendingCheckInProgress) {
+        showToast('⏳ انتظر لحظة حتى يتم التحقق من الكويلات المعلقة', 'warning');
+        return;
+    }
+    
+    // الاعتماد فقط على الكويلات المعلقة من API
+
+    if (pendingCoilsCount > 0) {
+        const isRequestedPending = pendingCoils.some(coil => coil.barcode === barcode);
+        if (!isRequestedPending) {
+            Swal.fire({
+                icon: 'warning',
+                title: '⚠️ لديك كويلات معلقة',
+                html: `
+                    <div style="text-align: right; direction: rtl;">
+                        <p>لا يمكنك إضافة كويل جديد قبل إنهاء الكويلات المعلقة الحالية.</p>
+                        <div style="background:#fff3cd; padding:12px; border-radius:8px; margin-top:10px;">
+                            ${pendingCoils.map(c => `• ${c.barcode} (${c.stands_count} استاند)`).join('<br>')}
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'فهمت',
+                confirmButtonColor: '#d35400'
+            });
+            return;
+        }
     }
 
     fetch(`/material-batches/get-by-barcode/${barcode}`, {
@@ -331,6 +995,8 @@ function loadMaterialByBarcode(barcode) {
             currentMaterial = data.material;
             displayMaterialInfo(currentMaterial);
             showToast('✅ {{ __("stages.material_loaded_success") }}', 'success');
+            // تحديث قائمة الكويلات المعلقة بعد تحميل المادة
+            checkPendingCoils(false);
         } else {
             throw new Error(data.message || '{{ __("stages.material_not_found") }}');
         }
@@ -347,6 +1013,10 @@ function displayMaterialInfo(material) {
 
     materialTransferredWeight = parseFloat(material.transferred_to_production || material.production_weight || 0) || 0;
 
+    // تحديد حالة الكويل الحالي (هل يحتوي على استاندات؟)
+    const pendingRecord = pendingCoils.find(coil => coil.barcode === material.barcode);
+    currentCoilHasStands = pendingRecord ? pendingRecord.stands_count > 0 : false;
+
     // فقط إذا كان العنصر موجود (بناءً على الصلاحية)
     const weightElement = document.getElementById('displayWeight');
     if (weightElement) {
@@ -354,17 +1024,260 @@ function displayMaterialInfo(material) {
     }
 
     document.getElementById('materialDisplay').classList.add('active');
+    updateFinishCoilButtonState(currentCoilHasStands);
     
     const netWeightElement = document.getElementById('netWeight');
     if (netWeightElement && !netWeightElement.value) {
         netWeightElement.value = materialTransferredWeight ? materialTransferredWeight.toFixed(2) : '';
     }
     calculateWasteFromNet();
+    
+    // تحميل معلومات استهلاك الكويل
+    updateCoilProgress(material.barcode);
 }
 
-// Load stands from API
+// تحديث شريط تقدم استهلاك الكويل
+function updateCoilProgress(barcode) {
+    if (!barcode) {
+        console.log('لم يتم تقديم باركود لتقدم الكويل');
+        return;
+    }
+    
+    console.log('جاري جلب تقدم الكويل لـ:', barcode);
+    
+    fetch(`/stage1/coil-info/${barcode}`, {
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        console.log('حالة استجابة معلومات الكويل:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('بيانات معلومات الكويل:', data);
+        
+        // إظهار القسم دائماً عند تحميل الكويل
+        document.getElementById('coilProgressSection').style.display = 'block';
+        
+        if (data.success && data.data) {
+            const info = data.data;
+            
+            document.getElementById('coilTotalWeight').textContent = parseFloat(info.transferred_weight).toFixed(2) + ' كجم';
+            document.getElementById('coilUsedWeight').textContent = parseFloat(info.used_weight || 0).toFixed(2) + ' كجم';
+            document.getElementById('coilRemainingWeight').textContent = parseFloat(info.remaining_weight || 0).toFixed(2) + ' كجم';
+            document.getElementById('coilStandsCount').textContent = info.stands_count;
+            document.getElementById('coilProgressBar').style.width = info.usage_percentage + '%';
+            document.getElementById('coilUsagePercentage').textContent = info.usage_percentage.toFixed(1);
+            
+            // عرض أسماء العمال إذا كانت متوفرة
+            const workersInfo = document.getElementById('workersInfo');
+            const workersNames = document.getElementById('workersNames');
+            if (info.workers_names && info.workers_names.trim() !== '') {
+                workersNames.textContent = info.workers_names;
+                workersInfo.style.display = 'block';
+            } else {
+                workersInfo.style.display = 'none';
+            }
+            
+            currentCoilHasStands = info.stands_count > 0;
+            updateFinishCoilButtonState(currentCoilHasStands);
+            
+            // إذا تم استهلاك الكويل بالكامل
+            if (info.is_exhausted) {
+                document.getElementById('coilRemainingWeight').style.color = '#e74c3c';
+                showToast('⚠️ تم استهلاك جميع وزن الكويل. يرجى إنهاء الكويل.', 'warning');
+            } else {
+                document.getElementById('coilRemainingWeight').style.color = '#e67e22';
+            }
+        } else {
+            // لم يتم العثور على بيانات - إظهار القيم الافتراضية
+            if (currentMaterial) {
+                const weight = materialTransferredWeight || 0;
+                document.getElementById('coilTotalWeight').textContent = weight.toFixed(2) + ' كجم';
+                document.getElementById('coilUsedWeight').textContent = '0.00 كجم';
+                document.getElementById('coilRemainingWeight').textContent = weight.toFixed(2) + ' كجم';
+                document.getElementById('coilStandsCount').textContent = '0';
+                document.getElementById('coilProgressBar').style.width = '0%';
+                document.getElementById('coilUsagePercentage').textContent = '0.0';
+                currentCoilHasStands = false;
+                updateFinishCoilButtonState(false);
+            }
+        }
+    })
+    .catch(error => {
+        console.log('خطأ في جلب معلومات الكويل:', error);
+        // إظهار القسم مع القيم الافتراضية في حالة الخطأ
+        document.getElementById('coilProgressSection').style.display = 'block';
+        if (currentMaterial) {
+            const weight = materialTransferredWeight || 0;
+            document.getElementById('coilTotalWeight').textContent = weight.toFixed(2) + ' كجم';
+            document.getElementById('coilUsedWeight').textContent = '0.00 كجم';
+            document.getElementById('coilRemainingWeight').textContent = weight.toFixed(2) + ' كجم';
+            document.getElementById('coilStandsCount').textContent = '0';
+            document.getElementById('coilProgressBar').style.width = '0%';
+            document.getElementById('coilUsagePercentage').textContent = '0.0';
+            currentCoilHasStands = false;
+            updateFinishCoilButtonState(false);
+        }
+    });
+}
+
+// إنهاء الكويل وحساب الهدر الكلي
+function finishCoilOperation() {
+    if (!currentMaterial || !currentMaterial.barcode) {
+        alert('⚠️ لم يتم تحديد كويل');
+        return;
+    }
+    
+    if (!confirm('هل أنت متأكد من إنهاء الكويل؟\n\nسيتم حساب الهدر الكلي ومقارنته بالنسبة المسموح بها.\nإذا تجاوز الهدر النسبة المسموح بها، سيتم إيقاف العملية في انتظار موافقة الإدارة.')) {
+        return;
+    }
+    
+    // إظهار رسالة تحميل
+    Swal.fire({
+        title: 'جاري حساب الهدر...',
+        html: '<div style="text-align: center;"><i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #667eea;"></i></div>',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    fetch('/stage1/finish-coil', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            material_barcode: currentMaterial.barcode
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('استجابة إنهاء الكويل:', data);
+        
+        if (data.success) {
+            if (data.exceeded) {
+                // تجاوز نسبة الهدر
+                Swal.fire({
+                    icon: 'error',
+                    title: data.alert_title || '⛔ تجاوز نسبة الهدر',
+                    html: `
+                        <div style="text-align: right; direction: rtl;">
+                            <div style="background: #f8d7da; padding: 20px; border-radius: 10px; margin-bottom: 15px;">
+                                <h4 style="color: #721c24; margin-bottom: 15px;">📊 ملخص الكويل:</h4>
+                                <table style="width: 100%; text-align: right;">
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>الوزن المنقول للإنتاج:</strong></td>
+                                        <td style="padding: 5px;">${parseFloat(data.data.transferred_weight).toFixed(2)} كجم</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>إجمالي الوزن الصافي:</strong></td>
+                                        <td style="padding: 5px;">${parseFloat(data.data.total_net_weight).toFixed(2)} كجم</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>إجمالي الهدر:</strong></td>
+                                        <td style="padding: 5px; color: #dc3545; font-weight: bold;">${parseFloat(data.data.total_waste).toFixed(2)} كجم</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>نسبة الهدر:</strong></td>
+                                        <td style="padding: 5px; color: #dc3545; font-weight: bold;">${data.data.waste_percentage}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>النسبة المسموح بها:</strong></td>
+                                        <td style="padding: 5px; color: #28a745;">${data.data.allowed_percentage}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>عدد الاستاندات:</strong></td>
+                                        <td style="padding: 5px;">${data.data.stands_count}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-right: 4px solid #ffc107;">
+                                <p style="color: #856404; margin: 0;">
+                                    <i class="fas fa-exclamation-triangle"></i> 
+                                    <strong>تم إيقاف الاستاندات في انتظار موافقة الإدارة</strong>
+                                </p>
+                            </div>
+                        </div>
+                    `,
+                    confirmButtonText: 'فهمت',
+                    confirmButtonColor: '#dc3545',
+                    width: '600px',
+                    allowOutsideClick: false
+                }).then(() => {
+                    currentCoilHasStands = false;
+                    removeCurrentCoilFromPending();
+                    localStorage.removeItem('stage1_processed');
+                    window.location.href = '{{ route("manufacturing.stage1.index") }}';
+                });
+            } else {
+                // تم إنهاء الكويل بنجاح بدون تجاوز
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ تم إنهاء الكويل بنجاح',
+                    html: `
+                        <div style="text-align: right; direction: rtl;">
+                            <div style="background: #d4edda; padding: 20px; border-radius: 10px;">
+                                <h4 style="color: #155724; margin-bottom: 15px;">📊 ملخص الكويل:</h4>
+                                <table style="width: 100%; text-align: right;">
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>الوزن المنقول للإنتاج:</strong></td>
+                                        <td style="padding: 5px;">${parseFloat(data.data.transferred_weight).toFixed(2)} كجم</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>إجمالي الوزن الصافي:</strong></td>
+                                        <td style="padding: 5px;">${parseFloat(data.data.total_net_weight).toFixed(2)} كجم</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>إجمالي الهدر:</strong></td>
+                                        <td style="padding: 5px;">${parseFloat(data.data.total_waste).toFixed(2)} كجم</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>نسبة الهدر:</strong></td>
+                                        <td style="padding: 5px; color: #28a745; font-weight: bold;">${data.data.waste_percentage}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>عدد الاستاندات:</strong></td>
+                                        <td style="padding: 5px;">${data.data.stands_count}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    `,
+                    confirmButtonText: 'رائع!',
+                    confirmButtonColor: '#28a745',
+                    width: '600px'
+                }).then(() => {
+                    currentCoilHasStands = false;
+                    removeCurrentCoilFromPending();
+                    localStorage.removeItem('stage1_processed');
+                    window.location.href = '{{ route("manufacturing.stage1.index") }}';
+                });
+            }
+        } else {
+            throw new Error(data.message || 'حدث خطأ أثناء إنهاء الكويل');
+        }
+    })
+    .catch(error => {
+        console.error('خطأ:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'خطأ',
+            text: error.message,
+            confirmButtonColor: '#dc3545'
+        });
+    });
+}
+
+// تحميل الاستاندات من الخادم
 function loadStandsList() {
-    console.log('Loading stands...');
+    console.log('جاري تحميل الاستاندات...');
 
     fetch('/stands?status=unused', {
         method: 'GET',
@@ -377,19 +1290,19 @@ function loadStandsList() {
         credentials: 'same-origin'
     })
     .then(response => {
-        console.log('📡 Response status:', response.status);
+        console.log('📡 حالة الاستجابة:', response.status);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
     })
     .then(data => {
-        console.log('✅ Data received:', data);
+        console.log('✅ تم استلام البيانات:', data);
         const select = document.getElementById('standSelect');
         select.innerHTML = '<option value="">-- {{ __("stages.select_stand_from_list") }} --</option>';
 
         if (data.stands && data.stands.length > 0) {
-            console.log('Stands count:', data.stands.length);
+            console.log('عدد الاستاندات:', data.stands.length);
             data.stands.forEach(stand => {
                 const option = document.createElement('option');
                 option.value = stand.id;
@@ -399,20 +1312,20 @@ function loadStandsList() {
             });
             showToast(`✅ {{ __("stages.stands_loaded") }} ${data.stands.length} {{ __("stages.stands_available") }}`, 'success');
         } else {
-            console.warn('No stands available');
+            console.warn('لا توجد استاندات متاحة');
             select.innerHTML = '<option value="">{{ __("stages.no_stands_available") }} - {{ __("stages.add_first_stand") }}</option>';
             showToast('⚠️ {{ __("stages.no_stands_available") }}', 'warning');
         }
     })
     .catch(error => {
-        console.error('Error loading stands:', error);
+        console.error('خطأ في تحميل الاستاندات:', error);
         const select = document.getElementById('standSelect');
         select.innerHTML = '<option value="">{{ __("stages.failed_load_stands") }}</option>';
         showToast('❌ {{ __("stages.failed_load_stands") }}: ' + error.message, 'error');
     });
 }
 
-// Load selected stand
+// تحميل الاستاند المختار
 function loadStand() {
     const select = document.getElementById('standSelect');
     const selectedOption = select.options[select.selectedIndex];
@@ -454,7 +1367,7 @@ function loadStand() {
     showToast('✅ {{ __("stages.stand_loaded_success") }}', 'success');
 }
 
-// Calculate net weight automatically (total - stand)
+// حساب الوزن الصافي تلقائياً (الكلي - الاستاند)
 function calculateNetWeight() {
     const total = parseFloat(document.getElementById('totalWeight').value) || 0;
     const standWeight = parseFloat(document.getElementById('standWeight').value) || 0;
@@ -487,7 +1400,7 @@ function calculateNetWeight() {
     }
 }
 
-// Calculate waste when user modifies net weight manually
+// حساب الهدر عندما يعدل المستخدم الوزن الصافي يدوياً
 function calculateWasteFromNet() {
     const total = parseFloat(document.getElementById('totalWeight').value) || 0;
     const standWeight = parseFloat(document.getElementById('standWeight').value) || 0;
@@ -522,7 +1435,7 @@ function calculateWasteFromNet() {
     }
 }
 
-// Calculate waste percentage from weight
+// حساب نسبة الهدر من الوزن
 function calculateWastePercentage(materialWeight = null) {
     const wasteWeight = parseFloat(document.getElementById('wasteWeight').value) || 0;
     
@@ -579,7 +1492,7 @@ function addProcessedStand() {
 
     const notes = document.getElementById('notes').value.trim();
 
-    // Disable add button temporarily
+    // تعطيل زر الإضافة مؤقتاً
     const addBtn = event.target;
     addBtn.disabled = true;
     addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {{ __("stages.saving") }}...';
@@ -643,6 +1556,15 @@ function addProcessedStand() {
             clearForm();
             saveOffline();
             loadStandsList();
+            
+            // تحديث شريط تقدم الكويل
+            if (currentMaterial && currentMaterial.barcode) {
+                updateCoilProgress(currentMaterial.barcode);
+            }
+            currentCoilHasStands = true;
+            updateFinishCoilButtonState(true);
+            // تحديث قائمة الكويلات المعلقة بهدوء (بدون تنبيه)
+            checkPendingCoils(false);
 
             // عرض رسالة SweetAlert مع أيقونة خطأ
             Swal.fire({
@@ -689,6 +1611,15 @@ function addProcessedStand() {
             clearForm();
             saveOffline();
             loadStandsList(); // إعادة تحميل قائمة الاستاندات المتاحة
+            
+            // تحديث شريط تقدم الكويل
+            if (currentMaterial && currentMaterial.barcode) {
+                updateCoilProgress(currentMaterial.barcode);
+            }
+            currentCoilHasStands = true;
+            updateFinishCoilButtonState(true);
+            // تحديث قائمة الكويلات المعلقة بهدوء (بدون تنبيه)
+            checkPendingCoils(false);
 
             showToast('✅ {{ __("stages.stand_saved_print_now") }}', 'success');
         } else if (data.suspended) {
@@ -804,8 +1735,7 @@ function renderStands() {
                         <strong>{{ __('stages.barcode_label') }}</strong> <code style="background: #f8f9fa; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${item.barcode}</code><br>
                         <strong>{{ __('stages.total_weight_label') }}</strong> ${item.total_weight} {{ __('stages.weight_unit') }} |
                         <strong>{{ __('stages.net_weight_label') }}</strong> ${item.net_weight} {{ __('stages.weight_unit') }} |
-                        <strong>{{ __('stages.stand_weight_label') }}</strong> ${item.stand_weight} {{ __('stages.weight_unit') }} |
-                        <strong>{{ __('stages.waste_label') }}</strong> ${item.waste_weight || 0} {{ __('stages.weight_unit') }} (<span style="color: ${isPending ? '#dc3545' : 'inherit'}; font-weight: ${isPending ? 'bold' : 'normal'};">${item.waste_percentage || 0}%</span>)
+                        <strong>{{ __('stages.stand_weight_label') }}</strong> ${item.stand_weight} {{ __('stages.weight_unit') }}
                         ${item.notes ? '<br>📝 <strong>{{ __("stages.notes_label") }}</strong> ' + item.notes : ''}
                     </small>
                 </div>
@@ -820,7 +1750,31 @@ function renderStands() {
 }
 
 function finishOperation() {
-    if (processedStands.length === 0) {
+    if (pendingCoilsCount > 0 && (!currentMaterial || !currentCoilHasStands)) {
+        Swal.fire({
+            icon: 'warning',
+            title: '⚠️ لديك كويلات معلقة',
+            html: `
+                <div style="text-align: right; direction: rtl;">
+                    <p>يجب إنهاء الكويل المعلق قبل إغلاق العملية أو بدء كويل جديد.</p>
+                    <div style="background:#fff3cd; padding:12px; border-radius:8px; margin-top:10px;">
+                        ${pendingCoils.map(c => `• ${c.barcode} (${c.stands_count} استاند)`).join('<br>')}
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'تحميل الكويل الأول',
+            cancelButtonText: 'رجوع',
+            confirmButtonColor: '#d35400'
+        }).then(result => {
+            if (result.isConfirmed && pendingCoils.length) {
+                loadPendingCoil(pendingCoils[0].barcode);
+            }
+        });
+        return;
+    }
+
+    if (!currentMaterial || (!currentCoilHasStands && processedStands.length === 0)) {
         if (confirm('{{ __("stages.stands_added_confirm_exit") }}')) {
             localStorage.removeItem('stage1_processed');
             window.location.href = '{{ route("manufacturing.stage1.index") }}';
@@ -828,14 +1782,7 @@ function finishOperation() {
         return;
     }
 
-    const message = `{{ __("stages.stands_saved_confirm_home") }}`.replace('{count}', processedStands.length);
-    if (confirm(message)) {
-        localStorage.removeItem('stage1_processed');
-        showToast('✅ {{ __("stages.operation_success") }}', 'success');
-        setTimeout(() => {
-            window.location.href = '{{ route("manufacturing.stage1.index") }}';
-        }, 1000);
-    }
+    finishCoilOperation();
 }
 
 function clearForm() {
@@ -880,7 +1827,7 @@ function saveOffline() {
 // دالة submitAll تم إزالتها لأن الحفظ أصبح فوري لكل استاند
 // دالة showBarcodesModal تم إزالتها لأن الطباعة أصبحت فورية لكل استاند
 
-// (deleted unused modal functions)
+// (تم حذف دوال النوافذ المنبثقة غير المستخدمة)
 function _unused_showBarcodesModal(barcodes) {
     const modal = document.createElement('div');
     modal.id = 'barcodesModal';
@@ -1067,7 +2014,7 @@ function _unused_printAllBarcodes(barcodes) {
     printWindow.document.close();
 }
 
-// Print barcode for a saved stand
+// طباعة الباركود لاستاند محفوظ
 function printStandBarcode(stand) {
     if (!stand || !stand.barcode) {
         alert('❌ {{ __("stages.barcode_not_found") }}');
@@ -1107,11 +2054,11 @@ function printStandBarcode(stand) {
 }
 
 function showToast(message, type = 'info') {
-    // Remove existing toasts
+    // إزالة التنبيهات السابقة
     const existingToasts = document.querySelectorAll('.toast-notification');
     existingToasts.forEach(toast => toast.remove());
 
-    // Create toast notification
+    // إنشاء تنبيه جديد
     const toast = document.createElement('div');
     toast.className = 'toast-notification';
     toast.textContent = message;
@@ -1136,6 +2083,158 @@ function showToast(message, type = 'info') {
         toast.style.animation = 'fadeOut 0.4s ease-out';
         setTimeout(() => toast.remove(), 400);
     }, 4000);
+}
+
+// ===== دوال طلبات النقل =====
+let pendingTransfers = [];
+
+async function checkPendingTransfers() {
+    try {
+        const response = await fetch('/stage1/pending-transfers', {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            pendingTransfers = data.transfers || [];
+            renderPendingTransfersPanel();
+        }
+    } catch (error) {
+        console.error('خطأ في جلب طلبات النقل:', error);
+    }
+}
+
+function renderPendingTransfersPanel() {
+    const panel = document.getElementById('pendingTransfersPanel');
+    const list = document.getElementById('pendingTransfersList');
+    
+    if (!panel || !list) return;
+    
+    if (pendingTransfers.length === 0) {
+        panel.style.display = 'none';
+        return;
+    }
+    
+    panel.style.display = 'block';
+    
+    list.innerHTML = pendingTransfers.map(transfer => {
+        const remainingWeight = parseFloat(transfer.remaining_weight || 0);
+        const createdAt = new Date(transfer.created_at).toLocaleString('ar-EG');
+        
+        return `
+            <div class="pending-coil-card" style="border-right: 4px solid #27ae60;">
+                <div class="pending-coil-info">
+                    <strong style="color:#27ae60;"><i class="fas fa-exchange-alt"></i> كويل منقول: ${transfer.barcode}</strong>
+                    <span>المادة: ${transfer.material_name || '-'}</span>
+                    <span>من: <strong>${transfer.sender_name}</strong></span>
+                    <span>الوزن المتبقي: <strong style="color:#27ae60;">${remainingWeight.toFixed(2)} كجم</strong></span>
+                    ${transfer.reason ? `<span>السبب: ${transfer.reason}</span>` : ''}
+                    <span style="font-size:12px; color:#999;">تاريخ النقل: ${createdAt}</span>
+                </div>
+                <div class="pending-coil-actions">
+                    <button class="btn-continue" type="button" onclick="acceptTransfer('${transfer.barcode}')" style="background:#27ae60;">
+                        <i class="fas fa-check"></i> قبول
+                    </button>
+                    <button class="btn-finish-coil" type="button" onclick="rejectTransfer('${transfer.barcode}')" style="background:#e74c3c; color:#fff;">
+                        <i class="fas fa-times"></i> رفض
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+async function acceptTransfer(barcode) {
+    const result = await Swal.fire({
+        title: 'قبول نقل الكويل',
+        html: `<div style="text-align:right; direction:rtl;">هل تريد قبول نقل الكويل <strong>${barcode}</strong>؟<br>سيظهر في قائمة الكويلات المعلقة ويمكنك العمل عليه.</div>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-check"></i> قبول',
+        cancelButtonText: '<i class="fas fa-times"></i> إلغاء',
+        confirmButtonColor: '#27ae60'
+    });
+    
+    if (!result.isConfirmed) return;
+    
+    try {
+        Swal.fire({ title: 'جاري قبول النقل...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        
+        const response = await fetch('/stage1/accept-transfer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ barcode })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            await Swal.fire({
+                icon: 'success',
+                title: '✅ تم قبول النقل',
+                text: 'الكويل متاح الآن للعمل عليه',
+                confirmButtonText: 'حسناً'
+            });
+            checkPendingTransfers();
+            checkPendingCoils(false);
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        Swal.fire({ icon: 'error', title: 'خطأ', text: error.message });
+    }
+}
+
+async function rejectTransfer(barcode) {
+    const { value: reason } = await Swal.fire({
+        title: 'رفض نقل الكويل',
+        html: `<div style="text-align:right; direction:rtl;">هل تريد رفض نقل الكويل <strong>${barcode}</strong>؟</div>`,
+        input: 'textarea',
+        inputLabel: 'سبب الرفض (اختياري)',
+        inputPlaceholder: 'أدخل سبب الرفض...',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-times"></i> رفض النقل',
+        cancelButtonText: 'إلغاء',
+        confirmButtonColor: '#e74c3c'
+    });
+    
+    if (reason === undefined) return; // المستخدم ضغط إلغاء
+    
+    try {
+        Swal.fire({ title: 'جاري رفض النقل...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        
+        const response = await fetch('/stage1/reject-transfer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ barcode, reason: reason || '' })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            await Swal.fire({
+                icon: 'success',
+                title: 'تم رفض النقل',
+                text: 'تم إبلاغ الموظف الناقل بالرفض',
+                confirmButtonText: 'حسناً'
+            });
+            checkPendingTransfers();
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        Swal.fire({ icon: 'error', title: 'خطأ', text: error.message });
+    }
 }
 </script>
 

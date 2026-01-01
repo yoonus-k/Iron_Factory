@@ -7,6 +7,11 @@
     /* استيراد الخطوط */
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap');
 
+    /* Reset and Base */
+    * {
+        box-sizing: border-box;
+    }
+
     /* المتغيرات */
     :root {
         --primary-color: #0066B2;
@@ -40,19 +45,20 @@
     /* تنسيقات أساسية */
     .history-container {
         font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        padding: var(--spacing-lg);
-        background-color: var(--gray-50);
-        min-height: calc(100vh - 60px);
+        padding: 0.5rem;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        width: 100%;
     }
 
     /* رأس الصفحة */
     .history-header {
         background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-        padding: var(--spacing-xl);
-        border-radius: var(--radius-xl);
+        padding: 1.25rem 1.5rem;
+        border-radius: var(--radius-md);
         color: var(--white);
-        margin-bottom: var(--spacing-xl);
-        box-shadow: var(--shadow-lg);
+        margin-bottom: 1rem;
+        box-shadow: var(--shadow-md);
         position: relative;
         overflow: hidden;
     }
@@ -69,30 +75,28 @@
     }
 
     .history-header h1 {
-        font-size: 2rem;
+        font-size: 1.5rem;
         font-weight: 700;
-        margin: 0 0 0.5rem 0;
+        margin: 0 0 0.35rem 0;
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
     .history-header p {
         opacity: 0.9;
         margin: 0;
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
 
     /* بطاقة الفلاتر */
     .filters-card {
         background: var(--white);
-        padding: var(--spacing-lg);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-md);
+        padding: 1rem;
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
         border: 1px solid var(--gray-200);
-        margin-bottom: var(--spacing-xl);
-        position: relative;
-        overflow: hidden;
+        margin-bottom: 1rem;
     }
 
     .filters-card::before {
@@ -119,9 +123,9 @@
 
     .filters-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: var(--spacing-md);
-        margin-bottom: var(--spacing-lg);
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1rem;
     }
 
     .filter-group {
@@ -144,6 +148,8 @@
         transition: all var(--transition-base);
         background: var(--white);
         font-family: inherit;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .filter-input:focus {
@@ -197,20 +203,21 @@
     /* بطاقات الإحصائيات */
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: var(--spacing-lg);
-        margin-bottom: var(--spacing-xl);
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.875rem;
+        margin-bottom: 1rem;
     }
 
     .stat-card {
         background: var(--white);
-        padding: var(--spacing-lg);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-md);
+        padding: 1rem;
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
         border: 1px solid var(--gray-200);
         transition: all var(--transition-base);
         position: relative;
         overflow: hidden;
+        min-height: 120px;
     }
 
     .stat-card::before {
@@ -285,7 +292,7 @@
     }
 
     .stat-value {
-        font-size: 2rem;
+        font-size: 1.75rem;
         font-weight: 700;
         color: var(--gray-800);
         margin: 0;
@@ -295,12 +302,11 @@
     /* جدول التاريخ */
     .history-table-card {
         background: var(--white);
-        border-radius: var(--radius-lg);
-        padding: var(--spacing-lg);
-        box-shadow: var(--shadow-md);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        box-shadow: var(--shadow-sm);
         border: 1px solid var(--gray-200);
         overflow: hidden;
-        position: relative;
     }
 
     .history-table-card::before {
@@ -328,7 +334,35 @@
     .history-table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: var(--spacing-md);
+        margin-top: 1rem;
+        font-size: 0.75rem;
+    }
+
+    /* Table wrapper for horizontal scroll */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -1rem;
+        padding: 0 1rem;
+    }
+
+    /* تحسين شريط التمرير */
+    .table-responsive::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .table-responsive::-webkit-scrollbar-track {
+        background: var(--gray-100);
+        border-radius: 4px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 4px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-light);
     }
 
     .history-table thead {
@@ -336,22 +370,23 @@
     }
 
     .history-table th {
-        padding: var(--spacing-md);
+        padding: 0.5rem 0.35rem;
         text-align: right;
         font-weight: 600;
-        font-size: 0.875rem;
+        font-size: 0.7rem;
         color: var(--gray-600);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.2px;
         border-bottom: 2px solid var(--gray-300);
         white-space: nowrap;
     }
 
     .history-table td {
-        padding: var(--spacing-md);
+        padding: 0.5rem 0.35rem;
         border-bottom: 1px solid var(--gray-200);
         color: var(--gray-800);
-        font-size: 0.875rem;
+        font-size: 0.7rem;
+        white-space: nowrap;
     }
 
     .history-table tbody tr {
@@ -360,6 +395,21 @@
 
     .history-table tbody tr:hover {
         background: rgba(0, 102, 178, 0.05);
+    }
+
+    .history-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* تحسين عرض البيانات في الأعمدة */
+    .history-table td {
+        vertical-align: middle;
+    }
+
+    .history-table td svg {
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 0.25rem;
     }
 
     .stand-badge {
@@ -417,14 +467,16 @@
 
     .empty-state {
         text-align: center;
-        padding: 3rem;
+        padding: 3rem 1rem;
         color: var(--gray-600);
+        background: var(--gray-50);
+        border-radius: var(--radius-md);
+        margin: var(--spacing-md) 0;
     }
 
-    .empty-state i {
-        font-size: 3rem;
+    .empty-state svg {
         margin-bottom: 1rem;
-        opacity: 0.5;
+        opacity: 0.3;
         color: var(--gray-400);
     }
 
@@ -432,6 +484,13 @@
         margin: 0 0 0.5rem 0;
         color: var(--gray-700);
         font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .empty-state p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--gray-500);
     }
 
     .pagination {
@@ -441,6 +500,7 @@
         gap: var(--spacing-xs);
         margin-top: var(--spacing-lg);
         flex-wrap: wrap;
+        padding: var(--spacing-md) 0;
     }
 
     .pagination a,
@@ -453,55 +513,259 @@
         border: 1px solid var(--gray-300);
         transition: all var(--transition-base);
         font-size: 0.875rem;
+        min-width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .pagination a:hover {
         background: var(--primary-color);
         color: var(--white);
         border-color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
     }
 
     .pagination .active {
         background: var(--primary-color);
         color: var(--white);
         border-color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .pagination .disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* Responsive Table Wrapper */
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 1rem;
+        border-radius: var(--radius-md);
+        box-shadow: inset 0 0 0 1px var(--gray-200);
+        background: var(--white);
+    }
+
+    .table-responsive::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .table-responsive::-webkit-scrollbar-track {
+        background: var(--gray-100);
+        border-radius: var(--radius-sm);
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: var(--gray-400);
+        border-radius: var(--radius-sm);
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: var(--gray-600);
     }
 
     /* استجابة الشاشات */
-    @media (max-width: 768px) {
-        .history-container {
-            padding: var(--spacing-md);
+    @media (max-width: 1400px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
+        
+        .filters-card,
+        .stats-grid,
+        .history-table-card {
+            margin-left: 0.75rem;
+            margin-right: 0.75rem;
+        }
+    }
 
+    @media (max-width: 1200px) {
         .history-header {
-            padding: var(--spacing-lg);
+            padding: 1.25rem;
         }
 
         .history-header h1 {
-            font-size: 1.5rem;
+            font-size: 1.35rem;
         }
 
-        .filters-grid,
+        .filters-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 992px) {
         .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .filters-grid {
             grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .history-container {
+            padding: 0.5rem;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .history-header {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .history-header h1 {
+            font-size: 1.1rem;
+            flex-direction: column;
+            text-align: center;
+            gap: 0.5rem;
+        }
+
+        .history-header h1 svg {
+            margin-bottom: 0;
+        }
+
+        .history-header p {
+            font-size: 0.875rem;
+            text-align: center;
+        }
+
+        .filters-card,
+        .history-table-card {
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .filters-card h3,
+        .history-table-card h3 {
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .filters-grid {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .stat-card {
+            padding: 0.75rem;
+        }
+
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.35rem;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
         }
 
         .filter-actions {
             flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .btn-filter {
+            width: 100%;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .table-responsive {
+            margin-top: 0.5rem;
         }
 
         .history-table {
-            display: block;
-            overflow-x: auto;
-        }
-
-        .history-table-card {
-            padding: var(--spacing-md);
+            font-size: 0.7rem;
         }
 
         .history-table th,
         .history-table td {
-            padding: var(--spacing-sm);
+            padding: 0.35rem 0.25rem;
+            font-size: 0.7rem;
+        }
+
+        .status-badge,
+        .stand-badge,
+        .usage-count {
+            font-size: 0.6rem;
+            padding: 0.125rem 0.3rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .history-container {
+            padding: 0.375rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .stat-card {
+            padding: 0.75rem 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+        }
+
+        .history-header {
+            padding: 0.75rem;
+        }
+
+        .history-header h1 {
+            font-size: 1rem;
+        }
+
+        .history-header p {
+            font-size: 0.8rem;
+        }
+
+        .filters-card,
+        .history-table-card {
+            padding: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .filters-card h3,
+        .history-table-card h3 {
+            font-size: 0.85rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 0.25rem 0.2rem;
+            font-size: 0.65rem;
         }
     }
 
@@ -666,62 +930,44 @@
         </h3>
 
         @if($history->count() > 0)
-        <table class="history-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>{{ __('stands.form.stand_number') }}</th>
-                    <th>{{ __('stands.stats.total_uses') }}</th>
-                    <th>المستخدم</th>
-                    <th>باركود المادة</th>
-                    <th>نوع المادة</th>
-                    <th>مقاس السلك</th>
-                    <th>الوزن الإجمالي</th>
-                    <th>الوزن الصافي</th>
-                    <th>نسبة الهدر</th>
-                    <th>{{ __('stands.form.status') }}</th>
-                    <th>{{ __('stands.form.created_at') }}</th>
-                    <th>تاريخ الانتهاء</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="table-responsive">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>الاستاند</th>
+                        <th>المستخدم</th>
+                        <th>باركود المادة</th>
+                        <th>نوع المادة</th>
+                        <th>الوزن الإجمالي</th>
+                        <th>الوزن الصافي</th>
+                        <th>الهدر%</th>
+                        <th>{{ __('stands.form.status') }}</th>
+                        <th>تاريخ البدء</th>
+                        <th>تاريخ الانتهاء</th>
+                    </tr>
+                </thead>
+                <tbody>
                 @foreach($history as $index => $record)
                 <tr>
                     <td>{{ $history->firstItem() + $index }}</td>
                     <td>
                         <strong style="color: var(--primary-color);">{{ $record->stand->stand_number }}</strong>
-                    </td>
-                    <td>
-                        <span class="usage-count">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="1 4 1 10 7 10"></polyline>
-                                <path d="M3.51 9A9 9 0 0 1 5.64 5.64"></path>
-                            </svg>
-                            {{ $record->stand->usage_count }} مرة
-                        </span>
+                        <br>
+                        <small style="color: var(--gray-500);">{{ $record->stand->usage_count }} مرة</small>
                     </td>
                     <td>
                         @if($record->user)
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
                             {{ $record->user->name }}
+                            @if($record->supervisor)
+                                <br><small style="color: #9b59b6;">{{ $record->supervisor->name }}</small>
+                            @endif
                         @else
                             <span style="color: var(--gray-500);">غير محدد</span>
                         @endif
                     </td>
                     <td>{{ $record->material_barcode ?? '-' }}</td>
                     <td>{{ $record->material_type ?? '-' }}</td>
-                    <td>
-                        @if($record->wire_size)
-                            {{ $record->wire_size }} مم
-                        @else
-                            -
-                        @endif
-                    </td>
                     <td>{{ number_format($record->total_weight, 2) }} كجم</td>
                     <td>{{ number_format($record->net_weight, 2) }} كجم</td>
                     <td>
@@ -742,27 +988,11 @@
                             <span class="status-badge returned">مرتجع</span>
                         @endif
                     </td>
-                    <td>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                        </svg>
+                    <td style="white-space: nowrap;">
                         {{ \Carbon\Carbon::parse($record->started_at)->format('Y-m-d H:i') }}
                     </td>
-                    <td>
+                    <td style="white-space: nowrap;">
                         @if($record->completed_at)
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                                <path d="M16 14h.01"></path>
-                                <path d="M8 14h.01"></path>
-                                <path d="M16 18h.01"></path>
-                                <path d="M8 18h.01"></path>
-                            </svg>
                             {{ \Carbon\Carbon::parse($record->completed_at)->format('Y-m-d H:i') }}
                         @else
                             <span style="color: var(--gray-500);">-</span>
@@ -772,6 +1002,7 @@
                 @endforeach
             </tbody>
         </table>
+        </div>
 
         <!-- Pagination -->
         <div class="pagination">

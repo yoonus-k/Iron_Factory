@@ -359,23 +359,21 @@
         </div>
     @endif
 
-    <!-- Main Statistics -->
+    <!-- Main Statistics - عرض معلومات عامة فقط -->
     <div class="stats-grid" id="statsGrid">
         <div class="stat-card primary">
             <div class="stat-header">
                 <div>
-                    <div class="stat-title">{{ __('shifts-workers.total_items_produced') }}</div>
-                    <p class="stat-value">{{ number_format($summary['total_items']) }}</p>
-                    @if(isset($comparison['items_change']))
-                    <span class="change-badge {{ $comparison['items_change']['direction'] }}">
-                        {{ $comparison['items_change']['direction'] == 'up' ? '↑' : ($comparison['items_change']['direction'] == 'down' ? '↓' : '→') }}
-                        {{ $comparison['items_change']['value'] }}%
-                    </span>
-                    @endif
+                    <div class="stat-title">{{ __('shifts-workers.active_workers') }}</div>
+                    <p class="stat-value">{{ number_format($summary['workers_count']) }}</p>
+                    <small style="color: var(--gray-600);">{{ __('shifts-workers.total_workers_active') }}</small>
                 </div>
                 <div class="stat-icon primary">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                     </svg>
                 </div>
             </div>
@@ -384,21 +382,15 @@
         <div class="stat-card success">
             <div class="stat-header">
                 <div>
-                    <div class="stat-title">{{ __('shifts-workers.total_output') }}</div>
-                    <p class="stat-value">{{ number_format($summary['total_output_kg'], 2) }}</p>
-                    <small style="color: var(--gray-600);">{{ __('shifts-workers.kilogram') }}</small>
-                    @if(isset($comparison['output_change']))
-                    <br>
-                    <span class="change-badge {{ $comparison['output_change']['direction'] }}">
-                        {{ $comparison['output_change']['direction'] == 'up' ? '↑' : ($comparison['output_change']['direction'] == 'down' ? '↓' : '→') }}
-                        {{ $comparison['output_change']['value'] }}%
-                    </span>
-                    @endif
+                    <div class="stat-title">{{ __('shifts-workers.active_stages') }}</div>
+                    <p class="stat-value">{{ number_format($summary['active_stages']) }}</p>
+                    <small style="color: var(--gray-600);">{{ __('shifts-workers.out_of_four_stages') }}</small>
                 </div>
                 <div class="stat-icon success">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="12" y1="1" x2="12" y2="23"></line>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
                     </svg>
                 </div>
             </div>
@@ -407,34 +399,37 @@
         <div class="stat-card warning">
             <div class="stat-header">
                 <div>
-                    <div class="stat-title">{{ __('shifts-workers.waste_percentage') }}</div>
-                    <p class="stat-value">{{ number_format($summary['waste_percentage'], 2) }}%</p>
-                    <small style="color: var(--gray-600);">{{ number_format($summary['total_waste_kg'], 2) }} {{ __('shifts-workers.kg') }}</small>
+                    <div class="stat-title">{{ __('shifts-workers.wip_items') }}</div>
+                    <p class="stat-value">{{ number_format($wipCount) }}</p>
+                    <small style="color: var(--gray-600);">{{ __('shifts-workers.items_in_production') }}</small>
                 </div>
                 <div class="stat-icon warning">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
                 </div>
             </div>
         </div>
 
-        <div class="stat-card success">
+        <div class="stat-card primary">
             <div class="stat-header">
                 <div>
-                    <div class="stat-title">{{ __('shifts-workers.overall_efficiency') }}</div>
-                    <p class="stat-value">{{ number_format($summary['efficiency'], 1) }}%</p>
-                    @if(isset($comparison['efficiency_change']))
-                    <span class="change-badge {{ $comparison['efficiency_change']['direction'] }}">
-                        {{ $comparison['efficiency_change']['direction'] == 'up' ? '↑' : ($comparison['efficiency_change']['direction'] == 'down' ? '↓' : '→') }}
-                        {{ $comparison['efficiency_change']['value'] }}%
-                    </span>
-                    @endif
+                    <div class="stat-title">{{ __('shifts-workers.shift_type') }}</div>
+                    <p class="stat-value" style="font-size: 1.5rem;">{{ $shiftType == 'morning' ? __('shifts-workers.morning') : __('shifts-workers.evening') }}</p>
+                    <small style="color: var(--gray-600);">{{ date('H:i', strtotime($timeRange['start'])) }} - {{ date('H:i', strtotime($timeRange['end'])) }}</small>
                 </div>
-                <div class="stat-icon success">
+                <div class="stat-icon primary">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                     </svg>
                 </div>
             </div>

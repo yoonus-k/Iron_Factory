@@ -73,6 +73,9 @@ class WorkerPerformanceController extends Controller
     private function getWorkersPerformance($dateFrom, $dateTo, $shiftType = null, $stageFilter = null)
     {
         $workers = [];
+        
+        // Get date ranges based on shift type
+        $dateRange = $this->getDateRangeForShift($dateFrom, $dateTo, $shiftType);
 
         // Stage 1 Performance
         $stage1Data = DB::table('stage1_stands as s1')
@@ -85,7 +88,7 @@ class WorkerPerformanceController extends Controller
                 DB::raw('AVG((s1.waste / s1.weight) * 100) as avg_waste_percentage')
             )
             ->leftJoin('users as u', 's1.created_by', '=', 'u.id')
-            ->whereBetween('s1.created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->whereBetween('s1.created_at', [$dateRange['start'], $dateRange['end']])
             ->whereNotNull('s1.created_by')
             ->groupBy('s1.created_by', 'u.name');
 
@@ -124,7 +127,7 @@ class WorkerPerformanceController extends Controller
                     DB::raw('AVG((s2.waste / s2.input_weight) * 100) as avg_waste_percentage')
                 )
                 ->leftJoin('users as u', 's2.created_by', '=', 'u.id')
-                ->whereBetween('s2.created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+                ->whereBetween('s2.created_at', [$dateRange['start'], $dateRange['end']])
                 ->whereNotNull('s2.created_by')
                 ->groupBy('s2.created_by', 'u.name')
                 ->get();
@@ -162,7 +165,7 @@ class WorkerPerformanceController extends Controller
                     DB::raw('AVG((s3.waste / s3.base_weight) * 100) as avg_waste_percentage')
                 )
                 ->leftJoin('users as u', 's3.created_by', '=', 'u.id')
-                ->whereBetween('s3.created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+                ->whereBetween('s3.created_at', [$dateRange['start'], $dateRange['end']])
                 ->whereNotNull('s3.created_by')
                 ->groupBy('s3.created_by', 'u.name')
                 ->get();
@@ -200,7 +203,7 @@ class WorkerPerformanceController extends Controller
                     DB::raw('AVG((s4.waste / s4.total_weight) * 100) as avg_waste_percentage')
                 )
                 ->leftJoin('users as u', 's4.created_by', '=', 'u.id')
-                ->whereBetween('s4.created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+                ->whereBetween('s4.created_at', [$dateRange['start'], $dateRange['end']])
                 ->whereNotNull('s4.created_by')
                 ->groupBy('s4.created_by', 'u.name')
                 ->get();
@@ -226,30 +229,10 @@ class WorkerPerformanceController extends Controller
             }
         }
 
-        // Calculate totals and efficiency for each worker
-        foreach ($workers as &$worker) {
-            $totalItems = $worker['stage1']['items'] + $worker['stage2']['items'] + 
-                         $worker['stage3']['items'] + $worker['stage4']['items'];
-            $totalOutput = $worker['stage1']['output'] + $worker['stage2']['output'] + 
-                          $worker['stage3']['output'] + $worker['stage4']['output'];
-            $totalWaste = $worker['stage1']['waste'] + $worker['stage2']['waste'] + 
-                         $worker['stage3']['waste'] + $worker['stage4']['waste'];
-            
-            $avgWaste = $totalOutput > 0 ? ($totalWaste / $totalOutput) * 100 : 0;
-            $efficiency = 100 - $avgWaste;
-            
-            $worker['totals'] = [
-                'items' => $totalItems,
-                'output' => round($totalOutput, 2),
-                'waste' => round($totalWaste, 2),
-                'waste_pct' => round($avgWaste, 2),
-                'efficiency' => round($efficiency, 2)
-            ];
-        }
-
-        // Sort by total items DESC
+        // Don't sum stages - each item only exists in one stage at a time
+        // Sorting by Stage 1 items as the starting point of production
         usort($workers, function($a, $b) {
-            return $b['totals']['items'] - $a['totals']['items'];
+            return $b['stage1']['items'] - $a['stage1']['items'];
         });
 
         return collect($workers);
@@ -257,74 +240,60 @@ class WorkerPerformanceController extends Controller
 
     /**
      * Get detailed metrics for specific worker
+     * Note: Metrics are calculated per-stage, not summed (same item flows through all stages)
      */
     private function getWorkerDetailedMetrics($workerId, $dateFrom, $dateTo)
     {
         $metrics = [
-            'total_items' => 0,
-            'total_output_kg' => 0,
-            'total_waste_kg' => 0,
-            'avg_waste_percentage' => 0,
-            'efficiency' => 0,
-            'best_stage' => null,
-            'worst_stage' => null,
+            'by_stage' => [],
             'working_days' => 0,
-            'avg_items_per_day' => 0,
+            'avg_items_per_day_stage1' => 0,
         ];
 
-        // Get aggregated data from all stages
-        $allRecords = collect();
+        // Get metrics per stage (not merged to avoid counting same item 4 times)
+        $stages = [
+            ['table' => 'stage1_stands', 'weight_col' => 'weight', 'stage_num' => 1],
+            ['table' => 'stage2_processed', 'weight_col' => 'output_weight', 'stage_num' => 2],
+            ['table' => 'stage3_coils', 'weight_col' => 'total_weight', 'stage_num' => 3],
+            ['table' => 'stage4_boxes', 'weight_col' => 'total_weight', 'stage_num' => 4],
+        ];
 
-        // Stage 1
-        $s1 = DB::table('stage1_stands')
-            ->select('weight as output_weight', 'waste', 'created_at')
-            ->where('created_by', $workerId)
-            ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
-            ->get();
-        $allRecords = $allRecords->merge($s1);
+        foreach ($stages as $stage) {
+            $data = DB::table($stage['table'])
+                ->select(
+                    DB::raw('COUNT(*) as items'),
+                    DB::raw("SUM({$stage['weight_col']}) as output"),
+                    DB::raw('SUM(waste) as waste')
+                )
+                ->where('created_by', $workerId)
+                ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+                ->first();
 
-        // Stage 3
-        $s3 = DB::table('stage3_coils')
-            ->select('total_weight as output_weight', 'waste', 'created_at')
-            ->where('created_by', $workerId)
-            ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
-            ->get();
-        $allRecords = $allRecords->merge($s3);
-
-        // Stage 1
-        $s1 = DB::table('stage1_stands')
-            ->select('weight as output_weight', 'waste', 'created_at')
-            ->where('created_by', $workerId)
-            ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
-            ->get();
-        $allRecords = $allRecords->merge($s1);
-
-        // Stage 4
-        $s4 = DB::table('stage4_boxes')
-            ->select('total_weight as output_weight', 'waste', 'created_at')
-            ->where('created_by', $workerId)
-            ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
-            ->get();
-        $allRecords = $allRecords->merge($s4);
-
-        if ($allRecords->isNotEmpty()) {
-            $metrics['total_items'] = $allRecords->count();
-            $metrics['total_output_kg'] = round($allRecords->sum('output_weight'), 2);
-            $metrics['total_waste_kg'] = round($allRecords->sum('waste'), 2);
-            $metrics['avg_waste_percentage'] = $metrics['total_output_kg'] > 0 
-                ? round(($metrics['total_waste_kg'] / $metrics['total_output_kg']) * 100, 2) 
-                : 0;
-            $metrics['efficiency'] = round(100 - $metrics['avg_waste_percentage'], 2);
+            $output = $data->output ?? 0;
+            $waste = $data->waste ?? 0;
             
-            // Working days
-            $workingDays = $allRecords->map(function($item) {
-                return Carbon::parse($item->created_at)->format('Y-m-d');
-            })->unique()->count();
-            $metrics['working_days'] = $workingDays;
-            $metrics['avg_items_per_day'] = $workingDays > 0 
-                ? round($metrics['total_items'] / $workingDays, 1) 
-                : 0;
+            $metrics['by_stage']['stage' . $stage['stage_num']] = [
+                'items' => $data->items ?? 0,
+                'output_kg' => round($output, 2),
+                'waste_kg' => round($waste, 2),
+                'waste_pct' => $output > 0 ? round(($waste / $output) * 100, 2) : 0,
+                'efficiency' => $output > 0 ? round(100 - (($waste / $output) * 100), 2) : 0,
+            ];
         }
+
+        // Working days calculation based on Stage 1 (starting point)
+        $workingDays = DB::table('stage1_stands')
+            ->select(DB::raw('DATE(created_at) as date'))
+            ->where('created_by', $workerId)
+            ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->get()
+            ->count();
+
+        $metrics['working_days'] = $workingDays;
+        $metrics['avg_items_per_day_stage1'] = $workingDays > 0 
+            ? round($metrics['by_stage']['stage1']['items'] / $workingDays, 1) 
+            : 0;
 
         return $metrics;
     }
@@ -366,60 +335,57 @@ class WorkerPerformanceController extends Controller
 
     /**
      * Get worker daily performance trend
+     * Shows Stage 1 production only (starting point) to avoid counting same item multiple times
      */
     private function getWorkerDailyTrend($workerId, $dateFrom, $dateTo)
     {
-        // Get daily counts from all stages
-        $dailyData = [];
-        $tableNames = ['stage1_stands', 'stage2_processed', 'stage3_coils', 'stage4_boxes'];
-
-        for ($i = 1; $i <= 4; $i++) {
-            $tableName = $tableNames[$i - 1];
-            $weightColumn = ($i == 1) ? 'weight' : (($i == 3) ? 'total_weight' : (($i == 4) ? 'total_weight' : 'output_weight'));
-            
-            $records = DB::table($tableName)
-                ->select(
-                    DB::raw("DATE(created_at) as date"),
-                    DB::raw("COUNT(*) as items"),
-                    DB::raw("SUM({$weightColumn}) as output")
-                )
-                ->where('created_by', $workerId)
-                ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
-                ->groupBy('date')
-                ->get();
-
-            foreach ($records as $record) {
-                if (!isset($dailyData[$record->date])) {
-                    $dailyData[$record->date] = ['items' => 0, 'output' => 0];
-                }
-                $dailyData[$record->date]['items'] += $record->items;
-                $dailyData[$record->date]['output'] += $record->output;
-            }
-        }
+        // Get daily counts from Stage 1 only (starting point of production)
+        $dailyData = DB::table('stage1_stands')
+            ->select(
+                DB::raw("DATE(created_at) as date"),
+                DB::raw("COUNT(*) as items"),
+                DB::raw("SUM(weight) as output")
+            )
+            ->where('created_by', $workerId)
+            ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->get()
+            ->keyBy('date')
+            ->map(function($record) {
+                return [
+                    'items' => $record->items,
+                    'output' => round($record->output, 2)
+                ];
+            })
+            ->toArray();
 
         ksort($dailyData);
         return $dailyData;
     }
 
     /**
-     * Compare worker with team average
+     * Compare worker with team average (Stage 1 only to avoid duplicate counting)
      */
     private function compareWithTeamAverage($workerId, $dateFrom, $dateTo)
     {
         $workers = $this->getWorkersPerformance($dateFrom, $dateTo, null, null);
         
         $teamAvg = [
-            'items' => $workers->avg('totals.items'),
-            'output' => $workers->avg('totals.output'),
-            'waste_pct' => $workers->avg('totals.waste_pct'),
-            'efficiency' => $workers->avg('totals.efficiency'),
+            'items' => round($workers->avg('stage1.items'), 1),
+            'output' => round($workers->avg('stage1.output'), 2),
+            'waste_pct' => round($workers->avg('stage1.waste_pct'), 2),
+            'efficiency' => round($workers->avg(function($w) {
+                $output = $w['stage1']['output'];
+                $waste = $w['stage1']['waste'];
+                return $output > 0 ? 100 - (($waste / $output) * 100) : 0;
+            }), 2),
         ];
 
         $workerData = $workers->firstWhere('worker_id', $workerId);
         
         return [
             'team_avg' => $teamAvg,
-            'worker' => $workerData ? $workerData['totals'] : null,
+            'worker' => $workerData ? $workerData['stage1'] : null,
             'rank' => $workerData ? $workers->search(function($w) use ($workerId) {
                 return $w['worker_id'] == $workerId;
             }) + 1 : null,
@@ -434,12 +400,69 @@ class WorkerPerformanceController extends Controller
     {
         return [
             'total_workers' => $workers->count(),
-            'total_items' => $workers->sum('totals.items'),
-            'total_output' => round($workers->sum('totals.output'), 2),
-            'avg_efficiency' => round($workers->avg('totals.efficiency'), 2),
-            'top_performer' => $workers->sortByDesc('totals.efficiency')->first(),
-            'most_productive' => $workers->sortByDesc('totals.items')->first(),
+            'total_items_stage1' => $workers->sum('stage1.items'),
+            'total_output_stage1' => round($workers->sum('stage1.output'), 2),
+            'avg_efficiency_stage1' => round($workers->avg(function($w) {
+                $output = $w['stage1']['output'];
+                $waste = $w['stage1']['waste'];
+                return $output > 0 ? 100 - (($waste / $output) * 100) : 0;
+            }), 2),
+            'top_performer_stage1' => $workers->sortByDesc(function($w) {
+                $output = $w['stage1']['output'];
+                $waste = $w['stage1']['waste'];
+                return $output > 0 ? 100 - (($waste / $output) * 100) : 0;
+            })->first(),
+            'most_productive_stage1' => $workers->sortByDesc('stage1.items')->first(),
         ];
+    }
+
+    /**
+     * Get date range based on shift type
+     */
+    private function getDateRangeForShift($dateFrom, $dateTo, $shiftType = null)
+    {
+        $from = Carbon::parse($dateFrom);
+        $to = Carbon::parse($dateTo);
+
+        // If no shift type specified, use full day range
+        if (!$shiftType) {
+            return [
+                'start' => $from->copy()->startOfDay()->toDateTimeString(),
+                'end' => $to->copy()->endOfDay()->toDateTimeString(),
+            ];
+        }
+
+        // If same date, get shift time range for that date
+        if ($dateFrom === $dateTo) {
+            if ($shiftType === 'morning') {
+                // Morning shift: 6am-6pm
+                return [
+                    'start' => $from->copy()->setTime(6, 0, 0)->toDateTimeString(),
+                    'end' => $from->copy()->setTime(18, 0, 0)->toDateTimeString(),
+                ];
+            } else {
+                // Evening shift: 6pm-6am next day
+                return [
+                    'start' => $from->copy()->setTime(18, 0, 0)->toDateTimeString(),
+                    'end' => $from->copy()->addDay()->setTime(6, 0, 0)->toDateTimeString(),
+                ];
+            }
+        }
+
+        // For date range
+        if ($shiftType === 'morning') {
+            // Morning shift range: from 6am first day to 6pm last day
+            return [
+                'start' => $from->copy()->setTime(6, 0, 0)->toDateTimeString(),
+                'end' => $to->copy()->setTime(18, 0, 0)->toDateTimeString(),
+            ];
+        } else {
+            // Evening shift range: from 6pm first day to 6am day after last
+            return [
+                'start' => $from->copy()->setTime(18, 0, 0)->toDateTimeString(),
+                'end' => $to->copy()->addDay()->setTime(6, 0, 0)->toDateTimeString(),
+            ];
+        }
     }
 
     /**

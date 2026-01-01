@@ -2,6 +2,10 @@
 
 @section('title', __('stage4_report.page_title'))
 
+@push('head')
+<meta name="google" content="notranslate">
+@endpush
+
 @section('content')
     <link rel="stylesheet" href="{{ asset('assets/css/stage1-report.css') }}">
 

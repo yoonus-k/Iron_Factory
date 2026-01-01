@@ -57,22 +57,43 @@ class Stage3Controller extends Controller
      */
     public function create()
     {
-        // جلب قائمة الألوان (الصبغات) من المواد
-        // نعتمد على type_code = 'DYE' لضمان عدم ظهور مواد أخرى مثل البلاستيك حتى لو حدثت أخطاء في الأسماء
+        // جلب قائمة الألوان (الصبغات) من المواد مع الكميات المتاحة في المخزون
+        // نستخدم remaining_weight إذا كان أكبر من 0، وإلا نستخدم quantity
         $colors = DB::table('materials')
             ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
-            ->where('material_types.type_code', 'DYE')
-            ->where('materials.status', 'available')
-            ->select('materials.id', 'materials.name_ar', 'materials.barcode')
+            ->leftJoin('material_details', 'materials.id', '=', 'material_details.material_id')
+            ->whereIn('material_types.type_code', ['DYE', 'COLOR'])
+            ->whereIn('materials.status', ['available', 'in_use'])
+            ->select(
+                'materials.id',
+                'materials.name_ar',
+                'materials.barcode',
+                DB::raw('COALESCE(SUM(CASE 
+                    WHEN material_details.remaining_weight > 0 THEN material_details.remaining_weight 
+                    ELSE COALESCE(material_details.quantity, 0) 
+                END), 0) as available_weight')
+            )
+            ->groupBy('materials.id', 'materials.name_ar', 'materials.barcode')
             ->orderBy('materials.name_ar')
             ->get();
 
-        // جلب البلاستيك من المستودع
+        // جلب البلاستيك من المستودع مع الوزن المتاح
+        // نستخدم remaining_weight إذا كان أكبر من 0، وإلا نستخدم quantity
         $plastic = DB::table('materials')
             ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
+            ->leftJoin('material_details', 'materials.id', '=', 'material_details.material_id')
             ->where('material_types.type_code', 'PLASTIC')
-            ->where('materials.status', 'available')
-            ->select('materials.id', 'materials.name_ar', 'materials.barcode')
+            ->whereIn('materials.status', ['available', 'in_use'])
+            ->select(
+                'materials.id',
+                'materials.name_ar',
+                'materials.barcode',
+                DB::raw('COALESCE(SUM(CASE 
+                    WHEN material_details.remaining_weight > 0 THEN material_details.remaining_weight 
+                    ELSE COALESCE(material_details.quantity, 0) 
+                END), 0) as available_weight')
+            )
+            ->groupBy('materials.id', 'materials.name_ar', 'materials.barcode')
             ->first();
 
         // جلب اللفافات النشطة
@@ -874,6 +895,311 @@ class Stage3Controller extends Controller
             if ($remainingToDeduct > 0) {
                 $this->deductPlasticFromWarehouse($plasticMaterialId, $remainingToDeduct);
             }
+        }
+    }
+
+    /**
+     * جلب المعالجات المعلقة للمستخدم الحالي (من المرحلة الثانية)
+     * المعالجات التي تم إنتاجها ولم يتم تحويلها للمرحلة الثالثة بعد
+     */
+    public function getPendingItems()
+    {
+        try {
+            $userId = \Illuminate\Support\Facades\Auth::id();
+
+            // جلب المعالجات من المرحلة الثانية التي:
+            // 1. حالتها in_progress أو completed
+            // 2. لم يتم استخدامها في المرحلة الثالثة بعد
+            // 3. ليست pending_approval
+            $pendingItems = DB::table('stage2_processed')
+                ->leftJoin('materials', 'stage2_processed.material_id', '=', 'materials.id')
+                ->leftJoin('users', 'stage2_processed.created_by', '=', 'users.id')
+                ->whereIn('stage2_processed.status', ['in_progress', 'completed'])
+                ->whereNotIn('stage2_processed.status', ['pending_approval', 'consumed'])
+                ->whereNotExists(function($query) {
+                    $query->select(DB::raw(1))
+                        ->from('stage3_coils')
+                        ->whereColumn('stage3_coils.parent_barcode', 'stage2_processed.barcode');
+                })
+                ->select(
+                    'stage2_processed.id',
+                    'stage2_processed.barcode',
+                    'stage2_processed.parent_barcode',
+                    'stage2_processed.output_weight',
+                    'stage2_processed.wire_size',
+                    'stage2_processed.process_type',
+                    'stage2_processed.status',
+                    'stage2_processed.created_at',
+                    'stage2_processed.updated_at',
+                    'materials.name_ar as material_name',
+                    'users.name as created_by_name'
+                )
+                ->orderBy('stage2_processed.updated_at', 'desc')
+                ->limit(20)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'count' => $pendingItems->count(),
+                'items' => $pendingItems
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * جلب اللفافات المعلقة للمستخدم الحالي
+     */
+    public function getPendingLafafs()
+    {
+        try {
+            $userId = \Illuminate\Support\Facades\Auth::id();
+
+            // جلب اللفافات التي أنشأها المستخدم الحالي وحالتها معلقة أو قيد المعالجة
+            $pendingLafafs = DB::table('stage3_coils')
+                ->leftJoin('materials', 'stage3_coils.material_id', '=', 'materials.id')
+                ->where('stage3_coils.created_by', $userId)
+                ->whereIn('stage3_coils.status', ['pending', 'in_progress', 'pending_approval'])
+                ->select(
+                    'stage3_coils.id',
+                    'stage3_coils.barcode',
+                    'stage3_coils.coil_number',
+                    'stage3_coils.total_weight',
+                    'stage3_coils.net_weight',
+                    'stage3_coils.color',
+                    'stage3_coils.status',
+                    'stage3_coils.created_at',
+                    'materials.name_ar as material_name'
+                )
+                ->orderBy('stage3_coils.created_at', 'desc')
+                ->limit(20)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'count' => $pendingLafafs->count(),
+                'items' => $pendingLafafs
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * جلب طلبات النقل الواردة للمستخدم الحالي
+     */
+    public function getPendingTransfers()
+    {
+        try {
+            $userId = \Illuminate\Support\Facades\Auth::id();
+
+            // جلب طلبات النقل الواردة للمستخدم الحالي
+            $pendingTransfers = DB::table('stage3_coils')
+                ->leftJoin('materials', 'stage3_coils.material_id', '=', 'materials.id')
+                ->leftJoin('users as sender', 'stage3_coils.transferred_from', '=', 'sender.id')
+                ->where('stage3_coils.transferred_to', $userId)
+                ->where('stage3_coils.transfer_status', 'pending')
+                ->select(
+                    'stage3_coils.id',
+                    'stage3_coils.barcode',
+                    'stage3_coils.coil_number',
+                    'stage3_coils.total_weight',
+                    'stage3_coils.net_weight',
+                    'stage3_coils.color',
+                    'stage3_coils.transfer_reason',
+                    'stage3_coils.transfer_notes',
+                    'stage3_coils.created_at',
+                    'materials.name_ar as material_name',
+                    'sender.name as sender_name'
+                )
+                ->orderBy('stage3_coils.updated_at', 'desc')
+                ->limit(20)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'count' => $pendingTransfers->count(),
+                'transfers' => $pendingTransfers
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * نقل لفاف لموظف آخر
+     */
+    public function transferLafaf(Request $request)
+    {
+        try {
+            $userId = \Illuminate\Support\Facades\Auth::id();
+            $barcode = $request->input('barcode');
+            $newWorkerId = $request->input('new_worker_id');
+            $reason = $request->input('reason', '');
+            $notes = $request->input('notes', '');
+
+            if (!$barcode || !$newWorkerId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'يرجى تحديد الباركود والموظف الجديد'
+                ], 400);
+            }
+
+            // التحقق من أن اللفاف موجود ومملوك للمستخدم الحالي
+            $lafaf = DB::table('stage3_coils')
+                ->where('barcode', $barcode)
+                ->where('created_by', $userId)
+                ->first();
+
+            if (!$lafaf) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'اللفاف غير موجود أو لا تملك صلاحية نقله'
+                ], 404);
+            }
+
+            // تحديث اللفاف بمعلومات النقل
+            DB::table('stage3_coils')
+                ->where('id', $lafaf->id)
+                ->update([
+                    'transferred_from' => $userId,
+                    'transferred_to' => $newWorkerId,
+                    'transfer_status' => 'pending',
+                    'transfer_reason' => $reason,
+                    'transfer_notes' => $notes,
+                    'updated_at' => now()
+                ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم إرسال طلب النقل بنجاح'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * قبول طلب نقل لفاف
+     */
+    public function acceptLafafTransfer(Request $request)
+    {
+        try {
+            $userId = \Illuminate\Support\Facades\Auth::id();
+            $barcode = $request->input('barcode');
+
+            if (!$barcode) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'يرجى تحديد الباركود'
+                ], 400);
+            }
+
+            // التحقق من أن طلب النقل موجود وموجه للمستخدم الحالي
+            $lafaf = DB::table('stage3_coils')
+                ->where('barcode', $barcode)
+                ->where('transferred_to', $userId)
+                ->where('transfer_status', 'pending')
+                ->first();
+
+            if (!$lafaf) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'طلب النقل غير موجود أو تم معالجته مسبقاً'
+                ], 404);
+            }
+
+            // قبول النقل - تغيير المالك
+            DB::table('stage3_coils')
+                ->where('id', $lafaf->id)
+                ->update([
+                    'created_by' => $userId,
+                    'transfer_status' => 'accepted',
+                    'transfer_accepted_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم قبول النقل بنجاح'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * رفض طلب نقل لفاف
+     */
+    public function rejectLafafTransfer(Request $request)
+    {
+        try {
+            $userId = \Illuminate\Support\Facades\Auth::id();
+            $barcode = $request->input('barcode');
+            $reason = $request->input('reason', '');
+
+            if (!$barcode) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'يرجى تحديد الباركود'
+                ], 400);
+            }
+
+            // التحقق من أن طلب النقل موجود وموجه للمستخدم الحالي
+            $lafaf = DB::table('stage3_coils')
+                ->where('barcode', $barcode)
+                ->where('transferred_to', $userId)
+                ->where('transfer_status', 'pending')
+                ->first();
+
+            if (!$lafaf) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'طلب النقل غير موجود أو تم معالجته مسبقاً'
+                ], 404);
+            }
+
+            // رفض النقل - إعادة اللفاف للمالك الأصلي
+            DB::table('stage3_coils')
+                ->where('id', $lafaf->id)
+                ->update([
+                    'transfer_status' => 'rejected',
+                    'transfer_rejection_reason' => $reason,
+                    'transferred_to' => null,
+                    'updated_at' => now()
+                ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم رفض طلب النقل'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

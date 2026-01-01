@@ -33,22 +33,26 @@ return [
     'unit_per_day' => 'سجل في اليوم',
     'positive_growth' => 'نمو ايجابي',
     'production_efficiency' => 'كفاءة الانتاج',
+    'efficiency_rate' => 'معدل الكفاءة',
 
     // Alerts
     'alert_warning' => 'تنبيه',
     'alert_danger' => 'خطر',
     'alert_success' => 'ممتاز',
     'pending_approval_msg' => 'هناك استاند في انتظار الموافقة بسبب تجاوز نسبة الهدر المسموحة',
+    'in_progress_msg' => 'هناك سجلات قيد المعالجة - يرجى المتابعة',
     'high_waste_detected' => 'تم اكتشاف استاند بنسبة هدر عالية جدا',
     'requires_review' => 'يتطلب مراجعة فورية',
-    'optimal_waste_level' => 'متوسط نسبة الهدر في المرحلة الاولى في المستوى الامثل',
+    'optimal_waste_level' => 'متوسط نسبة الهدر في المرحلة الثانية في المستوى الامثل',
 
     // Filters Section
     'filters' => 'البحث والتصفية',
     'search_barcode' => 'البحث بالباركود',
-    'barcode_placeholder' => 'مثلا: ST1-001',
+    'barcode_placeholder' => 'مثلا: ST2-001',
     'status_label' => 'الحالة',
     'all_statuses' => '-- الكل --',
+    'status_started' => 'بدء',
+    'status_in_progress' => 'قيد المعالجة',
     'status_created' => 'انشاء جديد',
     'status_in_process' => 'قيد المعالجة',
     'status_completed' => 'مكتمل',
@@ -81,6 +85,9 @@ return [
     'record_count' => 'سجل',
     'table_no' => '#',
     'table_barcode' => 'الباركود',
+    'table_parent_barcode' => 'باركود المرحلة الأولى',
+    'table_input_weight' => 'الوزن الداخل',
+    'table_output_weight' => 'الوزن الخارج',
     'table_material' => 'المادة',
     'table_stand' => 'الاداة (الاستاند)',
     'table_stand_weight' => 'وزن الاستاند',
@@ -108,13 +115,21 @@ return [
 
     // Top Performers
     'top_performers' => 'افضل الاداء',
+    'worker_performance' => 'أداء العمال',
     'best_worker' => 'افضل عامل',
     'name' => 'الاسم',
+    'worker_name' => 'اسم العامل',
     'worker_records_count' => 'عدد السجلات',
+    'records_count' => 'عدد السجلات',
+    'total_input_material' => 'إجمالي المادة الداخلة',
+    'total_waste_amount' => 'إجمالي الهدر',
     'avg_waste' => 'متوسط الهدر',
+    'avg_waste_percentage' => 'متوسط نسبة الهدر',
     'best_record' => 'افضل سجل',
     'record_number' => 'رقم السجل',
     'waste_percentage' => 'نسبة الهدر',
+    'lowest_waste_rate' => 'أقل نسبة هدر',
+    'process_efficiency' => 'كفاءة المعالجة',
     'usage_count' => 'عدد الاستخدامات',
 
     // Recent Records
@@ -122,6 +137,7 @@ return [
     'last_10_records' => 'آخر 10 سجلات',
     'no_data_yet' => 'لا توجد بيانات في المرحلة الثانية حتى الآن',
     'no_records_yet' => 'لا توجد سجلات حتى الآن',
+    'no_worker_data' => 'لا توجد بيانات للعمال',
 
     // Waste Analysis
     'waste_analysis' => 'تحليل الهدر',
@@ -143,6 +159,7 @@ return [
     'warehouse_label' => 'من المرحلة الاولى',
     'net_material' => 'المادة الصافية',
     'stage2' => 'المرحلة الثالثة',
+    'stage3' => 'إلى المرحلة الثالثة',
     'waste_kg' => 'الهدر',
     'percentage' => '%',
 
@@ -155,6 +172,7 @@ return [
     'daily_waste' => 'اجمالي الهدر',
     'daily_avg_waste' => 'متوسط نسبة الهدر',
     'daily_completed' => 'الاستاندات المكتملة',
+    'daily_in_progress' => 'قيد المعالجة',
     'daily_pending' => 'الاستاندات المعلقة',
     'no_daily_data' => 'لا توجد بيانات يومية',
 
