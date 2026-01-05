@@ -2,6 +2,10 @@
 
 @section('title', __('app.quality.tracking_report.title'))
 
+@push('head')
+<meta name="google" content="notranslate">
+@endpush
+
 @section('content')
     <div class="um-content-wrapper">
         <!-- Header Section -->

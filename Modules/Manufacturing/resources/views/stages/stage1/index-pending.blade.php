@@ -72,10 +72,15 @@
                 <div style="background: linear-gradient(180deg, #ffffff 0%, #fff9f9 100%); border-radius: 12px; border: 1px solid rgba(231,76,60,0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden;">
                     <!-- Card Header -->
                     <div style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; padding: 15px 20px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                             <div>
                                 <div style="font-size: 12px; opacity: 0.9;">باركود الكويل</div>
                                 <div style="font-size: 18px; font-weight: bold; font-family: monospace;">{{ $coil->parent_barcode }}</div>
+                                @if($coil->transfer_status)
+                                    <div style="margin-top: 8px; font-size: 13px; background: {{ $coil->transfer_status == 'pending' ? 'rgba(255,165,0,0.9)' : 'rgba(155,89,182,0.9)' }}; padding: 4px 10px; border-radius: 12px; display: inline-block;">
+                                        <i class="fas fa-share"></i> منقول إلى {{ $coil->transfer_recipient_name }} - {{ $coil->transfer_status == 'pending' ? 'بانتظار الموافقة' : 'تم القبول' }}
+                                    </div>
+                                @endif
                             </div>
                             <div style="background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; font-weight: bold;">
                                 {{ $coil->stands_count }} استاند
@@ -126,6 +131,8 @@
                     @php
                         $remainingWeight = $coil->transfer_weight - ($coil->used_weight ?? 0);
                         $isFullyConsumed = $remainingWeight <= 0;
+                        $isTransferred = !empty($coil->transfer_status);
+                        $transferDisabled = $isFullyConsumed || $isTransferred;
                     @endphp
                     <div style="padding: 15px 20px; background: #f8f9fa; border-top: 1px solid #eee; display: flex; gap: 10px; flex-wrap: wrap;">
                         <a href="{{ route('manufacturing.stage1.create') }}?barcode={{ $coil->parent_barcode }}" 
@@ -137,10 +144,10 @@
                             <i class="fas fa-check-double"></i> إنهاء الكويل
                         </button>
                         <button type="button" 
-                                onclick="showTransferModal('{{ $coil->parent_barcode }}', '{{ $coil->material_name }}', {{ $remainingWeight }})"
-                                style="flex: 1; min-width: 120px; background: {{ $isFullyConsumed ? '#bdc3c7' : '#9b59b6' }}; color: white; padding: 12px; border-radius: 8px; border: none; cursor: {{ $isFullyConsumed ? 'not-allowed' : 'pointer' }}; font-weight: 600; {{ $isFullyConsumed ? 'opacity: 0.6;' : '' }}"
-                                {{ $isFullyConsumed ? 'disabled' : '' }}
-                                title="{{ $isFullyConsumed ? 'لا يمكن نقل كويل تم استهلاكه بالكامل' : 'نقل الكويل لموظف آخر' }}">
+                                onclick="{{ $transferDisabled ? 'return false;' : "showTransferModal('" . $coil->parent_barcode . "', '" . $coil->material_name . "', " . $remainingWeight . ")" }}"
+                                style="flex: 1; min-width: 120px; background: {{ $transferDisabled ? '#bdc3c7' : '#9b59b6' }}; color: white; padding: 12px; border-radius: 8px; border: none; cursor: {{ $transferDisabled ? 'not-allowed' : 'pointer' }}; font-weight: 600; {{ $transferDisabled ? 'opacity: 0.6;' : '' }}"
+                                {{ $transferDisabled ? 'disabled' : '' }}
+                                title="{{ $isTransferred ? 'تم نقل الكويل بالفعل إلى ' . $coil->transfer_recipient_name : ($isFullyConsumed ? 'لا يمكن نقل كويل تم استهلاكه بالكامل' : 'نقل الكويل لموظف آخر') }}">
                             <i class="fas fa-share"></i> نقل لموظف
                         </button>
                     </div>

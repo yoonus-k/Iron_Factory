@@ -47,6 +47,31 @@ class StageSuspension extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
+    /**
+     * Get all stands related to this suspension (Stage 1)
+     */
+    public function stands()
+    {
+        if ($this->stage_number == 1) {
+            return $this->hasMany(\App\Models\Stage1Stand::class, 'parent_barcode', 'batch_barcode')
+                ->where('status', 'pending_approval')
+                ->orderBy('created_at', 'desc');
+        }
+        return null;
+    }
+
+    /**
+     * Get all stands related to this coil (including completed ones)
+     */
+    public function allStands()
+    {
+        if ($this->stage_number == 1) {
+            return $this->hasMany(\App\Models\Stage1Stand::class, 'parent_barcode', 'batch_barcode')
+                ->orderBy('created_at', 'desc');
+        }
+        return null;
+    }
+
     public function getStageName(): string
     {
         $names = [

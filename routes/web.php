@@ -16,7 +16,7 @@ Route::get('/', function () {
 // Protected Routes - Require Authentication
 Route::middleware(['auth'])->group(function () {
     // Dashboard Route - with permission check
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/stage-worker/dashboard', [App\Http\Controllers\StageWorkerDashboardController::class, 'index'])->name('stage-worker.dashboard.index');
     Route::get('/stage-worker/dashboard/updates', [App\Http\Controllers\StageWorkerDashboardController::class, 'getUpdates'])->name('stage-worker.dashboard.updates');
     Route::post('/stage-worker/dashboard/confirm/{id}', [App\Http\Controllers\StageWorkerDashboardController::class, 'quickConfirm'])->name('stage-worker.dashboard.confirm');

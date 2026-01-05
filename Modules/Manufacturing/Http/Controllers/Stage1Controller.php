@@ -67,6 +67,23 @@ class Stage1Controller extends Controller
             $pendingCoils = $query->orderBy('updated_at', 'desc')
                 ->paginate(20);
 
+            // إضافة معلومات النقل لكل كويل
+            foreach ($pendingCoils as $coil) {
+                $transferInfo = DB::table('production_confirmations')
+                    ->join('users', 'production_confirmations.assigned_to', '=', 'users.id')
+                    ->where('production_confirmations.barcode', $coil->parent_barcode)
+                    ->select('production_confirmations.status', 'users.name as recipient_name')
+                    ->first();
+                
+                if ($transferInfo) {
+                    $coil->transfer_status = $transferInfo->status;
+                    $coil->transfer_recipient_name = $transferInfo->recipient_name;
+                } else {
+                    $coil->transfer_status = null;
+                    $coil->transfer_recipient_name = null;
+                }
+            }
+
             return view('manufacturing::stages.stage1.index-pending', compact('pendingCoils', 'viewingAll', 'showPendingOnly', 'canViewAllPending'));
         }
 
@@ -298,9 +315,10 @@ class Stage1Controller extends Controller
 
             // الحالة الافتراضية للاستاند هي 'created'
             // حساب الهدر الكلي سيتم عند إنهاء الكويل بالكامل (عبر دالة finishCoil)
+            // لا نحفظ الهدر على مستوى الاستاند الفردي، بل على مستوى الكويل الكلي
             $recordStatus = 'created';
-            $wasteWeight = $validated['waste_weight'] ?? 0;
-            $wastePercentage = $validated['waste_percentage'] ?? 0;
+            $wasteWeight = 0;  // الهدر يُحسب على مستوى الكويل عند الإنهاء
+            $wastePercentage = 0;
 
             // تحديث حالة الاستاند
             $stand->update([
@@ -336,7 +354,7 @@ class Stage1Controller extends Controller
                 'stand_number' => $stand->stand_number,
                 'wire_size' => $validated['wire_size'] ?? '0',
                 'weight' => $validated['total_weight'],
-                'waste' => $validated['waste_weight'] ?? 0,
+                'waste' => 0,  // الهدر يُحسب على مستوى الكويل عند الإنهاء، ليس على مستوى الاستاند
                 'remaining_weight' => $netWeight,
                 'status' => $recordStatus,
                 'created_by' => $userId,
@@ -1150,7 +1168,6 @@ class Stage1Controller extends Controller
                 ->where('parent_barcode', $materialBarcode)
                 ->selectRaw('
                     SUM(remaining_weight) as total_net_weight,
-                    SUM(waste) as total_waste,
                     COUNT(*) as stands_count
                 ')
                 ->first();
@@ -1162,22 +1179,20 @@ class Stage1Controller extends Controller
                 ], 404);
             }
 
-            // الوزن المنقول للإنتاج (يشمل وزن الاستاندات والمادة)
+            // الوزن المنقول للإنتاج (وزن المادة الخام فقط، بدون وزن الاستاندات)
             $transferredWeight = $coilTransfer->transfer_weight;
 
-            // إجمالي الوزن الصافي المنتج (المادة فقط بدون الاستاندات)
+            // إجمالي الوزن الصافي المنتج (المادة بعد التقسيم على الاستاندات)
             $totalNetWeight = $stage1Data->total_net_weight;
 
-            // إجمالي الهدر الفعلي المسجل
-            $totalWaste = $stage1Data->total_waste;
+            // حساب الهدر الحقيقي
+            // الهدر = الوزن المنقول - إجمالي الوزن الصافي المنتج
+            $totalWaste = $transferredWeight - $totalNetWeight;
+            $totalWaste = max(0, $totalWaste); // التأكد من عدم وجود قيم سالبة
 
-            // حساب وزن المادة الفعلي المدخل = الوزن الصافي + الهدر
-            // (لأن transferred_weight يشمل وزن الاستاندات)
-            $totalMaterialWeight = $totalNetWeight + $totalWaste;
-
-            // حساب نسبة الهدر الكلية من وزن المادة فقط
-            $wastePercentage = $totalMaterialWeight > 0 
-                ? ($totalWaste / $totalMaterialWeight) * 100 
+            // حساب نسبة الهدر من الوزن المنقول
+            $wastePercentage = $transferredWeight > 0 
+                ? ($totalWaste / $transferredWeight) * 100 
                 : 0;
 
             // جلب نسبة الهدر المسموح بها من إعدادات المرحلة الأولى
@@ -1202,8 +1217,8 @@ class Stage1Controller extends Controller
                 $suspension = StageSuspension::create([
                     'stage_number' => 1,
                     'batch_barcode' => $materialBarcode,
-                    'input_weight' => $totalMaterialWeight,  // وزن المادة الفعلي (بدون الاستاندات)
-                    'output_weight' => $totalNetWeight,
+                    'input_weight' => $transferredWeight,  // الوزن المنقول للإنتاج
+                    'output_weight' => $totalNetWeight,    // إجمالي الوزن الصافي المنتج
                     'waste_weight' => $totalWaste,
                     'waste_percentage' => $wastePercentage,
                     'allowed_percentage' => $allowedPercentage,
@@ -1214,7 +1229,6 @@ class Stage1Controller extends Controller
                     'additional_data' => [
                         'coil_transfer_id' => $coilTransfer->id,
                         'stands_count' => $stage1Data->stands_count,
-                        'transferred_weight' => $transferredWeight,  // الوزن المنقول الكلي (مع الاستاندات)
                     ],
                 ]);
                 $suspensionId = $suspension->id;
@@ -1232,10 +1246,9 @@ class Stage1Controller extends Controller
                 'exceeded' => $exceeded,
                 'data' => [
                     'material_barcode' => $materialBarcode,
-                    'transferred_weight' => $transferredWeight,
-                    'total_material_weight' => $totalMaterialWeight,  // وزن المادة الفعلي
-                    'total_net_weight' => $totalNetWeight,
-                    'total_waste' => $totalWaste,
+                    'transferred_weight' => $transferredWeight,  // الوزن المنقول للإنتاج
+                    'total_net_weight' => $totalNetWeight,        // إجمالي الوزن الصافي المنتج
+                    'total_waste' => $totalWaste,                 // الهدر = المنقول - الصافي
                     'waste_percentage' => round($wastePercentage, 2),
                     'allowed_percentage' => $allowedPercentage,
                     'stands_count' => $stage1Data->stands_count,
@@ -1249,16 +1262,14 @@ class Stage1Controller extends Controller
                 $response['alert_message'] = sprintf(
                     '🔴 تم إنهاء الكويل لكن تجاوزت نسبة الهدر الحد المسموح به:\n\n' .
                     '📊 ملخص الكويل:\n' .
-                    '• الوزن المنقول للإنتاج (كلي): %s كجم\n' .
-                    '• وزن المادة الفعلي (بدون الاستاندات): %s كجم\n' .
-                    '• إجمالي الوزن الصافي: %s كجم\n' .
+                    '• الوزن المنقول للإنتاج: %s كجم\n' .
+                    '• إجمالي الوزن الصافي المنتج: %s كجم\n' .
                     '• إجمالي الهدر: %s كجم\n' .
                     '• نسبة الهدر: %s%%\n' .
                     '• النسبة المسموح بها: %s%%\n' .
                     '• عدد الاستاندات: %d\n\n' .
                     '⏸️ تم إيقاف الاستاندات في انتظار موافقة الإدارة',
                     number_format($transferredWeight, 2),
-                    number_format($totalMaterialWeight, 2),
                     number_format($totalNetWeight, 2),
                     number_format($totalWaste, 2),
                     number_format($wastePercentage, 2),

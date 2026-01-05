@@ -122,6 +122,7 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
+                            <th style="width: 30px;"></th>
                             <th>{{ __('stage_suspensions.stage_name') }}</th>
                             <th>{{ __('stage_suspensions.barcode') }}</th>
                             <th>{{ __('stage_suspensions.input_weight') }}</th>
@@ -136,12 +137,21 @@
                     </thead>
                     <tbody>
                         @foreach($suspensions as $suspension)
-                        <tr>
+                        <!-- صف الكويل الرئيسي -->
+                        <tr class="coil-row" style="background-color: #f8f9fa; font-weight: bold;">
+                            <td>
+                                @if($suspension->allStands && $suspension->allStands->count() > 0)
+                                <button class="btn btn-sm btn-link toggle-stands" data-target="stands-{{ $suspension->id }}" style="padding: 0;">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                                @endif
+                            </td>
                             <td><strong>{{ $suspension->getStageName() }}</strong></td>
                             <td>
-                                <code>{{ $suspension->production_barcode }}</code>
-                                @if($suspension->production_barcode !== $suspension->batch_barcode)
-                                    <br><small class="text-muted">المادة: {{ $suspension->batch_barcode }}</small>
+                                <code style="font-size: 14px;">{{ $suspension->batch_barcode }}</code>
+                                <br><small class="text-muted">كويل رئيسي</small>
+                                @if($suspension->allStands && $suspension->allStands->count() > 0)
+                                    <span class="badge bg-info" style="font-size: 11px;">{{ $suspension->allStands->count() }} استاند</span>
                                 @endif
                             </td>
                             <td>{{ number_format($suspension->input_weight, 2) }} {{ __('stage_suspensions.kg') }}</td>
@@ -185,6 +195,48 @@
                                 </div>
                             </td>
                         </tr>
+                        
+                        <!-- صفوف الاستاندات الفرعية (قابلة للطي) -->
+                        @if($suspension->allStands && $suspension->allStands->count() > 0)
+                            @foreach($suspension->allStands as $stand)
+                            <tr class="stand-row stands-{{ $suspension->id }}" style="display: none; background-color: #ffffff;">
+                                <td></td>
+                                <td style="padding-right: 30px;">
+                                    <i class="fas fa-level-up-alt fa-rotate-90 text-muted me-2"></i>
+                                    <small class="text-muted">استاند</small>
+                                </td>
+                                <td>
+                                    <code>{{ $stand->barcode }}</code>
+                                    @if($stand->stand_number)
+                                        <br><small class="text-muted">استاند #{{ $stand->stand_number }}</small>
+                                    @endif
+                                </td>
+                                <td>{{ number_format($stand->input_weight ?? 0, 2) }} {{ __('stage_suspensions.kg') }}</td>
+                                <td>{{ number_format($stand->net_weight ?? 0, 2) }} {{ __('stage_suspensions.kg') }}</td>
+                                <td>{{ number_format(($stand->input_weight ?? 0) - ($stand->net_weight ?? 0), 2) }} {{ __('stage_suspensions.kg') }}</td>
+                                <td>
+                                    @php
+                                        $standWaste = $stand->input_weight > 0 ? ((($stand->input_weight - $stand->net_weight) / $stand->input_weight) * 100) : 0;
+                                    @endphp
+                                    <span class="badge {{ $standWaste > $suspension->allowed_percentage ? 'bg-danger' : 'bg-success' }}">
+                                        {{ number_format($standWaste, 2) }}%
+                                    </span>
+                                </td>
+                                <td>-</td>
+                                <td>
+                                    @if($stand->status == 'pending_approval')
+                                        <span class="badge bg-warning">معلق</span>
+                                    @elseif($stand->status == 'completed')
+                                        <span class="badge bg-success">مكتمل</span>
+                                    @else
+                                        <span class="badge bg-secondary">{{ $stand->status }}</span>
+                                    @endif
+                                </td>
+                                <td>{{ $stand->created_at->format('Y-m-d H:i') }}</td>
+                                <td><small class="text-muted">-</small></td>
+                            </tr>
+                            @endforeach
+                        @endif
                         @endforeach
                     </tbody>
                 </table>
@@ -219,6 +271,7 @@
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         {{ __('stage_suspensions.confirm_approve') }}
+                        <br><strong class="text-dark">سيتم الموافقة على الكويل كاملاً مع جميع الاستاندات المرتبطة به</strong>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">{{ __('stage_suspensions.notes') }}</label>
@@ -253,6 +306,7 @@
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         {{ __('stage_suspensions.confirm_reject') }}
+                        <br><strong>سيتم رفض الكويل كاملاً مع جميع الاستاندات المرتبطة به</strong>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">{{ __('stage_suspensions.reject_reason') }} <span class="text-danger">*</span></label>
@@ -274,6 +328,21 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
+    // Toggle stands visibility
+    $('.toggle-stands').on('click', function() {
+        const target = $(this).data('target');
+        const icon = $(this).find('i');
+        
+        $(`.${target}`).toggle();
+        
+        // Toggle icon
+        if (icon.hasClass('fa-chevron-down')) {
+            icon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+        } else {
+            icon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        }
+    });
+
     // Approve button
     $('.approve-btn').on('click', function() {
         const id = $(this).data('id');

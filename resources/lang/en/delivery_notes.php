@@ -62,6 +62,9 @@ return [
     'coil_number' => 'Coil Number',
     'unit' => 'Unit',
     'activity' => 'Activity',
+    'driver_name' => 'Driver Name',
+    'vehicle_plate_number' => 'Vehicle Plate Number',
+    'received_from_person' => 'Received From (Supplier Contact)',
 
     // Warehouse Management
     'warehouse_management' => 'Warehouse & Transfer Management',
@@ -87,6 +90,7 @@ return [
     'view' => 'View',
     'edit' => 'Edit',
     'delete' => 'Delete',
+    'print' => 'Print Delivery Note',
     'save' => 'Save',
     'save_changes' => 'Save Changes',
     'cancel' => 'Cancel',

@@ -82,6 +82,14 @@
                     </div>
                 </div>
                 <div class="header-actions">
+                    <a href="{{ route('manufacturing.delivery-notes.print', $deliveryNote) }}" class="btn btn-primary" target="_blank" rel="noopener" title="{{ __('delivery_notes.print') }}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                            <rect x="6" y="13" width="12" height="9"></rect>
+                            <line x1="6" y1="17" x2="6.01" y2="17"></line>
+                        </svg>
+                        {{ __('delivery_notes.print') }}
+                    </a>
                     <a href="{{ route('manufacturing.delivery-notes.index') }}" class="btn btn-back">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -256,6 +264,16 @@
                     <div class="info-item">
                         <div class="info-label">{{ __('delivery_notes.invoice_number') }}:</div>
                         <div class="info-value">{{ $deliveryNote->invoice_number ?? $deliveryNote->invoice_reference_number ?? 'N/A' }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">🚚 رقم اللوحة:</div>
+                        <div class="info-value">{{ $deliveryNote->vehicle_plate_number ?? 'غير مسجل' }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">👤 المستلم من المورد:</div>
+                        <div class="info-value">{{ $deliveryNote->received_from_person ?? 'غير مسجل' }}</div>
                     </div>
                 </div>
             </div>

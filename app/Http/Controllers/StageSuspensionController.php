@@ -31,6 +31,17 @@ class StageSuspensionController extends Controller
 
         $suspensions = $query->paginate(20);
         
+        // Load stands manually for each Stage 1 suspension
+        foreach ($suspensions as $suspension) {
+            if ($suspension->stage_number == 1) {
+                $suspension->allStands = \App\Models\Stage1Stand::where('parent_barcode', $suspension->batch_barcode)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            } else {
+                $suspension->allStands = collect(); // Empty collection
+            }
+        }
+        
         // Statistics
         $stats = [
             'total' => StageSuspension::count(),

@@ -452,10 +452,9 @@ class ProductTrackingController extends Controller
             $additionalInfo['items_count'] = $itemsCount;
         }
 
-        // حساب متوسط نسبة الهدر
-        $wastePercentage = $totalInputWeight > 0 
-            ? round(($totalWaste / $totalInputWeight) * 100, 2)
-            : 0;
+        // استخدام waste_percentage المحفوظة في الجدول (محسوبة بشكل صحيح من كل مرحلة)
+        // بدلاً من إعادة حسابها هنا لأن كل مرحلة لها طريقة حساب مختلفة
+        $wastePercentage = $firstRecord->waste_percentage ?? 0;
 
         return [
             'stage' => $stageName,

@@ -79,6 +79,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('delivery-notes', DeliveryNoteController::class)
         ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_READ')
         ->names('manufacturing.delivery-notes');
+    Route::get('delivery-notes/{deliveryNote}/print', [DeliveryNoteController::class, 'print'])
+        ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_READ')
+        ->name('manufacturing.delivery-notes.print');
     Route::get('delivery-notes/{deliveryNote}/coils-summary', [DeliveryNoteController::class, 'coilsSummary'])
         ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_READ')
         ->name('manufacturing.delivery-notes.coils-summary');

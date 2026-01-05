@@ -72,6 +72,9 @@ return [
     'coil_number' => 'کوائل نمبر',
     'unit' => 'یونٹ',
     'activity' => 'سرگرمی',
+    'driver_name' => 'ڈرائیور کا نام',
+    'vehicle_plate_number' => 'گاڑی کی نمبر پلیٹ',
+    'received_from_person' => 'سپلائر سے وصول کرنے والا',
 
     // Warehouse Management
     'warehouse_management' => 'گودام اور منتقلی کا انتظام',
@@ -97,6 +100,7 @@ return [
     'view' => 'دیکھیں',
     'edit' => 'ترمیم کریں',
     'delete' => 'حذف کریں',
+    'print' => 'ڈیلیوری نوٹ پرنٹ کریں',
     'save' => 'محفوظ کریں',
     'save_changes' => 'تبدیلیاں محفوظ کریں',
     'cancel' => 'منسوخ کریں',
