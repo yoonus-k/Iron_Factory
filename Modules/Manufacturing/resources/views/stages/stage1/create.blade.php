@@ -919,6 +919,48 @@ function removeCurrentCoilFromPending() {
     renderPendingCoilsPanel();
 }
 
+// إعادة تعيين الحالة الحالية (تُستخدم بعد نقل الكويل أو إنهائه)
+function resetCurrentState() {
+    // إعادة تعيين المتغيرات
+    currentMaterial = null;
+    materialTransferredWeight = 0;
+    currentCoilHasStands = false;
+    processedStands = [];
+    selectedStand = null;
+    
+    // إخفاء عرض معلومات المادة
+    const materialDisplay = document.getElementById('materialDisplay');
+    if (materialDisplay) {
+        materialDisplay.classList.remove('active');
+    }
+    
+    // إخفاء قسم تقدم الكويل
+    const coilProgressSection = document.getElementById('coilProgressSection');
+    if (coilProgressSection) {
+        coilProgressSection.style.display = 'none';
+    }
+    
+    // إخفاء قسم إنهاء الكويل
+    const finishCoilSection = document.getElementById('finishCoilSection');
+    if (finishCoilSection) {
+        finishCoilSection.style.display = 'none';
+    }
+    
+    // مسح حقل الباركود
+    const barcodeInput = document.getElementById('materialBarcode');
+    if (barcodeInput) {
+        barcodeInput.value = '';
+    }
+    
+    // تحديث حالة حقل الباركود
+    updateBarcodeInputState();
+    
+    // تحديث لوحة الكويلات المعلقة
+    renderPendingCoilsPanel();
+    
+    console.log('✅ تم إعادة تعيين الحالة بنجاح');
+}
+
 function updateFinishCoilButtonState(canFinish) {
     const finishSection = document.getElementById('finishCoilSection');
     const finishBtn = document.getElementById('finishCoilBtn');
