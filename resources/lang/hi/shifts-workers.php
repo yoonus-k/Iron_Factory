@@ -170,7 +170,7 @@ return [
     'update_date' => 'अपडेट तिथि',
     'shift_details_card' => 'शिफ्ट जानकारी',
     'shift_workers_count' => 'अतिरिक्त जानकारी',
-    'shift_workers_list' => 'नियुक्त कर्मचारी ({count})',
+    'shift_workers_list' => 'नियुक्त कर्मचारी (:count)',
     'shift_notes_section' => 'टिप्पणियां',
     'read_only_field' => 'केवल पढ़ने योग्य फ़ील्ड',
     'status_name' => 'स्थिति',

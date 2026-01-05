@@ -170,7 +170,7 @@ return [
     'update_date' => 'Update Date',
     'shift_details_card' => 'Shift Information',
     'shift_workers_count' => 'Additional Information',
-    'shift_workers_list' => 'Assigned Workers ({count})',
+    'shift_workers_list' => 'Assigned Workers (:count)',
     'shift_notes_section' => 'Notes',
     'read_only_field' => 'Read-only Field',
     'status_name' => 'Status',

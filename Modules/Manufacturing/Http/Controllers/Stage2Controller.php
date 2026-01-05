@@ -7,7 +7,8 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\SystemSettingsHelper;
-use Modules\Manufacturing\Models\StandUsageHistory;
+use App\Models\Stand;
+use App\Models\StandUsageHistory;
 
 class Stage2Controller extends Controller
 {
@@ -275,6 +276,46 @@ class Stage2Controller extends Controller
                 'updated_at' => now(),
             ]);
 
+            // 🔥 تحديث حالة الاستاند وتسجيل في سجل الاستخدام (مثل المرحلة الأولى)
+            if ($source !== 'warehouse_direct' && $standNumber && $standNumber !== 'غير محدد') {
+                // البحث عن الاستاند برقمه
+                $stand = Stand::where('stand_number', $standNumber)->first();
+                
+                if ($stand) {
+                    // إنهاء سجل الاستخدام السابق (من المرحلة الأولى) إن وجد
+                    StandUsageHistory::where('stand_id', $stand->id)
+                        ->where('status', StandUsageHistory::STATUS_IN_USE)
+                        ->update([
+                            'status' => StandUsageHistory::STATUS_COMPLETED,
+                            'completed_at' => now(),
+                        ]);
+                    
+                    // تحديث حالة الاستاند إلى المرحلة الثانية
+                    $stand->update([
+                        'status' => Stand::STATUS_UNUSED,
+                    ]);
+                    
+                    // تسجيل في stand_usage_history للمرحلة الثانية (مكتمل)
+                    StandUsageHistory::create([
+                        'stand_id' => $stand->id,
+                        'user_id' => $userId,
+                        'material_id' => $materialId,
+                        'material_barcode' => $stage2Barcode, // باركود المرحلة الثانية
+                        'material_type' => 'المرحلة الثانية',
+                        'wire_size' => $wireSize ?? 0,
+                        'total_weight' => $inputWeight,
+                        'net_weight' => $netWeight,
+                        'stand_weight' => $stand->weight ?? 0,
+                        'waste_percentage' => $inputWeight > 0 ? ($wasteWeight / $inputWeight * 100) : 0,
+                        'cost' => 0,
+                        'notes' => $validated['notes'] ?? 'معالجة المرحلة الثانية',
+                        'status' => StandUsageHistory::STATUS_COMPLETED,
+                        'started_at' => now(),
+                        'completed_at' => now(),
+                    ]);
+                }
+            }
+
             // تحديث حالة المرحلة الأولى وخصم الوزن (فقط إذا كان المصدر stage1)
             if ($stage1Id) {
                 // ⚡ خصم وزن المعالجة من الوزن المتبقي في الاستاند
@@ -448,6 +489,47 @@ class Stage2Controller extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+
+            // 🔥 تحديث حالة الاستاند وتسجيل في سجل الاستخدام
+            $standNumber = $stage1Data->stand_number ?? null;
+            if ($standNumber && $standNumber !== 'غير محدد') {
+                $stand = Stand::where('stand_number', $standNumber)->first();
+                
+                if ($stand) {
+                    // إنهاء سجل الاستخدام السابق (من المرحلة الأولى) إن وجد
+                    StandUsageHistory::where('stand_id', $stand->id)
+                        ->where('status', StandUsageHistory::STATUS_IN_USE)
+                        ->update([
+                            'status' => StandUsageHistory::STATUS_COMPLETED,
+                            'completed_at' => now(),
+                        ]);
+                    
+                    // تحديث حالة الاستاند إلى غير مستخدم (انتهى من المرحلة الثانية)
+                    $stand->update([
+                        'status' => Stand::STATUS_UNUSED,
+                    ]);
+                    
+                    // تسجيل في stand_usage_history للمرحلة الثانية (مكتمل)
+                    StandUsageHistory::create([
+                        'stand_id' => $stand->id,
+                        'user_id' => $userId,
+                        'material_id' => $stage1Data->material_id ?? null,
+                        'material_barcode' => $stage2Barcode,
+                        'material_type' => 'المرحلة الثانية',
+                        'wire_size' => $stage1Data->wire_size ?? 0,
+                        'total_weight' => $stage1Data->remaining_weight,
+                        'net_weight' => $validated['net_weight'],
+                        'stand_weight' => $stand->weight ?? 0,
+                        'waste_percentage' => $stage1Data->remaining_weight > 0 
+                            ? (($validated['waste_weight'] ?? 0) / $stage1Data->remaining_weight * 100) : 0,
+                        'cost' => 0,
+                        'notes' => $validated['notes'] ?? 'معالجة المرحلة الثانية',
+                        'status' => StandUsageHistory::STATUS_COMPLETED,
+                        'started_at' => now(),
+                        'completed_at' => now(),
+                    ]);
+                }
+            }
 
             // تحديث حالة المرحلة الأولى (consumed بدلاً من in_process لأنها انتقلت للمرحلة التالية)
             DB::table('stage1_stands')

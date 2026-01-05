@@ -171,7 +171,7 @@ return [
     'update_date' => 'اپ ڈیٹ کی تاریخ',
     'shift_details_card' => 'شفٹ کی معلومات',
     'shift_workers_count' => 'اضافی معلومات',
-    'shift_workers_list' => 'تفویض شدہ کارکن ({count})',
+    'shift_workers_list' => 'تفویض شدہ کارکن (:count)',
     'shift_notes_section' => 'نوٹس',
     'read_only_field' => 'صرف پڑھنے کے لیے فیلڈ',
     'status_name' => 'حیثیت',

@@ -171,7 +171,7 @@ return [
     'update_date' => 'تاريخ التحديث',
     'shift_details_card' => 'معلومات الوردية',
     'shift_workers_count' => 'معلومات إضافية',
-    'shift_workers_list' => 'العمال المعينون ({count})',
+    'shift_workers_list' => 'العمال المعينون (:count)',
     'shift_notes_section' => 'الملاحظات',
     'read_only_field' => 'حقل للقراءة فقط',
     'status_name' => 'الحالة',
