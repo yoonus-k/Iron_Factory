@@ -25,10 +25,10 @@
             <div class="search-input-group">
                 <div class="search-input-wrapper">
                     <i class="fas fa-search search-icon"></i>
-                    <input 
-                        type="text" 
-                        name="barcode" 
-                        id="barcodeInput" 
+                    <input
+                        type="text"
+                        name="barcode"
+                        id="barcodeInput"
                         placeholder="امسح أو أدخل الباركود (WH-001-2025, ST1-001-2025, BOX4-001-2025...)"
                         value="{{ request('barcode') }}"
                         required
@@ -79,7 +79,7 @@
             <div class="timeline-line">
                 <div class="timeline-progress" style="width: {{ $journeyData['progressPercentage'] }}%"></div>
             </div>
-            
+
             <div class="timeline-horizontal">
                 @foreach($journeyData['journey'] as $index => $stage)
                 <!-- Stage Card -->

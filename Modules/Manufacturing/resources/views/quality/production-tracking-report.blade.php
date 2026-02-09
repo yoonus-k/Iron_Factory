@@ -185,13 +185,13 @@
             <div style="padding: 25px; background: linear-gradient(180deg, #faf5ff 0%, #f5f3ff 100%);">
                 <div style="position: relative; padding: 10px 0;">
                     <div style="position: absolute; top: 0; bottom: 0; right: 30px; width: 3px; background: linear-gradient(180deg, #8b5cf6, #6d28d9); opacity: 0.4;"></div>
-                    
+
                     @foreach($reverseTracking as $index => $item)
                     <div style="position: relative; margin-bottom: 25px;">
                         <div style="position: absolute; right: 18px; width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #a78bfa, #8b5cf6); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: bold; z-index: 10; box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4);">
                             {{ $index + 1 }}
                         </div>
-                        
+
                         <div style="margin-right: 65px; background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 2px solid #e9d5ff;">
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                                 <div>
@@ -282,7 +282,7 @@
                             <canvas id="weightFlowChart"></canvas>
                         </div>
                     </div>
-                    
+
                     <!-- Waste Chart -->
                     <div>
                         <h6 style="text-align: center; color: #1e293b; font-weight: 600; margin-bottom: 15px;">
@@ -293,7 +293,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Efficiency Doughnut Chart -->
                 <div style="margin-top: 30px; max-width: 400px; margin-left: auto; margin-right: auto;">
                     <h6 style="text-align: center; color: #1e293b; font-weight: 600; margin-bottom: 15px;">
@@ -312,7 +312,7 @@
                 return ($stage['action'] ?? '') === 'split';
             });
         @endphp
-        
+
         @if($splitEvents->count() > 0)
         <section class="um-main-card" style="margin-bottom: 30px; border: 2px solid #f59e0b; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);">
             <div class="um-card-header" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white;">
@@ -454,11 +454,11 @@
             <div style="padding: 20px;">
                 <div style="position: relative; padding: 20px 0;">
                     <div style="position: absolute; top: 0; bottom: 0; right: 30px; width: 3px; background: linear-gradient(180deg, #3498db, #e74c3c);"></div>
-                    
+
                     @foreach($trackingData['journey'] as $index => $stage)
                     <div style="position: relative; margin-bottom: 40px; min-height: 120px;">
-                        <div style="position: absolute; right: 15px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; z-index: 10; box-shadow: 0 3px 10px rgba(0,0,0,0.2); 
-                            background: {{ 
+                        <div style="position: absolute; right: 15px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; z-index: 10; box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+                            background: {{
                                 $stage['color'] == 'primary' ? '#3498db' :
                                 ($stage['color'] == 'info' ? '#1abc9c' :
                                 ($stage['color'] == 'success' ? '#27ae60' :
@@ -466,7 +466,7 @@
                             }};">
                             <i class="feather icon-{{ $stage['icon'] }}"></i>
                         </div>
-                        
+
                         <div style="margin-right: 70px; background: #f8fafc; border-radius: 12px; padding: 20px; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
                             <div style="border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 15px;">
                                 <h6 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0 0 8px 0; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -491,7 +491,7 @@
                                     </span>
                                 </p>
                             </div>
-                            
+
                             <div style="font-size: 14px; color: #334155;">
                                 <!-- Barcode Card -->
                                 <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #3b82f6;">
@@ -504,7 +504,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 @if(isset($stage['items_count']) && $stage['items_count'] > 1)
                                 <div style="background: #fef3c7; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; border: 2px solid #fbbf24;">
                                     <span style="color: #78350f; font-weight: 600; font-size: 13px;">
@@ -512,7 +512,7 @@
                                     </span>
                                 </div>
                                 @endif
-                                
+
                                 <!-- Worker and Notes -->
                                 <div style="background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
                                     <div style="background: #e0e7ff; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
@@ -523,7 +523,7 @@
                                         <div style="font-size: 13px; color: #1e293b; font-weight: 600;">{{ $stage['worker_name'] }}</div>
                                     </div>
                                 </div>
-                                
+
                                 @if($stage['notes'])
                                 <div style="background: #fffbeb; border-right: 3px solid #f59e0b; padding: 10px 12px; border-radius: 6px; margin-bottom: 10px;">
                                     <div style="font-size: 10px; color: #92400e; margin-bottom: 4px; font-weight: 600;">
@@ -532,7 +532,7 @@
                                     <div style="font-size: 12px; color: #78350f;">{{ $stage['notes'] }}</div>
                                 </div>
                                 @endif
-                                
+
                                 @if($stage['waste_amount'] > 0)
                                 <div style="background: #fef2f2; border: 2px solid #fca5a5; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
                                     <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -545,7 +545,7 @@
                                     </div>
                                 </div>
                                 @endif
-                                
+
                                 @if(isset($stage['additional_info']) && !empty($stage['additional_info']))
                                     @if(isset($stage['additional_info']['items_details']) && count($stage['additional_info']['items_details']) >= 1)
                                     <div style="margin-top: 15px; padding: 15px; background: #f8fafc; border-radius: 8px; border-right: 4px solid #3b82f6;">
@@ -571,7 +571,7 @@
                                                     </div>
                                                     @endif
                                                 </div>
-                                                
+
                                                 <!-- Source and Output -->
                                                 @if($item['input_barcode'] ?? false)
                                                 <div style="background: #fef3c7; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; border-right: 3px solid #f59e0b;">
@@ -583,7 +583,7 @@
                                                     </div>
                                                 </div>
                                                 @endif
-                                                
+
                                                 @if(($item['output_barcode'] ?? false) && $item['output_barcode'] != $item['barcode'])
                                                 <div style="background: #d1fae5; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; border-right: 3px solid #10b981;">
                                                     <div style="font-size: 10px; color: #065f46; margin-bottom: 3px; font-weight: 600;">
@@ -594,12 +594,12 @@
                                                     </div>
                                                 </div>
                                                 @endif
-                                                
+
                                                 <!-- Action Type -->
                                                 @if($item['action'] ?? false)
                                                 <div style="background: #e0e7ff; padding: 6px 12px; border-radius: 6px; margin-bottom: 10px; display: inline-block;">
                                                     <span style="color: #3730a3; font-size: 11px; font-weight: 600;">
-                                                        <i class="feather icon-activity"></i> 
+                                                        <i class="feather icon-activity"></i>
                                                         @switch($item['action'])
                                                             @case('split') تقسيم @break
                                                             @case('transferred_to_production') نقل للإنتاج @break
@@ -649,7 +649,7 @@
                                     </div>
                                     @endif
                                 @endif
-                                
+
                                 <div class="um-info-row" style="background: #f1f5f9; padding: 10px; border-radius: 6px; margin-top: 10px;">
                                     <span class="um-info-label">
                                         <i class="feather icon-clock"></i> المدة الزمنية:
@@ -711,35 +711,35 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <style>
         @media print {
             .um-header-section button,
             .um-header-section a {
                 display: none !important;
             }
-            
+
             @page {
                 margin: 15mm;
                 size: A4;
             }
-            
+
             body {
                 print-color-adjust: exact;
                 -webkit-print-color-adjust: exact;
             }
-            
+
             .um-main-card {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
-            
+
             canvas {
                 max-height: 400px !important;
             }
         }
     </style>
-    
+
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Prepare data
@@ -869,7 +869,7 @@
         const efficiencyCtx = document.getElementById('efficiencyChart').getContext('2d');
         const efficiency = {{ $trackingData['summary']['efficiency'] ?? 100 }};
         const waste_percent = {{ $trackingData['summary']['waste_percentage'] ?? 0 }};
-        
+
         new Chart(efficiencyCtx, {
             type: 'doughnut',
             data: {

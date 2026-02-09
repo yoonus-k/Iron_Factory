@@ -710,7 +710,7 @@ return [
         'this_month' => 'इस महीने',
         'total' => 'कुल',
         'stage_number' => 'चरण',
-        
+
         // ट्रेस आइटम
         'trace_item' => [
             'source' => 'स्रोत',

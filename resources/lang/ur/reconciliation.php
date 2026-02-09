@@ -168,7 +168,7 @@ return [
     'notes' => 'نوٹس',
     'remarks' => 'نوٹ',
     'reference_number' => 'حوالہ نمبر',
-    'description' => 'تفصیل',    
+    'description' => 'تفصیل',
     // Missing Keys
     'delivery_note_info' => 'ڈیلیوری نوٹ کی معلومات',
     'invoice_info' => 'انوائس کی معلومات',

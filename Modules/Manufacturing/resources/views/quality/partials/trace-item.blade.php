@@ -2,7 +2,7 @@
 
 <div class="trace-item" style="margin-right: {{ $level * 20 }}px;">
     <div style="background: white; border: 2px solid {{ $direction == 'backward' ? '#e74c3c' : '#2ecc71' }}; border-radius: 10px; padding: 15px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-        
+
         {{-- رأس البطاقة --}}
         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
             <div style="flex: 1;">
@@ -13,13 +13,13 @@
                     <i class="feather icon-layers"></i> {{ $item['stage_name'] }}
                 </div>
             </div>
-            
+
             <div style="text-align: left;">
-                <div style="background: {{ $direction == 'backward' ? '#fee' : '#efffef' }}; 
-                            color: {{ $direction == 'backward' ? '#c0392b' : '#27ae60' }}; 
-                            padding: 5px 12px; 
-                            border-radius: 6px; 
-                            font-size: 12px; 
+                <div style="background: {{ $direction == 'backward' ? '#fee' : '#efffef' }};
+                            color: {{ $direction == 'backward' ? '#c0392b' : '#27ae60' }};
+                            padding: 5px 12px;
+                            border-radius: 6px;
+                            font-size: 12px;
                             font-weight: 600;">
                     @if($direction == 'backward')
                         <i class="feather icon-arrow-left"></i> {{ __('app.quality.trace_item.source') }}
@@ -38,7 +38,7 @@
                     <i class="feather icon-weight"></i> {{ number_format($item['weight'], 2) }} {{ __('app.quality.kg') }}
                 </div>
             </div>
-            
+
             <div style="background: #f8fafc; padding: 10px; border-radius: 6px;">
                 <div style="font-size: 11px; color: #64748b; margin-bottom: 3px;">{{ __('app.quality.trace_item.level') }}</div>
                 <div style="font-size: 15px; font-weight: 600; color: #7c3aed;">
@@ -49,7 +49,7 @@
 
         {{-- التاريخ --}}
         <div style="font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8px;">
-            <i class="feather icon-clock"></i> 
+            <i class="feather icon-clock"></i>
             {{ \Carbon\Carbon::parse($item['timestamp'])->format('Y-m-d H:i:s') }}
         </div>
 
@@ -64,7 +64,7 @@
         <div class="trace-children" style="margin-top: 15px;">
             @foreach($item['children'] as $child)
                 @include('manufacturing::quality.partials.trace-item', [
-                    'item' => $child, 
+                    'item' => $child,
                     'direction' => $direction,
                     'level' => $level + 1
                 ])

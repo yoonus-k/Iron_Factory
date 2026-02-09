@@ -168,7 +168,7 @@ return [
     'notes' => 'नोट',
     'remarks' => 'टिप्पणियां',
     'reference_number' => 'संदर्भ संख्या',
-    'description' => 'विवरण',    
+    'description' => 'विवरण',
     // Missing Keys
     'delivery_note_info' => 'डिलीवरी नोट जानकारी',
     'invoice_info' => 'चालान जानकारी',

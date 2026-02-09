@@ -16,7 +16,7 @@
         background: white;
         position: relative;
     }
-    
+
     .box-card::before {
         content: '';
         position: absolute;
@@ -30,11 +30,11 @@
         opacity: 0;
         transition: opacity 0.3s ease;
     }
-    
+
     .box-card.selected::before {
         opacity: 1;
     }
-    
+
     .box-card.selected::after {
         content: '✓';
         position: absolute;
@@ -67,25 +67,25 @@
         overflow-y: auto;
     }
 
-    
+
     .box-selector::-webkit-scrollbar {
         width: 8px;
     }
-    
+
     .box-selector::-webkit-scrollbar-track {
         background: #f1f1f1;
         border-radius: 10px;
     }
-    
+
     .box-selector::-webkit-scrollbar-thumb {
         background: #667eea;
         border-radius: 10px;
     }
-    
+
     .box-selector::-webkit-scrollbar-thumb:hover {
         background: #5568d3;
     }
-    
+
     .summary-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -93,7 +93,7 @@
         padding: 24px;
         box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
     }
-    
+
     @media (min-width: 992px) {
         .summary-card {
             position: sticky;
@@ -102,7 +102,7 @@
             overflow-y: auto;
         }
     }
-    
+
     .sticky-bottom-bar {
         position: fixed;
         bottom: 0;
@@ -114,49 +114,49 @@
         z-index: 1000;
         display: none;
     }
-    
+
     .sticky-bottom-bar.show {
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
-    
+
     .sticky-bottom-info {
         color: white;
         display: flex;
         gap: 25px;
         align-items: center;
     }
-    
+
     .sticky-stat {
         display: flex;
         align-items: center;
         gap: 8px;
     }
-    
+
     .sticky-stat-number {
         font-size: 1.5rem;
         font-weight: bold;
     }
-    
+
     .stat-badge {
         background: rgba(255, 255, 255, 0.2);
         padding: 16px;
         border-radius: 12px;
         text-align: center;
     }
-    
+
     .stat-number {
         font-size: 2rem;
         font-weight: bold;
         display: block;
     }
-    
+
     .stat-label {
         font-size: 0.9rem;
         opacity: 0.9;
     }
-    
+
     .material-badge {
         display: inline-block;
         padding: 4px 10px;
@@ -167,7 +167,7 @@
         color: #1976d2;
         font-weight: 600;
     }
-    
+
     .selected-box-item {
         background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
         border: 2px solid #27ae60;
@@ -177,17 +177,17 @@
         box-shadow: 0 4px 12px rgba(39, 174, 96, 0.15);
         transition: all 0.3s ease;
     }
-    
+
     .selected-box-item:hover {
         transform: translateX(-5px);
         box-shadow: 0 6px 20px rgba(39, 174, 96, 0.25);
     }
-    
+
     .selected-box-item strong {
         color: #27ae60;
         font-size: 1.1rem;
     }
-    
+
     .selected-box-item .badge {
         font-size: 0.9rem;
         padding: 6px 12px;
@@ -212,63 +212,63 @@
         transition: all 0.2s ease;
         border: 2px solid transparent;
     }
-    
+
     .btn i {
         font-size: 1.1em;
     }
-    
+
     .btn-primary {
         background: #667eea;
         color: white;
         border-color: #667eea;
     }
-    
+
     .btn-primary:hover {
         background: #5568d3;
         border-color: #5568d3;
         transform: translateY(-1px);
     }
-    
+
     .btn-success {
         background: #27ae60;
         color: white;
         border-color: #27ae60;
     }
-    
+
     .btn-success:hover {
         background: #229954;
         border-color: #229954;
         transform: translateY(-1px);
     }
-    
+
     .btn-secondary {
         background: #95a5a6;
         color: white;
         border-color: #95a5a6;
     }
-    
+
     .btn-secondary:hover {
         background: #7f8c8d;
         border-color: #7f8c8d;
         transform: translateY(-1px);
     }
-    
+
     .btn-danger {
         background: #e74c3c;
         color: white;
         border-color: #e74c3c;
     }
-    
+
     .btn-danger:hover {
         background: #c0392b;
         border-color: #c0392b;
         transform: translateY(-1px);
     }
-    
+
     .btn:active {
         transform: translateY(0);
     }
-    
+
     .input-group .btn {
         padding: 10px 18px;
         font-size: 0.95rem;
@@ -283,17 +283,17 @@
         margin-top: 12px;
         display: none;
     }
-    
+
     .delivery-info-display.show {
         display: block;
         animation: fadeIn 0.3s ease;
     }
-    
+
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(-10px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    
+
     .delivery-info-item {
         display: flex;
         align-items: center;
@@ -301,22 +301,22 @@
         padding: 8px 0;
         border-bottom: 1px solid rgba(33, 150, 243, 0.2);
     }
-    
+
     .delivery-info-item:last-child {
         border-bottom: none;
     }
-    
+
     .delivery-info-item i {
         color: #1976d2;
         font-size: 1.2em;
     }
-    
+
     .delivery-info-label {
         font-weight: 600;
         color: #1565c0;
         min-width: 80px;
     }
-    
+
     .delivery-info-value {
         color: #0d47a1;
         font-weight: 700;
@@ -581,7 +581,7 @@
             </div>
         </div>
     </form>
-    
+
     <!-- شريط ثابت في الأسفل يظهر عند التمرير -->
     <div class="sticky-bottom-bar" id="stickyBar">
         <div class="sticky-bottom-info">
@@ -621,13 +621,13 @@ $(document).ready(function() {
         const driverName = $('#driverName').val().trim();
         const vehicleNumber = $('#vehicleNumber').val().trim();
         const cityName = $('#cityName').val().trim();
-        
+
         const displayDiv = $('#deliveryInfoDisplay');
         const contentDiv = $('#deliveryInfoContent');
-        
+
         if (driverName || vehicleNumber || cityName) {
             let html = '';
-            
+
             if (driverName) {
                 html += `
                     <div class="delivery-info-item">
@@ -637,7 +637,7 @@ $(document).ready(function() {
                     </div>
                 `;
             }
-            
+
             if (vehicleNumber) {
                 html += `
                     <div class="delivery-info-item">
@@ -647,7 +647,7 @@ $(document).ready(function() {
                     </div>
                 `;
             }
-            
+
             if (cityName) {
                 html += `
                     <div class="delivery-info-item">
@@ -657,14 +657,14 @@ $(document).ready(function() {
                     </div>
                 `;
             }
-            
+
             contentDiv.html(html);
             displayDiv.addClass('show');
         } else {
             displayDiv.removeClass('show');
         }
     }
-    
+
     // تحديث العرض عند كتابة أي بيانات توصيل
     $('#driverName, #vehicleNumber, #cityName').on('input', updateDeliveryInfoDisplay);
 
@@ -852,23 +852,23 @@ $(document).ready(function() {
             const isSelected = selectedBoxes.some(b => b.id === box.id);
 
             const materials = box.materials || [];
-            const materialsHtml = materials.length > 0 
+            const materialsHtml = materials.length > 0
                 ? materials.map(m => {
                     let specs = `<span class="material-badge">
                         <i class="bi bi-palette me-1"></i>`;
-                    
+
                     let parts = [];
                     if (m.color && m.color !== 'غير محدد') parts.push(m.color);
                     if (m.type && m.type !== 'غير محدد') parts.push(m.type);
                     if (m.wire_size) parts.push(m.wire_size);
                     if (m.plastic_type) parts.push(m.plastic_type);
-                    
+
                     specs += parts.length > 0 ? parts.join(' - ') : 'غير محدد';
                     specs += `</span>`;
                     return specs;
                 }).join('')
                 : '<span class="text-muted">لا توجد مواصفات</span>';
-            
+
 
             const boxJson = JSON.stringify(box).replace(/'/g, "&apos;");
 
@@ -1028,12 +1028,12 @@ $(document).ready(function() {
         // تفعيل/تعطيل زر الحفظ
         $('#submitBtn').prop('disabled', count === 0);
         $('#stickySubmitBtn').prop('disabled', count === 0);
-        
+
         // تحديث الشريط الثابت
         $('#stickyCount').text(count);
         $('#stickyWeight').text(totalWeight.toFixed(2));
     }
-    
+
     // إظهار/إخفاء الشريط الثابت عند التمرير
     $(window).on('scroll', function() {
         let submitBtn = $('#submitBtn');
@@ -1041,7 +1041,7 @@ $(document).ready(function() {
             let submitBtnTop = submitBtn.offset().top;
             let scrollTop = $(window).scrollTop();
             let windowHeight = $(window).height();
-            
+
             // إظهار الشريط عندما يكون زر الحفظ خارج الشاشة
             if (scrollTop + windowHeight < submitBtnTop || scrollTop > submitBtnTop + 200) {
                 $('#stickyBar').addClass('show');
@@ -1050,7 +1050,7 @@ $(document).ready(function() {
             }
         }
     });
-    
+
     // نسخ وظيفة زر الحفظ للشريط الثابت
     $('#stickySubmitBtn').on('click', function() {
         $('#deliveryForm').submit();

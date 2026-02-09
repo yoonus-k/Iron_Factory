@@ -278,7 +278,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const barcodeInput = document.getElementById('barcode');
     const barcodeForm = document.getElementById('barcodeForm');
-    
+
     // Focus on input
     barcodeInput.focus();
 
@@ -310,32 +310,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function saveRecentScan(barcode) {
     let recent = JSON.parse(localStorage.getItem('recentScans') || '[]');
-    
+
     // Remove duplicate if exists
     recent = recent.filter(item => item.barcode !== barcode);
-    
+
     // Add to beginning
     recent.unshift({
         barcode: barcode,
         timestamp: new Date().toISOString()
     });
-    
+
     // Keep only last 5
     recent = recent.slice(0, 5);
-    
+
     localStorage.setItem('recentScans', JSON.stringify(recent));
 }
 
 function loadRecentScans() {
     const recent = JSON.parse(localStorage.getItem('recentScans') || '[]');
-    
+
     if (recent.length === 0) return;
-    
+
     const recentScansDiv = document.getElementById('recentScans');
     const recentScansList = document.getElementById('recentScansList');
-    
+
     recentScansDiv.style.display = 'block';
-    
+
     recentScansList.innerHTML = recent.map(item => {
         const time = timeAgo(new Date(item.timestamp));
         return `
@@ -357,7 +357,7 @@ function searchBarcode(barcode) {
 
 function timeAgo(date) {
     const seconds = Math.floor((new Date() - date) / 1000);
-    
+
     if (seconds < 60) return 'منذ لحظات';
     const minutes = Math.floor(seconds / 60);
     if (minutes < 60) return `منذ ${minutes} دقيقة`;

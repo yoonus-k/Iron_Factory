@@ -698,7 +698,7 @@ return [
         'this_month' => 'This Month',
         'total' => 'Total',
         'stage_number' => 'Stage',
-        
+
         // Trace Item (trace-item.blade.php)
         'trace_item' => [
             'source' => 'Source',

@@ -710,7 +710,7 @@ return [
         'this_month' => 'یہ مہینہ',
         'total' => 'کل',
         'stage_number' => 'مرحلہ',
-        
+
         // ٹریکنگ آئٹم
         'trace_item' => [
             'source' => 'ماخذ',

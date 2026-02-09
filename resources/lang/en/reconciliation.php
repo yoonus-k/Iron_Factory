@@ -169,7 +169,7 @@ return [
     'remarks' => 'Remarks',
     'reference_number' => 'Reference Number',
     'description' => 'Description',
-    
+
     // Missing Keys
     'delivery_note_info' => 'Delivery Note Info',
     'invoice_info' => 'Invoice Info',

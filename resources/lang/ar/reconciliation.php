@@ -169,7 +169,7 @@ return [
     'remarks' => 'تعليقات',
     'reference_number' => 'رقم المرجع',
     'description' => 'الوصف',
-    
+
     // Missing Keys
     'delivery_note_info' => 'معلومات أذن التسليم',
     'invoice_info' => 'معلومات الفاتورة',
