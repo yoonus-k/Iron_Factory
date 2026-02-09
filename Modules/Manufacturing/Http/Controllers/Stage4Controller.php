@@ -51,8 +51,8 @@ class Stage4Controller extends Controller
         // جلب الكرتون من المستودع
         $carton = DB::table('materials')
             ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
-            ->where('material_types.type_name', 'كرتون')
-            ->where('materials.status', 'available')
+            ->where('material_types.type_code', 'CARTON')
+            ->whereIn('materials.status', ['available', 'in_use'])
             ->select(
                 'materials.id',
                 'materials.name_ar',
@@ -91,10 +91,41 @@ class Stage4Controller extends Controller
 
             // التحقق من أن اللفاف ليس معبأ بالفعل
             if ($lafaf->status === 'packed') {
+                // جلب معلومات الكراتين المعبأة من هذا اللفاف
+                $boxesInfo = DB::table('stage4_boxes')
+                    ->where('parent_barcode', $barcode)
+                    ->selectRaw('COUNT(*) as boxes_count, SUM(total_weight) as total_weight')
+                    ->first();
+                
+                $boxesCount = $boxesInfo->boxes_count ?? 0;
+                $totalWeight = $boxesInfo->total_weight ?? 0;
+                
                 return response()->json([
                     'success' => false,
-                    'message' => 'هذا اللفاف تم تعبئته بالفعل'
+                    'already_packed' => true,
+                    'message' => "⚠️ تم استهلاك هذا اللفاف بالكامل!\n\nتم تعبئته في {$boxesCount} كرتون بوزن إجمالي " . number_format($totalWeight, 2) . " كجم"
                 ], 400);
+            }
+
+            // التحقق من أن اللفاف قيد المعالجة (يمكن إضافة المزيد من الكراتين)
+            if ($lafaf->status === 'in_process') {
+                // جلب الوزن المتبقي
+                $lafafWeight = $lafaf->net_weight ?? $lafaf->total_weight;
+                $usedWeight = DB::table('stage4_boxes')
+                    ->where('parent_barcode', $barcode)
+                    ->sum('total_weight');
+                $remainingWeight = $lafafWeight - $usedWeight;
+                
+                \Log::info('Stage4: Lafaf in_process - can add more boxes', [
+                    'lafaf_weight' => $lafafWeight,
+                    'used_weight' => $usedWeight,
+                    'remaining_weight' => $remainingWeight
+                ]);
+                
+                // إضافة معلومات الوزن المتبقي للاستجابة
+                $lafaf->remaining_weight = $remainingWeight;
+                $lafaf->used_weight = $usedWeight;
+                $lafaf->is_partial = true;
             }
 
             // ✅ التحقق من عدم وجود confirmation معلقة لهذا الباركود (معاد إسناده)
@@ -207,8 +238,8 @@ class Stage4Controller extends Controller
             // 🔍 التحقق من كمية الكراتين في المستودع
             $carton = DB::table('materials')
                 ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
-                ->where('material_types.type_name', 'كرتون')
-                ->where('materials.status', 'available')
+                ->where('material_types.type_code', 'CARTON')
+                ->whereIn('materials.status', ['available', 'in_use'])
                 ->select('materials.id', 'materials.name_ar')
                 ->selectRaw('COALESCE((SELECT SUM(quantity) FROM material_details WHERE material_id = materials.id AND quantity > 0), 0) as available_quantity')
                 ->first();
@@ -548,8 +579,8 @@ class Stage4Controller extends Controller
             // 🔍 التحقق من كمية الكراتين في المستودع
             $carton = DB::table('materials')
                 ->join('material_types', 'materials.material_type_id', '=', 'material_types.id')
-                ->where('material_types.type_name', 'كرتون')
-                ->where('materials.status', 'available')
+                ->where('material_types.type_code', 'CARTON')
+                ->whereIn('materials.status', ['available', 'in_use'])
                 ->select('materials.id', 'materials.name_ar')
                 ->selectRaw('COALESCE((SELECT SUM(quantity) FROM material_details WHERE material_id = materials.id AND quantity > 0), 0) as available_quantity')
                 ->first();
@@ -601,6 +632,14 @@ class Stage4Controller extends Controller
                 // الوزن الكلي للكراتين (الموجودة + الجديدة)
                 $totalBoxesWeight = $existingBoxesWeight + $request->weight;
                 $wasteWeight = $lafafWeight - $totalBoxesWeight;
+                
+                // 🔥 تحديد الحالة: in_process إذا بقي وزن، packed إذا استُهلك الكل
+                // نسمح بهامش صغير 0.5 كجم للتفاوت
+                if ($wasteWeight > 0.5) {
+                    $recordStatus = 'in_process'; // لا يزال هناك وزن متبقي
+                } else {
+                    $recordStatus = 'packed'; // تم استهلاك كل الوزن
+                }
             }
 
             // توليد الباركود
@@ -694,11 +733,13 @@ class Stage4Controller extends Controller
                 throw new \Exception('فشل خصم الكرتون من المستودع: ' . $e->getMessage());
             }
 
-            // 🔥 تحديث حالة سجل المرحلة الثالثة إلى "packed"
+            // 🔥 تحديث حالة سجل المرحلة الثالثة بناءً على الوزن المتبقي
+            // إذا لم يُستهلك كل الوزن، يبقى in_process
+            // إذا استُهلك كل الوزن، يتحول إلى packed
             DB::table('stage3_coils')
                 ->where('barcode', $request->lafaf_barcode)
                 ->update([
-                    'status' => 'packed',
+                    'status' => $recordStatus, // in_process أو packed
                     'updated_at' => now()
                 ]);
 
@@ -1113,6 +1154,753 @@ class Stage4Controller extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * جلب اللفافات المعلقة للمستخدم الحالي (من المرحلة الثالثة)
+     * اللفافات التي تم إنتاجها ولم يتم تعبئتها بعد
+     */
+    public function getPendingItems()
+    {
+        try {
+            $userId = \Illuminate\Support\Facades\Auth::id();
+
+            // جلب اللفافات من المرحلة الثالثة التي:
+            // 1. حالتها active أو completed
+            // 2. لم يتم تعبئتها في المرحلة الرابعة بعد
+            // 3. ليست pending_approval أو packed
+            $pendingItems = DB::table('stage3_coils')
+                ->leftJoin('materials', 'stage3_coils.material_id', '=', 'materials.id')
+                ->leftJoin('users', 'stage3_coils.created_by', '=', 'users.id')
+                ->whereIn('stage3_coils.status', ['active', 'completed', 'in_progress'])
+                ->whereNotIn('stage3_coils.status', ['pending_approval', 'packed', 'consumed'])
+                ->whereNotExists(function($query) {
+                    $query->select(DB::raw(1))
+                        ->from('stage4_boxes')
+                        ->whereColumn('stage4_boxes.parent_barcode', 'stage3_coils.barcode');
+                })
+                ->select(
+                    'stage3_coils.id',
+                    'stage3_coils.barcode',
+                    'stage3_coils.parent_barcode',
+                    'stage3_coils.net_weight',
+                    'stage3_coils.total_weight',
+                    'stage3_coils.color',
+                    'stage3_coils.wire_size',
+                    'stage3_coils.status',
+                    'stage3_coils.created_at',
+                    'stage3_coils.updated_at',
+                    'materials.name_ar as material_name',
+                    'users.name as created_by_name'
+                )
+                ->orderBy('stage3_coils.updated_at', 'desc')
+                ->limit(20)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'count' => $pendingItems->count(),
+                'items' => $pendingItems
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * جلب اللفافات المعلقة للمستخدم الحالي (لفافات لم تكتمل تعبئتها بعد)
+     * هذه هي اللفافات التي بدأ العامل بتعبئتها ولكن لا يزال لها وزن متبقي
+     */
+    public function getPendingBoxes()
+    {
+        try {
+            $userId = \Illuminate\Support\Facades\Auth::id();
+
+            // جلب اللفافات التي لها طلب نقل معلق (لاستبعادها)
+            $pendingTransferBarcodes = DB::table('production_confirmations')
+                ->where('confirmation_type', 'coil_transfer')
+                ->where('status', 'pending')
+                ->pluck('barcode')
+                ->toArray();
+
+            // جلب اللفافات التي:
+            // 1. أنشأ المستخدم الحالي كراتين منها
+            // 2. لها كراتين غير مكتملة (in_process أو in_progress)
+            // 3. ليس لها طلب نقل معلق
+            $pendingLafafs = DB::table('stage3_coils')
+                ->leftJoin('materials as m', 'stage3_coils.material_id', '=', 'm.id')
+                // Join منفصل للتحقق من أن المستخدم أنشأ كراتين
+                ->whereExists(function($query) use ($userId) {
+                    $query->select(DB::raw(1))
+                        ->from('stage4_boxes')
+                        ->whereColumn('stage4_boxes.parent_barcode', 'stage3_coils.barcode')
+                        ->where('stage4_boxes.created_by', $userId);
+                })
+                ->where(function($query) {
+                    // إما اللفاف ليس مكتمل، أو له كراتين غير مكتملة
+                    $query->whereNotIn('stage3_coils.status', ['packed', 'completed'])
+                          ->orWhereExists(function($subQuery) {
+                              $subQuery->select(DB::raw(1))
+                                  ->from('stage4_boxes')
+                                  ->whereColumn('stage4_boxes.parent_barcode', 'stage3_coils.barcode')
+                                  ->whereIn('stage4_boxes.status', ['in_process', 'in_progress', 'pending', 'created', 'intake_pending']);
+                          });
+                })
+                ->when(!empty($pendingTransferBarcodes), function($query) use ($pendingTransferBarcodes) {
+                    $query->whereNotIn('stage3_coils.barcode', $pendingTransferBarcodes);
+                })
+                ->select(
+                    'stage3_coils.id',
+                    'stage3_coils.barcode',
+                    'stage3_coils.coil_number',
+                    'stage3_coils.total_weight',
+                    'stage3_coils.net_weight',
+                    'stage3_coils.color',
+                    'stage3_coils.status',
+                    'stage3_coils.created_at',
+                    DB::raw('COALESCE(m.name_ar, m.name_en) as material_name')
+                )
+                ->groupBy(
+                    'stage3_coils.id',
+                    'stage3_coils.barcode',
+                    'stage3_coils.coil_number',
+                    'stage3_coils.total_weight',
+                    'stage3_coils.net_weight',
+                    'stage3_coils.color',
+                    'stage3_coils.status',
+                    'stage3_coils.created_at',
+                    'm.name_ar',
+                    'm.name_en'
+                )
+                ->orderBy('stage3_coils.updated_at', 'desc')
+                ->limit(20)
+                ->get();
+            
+            // حساب الأوزان والكراتين المعلقة لكل لفاف
+            $pendingLafafs = $pendingLafafs->map(function($lafaf) {
+                // حساب الوزن المستخدم من جميع الكراتين (بغض النظر عن من أنشأها)
+                $usedWeight = DB::table('stage4_boxes')
+                    ->where('parent_barcode', $lafaf->barcode)
+                    ->sum('total_weight');
+                
+                $pendingBoxesCount = DB::table('stage4_boxes')
+                    ->where('parent_barcode', $lafaf->barcode)
+                    ->whereNotIn('status', ['completed', 'in_warehouse', 'shipped'])
+                    ->count();
+                
+                $totalWeight = $lafaf->net_weight ?? 0;
+                $lafaf->used_weight = $usedWeight;
+                $lafaf->remaining_weight = max(0, $totalWeight - $usedWeight);
+                $lafaf->pending_boxes_count = $pendingBoxesCount;
+                
+                return $lafaf;
+            })->filter(function($lafaf) {
+                // فقط اللفافات التي لها وزن متبقي أو كراتين معلقة
+                return $lafaf->remaining_weight > 0.01 || $lafaf->pending_boxes_count > 0;
+            });
+
+            // أيضاً جلب اللفافات التي لها كراتين غير مكتملة (بغض النظر عن حالة اللفاف)
+            $lafafsWithPendingBoxes = DB::table('stage3_coils')
+                ->leftJoin('materials as m', 'stage3_coils.material_id', '=', 'm.id')
+                ->whereExists(function($query) use ($userId) {
+                    $query->select(DB::raw(1))
+                        ->from('stage4_boxes')
+                        ->whereColumn('stage4_boxes.parent_barcode', 'stage3_coils.barcode')
+                        ->where('stage4_boxes.created_by', $userId)
+                        ->whereNotIn('stage4_boxes.status', ['completed', 'in_warehouse', 'shipped']);
+                })
+                ->when(!empty($pendingTransferBarcodes), function($query) use ($pendingTransferBarcodes) {
+                    $query->whereNotIn('stage3_coils.barcode', $pendingTransferBarcodes);
+                })
+                ->select(
+                    'stage3_coils.id',
+                    'stage3_coils.barcode',
+                    'stage3_coils.coil_number',
+                    'stage3_coils.total_weight',
+                    'stage3_coils.net_weight',
+                    'stage3_coils.color',
+                    'stage3_coils.status',
+                    'stage3_coils.created_at',
+                    DB::raw('COALESCE(m.name_ar, m.name_en) as material_name')
+                )
+                ->get();
+            
+            // حساب الوزن لكل لفاف مع كراتين غير مكتملة
+            $lafafsWithPendingBoxes = $lafafsWithPendingBoxes->map(function($lafaf) use ($userId) {
+                // استخدام net_weight فقط (الوزن الصافي بدون اللفاف)
+                $totalWeight = $lafaf->net_weight ?? 0;
+                
+                $usedWeight = DB::table('stage4_boxes')
+                    ->where('parent_barcode', $lafaf->barcode)
+                    ->sum('total_weight');
+                
+                // عدد كل الكراتين غير المكتملة (بغض النظر عن من أنشأها)
+                $pendingBoxesCount = DB::table('stage4_boxes')
+                    ->where('parent_barcode', $lafaf->barcode)
+                    ->whereNotIn('status', ['completed', 'in_warehouse', 'shipped'])
+                    ->count();
+                
+                $lafaf->used_weight = $usedWeight;
+                $lafaf->remaining_weight = max(0, $totalWeight - $usedWeight);
+                $lafaf->pending_boxes_count = $pendingBoxesCount;
+                
+                return $lafaf;
+            });
+
+            // دمج النتائج بدون تكرار
+            $allLafafs = collect();
+            $existingBarcodes = [];
+            
+            foreach ($pendingLafafs as $lafaf) {
+                if (!in_array($lafaf->barcode, $existingBarcodes)) {
+                    $allLafafs->push($lafaf);
+                    $existingBarcodes[] = $lafaf->barcode;
+                }
+            }
+            
+            foreach ($lafafsWithPendingBoxes as $lafaf) {
+                if (!in_array($lafaf->barcode, $existingBarcodes)) {
+                    $allLafafs->push($lafaf);
+                    $existingBarcodes[] = $lafaf->barcode;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'count' => $allLafafs->count(),
+                'items' => $allLafafs->values()
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('getPendingBoxes error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * نقل لفاف متبقي إلى موظف آخر
+     * هذه الدالة تنقل اللفاف من المرحلة الثالثة الذي لم يكتمل تعبئته بعد
+     */
+    public function transferBox(Request $request)
+    {
+        $validated = $request->validate([
+            'barcode' => 'required|string',
+            'new_worker_id' => 'required|exists:users,id',
+            'reason' => 'nullable|string|max:1000',
+            'notes' => 'nullable|string|max:1000'
+        ], [
+            'barcode.required' => 'باركود اللفاف مطلوب',
+            'new_worker_id.required' => 'يجب اختيار الموظف الجديد',
+            'new_worker_id.exists' => 'الموظف المحدد غير موجود'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $currentUserId = \Illuminate\Support\Facades\Auth::id();
+            $newWorkerId = $validated['new_worker_id'];
+            $barcode = $validated['barcode'];
+
+            // التحقق من أن اللفاف موجود في المرحلة الثالثة
+            $lafaf = DB::table('stage3_coils')
+                ->where('barcode', $barcode)
+                ->first();
+
+            if (!$lafaf) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'اللفاف غير موجود'
+                ], 404);
+            }
+            
+            // التحقق من أن المستخدم الحالي أنشأ كراتين من هذا اللفاف
+            $hasBoxes = DB::table('stage4_boxes')
+                ->where('parent_barcode', $barcode)
+                ->where('created_by', $currentUserId)
+                ->exists();
+            
+            if (!$hasBoxes) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا تملك صلاحية نقل هذا اللفاف - أنت لم تنشئ كراتين منه'
+                ], 403);
+            }
+
+            // التحقق من أن الموظف الجديد مختلف
+            if ($currentUserId == $newWorkerId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكنك نقل اللفاف لنفسك'
+                ], 400);
+            }
+
+            // حساب الوزن المتبقي
+            $usedWeight = DB::table('stage4_boxes')
+                ->where('parent_barcode', $barcode)
+                ->sum('total_weight');
+            
+            $totalWeight = $lafaf->net_weight ?? $lafaf->total_weight ?? 0;
+            $remainingWeight = $totalWeight - $usedWeight;
+
+            // التحقق من وجود وزن متبقي
+            if ($remainingWeight <= 0.01) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكن نقل لفاف مستهلك بالكامل'
+                ], 400);
+            }
+
+            // جلب معلومات الموظف الجديد
+            $newWorker = DB::table('users')
+                ->where('id', $newWorkerId)
+                ->first();
+
+            if (!$newWorker) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'الموظف المحدد غير موجود'
+                ], 404);
+            }
+
+            // جلب اسم المادة
+            $materialName = DB::table('materials')
+                ->where('id', $lafaf->material_id)
+                ->value('name_ar');
+
+            // إنشاء سجل تأكيد في production_confirmations (مثل المرحلة الثانية)
+            $confirmationId = DB::table('production_confirmations')->insertGetId([
+                'delivery_note_id' => null,
+                'batch_id' => null,
+                'stage_code' => 'stage4',
+                'stage_record_id' => $lafaf->id,
+                'stage_type' => 'stage3_coils',
+                'worker_stage_history_id' => null,
+                'barcode' => $barcode,
+                'assigned_to' => $newWorkerId,
+                'assigned_by' => $currentUserId,
+                'status' => 'pending',
+                'confirmation_type' => 'coil_transfer',
+                'notes' => $validated['notes'] ?? null,
+                'metadata' => json_encode([
+                    'stage_name' => 'المرحلة الرابعة',
+                    'operation' => 'coil_transfer',
+                    'reason' => $validated['reason'] ?? 'نقل اللفاف المتبقي',
+                    'initiated_by' => \Illuminate\Support\Facades\Auth::user()?->name,
+                    'previous_worker_id' => $currentUserId,
+                    'material_name' => $materialName,
+                    'remaining_weight' => $remainingWeight,
+                    'total_weight' => $totalWeight,
+                    'used_weight' => $usedWeight
+                ]),
+                'confirmed_at' => null,
+                'confirmed_by' => null,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+            
+            // إرسال إشعار للموظف الجديد
+            try {
+                DB::table('notifications')->insert([
+                    'user_id' => $newWorkerId,
+                    'type' => 'coil_transfer',
+                    'title' => 'تم نقل لفاف إليك',
+                    'message' => "تم نقل اللفاف {$barcode} ({$materialName}) إليك من " . \Illuminate\Support\Facades\Auth::user()?->name . ". الوزن المتبقي: " . number_format($remainingWeight, 2) . " كجم",
+                    'metadata' => json_encode([
+                        'barcode' => $barcode,
+                        'stage' => 'stage4',
+                        'material_name' => $materialName,
+                        'remaining_weight' => $remainingWeight,
+                        'from_worker_id' => $currentUserId,
+                        'confirmation_id' => $confirmationId,
+                    ]),
+                    'created_by' => $currentUserId,
+                    'is_read' => false,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } catch (\Exception $notifError) {
+                \Log::warning('فشل إرسال إشعار نقل اللفاف', ['error' => $notifError->getMessage()]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "تم إرسال طلب نقل اللفاف المتبقي ({$remainingWeight} كجم) إلى {$newWorker->name}",
+                'data' => [
+                    'barcode' => $barcode,
+                    'new_worker_name' => $newWorker->name,
+                    'confirmation_id' => $confirmationId
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('transferBox error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * قبول نقل لفاف متبقي من موظف آخر
+     */
+    public function acceptBoxTransfer(Request $request)
+    {
+        $validated = $request->validate([
+            'barcode' => 'required|string',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $userId = \Illuminate\Support\Facades\Auth::id();
+            $barcode = $validated['barcode'];
+
+            // التحقق من وجود طلب نقل معلق لهذا المستخدم في production_confirmations
+            $pendingTransfer = DB::table('production_confirmations')
+                ->where('barcode', $barcode)
+                ->where('assigned_to', $userId)
+                ->where('confirmation_type', 'coil_transfer')
+                ->where('status', 'pending')
+                ->first();
+
+            if (!$pendingTransfer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يوجد طلب نقل معلق لهذا اللفاف'
+                ], 404);
+            }
+
+            // تحديث حالة النقل إلى مؤكدة
+            DB::table('production_confirmations')
+                ->where('id', $pendingTransfer->id)
+                ->update([
+                    'status' => 'confirmed',
+                    'confirmed_at' => now(),
+                    'confirmed_by' => $userId,
+                    'updated_at' => now()
+                ]);
+
+            // إرسال إشعار للموظف الناقل
+            try {
+                DB::table('notifications')->insert([
+                    'user_id' => $pendingTransfer->assigned_by,
+                    'type' => 'coil_transfer_accepted',
+                    'title' => 'تم قبول نقل اللفاف',
+                    'message' => "تم قبول نقل اللفاف المتبقي {$barcode} من قبل " . \Illuminate\Support\Facades\Auth::user()?->name,
+                    'metadata' => json_encode([
+                        'barcode' => $barcode,
+                        'stage' => 'stage4',
+                        'accepted_by' => \Illuminate\Support\Facades\Auth::user()?->name,
+                        'accepted_by_id' => $userId,
+                    ]),
+                    'created_by' => $userId,
+                    'is_read' => false,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } catch (\Exception $notifError) {
+                \Log::warning('فشل إرسال إشعار قبول نقل اللفاف', ['error' => $notifError->getMessage()]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم قبول نقل اللفاف المتبقي بنجاح',
+                'data' => [
+                    'barcode' => $barcode,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء قبول النقل: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * رفض نقل لفاف متبقي من موظف آخر
+     */
+    public function rejectBoxTransfer(Request $request)
+    {
+        $validated = $request->validate([
+            'barcode' => 'required|string',
+            'reason' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $userId = \Illuminate\Support\Facades\Auth::id();
+            $barcode = $validated['barcode'];
+
+            // التحقق من وجود طلب نقل معلق لهذا المستخدم في production_confirmations
+            $pendingTransfer = DB::table('production_confirmations')
+                ->where('barcode', $barcode)
+                ->where('assigned_to', $userId)
+                ->where('confirmation_type', 'coil_transfer')
+                ->where('status', 'pending')
+                ->first();
+
+            if (!$pendingTransfer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يوجد طلب نقل معلق لهذا اللفاف'
+                ], 404);
+            }
+
+            // تحديث حالة النقل إلى مرفوضة
+            DB::table('production_confirmations')
+                ->where('id', $pendingTransfer->id)
+                ->update([
+                    'status' => 'rejected',
+                    'confirmed_at' => now(),
+                    'confirmed_by' => $userId,
+                    'notes' => $validated['reason'] ?? 'تم الرفض من قبل الموظف',
+                    'updated_at' => now()
+                ]);
+
+            // إرسال إشعار للموظف الناقل
+            try {
+                DB::table('notifications')->insert([
+                    'user_id' => $pendingTransfer->assigned_by,
+                    'type' => 'coil_transfer_rejected',
+                    'title' => 'تم رفض نقل اللفاف',
+                    'message' => "تم رفض نقل اللفاف المتبقي {$barcode} من قبل " . \Illuminate\Support\Facades\Auth::user()?->name . ($validated['reason'] ? ". السبب: " . $validated['reason'] : ''),
+                    'metadata' => json_encode([
+                        'barcode' => $barcode,
+                        'stage' => 'stage4',
+                        'rejected_by' => \Illuminate\Support\Facades\Auth::user()?->name,
+                        'rejected_by_id' => $userId,
+                        'reason' => $validated['reason'] ?? null,
+                    ]),
+                    'created_by' => $userId,
+                    'is_read' => false,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } catch (\Exception $notifError) {
+                \Log::warning('فشل إرسال إشعار رفض نقل اللفاف', ['error' => $notifError->getMessage()]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم رفض نقل اللفاف المتبقي',
+                'data' => [
+                    'barcode' => $barcode,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء رفض النقل: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * جلب طلبات نقل اللفافات المعلقة للمستخدم الحالي
+     */
+    public function getPendingTransfers()
+    {
+        try {
+            $userId = \Illuminate\Support\Facades\Auth::id();
+
+            // جلب طلبات النقل الواردة للمستخدم الحالي من production_confirmations
+            $pendingTransfers = DB::table('production_confirmations')
+                ->leftJoin('stage3_coils', 'production_confirmations.barcode', '=', 'stage3_coils.barcode')
+                ->leftJoin('materials as m', 'stage3_coils.material_id', '=', 'm.id')
+                ->leftJoin('users as sender', 'production_confirmations.assigned_by', '=', 'sender.id')
+                ->where('production_confirmations.assigned_to', $userId)
+                ->where('production_confirmations.confirmation_type', 'coil_transfer')
+                ->where('production_confirmations.status', 'pending')
+                ->select(
+                    'stage3_coils.id',
+                    'stage3_coils.barcode',
+                    'stage3_coils.coil_number',
+                    'stage3_coils.total_weight',
+                    'stage3_coils.net_weight',
+                    'stage3_coils.color',
+                    'production_confirmations.notes as reason',
+                    'production_confirmations.created_at',
+                    'sender.name as sender_name',
+                    'sender.id as sender_id',
+                    DB::raw('COALESCE(m.name_ar, m.name_en) as material_name')
+                )
+                ->orderBy('production_confirmations.created_at', 'desc')
+                ->get();
+
+            // حساب الوزن المتبقي لكل لفاف
+            $pendingTransfers = $pendingTransfers->map(function($transfer) {
+                $usedWeight = DB::table('stage4_boxes')
+                    ->where('parent_barcode', $transfer->barcode)
+                    ->sum('total_weight');
+                
+                $totalWeight = $transfer->net_weight ?? $transfer->total_weight ?? 0;
+                $transfer->remaining_weight = $totalWeight - $usedWeight;
+                $transfer->used_weight = $usedWeight;
+                
+                return $transfer;
+            });
+
+            return response()->json([
+                'success' => true,
+                'transfers' => $pendingTransfers,
+                'count' => $pendingTransfers->count()
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * إنهاء اللفاف - تحويل جميع الكراتين المرتبطة إلى حالة مكتملة
+     */
+    public function finishLafaf(Request $request)
+    {
+        $validated = $request->validate([
+            'barcode' => 'required|string',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $userId = \Illuminate\Support\Facades\Auth::id();
+            $barcode = $validated['barcode'];
+
+            // التحقق من أن اللفاف موجود
+            $lafaf = DB::table('stage3_coils')
+                ->where('barcode', $barcode)
+                ->first();
+
+            if (!$lafaf) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'اللفاف غير موجود'
+                ], 404);
+            }
+
+            // التحقق من أن المستخدم الحالي أنشأ كراتين من هذا اللفاف
+            $userBoxes = DB::table('stage4_boxes')
+                ->where('parent_barcode', $barcode)
+                ->where('created_by', $userId)
+                ->get();
+
+            if ($userBoxes->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا توجد كراتين لهذا اللفاف'
+                ], 404);
+            }
+            
+            // التحقق من وجود كراتين غير مكتملة
+            $pendingBoxes = $userBoxes->whereNotIn('status', ['completed', 'in_warehouse', 'shipped']);
+            
+            if ($pendingBoxes->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'جميع الكراتين مكتملة بالفعل'
+                ], 400);
+            }
+
+            // حساب الوزن المستخدم والمتبقي
+            $usedWeight = DB::table('stage4_boxes')
+                ->where('parent_barcode', $barcode)
+                ->sum('total_weight');
+
+            $totalWeight = $lafaf->net_weight ?? $lafaf->total_weight ?? 0;
+            $remainingWeight = $totalWeight - $usedWeight;
+
+            // الهدر هو الوزن المتبقي (إذا كان موجب)
+            $waste = max(0, $remainingWeight);
+
+            // تحديث جميع الكراتين المرتبطة باللفاف (التي ليست مكتملة بالفعل) إلى حالة مكتملة
+            $updatedBoxesCount = DB::table('stage4_boxes')
+                ->where('parent_barcode', $barcode)
+                ->whereNotIn('status', ['completed', 'in_warehouse', 'shipped'])
+                ->update([
+                    'status' => 'completed',
+                    'packed_at' => now(),
+                    'updated_at' => now()
+                ]);
+            
+            // عدد الكراتين الكلي المرتبط باللفاف
+            $totalBoxesCount = DB::table('stage4_boxes')
+                ->where('parent_barcode', $barcode)
+                ->count();
+
+            // تحديث حالة اللفاف نفسه إلى packed (إذا لم يكن مكتملاً بالفعل)
+            if (!in_array($lafaf->status, ['packed', 'completed'])) {
+                DB::table('stage3_coils')
+                    ->where('id', $lafaf->id)
+                    ->update([
+                        'status' => 'packed',
+                        'waste' => $waste,
+                        'completed_at' => now(),
+                        'updated_at' => now()
+                    ]);
+            }
+
+            // تسجيل في السجل
+            \Log::info('تم إنهاء اللفاف', [
+                'barcode' => $barcode,
+                'user_id' => $userId,
+                'total_boxes_count' => $totalBoxesCount,
+                'updated_boxes_count' => $updatedBoxesCount,
+                'total_weight' => $totalWeight,
+                'used_weight' => $usedWeight,
+                'waste' => $waste
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم إنهاء اللفاف بنجاح',
+                'data' => [
+                    'barcode' => $barcode,
+                    'boxes_count' => $totalBoxesCount,
+                    'updated_boxes_count' => $updatedBoxesCount,
+                    'total_weight' => $totalWeight,
+                    'used_weight' => $usedWeight,
+                    'waste' => round($waste, 3)
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('خطأ في إنهاء اللفاف', [
+                'barcode' => $validated['barcode'] ?? null,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء إنهاء اللفاف: ' . $e->getMessage()
             ], 500);
         }
     }

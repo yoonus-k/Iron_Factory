@@ -9,8 +9,12 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SystemSettingController;
 
+// الصفحة الرئيسية - توجيه تلقائي حسب حالة تسجيل الدخول
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
 });
 
 // Protected Routes - Require Authentication

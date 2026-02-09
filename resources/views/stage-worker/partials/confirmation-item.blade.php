@@ -4,17 +4,17 @@
             <i class="fas fa-box-open"></i>
             <h4>
                 @php
-                    $materialName = $confirmation->deliveryNote?->material?->name_ar 
-                        ?? $confirmation->deliveryNote?->material?->name 
-                        ?? $confirmation->batch?->material?->name_ar 
-                        ?? $confirmation->batch?->material?->name 
+                    $materialName = $confirmation->deliveryNote?->material?->name_ar
+                        ?? $confirmation->deliveryNote?->material?->name
+                        ?? $confirmation->batch?->material?->name_ar
+                        ?? $confirmation->batch?->material?->name
                         ?? ($confirmation->metadata['stage_name'] ?? 'غير محدد');
                     $productionBarcode = $confirmation->barcode
-                        ?? $confirmation->batch?->production_barcode 
-                        ?? $confirmation->batch?->batch_code 
-                        ?? $confirmation->deliveryNote?->production_barcode 
-                        ?? $confirmation->deliveryNote?->materialBatch?->batch_code 
-                        ?? $confirmation->metadata['barcode'] 
+                        ?? $confirmation->batch?->production_barcode
+                        ?? $confirmation->batch?->batch_code
+                        ?? $confirmation->deliveryNote?->production_barcode
+                        ?? $confirmation->deliveryNote?->materialBatch?->batch_code
+                        ?? $confirmation->metadata['barcode']
                         ?? 'غير محدد';
                     $stageLabel = $confirmation->metadata['stage_name']
                         ?? $confirmation->stage()?->stage_name
@@ -34,7 +34,7 @@
             {{ $confirmation->created_at->diffForHumans() }}
         </div>
     </div>
-    
+
     <div class="confirmation-body">
         <div class="confirmation-details">
             <div class="detail-item">
@@ -73,19 +73,19 @@
 
                         // رابعاً: نحاول أخذ الوزن من MaterialBatch
                         if ((is_null($weight) || $weight <= 0) && $confirmation->deliveryNote?->materialBatch) {
-                            $weight = $confirmation->deliveryNote->materialBatch->initial_quantity 
+                            $weight = $confirmation->deliveryNote->materialBatch->initial_quantity
                                 ?? $confirmation->deliveryNote->materialBatch->available_quantity;
                         }
 
                         // رابعاً: نحاول أخذ الوزن من Batch المرتبط بالتأكيد
                         if ((is_null($weight) || $weight <= 0) && $confirmation->batch) {
-                            $weight = $confirmation->batch->initial_quantity 
+                            $weight = $confirmation->batch->initial_quantity
                                 ?? $confirmation->batch->available_quantity;
                         }
 
                         // خامساً: نحاول أخذ الكمية من DeliveryNote كحل أخير
                         if ((is_null($weight) || $weight <= 0) && $confirmation->deliveryNote) {
-                            $weight = $confirmation->deliveryNote->quantity 
+                            $weight = $confirmation->deliveryNote->quantity
                                 ?? $confirmation->deliveryNote->actual_weight;
                         }
 
@@ -107,7 +107,7 @@
                 <span class="detail-value">{{ $typeLabel }}</span>
             </div>
         </div>
-        
+
         @if($confirmation->notes)
             <div class="confirmation-notes">
                 <i class="fas fa-sticky-note"></i>
@@ -124,21 +124,16 @@
     </div>
 
     <div class="confirmation-actions">
-        <button class="action-btn btn-confirm quick-confirm" 
-                data-id="{{ $confirmation->id }}"
-                title="تأكيد الاستلام">
+        <button class="action-btn btn-confirm quick-confirm" data-id="{{ $confirmation->id }}" title="تأكيد الاستلام">
             <i class="fas fa-check"></i>
             <span>تأكيد</span>
         </button>
-        <button class="action-btn btn-reject quick-reject" 
-                data-id="{{ $confirmation->id }}"
-                title="رفض الاستلام">
+        <button class="action-btn btn-reject quick-reject" data-id="{{ $confirmation->id }}" title="رفض الاستلام">
             <i class="fas fa-times"></i>
             <span>رفض</span>
         </button>
-        <a href="{{ route('manufacturing.production.confirmations.show', $confirmation->id) }}" 
-           class="action-btn btn-details"
-           title="عرض التفاصيل">
+        <a href="{{ route('manufacturing.production.confirmations.show', $confirmation->id) }}"
+            class="action-btn btn-details" title="عرض التفاصيل">
             <i class="fas fa-eye"></i>
             <span>تفاصيل</span>
         </a>
@@ -264,7 +259,7 @@
     .btn-confirm:hover {
         background: linear-gradient(135deg, #1e7e34 0%, #155724 100%);
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(40,167,69,0.3);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
     }
 
     .btn-reject {
@@ -275,7 +270,7 @@
     .btn-reject:hover {
         background: linear-gradient(135deg, #bd2130 0%, #a71d2a 100%);
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(220,53,69,0.3);
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
     }
 
     .btn-details {
@@ -286,7 +281,7 @@
     .btn-details:hover {
         background: linear-gradient(135deg, #117a8b 0%, #0c5460 100%);
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(23,162,184,0.3);
+        box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
         color: white;
     }
 </style>

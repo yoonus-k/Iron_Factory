@@ -69,6 +69,7 @@
                                 <option value="created">{{ __('stages.status_created') }}</option>
                                 <option value="in_process">{{ __('stages.stage3_status_in_process') }}</option>
                                 <option value="completed">{{ __('stages.status_completed') }}</option>
+                                <option value="packed">معبأ بالكامل</option>
                             </select>
                         </div>
                         <div class="um-form-group">
@@ -121,7 +122,9 @@
                             <td>{{ $item->color }}</td>
                             <td>{{ $item->plastic_type }}</td>
                             <td>
-                                @if($item->status === 'completed')
+                                @if($item->status === 'packed')
+                                <span class="um-badge" style="background: #8e44ad; color: white;">معبأ بالكامل</span>
+                                @elseif($item->status === 'completed')
                                 <span class="um-badge um-badge-success">{{ __('stages.status_completed') }}</span>
                                 @elseif($item->status === 'in_progress')
                                 <span class="um-badge um-badge-warning">{{ __('stages.stage3_status_in_process') }}</span>
@@ -180,7 +183,9 @@
                                 <span class="um-category-id">#{{ $loop->iteration }}</span>
                             </div>
                         </div>
-                        @if($item->status === 'completed')
+                        @if($item->status === 'packed')
+                        <span class="um-badge" style="background: #8e44ad; color: white;">معبأ بالكامل</span>
+                        @elseif($item->status === 'completed')
                         <span class="um-badge um-badge-success">{{ __('stages.status_completed') }}</span>
                         @elseif($item->status === 'in_progress')
                         <span class="um-badge um-badge-warning">{{ __('stages.stage3_status_in_process') }}</span>

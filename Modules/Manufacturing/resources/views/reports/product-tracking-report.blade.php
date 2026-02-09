@@ -514,7 +514,13 @@
     <!-- Pagination -->
     @if($trackingRecords->hasPages())
     <div style="margin-top: 2rem; display: flex; justify-content: center;">
-        {{ $trackingRecords->links() }}
+        {{ $trackingRecords->appends([
+            'date_from' => $dateFrom,
+            'date_to' => $dateTo,
+            'stage' => $stage,
+            'status' => $status,
+            'worker' => $worker
+        ])->links('vendor.pagination.product-tracking') }}
     </div>
     @endif
 </div>

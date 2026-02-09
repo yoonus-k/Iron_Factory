@@ -38,10 +38,11 @@ class WorkInProgressController extends Controller
 
     /**
      * Get items stuck in production (القطع التي بدأت ولم تنتهِ)
+     * المنطق الجديد: الباركود مكتمل فقط إذا وصل للمرحلة التالية
      */
     private function getStuckItems($stageFilter = null, $delayFilter = null, $workerFilter = null, $dateFrom = null, $dateTo = null)
     {
-        // Stage 1: القطع التي تم تقسيمها لكن لم تدخل Stage 2
+        // Stage 1: كل الباركودات التي لم تدخل Stage 2 (بغض النظر عن status)
         $stage1Query = DB::table('stage1_stands as s1')
             ->select(
                 's1.barcode',
@@ -50,6 +51,7 @@ class WorkInProgressController extends Controller
                 's1.weight as input_weight',
                 's1.weight as output_weight',
                 's1.waste',
+                's1.status',
                 's1.created_by',
                 'u.name as worker_name',
                 's1.created_at as started_at',
@@ -63,7 +65,7 @@ class WorkInProgressController extends Controller
                     ->whereColumn('s2.parent_barcode', 's1.barcode');
             });
 
-        // Stage 2: القطع التي تمت معالجتها لكن لم تدخل Stage 3
+        // Stage 2: كل الباركودات التي لم تدخل Stage 3 (بغض النظر عن status)
         $stage2Query = DB::table('stage2_processed as s2')
             ->select(
                 's2.barcode',
@@ -72,6 +74,7 @@ class WorkInProgressController extends Controller
                 's2.input_weight',
                 's2.output_weight',
                 's2.waste',
+                's2.status',
                 's2.created_by',
                 'u.name as worker_name',
                 's2.created_at as started_at',
@@ -85,7 +88,7 @@ class WorkInProgressController extends Controller
                     ->whereColumn('s3.parent_barcode', 's2.barcode');
             });
 
-        // Stage 3: القطع التي تم لفها لكن لم تدخل Stage 4
+        // Stage 3: كل الباركودات التي لم تدخل Stage 4 (بغض النظر عن status)
         $stage3Query = DB::table('stage3_coils as s3')
             ->select(
                 's3.barcode',
@@ -94,6 +97,7 @@ class WorkInProgressController extends Controller
                 's3.base_weight as input_weight',
                 's3.total_weight as output_weight',
                 's3.waste',
+                's3.status',
                 's3.created_by',
                 'u.name as worker_name',
                 's3.created_at as started_at',
@@ -101,9 +105,13 @@ class WorkInProgressController extends Controller
                 DB::raw('TIMESTAMPDIFF(HOUR, s3.created_at, NOW()) as hours_stuck')
             )
             ->leftJoin('users as u', 's3.created_by', '=', 'u.id')
-            ->where('s3.status', '!=', 'packed');
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('stage4_boxes as s4')
+                    ->whereColumn('s4.parent_barcode', 's3.barcode');
+            });
 
-        // Stage 4: القطع في التعليب لكن لم تكتمل
+        // Stage 4: كل الصناديق التي لم يتم إنهاؤها (status != finished)
         $stage4Query = DB::table('stage4_boxes as s4')
             ->select(
                 's4.barcode',
@@ -112,14 +120,15 @@ class WorkInProgressController extends Controller
                 's4.total_weight as input_weight',
                 's4.total_weight as output_weight',
                 's4.waste',
+                's4.status',
                 's4.created_by',
                 'u.name as worker_name',
                 's4.created_at as started_at',
-                DB::raw('NULL as completed_at'),
+                's4.packed_at as completed_at',
                 DB::raw('TIMESTAMPDIFF(HOUR, s4.created_at, NOW()) as hours_stuck')
             )
             ->leftJoin('users as u', 's4.created_by', '=', 'u.id')
-            ->whereIn('s4.status', ['packing']);
+            ->whereNotIn('s4.status', ['finished', 'in_warehouse', 'shipped']);
 
         // Apply stage filter
         if ($stageFilter) {
@@ -189,12 +198,26 @@ class WorkInProgressController extends Controller
         $critical = $stuckItems->filter(function ($item) {
             return $item->hours_stuck > 24;
         })->count();
+        
+        // Very critical items (stuck > 72 hours - 3 days)
+        $veryCritical = $stuckItems->filter(function ($item) {
+            return $item->hours_stuck > 72;
+        })->count();
 
         // Total weight stuck
         $totalWeight = $stuckItems->sum('output_weight');
+        
+        // Total waste
+        $totalWaste = $stuckItems->sum('waste');
 
         // Items by worker
         $byWorker = $stuckItems->groupBy('worker_name')->map->count()->sortDesc()->take(5);
+        
+        // Items by status
+        $byStatus = $stuckItems->groupBy('status')->map->count()->sortDesc();
+        
+        // Oldest stuck item
+        $oldestItem = $stuckItems->sortByDesc('hours_stuck')->first();
 
         return [
             'total' => $total,
@@ -206,8 +229,17 @@ class WorkInProgressController extends Controller
             ],
             'avg_delay_hours' => round($avgDelay, 1),
             'critical_count' => $critical,
+            'very_critical_count' => $veryCritical,
             'total_weight_kg' => round($totalWeight, 2),
+            'total_waste_kg' => round($totalWaste, 2),
             'top_workers' => $byWorker,
+            'by_status' => $byStatus,
+            'oldest_item' => $oldestItem ? [
+                'barcode' => $oldestItem->barcode,
+                'stage_name' => $oldestItem->stage_name,
+                'hours_stuck' => $oldestItem->hours_stuck,
+                'started_at' => $oldestItem->started_at
+            ] : null,
         ];
     }
 

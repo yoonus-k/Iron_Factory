@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\Syncable;
 
 class Stand extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Syncable;
 
     protected $fillable = [
         'stand_number',

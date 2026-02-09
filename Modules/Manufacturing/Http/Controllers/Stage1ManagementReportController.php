@@ -76,11 +76,11 @@ class Stage1ManagementReportController extends Controller
         if (request('waste_level')) {
             $wasteLevel = request('waste_level');
             if ($wasteLevel === 'safe') {
-                $query->whereRaw("(waste / weight) * 100 <= 8");
+                $query->whereRaw("(waste / (remaining_weight + waste)) * 100 <= 8");
             } elseif ($wasteLevel === 'warning') {
-                $query->whereRaw("(waste / weight) * 100 > 8 AND (waste / weight) * 100 <= 15");
+                $query->whereRaw("(waste / (remaining_weight + waste)) * 100 > 8 AND (waste / (remaining_weight + waste)) * 100 <= 15");
             } elseif ($wasteLevel === 'critical') {
-                $query->whereRaw("(waste / weight) * 100 > 15");
+                $query->whereRaw("(waste / (remaining_weight + waste)) * 100 > 15");
             }
             $filters['waste_level'] = $wasteLevel;
         }
@@ -135,10 +135,12 @@ class Stage1ManagementReportController extends Controller
 
         // ========== معايير الهدر ==========
         // حساب نسبة الهدر على أساس: الهدر / وزن المادة الفعلي (بدون وزن الاستاند)
+        // وزن المادة الفعلي = remaining_weight + waste
         $wastePercentages = $allRecords->map(function ($record) {
-            if ($record->weight > 0) {
-                // النسبة = waste / weight (الهدر من وزن المادة الفعلي)
-                return ($record->waste / $record->weight) * 100;
+            // وزن المادة الفعلي = الوزن المتبقي + الهدر (لا يشمل وزن الاستاند)
+            $materialWeight = $record->remaining_weight + $record->waste;
+            if ($materialWeight > 0) {
+                return ($record->waste / $materialWeight) * 100;
             }
             return 0;
         })->filter(function ($val) {
@@ -151,16 +153,18 @@ class Stage1ManagementReportController extends Controller
 
         // البحث عن الاستاند الأفضل والأسوأ (على أساس نسبة الهدر من المادة فقط)
         $maxWasteRecord = $allRecords->sortByDesc(function ($record) {
-            if ($record->weight > 0) {
-                return ($record->waste / $record->weight) * 100;
+            $materialWeight = $record->remaining_weight + $record->waste;
+            if ($materialWeight > 0) {
+                return ($record->waste / $materialWeight) * 100;
             }
             return 0;
         })->first();
         $maxWasteBarcode = $maxWasteRecord ? $maxWasteRecord->barcode : '-';
 
         $minWasteRecord = $allRecords->sortBy(function ($record) {
-            if ($record->weight > 0) {
-                return ($record->waste / $record->weight) * 100;
+            $materialWeight = $record->remaining_weight + $record->waste;
+            if ($materialWeight > 0) {
+                return ($record->waste / $materialWeight) * 100;
             }
             return 0;
         })->first();
@@ -170,9 +174,10 @@ class Stage1ManagementReportController extends Controller
         $workerPerformance = $allRecords->groupBy('created_by_name')->map(function ($items, $workerName) {
             $count = $items->count();
             $wastePercs = $items->map(function ($record) {
-                if ($record->weight > 0) {
-                    // حساب النسبة من الهدر الفعلي للمادة فقط
-                    return ($record->waste / $record->weight) * 100;
+                // وزن المادة الفعلي = الوزن المتبقي + الهدر
+                $materialWeight = $record->remaining_weight + $record->waste;
+                if ($materialWeight > 0) {
+                    return ($record->waste / $materialWeight) * 100;
                 }
                 return 0;
             })->filter(function ($val) {
@@ -227,8 +232,9 @@ class Stage1ManagementReportController extends Controller
 
         // ========== معدل الالتزام ==========
         $compliantRecords = $allRecords->filter(function ($record) {
-            if ($record->weight > 0) {
-                $waste = ($record->waste / $record->weight) * 100;
+            $materialWeight = $record->remaining_weight + $record->waste;
+            if ($materialWeight > 0) {
+                $waste = ($record->waste / $materialWeight) * 100;
                 return $waste <= 15 && $record->status !== 'pending_approval';
             }
             return true;
@@ -238,24 +244,27 @@ class Stage1ManagementReportController extends Controller
 
         // ========== تحليل النفايات ==========
         $acceptableWaste = $allRecords->filter(function ($record) {
-            if ($record->weight > 0) {
-                $waste = ($record->waste / $record->weight) * 100;
+            $materialWeight = $record->remaining_weight + $record->waste;
+            if ($materialWeight > 0) {
+                $waste = ($record->waste / $materialWeight) * 100;
                 return $waste <= 8;
             }
             return true;
         })->count();
 
         $warningWaste = $allRecords->filter(function ($record) {
-            if ($record->weight > 0) {
-                $waste = ($record->waste / $record->weight) * 100;
+            $materialWeight = $record->remaining_weight + $record->waste;
+            if ($materialWeight > 0) {
+                $waste = ($record->waste / $materialWeight) * 100;
                 return $waste > 8 && $waste <= 15;
             }
             return false;
         })->count();
 
         $criticalWaste = $allRecords->filter(function ($record) {
-            if ($record->weight > 0) {
-                $waste = ($record->waste / $record->weight) * 100;
+            $materialWeight = $record->remaining_weight + $record->waste;
+            if ($materialWeight > 0) {
+                $waste = ($record->waste / $materialWeight) * 100;
                 return $waste > 15;
             }
             return false;
@@ -284,9 +293,10 @@ class Stage1ManagementReportController extends Controller
             $totalWaste = round($records->sum('waste'), 2);
 
             $wastePercs = $records->map(function ($record) {
-                if ($record->weight > 0) {
-                    // حساب النسبة من الهدر الفعلي
-                    return ($record->waste / $record->weight) * 100;
+                // وزن المادة الفعلي = الوزن المتبقي + الهدر
+                $materialWeight = $record->remaining_weight + $record->waste;
+                if ($materialWeight > 0) {
+                    return ($record->waste / $materialWeight) * 100;
                 }
                 return 0;
             })->filter(function ($val) {

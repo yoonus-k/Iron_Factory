@@ -98,6 +98,13 @@ class ProductTrackingController extends Controller
                 break;
             }
 
+            // جلب معلومات الموظف
+            $workerId = $record->worker_id ?? null;
+            $worker = null;
+            if ($workerId) {
+                $worker = DB::table('users')->where('id', $workerId)->first();
+            }
+
             // إضافة معلومات المرحلة السابقة
             $chain[] = [
                 'barcode' => $record->input_barcode,
@@ -106,6 +113,8 @@ class ProductTrackingController extends Controller
                 'action' => $record->action,
                 'action_name' => $this->getActionNameAr($record->action),
                 'weight' => $record->input_weight ?? 0,
+                'worker_id' => $workerId,
+                'worker_name' => $worker ? $worker->name : 'غير محدد',
                 'timestamp' => $record->created_at,
                 'formatted_time' => date('Y-m-d H:i:s', strtotime($record->created_at)),
             ];
@@ -118,29 +127,51 @@ class ProductTrackingController extends Controller
     }
 
     /**
-     * Get forward tracking (ماذا تم إنتاجه من هذا الباركود)
+     * Get forward tracking (ماذا تم إنتاجه من هذا الباركود) - بشكل شجري
      */
-    private function getForwardTracking($barcode)
+    private function getForwardTracking($barcode, $depth = 0, $maxDepth = 5)
     {
+        if ($depth >= $maxDepth) {
+            return [];
+        }
+
         $products = [];
 
-        // البحث عن جميع المنتجات التي تم إنتاجها من هذا الباركود
+        // البحث عن جميع المنتجات التي تم إنتاجها مباشرة من هذا الباركود
         $records = DB::table('product_tracking')
             ->where('input_barcode', $barcode)
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'asc')
             ->get();
 
         foreach ($records as $record) {
-            $products[] = [
-                'barcode' => $record->output_barcode ?? $record->barcode,
+            $outputBarcode = $record->output_barcode ?? $record->barcode;
+            
+            // جلب معلومات الموظف
+            $workerId = $record->worker_id ?? null;
+            $worker = null;
+            if ($workerId) {
+                $worker = DB::table('users')->where('id', $workerId)->first();
+            }
+
+            $product = [
+                'barcode' => $outputBarcode,
                 'stage' => $record->stage,
                 'stage_name' => $this->getStageNameAr($record->stage),
                 'action' => $record->action,
                 'action_name' => $this->getActionNameAr($record->action),
                 'weight' => $record->output_weight ?? 0,
+                'worker_id' => $workerId,
+                'worker_name' => $worker ? $worker->name : 'غير محدد',
                 'timestamp' => $record->created_at,
                 'formatted_time' => date('Y-m-d H:i:s', strtotime($record->created_at)),
+                'depth' => $depth,
+                'children' => []
             ];
+
+            // جلب المنتجات المشتقة من هذا المنتج (recursive)
+            $product['children'] = $this->getForwardTracking($outputBarcode, $depth + 1, $maxDepth);
+
+            $products[] = $product;
         }
 
         return $products;
@@ -371,6 +402,13 @@ class ProductTrackingController extends Controller
                     $displayOutputWeight = $record->output_weight ?? 0;
             }
             
+            // جلب اسم الموظف لهذه العملية
+            $itemWorkerId = $record->worker_id ?? null;
+            $itemWorker = null;
+            if ($itemWorkerId) {
+                $itemWorker = DB::table('users')->where('id', $itemWorkerId)->first();
+            }
+            
             $itemsDetails[] = [
                 'barcode' => $record->barcode,
                 'input_barcode' => $record->input_barcode,
@@ -380,6 +418,8 @@ class ProductTrackingController extends Controller
                 'output_weight' => $displayOutputWeight,
                 'waste_amount' => $record->waste_amount ?? 0,
                 'waste_percentage' => $record->waste_percentage ?? 0,
+                'worker_id' => $itemWorkerId,
+                'worker_name' => $itemWorker ? $itemWorker->name : 'غير محدد',
                 'notes' => $record->notes,
                 'formatted_time' => date('Y-m-d H:i:s', strtotime($record->created_at)),
             ];
@@ -412,10 +452,9 @@ class ProductTrackingController extends Controller
             $additionalInfo['items_count'] = $itemsCount;
         }
 
-        // حساب متوسط نسبة الهدر
-        $wastePercentage = $totalInputWeight > 0 
-            ? round(($totalWaste / $totalInputWeight) * 100, 2)
-            : 0;
+        // استخدام waste_percentage المحفوظة في الجدول (محسوبة بشكل صحيح من كل مرحلة)
+        // بدلاً من إعادة حسابها هنا لأن كل مرحلة لها طريقة حساب مختلفة
+        $wastePercentage = $firstRecord->waste_percentage ?? 0;
 
         return [
             'stage' => $stageName,

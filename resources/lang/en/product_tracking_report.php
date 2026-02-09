@@ -108,4 +108,8 @@ return [
     // Chart Labels
     'chart_production_label' => 'Production',
     'chart_waste_label' => 'Waste',
+
+    // Pagination
+    'pagination_navigation' => 'Tracking records pagination',
+    'pagination_info' => 'Showing :from to :to of :total results',
 ];

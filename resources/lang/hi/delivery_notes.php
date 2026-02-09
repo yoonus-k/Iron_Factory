@@ -67,6 +67,9 @@ return [
     'coil_number' => 'कॉइल नंबर',
     'unit' => 'इकाई',
     'activity' => 'गतिविधि',
+    'driver_name' => 'ड्राइवर का नाम',
+    'vehicle_plate_number' => 'वाहन की प्लेट संख्या',
+    'received_from_person' => 'आपूर्तिकर्ता से प्राप्त व्यक्ति',
 
     // Warehouse Management
     'warehouse_management' => 'गोदाम और स्थानांतरण प्रबंधन',
@@ -92,6 +95,7 @@ return [
     'view' => 'देखें',
     'edit' => 'संपादित करें',
     'delete' => 'हटाएं',
+    'print' => 'डिलीवरी नोट प्रिंट करें',
     'save' => 'सहेजें',
     'save_changes' => 'परिवर्तन सहेजें',
     'cancel' => 'रद्द करें',

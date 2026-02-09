@@ -272,11 +272,14 @@ class StandsController extends Controller
         $history->getCollection()->transform(function ($item) {
             $stand = Stand::find($item->stand_id);
             $user = \App\Models\User::find($item->user_id);
+            $supervisor = isset($item->supervisor_id) ? \App\Models\User::find($item->supervisor_id) : null;
             
             return (object) [
                 'id' => $item->id,
                 'stand' => $stand,
                 'user' => $user,
+                'supervisor' => $supervisor,
+                'shift' => $item->shift ?? null,
                 'material_barcode' => $item->material_barcode,
                 'material_type' => $item->material_type,
                 'wire_size' => $item->wire_size,

@@ -10,241 +10,148 @@
 
     <!-- الإحصائيات الرئيسية -->
     <div class="statistics-grid">
-        <!-- إحصائيات الإنتاج -->
-        <div class="stat-card card-primary">
-            <div class="stat-header">
-                <i class="fas fa-industry"></i>
-                <h3>الإنتاج اليومي</h3>
+        @forelse($dashboardStats as $stat)
+            <div class="stat-card card-{{ $stat['style'] ?? 'primary' }}">
+                <div class="stat-header">
+                    <i class="{{ $stat['icon'] ?? 'fas fa-chart-area' }}"></i>
+                    <h3>{{ $stat['title'] ?? '—' }}</h3>
+                </div>
+                <div class="stat-value">
+                    @if(isset($stat['value']))
+                        {{ number_format($stat['value'], $stat['decimals'] ?? 0) }}
+                        @if(!empty($stat['unit']))
+                            <span class="stat-unit">{{ $stat['unit'] }}</span>
+                        @endif
+                    @else
+                        <span class="stat-placeholder">—</span>
+                    @endif
+                </div>
+                @if(!empty($stat['hint']))
+                    <p class="stat-hint">{{ $stat['hint'] }}</p>
+                @endif
+                @php $trendValue = $stat['trend'] ?? null; @endphp
+                @if(!is_null($trendValue))
+                    @php $trendPositive = $trendValue >= 0; @endphp
+                    <div class="stat-footer">
+                        <div class="stat-change {{ $trendPositive ? 'positive' : 'negative' }}">
+                            <i class="fas {{ $trendPositive ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
+                            {{ number_format(abs($trendValue), 1) }}%
+                        </div>
+                        <span class="stat-period">مقارنة بالأمس</span>
+                    </div>
+                @endif
             </div>
-            <div class="stat-value">1,250</div>
-            <div class="stat-unit">وحدة</div>
-            <div class="stat-footer">
-                <span class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> 15% عن أمس
-                </span>
+        @empty
+            <div class="stat-card empty-card">
+                <div class="stat-header">
+                    <h3>لا توجد بيانات جاهزة</h3>
+                </div>
+                <div class="stat-value">
+                    <span class="stat-placeholder">—</span>
+                </div>
+                <p class="stat-hint">الرجاء التأكد من تسجيل بيانات الإنتاج.</p>
             </div>
-        </div>
-
-        <!-- إحصائيات الجودة -->
-        <div class="stat-card card-success">
-            <div class="stat-header">
-                <i class="fas fa-check-circle"></i>
-                <h3>معدل الجودة</h3>
-            </div>
-            <div class="stat-value">98.5%</div>
-            <div class="stat-unit">من الإنتاج</div>
-            <div class="stat-footer">
-                <span class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> ممتاز
-                </span>
-            </div>
-        </div>
-
-        <!-- إحصائيات الأعطال -->
-        <div class="stat-card card-warning">
-            <div class="stat-header">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h3>الأعطال والتوقفات</h3>
-            </div>
-            <div class="stat-value">3</div>
-            <div class="stat-unit">توقفات</div>
-            <div class="stat-footer">
-                <span class="stat-change negative">
-                    <i class="fas fa-arrow-up"></i> بحاجة متابعة
-                </span>
-            </div>
-        </div>
-
-        <!-- إحصائيات الكفاءة -->
-        <div class="stat-card card-info">
-            <div class="stat-header">
-                <i class="fas fa-tachometer-alt"></i>
-                <h3>كفاءة الآلات</h3>
-            </div>
-            <div class="stat-value">92.3%</div>
-            <div class="stat-unit">معدل الاستخدام</div>
-            <div class="stat-footer">
-                <span class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> تشغيل فعال
-                </span>
-            </div>
-        </div>
+        @endforelse
     </div>
 
-    <!-- الرسوم البيانية والمخططات -->
     <div class="charts-section">
-        <!-- مخطط الإنتاج الأسبوعي -->
         <div class="chart-container">
             <div class="chart-header">
-                <h3>الإنتاج الأسبوعي</h3>
-                <span class="chart-label">الوحدات المنتجة</span>
+                <h3>إنتاج الأسبوع</h3>
+                <span class="chart-label">آخر 7 أيام</span>
             </div>
             <div class="chart-content">
-                <div class="chart-bars">
-                    <div class="bar-item">
-                        <div class="bar-graph" style="height: 75%;"></div>
-                        <span class="bar-label">السبت</span>
-                        <span class="bar-value">950</span>
+                @php
+                    $maxWeeklyValue = collect($weeklyProduction ?? [])->max('value') ?? 0;
+                    $maxWeeklyValue = $maxWeeklyValue > 0 ? $maxWeeklyValue : 1;
+                @endphp
+                @if(!empty($weeklyProduction))
+                    <div class="chart-bars">
+                        @foreach($weeklyProduction as $day)
+                            @php
+                                $height = ($day['value'] / $maxWeeklyValue) * 100;
+                            @endphp
+                            <div class="bar-item">
+                                <div class="bar-graph" style="height: {{ max(4, $height) }}%;"></div>
+                                <span class="bar-label">{{ $day['label'] }}</span>
+                                <span class="bar-value">{{ number_format($day['value'], 0) }}</span>
+                            </div>
+                        @endforeach
                     </div>
-                    <div class="bar-item">
-                        <div class="bar-graph" style="height: 85%;"></div>
-                        <span class="bar-label">الأحد</span>
-                        <span class="bar-value">1050</span>
-                    </div>
-                    <div class="bar-item">
-                        <div class="bar-graph" style="height: 90%;"></div>
-                        <span class="bar-label">الاثنين</span>
-                        <span class="bar-value">1100</span>
-                    </div>
-                    <div class="bar-item">
-                        <div class="bar-graph" style="height: 80%;"></div>
-                        <span class="bar-label">الثلاثاء</span>
-                        <span class="bar-value">1000</span>
-                    </div>
-                    <div class="bar-item">
-                        <div class="bar-graph" style="height: 88%;"></div>
-                        <span class="bar-label">الأربعاء</span>
-                        <span class="bar-value">1080</span>
-                    </div>
-                    <div class="bar-item">
-                        <div class="bar-graph" style="height: 92%;"></div>
-                        <span class="bar-label">الخميس</span>
-                        <span class="bar-value">1130</span>
-                    </div>
-                    <div class="bar-item">
-                        <div class="bar-graph" style="height: 78%;"></div>
-                        <span class="bar-label">الجمعة</span>
-                        <span class="bar-value">950</span>
-                    </div>
-                </div>
+                @else
+                    <div class="empty-state">لا توجد بيانات للأسبوع الحالي.</div>
+                @endif
             </div>
         </div>
 
-        <!-- توزيع حالات الإنتاج -->
         <div class="pie-container">
             <div class="chart-header">
-                <h3>توزيع الإنتاج</h3>
-                <span class="chart-label">حسب الحالة</span>
+                <h3>توزيع حالات التعبئة</h3>
+                <span class="chart-label">آخر 7 أيام</span>
             </div>
             <div class="pie-chart">
-                <svg viewBox="0 0 120 120">
-                    <circle cx="60" cy="60" r="55" fill="none" stroke="#4CAF50" stroke-width="20"
-                            stroke-dasharray="172 450" stroke-dashoffset="0"></circle>
-                    <circle cx="60" cy="60" r="55" fill="none" stroke="#FFC107" stroke-width="20"
-                            stroke-dasharray="135 450" stroke-dashoffset="-172"></circle>
-                    <circle cx="60" cy="60" r="55" fill="none" stroke="#F44336" stroke-width="20"
-                            stroke-dasharray="68 450" stroke-dashoffset="-307"></circle>
-                </svg>
-                <div class="pie-labels">
-                    <div class="pie-label">
-                        <span class="pie-color" style="background-color: #4CAF50;"></span>
-                        <span class="pie-text">جاهزة: 70%</span>
+                @if(!empty($statusSegments))
+                    @php
+                        $circumference = 2 * pi() * 55;
+                        $offset = 0;
+                    @endphp
+                    <svg viewBox="0 0 120 120">
+                        @foreach($statusSegments as $segment)
+                            @php $dash = ($segment['percentage'] / 100) * $circumference; @endphp
+                            <circle cx="60" cy="60" r="55" fill="none"
+                                    stroke="{{ $segment['color'] }}" stroke-width="20"
+                                    stroke-dasharray="{{ $dash }} {{ $circumference }}"
+                                    stroke-dashoffset="-{{ $offset }}"></circle>
+                            @php $offset += $dash; @endphp
+                        @endforeach
+                    </svg>
+                    <div class="pie-labels">
+                        @foreach($statusSegments as $segment)
+                            <div class="pie-label">
+                                <span class="pie-color" style="background-color: {{ $segment['color'] }};"></span>
+                                <span class="pie-text">{{ $segment['label'] }}: {{ number_format($segment['percentage'], 1) }}% ({{ $segment['count'] }})</span>
+                            </div>
+                        @endforeach
                     </div>
-                    <div class="pie-label">
-                        <span class="pie-color" style="background-color: #FFC107;"></span>
-                        <span class="pie-text">قيد المعالجة: 20%</span>
-                    </div>
-                    <div class="pie-label">
-                        <span class="pie-color" style="background-color: #F44336;"></span>
-                        <span class="pie-text">متوقفة: 10%</span>
-                    </div>
-                </div>
+                @else
+                    <div class="empty-state">لا توجد بيانات حديثة لحالات التعبئة.</div>
+                @endif
             </div>
         </div>
     </div>
 
-    <!-- الخطوط الإنتاجية -->
     <div class="production-lines">
         <h3 class="section-title">حالة الخطوط الإنتاجية</h3>
-        <div class="lines-grid">
-            <!-- الخط الأول -->
-            <div class="production-line-card">
-                <div class="line-header">
-                    <h4>الخط الإنتاجي #1</h4>
-                    <span class="status-badge status-active">نشط</span>
-                </div>
-                <div class="line-stats">
-                    <div class="stat">
-                        <span class="stat-label">الحالة:</span>
-                        <span class="stat-val">تشغيل عادي</span>
+        @if(!empty($productionLines))
+            <div class="lines-grid">
+                @foreach($productionLines as $line)
+                    <div class="production-line-card">
+                        <div class="line-header">
+                            <h4>{{ $line['title'] }}</h4>
+                            <span class="status-badge {{ $line['status'] === 'maintenance' ? 'status-maintenance' : 'status-active' }}">
+                                {{ $line['status_text'] }}
+                            </span>
+                        </div>
+                        <div class="line-stats">
+                            <div class="stat">
+                                <span class="stat-label">الإنتاج اليومي:</span>
+                                <span class="stat-val">{{ number_format($line['output'], 1) }} كجم</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">الملاحظات:</span>
+                                <span class="stat-val">{{ $line['notes'] }}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">الحالات المعلقة:</span>
+                                <span class="stat-val">{{ $line['issues'] }}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat">
-                        <span class="stat-label">الإنتاجية:</span>
-                        <span class="stat-val">320 وحدة/ساعة</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">التشغيل:</span>
-                        <span class="stat-val">94%</span>
-                    </div>
-                </div>
+                @endforeach
             </div>
-
-            <!-- الخط الثاني -->
-            <div class="production-line-card">
-                <div class="line-header">
-                    <h4>الخط الإنتاجي #2</h4>
-                    <span class="status-badge status-active">نشط</span>
-                </div>
-                <div class="line-stats">
-                    <div class="stat">
-                        <span class="stat-label">الحالة:</span>
-                        <span class="stat-val">تشغيل عادي</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">الإنتاجية:</span>
-                        <span class="stat-val">315 وحدة/ساعة</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">التشغيل:</span>
-                        <span class="stat-val">91%</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- الخط الثالث -->
-            <div class="production-line-card">
-                <div class="line-header">
-                    <h4>الخط الإنتاجي #3</h4>
-                    <span class="status-badge status-maintenance">صيانة</span>
-                </div>
-                <div class="line-stats">
-                    <div class="stat">
-                        <span class="stat-label">الحالة:</span>
-                        <span class="stat-val">توقف للصيانة</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">المتوقع:</span>
-                        <span class="stat-val">ساعتين</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">التقدم:</span>
-                        <span class="stat-val">45%</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- الخط الرابع -->
-            <div class="production-line-card">
-                <div class="line-header">
-                    <h4>الخط الإنتاجي #4</h4>
-                    <span class="status-badge status-active">نشط</span>
-                </div>
-                <div class="line-stats">
-                    <div class="stat">
-                        <span class="stat-label">الحالة:</span>
-                        <span class="stat-val">تشغيل عادي</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">الإنتاجية:</span>
-                        <span class="stat-val">325 وحدة/ساعة</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">التشغيل:</span>
-                        <span class="stat-val">89%</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @else
+            <div class="empty-state">لا توجد بيانات للخطوط الإنتاجية حالياً.</div>
+        @endif
     </div>
 
     <!-- الأنشطة الأخيرة والإشعارات -->
@@ -288,6 +195,11 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         border-left: 4px solid #333;
         transition: all 0.3s ease;
+    }
+
+    .stat-card.empty-card {
+        border-left-color: #d1d5db;
+        text-align: center;
     }
 
     .stat-card:hover {
@@ -338,10 +250,20 @@
         margin-bottom: 5px;
     }
 
+    .stat-placeholder {
+        color: #c5c5c5;
+    }
+
     .stat-unit {
         font-size: 12px;
         color: #999;
         margin-bottom: 10px;
+    }
+
+    .stat-hint {
+        font-size: 12px;
+        color: #777;
+        margin: 5px 0 10px;
     }
 
     .stat-footer {
@@ -350,6 +272,11 @@
         align-items: center;
         padding-top: 10px;
         border-top: 1px solid #eee;
+    }
+
+    .stat-period {
+        font-size: 11px;
+        color: #999;
     }
 
     .stat-change {
@@ -404,6 +331,14 @@
     }
 
     /* المخطط البياني */
+    .chart-content {
+        min-height: 220px;
+    }
+
+    .chart-content .empty-state {
+        margin: 0 auto;
+    }
+
     .chart-bars {
         display: flex;
         justify-content: space-around;
@@ -477,6 +412,15 @@
 
     .pie-text {
         color: #666;
+    }
+
+    .empty-state {
+        width: 100%;
+        padding: 30px 10px;
+        text-align: center;
+        color: #888;
+        background: #fafafa;
+        border-radius: 8px;
     }
 
     /* الخطوط الإنتاجية */

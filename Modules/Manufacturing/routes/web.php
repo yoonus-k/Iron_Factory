@@ -79,6 +79,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('delivery-notes', DeliveryNoteController::class)
         ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_READ')
         ->names('manufacturing.delivery-notes');
+    Route::get('delivery-notes/{deliveryNote}/print', [DeliveryNoteController::class, 'print'])
+        ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_READ')
+        ->name('manufacturing.delivery-notes.print');
     Route::get('delivery-notes/{deliveryNote}/coils-summary', [DeliveryNoteController::class, 'coilsSummary'])
         ->middleware('permission:WAREHOUSE_DELIVERY_NOTES_READ')
         ->name('manufacturing.delivery-notes.coils-summary');
@@ -392,21 +395,10 @@ Route::middleware(['auth'])->group(function () {
             ->name('manufacturing.reports.stage4-management');
     });
 
-    // Production Stages Routes
-    Route::resource('stage1', Stage1Controller::class)
+    // Stage 1 Additional Routes - يجب أن تكون قبل resource لتجنب التعارض
+    Route::get('stage1/pending-coils', [Stage1Controller::class, 'getPendingCoils'])
         ->middleware('permission:STAGE1_STANDS_READ')
-        ->names('manufacturing.stage1');
-    Route::resource('stage2', Stage2Controller::class)
-        ->middleware('permission:STAGE2_PROCESSING_READ')
-        ->names('manufacturing.stage2');
-    Route::resource('stage3', Stage3Controller::class)
-        ->middleware('permission:STAGE3_COILS_READ')
-        ->names('manufacturing.stage3');
-    Route::resource('stage4', Stage4Controller::class)
-        ->middleware('permission:STAGE4_PACKAGING_READ')
-        ->names('manufacturing.stage4');
-
-    // Stage 1 Additional Routes
+        ->name('manufacturing.stage1.pending-coils');
     Route::get('stage1/barcode/scan', [Stage1Controller::class, 'barcodeScan'])
         ->middleware('permission:STAGE1_BARCODE_SCAN')
         ->name('manufacturing.stage1.barcode-scan');
@@ -419,14 +411,62 @@ Route::middleware(['auth'])->group(function () {
     Route::post('stage1/store-single', [Stage1Controller::class, 'storeSingle'])
         ->middleware('permission:STAGE1_STANDS_CREATE')
         ->name('manufacturing.stage1.store-single');
+    Route::post('stage1/finish-coil', [Stage1Controller::class, 'finishCoil'])
+        ->middleware('permission:STAGE1_STANDS_CREATE')
+        ->name('manufacturing.stage1.finish-coil');
+    Route::get('stage1/coil-info/{barcode}', [Stage1Controller::class, 'getCoilInfo'])
+        ->middleware('permission:STAGE1_STANDS_READ')
+        ->name('manufacturing.stage1.coil-info');
+    Route::get('stage1/workers-for-transfer', [Stage1Controller::class, 'getWorkersForTransfer'])
+        ->middleware('permission:STAGE1_STANDS_READ')
+        ->name('manufacturing.stage1.workers-for-transfer');
+    Route::post('stage1/transfer-coil', [Stage1Controller::class, 'transferCoil'])
+        ->middleware('permission:STAGE1_STANDS_CREATE')
+        ->name('manufacturing.stage1.transfer-coil');
+    Route::post('stage1/accept-transfer', [Stage1Controller::class, 'acceptCoilTransfer'])
+        ->middleware('permission:STAGE1_STANDS_CREATE')
+        ->name('manufacturing.stage1.accept-transfer');
+    Route::post('stage1/reject-transfer', [Stage1Controller::class, 'rejectCoilTransfer'])
+        ->middleware('permission:STAGE1_STANDS_CREATE')
+        ->name('manufacturing.stage1.reject-transfer');
+    Route::get('stage1/pending-transfers', [Stage1Controller::class, 'getPendingTransfers'])
+        ->middleware('permission:STAGE1_STANDS_READ')
+        ->name('manufacturing.stage1.pending-transfers');
     Route::get('material-batches/get-by-barcode/{barcode}', [Stage1Controller::class, 'getMaterialByBarcode'])
         ->middleware('permission:STAGE1_STANDS_READ')
         ->name('manufacturing.material-batch.get-by-barcode');
 
-    // Stage 2 Additional Routes
+    // Stage 2 Additional Routes - يجب أن تكون قبل resource لتجنب التعارض
     Route::post('stage2/store-single', [Stage2Controller::class, 'storeSingle'])
         ->middleware('permission:STAGE2_PROCESSING_CREATE')
         ->name('manufacturing.stage2.store-single');
+    Route::post('stage2/finish-stand', [Stage2Controller::class, 'finishStand'])
+        ->middleware('permission:STAGE2_PROCESSING_UPDATE')
+        ->name('manufacturing.stage2.finish-stand');
+    Route::delete('stage2/delete-processing/{id}', [Stage2Controller::class, 'deleteProcessing'])
+        ->middleware('permission:STAGE2_PROCESSING_DELETE')
+        ->name('manufacturing.stage2.delete-processing');
+    Route::get('stage2/workers-for-transfer', [Stage2Controller::class, 'getWorkersForTransfer'])
+        ->middleware('permission:STAGE2_PROCESSING_READ')
+        ->name('manufacturing.stage2.workers-for-transfer');
+    Route::post('stage2/transfer-stand', [Stage2Controller::class, 'transferStand'])
+        ->middleware('permission:STAGE2_PROCESSING_UPDATE')
+        ->name('manufacturing.stage2.transfer-stand');
+    Route::post('stage2/accept-transfer', [Stage2Controller::class, 'acceptStandTransfer'])
+        ->middleware('permission:STAGE2_PROCESSING_CREATE')
+        ->name('manufacturing.stage2.accept-transfer');
+    Route::post('stage2/reject-transfer', [Stage2Controller::class, 'rejectStandTransfer'])
+        ->middleware('permission:STAGE2_PROCESSING_CREATE')
+        ->name('manufacturing.stage2.reject-transfer');
+    Route::get('stage2/pending-transfers', [Stage2Controller::class, 'getPendingTransfers'])
+        ->middleware('permission:STAGE2_PROCESSING_READ')
+        ->name('manufacturing.stage2.pending-transfers');
+    Route::get('stage2/pending-items', [Stage2Controller::class, 'getPendingItems'])
+        ->middleware('permission:STAGE2_PROCESSING_READ')
+        ->name('manufacturing.stage2.pending-items');
+    Route::post('stage2/verify-processings', [Stage2Controller::class, 'verifyProcessings'])
+        ->middleware('permission:STAGE2_PROCESSING_READ')
+        ->name('manufacturing.stage2.verify-processings');
     Route::get('stage2/complete/processing', [Stage2Controller::class, 'completeProcessing'])
         ->middleware('permission:STAGE2_PROCESSING_READ')
         ->name('manufacturing.stage2.complete-processing');
@@ -437,10 +477,61 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:STAGE2_PROCESSING_READ')
         ->name('manufacturing.stage2.waste-statistics');
 
+    // Production Stages Routes
+    Route::resource('stage1', Stage1Controller::class)
+        ->middleware('permission:STAGE1_STANDS_READ')
+        ->names('manufacturing.stage1');
+    Route::resource('stage2', Stage2Controller::class)
+        ->middleware('permission:STAGE2_PROCESSING_READ')
+        ->names('manufacturing.stage2');
+    Route::resource('stage3', Stage3Controller::class)
+        ->middleware('permission:STAGE3_COILS_READ')
+        ->names('manufacturing.stage3');
+    
+    // Stage 4 Additional Routes - يجب أن تكون قبل الـ resource route
+    Route::post('stage4/store-single', [Stage4Controller::class, 'storeSingle'])
+        ->middleware('permission:STAGE4_PACKAGING_CREATE')
+        ->name('manufacturing.stage4.store-single');
+    Route::get('stage4/pending-items', [Stage4Controller::class, 'getPendingItems'])
+        ->middleware('permission:STAGE4_PACKAGING_READ')
+        ->name('manufacturing.stage4.pending-items');
+    Route::get('stage4/pending-boxes', [Stage4Controller::class, 'getPendingBoxes'])
+        ->middleware('permission:STAGE4_PACKAGING_READ')
+        ->name('manufacturing.stage4.pending-boxes');
+    Route::get('stage4/pending-transfers', [Stage4Controller::class, 'getPendingTransfers'])
+        ->middleware('permission:STAGE4_PACKAGING_READ')
+        ->name('manufacturing.stage4.pending-transfers');
+    Route::get('stage4/get-lafaf-by-barcode/{barcode}', [Stage4Controller::class, 'getByBarcode'])
+        ->middleware('permission:STAGE4_PACKAGING_READ')
+        ->name('manufacturing.stage4.get-lafaf-by-barcode');
+    Route::post('stage4/check-final-waste', [Stage4Controller::class, 'checkFinalWaste'])
+        ->middleware('permission:STAGE4_PACKAGING_CREATE')
+        ->name('manufacturing.stage4.check-final-waste');
+    Route::post('stage4/transfer-box', [Stage4Controller::class, 'transferBox'])
+        ->middleware('permission:STAGE4_PACKAGING_UPDATE')
+        ->name('manufacturing.stage4.transfer-box');
+    Route::post('stage4/accept-transfer', [Stage4Controller::class, 'acceptBoxTransfer'])
+        ->middleware('permission:STAGE4_PACKAGING_UPDATE')
+        ->name('manufacturing.stage4.accept-transfer');
+    Route::post('stage4/reject-transfer', [Stage4Controller::class, 'rejectBoxTransfer'])
+        ->middleware('permission:STAGE4_PACKAGING_UPDATE')
+        ->name('manufacturing.stage4.reject-transfer');
+    Route::post('stage4/finish-lafaf', [Stage4Controller::class, 'finishLafaf'])
+        ->middleware('permission:STAGE4_PACKAGING_UPDATE')
+        ->name('manufacturing.stage4.finish-lafaf');
+    
+    // Stage 4 Resource Route
+    Route::resource('stage4', Stage4Controller::class)
+        ->middleware('permission:STAGE4_PACKAGING_READ')
+        ->names('manufacturing.stage4');
+
     // Stage 3 Additional Routes
     Route::post('stage3/store-single', [Stage3Controller::class, 'storeSingle'])
         ->middleware('permission:STAGE3_COILS_CREATE')
         ->name('manufacturing.stage3.store-single');
+    Route::get('stage3/pending-items', [Stage3Controller::class, 'getPendingItems'])
+        ->middleware('permission:STAGE3_COILS_READ')
+        ->name('manufacturing.stage3.pending-items');
     Route::get('stage3/get-stage2-by-barcode/{barcode}', [Stage3Controller::class, 'getByBarcode'])
         ->middleware('permission:STAGE3_COILS_READ')
         ->name('manufacturing.stage3.get-stage2-by-barcode');
@@ -453,17 +544,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('stage3/completed-coils', [Stage3Controller::class, 'completedCoils'])
         ->middleware('permission:STAGE3_COILS_READ')
         ->name('manufacturing.stage3.completed-coils');
-
-    // Stage 4 Additional Routes
-    Route::post('stage4/store-single', [Stage4Controller::class, 'storeSingle'])
-        ->middleware('permission:STAGE4_PACKAGING_CREATE')
-        ->name('manufacturing.stage4.store-single');
-    Route::get('stage4/get-lafaf-by-barcode/{barcode}', [Stage4Controller::class, 'getByBarcode'])
-        ->middleware('permission:STAGE4_PACKAGING_READ')
-        ->name('manufacturing.stage4.get-lafaf-by-barcode');
-    Route::post('stage4/check-final-waste', [Stage4Controller::class, 'checkFinalWaste'])
-        ->middleware('permission:STAGE4_PACKAGING_CREATE')
-        ->name('manufacturing.stage4.check-final-waste');
+    
+    // Stage 3 Transfer Routes
+    Route::get('stage3/pending-lafafs', [Stage3Controller::class, 'getPendingLafafs'])
+        ->middleware('permission:STAGE3_COILS_READ')
+        ->name('manufacturing.stage3.pending-lafafs');
+    Route::post('stage3/transfer-lafaf', [Stage3Controller::class, 'transferLafaf'])
+        ->middleware('permission:STAGE3_COILS_UPDATE')
+        ->name('manufacturing.stage3.transfer-lafaf');
+    Route::post('stage3/accept-transfer', [Stage3Controller::class, 'acceptLafafTransfer'])
+        ->middleware('permission:STAGE3_COILS_UPDATE')
+        ->name('manufacturing.stage3.accept-transfer');
+    Route::post('stage3/reject-transfer', [Stage3Controller::class, 'rejectLafafTransfer'])
+        ->middleware('permission:STAGE3_COILS_UPDATE')
+        ->name('manufacturing.stage3.reject-transfer');
+    Route::get('stage3/pending-transfers', [Stage3Controller::class, 'getPendingTransfers'])
+        ->middleware('permission:STAGE3_COILS_READ')
+        ->name('manufacturing.stage3.pending-transfers');
 
     // Shift Handover Routes
     Route::resource('shift-handovers', ShiftHandoverController::class)

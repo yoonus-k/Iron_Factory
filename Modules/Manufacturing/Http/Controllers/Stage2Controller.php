@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\SystemSettingsHelper;
+use App\Models\Stand;
+use App\Models\StandUsageHistory;
 
 class Stage2Controller extends Controller
 {
@@ -62,16 +65,45 @@ class Stage2Controller extends Controller
         try {
             // 🔍 خطوة 1: البحث في stage1_stands أولاً
             $stage1Data = DB::table('stage1_stands')
-                ->where('barcode', $barcode)
+                ->leftJoin('materials', 'stage1_stands.material_id', '=', 'materials.id')
+                ->where('stage1_stands.barcode', $barcode)
+                ->select('stage1_stands.*', 'materials.name_ar as material_name')
                 ->first();
 
             if ($stage1Data) {
-                // 🔒 التحقق من حالة الاستاند
+                // 🔒 التحقق من حالة الاستاند - يجب أن يكون مكتمل أو مستهلك
+                $allowedStatuses = ['completed', 'consumed', 'in_progress'];
+                
                 if ($stage1Data->status === 'pending_approval') {
                     return response()->json([
                         'success' => false,
                         'blocked' => true,
                         'message' => '⛔ هذا الاستاند في انتظار الموافقة ولا يمكن استخدامه في المرحلة الثانية'
+                    ], 403);
+                }
+                
+                // التحقق من أن الاستاند منتهي من المرحلة الأولى (ليس created أو unused)
+                if (in_array($stage1Data->status, ['created', 'unused'])) {
+                    return response()->json([
+                        'success' => false,
+                        'blocked' => true,
+                        'message' => '⛔ هذا الاستاند لم يتم إنهاء الكويل الخاص به بعد. يرجى إنهاء الكويل أولاً من المرحلة الأولى.'
+                    ], 403);
+                }
+                
+                // 🔒 التحقق من أن الاستاند لم يُنهَ بالكامل في المرحلة الثانية
+                // التحقق من وجود معالجات مكتملة لهذا الاستاند
+                $completedProcessings = DB::table('stage2_processed')
+                    ->where('parent_barcode', $barcode)
+                    ->whereIn('status', ['completed', 'consumed'])
+                    ->exists();
+                
+                // إذا كان هناك معالجات مكتملة والوزن المتبقي = 0، فالاستاند منتهي
+                if ($completedProcessings && $stage1Data->remaining_weight <= 0) {
+                    return response()->json([
+                        'success' => false,
+                        'blocked' => true,
+                        'message' => '⛔ هذا الاستاند تم إنهاؤه بالكامل في المرحلة الثانية ولا يمكن استخدامه مرة أخرى.'
                     ], 403);
                 }
 
@@ -92,7 +124,8 @@ class Stage2Controller extends Controller
                 return response()->json([
                     'success' => true,
                     'data' => $stage1Data,
-                    'source' => 'stage1'
+                    'source' => 'stage1',
+                    'pending_processings' => $this->getPendingProcessingsForBarcode($barcode)
                 ]);
             }
 
@@ -119,7 +152,8 @@ class Stage2Controller extends Controller
                 return response()->json([
                     'success' => true,
                     'data' => $confirmation,
-                    'source' => 'warehouse_direct'
+                    'source' => 'warehouse_direct',
+                    'pending_processings' => $this->getPendingProcessingsForBarcode($barcode)
                 ]);
             }
 
@@ -157,19 +191,6 @@ class Stage2Controller extends Controller
         ]);
 
         try {
-            // التحقق من أن الباركود لم يُستخدم من قبل في المرحلة الثانية
-            $barcodeExists = DB::table('stage2_processed')
-                ->where('parent_barcode', $validated['stage1_barcode'])
-                ->exists();
-
-            if ($barcodeExists) {
-                return response()->json([
-                    'success' => false,
-                    'message' => '⛔ هذا الباركود (' . $validated['stage1_barcode'] . ') تم استخدامه مسبقاً في المرحلة الثانية ولا يمكن استخدامه مرة أخرى',
-                    'barcode' => $validated['stage1_barcode']
-                ], 422);
-            }
-
             DB::beginTransaction();
 
             $userId = Auth::id();
@@ -212,41 +233,26 @@ class Stage2Controller extends Controller
                 $wireSize = $stage1Data->wire_size ?? null;
                 $standNumber = $stage1Data->stand_number ?? 'غير محدد';
                 $stage1Id = $validated['stage1_id'];
+                
+                // ⚡ التحقق من أن الوزن المطلوب لا يتجاوز الوزن المتبقي
+                $requestedWeight = $validated['total_weight'] ?? 0;
+                if ($requestedWeight > $inputWeight) {
+                    throw new \Exception("⚠️ وزن المعالجة ({$requestedWeight} كجم) أكبر من الوزن المتبقي ({$inputWeight} كجم)");
+                }
+                
+                // ⚡ التحقق من وجود وزن متبقي
+                if ($inputWeight <= 0) {
+                    throw new \Exception('⚠️ لا يوجد وزن متبقي في هذا الاستاند');
+                }
             }
 
             // حساب الأوزان
-            $wasteWeight = $validated['waste_weight'] ?? ($inputWeight * 0.03); // افتراض 3% هدر
-            $outputWeight = $validated['total_weight'] ?? ($inputWeight - $wasteWeight);
+            $wasteWeight = $validated['waste_weight'] ?? 0;
+            $outputWeight = $validated['total_weight'] ?? $inputWeight;
             $netWeight = $validated['net_weight'] ?? $outputWeight;
 
-            // 🔥 فحص نسبة الهدر قبل الحفظ
-            $wasteCheck = \App\Services\WasteCheckService::checkAndSuspend(
-                stageNumber: 2,
-                batchBarcode: $validated['stage1_barcode'],
-                batchId: $materialId,
-                inputWeight: $inputWeight,
-                outputWeight: $outputWeight
-            );
-            $wasteData = $wasteCheck['data'] ?? [];
-
-            // تسجيل نتيجة فحص الهدر
-            \Log::info('Stage 2 Waste Check Result', [
-                'suspended' => $wasteCheck['suspended'] ?? false,
-                'suspension_id' => $wasteCheck['suspension_id'] ?? null,
-                'waste_percentage' => $wasteData['waste_percentage'] ?? 0,
-                'allowed_percentage' => $wasteData['allowed_percentage'] ?? 0,
-                'input_weight' => $inputWeight,
-                'output_weight' => $outputWeight,
-            ]);
-
-            // تحديد الحالة بناءً على فحص الهدر
-            $recordStatus = $wasteCheck['suspended'] ? 'pending_approval' : 'in_progress';
-            $suspensionId = $wasteCheck['suspension_id'] ?? null;
-
-            \Log::info('Stage 2 Record Status Determined', [
-                'status' => $recordStatus,
-                'will_show_alert' => $recordStatus === 'pending_approval',
-            ]);
+            // الحالة الافتراضية: in_progress (سيتم حساب الهدر عند إنهاء الاستاند)
+            $recordStatus = 'in_progress';
 
             // توليد باركود المرحلة الثانية
             $stage2Barcode = $this->generateStageBarcode('stage2');
@@ -270,12 +276,64 @@ class Stage2Controller extends Controller
                 'updated_at' => now(),
             ]);
 
-            // تحديث حالة المرحلة الأولى (فقط إذا كان المصدر stage1)
+            // 🔥 تحديث حالة الاستاند وتسجيل في سجل الاستخدام (مثل المرحلة الأولى)
+            if ($source !== 'warehouse_direct' && $standNumber && $standNumber !== 'غير محدد') {
+                // البحث عن الاستاند برقمه
+                $stand = Stand::where('stand_number', $standNumber)->first();
+                
+                if ($stand) {
+                    // إنهاء سجل الاستخدام السابق (من المرحلة الأولى) إن وجد
+                    StandUsageHistory::where('stand_id', $stand->id)
+                        ->where('status', StandUsageHistory::STATUS_IN_USE)
+                        ->update([
+                            'status' => StandUsageHistory::STATUS_COMPLETED,
+                            'completed_at' => now(),
+                        ]);
+                    
+                    // تحديث حالة الاستاند إلى المرحلة الثانية
+                    $stand->update([
+                        'status' => Stand::STATUS_UNUSED,
+                    ]);
+                    
+                    // تسجيل في stand_usage_history للمرحلة الثانية (مكتمل)
+                    StandUsageHistory::create([
+                        'stand_id' => $stand->id,
+                        'user_id' => $userId,
+                        'material_id' => $materialId,
+                        'material_barcode' => $stage2Barcode, // باركود المرحلة الثانية
+                        'material_type' => 'المرحلة الثانية',
+                        'wire_size' => $wireSize ?? 0,
+                        'total_weight' => $inputWeight,
+                        'net_weight' => $netWeight,
+                        'stand_weight' => $stand->weight ?? 0,
+                        'waste_percentage' => $inputWeight > 0 ? ($wasteWeight / $inputWeight * 100) : 0,
+                        'cost' => 0,
+                        'notes' => $validated['notes'] ?? 'معالجة المرحلة الثانية',
+                        'status' => StandUsageHistory::STATUS_COMPLETED,
+                        'started_at' => now(),
+                        'completed_at' => now(),
+                    ]);
+                }
+            }
+
+            // تحديث حالة المرحلة الأولى وخصم الوزن (فقط إذا كان المصدر stage1)
             if ($stage1Id) {
+                // ⚡ خصم وزن المعالجة من الوزن المتبقي في الاستاند
+                $newRemainingWeight = $stage1Data->remaining_weight - $outputWeight;
+                
+                // التأكد من أن الوزن المتبقي لا يكون سالباً
+                if ($newRemainingWeight < 0) {
+                    $newRemainingWeight = 0;
+                }
+                
+                // تحديد الحالة: إذا استُهلك الوزن بالكامل يصبح consumed، وإلا يبقى completed (جزء منه استُخدم)
+                $newStatus = ($newRemainingWeight <= 0) ? 'consumed' : 'completed';
+                
                 DB::table('stage1_stands')
                     ->where('id', $stage1Id)
                     ->update([
-                        'status' => 'in_process',
+                        'remaining_weight' => $newRemainingWeight,
+                        'status' => $newStatus,
                         'updated_at' => now(),
                     ]);
                 
@@ -338,39 +396,6 @@ class Stage2Controller extends Controller
             }
 
             DB::commit();
-
-            // إذا كانت الحالة pending_approval، نرجع استجابة خاصة
-            if ($recordStatus === 'pending_approval') {
-                return response()->json([
-                    'success' => true,
-                    'pending_approval' => true,
-                    'blocked' => true,
-                    'message' => '⛔ تم إيقاف الانتقال للمرحلة الثالثة',
-                    'alert_title' => '⛔ تم إيقاف الانتقال للمرحلة الثالثة',
-                    'alert_message' => sprintf(
-                        '🔴 <strong>تم حفظ المعالجة بنجاح لكن تم إيقاف الانتقال للمرحلة الثالثة</strong><br><br>'.
-                        '📊 <strong>تفاصيل الهدر:</strong><br>'.
-                        '• نسبة الهدر الفعلية: <span style="color: #dc3545; font-weight: bold;">%s%%</span><br>'.
-                        '• النسبة المسموح بها: <span style="color: #28a745; font-weight: bold;">%s%%</span><br><br>'.
-                        '⏸️ <strong>الحالة:</strong> في انتظار موافقة الإدارة<br><br>'.
-                        '⚠️ <strong>مهم:</strong> لن يمكن استخدام هذا السجل في المرحلة الثالثة حتى تتم الموافقة عليه من قبل الإدارة.',
-                        number_format($wasteData['waste_percentage'] ?? 0, 2),
-                        number_format($wasteData['allowed_percentage'] ?? 0, 2)
-                    ),
-                    'data' => [
-                        'stage2_id' => $stage2Id,
-                        'barcode' => $stage2Barcode,
-                        'stand_number' => $standNumber ?? 'غير محدد',
-                        'net_weight' => $netWeight,
-                        'material_name' => $materialName ?? 'غير محدد',
-                        'status' => 'pending_approval',
-                        'suspension_id' => $suspensionId,
-                        'waste_weight' => $wasteData['waste_weight'] ?? 0,
-                        'waste_percentage' => $wasteData['waste_percentage'] ?? 0,
-                        'allowed_percentage' => $wasteData['allowed_percentage'] ?? 0,
-                    ]
-                ]);
-            }
 
             // الحصول على اسم المادة
             $materialName = 'غير محدد';
@@ -465,11 +490,52 @@ class Stage2Controller extends Controller
                 'updated_at' => now(),
             ]);
 
-            // تحديث حالة المرحلة الأولى
+            // 🔥 تحديث حالة الاستاند وتسجيل في سجل الاستخدام
+            $standNumber = $stage1Data->stand_number ?? null;
+            if ($standNumber && $standNumber !== 'غير محدد') {
+                $stand = Stand::where('stand_number', $standNumber)->first();
+                
+                if ($stand) {
+                    // إنهاء سجل الاستخدام السابق (من المرحلة الأولى) إن وجد
+                    StandUsageHistory::where('stand_id', $stand->id)
+                        ->where('status', StandUsageHistory::STATUS_IN_USE)
+                        ->update([
+                            'status' => StandUsageHistory::STATUS_COMPLETED,
+                            'completed_at' => now(),
+                        ]);
+                    
+                    // تحديث حالة الاستاند إلى غير مستخدم (انتهى من المرحلة الثانية)
+                    $stand->update([
+                        'status' => Stand::STATUS_UNUSED,
+                    ]);
+                    
+                    // تسجيل في stand_usage_history للمرحلة الثانية (مكتمل)
+                    StandUsageHistory::create([
+                        'stand_id' => $stand->id,
+                        'user_id' => $userId,
+                        'material_id' => $stage1Data->material_id ?? null,
+                        'material_barcode' => $stage2Barcode,
+                        'material_type' => 'المرحلة الثانية',
+                        'wire_size' => $stage1Data->wire_size ?? 0,
+                        'total_weight' => $stage1Data->remaining_weight,
+                        'net_weight' => $validated['net_weight'],
+                        'stand_weight' => $stand->weight ?? 0,
+                        'waste_percentage' => $stage1Data->remaining_weight > 0 
+                            ? (($validated['waste_weight'] ?? 0) / $stage1Data->remaining_weight * 100) : 0,
+                        'cost' => 0,
+                        'notes' => $validated['notes'] ?? 'معالجة المرحلة الثانية',
+                        'status' => StandUsageHistory::STATUS_COMPLETED,
+                        'started_at' => now(),
+                        'completed_at' => now(),
+                    ]);
+                }
+            }
+
+            // تحديث حالة المرحلة الأولى (consumed بدلاً من in_process لأنها انتقلت للمرحلة التالية)
             DB::table('stage1_stands')
                 ->where('id', $validated['stage1_id'])
                 ->update([
-                    'status' => 'in_process',
+                    'status' => 'consumed',
                     'updated_at' => now(),
                 ]);
 
@@ -706,5 +772,787 @@ class Stage2Controller extends Controller
     public function wasteStatistics()
     {
         return view('manufacturing::stages.stage2.waste-statistics');
+    }
+
+    /**
+     * جلب الاستاندات المعلقة للمستخدم الحالي (من المرحلة الأولى)
+     * الاستاندات التي تم البدء بها ولم يتم إنهاؤها
+     */
+    public function getPendingItems()
+    {
+        try {
+            $user = Auth::user();
+            $userId = $user->id;
+
+            // التحقق من الصلاحيات - هل يمكن رؤية جميع الاستاندات؟
+            $viewingAll = $user->hasPermission('VIEW_ALL_STAGE2_OPERATIONS');
+            $canViewAllPending = $viewingAll || $user->hasPermission('STAGE_SUSPENSION_APPROVE');
+
+            // جلب قائمة الباركودات التي تم نقلها وفي انتظار الموافقة
+            $transferredBarcodes = DB::table('production_confirmations')
+                ->where('status', 'pending')
+                ->whereIn('confirmation_type', ['stand_transfer', 'coil_transfer'])
+                ->pluck('barcode')
+                ->toArray();
+
+            // جلب الاستاندات التي لها معالجات pending (غير منتهية)
+            // ملاحظة: نحتاج الاستاندات التي لها معالجات in_progress بغض النظر عن حالة الاستاند نفسه
+            $pendingItems = DB::table('stage1_stands')
+                ->join('stage2_processed', 'stage1_stands.barcode', '=', 'stage2_processed.parent_barcode')
+                ->leftJoin('materials', 'stage1_stands.material_id', '=', 'materials.id')
+                ->when(!$canViewAllPending, fn($q) => $q->where('stage2_processed.created_by', $userId))
+                ->where('stage2_processed.status', 'in_progress') // فقط المعالجات المعلقة
+                // استبعاد الاستاندات التي تم نقلها وفي انتظار الموافقة
+                ->when(!empty($transferredBarcodes), fn($q) => $q->whereNotIn('stage1_stands.barcode', $transferredBarcodes))
+                ->select(
+                    'stage1_stands.id',
+                    'stage1_stands.barcode',
+                    'stage1_stands.stand_number',
+                    'stage1_stands.remaining_weight',
+                    'stage1_stands.wire_size',
+                    'stage1_stands.status',
+                    DB::raw('COUNT(stage2_processed.id) as pending_count'),
+                    DB::raw('SUM(stage2_processed.output_weight) as total_processed'),
+                    DB::raw('GROUP_CONCAT(stage2_processed.barcode) as stage2_barcodes'),
+                    'materials.name_ar as material_name'
+                )
+                ->groupBy(
+                    'stage1_stands.id',
+                    'stage1_stands.barcode',
+                    'stage1_stands.stand_number',
+                    'stage1_stands.remaining_weight',
+                    'stage1_stands.wire_size',
+                    'stage1_stands.status',
+                    'materials.name_ar'
+                )
+                ->orderBy('stage1_stands.updated_at', 'desc')
+                ->get();
+
+            // Debug logging
+            \Log::info('Pending Items Query Result:', [
+                'count' => $pendingItems->count(),
+                'items' => $pendingItems->toArray()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'count' => $pendingItems->count(),
+                'items' => $pendingItems,
+                'viewing_all' => $canViewAllPending
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Verify processing IDs exist in database
+     * Used to clean up localStorage from deleted records
+     */
+    public function verifyProcessings(Request $request)
+    {
+        try {
+            $ids = $request->input('ids', []);
+            
+            if (empty($ids)) {
+                return response()->json([
+                    'success' => true,
+                    'valid_ids' => []
+                ]);
+            }
+            
+            // جلب الـ IDs الموجودة فعلياً في قاعدة البيانات
+            $validIds = DB::table('stage2_processed')
+                ->whereIn('id', $ids)
+                ->pluck('id')
+                ->toArray();
+            
+            return response()->json([
+                'success' => true,
+                'valid_ids' => $validIds,
+                'checked_count' => count($ids),
+                'valid_count' => count($validIds),
+                'removed_count' => count($ids) - count($validIds)
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Finish stand - تحويل جميع معالجات الاستاند من pending إلى confirmed
+     */
+    public function finishStand(Request $request)
+    {
+        $validated = $request->validate([
+            'processing_ids' => 'nullable|array',
+            'processing_ids.*' => 'integer',
+            'stand_barcode' => 'required|string'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $userId = Auth::id();
+            $standBarcode = $validated['stand_barcode'];
+            
+            // إذا لم يتم إرسال processing_ids، نجلبها من قاعدة البيانات
+            if (empty($validated['processing_ids'])) {
+                $processingIds = DB::table('stage2_processed')
+                    ->where('parent_barcode', $standBarcode)
+                    ->where('created_by', $userId)
+                    ->where('status', 'in_progress')
+                    ->pluck('id')
+                    ->toArray();
+            } else {
+                $processingIds = $validated['processing_ids'];
+            }
+
+            // التحقق من أن جميع المعالجات موجودة وتابعة لنفس الاستاند
+            $processings = DB::table('stage2_processed')
+                ->whereIn('id', $processingIds)
+                ->where('parent_barcode', $standBarcode)
+                ->where('created_by', $userId)
+                ->get();
+
+            if ($processings->count() !== count($processingIds)) {
+                throw new \Exception('بعض المعالجات غير موجودة أو لا تنتمي لهذا الاستاند');
+            }
+
+            // حساب الهدر الإجمالي
+            $totalInput = $processings->sum('input_weight');
+            $totalOutput = $processings->sum('output_weight');
+            $totalWaste = $totalInput - $totalOutput;
+            $wastePercentage = $totalInput > 0 ? ($totalWaste / $totalInput * 100) : 0;
+
+            // جلب نسبة الهدر المسموح بها من إعدادات المرحلة الثانية
+            // استخدام getStageWastePercentage للمرحلة 2
+            $allowedPercentage = SystemSettingsHelper::getStageWastePercentage(2);
+
+            // تحديد إذا تجاوز الهدر المسموح به
+            $exceeded = $wastePercentage > $allowedPercentage;
+
+            // تحديد حالة الاستاند
+            $standStatus = $exceeded ? 'pending_approval' : 'completed';
+
+            // إذا تجاوز الهدر، تسجيل في جدول stage_suspensions
+            $suspensionId = null;
+            if ($exceeded) {
+                $suspension = \App\Models\StageSuspension::create([
+                    'stage_number' => 2,
+                    'batch_barcode' => $standBarcode,
+                    'input_weight' => $totalInput,
+                    'output_weight' => $totalOutput,
+                    'waste_weight' => $totalWaste,
+                    'waste_percentage' => $wastePercentage,
+                    'allowed_percentage' => $allowedPercentage,
+                    'status' => 'suspended',
+                    'suspension_reason' => 'تجاوز نسبة الهدر المسموح بها في المرحلة الثانية',
+                    'suspended_by' => Auth::id(),
+                    'suspended_at' => now(),
+                    'additional_data' => [
+                        'processing_count' => $processings->count(),
+                        'processing_ids' => $processingIds,
+                    ],
+                ]);
+                $suspensionId = $suspension->id;
+            }
+
+            // تحديث حالة جميع المعالجات
+            DB::table('stage2_processed')
+                ->whereIn('id', $processingIds)
+                ->update([
+                    'status' => $standStatus,
+                    'waste' => DB::raw('input_weight - output_weight'), // حساب الهدر لكل معالجة
+                    'updated_at' => now()
+                ]);
+
+            // تحديث حالة الاستاند في stage1
+            // ملاحظة: حالة stage1_stands يجب أن تبقى 'consumed' ولا تتغير إلى 'pending_approval'
+            // لأن pending_approval هي حالة خاصة بـ stage2_processed فقط
+            $stage1Stand = DB::table('stage1_stands')
+                ->where('barcode', $standBarcode)
+                ->first();
+
+            if ($stage1Stand) {
+                // حالة الاستاند في المرحلة الأولى تبقى 'consumed' دائماً عند استخدامه في المرحلة الثانية
+                // فقط سجلات stage2_processed تأخذ حالة pending_approval إذا تجاوز الهدر
+                DB::table('stage1_stands')
+                    ->where('barcode', $standBarcode)
+                    ->update([
+                        'status' => 'consumed', // دائماً consumed وليس $standStatus
+                        'updated_at' => now()
+                    ]);
+            }
+
+            DB::commit();
+
+            // إعداد الاستجابة
+            $response = [
+                'success' => true,
+                'message' => $exceeded 
+                    ? '⛔ تم إنهاء الاستاند مع تجاوز نسبة الهدر المسموح بها'
+                    : '✅ تم إنهاء الاستاند بنجاح',
+                'exceeded' => $exceeded,
+                'data' => [
+                    'stand_barcode' => $standBarcode,
+                    'total_processings' => count($processingIds),
+                    'total_input' => $totalInput,
+                    'total_output' => $totalOutput,
+                    'total_waste' => $totalWaste,
+                    'waste_percentage' => round($wastePercentage, 2),
+                    'allowed_percentage' => $allowedPercentage,
+                    'status' => $standStatus,
+                    'suspension_id' => $suspensionId,
+                ]
+            ];
+
+            if ($exceeded) {
+                $response['alert_title'] = '⚠️ تجاوز نسبة الهدر المسموح بها';
+                $response['alert_message'] = sprintf(
+                    '🔴 تم إنهاء الاستاند لكن تجاوزت نسبة الهدر الحد المسموح به:<br><br>' .
+                    '📊 ملخص الاستاند:<br>' .
+                    '• إجمالي الوزن الداخل: %s كجم<br>' .
+                    '• إجمالي الوزن الخارج: %s كجم<br>' .
+                    '• إجمالي الهدر: %s كجم<br>' .
+                    '• نسبة الهدر: <span style="color: #dc3545; font-weight: bold;">%s%%</span><br>' .
+                    '• النسبة المسموح بها: <span style="color: #28a745; font-weight: bold;">%s%%</span><br>' .
+                    '• عدد المعالجات: %d<br><br>' .
+                    '⏸️ تم إيقاف المعالجات في انتظار موافقة الإدارة',
+                    number_format($totalInput, 2),
+                    number_format($totalOutput, 2),
+                    number_format($totalWaste, 2),
+                    number_format($wastePercentage, 2),
+                    number_format($allowedPercentage, 2),
+                    count($processingIds)
+                );
+            }
+
+            return response()->json($response);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل إنهاء الاستاند: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete processing - حذف معالجة معلقة فقط (pending)
+     */
+    public function deleteProcessing($id)
+    {
+        try {
+            $userId = Auth::id();
+
+            // التحقق من وجود المعالجة وأنها pending
+            $processing = DB::table('stage2_processed')
+                ->where('id', $id)
+                ->where('created_by', $userId)
+                ->first();
+
+            if (!$processing) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'المعالجة غير موجودة أو ليس لديك صلاحية لحذفها'
+                ], 404);
+            }
+
+            if ($processing->status !== 'in_progress') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكن حذف معالجة منتهية (completed). يمكن حذف المعالجات المعلقة فقط.'
+                ], 403);
+            }
+
+            DB::beginTransaction();
+
+            // ⚡ إعادة الوزن المحذوف إلى الاستاند الأصلي
+            if ($processing->stage1_id) {
+                DB::table('stage1_stands')
+                    ->where('id', $processing->stage1_id)
+                    ->increment('remaining_weight', $processing->output_weight);
+            }
+
+            // حذف المعالجة
+            DB::table('stage2_processed')
+                ->where('id', $id)
+                ->delete();
+
+            // حذف سجل التتبع
+            DB::table('product_tracking')
+                ->where('barcode', $processing->barcode)
+                ->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حذف المعالجة بنجاح'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل حذف المعالجة: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get workers for transfer - جلب قائمة العمال المتاحين لنقل الاستاند
+     */
+    public function getWorkersForTransfer()
+    {
+        try {
+            $currentUserId = Auth::id();
+
+            // جلب جميع العمال النشطين عدا المستخدم الحالي
+            $workers = DB::table('users')
+                ->where('id', '!=', $currentUserId)
+                ->where('is_active', true)
+                ->select('id', 'name', 'email')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'workers' => $workers
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل جلب قائمة العمال: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Transfer stand - نقل استاند لموظف آخر (المرحلة الثانية)
+     */
+    public function transferStand(Request $request)
+    {
+        $validated = $request->validate([
+            'barcode' => 'required|string',
+            'new_worker_id' => 'required|exists:users,id',
+            'reason' => 'nullable|string|max:1000',
+            'notes' => 'nullable|string|max:1000'
+        ], [
+            'barcode.required' => 'باركود الاستاند مطلوب',
+            'new_worker_id.required' => 'يجب اختيار الموظف الجديد',
+            'new_worker_id.exists' => 'الموظف المحدد غير موجود'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $currentUserId = Auth::id();
+            $newWorkerId = $validated['new_worker_id'];
+            $barcode = $validated['barcode'];
+
+            // التحقق من أن الاستاند موجود في stage1_stands
+            // ملاحظة: في المرحلة الثانية، الاستاند قد يكون بحالة consumed أو completed
+            // لكن يجب أن يكون لديه وزن متبقي أو معالجات in_progress
+            $stand = DB::table('stage1_stands')
+                ->where('barcode', $barcode)
+                ->first();
+
+            if (!$stand) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'الاستاند غير موجود'
+                ], 404);
+            }
+            
+            // التحقق من الصلاحية:
+            // 1. صاحب الاستاند الأصلي (created_by في stage1_stands)
+            // 2. أو لديه معالجات في المرحلة الثانية (بأي حالة)
+            // 3. أو تم نقل الاستاند إليه (confirmation مؤكدة)
+            $hasStage2Processings = DB::table('stage2_processed')
+                ->where('parent_barcode', $barcode)
+                ->where('created_by', $currentUserId)
+                ->exists(); // أي معالجة وليس فقط in_progress
+            
+            $isOriginalOwner = ($stand->created_by == $currentUserId);
+            
+            // التحقق من وجود نقل مؤكد لهذا المستخدم
+            $hasTransferToMe = DB::table('production_confirmations')
+                ->where('barcode', $barcode)
+                ->where('assigned_to', $currentUserId)
+                ->where('status', 'confirmed')
+                ->whereIn('confirmation_type', ['stand_transfer', 'coil_transfer'])
+                ->exists();
+            
+            if (!$isOriginalOwner && !$hasStage2Processings && !$hasTransferToMe) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا تملك صلاحية نقل هذا الاستاند'
+                ], 403);
+            }
+
+            // التحقق من أن الموظف الجديد مختلف
+            if ($currentUserId == $newWorkerId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكنك نقل الاستاند لنفسك'
+                ], 400);
+            }
+
+            // التحقق من الوزن المتبقي
+            if ($stand->remaining_weight <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكن نقل استاند تم استهلاكه بالكامل'
+                ], 400);
+            }
+
+            // جلب معلومات الموظف الجديد
+            $newWorker = DB::table('users')
+                ->where('id', $newWorkerId)
+                ->first();
+
+            if (!$newWorker) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'الموظف المحدد غير موجود'
+                ], 404);
+            }
+
+            // جلب معلومات المادة
+            $materialName = DB::table('materials')
+                ->where('id', $stand->material_id)
+                ->value('name_ar');
+
+            // ❌ لا نغير ملكية الاستاند أو المعالجات الموجودة - كل معالجة تبقى باسم منشئها
+            // ✅ بدلاً من ذلك، نستخدم production_confirmations لمنح الموظف الجديد الحق في استخدام الاستاند
+            // المعالجات الجديدة التي سينشئها ستُسجل باسمه تلقائياً
+
+            // إنشاء سجل تأكيد في production_confirmations - يمنح الموظف الجديد الحق في استخدام الاستاند
+            $confirmationId = DB::table('production_confirmations')->insertGetId([
+                'delivery_note_id' => null,
+                'batch_id' => null,
+                'stage_code' => 'stage2',
+                'stage_record_id' => $stand->id,
+                'stage_type' => 'stage1_stands', // لأنه استاند من المرحلة الأولى
+                'worker_stage_history_id' => null,
+                'barcode' => $barcode,
+                'assigned_to' => $newWorkerId,
+                'assigned_by' => $currentUserId,
+                'status' => 'pending', // في انتظار الموافقة من الموظف المستلم
+                'confirmation_type' => 'stand_transfer',
+                'notes' => $validated['notes'] ?? null,
+                'metadata' => json_encode([
+                    'stage_name' => 'المرحلة الثانية',
+                    'operation' => 'stand_transfer',
+                    'reason' => $validated['reason'] ?? 'نقل الاستاند',
+                    'initiated_by' => Auth::user()?->name,
+                    'previous_worker_id' => $currentUserId,
+                    'material_name' => $materialName,
+                    'remaining_weight' => $stand->remaining_weight,
+                    'wire_size' => $stand->wire_size
+                ]),
+                'confirmed_at' => null,
+                'confirmed_by' => null,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+            
+            // إرسال إشعار للموظف الجديد
+            try {
+                DB::table('notifications')->insert([
+                    'user_id' => $newWorkerId,
+                    'type' => 'stand_transfer',
+                    'title' => 'تم نقل استاند إليك',
+                    'message' => "تم نقل الاستاند {$barcode} ({$materialName}) إليك من " . Auth::user()?->name . ". المتبقي: " . number_format($stand->remaining_weight, 2) . " كجم",
+                    'metadata' => json_encode([
+                        'barcode' => $barcode,
+                        'stage' => 'stage2',
+                        'material_name' => $materialName,
+                        'remaining_weight' => $stand->remaining_weight,
+                        'from_worker_id' => $currentUserId,
+                        'confirmation_id' => $confirmationId,
+                    ]),
+                    'created_by' => $currentUserId,
+                    'is_read' => false,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } catch (\Exception $notifError) {
+                // تجاهل خطأ الإشعار - لا يؤثر على عملية النقل
+                \Log::warning('فشل إرسال إشعار نقل الاستاند', ['error' => $notifError->getMessage()]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم نقل الاستاند بنجاح',
+                'data' => [
+                    'barcode' => $barcode,
+                    'new_worker_name' => $newWorker->name,
+                    'confirmation_id' => $confirmationId
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('فشل نقل الاستاند في Stage2', [
+                'error' => $e->getMessage(),
+                'barcode' => $validated['barcode'] ?? null,
+                'new_worker_id' => $validated['new_worker_id'] ?? null
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل نقل الاستاند: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function getPendingProcessingsForBarcode(string $barcode)
+    {
+        return DB::table('stage2_processed')
+            ->leftJoin('materials', 'stage2_processed.material_id', '=', 'materials.id')
+            ->where('stage2_processed.parent_barcode', $barcode)
+            ->where('stage2_processed.status', 'in_progress')
+            ->select(
+                'stage2_processed.id',
+                'stage2_processed.barcode',
+                'stage2_processed.parent_barcode',
+                'stage2_processed.process_details',
+                'stage2_processed.output_weight',
+                'stage2_processed.status',
+                'materials.name_ar as material_name'
+            )
+            ->orderBy('stage2_processed.id')
+            ->get();
+    }
+
+    /**
+     * قبول نقل استاند من موظف آخر
+     */
+    public function acceptStandTransfer(Request $request)
+    {
+        $validated = $request->validate([
+            'barcode' => 'required|string',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $userId = Auth::id();
+            $barcode = $validated['barcode'];
+
+            // التحقق من وجود طلب نقل معلق لهذا المستخدم
+            $pendingTransfer = DB::table('production_confirmations')
+                ->where('barcode', $barcode)
+                ->where('assigned_to', $userId)
+                ->where('confirmation_type', 'stand_transfer')
+                ->where('status', 'pending')
+                ->first();
+
+            if (!$pendingTransfer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يوجد طلب نقل معلق لهذا الاستاند'
+                ], 404);
+            }
+
+            // تحديث حالة النقل إلى مؤكدة
+            DB::table('production_confirmations')
+                ->where('id', $pendingTransfer->id)
+                ->update([
+                    'status' => 'confirmed',
+                    'confirmed_at' => now(),
+                    'confirmed_by' => $userId,
+                    'updated_at' => now()
+                ]);
+
+            // إرسال إشعار للموظف الناقل
+            try {
+                DB::table('notifications')->insert([
+                    'user_id' => $pendingTransfer->assigned_by,
+                    'type' => 'stand_transfer_accepted',
+                    'title' => 'تم قبول نقل الاستاند',
+                    'message' => "تم قبول نقل الاستاند {$barcode} من قبل " . Auth::user()?->name,
+                    'metadata' => json_encode([
+                        'barcode' => $barcode,
+                        'stage' => 'stage2',
+                        'accepted_by' => Auth::user()?->name,
+                        'accepted_by_id' => $userId,
+                    ]),
+                    'created_by' => $userId,
+                    'is_read' => false,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } catch (\Exception $notifError) {
+                \Log::warning('فشل إرسال إشعار قبول نقل الاستاند', ['error' => $notifError->getMessage()]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم قبول نقل الاستاند بنجاح',
+                'data' => [
+                    'barcode' => $barcode,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء قبول النقل: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * رفض نقل استاند من موظف آخر
+     */
+    public function rejectStandTransfer(Request $request)
+    {
+        $validated = $request->validate([
+            'barcode' => 'required|string',
+            'reason' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $userId = Auth::id();
+            $barcode = $validated['barcode'];
+
+            // التحقق من وجود طلب نقل معلق لهذا المستخدم
+            $pendingTransfer = DB::table('production_confirmations')
+                ->where('barcode', $barcode)
+                ->where('assigned_to', $userId)
+                ->where('confirmation_type', 'stand_transfer')
+                ->where('status', 'pending')
+                ->first();
+
+            if (!$pendingTransfer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يوجد طلب نقل معلق لهذا الاستاند'
+                ], 404);
+            }
+
+            // تحديث حالة النقل إلى مرفوضة
+            DB::table('production_confirmations')
+                ->where('id', $pendingTransfer->id)
+                ->update([
+                    'status' => 'rejected',
+                    'confirmed_at' => now(),
+                    'confirmed_by' => $userId,
+                    'notes' => $validated['reason'] ?? 'تم الرفض من قبل الموظف',
+                    'updated_at' => now()
+                ]);
+
+            // إرسال إشعار للموظف الناقل
+            try {
+                DB::table('notifications')->insert([
+                    'user_id' => $pendingTransfer->assigned_by,
+                    'type' => 'stand_transfer_rejected',
+                    'title' => 'تم رفض نقل الاستاند',
+                    'message' => "تم رفض نقل الاستاند {$barcode} من قبل " . Auth::user()?->name . ($validated['reason'] ? ". السبب: " . $validated['reason'] : ''),
+                    'metadata' => json_encode([
+                        'barcode' => $barcode,
+                        'stage' => 'stage2',
+                        'rejected_by' => Auth::user()?->name,
+                        'rejected_by_id' => $userId,
+                        'reason' => $validated['reason'] ?? null,
+                    ]),
+                    'created_by' => $userId,
+                    'is_read' => false,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } catch (\Exception $notifError) {
+                \Log::warning('فشل إرسال إشعار رفض نقل الاستاند', ['error' => $notifError->getMessage()]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم رفض نقل الاستاند',
+                'data' => [
+                    'barcode' => $barcode,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء رفض النقل: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * جلب طلبات نقل الاستاندات المعلقة للمستخدم الحالي
+     */
+    public function getPendingTransfers()
+    {
+        try {
+            $userId = Auth::id();
+
+            $pendingTransfers = DB::table('production_confirmations as pc')
+                ->leftJoin('users as sender', 'pc.assigned_by', '=', 'sender.id')
+                ->leftJoin('stage1_stands as s', 'pc.barcode', '=', 's.barcode')
+                ->leftJoin('materials as m', 's.material_id', '=', 'm.id')
+                ->where('pc.assigned_to', $userId)
+                ->where('pc.confirmation_type', 'stand_transfer')
+                ->where('pc.status', 'pending')
+                ->select(
+                    'pc.id',
+                    'pc.barcode',
+                    'pc.assigned_by',
+                    'sender.name as sender_name',
+                    'pc.notes',
+                    'pc.created_at',
+                    'pc.metadata',
+                    's.remaining_weight',
+                    's.wire_size',
+                    's.stand_number',
+                    DB::raw('COALESCE(m.name_ar, m.name_en, pc.barcode) as material_name')
+                )
+                ->orderBy('pc.created_at', 'desc')
+                ->get();
+
+            // استخراج معلومات إضافية من metadata
+            $pendingTransfers = $pendingTransfers->map(function($transfer) {
+                $metadata = json_decode($transfer->metadata, true) ?? [];
+                $transfer->reason = $metadata['reason'] ?? null;
+                return $transfer;
+            });
+
+            return response()->json([
+                'success' => true,
+                'transfers' => $pendingTransfers,
+                'count' => $pendingTransfers->count()
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

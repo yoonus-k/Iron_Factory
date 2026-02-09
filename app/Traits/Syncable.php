@@ -78,28 +78,33 @@ trait Syncable
      */
     public function queueForSync($action = 'create', $priority = 0)
     {
-        // الحصول على البيانات
-        $data = $this->toArray();
+        try {
+            // الحصول على البيانات
+            $data = $this->toArray();
 
-        // إزالة الحقول غير الضرورية
-        unset($data['is_synced'], $data['sync_status'], $data['synced_at']);
+            // إزالة الحقول غير الضرورية
+            unset($data['is_synced'], $data['sync_status'], $data['synced_at']);
 
-        // الحصول على user_id
-        $userId = auth()->id() ?? $this->created_by ?? null;
+            // الحصول على user_id - استخدم 1 كافتراضي إذا لم يكن هناك مستخدم
+            $userId = auth()->id() ?? $this->created_by ?? $this->user_id ?? 1;
 
-        if (!$userId) {
+            // إنشاء pending sync
+            return PendingSync::addPending(
+                $userId,
+                $this->getSyncEntityType(),
+                $action,
+                $data,
+                $priority,
+                $this->getRelatedSyncData()
+            );
+        } catch (\Exception $e) {
+            \Log::error("فشل إضافة للمزامنة: " . $e->getMessage(), [
+                'entity_type' => $this->getSyncEntityType(),
+                'entity_id' => $this->getKey(),
+                'action' => $action
+            ]);
             return null;
         }
-
-        // إنشاء pending sync
-        return PendingSync::addPending(
-            $userId,
-            $this->getSyncEntityType(),
-            $action,
-            $data,
-            $priority,
-            $this->getRelatedSyncData()
-        );
     }
 
     /**

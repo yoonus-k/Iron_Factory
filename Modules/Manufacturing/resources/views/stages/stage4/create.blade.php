@@ -103,6 +103,45 @@
     .divide-section h4{ margin:0 0 12px 0; color:#1976d2; font-size:15px }
 
     @media (max-width:900px){ .form-row{ grid-template-columns:1fr } .lafaf-info{ grid-template-columns:repeat(2,1fr) } .stage-header{ flex-direction:column; text-align:center } }
+
+    /* Pending Items Panel - تصميم موحد مع المرحلة الثانية */
+    .pending-panel{ border:1px solid rgba(231,76,60,0.2); background:linear-gradient(135deg,#fff5f5 0,#ffecec 100%); border-radius:12px; padding:18px; margin-top:18px; }
+    .pending-panel-header{ display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+    .pending-panel-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+    .pending-panel-actions a,
+    .pending-panel-actions button{ border:none; border-radius:8px; padding:10px 16px; font-weight:700; cursor:pointer; text-decoration:none; }
+    .pending-panel-actions a{ background:#ffffff; color:#d35400; border:1px solid rgba(231,76,60,0.3); }
+    .pending-panel-actions button{ background:#d35400; color:#fff; }
+    .pending-panel .helper-text{ margin:10px 0; color:#8c2f2f; font-weight:600; }
+    .pending-stands-list{ display:flex; flex-direction:column; gap:12px; margin-top:16px; }
+    .pending-stand-card{ display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:16px; border-radius:12px; border:1px solid rgba(231,76,60,0.15); background:linear-gradient(180deg,#fff5f5,#ffecec); box-shadow:0 8px 24px rgba(231,76,60,0.08); }
+    .pending-stand-info{ display:flex; flex-direction:column; gap:6px; color:#b33939; }
+    .pending-stand-info strong{ color:#631010; font-size:16px; }
+    .pending-stand-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .pending-stand-actions button{ border:none; border-radius:8px; padding:10px 18px; font-weight:700; cursor:pointer; }
+    .pending-stand-actions .btn-continue{ background:#d35400; color:#fff; }
+    .pending-stand-actions .btn-finish-stand{ background:#e74c3c; color:#fff; }
+    .pending-stand-actions .btn-transfer-stand{ background:#9b59b6; color:#fff; }
+    
+    /* Pending Transfers Panel - طلبات النقل الواردة */
+    .pending-transfers-panel{ background:linear-gradient(135deg,#e8f5e9 0%,#c8e6c9 100%); border:1px solid rgba(39,174,96,0.3); border-radius:12px; padding:18px; margin-top:18px; }
+    .pending-transfer-card{ display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:16px; border-radius:12px; border:1px solid rgba(39,174,96,0.2); background:linear-gradient(180deg,#e8f5e9,#c8e6c9); box-shadow:0 8px 24px rgba(39,174,96,0.08); }
+    .pending-transfer-info{ display:flex; flex-direction:column; gap:6px; color:#1e8449; }
+    .pending-transfer-info strong{ color:#145a32; font-size:16px; }
+    .pending-transfer-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .pending-transfer-actions button{ border:none; border-radius:8px; padding:10px 18px; font-weight:700; cursor:pointer; }
+    .btn-accept{ background:#27ae60; color:#fff; }
+    .btn-accept:hover{ background:#1e8449; }
+    .btn-reject{ background:#e74c3c; color:#fff; }
+    .btn-reject:hover{ background:#c0392b; }
+    
+    /* Transfer Modal */
+    .transfer-modal-overlay{ display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center; }
+    .transfer-modal{ background:#fff; border-radius:16px; padding:24px; width:90%; max-width:500px; box-shadow:0 20px 60px rgba(0,0,0,0.2); }
+    .transfer-modal-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid #e67e22; padding-bottom:15px; }
+    .transfer-modal-header h3{ margin:0; color:#e67e22; font-size:18px; }
+    .transfer-modal-close{ background:none; border:none; font-size:24px; cursor:pointer; color:#999; }
+    .transfer-modal-close:hover{ color:#e74c3c; }
 </style>
 
 <div class="stage-container">
@@ -148,6 +187,40 @@
                 <small id="displayWeightDetails" style="display:block; color:#7f8c8d; font-weight:400; margin-top:4px;"></small>
             </div>
         </div>
+    </div>
+
+    <!-- Pending Lafafs Panel - لوحة اللفافات المتبقية للمستخدم الحالي - تصميم موحد مع المرحلة الثانية -->
+    <div id="pendingBoxesPanel" class="form-section pending-panel" style="border:1px solid rgba(231,76,60,0.2);">
+        <div class="pending-panel-header">
+            <h3 class="section-title" style="color:#c0392b;">
+                <i class="fas fa-exclamation-circle"></i>
+                اللفافات المتبقية الخاصة بك (<span id="pendingBoxesCount">0</span>)
+            </h3>
+            <div class="pending-panel-actions">
+                <button type="button" onclick="checkPendingBoxes()">
+                    <i class="fas fa-sync-alt"></i> تحديث
+                </button>
+            </div>
+        </div>
+        <p class="helper-text">هذه اللفافات التي بدأت بتعبئتها ولا يزال لها وزن متبقي - يمكنك متابعة التعبئة أو نقل المتبقي لموظف آخر</p>
+        <div id="pendingBoxesList" class="pending-stands-list"></div>
+    </div>
+
+    <!-- Pending Transfers Panel - طلبات النقل الواردة -->
+    <div id="pendingTransfersPanel" class="form-section pending-transfers-panel" style="display:none;">
+        <div class="pending-panel-header">
+            <h3 class="section-title" style="color:#27ae60;">
+                <i class="fas fa-exchange-alt"></i>
+                طلبات النقل الواردة (<span id="pendingTransfersCount">0</span>)
+            </h3>
+            <div class="pending-panel-actions">
+                <button type="button" onclick="checkPendingTransfers()" style="background:#27ae60;">
+                    <i class="fas fa-sync-alt"></i> تحديث
+                </button>
+            </div>
+        </div>
+        <p class="helper-text" style="color:#1e8449;">هذه اللفافات التي تم نقلها إليك من موظفين آخرين - في انتظار موافقتك</p>
+        <div id="pendingTransfersList" class="pending-stands-list"></div>
     </div>
 
     <!-- Box Form -->
@@ -274,12 +347,553 @@
     </div>
 </div>
 
+<!-- Transfer Modal - نقل اللفاف المتبقي لموظف آخر -->
+<div id="transferModal" class="transfer-modal-overlay">
+    <div class="transfer-modal">
+        <div class="transfer-modal-header">
+            <h3><i class="fas fa-exchange-alt"></i> نقل اللفاف المتبقي لموظف آخر</h3>
+            <button type="button" class="transfer-modal-close" onclick="closeTransferModal()">&times;</button>
+        </div>
+        <div style="margin-bottom:15px; background:#f8f9fa; padding:12px; border-radius:8px; border-right:4px solid #e67e22;">
+            <strong>باركود اللفاف:</strong> <code id="transferBoxBarcode" style="background:#e67e22; color:#fff; padding:2px 8px; border-radius:4px;">-</code><br>
+            <strong>الوزن المتبقي:</strong> <span id="transferBoxWeight" style="color:#27ae60; font-weight:bold;">-</span> كجم
+        </div>
+        <div class="form-group" style="margin-bottom:15px;">
+            <label style="font-weight:600;">اختر الموظف الجديد <span style="color:#e74c3c;">*</span></label>
+            <select id="transferWorkerId" class="form-select" style="width:100%; padding:10px;">
+                <option value="">-- اختر موظف --</option>
+                @foreach(\App\Models\User::where('id', '!=', auth()->id())->orderBy('name')->get() as $worker)
+                    <option value="{{ $worker->id }}">{{ $worker->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="form-group" style="margin-bottom:15px;">
+            <label style="font-weight:600;">سبب النقل</label>
+            <select id="transferReason" class="form-select" style="width:100%; padding:10px;">
+                <option value="انتهاء الوردية">انتهاء الوردية</option>
+                <option value="توزيع العمل">توزيع العمل</option>
+                <option value="طوارئ">طوارئ</option>
+                <option value="أخرى">أخرى</option>
+            </select>
+        </div>
+        <div class="form-group" style="margin-bottom:20px;">
+            <label style="font-weight:600;">ملاحظات</label>
+            <textarea id="transferNotes" class="form-control" placeholder="ملاحظات إضافية (اختياري)" rows="2"></textarea>
+        </div>
+        <input type="hidden" id="transferBoxBarcodeValue">
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button type="button" class="btn-secondary" onclick="closeTransferModal()">
+                <i class="fas fa-times"></i> إلغاء
+            </button>
+            <button type="button" class="btn-primary" onclick="submitTransfer()" id="submitTransferBtn">
+                <i class="fas fa-paper-plane"></i> إرسال طلب النقل
+            </button>
+        </div>
+    </div>
+</div>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <!-- JsBarcode Library -->
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
 <script>
 let currentLafaf = null;
 let boxes = [];
+let pendingItems = [];
+let pendingItemsCount = 0;
+let pendingBoxes = [];
+let pendingBoxesCount = 0;
+let pendingTransfers = [];
+let pendingTransfersCount = 0;
+
+// كائن الترجمات
+const translations = {
+    pending_boxes_title: 'الكراتين المعلقة الخاصة بك',
+    pending_transfers_title: 'طلبات النقل الواردة',
+    transfer_box: 'نقل الكرتون',
+    accept_transfer: 'قبول',
+    reject_transfer: 'رفض',
+    from_worker: 'من',
+    weight_label: 'الوزن',
+    waste_label: 'الهدر',
+    no_pending_boxes: 'لا توجد كراتين معلقة',
+    no_pending_transfers: 'لا توجد طلبات نقل واردة',
+    transfer_success: 'تم إرسال طلب النقل بنجاح',
+    transfer_error: 'حدث خطأ أثناء النقل',
+    accept_success: 'تم قبول النقل بنجاح',
+    reject_success: 'تم رفض النقل',
+    select_worker_required: 'يرجى اختيار الموظف',
+    kg_unit: 'كجم',
+    loading: 'جاري التحميل...',
+    refresh: 'تحديث'
+};
+
+// تحميل العناصر المعلقة عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    checkPendingBoxes();
+    checkPendingTransfers();
+    
+    // تحديث تلقائي كل 30 ثانية
+    setInterval(() => {
+        checkPendingBoxes();
+        checkPendingTransfers();
+    }, 30000);
+});
+
+// جلب الكراتين المعلقة للمستخدم الحالي
+function checkPendingBoxes() {
+    console.log('🔍 جاري التحقق من الكراتين المعلقة...');
+    
+    fetch('/stage4/pending-boxes', {
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => {
+        console.log('📥 Response status:', response.status);
+        if (!response.ok) {
+            throw new Error('HTTP error! status: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('📦 بيانات الكراتين المعلقة:', data);
+        
+        if (data.success) {
+            pendingBoxes = data.items || [];
+            pendingBoxesCount = data.count || 0;
+            console.log('✅ تم جلب ' + pendingBoxesCount + ' كرتونة معلقة');
+            renderPendingBoxesPanel();
+        } else {
+            console.error('❌ فشل في جلب البيانات:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('❌ خطأ في جلب الكراتين المعلقة:', error);
+        // عرض رسالة خطأ في اللوحة
+        const list = document.getElementById('pendingBoxesList');
+        if (list) {
+            list.innerHTML = '<div class="empty-state" style="padding:20px; text-align:center; color:#e74c3c;"><i class="fas fa-exclamation-triangle"></i> خطأ في التحميل: ' + error.message + '</div>';
+        }
+    });
+}
+
+// جلب طلبات النقل الواردة
+function checkPendingTransfers() {
+    console.log('🔍 جاري التحقق من طلبات النقل...');
+    
+    fetch('/stage4/pending-transfers', {
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => {
+        console.log('📥 Response status for transfers:', response.status);
+        if (!response.ok) {
+            throw new Error('HTTP error! status: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('📦 بيانات طلبات النقل:', data);
+        
+        if (data.success) {
+            pendingTransfers = data.transfers || [];
+            pendingTransfersCount = data.count || 0;
+            console.log('✅ تم جلب ' + pendingTransfersCount + ' طلب نقل');
+            renderPendingTransfersPanel();
+        } else {
+            console.error('❌ فشل في جلب البيانات:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('❌ خطأ في جلب طلبات النقل:', error);
+        // عرض رسالة خطأ في اللوحة
+        const list = document.getElementById('pendingTransfersList');
+        if (list) {
+            list.innerHTML = '<div class="empty-state" style="padding:20px; text-align:center; color:#e74c3c;"><i class="fas fa-exclamation-triangle"></i> خطأ في التحميل: ' + error.message + '</div>';
+        }
+    });
+}
+
+// عرض لوحة اللفافات المتبقية - تصميم موحد مع المرحلة الثانية
+function renderPendingBoxesPanel() {
+    const panel = document.getElementById('pendingBoxesPanel');
+    const list = document.getElementById('pendingBoxesList');
+    const countSpan = document.getElementById('pendingBoxesCount');
+    
+    console.log('📦 renderPendingBoxesPanel:', { panel: !!panel, list: !!list, count: pendingBoxesCount });
+    
+    if (!panel || !list) {
+        console.error('❌ عناصر لوحة اللفافات المتبقية غير موجودة!');
+        return;
+    }
+    
+    countSpan.textContent = pendingBoxesCount;
+    panel.style.display = 'block';
+    panel.style.visibility = 'visible';
+    panel.style.opacity = '1';
+    
+    if (pendingBoxesCount === 0) {
+        list.innerHTML = `
+            <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; text-align: center; color: #7f8c8d;">
+                <i class="fas fa-check-circle" style="color:#27ae60; font-size: 24px; margin-bottom: 10px;"></i>
+                <br>
+                <strong style="margin: 0 5px; display: block; margin-bottom: 8px;">لا توجد لفافات متبقية</strong>
+                <div style="font-size: 14px;">ابدأ بمسح باركود لفاف جديد من المرحلة الثالثة</div>
+            </div>
+        `;
+        return;
+    }
+    
+    list.innerHTML = pendingBoxes.map(lafaf => {
+        const remainingWeight = parseFloat(lafaf.remaining_weight || 0);
+        const usedWeight = parseFloat(lafaf.used_weight || 0);
+        const totalWeight = parseFloat(lafaf.net_weight || 0); // استخدام net_weight مباشرة
+        const usagePercent = totalWeight > 0 ? Math.min(100, (usedWeight / totalWeight) * 100) : 0;
+        const pendingBoxesCount = parseInt(lafaf.pending_boxes_count || 0);
+        const hasRemainingWeight = remainingWeight > 0.01;
+        const hasPendingBoxes = pendingBoxesCount > 0;
+        const lafafStatus = lafaf.status;
+        const isLafafPacked = lafafStatus === 'packed' || lafafStatus === 'completed';
+
+        return `
+            <div class="pending-stand-card">
+                <div class="pending-stand-info">
+                    <strong><i class="fas fa-circle-notch"></i> اللفاف: ${lafaf.barcode}</strong>
+                    <span>المادة: ${lafaf.material_name || 'غير محدد'}</span>
+                    ${lafaf.color ? `<span>اللون: ${lafaf.color}</span>` : ''}
+                    <span>مستخدم: ${usedWeight.toFixed(3)} / ${totalWeight.toFixed(3)} كجم</span>
+                    
+                    <!-- شريط التقدم -->
+                    <div style="margin-top:8px; background:#e0e0e0; border-radius:10px; height:20px; overflow:hidden; position:relative;">
+                        <div style="background:linear-gradient(90deg,#27ae60,#2ecc71); height:100%; width:${usagePercent.toFixed(1)}%; transition:width 0.3s; border-radius:10px;"></div>
+                        <span style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:12px; font-weight:700; color:#2c3e50;">${usagePercent.toFixed(1)}%</span>
+                    </div>
+                    
+                    ${hasRemainingWeight ? `<span style="margin-top:5px;">المتبقي: <strong style="color:#e74c3c">${remainingWeight.toFixed(3)} كجم</strong></span>` : '<span style="margin-top:5px; color:#27ae60;"><i class="fas fa-check-double"></i> <strong>تم استهلاك المادة بالكامل</strong></span>'}
+                    ${hasPendingBoxes ? `<span style="color:#e74c3c;"><i class="fas fa-box-open"></i> كراتين غير مكتملة: <strong>${pendingBoxesCount}</strong></span>` : ''}
+                    ${isLafafPacked ? `<span style="color:#3498db;"><i class="fas fa-check-circle"></i> اللفاف: مكتمل</span>` : ''}
+                </div>
+                <div class="pending-stand-actions">
+                    ${hasRemainingWeight ? `
+                        <button class="btn-continue" type="button" onclick="loadPendingItem('${lafaf.barcode}')">
+                            <i class="fas fa-play"></i> متابعة التعبئة
+                        </button>
+                    ` : ''}
+                    ${hasPendingBoxes ? `
+                        <button class="btn-finish-stand" type="button" onclick="finishLafaf('${lafaf.barcode}')">
+                            <i class="fas fa-check-double"></i> إنهاء ${pendingBoxesCount} كرتون
+                        </button>
+                    ` : ''}
+                    ${hasRemainingWeight ? `
+                        <button class="btn-transfer-stand" type="button" onclick="openTransferModal('${lafaf.barcode}', ${remainingWeight.toFixed(3)})">
+                            <i class="fas fa-share"></i> نقل لموظف آخر
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// عرض لوحة طلبات النقل الواردة
+function renderPendingTransfersPanel() {
+    const panel = document.getElementById('pendingTransfersPanel');
+    const list = document.getElementById('pendingTransfersList');
+    const countSpan = document.getElementById('pendingTransfersCount');
+    
+    console.log('📨 renderPendingTransfersPanel:', { panel: !!panel, list: !!list, count: pendingTransfersCount });
+    
+    if (!panel || !list) {
+        console.error('❌ عناصر لوحة طلبات النقل غير موجودة!');
+        return;
+    }
+    
+    countSpan.textContent = pendingTransfersCount;
+    
+    // إظهار اللوحة فقط إذا كان هناك طلبات
+    if (pendingTransfersCount === 0) {
+        panel.style.display = 'none';
+        return;
+    }
+    
+    panel.style.display = 'block';
+    panel.style.visibility = 'visible';
+    panel.style.opacity = '1';
+    
+    list.innerHTML = pendingTransfers.map(transfer => {
+        const remainingWeight = parseFloat(transfer.remaining_weight || 0);
+        const usedWeight = parseFloat(transfer.used_weight || 0);
+        const totalWeight = parseFloat(transfer.total_weight || transfer.net_weight || 0);
+
+        return `
+            <div class="pending-transfer-card">
+                <div class="pending-transfer-info">
+                    <strong><i class="fas fa-box"></i> اللفاف: ${transfer.barcode}</strong>
+                    <span>من الموظف: <strong>${transfer.sender_name}</strong></span>
+                    <span>المادة: ${transfer.material_name || 'غير محدد'}</span>
+                    <span>الوزن المتبقي: <strong style="color:#27ae60">${remainingWeight.toFixed(3)} كجم</strong></span>
+                    ${transfer.reason ? `<span style="color:#666;"><i class="fas fa-comment"></i> ${transfer.reason}</span>` : ''}
+                </div>
+                <div class="pending-transfer-actions">
+                    <button class="btn-accept" type="button" onclick="acceptTransfer('${transfer.barcode}')">
+                        <i class="fas fa-check"></i> قبول
+                    </button>
+                    <button class="btn-reject" type="button" onclick="rejectTransfer('${transfer.barcode}')">
+                        <i class="fas fa-times"></i> رفض
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// فتح موديل النقل
+function openTransferModal(barcode, weight) {
+    document.getElementById('transferBoxBarcode').textContent = barcode;
+    document.getElementById('transferBoxWeight').textContent = weight;
+    document.getElementById('transferBoxBarcodeValue').value = barcode;
+    document.getElementById('transferWorkerId').value = '';
+    document.getElementById('transferReason').value = '';
+    document.getElementById('transferNotes').value = '';
+    document.getElementById('transferModal').style.display = 'flex';
+}
+
+// إغلاق موديل النقل
+function closeTransferModal() {
+    document.getElementById('transferModal').style.display = 'none';
+}
+
+// إنهاء اللفاف - تحويل جميع الكراتين المرتبطة إلى حالة مكتملة
+function finishLafaf(barcode) {
+    Swal.fire({
+        title: 'تأكيد إنهاء اللفاف',
+        html: `<div style="text-align:right; direction:rtl;">
+            <p>هل أنت متأكد من إنهاء اللفاف <strong>${barcode}</strong>؟</p>
+            <p style="color:#e74c3c; margin-top:10px;"><i class="fas fa-exclamation-triangle"></i> سيتم تحويل جميع الكراتين المرتبطة به إلى حالة مكتملة</p>
+        </div>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#27ae60',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fas fa-check-double"></i> نعم، إنهاء اللفاف',
+        cancelButtonText: 'إلغاء'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'جاري الإنهاء...',
+                text: 'يرجى الانتظار',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            fetch('/stage4/finish-lafaf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ barcode: barcode })
+            })
+            .then(response => response.json())
+            .then(data => {
+                Swal.close();
+                if (data.success) {
+                    const boxesCount = data.boxes_count || data.data?.boxes_count || 0;
+                    const updatedBoxes = data.updated_boxes_count || data.data?.updated_boxes_count || 0;
+                    const waste = data.waste || data.data?.waste || 0;
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم إنهاء اللفاف بنجاح!',
+                        html: `<div style="text-align:right; direction:rtl;">
+                            <p><strong>عدد الكراتين الكلي:</strong> ${boxesCount} كرتون</p>
+                            ${updatedBoxes > 0 ? `<p><strong>تم تحديث:</strong> ${updatedBoxes} كرتون إلى حالة مكتمل</p>` : ''}
+                            ${waste > 0 ? `<p><strong>الهدر المحسوب:</strong> ${waste} كجم</p>` : ''}
+                        </div>`,
+                        confirmButtonText: 'حسناً',
+                        confirmButtonColor: '#27ae60'
+                    });
+                    checkPendingBoxes();
+                    // إذا كان اللفاف المحمل حالياً هو نفسه، أعد تحميله
+                    if (currentLafaf && currentLafaf.barcode === barcode) {
+                        clearForm();
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'خطأ',
+                        text: data.message || 'حدث خطأ أثناء إنهاء اللفاف',
+                        confirmButtonColor: '#e74c3c'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.close();
+                console.error('خطأ في إنهاء اللفاف:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'خطأ',
+                    text: 'حدث خطأ في الاتصال بالخادم',
+                    confirmButtonColor: '#e74c3c'
+                });
+            });
+        }
+    });
+}
+
+// إرسال طلب النقل
+function submitTransfer() {
+    const barcode = document.getElementById('transferBoxBarcodeValue').value;
+    const newWorkerId = document.getElementById('transferWorkerId').value;
+    const reason = document.getElementById('transferReason').value;
+    const notes = document.getElementById('transferNotes').value;
+    
+    if (!newWorkerId) {
+        alert(translations.select_worker_required);
+        return;
+    }
+    
+    const btn = document.getElementById('submitTransferBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري النقل...';
+    
+    fetch('/stage4/transfer-box', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            barcode: barcode,
+            new_worker_id: newWorkerId,
+            reason: reason,
+            notes: notes
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(translations.transfer_success, 'success');
+            closeTransferModal();
+            checkPendingBoxes();
+        } else {
+            showToast(data.message || translations.transfer_error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('خطأ في النقل:', error);
+        showToast(translations.transfer_error, 'error');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال طلب النقل';
+    });
+}
+
+// قبول طلب النقل
+function acceptTransfer(barcode) {
+    Swal.fire({
+        title: 'تأكيد القبول',
+        text: 'هل أنت متأكد من قبول نقل هذا الكرتون؟',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#27ae60',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'نعم، قبول',
+        cancelButtonText: 'إلغاء'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/stage4/accept-transfer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ barcode: barcode })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(translations.accept_success, 'success');
+                    checkPendingTransfers();
+                    checkPendingBoxes();
+                } else {
+                    showToast(data.message || 'حدث خطأ', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('خطأ في القبول:', error);
+                showToast('حدث خطأ أثناء القبول', 'error');
+            });
+        }
+    });
+}
+
+// رفض طلب النقل
+function rejectTransfer(barcode) {
+    Swal.fire({
+        title: 'رفض النقل',
+        text: 'هل تريد رفض نقل هذا الكرتون؟',
+        input: 'text',
+        inputPlaceholder: 'سبب الرفض (اختياري)',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'رفض',
+        cancelButtonText: 'إلغاء'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/stage4/reject-transfer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ 
+                    barcode: barcode,
+                    reason: result.value || ''
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(translations.reject_success, 'success');
+                    checkPendingTransfers();
+                } else {
+                    showToast(data.message || 'حدث خطأ', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('خطأ في الرفض:', error);
+                showToast('حدث خطأ أثناء الرفض', 'error');
+            });
+        }
+    });
+}
+
+// تحميل عنصر معلق
+function loadPendingItem(barcode) {
+    if (!barcode) return;
+    
+    const barcodeInput = document.getElementById('lafafBarcode');
+    if (barcodeInput) {
+        barcodeInput.value = barcode;
+    }
+    loadLafaf(barcode);
+}
 
 // Barcode scanner
 document.getElementById('lafafBarcode').addEventListener('keypress', function(e) {
@@ -296,12 +910,52 @@ function loadLafaf(barcode) {
     }
 
     fetch(`{{ url('/stage4/get-lafaf-by-barcode') }}/${barcode}`)
-        .then(response => {
-            if (!response.ok) throw new Error('{{ __("stages.stage4_coil_not_found") }}');
-            return response.json();
-        })
+        .then(response => response.json())
         .then(result => {
-            if (!result.success) throw new Error(result.message);
+            // التحقق من حالة الاستجابة
+            if (!result.success) {
+                // 🔥 التحقق من أن اللفاف مستهلك بالكامل
+                if (result.already_packed) {
+                    Swal.fire({
+                        title: '⚠️ تم استهلاك هذا اللفاف',
+                        html: `
+                            <div style="text-align: right; direction: rtl;">
+                                <p style="font-size: 16px; color: #8e44ad; font-weight: bold;">
+                                    هذا اللفاف تم تعبئته بالكامل ولا يمكن استخدامه مرة أخرى.
+                                </p>
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-right: 4px solid #8e44ad; margin-top: 15px;">
+                                    <p style="margin: 0; color: #666;">
+                                        ${result.message.replace(/\n/g, '<br>')}
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        icon: 'warning',
+                        confirmButtonText: 'حسناً',
+                        confirmButtonColor: '#8e44ad'
+                    });
+                    document.getElementById('lafafBarcode').value = '';
+                    document.getElementById('lafafBarcode').focus();
+                    return;
+                }
+                
+                // 🔥 التحقق من أن الباركود محظور (معاد إسناده)
+                if (result.blocked) {
+                    Swal.fire({
+                        title: '⛔ الباركود محظور',
+                        text: result.message,
+                        icon: 'error',
+                        confirmButtonText: 'حسناً',
+                        confirmButtonColor: '#e74c3c'
+                    });
+                    document.getElementById('lafafBarcode').value = '';
+                    document.getElementById('lafafBarcode').focus();
+                    return;
+                }
+                
+                // خطأ عام
+                throw new Error(result.message || 'الكويل غير موجود');
+            }
 
             const data = result.data;
             console.log('Lafaf data received:', data);
@@ -311,6 +965,9 @@ function loadLafaf(barcode) {
             const netWeight = parseFloat(data.net_weight ?? data.total_weight ?? 0);
             const totalWeight = parseFloat(data.total_weight ?? netWeight);
             const wrappingWeight = parseFloat(data.wrapping_weight ?? data.wrapping_weight_db ?? 0);
+            const remainingWeight = parseFloat(data.remaining_weight ?? netWeight);
+            const usedWeight = parseFloat(data.used_weight ?? 0);
+            const isPartial = data.is_partial ?? false;
 
             currentLafaf = {
                 id: data.id || null,
@@ -318,6 +975,9 @@ function loadLafaf(barcode) {
                 coil_number: data.coil_number || 'غير محدد',
                 total_weight: totalWeight,
                 net_weight: netWeight,
+                remaining_weight: remainingWeight,
+                used_weight: usedWeight,
+                is_partial: isPartial,
                 wrapping_weight: wrappingWeight,
                 color: data.color || 'غير محدد',
                 plastic_type: data.plastic_type || 'غير محدد',
@@ -332,20 +992,35 @@ function loadLafaf(barcode) {
             document.getElementById('displayBarcode').textContent = currentLafaf.barcode;
             document.getElementById('displayMaterial').textContent = currentLafaf.material_name;
             document.getElementById('displayColor').textContent = currentLafaf.color;
-            document.getElementById('displayWeight').textContent = currentLafaf.net_weight.toFixed(3) + ' كجم';
+            
+            // 🔥 عرض الوزن المتبقي إذا كان اللفاف قيد المعالجة
+            if (isPartial) {
+                document.getElementById('displayWeight').innerHTML = `
+                    <span style="color: #e67e22; font-weight: bold;">${remainingWeight.toFixed(3)} كجم متبقي</span>
+                    <br><small style="color: #27ae60;">تم استخدام: ${usedWeight.toFixed(3)} كجم</small>
+                `;
+                showToast(`⚠️ هذا اللفاف قيد المعالجة - متبقي ${remainingWeight.toFixed(3)} كجم`, 'warning');
+            } else {
+                document.getElementById('displayWeight').textContent = currentLafaf.net_weight.toFixed(3) + ' كجم';
+            }
+            
             const weightDetails = document.getElementById('displayWeightDetails');
             if (weightDetails) {
-                weightDetails.textContent = currentLafaf.wrapping_weight
-                    ? `إجمالي: ${currentLafaf.total_weight.toFixed(3)} كجم | لفاف: ${currentLafaf.wrapping_weight.toFixed(3)} كجم`
-                    : '';
+                if (isPartial) {
+                    weightDetails.innerHTML = `الوزن الأصلي: ${netWeight.toFixed(3)} كجم | مستخدم: ${usedWeight.toFixed(3)} كجم`;
+                } else {
+                    weightDetails.textContent = currentLafaf.wrapping_weight
+                        ? `إجمالي: ${currentLafaf.total_weight.toFixed(3)} كجم | لفاف: ${currentLafaf.wrapping_weight.toFixed(3)} كجم`
+                        : '';
+                }
             }
             document.getElementById('lafafDisplay').classList.add('active');
 
-            // Update summary
-            document.getElementById('summaryLafaf').textContent = currentLafaf.net_weight.toFixed(3) + ' كجم';
+            // Update summary - استخدام الوزن المتبقي
+            document.getElementById('summaryLafaf').textContent = (isPartial ? remainingWeight : netWeight).toFixed(3) + ' كجم';
 
-            // Pre-fill totalBoxesWeight with net weight
-            document.getElementById('totalBoxesWeight').value = currentLafaf.net_weight.toFixed(3);
+            // Pre-fill totalBoxesWeight with remaining weight (not full weight)
+            document.getElementById('totalBoxesWeight').value = (isPartial ? remainingWeight : netWeight).toFixed(3);
 
             // Focus on box weight
             document.getElementById('boxWeight').focus();
@@ -353,7 +1028,14 @@ function loadLafaf(barcode) {
             showToast('{{ __("stages.stage4_coil_loaded_success") }}', 'success');
         })
         .catch(error => {
-            alert('خطأ: ' + error.message);
+            Swal.fire({
+                title: '❌ خطأ',
+                text: error.message || 'الكويل غير موجود',
+                icon: 'error',
+                confirmButtonText: 'حسناً',
+                confirmButtonColor: '#e74c3c'
+            });
+            document.getElementById('lafafBarcode').value = '';
             document.getElementById('lafafBarcode').focus();
         });
 }
@@ -463,8 +1145,27 @@ async function divideWeight() {
 
 function addBox() {
     if (!currentLafaf) {
-        alert('{{ __("stages.stage4_please_enter_barcode") }}');
-        document.getElementById('lafafBarcode').focus();
+        Swal.fire({
+            title: '⚠️ يجب تحميل لفاف أولاً',
+            html: `
+                <div style="text-align: right; direction: rtl;">
+                    <p style="font-size: 15px; color: #555;">
+                        لإضافة كرتونة، يجب أولاً مسح أو إدخال باركود اللفاف من المرحلة الثالثة.
+                    </p>
+                    <div style="background: #fff3cd; padding: 12px; border-radius: 8px; border-right: 4px solid #f39c12; margin-top: 10px;">
+                        <p style="margin: 0; font-size: 14px;">
+                            <i class="fas fa-lightbulb" style="color: #f39c12;"></i>
+                            أدخل باركود اللفاف في الحقل أعلاه ثم اضغط Enter
+                        </p>
+                    </div>
+                </div>
+            `,
+            icon: 'warning',
+            confirmButtonText: 'حسناً',
+            confirmButtonColor: '#e67e22'
+        }).then(() => {
+            document.getElementById('lafafBarcode').focus();
+        });
         return;
     }
 
@@ -516,13 +1217,32 @@ function addBox() {
             renderBoxes();
             clearForm();
             
-            // مسح بيانات اللفاف الحالي
-            currentLafaf = null;
-            document.getElementById('lafafDisplay').classList.remove('active');
-
-            showToast('{{ __("stages.stage4_box_saved_success") }}', 'success');
-            // Focus on barcode for next scan
-            document.getElementById('lafafBarcode').focus();
+            // تحديث الوزن المتبقي بدلاً من مسح اللفاف
+            const usedWeight = parseFloat(weight);
+            currentLafaf.remaining_weight = (currentLafaf.remaining_weight || currentLafaf.net_weight) - usedWeight;
+            currentLafaf.used_weight = (currentLafaf.used_weight || 0) + usedWeight;
+            currentLafaf.is_partial = true;
+            
+            // تحديث العرض
+            if (currentLafaf.remaining_weight > 0.01) {
+                // لا يزال هناك وزن متبقي - تحديث العرض
+                document.getElementById('displayWeight').innerHTML = `
+                    <span style="color: #e67e22; font-weight: bold;">${currentLafaf.remaining_weight.toFixed(3)} كجم متبقي</span>
+                    <br><small style="color: #27ae60;">تم استخدام: ${currentLafaf.used_weight.toFixed(3)} كجم</small>
+                `;
+                document.getElementById('totalBoxesWeight').value = currentLafaf.remaining_weight.toFixed(3);
+                document.getElementById('summaryLafaf').textContent = currentLafaf.remaining_weight.toFixed(3) + ' كجم';
+                
+                showToast(`✅ تم حفظ الكرتونة! متبقي ${currentLafaf.remaining_weight.toFixed(3)} كجم`, 'success');
+                // Focus on box weight for next box
+                document.getElementById('boxWeight').focus();
+            } else {
+                // تم استهلاك اللفاف بالكامل
+                showToast('✅ تم حفظ الكرتونة! اللفاف مستهلك بالكامل', 'success');
+                currentLafaf = null;
+                document.getElementById('lafafDisplay').classList.remove('active');
+                document.getElementById('lafafBarcode').focus();
+            }
         } else {
             throw new Error(result.message || 'حدث خطأ أثناء الحفظ');
         }
@@ -752,6 +1472,16 @@ function showToast(message, type = 'info') {
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
+
+// تصدير الدوال للاستخدام العام
+window.checkPendingBoxes = checkPendingBoxes;
+window.checkPendingTransfers = checkPendingTransfers;
+window.openTransferModal = openTransferModal;
+window.closeTransferModal = closeTransferModal;
+window.submitTransfer = submitTransfer;
+window.acceptTransfer = acceptTransfer;
+window.rejectTransfer = rejectTransfer;
+window.loadPendingItem = loadPendingItem;
 </script>
 
 @endsection

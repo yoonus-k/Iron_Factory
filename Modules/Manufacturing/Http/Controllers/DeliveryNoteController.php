@@ -917,6 +917,58 @@ class DeliveryNoteController extends Controller
     }
 
     /**
+     * Printable view for delivery notes.
+     */
+    public function print($id)
+    {
+        $deliveryNote = DeliveryNote::with([
+            'material',
+            'material.materialDetails',
+            'material.materialDetails.warehouse',
+            'material.materialDetails.unit',
+            'receiver',
+            'recordedBy',
+            'approvedBy',
+            'supplier',
+            'warehouse',
+            'destination',
+            'registeredBy',
+            'registrationLogs',
+            'registrationLogs.registeredBy',
+            'reconciliationLogs',
+            'reconciliationLogs.decidedBy',
+            'purchaseInvoice',
+            'coils'
+        ])->findOrFail($id);
+
+        try {
+            $deliveryNote->increment('print_count');
+            $deliveryNote->refresh();
+        } catch (\Throwable $exception) {
+            Log::warning('Failed to increment delivery note print count', [
+                'delivery_note_id' => $id,
+                'error' => $exception->getMessage(),
+            ]);
+        }
+
+        $registeredQuantity = (float) ($deliveryNote->quantity ?? 0);
+        $transferredQuantity = (float) ($deliveryNote->quantity_used ?? 0);
+        $remainingQuantity = (float) ($deliveryNote->quantity_remaining ?? 0);
+        $transferPercentage = $registeredQuantity > 0
+            ? ($transferredQuantity / max($registeredQuantity, 0.0001)) * 100
+            : 0;
+
+        $transferSummary = [
+            'registered' => $registeredQuantity,
+            'transferred' => $transferredQuantity,
+            'remaining' => $remainingQuantity,
+            'percentage' => $transferPercentage,
+        ];
+
+        return view('manufacturing::warehouses.delivery-notes.print', compact('deliveryNote', 'transferSummary'));
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit($id)

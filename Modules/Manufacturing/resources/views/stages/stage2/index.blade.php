@@ -62,9 +62,10 @@
                         <div class="um-form-group">
                             <select name="status" class="um-form-control">
                                 <option value="">{{ __('stages.all_statuses') }}</option>
-                                <option value="created">{{ __('stages.status_created') }}</option>
-                                <option value="in_process">{{ __('stages.status_in_process') }}</option>
-                                <option value="completed">{{ __('stages.status_completed') }}</option>
+                                <option value="pending_approval" {{ request('status') == 'pending_approval' ? 'selected' : '' }}>⛏️ في انتظار الموافقة</option>
+                                <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>{{ __('stages.status_in_process') }}</option>
+                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>{{ __('stages.status_completed') }}</option>
+                                <option value="started" {{ request('status') == 'started' ? 'selected' : '' }}>{{ __('stages.status_created') }}</option>
                             </select>
                         </div>
                         <div class="um-form-group">
@@ -119,7 +120,9 @@
                             <td><strong style="color: #27ae60;">{{ number_format($item->output_weight, 2) }}</strong> {{ __('stages.kg_unit') }}</td>
                             <td><strong style="color: #e74c3c;">{{ number_format($item->waste, 2) }}</strong> {{ __('stages.kg_unit') }}</td>
                             <td>
-                                @if($item->status == 'in_progress')
+                                @if($item->status == 'pending_approval')
+                                    <span class="um-badge" style="background: #ff9800; color: white;">⛏️ في انتظار الموافقة</span>
+                                @elseif($item->status == 'in_progress')
                                     <span class="um-badge um-badge-warning">{{ __('stages.status_in_process') }}</span>
                                 @elseif($item->status == 'completed')
                                     <span class="um-badge um-badge-success">{{ __('stages.status_completed') }}</span>
@@ -185,7 +188,9 @@
                                 <span class="um-category-id">#{{ $loop->iteration }}</span>
                             </div>
                         </div>
-                        @if($item->status == 'in_progress')
+                        @if($item->status == 'pending_approval')
+                        <span class="um-badge" style="background: #ff9800; color: white;">⛏️ في انتظار الموافقة</span>
+                        @elseif($item->status == 'in_progress')
                             <span class="um-badge um-badge-warning">قيد المعالجة</span>
                         @elseif($item->status == 'completed')
                             <span class="um-badge um-badge-success">مكتمل</span>

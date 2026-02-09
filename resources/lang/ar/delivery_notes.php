@@ -62,6 +62,9 @@ return [
     'coil_number' => 'رقم الكويل',
     'unit' => 'وحدة',
     'activity' => 'النشاط',
+    'driver_name' => 'اسم السائق',
+    'vehicle_plate_number' => 'رقم لوحة المركبة',
+    'received_from_person' => 'المستلم من المورد',
     'notes' => 'الملاحظات',
 
     // Warehouse Management
@@ -88,6 +91,7 @@ return [
     'view' => 'عرض',
     'edit' => 'تعديل',
     'delete' => 'حذف',
+    'print' => 'طباعة الأذن',
     'save' => 'حفظ',
     'save_changes' => 'حفظ التعديلات',
     'cancel' => 'إلغاء',

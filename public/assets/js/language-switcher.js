@@ -8,8 +8,15 @@ function updateLanguageDisplay() {
     const currentLang = document.documentElement.lang || 'ar';
     const currentLangSpan = document.querySelector('.current-lang');
     
+    const langCodes = {
+        'ar': 'AR',
+        'en': 'EN',
+        'ur': 'UR',
+        'hi': 'HI'
+    };
+    
     if (currentLangSpan) {
-        currentLangSpan.textContent = currentLang === 'ar' ? 'AR' : 'EN';
+        currentLangSpan.textContent = langCodes[currentLang] || 'AR';
     }
     
     // Update active state in language menu

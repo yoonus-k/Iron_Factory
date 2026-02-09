@@ -65,6 +65,47 @@
     .info-box strong{ color:#e67e22; display:block; margin-bottom:8px }
 
     @media (max-width:900px){ .form-row{ grid-template-columns:1fr } .stage2-info{ grid-template-columns:1fr } .stage-header{ flex-direction:column; text-align:center } }
+
+    /* Pending Items Panel */
+    .pending-items-panel{ background:linear-gradient(135deg,#fff5f5 0%,#ffe8e8 100%); border:1px solid rgba(231,76,60,0.2); border-radius:12px; padding:18px; margin-top:18px; }
+    .pending-items-panel-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .pending-items-panel-header h4{ margin:0; color:#c0392b; font-size:16px; }
+    .pending-items-list{ display:flex; flex-direction:column; gap:12px; }
+    .pending-item-card{ background:#fff; border-radius:10px; padding:14px; border-right:4px solid #9b59b6; box-shadow:0 4px 12px rgba(155,89,182,0.1); }
+    .pending-item-info{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+    .pending-item-info strong{ color:#631010; font-size:15px; }
+    .pending-item-actions{ display:flex; gap:8px; }
+    .pending-item-actions button{ padding:8px 14px; border-radius:6px; border:none; cursor:pointer; font-weight:600; font-size:13px; }
+    .btn-load-item{ background:#9b59b6; color:#fff; }
+    .btn-load-item:hover{ background:#8e44ad; }
+    
+    /* Pending Lafafs Panel */
+    .pending-lafafs-panel{ background:linear-gradient(135deg,#fff5e6 0%,#ffe8cc 100%); border:1px solid rgba(230,126,34,0.3); border-radius:12px; padding:18px; margin-top:18px; }
+    .pending-lafafs-panel-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .pending-lafafs-panel-header h4{ margin:0; color:#d35400; font-size:16px; }
+    .pending-lafaf-card{ background:#fff; border-radius:10px; padding:14px; border-right:4px solid #e67e22; box-shadow:0 4px 12px rgba(230,126,34,0.1); }
+    .btn-continue{ background:#e67e22; color:#fff; }
+    .btn-continue:hover{ background:#d35400; }
+    .btn-transfer{ background:#3498db; color:#fff; }
+    .btn-transfer:hover{ background:#2980b9; }
+    
+    /* Pending Transfers Panel */
+    .pending-transfers-panel{ background:linear-gradient(135deg,#e8f5e9 0%,#c8e6c9 100%); border:1px solid rgba(39,174,96,0.3); border-radius:12px; padding:18px; margin-top:18px; }
+    .pending-transfers-panel-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .pending-transfers-panel-header h4{ margin:0; color:#27ae60; font-size:16px; }
+    .pending-transfer-card{ background:#fff; border-radius:10px; padding:14px; border-right:4px solid #27ae60; box-shadow:0 4px 12px rgba(39,174,96,0.1); }
+    .btn-accept{ background:#27ae60; color:#fff; }
+    .btn-accept:hover{ background:#1e8449; }
+    .btn-reject{ background:#e74c3c; color:#fff; }
+    .btn-reject:hover{ background:#c0392b; }
+    
+    /* Transfer Modal */
+    .transfer-modal-overlay{ display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center; }
+    .transfer-modal{ background:#fff; border-radius:16px; padding:24px; width:90%; max-width:500px; box-shadow:0 20px 60px rgba(0,0,0,0.2); }
+    .transfer-modal-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid #9b59b6; padding-bottom:15px; }
+    .transfer-modal-header h3{ margin:0; color:#9b59b6; font-size:18px; }
+    .transfer-modal-close{ background:none; border:none; font-size:24px; cursor:pointer; color:#999; }
+    .transfer-modal-close:hover{ color:#e74c3c; }
 </style>
 
 <div class="stage-container">
@@ -106,6 +147,51 @@
         </div>
     </div>
 
+    <!-- Pending Items Panel -->
+    <div id="pendingItemsPanel" class="pending-items-panel form-section" style="display:none;">
+        <div class="pending-items-panel-header">
+            <h4><i class="fas fa-exclamation-triangle"></i> المعالجات المتاحة للتلفيف (<span id="pendingItemsCount">0</span>)</h4>
+            <button type="button" class="btn-secondary" onclick="checkPendingItems()" style="padding:6px 12px; font-size:12px;">
+                <i class="fas fa-sync-alt"></i> تحديث
+            </button>
+        </div>
+        <div id="pendingItemsList" class="pending-items-list">
+            <div class="empty-state" style="padding:20px;">
+                <p>جاري التحميل...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Lafafs Panel - لوحة اللفائف المعلقة للمستخدم الحالي -->
+    <div id="pendingLafafsPanel" class="pending-lafafs-panel form-section" style="display:none;">
+        <div class="pending-lafafs-panel-header">
+            <h4><i class="fas fa-hourglass-half"></i> اللفائف المعلقة الخاصة بك (<span id="pendingLafafsCount">0</span>)</h4>
+            <button type="button" class="btn-secondary" onclick="checkPendingLafafs()" style="padding:6px 12px; font-size:12px;">
+                <i class="fas fa-sync-alt"></i> تحديث
+            </button>
+        </div>
+        <div id="pendingLafafsList" class="pending-items-list">
+            <div class="empty-state" style="padding:20px;">
+                <p>جاري التحميل...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Transfers Panel - لوحة طلبات النقل الواردة -->
+    <div id="pendingTransfersPanel" class="pending-transfers-panel form-section" style="display:none;">
+        <div class="pending-transfers-panel-header">
+            <h4><i class="fas fa-exchange-alt"></i> طلبات النقل الواردة (<span id="pendingTransfersCount">0</span>)</h4>
+            <button type="button" class="btn-secondary" onclick="checkPendingTransfers()" style="padding:6px 12px; font-size:12px;">
+                <i class="fas fa-sync-alt"></i> تحديث
+            </button>
+        </div>
+        <div id="pendingTransfersList" class="pending-items-list">
+            <div class="empty-state" style="padding:20px;">
+                <p>جاري التحميل...</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Lafaf Form -->
     <div class="form-section">
         <h3 class="section-title"><i class="fas fa-edit"></i> {{ __('stages.stage3_lafaf_data') }}</h3>
@@ -118,16 +204,13 @@
                 <li>{{ __('stages.stage3_auto_calc_note') }}</li>
             </ul>
             @if($plastic)
+            @php
+                $plasticAvailable = $plastic->available_weight ?? 0;
+            @endphp
             <div style="margin-top:15px; padding:10px; background:#e8f5e9; border-radius:8px; border-right:3px solid #27ae60;">
                 <strong style="color:#27ae60;"><i class="fas fa-box"></i> البلاستيك المتاح في المستودع:</strong>
-                @php
-                    $plasticQuantity = DB::table('material_details')
-                        ->where('material_id', $plastic->id)
-                        ->where('quantity', '>', 0)
-                        ->sum('quantity');
-                @endphp
                 <span style="font-size:16px; font-weight:700; color:#1e7e34; margin-right:10px;">
-                    {{ number_format($plasticQuantity, 3) }} كجم
+                    {{ number_format($plasticAvailable, 3) }} كجم
                 </span>
                 <small style="display:block; margin-top:5px; color:#666;">
                     <i class="fas fa-info-circle"></i> سيتم خصم الوزن المضاف بالكامل من البلاستيك
@@ -185,9 +268,16 @@
                 <label>{{ __('stages.stage3_color_label') }} <span style="color:#e74c3c;">*</span></label>
                 <select id="colorSelect" class="form-select" style="padding:10px 12px; border-radius:8px; border:1.5px solid #e7eef5;">
                     <option value="">-- اختر اللون --</option>
-                    @foreach($colors as $color)
-                        <option value="{{ $color->id }}" data-name="{{ $color->name_ar }}">{{ $color->name_ar }}</option>
-                    @endforeach
+                    @forelse($colors as $color)
+                        <option value="{{ $color->id }}" data-name="{{ $color->name_ar }}" data-available="{{ $color->available_weight ?? 0 }}">
+                            {{ $color->name_ar }}
+                            @if(($color->available_weight ?? 0) > 0)
+                                ({{ number_format($color->available_weight, 2) }} كجم)
+                            @endif
+                        </option>
+                    @empty
+                        <option value="" disabled>لا توجد ألوان مسجلة حالياً</option>
+                    @endforelse
                 </select>
                 <input type="hidden" id="color" value="">
                 <input type="hidden" id="colorMaterialId" value="">
@@ -240,7 +330,46 @@
             <i class="fas fa-times"></i> {{ __('stages.cancel_button') }}
         </button>
     </div>
-        </button>
+</div>
+
+<!-- Transfer Modal -->
+<div id="transferModal" class="transfer-modal-overlay">
+    <div class="transfer-modal">
+        <div class="transfer-modal-header">
+            <h3><i class="fas fa-exchange-alt"></i> نقل اللفاف لموظف آخر</h3>
+            <button type="button" class="transfer-modal-close" onclick="closeTransferModal()">&times;</button>
+        </div>
+        <div style="margin-bottom:15px;">
+            <strong>اللفاف:</strong> <span id="transferLafafNumber">-</span><br>
+            <strong>الباركود:</strong> <code id="transferLafafBarcode">-</code><br>
+            <strong>الوزن:</strong> <span id="transferLafafWeight">-</span> كجم
+        </div>
+        <div class="form-group" style="margin-bottom:15px;">
+            <label style="font-weight:600;">اختر الموظف الجديد <span style="color:#e74c3c;">*</span></label>
+            <select id="transferWorkerId" class="form-select" style="width:100%; padding:10px;">
+                <option value="">-- اختر موظف --</option>
+                @foreach(\App\Models\User::where('id', '!=', auth()->id())->orderBy('name')->get() as $worker)
+                    <option value="{{ $worker->id }}">{{ $worker->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="form-group" style="margin-bottom:15px;">
+            <label style="font-weight:600;">سبب النقل</label>
+            <input type="text" id="transferReason" class="form-control" placeholder="اختياري - سبب النقل">
+        </div>
+        <div class="form-group" style="margin-bottom:20px;">
+            <label style="font-weight:600;">ملاحظات</label>
+            <textarea id="transferNotes" class="form-control" placeholder="ملاحظات إضافية (اختياري)" rows="2"></textarea>
+        </div>
+        <input type="hidden" id="transferLafafBarcodeValue">
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button type="button" class="btn-secondary" onclick="closeTransferModal()">
+                <i class="fas fa-times"></i> إلغاء
+            </button>
+            <button type="button" class="btn-primary" onclick="submitTransfer()" id="submitTransferBtn">
+                <i class="fas fa-paper-plane"></i> إرسال طلب النقل
+            </button>
+        </div>
     </div>
 </div>
 
@@ -250,9 +379,407 @@
 <script>
 let currentStage2 = null;
 let lafafs = [];
+let pendingItems = [];
+let pendingItemsCount = 0;
+let pendingLafafs = [];
+let pendingLafafsCount = 0;
+let pendingTransfers = [];
+let pendingTransfersCount = 0;
+
+// كائن الترجمات
+const translations = {
+    pending_lafafs_title: 'اللفائف المعلقة الخاصة بك',
+    pending_transfers_title: 'طلبات النقل الواردة',
+    transfer_lafaf: 'نقل اللفاف',
+    continue_lafaf: 'متابعة',
+    accept_transfer: 'قبول',
+    reject_transfer: 'رفض',
+    from_worker: 'من',
+    weight_label: 'الوزن',
+    color_label: 'اللون',
+    no_pending_lafafs: 'لا توجد لفائف معلقة',
+    no_pending_transfers: 'لا توجد طلبات نقل واردة',
+    transfer_success: 'تم إرسال طلب النقل بنجاح',
+    transfer_error: 'حدث خطأ أثناء النقل',
+    accept_success: 'تم قبول النقل بنجاح',
+    reject_success: 'تم رفض النقل',
+    select_worker_required: 'يرجى اختيار الموظف',
+    kg_unit: 'كجم',
+    loading: 'جاري التحميل...',
+    refresh: 'تحديث'
+};
+
+// جلب العناصر المعلقة من API
+function checkPendingItems() {
+    console.log('🔍 جاري التحقق من العناصر المعلقة...');
+    
+    fetch('/stage3/pending-items', {
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('📦 بيانات العناصر المعلقة:', data);
+        
+        if (data.success) {
+            pendingItems = data.items || [];
+            pendingItemsCount = data.count || 0;
+            renderPendingItemsPanel();
+        }
+    })
+    .catch(error => {
+        console.error('❌ خطأ في جلب العناصر المعلقة:', error);
+    });
+}
+
+// جلب اللفائف المعلقة للمستخدم الحالي
+function checkPendingLafafs() {
+    console.log('🔍 جاري التحقق من اللفائف المعلقة...');
+    
+    fetch('/stage3/pending-lafafs', {
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('📦 بيانات اللفائف المعلقة:', data);
+        
+        if (data.success) {
+            pendingLafafs = data.items || [];
+            pendingLafafsCount = data.count || 0;
+            renderPendingLafafsPanel();
+        }
+    })
+    .catch(error => {
+        console.error('❌ خطأ في جلب اللفائف المعلقة:', error);
+    });
+}
+
+// جلب طلبات النقل الواردة
+function checkPendingTransfers() {
+    console.log('🔍 جاري التحقق من طلبات النقل...');
+    
+    fetch('/stage3/pending-transfers', {
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('📦 بيانات طلبات النقل:', data);
+        
+        if (data.success) {
+            pendingTransfers = data.transfers || [];
+            pendingTransfersCount = data.count || 0;
+            renderPendingTransfersPanel();
+        }
+    })
+    .catch(error => {
+        console.error('❌ خطأ في جلب طلبات النقل:', error);
+    });
+}
+
+// عرض لوحة اللفائف المعلقة
+function renderPendingLafafsPanel() {
+    const panel = document.getElementById('pendingLafafsPanel');
+    const list = document.getElementById('pendingLafafsList');
+    const countSpan = document.getElementById('pendingLafafsCount');
+    
+    if (!panel || !list) return;
+    
+    countSpan.textContent = pendingLafafsCount;
+    
+    if (pendingLafafsCount === 0) {
+        panel.style.display = 'none';
+        return;
+    }
+    
+    panel.style.display = 'block';
+    
+    list.innerHTML = pendingLafafs.map(lafaf => `
+        <div class="pending-lafaf-card">
+            <div class="pending-item-info">
+                <div>
+                    <strong><i class="fas fa-circle"></i> ${lafaf.coil_number || lafaf.barcode}</strong>
+                    <div style="font-size:13px; color:#666; margin-top:4px;">
+                        ${lafaf.material_name || 'غير محدد'} | ${translations.weight_label}: ${lafaf.total_weight || 0} ${translations.kg_unit} | ${translations.color_label}: ${lafaf.color || 'غير محدد'}
+                    </div>
+                    <div style="font-size:12px; color:#999; margin-top:2px;">
+                        <i class="fas fa-barcode"></i> ${lafaf.barcode}
+                    </div>
+                </div>
+                <div class="pending-item-actions">
+                    <button type="button" class="btn-transfer" onclick="openTransferModal('${lafaf.barcode}', '${lafaf.coil_number || ''}', ${lafaf.total_weight || 0})">
+                        <i class="fas fa-exchange-alt"></i> ${translations.transfer_lafaf}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// عرض لوحة طلبات النقل الواردة
+function renderPendingTransfersPanel() {
+    const panel = document.getElementById('pendingTransfersPanel');
+    const list = document.getElementById('pendingTransfersList');
+    const countSpan = document.getElementById('pendingTransfersCount');
+    
+    if (!panel || !list) return;
+    
+    countSpan.textContent = pendingTransfersCount;
+    
+    if (pendingTransfersCount === 0) {
+        panel.style.display = 'none';
+        return;
+    }
+    
+    panel.style.display = 'block';
+    
+    list.innerHTML = pendingTransfers.map(transfer => `
+        <div class="pending-transfer-card">
+            <div class="pending-item-info">
+                <div>
+                    <strong><i class="fas fa-circle"></i> ${transfer.coil_number || transfer.barcode}</strong>
+                    <div style="font-size:13px; color:#666; margin-top:4px;">
+                        ${translations.from_worker}: <strong>${transfer.sender_name}</strong> | 
+                        ${translations.weight_label}: ${transfer.total_weight || 0} ${translations.kg_unit}
+                        ${transfer.color ? ' | ' + translations.color_label + ': ' + transfer.color : ''}
+                    </div>
+                    <div style="font-size:12px; color:#999; margin-top:2px;">
+                        <i class="fas fa-barcode"></i> ${transfer.barcode}
+                        ${transfer.reason ? ' | <i class="fas fa-comment"></i> ' + transfer.reason : ''}
+                    </div>
+                </div>
+                <div class="pending-item-actions">
+                    <button type="button" class="btn-accept" onclick="acceptTransfer('${transfer.barcode}')">
+                        <i class="fas fa-check"></i> ${translations.accept_transfer}
+                    </button>
+                    <button type="button" class="btn-reject" onclick="rejectTransfer('${transfer.barcode}')">
+                        <i class="fas fa-times"></i> ${translations.reject_transfer}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// فتح موديل النقل
+function openTransferModal(barcode, coilNumber, weight) {
+    document.getElementById('transferLafafNumber').textContent = coilNumber || barcode;
+    document.getElementById('transferLafafBarcode').textContent = barcode;
+    document.getElementById('transferLafafWeight').textContent = weight;
+    document.getElementById('transferLafafBarcodeValue').value = barcode;
+    document.getElementById('transferWorkerId').value = '';
+    document.getElementById('transferReason').value = '';
+    document.getElementById('transferNotes').value = '';
+    document.getElementById('transferModal').style.display = 'flex';
+}
+
+// إغلاق موديل النقل
+function closeTransferModal() {
+    document.getElementById('transferModal').style.display = 'none';
+}
+
+// إرسال طلب النقل
+function submitTransfer() {
+    const barcode = document.getElementById('transferLafafBarcodeValue').value;
+    const newWorkerId = document.getElementById('transferWorkerId').value;
+    const reason = document.getElementById('transferReason').value;
+    const notes = document.getElementById('transferNotes').value;
+    
+    if (!newWorkerId) {
+        alert(translations.select_worker_required);
+        return;
+    }
+    
+    const btn = document.getElementById('submitTransferBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري النقل...';
+    
+    fetch('/stage3/transfer-lafaf', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            barcode: barcode,
+            new_worker_id: newWorkerId,
+            reason: reason,
+            notes: notes
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(translations.transfer_success, 'success');
+            closeTransferModal();
+            checkPendingLafafs();
+        } else {
+            showToast(data.message || translations.transfer_error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('خطأ في النقل:', error);
+        showToast(translations.transfer_error, 'error');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال طلب النقل';
+    });
+}
+
+// قبول طلب النقل
+function acceptTransfer(barcode) {
+    Swal.fire({
+        title: 'تأكيد القبول',
+        text: 'هل أنت متأكد من قبول نقل هذا اللفاف؟',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#27ae60',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'نعم، قبول',
+        cancelButtonText: 'إلغاء'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/stage3/accept-transfer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ barcode: barcode })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(translations.accept_success, 'success');
+                    checkPendingTransfers();
+                    checkPendingLafafs();
+                } else {
+                    showToast(data.message || 'حدث خطأ', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('خطأ في القبول:', error);
+                showToast('حدث خطأ أثناء القبول', 'error');
+            });
+        }
+    });
+}
+
+// رفض طلب النقل
+function rejectTransfer(barcode) {
+    Swal.fire({
+        title: 'رفض النقل',
+        text: 'هل تريد رفض نقل هذا اللفاف؟',
+        input: 'text',
+        inputPlaceholder: 'سبب الرفض (اختياري)',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'رفض',
+        cancelButtonText: 'إلغاء'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/stage3/reject-transfer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ 
+                    barcode: barcode,
+                    reason: result.value || ''
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(translations.reject_success, 'success');
+                    checkPendingTransfers();
+                } else {
+                    showToast(data.message || 'حدث خطأ', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('خطأ في الرفض:', error);
+                showToast('حدث خطأ أثناء الرفض', 'error');
+            });
+        }
+    });
+}
+
+// عرض لوحة العناصر المعلقة
+function renderPendingItemsPanel() {
+    const panel = document.getElementById('pendingItemsPanel');
+    const list = document.getElementById('pendingItemsList');
+    const countSpan = document.getElementById('pendingItemsCount');
+    
+    if (!panel || !list) return;
+    
+    countSpan.textContent = pendingItemsCount;
+    
+    if (pendingItemsCount === 0) {
+        panel.style.display = 'none';
+        return;
+    }
+    
+    panel.style.display = 'block';
+    
+    list.innerHTML = pendingItems.map(item => `
+        <div class="pending-item-card">
+            <div class="pending-item-info">
+                <div>
+                    <strong><i class="fas fa-barcode"></i> ${item.barcode}</strong>
+                    <div style="font-size:13px; color:#666; margin-top:4px;">
+                        ${item.material_name || 'غير محدد'} - ${item.output_weight || 0} كجم
+                    </div>
+                </div>
+                <div class="pending-item-actions">
+                    <button type="button" class="btn-load-item" onclick="loadPendingItem('${item.barcode}')">
+                        <i class="fas fa-arrow-left"></i> تحميل
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// تحميل عنصر معلق
+function loadPendingItem(barcode) {
+    if (!barcode) return;
+    
+    const barcodeInput = document.getElementById('stage2Barcode');
+    if (barcodeInput) {
+        barcodeInput.value = barcode;
+    }
+    loadStage2(barcode);
+}
 
 // Barcode scanner
 document.addEventListener('DOMContentLoaded', function() {
+    // جلب العناصر المعلقة
+    checkPendingItems();
+    checkPendingLafafs();
+    checkPendingTransfers();
+    
+    // تحديث تلقائي كل 30 ثانية
+    setInterval(() => {
+        checkPendingItems();
+        checkPendingLafafs();
+        checkPendingTransfers();
+    }, 30000);
+    
     const barcodeInput = document.getElementById('stage2Barcode');
 
     if (barcodeInput) {
@@ -771,6 +1298,15 @@ window.addLafaf = addLafaf;
 window.clearForm = clearForm;
 window.finishOperation = finishOperation;
 window.handlePrintClick = handlePrintClick;
+window.checkPendingItems = checkPendingItems;
+window.checkPendingLafafs = checkPendingLafafs;
+window.checkPendingTransfers = checkPendingTransfers;
+window.loadPendingItem = loadPendingItem;
+window.openTransferModal = openTransferModal;
+window.closeTransferModal = closeTransferModal;
+window.submitTransfer = submitTransfer;
+window.acceptTransfer = acceptTransfer;
+window.rejectTransfer = rejectTransfer;
 </script>
 
 @endsection

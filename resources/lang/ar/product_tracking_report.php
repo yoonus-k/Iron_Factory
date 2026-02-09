@@ -108,4 +108,8 @@ return [
     // Chart Labels
     'chart_production_label' => 'الإنتاج',
     'chart_waste_label' => 'الهدر',
+
+    // Pagination
+    'pagination_navigation' => 'التنقل بين صفحات السجلات',
+    'pagination_info' => 'إظهار :from إلى :to من أصل :total نتيجة',
 ];

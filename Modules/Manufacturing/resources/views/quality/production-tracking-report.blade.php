@@ -2,6 +2,10 @@
 
 @section('title', __('app.quality.tracking_report.title'))
 
+@push('head')
+<meta name="google" content="notranslate">
+@endpush
+
 @section('content')
     <div class="um-content-wrapper">
         <!-- Header Section -->
@@ -210,6 +214,12 @@
                                     <div style="font-size: 11px; color: #6b21a8; font-weight: 600; margin-bottom: 5px;">الوزن</div>
                                     <div style="font-size: 16px; font-weight: 700; color: #7c3aed;">{{ number_format($item['weight'], 2) }} كجم</div>
                                 </div>
+                                @if(isset($item['worker_name']) && $item['worker_name'] != 'غير محدد')
+                                <div>
+                                    <div style="font-size: 11px; color: #6b21a8; font-weight: 600; margin-bottom: 5px;">العامل</div>
+                                    <div style="font-size: 14px; color: #1e293b; font-weight: 600;">{{ $item['worker_name'] }}</div>
+                                </div>
+                                @endif
                             </div>
                             <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e9d5ff; font-size: 12px; color: #6b7280;">
                                 <i class="feather icon-clock"></i> {{ $item['formatted_time'] }}
@@ -224,41 +234,97 @@
 
         <!-- Forward Tracking (ماذا تم إنتاجه من هذا الباركود) -->
         @if(isset($forwardTracking) && count($forwardTracking) > 0)
+        @php
+            // حساب إجمالي المنتجات المشتقة (بما فيها الأطفال)
+            function countAllProducts($products) {
+                $count = count($products);
+                foreach ($products as $product) {
+                    if (!empty($product['children'])) {
+                        $count += countAllProducts($product['children']);
+                    }
+                }
+                return $count;
+            }
+            $totalProducts = countAllProducts($forwardTracking);
+        @endphp
         <section class="um-main-card" style="margin-bottom: 30px; border: 2px solid #10b981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);">
             <div class="um-card-header" style="background: linear-gradient(135deg, #34d399 0%, #10b981 100%); color: white;">
                 <h4 class="um-card-title" style="color: white; display: flex; align-items: center; gap: 10px;">
-                    <i class="feather icon-arrow-right-circle" style="font-size: 24px;"></i>
-                    <span>التتبع الأمامي - المنتجات المشتقة</span>
-                    <span class="um-badge" style="background: rgba(255,255,255,0.3); color: white;">{{ count($forwardTracking) }} منتج</span>
+                    <i class="feather icon-git-branch" style="font-size: 24px;"></i>
+                    <span>شجرة المنتجات المشتقة</span>
+                    <span class="um-badge" style="background: rgba(255,255,255,0.3); color: white;">{{ $totalProducts }} منتج</span>
                 </h4>
-                <p style="margin: 5px 0 0 0; font-size: 13px; opacity: 0.9;">ماذا تم إنتاجه من هذا الباركود؟</p>
+                <p style="margin: 5px 0 0 0; font-size: 13px; opacity: 0.9;">السلسلة الكاملة للمنتجات المشتقة من هذا الباركود</p>
             </div>
             <div style="padding: 25px; background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);">
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">
-                    @foreach($forwardTracking as $product)
-                    <div style="background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 2px solid #86efac;">
-                        <div style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 10px; border-radius: 8px; margin-bottom: 12px; text-align: center;">
-                            <div style="font-size: 10px; color: #065f46; font-weight: 600; margin-bottom: 4px;">الباركود</div>
-                            <div style="font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700; color: #047857;">{{ $product['barcode'] }}</div>
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <div style="font-size: 11px; color: #059669; font-weight: 600; margin-bottom: 3px;">المرحلة</div>
-                            <div style="font-size: 14px; color: #1e293b; font-weight: 600;">{{ $product['stage_name'] }}</div>
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <div style="font-size: 11px; color: #059669; font-weight: 600; margin-bottom: 3px;">الإجراء</div>
-                            <div style="font-size: 13px; color: #64748b;">{{ $product['action_name'] }}</div>
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <div style="font-size: 11px; color: #059669; font-weight: 600; margin-bottom: 3px;">الوزن</div>
-                            <div style="font-size: 18px; font-weight: 700; color: #10b981;">{{ number_format($product['weight'], 2) }} كجم</div>
-                        </div>
-                        <div style="padding-top: 8px; border-top: 1px solid #86efac; font-size: 11px; color: #6b7280;">
-                            <i class="feather icon-clock"></i> {{ $product['formatted_time'] }}
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
+                @php
+                    // دالة لعرض المنتجات بشكل شجري
+                    function renderProductTree($products, $depth = 0) {
+                        foreach ($products as $index => $product) {
+                            $isLast = $index === count($products) - 1;
+                            $hasChildren = !empty($product['children']);
+                            
+                            // تحديد اللون حسب العمق
+                            $colors = [
+                                ['bg' => '#d1fae5', 'border' => '#10b981', 'text' => '#047857'],
+                                ['bg' => '#dbeafe', 'border' => '#3b82f6', 'text' => '#1e40af'],
+                                ['bg' => '#fef3c7', 'border' => '#f59e0b', 'text' => '#92400e'],
+                                ['bg' => '#fce7f3', 'border' => '#ec4899', 'text' => '#9f1239'],
+                                ['bg' => '#e0e7ff', 'border' => '#6366f1', 'text' => '#3730a3'],
+                            ];
+                            $colorSet = $colors[$depth % count($colors)];
+                            
+                            echo '<div style="position: relative; margin-bottom: 15px; margin-right: ' . ($depth * 40) . 'px;">';
+                            
+                            // خط الاتصال
+                            if ($depth > 0) {
+                                echo '<div style="position: absolute; right: -30px; top: 0; width: 20px; height: 50%; border-bottom: 3px solid ' . $colorSet['border'] . '; border-right: 3px solid ' . $colorSet['border'] . '; border-bottom-right-radius: 10px;"></div>';
+                            }
+                            
+                            echo '<div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); border-right: 4px solid ' . $colorSet['border'] . ';">';
+                            
+                            // الباركود
+                            echo '<div style="background: ' . $colorSet['bg'] . '; padding: 10px; border-radius: 8px; margin-bottom: 10px; text-align: center;">';
+                            echo '<div style="font-size: 10px; color: ' . $colorSet['text'] . '; font-weight: 600; margin-bottom: 4px;">';
+                            echo $hasChildren ? '<i class="feather icon-git-branch"></i> الباركود الرئيسي' : '<i class="feather icon-box"></i> الباركود';
+                            echo '</div>';
+                            echo '<div style="font-family: \'Courier New\', monospace; font-size: 16px; font-weight: 700; color: ' . $colorSet['text'] . ';">' . e($product['barcode']) . '</div>';
+                            echo '</div>';
+                            
+                            // المعلومات
+                            echo '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 12px;">';
+                            echo '<div><span style="color: #64748b;">المرحلة:</span> <strong>' . e($product['stage_name']) . '</strong></div>';
+                            echo '<div><span style="color: #64748b;">الإجراء:</span> <strong>' . e($product['action_name']) . '</strong></div>';
+                            if (isset($product['worker_name']) && $product['worker_name'] != 'غير محدد') {
+                                echo '<div><span style="color: #64748b;">العامل:</span> <strong>' . e($product['worker_name']) . '</strong></div>';
+                            }
+                            echo '<div><span style="color: #64748b;">الوزن:</span> <strong style="color: #10b981;">' . number_format($product['weight'], 2) . ' كجم</strong></div>';
+                            echo '</div>';
+                            
+                            // الوقت
+                            echo '<div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e2e8f0; font-size: 11px; color: #94a3b8;">';
+                            echo '<i class="feather icon-clock"></i> ' . e($product['formatted_time']);
+                            echo '</div>';
+                            
+                            // عدد الأطفال
+                            if ($hasChildren) {
+                                echo '<div style="margin-top: 8px; padding: 6px 10px; background: ' . $colorSet['bg'] . '; border-radius: 6px; text-align: center; font-size: 11px; color: ' . $colorSet['text'] . '; font-weight: 600;">';
+                                echo '<i class="feather icon-arrow-down"></i> ' . count($product['children']) . ' منتج مشتق';
+                                echo '</div>';
+                            }
+                            
+                            echo '</div>'; // إغلاق الكارت
+                            echo '</div>'; // إغلاق الـ div الخارجي
+                            
+                            // عرض الأطفال
+                            if ($hasChildren) {
+                                renderProductTree($product['children'], $depth + 1);
+                            }
+                        }
+                    }
+                @endphp
+                
+                {!! renderProductTree($forwardTracking) !!}
             </div>
         </section>
         @endif
@@ -609,6 +675,20 @@
                                                     </span>
                                                 </div>
                                                 @endif
+                                                
+                                                <!-- Worker Info for this specific operation -->
+                                                @if(isset($item['worker_name']) && $item['worker_name'] != 'غير محدد')
+                                                <div style="background: #f0f9ff; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; border-right: 3px solid #0ea5e9;">
+                                                    <div style="background: #bae6fd; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="feather icon-user" style="color: #0369a1; font-size: 12px;"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-size: 9px; color: #0c4a6e; margin-bottom: 1px; font-weight: 600;">العامل المنفذ</div>
+                                                        <div style="color: #075985; font-weight: 600; font-size: 11px;">{{ $item['worker_name'] }}</div>
+                                                    </div>
+                                                </div>
+                                                @endif
+                                                
                                                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 12px; margin-top: 8px;">
                                                     @if($item['input_weight'] > 0)
                                                     <div style="background: #f0fdf4; padding: 8px; border-radius: 6px; text-align: center; border: 1px solid #bbf7d0;">

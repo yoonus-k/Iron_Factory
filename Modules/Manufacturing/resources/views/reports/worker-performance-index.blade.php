@@ -295,8 +295,8 @@
         <div class="stat-card success">
             <div class="stat-header">
                 <div>
-                    <div class="stat-title">{{ __('worker_performance.total_items_produced') }}</div>
-                    <p class="stat-value">{{ number_format($overallStats['total_items']) }}</p>
+                    <div class="stat-title">{{ __('worker_performance.total_items_produced') }} (المرحلة 1)</div>
+                    <p class="stat-value">{{ number_format($overallStats['total_items_stage1']) }}</p>
                 </div>
                 <div class="stat-icon success">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -309,8 +309,8 @@
         <div class="stat-card warning">
             <div class="stat-header">
                 <div>
-                    <div class="stat-title">{{ __('worker_performance.total_production_kg') }}</div>
-                    <p class="stat-value">{{ number_format($overallStats['total_output'], 2) }}</p>
+                    <div class="stat-title">{{ __('worker_performance.total_production_kg') }} (المرحلة 1)</div>
+                    <p class="stat-value">{{ number_format($overallStats['total_output_stage1'], 2) }}</p>
                 </div>
                 <div class="stat-icon warning">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -324,8 +324,8 @@
         <div class="stat-card success">
             <div class="stat-header">
                 <div>
-                    <div class="stat-title">{{ __('worker_performance.average_efficiency') }}</div>
-                    <p class="stat-value">{{ number_format($overallStats['avg_efficiency'], 1) }}%</p>
+                    <div class="stat-title">{{ __('worker_performance.average_efficiency') }} (المرحلة 1)</div>
+                    <p class="stat-value">{{ number_format($overallStats['avg_efficiency_stage1'], 1) }}%</p>
                 </div>
                 <div class="stat-icon success">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -421,13 +421,15 @@
                     <tr onclick="window.location='{{ route('manufacturing.reports.worker-performance.show', $worker['worker_id']) }}?date_from={{ $dateFrom }}&date_to={{ $dateTo }}'">
                         <td><strong>#{{ $index + 1 }}</strong></td>
                         <td class="worker-name">{{ $worker['worker_name'] }}</td>
-                        <td>{{ number_format($worker['totals']['items']) }}</td>
-                        <td>{{ number_format($worker['totals']['output'], 2) }}</td>
-                        <td>{{ number_format($worker['totals']['waste'], 2) }}</td>
-                        <td>{{ number_format($worker['totals']['waste_pct'], 2) }}%</td>
+                        <td>{{ number_format($worker['stage1']['items']) }}</td>
+                        <td>{{ number_format($worker['stage1']['output'], 2) }}</td>
+                        <td>{{ number_format($worker['stage1']['waste'], 2) }}</td>
+                        <td>{{ number_format($worker['stage1']['waste_pct'], 2) }}%</td>
                         <td>
                             @php
-                                $efficiency = $worker['totals']['efficiency'];
+                                $output = $worker['stage1']['output'];
+                                $waste = $worker['stage1']['waste'];
+                                $efficiency = $output > 0 ? 100 - (($waste / $output) * 100) : 0;
                                 $class = $efficiency >= 95 ? 'excellent' : ($efficiency >= 90 ? 'good' : ($efficiency >= 85 ? 'average' : 'poor'));
                             @endphp
                             <span class="efficiency-badge {{ $class }}">
@@ -459,17 +461,22 @@
     </div>
 
     <!-- المتصدرون -->
-    @if($overallStats['top_performer'] && $overallStats['most_productive'])
+    @if($overallStats['top_performer_stage1'] && $overallStats['most_productive_stage1'])
     <div class="top-performers">
         <div class="performer-card efficiency">
             <h3>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                 </svg>
-                {{ __('worker_performance.most_efficient') }}
+                {{ __('worker_performance.most_efficient') }} (المرحلة 1)
             </h3>
-            <p>{{ $overallStats['top_performer']['worker_name'] }}</p>
-            <div class="detail">{{ __('worker_performance.efficiency_label') }}: {{ number_format($overallStats['top_performer']['totals']['efficiency'], 1) }}%</div>
+            <p>{{ $overallStats['top_performer_stage1']['worker_name'] }}</p>
+            @php
+                $topOutput = $overallStats['top_performer_stage1']['stage1']['output'];
+                $topWaste = $overallStats['top_performer_stage1']['stage1']['waste'];
+                $topEfficiency = $topOutput > 0 ? 100 - (($topWaste / $topOutput) * 100) : 0;
+            @endphp
+            <div class="detail">{{ __('worker_performance.efficiency_label') }}: {{ number_format($topEfficiency, 1) }}%</div>
         </div>
 
         <div class="performer-card productivity">
@@ -477,10 +484,10 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
                 </svg>
-                {{ __('worker_performance.most_productive') }}
+                {{ __('worker_performance.most_productive') }} (المرحلة 1)
             </h3>
-            <p>{{ $overallStats['most_productive']['worker_name'] }}</p>
-            <div class="detail">{{ number_format($overallStats['most_productive']['totals']['items']) }} {{ __('worker_performance.pieces_label') }}</div>
+            <p>{{ $overallStats['most_productive_stage1']['worker_name'] }}</p>
+            <div class="detail">{{ number_format($overallStats['most_productive_stage1']['stage1']['items']) }} {{ __('worker_performance.pieces_label') }}</div>
         </div>
     </div>
     @endif

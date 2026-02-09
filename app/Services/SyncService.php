@@ -8,6 +8,7 @@ use App\Models\PendingSync;
 use App\Models\UserLastSync;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Exception;
 
@@ -184,16 +185,33 @@ class SyncService
             $tables = $this->getSyncableTables();
 
             foreach ($tables as $table => $modelClass) {
-                $query = $modelClass::where('is_synced', true);
+                try {
+                    // فحص ما إذا كان الجدول يحتوي على عمود is_synced
+                    $hasIsSynced = Schema::hasColumn($table, 'is_synced');
+                    $hasUpdatedAt = Schema::hasColumn($table, 'updated_at');
 
-                if ($lastSyncTime) {
-                    $query->where('updated_at', '>', $lastSyncTime);
-                }
+                    $query = $modelClass::query();
 
-                $items = $query->get();
+                    // إذا كان العمود موجوداً، فلتر به
+                    if ($hasIsSynced) {
+                        $query->where('is_synced', true);
+                    }
 
-                if ($items->isNotEmpty()) {
-                    $updates[$table] = $items->toArray();
+                    // فلتر حسب تاريخ التحديث إذا متوفر
+                    if ($lastSyncTime && $hasUpdatedAt) {
+                        $query->where('updated_at', '>', $lastSyncTime);
+                    }
+
+                    $items = $query->get();
+
+                    if ($items->isNotEmpty()) {
+                        $updates[$table] = $items->toArray();
+                    }
+                } catch (Exception $tableException) {
+                    Log::warning("Failed to sync table: $table", [
+                        'error' => $tableException->getMessage(),
+                    ]);
+                    continue;
                 }
             }
 
@@ -427,21 +445,110 @@ class SyncService
     protected function getSyncableTables()
     {
         return [
+            // المواد والمخزون
             'materials' => \App\Models\Material::class,
-            'delivery_notes' => \App\Models\DeliveryNote::class,
+            'material_details' => \App\Models\MaterialDetail::class,
+            'material_movements' => \App\Models\MaterialMovement::class,
+            'material_types' => \App\Models\MaterialType::class,
+            'units' => \App\Models\Unit::class,
+            
+            // المستودعات
+            'warehouses' => \App\Models\Warehouse::class,
             'warehouse_transactions' => \App\Models\WarehouseTransaction::class,
+            'warehouse_intake_requests' => \App\Models\WarehouseIntakeRequest::class,
+            'warehouse_intake_items' => \App\Models\WarehouseIntakeItem::class,
+            
+            // أذون التسليم والفواتير
+            'delivery_notes' => \App\Models\DeliveryNote::class,
+            'delivery_note_items' => \App\Models\DeliveryNoteItem::class,
+            'delivery_note_coils' => \App\Models\DeliveryNoteCoil::class,
             'purchase_invoices' => \App\Models\PurchaseInvoice::class,
+            'purchase_invoice_items' => \App\Models\PurchaseInvoiceItem::class,
+            
+            // مراحل الإنتاج
             'stage1_stands' => \App\Models\Stage1Stand::class,
             'stage2_processed' => \App\Models\Stage2Processed::class,
             'stage3_coils' => \App\Models\Stage3Coil::class,
             'stage4_boxes' => \App\Models\Stage4Box::class,
+            'box_coils' => \App\Models\BoxCoil::class,
+            'production_stages' => \App\Models\ProductionStage::class,
+            'production_confirmations' => \App\Models\ProductionConfirmation::class,
+            'stage_suspensions' => \App\Models\StageSuspension::class,
+            
+            // الاستاندات
+            'stands' => \App\Models\Stand::class,
+            'stand_usage_history' => \App\Models\StandUsageHistory::class,
+            
+            // نقل الكويلات والتتبع
+            'coil_transfers' => \App\Models\CoilTransfer::class,
+            'product_tracking' => \App\Models\ProductTracking::class,
+            
+            // الهدر
+            'waste_limits' => \App\Models\WasteLimit::class,
+            'waste_tracking' => \App\Models\WasteTracking::class,
+            
+            // التغليف
+            'wrappings' => \App\Models\Wrapping::class,
+            
+            // المستخدمين والعمال
             'users' => \App\Models\User::class,
+            'user_permissions' => \App\Models\UserPermission::class,
             'workers' => \App\Models\Worker::class,
+            'worker_stage_history' => \App\Models\WorkerStageHistory::class,
+            'worker_teams' => \App\Models\WorkerTeam::class,
+            
+            // الصلاحيات والأدوار
+            'roles' => \App\Models\Role::class,
+            'permissions' => \App\Models\Permission::class,
+            
+            // الورديات
+            'shift_assignments' => \App\Models\ShiftAssignment::class,
+            'shift_handovers' => \App\Models\ShiftHandover::class,
+            'shift_operation_logs' => \App\Models\ShiftOperationLog::class,
+            'shift_transfer_history' => \App\Models\ShiftTransferHistory::class,
+            
+            // الموردين والعملاء
             'suppliers' => \App\Models\Supplier::class,
             'customers' => \App\Models\Customer::class,
-            'warehouses' => \App\Models\Warehouse::class,
-            'wrappings' => \App\Models\Wrapping::class,
-            // أضف المزيد حسب الحاجة
+            
+            // الباركود
+            'barcodes' => \App\Models\Barcode::class,
+            'barcode_settings' => \App\Models\BarcodeSetting::class,
+            
+            // الإعدادات والنظام
+            'system_settings' => \App\Models\SystemSetting::class,
+            'system_formulas' => \App\Models\SystemFormula::class,
+            'translations' => \App\Models\Translation::class,
+            
+            // الإشعارات والسجلات
+            'notifications' => \App\Models\Notification::class,
+            'operation_logs' => \App\Models\OperationLog::class,
+            'registration_logs' => \App\Models\RegistrationLog::class,
+            'reconciliation_logs' => \App\Models\ReconciliationLog::class,
+            
+            // الإحصائيات والتقارير
+            'daily_statistics' => \App\Models\DailyStatistics::class,
+            'generated_reports' => \App\Models\GeneratedReport::class,
+            
+            // المخزون الإضافي
+            'additives_inventory' => \App\Models\AdditivesInventory::class,
+            
+            // المزامنة (لا تُزامن ذاتياً لكن يمكن تتبعها)
+            'sync_logs' => \App\Models\SyncLog::class,
+            'sync_histories' => \App\Models\SyncHistory::class,
+            'pending_syncs' => \App\Models\PendingSync::class,
+            'user_last_sync' => \App\Models\UserLastSync::class,
+            'user_last_syncs' => \App\Models\UserLastSync::class, // اسم بديل
+            
+            // الجداول الإضافية
+            'material_batches' => \App\Models\MaterialBatch::class,
+            'iron_journey_logs' => \App\Models\IronJourneyLog::class,
+            'role_permissions' => \App\Models\RolePermission::class,
+            'worker_permissions' => \App\Models\WorkerPermission::class,
+            
+            // ملاحظة: الجداول التالية هي جداول Laravel الداخلية ولا تحتاج للمزامنة:
+            // cache, cache_locks, failed_jobs, job_batches, jobs, migrations, 
+            // password_reset_tokens, personal_access_tokens, sessions
         ];
     }
 }

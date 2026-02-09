@@ -90,6 +90,14 @@ class ShiftAssignment extends Model
             return collect();
         }
 
+        // البحث أولاً في جدول users (الأرقام قد تكون user_ids)
+        $users = \App\Models\User::whereIn('id', $workerIds)->get();
+        
+        if ($users->count() > 0) {
+            return $users;
+        }
+        
+        // إذا لم يُعثر على مستخدمين، البحث في جدول workers
         return \App\Models\Worker::whereIn('id', $workerIds)->get();
     }
 

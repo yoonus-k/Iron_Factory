@@ -301,29 +301,17 @@
                 ← {{ __('delivery_notes.back') }}
             </a>
         @else
+        <input type="hidden" name="type" value="incoming">
+
         <div class="simple-card">
-            <div class="card-title">
-                🔄 {{ __('delivery_notes.type') }}
-            </div>
-
-            <div class="type-selector">
-                <label class="type-option">
-                    <input type="radio" name="type" value="incoming" checked>
-                    <div class="type-content">
-                        <div class="type-icon">📥</div>
-                        <div class="type-text">{{ __('delivery_notes.incoming') }}</div>
-                        <small>{{ __('delivery_notes.from_supplier') }}</small>
+            <div class="type-selector" style="width: 100%; display: block;">
+                <div class="type-option" style="cursor: default; width: 100%; display: block;">
+                    <div class="type-content" style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 0;">
+                        <div class="type-icon" style="font-size: 48px;">📥</div>
+                        <div class="type-text" style="font-size: 26px; margin-top: 10px;">{{ __('delivery_notes.incoming') }}</div>
+                        <small style="font-size: 16px; margin-top: 5px;">{{ __('delivery_notes.from_supplier') }}</small>
                     </div>
-                </label>
-
-                <label class="type-option">
-                    <input type="radio" name="type" value="outgoing">
-                    <div class="type-content">
-                        <div class="type-icon">📤</div>
-                        <div class="type-text">{{ __('delivery_notes.outgoing') }}</div>
-                        <small>{{ __('delivery_notes.to_outside') }}</small>
-                    </div>
-                </label>
+                </div>
             </div>
         </div>
 
@@ -445,43 +433,6 @@
             </div>
         </div>
 
-        <div class="simple-card" id="outgoingCard" style="display: none;">
-            <div class="card-title">
-                📤 {{ __('delivery_notes.outgoing_shipment_data') }}
-            </div>
-
-            <div class="form-group-simple">
-                <label class="label-simple">🏢 {{ __('delivery_notes.source_warehouse') }} <span class="required-mark">*</span></label>
-                <select name="warehouse_from_id" id="warehouseFromSelect" class="input-simple">
-                    <option value="">{{ __('delivery_notes.select_warehouse') }}</option>
-                    @foreach($warehouses ?? [] as $warehouse)
-                        <option value="{{ $warehouse->id }}">{{ $warehouse->warehouse_name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="form-group-simple">
-                <label class="label-simple">📦 {{ __('delivery_notes.material') }} <span class="required-mark">*</span></label>
-                <select name="material_detail_id" id="materialDetailSelect" class="input-simple">
-                    <option value="">{{ __('delivery_notes.select_material') }}</option>
-                </select>
-            </div>
-
-            <div class="form-group-simple">
-                <label class="label-simple">⚖️ {{ __('delivery_notes.quantity') }} <span class="required-mark">*</span></label>
-                <input type="number" name="delivery_quantity" class="input-simple" placeholder="{{ __('delivery_notes.enter_quantity_placeholder') }}" step="0.01" min="0.01">
-            </div>
-
-            <div class="form-group-simple">
-                <label class="label-simple">🎯 {{ __('delivery_notes.destination') }} <span class="required-mark">*</span></label>
-                <select name="destination_id" class="input-simple">
-                    <option value="">{{ __('delivery_notes.select_destination') }}</option>
-                    <option value="client">👤 {{ __('delivery_notes.to_client') }}</option>
-                    <option value="production_transfer">🚚 {{ __('delivery_notes.production_transfer') }}</option>
-                </select>
-            </div>
-        </div>
-
         <div style="margin-top: 30px;">
             <button type="submit" class="btn-submit-simple">
                 <span style="font-size: 24px;">✓</span>
@@ -497,9 +448,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const typeRadios = document.querySelectorAll('input[name="type"]');
-    const incomingCard = document.getElementById('incomingCard');
-    const outgoingCard = document.getElementById('outgoingCard');
     const hasCoilsCheckbox = document.getElementById('hasCoilsCheckbox');
     const coilsSection = document.getElementById('coilsSection');
     const totalQuantityInput = document.getElementById('totalQuantity');
@@ -530,33 +478,6 @@ document.addEventListener('DOMContentLoaded', function() {
         addCoilBtnContainer.style.display = 'block';
         newCoilNumberInput.value = '';
         newCoilWeightInput.value = '';
-    });
-
-    // Toggle between incoming and outgoing
-    typeRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.value === 'incoming') {
-                incomingCard.style.display = 'block';
-                outgoingCard.style.display = 'none';
-                document.querySelector('[name="warehouse_id"]').required = true;
-                document.querySelector('[name="material_id"]').required = true;
-                document.querySelector('[name="quantity"]').required = true;
-                document.querySelector('[name="warehouse_from_id"]').required = false;
-                document.querySelector('[name="material_detail_id"]').required = false;
-                document.querySelector('[name="delivery_quantity"]').required = false;
-                document.querySelector('[name="destination_id"]').required = false;
-            } else {
-                incomingCard.style.display = 'none';
-                outgoingCard.style.display = 'block';
-                document.querySelector('[name="warehouse_id"]').required = false;
-                document.querySelector('[name="material_id"]').required = false;
-                document.querySelector('[name="quantity"]').required = false;
-                document.querySelector('[name="warehouse_from_id"]').required = true;
-                document.querySelector('[name="material_detail_id"]').required = true;
-                document.querySelector('[name="delivery_quantity"]').required = true;
-                document.querySelector('[name="destination_id"]').required = true;
-            }
-        });
     });
 
     // Toggle coils section

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="google" content="notranslate">
     <title>{{ $title ?? __('app.menu.dashboard') }}</title>
     <link rel="shortcut icon" href="{{ asset('assets/images/logo/logo-dark.jpg') }}" type="image/x-icon">
     <!-- Bootstrap CSS -->

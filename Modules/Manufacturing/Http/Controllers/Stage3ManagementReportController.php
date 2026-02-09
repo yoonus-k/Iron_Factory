@@ -72,11 +72,11 @@ class Stage3ManagementReportController extends Controller
         if (request('waste_level')) {
             $wasteLevel = request('waste_level');
             if ($wasteLevel === 'safe') {
-                $query->whereRaw('(waste / total_weight) * 100 <= 8');
+                $query->whereRaw('(waste / base_weight) * 100 <= 8');
             } elseif ($wasteLevel === 'warning') {
-                $query->whereRaw('(waste / total_weight) * 100 > 8 AND (waste / total_weight) * 100 <= 15');
+                $query->whereRaw('(waste / base_weight) * 100 > 8 AND (waste / base_weight) * 100 <= 15');
             } elseif ($wasteLevel === 'critical') {
-                $query->whereRaw('(waste / total_weight) * 100 > 15');
+                $query->whereRaw('(waste / base_weight) * 100 > 15');
             }
             $filters['waste_level'] = $wasteLevel;
         }
@@ -125,8 +125,8 @@ class Stage3ManagementReportController extends Controller
 
         // ========== WASTE PERCENTAGES ==========
         $stage3WastePercentages = $stage3Records->map(function ($record) {
-            if ($record->total_weight > 0) {
-                return (($record->waste) / $record->total_weight) * 100;
+            if ($record->base_weight > 0) {
+                return (($record->waste) / $record->base_weight) * 100;
             }
             return 0;
         })->filter(function ($val) {
@@ -139,16 +139,16 @@ class Stage3ManagementReportController extends Controller
 
         // Find best and worst performing records
         $stage3MaxWasteRecord = $stage3Records->sortByDesc(function ($record) {
-            if ($record->total_weight > 0) {
-                return (($record->waste) / $record->total_weight) * 100;
+            if ($record->base_weight > 0) {
+                return (($record->waste) / $record->base_weight) * 100;
             }
             return 0;
         })->first();
         $stage3MaxWasteBarcode = $stage3MaxWasteRecord ? $stage3MaxWasteRecord->barcode : '-';
 
         $stage3MinWasteRecord = $stage3Records->sortBy(function ($record) {
-            if ($record->total_weight > 0) {
-                return (($record->waste) / $record->total_weight) * 100;
+            if ($record->base_weight > 0) {
+                return (($record->waste) / $record->base_weight) * 100;
             }
             return 0;
         })->first();
@@ -157,11 +157,11 @@ class Stage3ManagementReportController extends Controller
         // ========== WORKER PERFORMANCE ==========
         $stage3WorkerPerformance = $stage3Records->groupBy('created_by_name')->map(function ($items, $workerName) {
             $count = $items->count();
-            $totalWeight = round($items->sum('total_weight'), 2);
+            $totalBaseWeight = round($items->sum('base_weight'), 2);
             $totalWaste = round($items->sum('waste'), 2);
             $wastePercs = $items->map(function ($record) {
-                if ($record->total_weight > 0) {
-                    return (($record->waste) / $record->total_weight) * 100;
+                if ($record->base_weight > 0) {
+                    return (($record->waste) / $record->base_weight) * 100;
                 }
                 return 0;
             })->filter(function ($val) {
@@ -171,7 +171,7 @@ class Stage3ManagementReportController extends Controller
             return [
                 'name' => $workerName,
                 'count' => $count,
-                'total_weight' => $totalWeight,
+                'total_base_weight' => $totalBaseWeight,
                 'total_waste' => $totalWaste,
                 'avg_waste' => $wastePercs->count() > 0 ? round($wastePercs->avg(), 2) : 0,
             ];
@@ -208,24 +208,24 @@ class Stage3ManagementReportController extends Controller
 
         // ========== ACCEPTABLE / WARNING / CRITICAL WASTE ==========
         $stage3AcceptableWaste = $stage3Records->filter(function ($record) {
-            if ($record->total_weight > 0) {
-                $waste = (($record->waste) / $record->total_weight) * 100;
+            if ($record->base_weight > 0) {
+                $waste = (($record->waste) / $record->base_weight) * 100;
                 return $waste <= 8;
             }
             return true;
         })->count();
 
         $stage3WarningWaste = $stage3Records->filter(function ($record) {
-            if ($record->total_weight > 0) {
-                $waste = (($record->waste) / $record->total_weight) * 100;
+            if ($record->base_weight > 0) {
+                $waste = (($record->waste) / $record->base_weight) * 100;
                 return $waste > 8 && $waste <= 15;
             }
             return false;
         })->count();
 
         $stage3CriticalWaste = $stage3Records->filter(function ($record) {
-            if ($record->total_weight > 0) {
-                $waste = (($record->waste) / $record->total_weight) * 100;
+            if ($record->base_weight > 0) {
+                $waste = (($record->waste) / $record->base_weight) * 100;
                 return $waste > 15;
             }
             return false;
@@ -242,8 +242,8 @@ class Stage3ManagementReportController extends Controller
             $totalWaste = round($records->sum('waste'), 2);
 
             $wastePercs = $records->map(function ($record) {
-                if ($record->total_weight > 0) {
-                    return (($record->waste) / $record->total_weight) * 100;
+                if ($record->base_weight > 0) {
+                    return (($record->waste) / $record->base_weight) * 100;
                 }
                 return 0;
             })->filter(function ($val) {

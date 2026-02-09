@@ -249,29 +249,16 @@
         @csrf
 
         <!-- نوع الأذن -->
+        <input type="hidden" name="type" value="incoming">
         <div class="simple-card">
-            <div class="card-title">
-                🔄 نوع الأذن
-            </div>
-            
-            <div class="type-selector">
-                <label class="type-option">
-                    <input type="radio" name="type" value="incoming" checked>
-                    <div class="type-content">
-                        <div class="type-icon">📥</div>
-                        <div class="type-text">واردة</div>
-                        <small>من المورد</small>
+            <div class="type-selector" style="width: 100%; display: block;">
+                <div class="type-option" style="cursor: default; width: 100%; display: block;">
+                    <div class="type-content" style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 0;">
+                        <div class="type-icon" style="font-size: 48px;">📥</div>
+                        <div class="type-text" style="font-size: 26px; margin-top: 10px;">واردة</div>
+                        <small style="font-size: 16px; margin-top: 5px;">من المورد</small>
                     </div>
-                </label>
-                
-                <label class="type-option">
-                    <input type="radio" name="type" value="outgoing">
-                    <div class="type-content">
-                        <div class="type-icon">📤</div>
-                        <div class="type-text">صادرة</div>
-                        <small>للخارج</small>
-                    </div>
-                </label>
+                </div>
             </div>
         </div>
 
@@ -330,44 +317,6 @@
             </div>
         </div>
 
-        <!-- بيانات الشحنة الصادرة -->
-        <div class="simple-card" id="outgoingCard" style="display: none;">
-            <div class="card-title">
-                📤 بيانات الشحنة الصادرة
-            </div>
-            
-            <div class="form-group-simple">
-                <label class="label-simple">🏢 المستودع المصدر <span class="required-mark">*</span></label>
-                <select name="warehouse_from_id" id="warehouseFromSelect" class="input-simple">
-                    <option value="">اختر المستودع</option>
-                    @foreach($warehouses ?? [] as $warehouse)
-                        <option value="{{ $warehouse->id }}">{{ $warehouse->warehouse_name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            
-            <div class="form-group-simple">
-                <label class="label-simple">📦 المادة <span class="required-mark">*</span></label>
-                <select name="material_detail_id" id="materialDetailSelect" class="input-simple">
-                    <option value="">اختر المادة</option>
-                </select>
-            </div>
-            
-            <div class="form-group-simple">
-                <label class="label-simple">⚖️ الكمية <span class="required-mark">*</span></label>
-                <input type="number" name="delivery_quantity" class="input-simple" placeholder="أدخل الكمية" step="0.01" min="0.01">
-            </div>
-            
-            <div class="form-group-simple">
-                <label class="label-simple">🎯 الوجهة <span class="required-mark">*</span></label>
-                <select name="destination_id" class="input-simple">
-                    <option value="">اختر الوجهة</option>
-                    <option value="client">👤 للعميل</option>
-                    <option value="production_transfer">🚚 نقل للإنتاج</option>
-                </select>
-            </div>
-        </div>
-
         <!-- الأزرار -->
         <div style="margin-top: 30px;">
             <button type="submit" class="btn-submit-simple">
@@ -380,71 +329,5 @@
         </div>
     </form>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const typeRadios = document.querySelectorAll('input[name="type"]');
-    const incomingCard = document.getElementById('incomingCard');
-    const outgoingCard = document.getElementById('outgoingCard');
-    
-    typeRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.value === 'incoming') {
-                incomingCard.style.display = 'block';
-                outgoingCard.style.display = 'none';
-                // تفعيل required للواردة
-                document.querySelector('[name="warehouse_id"]').required = true;
-                document.querySelector('[name="material_id"]').required = true;
-                document.querySelector('[name="quantity"]').required = true;
-                // إلغاء required للصادرة
-                document.querySelector('[name="warehouse_from_id"]').required = false;
-                document.querySelector('[name="material_detail_id"]').required = false;
-                document.querySelector('[name="delivery_quantity"]').required = false;
-                document.querySelector('[name="destination_id"]').required = false;
-            } else {
-                incomingCard.style.display = 'none';
-                outgoingCard.style.display = 'block';
-                // إلغاء required للواردة
-                document.querySelector('[name="warehouse_id"]').required = false;
-                document.querySelector('[name="material_id"]').required = false;
-                document.querySelector('[name="quantity"]').required = false;
-                // تفعيل required للصادرة
-                document.querySelector('[name="warehouse_from_id"]').required = true;
-                document.querySelector('[name="material_detail_id"]').required = true;
-                document.querySelector('[name="delivery_quantity"]').required = true;
-                document.querySelector('[name="destination_id"]').required = true;
-            }
-        });
-    });
-    
-    // تحميل المواد للصادرة بناءً على المستودع
-    const warehouseFromSelect = document.getElementById('warehouseFromSelect');
-    const materialDetailSelect = document.getElementById('materialDetailSelect');
-    
-    warehouseFromSelect.addEventListener('change', function() {
-        const warehouseId = this.value;
-        materialDetailSelect.innerHTML = '<option value="">جاري التحميل...</option>';
-        
-        if (warehouseId) {
-            fetch(`/manufacturing/warehouses/${warehouseId}/materials`)
-                .then(response => response.json())
-                .then(data => {
-                    materialDetailSelect.innerHTML = '<option value="">اختر المادة</option>';
-                    data.forEach(item => {
-                        const option = document.createElement('option');
-                        option.value = item.id;
-                        option.textContent = `${item.material_name} (متاح: ${item.quantity} ${item.unit_name})`;
-                        materialDetailSelect.appendChild(option);
-                    });
-                })
-                .catch(error => {
-                    materialDetailSelect.innerHTML = '<option value="">خطأ في التحميل</option>';
-                });
-        } else {
-            materialDetailSelect.innerHTML = '<option value="">اختر المادة</option>';
-        }
-    });
-});
-</script>
 
 @endsection

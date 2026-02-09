@@ -171,7 +171,7 @@ return [
     'update_date' => 'تاريخ التحديث',
     'shift_details_card' => 'معلومات الوردية',
     'shift_workers_count' => 'معلومات إضافية',
-    'shift_workers_list' => 'العمال المعينون ({count})',
+    'shift_workers_list' => 'العمال المعينون (:count)',
     'shift_notes_section' => 'الملاحظات',
     'read_only_field' => 'حقل للقراءة فقط',
     'status_name' => 'الحالة',
@@ -833,7 +833,7 @@ return [
 
     // WIP Alert
     'wip_alert_title' => 'تنبيه: قطع قيد التشغيل',
-    'wip_alert_message' => 'يوجد {count} قطعة عالقة في مراحل الإنتاج. يرجى المتابعة.',
+    'wip_alert_message' => 'يوجد :count قطعة عالقة في مراحل الإنتاج. يرجى المتابعة.',
     'pieces_in_progress' => 'قطعة قيد التشغيل',
     'please_follow_up' => 'يرجى المتابعة',
 
@@ -845,7 +845,7 @@ return [
     'kilogram' => 'كيلوجرام',
     'kg' => 'كجم',
     'pieces' => 'قطعة',
-    'pieces_count' => '{count} قطعة',
+    'pieces_count' => ':count قطعة',
 
     // Stage Efficiency
     'stage_efficiency_details' => 'تفاصيل كفاءة المراحل',
@@ -866,14 +866,23 @@ return [
     'stage_distribution' => 'توزيع الإنتاج حسب كل مرحلة',
     'pieces_count_chart' => 'عدد القطع',
 
+    // Main Statistics
+    'active_workers' => 'العمال النشطون',
+    'total_workers_active' => 'إجمالي العمال النشطين',
+    'active_stages' => 'المراحل النشطة',
+    'out_of_four_stages' => 'من أصل 4 مراحل',
+    'wip_items' => 'القطع قيد التشغيل',
+    'items_in_production' => 'قطعة قيد الإنتاج',
+    'shift_type' => 'نوع الوردية',
+
     // Top Performers
     'top_performers' => 'الأداء المتميز في هذه الوردية',
-    'worker_stats_format' => '{items} قطعة • {output} كيلوجرام • هدر {waste}%',
+    'worker_stats_format' => ':items قطعة • :output كيلوجرام • هدر :waste%',
     'efficiency_label' => 'الكفاءة',
     'no_data_for_shift' => 'لا توجد بيانات لهذه الوردية',
 
     // Worker Attendance
-    'worker_attendance' => 'حضور العمال ({count} عامل)',
+    'worker_attendance' => 'حضور العمال (:count عامل)',
     'attendance_table_headers' => [
         'number' => '#',
         'name' => 'الاسم',
@@ -886,17 +895,17 @@ return [
         'efficiency' => 'الكفاءة',
         'hours' => 'الساعات',
     ],
-    'stage_label' => 'مرحلة {number}',
+    'stage_label' => 'مرحلة :number',
     'hours_short' => 'س',
     'no_attendance_data' => 'لا توجد بيانات للحضور',
 
     // Shift Handovers Section
-    'shift_handovers_list' => 'نقل الورديات ({count})',
-    'items_transferred' => '{count} قطعة تم نقلها',
-    'handover_time_label' => 'الوقت: {time}',
+    'shift_handovers_list' => 'نقل الورديات (:count)',
+    'items_transferred' => ':count قطعة تم نقلها',
+    'handover_time_label' => 'الوقت: :time',
     'approved_status' => 'موافق عليه',
     'pending_status' => 'قيد الانتظار',
-    'from_to_format' => '{from} → {to}',
+    'from_to_format' => ':from → :to',
 
     // Active Teams Section
     'active_teams_list' => 'الفرق العاملة ({count})',
